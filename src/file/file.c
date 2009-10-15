@@ -1,32 +1,34 @@
 
 #include "file.h"
 
-FILE_H* file_open(const char* filename, uint8_t mode)
+extern const struct file_type file_linux;
+
+FILE_H *file_open(const char *filename, const char *mode)
 {
-    //return file_open_linux(filename, mode);
+    return file_linux.open(filename, mode);
 }
 
-void file_close(FILE_H* file)
+void file_close(FILE_H *file)
 {
     file->close(file);
 }
 
-uint64_t file_seek(FILE_H* file, uint64_t offset, uint64_t origin)
+int64_t file_seek(FILE_H *file, int64_t offset, int32_t origin)
 {
-    file->seek(file, offset, origin);
+    return file->seek(file, offset, origin);
 }
 
-uint64_t file_tell(FILE_H* file)
+int64_t file_tell(FILE_H *file)
 {
-    file->tell(file);
+    return file->tell(file);
 }
 
-int file_read(FILE_H* file, uint8_t *buf, uint64_t count)
+int file_read(FILE_H *file, uint8_t *buf, int64_t count)
 {
-    file->read(file, buf, count);
+    return file->read(file, buf, count);
 }
 
-int file_write(FILE_H* file, uint8_t *buf, uint64_t count)
+int file_write(FILE_H *file, uint8_t *buf, int64_t count)
 {
-    file->write(file, buf, count);
+    return file->write(file, buf, count);
 }

@@ -4,24 +4,35 @@
 
 #include <stdint.h>
 #include <unistd.h>
-#include <stdio.h>
+
+enum OS {
+    LINUX,
+    OSX,
+    BSD,
+};
 
 typedef struct file FILE_H;
 struct file
 {
     void* internal;
-    void (*close)(FILE_H* file);
-    uint64_t (*seek)(FILE_H* file, uint64_t offset, uint64_t origin);
-    uint64_t (*tell)(FILE_H* file);
-    int (*read)(FILE_H* file, uint8_t *buf, uint64_t count);
-    int (*write)(FILE_H* file, uint8_t *buf, uint64_t count);
+    void (*close)(FILE_H *file);
+    int64_t (*seek)(FILE_H *file, int64_t offset, int32_t origin);
+    int64_t (*tell)(FILE_H *file);
+    int (*read)(FILE_H *file, uint8_t *buf, int64_t count);
+    int (*write)(FILE_H *file, uint8_t *buf, int64_t count);
 };
 
-FILE_H *file_open(const char* filename, uint8_t mode);
-void file_close(FILE_H* file);
-uint64_t file_seek(FILE_H* file, uint64_t offset, uint64_t origin);
-uint64_t file_tell(FILE_H* file);
-int file_read(FILE_H* file, uint8_t *buf, uint64_t count);
-int file_write(FILE_H* file, uint8_t *buf, uint64_t count);
+struct file_type
+{
+    enum OS os;
+    FILE_H *(*open)(const char *filename, const char *mode);
+};
+
+FILE_H *file_open(const char *filename, const char *mode);
+void file_close(FILE_H *file);
+int64_t file_seek(FILE_H *file, int64_t offset, int32_t origin);
+int64_t file_tell(FILE_H *file);
+int file_read(FILE_H *file, uint8_t *buf, int64_t count);
+int file_write(FILE_H *file, uint8_t *buf, int64_t count);
 
 #endif /* FILE_H_ */
