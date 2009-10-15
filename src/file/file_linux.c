@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "file.h"
+#include "../util/macro.h"
 
 FILE_H *file_open_linux(const char* filename, const char *mode);
 void file_close_linux(FILE_H *file);
@@ -15,6 +16,7 @@ int file_write_linux(FILE_H *file, uint8_t *buf, int64_t size);
 void file_close_linux(FILE_H *file)
 {
     fclose((FILE *)file->internal);
+    X_FREE(file->internal);
 }
 
 int64_t file_seek_linux(FILE_H *file, int64_t offset, int32_t origin)
@@ -56,8 +58,3 @@ FILE_H *file_open_linux(const char* filename, const char *mode)
 
     return NULL;
 }
-
-const struct file_type file_linux = {
-    LINUX,
-    file_open_linux
-};

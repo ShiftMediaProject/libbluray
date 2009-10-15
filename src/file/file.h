@@ -5,11 +5,15 @@
 #include <stdint.h>
 #include <unistd.h>
 
-enum OS {
-    LINUX,
-    OSX,
-    BSD,
-};
+//#ifdef __LINUX__
+#define file_open file_open_linux
+//#endif
+
+#define file_close(X) X->close(X)
+#define file_seek(X,Y,Z) X->seek(X,Y,Z)
+#define file_tell(X) X->tell(X)
+#define file_read(X,Y,Z) X->read(X,Y,Z)
+#define file_write(X,Y,Z) X->write(X,Y,Z)
 
 typedef struct file FILE_H;
 struct file
@@ -22,17 +26,6 @@ struct file
     int (*write)(FILE_H *file, uint8_t *buf, int64_t size);
 };
 
-struct file_type
-{
-    enum OS os;
-    FILE_H *(*open)(const char *filename, const char *mode);
-};
-
-FILE_H *file_open(const char *filename, const char *mode);
-void file_close(FILE_H *file);
-int64_t file_seek(FILE_H *file, int64_t offset, int32_t origin);
-int64_t file_tell(FILE_H *file);
-int file_read(FILE_H *file, uint8_t *buf, int64_t size);
-int file_write(FILE_H *file, uint8_t *buf, int64_t size);
+extern FILE_H *file_open_linux(const char* filename, const char *mode);
 
 #endif /* FILE_H_ */

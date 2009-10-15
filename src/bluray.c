@@ -31,6 +31,40 @@ void bd_close(BLURAY *bd)
 
     X_FREE(bd);
 
-    dlclose(bd->libbdplus_h);
     dlclose(bd->libaacs_h);
+}
+
+off_t bd_seek(BLURAY *bd, off_t pos)
+{
+    if (pos < bd->s_size) {
+        bd->s_pos = pos - (pos % 6144);
+
+        file_seek(bd->fp, bd->s_pos, SEEK_SET);
+    }
+
+    return bd->s_pos;
+}
+
+int bd_read(BLURAY *bd, unsigned char *buf, int len)
+{
+    if (len + bd->s_pos < bd->s_size) {
+        int read;
+
+        if ((read = file_read(bd->fp, buf, len))) {
+            if (bd->libaacs_h) {
+                typedef int* (*fptr)();
+
+                fptr fptr_s = dlsym(bd->libaacs_h, "aacs_decrypt_unit");
+                if (!fptr_s(bd->aacs, buf, len)) {
+                    return 0;
+                }
+            }
+
+            bd->s_pos += len;
+
+            return read;
+        }
+    }
+
+    return 0;
 }
