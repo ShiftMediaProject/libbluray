@@ -3,11 +3,27 @@
 #include "file.h"
 #include "../util/macro.h"
 
-uint8_t *_record(KEYFILE *kf, uint8_t type, size_t *rec_len);
-
-
-uint8_t *_record(KEYFILE *kf, uint8_t type, size_t *rec_len)
+uint8_t *keyfile_record(KEYFILE *kf, enum keyfile_types type, uint16_t *entries, size_t *entry_len)
 {
+    size_t pos = 0, len = 0;
+
+    while (pos + 4 <= len) {
+        len = MKINT_BE24(kf->buf + pos + 1);
+
+        if (entries) {
+            *entries = MKINT_BE16(kf->buf + pos + 4);
+        }
+
+        if (entry_len) {
+            *entry_len = MKINT_BE32(kf->buf + pos + 6);
+        }
+
+        if (kf->buf[pos] == type)
+            return kf->buf + pos + 10;  // only return ptr to first byte of entry
+
+        pos += len;
+    }
+
     return NULL;
 }
 
