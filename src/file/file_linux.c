@@ -4,6 +4,14 @@
 
 #include "file.h"
 
+FILE_H *file_open_linux(const char* filename, const char *mode);
+void file_close_linux(FILE_H *file);
+int64_t file_seek_linux(FILE_H *file, int64_t offset, int32_t origin);
+int64_t file_tell_linux(FILE_H *file);
+int file_read_linux(FILE_H *file, uint8_t *buf, int64_t size);
+int file_write_linux(FILE_H *file, uint8_t *buf, int64_t size);
+
+
 void file_close_linux(FILE_H *file)
 {
     fclose((FILE *)file->internal);
@@ -19,14 +27,14 @@ int64_t file_tell_linux(FILE_H *file)
     return ftell((FILE *)file->internal);
 }
 
-int file_read_linux(FILE_H *file, uint8_t *buf, int64_t count)
+int file_read_linux(FILE_H *file, uint8_t *buf, int64_t size)
 {
-    return fread(buf, count, 1, (FILE *)file->internal);
+    return fread(buf, size, 1, (FILE *)file->internal);
 }
 
-int file_write_linux(FILE_H *file, uint8_t *buf, int64_t count)
+int file_write_linux(FILE_H *file, uint8_t *buf, int64_t size)
 {
-    return fwrite(buf, count, 1, (FILE *)file->internal);
+    return fwrite(buf, size, 1, (FILE *)file->internal);
 }
 
 FILE_H *file_open_linux(const char* filename, const char *mode)

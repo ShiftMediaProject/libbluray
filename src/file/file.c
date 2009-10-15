@@ -23,12 +23,12 @@ int64_t file_tell(FILE_H *file)
     return file->tell(file);
 }
 
-int file_read(FILE_H *file, uint8_t *buf, int64_t count)
+int file_read(FILE_H *file, uint8_t *buf, int64_t size)
 {
-    return file->read(file, buf, count);
+    return file->read(file, buf, size);
 }
 
-int file_write(FILE_H *file, uint8_t *buf, int64_t count)
+int file_write(FILE_H *file, uint8_t *buf, int64_t size)
 {
-    return file->write(file, buf, count);
+    return file->write(file, buf, size);
 }
