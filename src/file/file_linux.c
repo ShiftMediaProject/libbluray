@@ -9,7 +9,8 @@ int64_t file_tell_linux(FILE_H* file);
 int file_read_linux(FILE_H* file, uint8_t *buf, int64_t count);
 int file_write_linux(FILE_H* file, uint8_t *buf, int64_t count);
 
-FILE_H* file_open_linux(const char* filename, uint8_t mode)
+
+FILE_H *file_open_linux(const char* filename, uint8_t mode)
 {
     FILE_H *file = malloc(sizeof(FILE_H));
 

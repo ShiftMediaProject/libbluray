@@ -1,13 +1,32 @@
 
 #include "file.h"
 
-Fhat ILE_H* file_open(const char* filename, uint8_t mode)
+FILE_H* file_open(const char* filename, uint8_t mode)
 {
-    //file_open_linux(filename, mode);
+    //return file_open_linux(filename, mode);
 }
 
-FILE_H* file_close(FILE_H* file)
-FILE_H* file_seek(FILE_H* file, int64_t offset, int64_t origin);
-FILE_H* file_tell(FILE_H* file);
-FILE_H* file_read(FILE_H* file, uint8_t *buf, int64_t count);
-FILE_H* file_write(FILE_H* file, uint8_t *buf, int64_t count);
+void file_close(FILE_H* file)
+{
+    file->close(file);
+}
+
+uint64_t file_seek(FILE_H* file, uint64_t offset, uint64_t origin)
+{
+    file->seek(file, offset, origin);
+}
+
+uint64_t file_tell(FILE_H* file)
+{
+    file->tell(file);
+}
+
+int file_read(FILE_H* file, uint8_t *buf, uint64_t count)
+{
+    file->read(file, buf, count);
+}
+
+int file_write(FILE_H* file, uint8_t *buf, uint64_t count)
+{
+    file->write(file, buf, count);
+}
