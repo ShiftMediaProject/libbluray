@@ -29,12 +29,12 @@ int64_t file_tell_linux(FILE_H *file)
 
 int file_read_linux(FILE_H *file, uint8_t *buf, int64_t size)
 {
-    return fread(buf, size, 1, (FILE *)file->internal);
+    return fread(buf, 1, size, (FILE *)file->internal);
 }
 
 int file_write_linux(FILE_H *file, uint8_t *buf, int64_t size)
 {
-    return fwrite(buf, size, 1, (FILE *)file->internal);
+    return fwrite(buf, 1, size, (FILE *)file->internal);
 }
 
 FILE_H *file_open_linux(const char* filename, const char *mode)
