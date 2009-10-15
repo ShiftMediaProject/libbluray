@@ -23,7 +23,10 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 void bd_close(BLURAY *bd)
 {
     if (bd->libaacs_h) {
-        aacs_close(bd->aacs);
+        typedef void* (*fptr)();
+
+        fptr fptr_s = dlsym(bd->libaacs_h, "aacs_close");
+        fptr_s(bd->aacs);
     }
 
     X_FREE(bd);
