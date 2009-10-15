@@ -5,7 +5,7 @@ extern const struct file_type file_linux;
 
 FILE_H *file_open(const char *filename, const char *mode)
 {
-    return file_linux.open(filename, mode);
+    return file_linux.open(filename, mode); // only linux for now
 }
 
 void file_close(FILE_H *file)
