@@ -16,7 +16,7 @@ int file_write_linux(FILE_H *file, uint8_t *buf, int64_t size);
 void file_close_linux(FILE_H *file)
 {
     fclose((FILE *)file->internal);
-    X_FREE(file->internal);
+    X_FREE(file);
 }
 
 int64_t file_seek_linux(FILE_H *file, int64_t offset, int32_t origin)
