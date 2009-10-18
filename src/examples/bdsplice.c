@@ -103,7 +103,7 @@ main(int argc, char *argv[])
     char *bdpath = NULL, *dest = NULL;
     FILE *out, *tsfile;
     MPLS_PL *pl;
-    CLPI_CL cl;
+    CLPI_CL *cl;
     int opt, ii;
     uint32_t start_pkt, end_pkt;
     int verbose = 0;
@@ -216,9 +216,9 @@ main(int argc, char *argv[])
         str_append_sub(&fname, pi->clip_id, 0, 5);
         str_append(&fname, ".clpi");
 
-        if (!clpi_parse(fname.buf, &cl)) {
+        cl = clpi_parse(fname.buf, verbose);
+        if (cl == NULL) {
             fprintf(stderr, "Failed to parse clip info: %s\n", fname.buf);
-            clpi_free(&cl);
             return 1;
         }
 
@@ -236,7 +236,7 @@ main(int argc, char *argv[])
         }
 
         if (ii == chapter_start_ref && chapter_start != 1) {
-            start_pkt = clpi_lookup_spn(&cl.cpi, chapter_start_time, 0);
+            start_pkt = clpi_lookup_spn(&cl->cpi, chapter_start_time, 0);
         } else {
             // When the connection condition is seamless, start at 
             // first source packet of the clip
@@ -245,7 +245,7 @@ main(int argc, char *argv[])
 
                 start_pkt = 0;
             } else {
-                start_pkt = clpi_lookup_spn(&cl.cpi, pi->in_time, 1);
+                start_pkt = clpi_lookup_spn(&cl->cpi, pi->in_time, 1);
                 // For some reason, the in_time of a clip always resolves 
                 // to a packet that is 1 packet after a PCR which we need
                 // in order to handle the discontinuities correctly
@@ -255,9 +255,9 @@ main(int argc, char *argv[])
             }
         }
         if (ii == chapter_end_ref) {
-            end_pkt = clpi_lookup_spn(&cl.cpi, chapter_end_time, 0);
+            end_pkt = clpi_lookup_spn(&cl->cpi, chapter_end_time, 0);
         } else {
-            end_pkt = clpi_lookup_spn(&cl.cpi, pi->out_time, 0);
+            end_pkt = clpi_lookup_spn(&cl->cpi, pi->out_time, 0);
         }
         if (verbose) {
             fprintf(stderr, "Start SPN %u - End SPN %u\n", start_pkt, end_pkt);
