@@ -13,7 +13,8 @@ enum {
     DBG_FILE = 4,
     DBG_AACS = 8,
     DBG_MKB = 16,
-    DBG_MMC = 32
+    DBG_MMC = 32,
+    DBG_BLURAY = 64
 } debug_mask;
 
 char *print_hex(uint8_t *str, int count);
