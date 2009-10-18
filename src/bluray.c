@@ -42,7 +42,9 @@ void bd_close(BLURAY *bd)
 
     dlclose(bd->h_libaacs);
 
-    file_close(bd->fp);
+    if (bd->fp) {
+        file_close(bd->fp);
+    }
 
     DEBUG(DBG_BLURAY, "BLURAY destroyed! (0x%08x)\n", bd);
 
