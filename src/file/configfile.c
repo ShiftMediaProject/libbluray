@@ -1,9 +1,9 @@
 
-#include "keyfile.h"
+#include "configfile.h"
 #include "file.h"
 #include "../util/macro.h"
 
-uint8_t *keyfile_record(KEYFILE *kf, enum keyfile_types type, uint16_t *entries, size_t *entry_len)
+uint8_t *configfile_record(CONFIGFILE *kf, enum configfile_types type, uint16_t *entries, size_t *entry_len)
 {
     size_t pos = 0, len = 0;
 
@@ -27,10 +27,10 @@ uint8_t *keyfile_record(KEYFILE *kf, enum keyfile_types type, uint16_t *entries,
     return NULL;
 }
 
-KEYFILE *keyfile_open(const char *path)
+CONFIGFILE *configfile_open(const char *path)
 {
     FILE_H *fp = NULL;
-    KEYFILE *kf = malloc(sizeof(KEYFILE));
+    CONFIGFILE *kf = malloc(sizeof(CONFIGFILE));
 
     if ((fp = file_open(path, "rb"))) {
         file_seek(fp, 0, SEEK_END);
@@ -51,7 +51,7 @@ KEYFILE *keyfile_open(const char *path)
     return NULL;
 }
 
-void keyfile_close(KEYFILE *kf)
+void configfile_close(CONFIGFILE *kf)
 {
     X_FREE(kf->buf);
     X_FREE(kf);

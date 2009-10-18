@@ -1,17 +1,17 @@
 
-#ifndef KEYFILE_H_
-#define KEYFILE_H_
+#ifndef CONFIGFILE_H_
+#define CONFIGFILE_H_
 
 #include <stdint.h>
 #include <unistd.h>
 
-typedef struct keyfile KEYFILE;
-struct keyfile {
+typedef struct configfile CONFIGFILE;
+struct configfile {
     size_t size;
     uint8_t *buf;
 };
 
-enum keyfile_types {
+enum configfile_types {
     KF_DK_ARRAY = 0x01,
     KF_PK_ARRAY,
     KF_HOST_PRIV_KEY,
@@ -20,9 +20,9 @@ enum keyfile_types {
     KF_HOST_KEY_POINT
 };
 
-KEYFILE *keyfile_open(const char *path);
-void keyfile_close(KEYFILE *kf);
-uint8_t *keyfile_record(KEYFILE *kf, enum keyfile_types type, uint16_t *entries, size_t *entry_len);
+CONFIGFILE *configfile_open(const char *path);
+void configfile_close(CONFIGFILE *kf);
+uint8_t *configfile_record(CONFIGFILE *kf, enum configfile_types type, uint16_t *entries, size_t *entry_len);
 
 /* Keys are stored in a binary file in a record format which is queried from this code
  *
@@ -38,4 +38,4 @@ uint8_t *keyfile_record(KEYFILE *kf, enum keyfile_types type, uint16_t *entries,
  *
  */
 
-#endif /* KEYFILE_H_ */
+#endif /* CONFIGFILE_H_ */

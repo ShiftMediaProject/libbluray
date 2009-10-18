@@ -8,6 +8,8 @@
 #include "file/file.h"
 #include "libaacs/aacs.h"
 
+typedef int* (*fptr_int)();
+
 typedef struct bluray BLURAY;
 struct bluray {
     char device_path[100];
@@ -16,7 +18,8 @@ struct bluray {
     uint64_t s_size;
     off_t s_pos;
     AACS_KEYS *aacs;
-    void *libaacs_h, *libbdplus_h;
+    void *h_libaacs, *h_libbdplus;
+    fptr_int libaacs_decrypt_unit;
 };
 
 BLURAY *bd_open(const char* device_path, const char* keyfile_path);

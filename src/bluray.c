@@ -10,7 +10,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
     // open aacs decryptor if present
     bd->aacs = NULL;
-    if ((bd->h_libaacs = dlopen("libaacs", RTLD_NOW))) {
+    if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_NOW))) {
         typedef AACS_KEYS* (*fptr)();
 
         fptr fptr_s = dlsym(bd->h_libaacs, "aacs_open");
