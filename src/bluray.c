@@ -1,5 +1,6 @@
 
 #include <dlfcn.h>
+#include <stdio.h>
 
 #include "bluray.h"
 #include "util/macro.h"
@@ -11,15 +12,18 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
     bd->aacs = NULL;
     bd->h_libaacs = NULL;
+    bd->fp = NULL;
 
     // open aacs decryptor if present
-    if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_NOW))) {
+    if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_LAZY))) {
         DEBUG(DBG_BLURAY, "Downloaded libaacs (0x%08x)\n", bd->h_libaacs);
 
         typedef AACS_KEYS* (*fptr)();
 
         fptr fptr_s = dlsym(bd->h_libaacs, "aacs_open");
         bd->aacs = fptr_s(device_path, keyfile_path);
+    } else {
+        DEBUG(DBG_BLURAY, "libaacs not present\n");
     }
 
     DEBUG(DBG_BLURAY, "BLURAY initialized! (0x%08x)\n", bd);
@@ -38,7 +42,9 @@ void bd_close(BLURAY *bd)
 
     dlclose(bd->h_libaacs);
 
-    DEBUG(DBG_BLURAY, "BLURAY closed! (0x%08x)\n", bd);
+    file_close(bd->fp);
+
+    DEBUG(DBG_BLURAY, "BLURAY destroyed! (0x%08x)\n", bd);
 
     X_FREE(bd);
 }
