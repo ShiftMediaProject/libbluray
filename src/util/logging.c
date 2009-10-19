@@ -1,7 +1,7 @@
 
 #include "logging.h"
 
-const uint32_t master_mask = 0;//0xffff; // this is only temporary
+const uint32_t master_mask = 0xffff; // this is only temporary
 char out[512];
 
 char *print_hex(uint8_t *buf, int count)
