@@ -56,7 +56,7 @@ off_t bd_seek(BLURAY *bd, uint64_t pos)
     if (pos < bd->s_size) {
         bd->s_pos = pos - (pos % 6144);
 
-        file_seeko(bd->fp, bd->s_pos, SEEK_SET);
+        file_seek(bd->fp, bd->s_pos, SEEK_SET);
     }
 
     return bd->s_pos;
