@@ -8,8 +8,8 @@
 
 FILE_H *file_open_linux(const char* filename, const char *mode);
 void file_close_linux(FILE_H *file);
-int64_t file_seek_linux(FILE_H *file, int64_t offset, int32_t origin);
-int64_t file_tell_linux(FILE_H *file);
+int64_t file_seeko_linux(FILE_H *file, int64_t offset, int32_t origin);
+int64_t file_tello_linux(FILE_H *file);
 int file_eof_linux(FILE_H *file);
 int file_read_linux(FILE_H *file, uint8_t *buf, int64_t size);
 int file_write_linux(FILE_H *file, uint8_t *buf, int64_t size);
@@ -28,12 +28,12 @@ void file_close_linux(FILE_H *file)
 
 int64_t file_seek_linux(FILE_H *file, int64_t offset, int32_t origin)
 {
-    return fseek((FILE *)file->internal, offset, origin);
+    return fseeko((FILE *)file->internal, offset, origin);
 }
 
 int64_t file_tell_linux(FILE_H *file)
 {
-    return ftell((FILE *)file->internal);
+    return ftello((FILE *)file->internal);
 }
 
 int file_eof_linux(FILE_H *file)

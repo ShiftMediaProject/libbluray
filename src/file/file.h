@@ -21,8 +21,8 @@ struct file
 {
     void* internal;
     void (*close)(FILE_H *file);
-    int64_t (*seek)(FILE_H *file, int64_t offset, int32_t origin);
-    int64_t (*tell)(FILE_H *file);
+    int64_t (*seeko)(FILE_H *file, int64_t offset, int32_t origin);
+    int64_t (*tello)(FILE_H *file);
     int (*eof)(FILE_H *file);
     int (*read)(FILE_H *file, uint8_t *buf, int64_t size);
     int (*write)(FILE_H *file, uint8_t *buf, int64_t size);
