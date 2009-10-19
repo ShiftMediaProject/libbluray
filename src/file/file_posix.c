@@ -8,8 +8,8 @@
 
 FILE_H *file_open_linux(const char* filename, const char *mode);
 void file_close_linux(FILE_H *file);
-int64_t file_seeko_linux(FILE_H *file, int64_t offset, int32_t origin);
-int64_t file_tello_linux(FILE_H *file);
+int64_t file_seek_linux(FILE_H *file, int64_t offset, int32_t origin);
+int64_t file_tell_linux(FILE_H *file);
 int file_eof_linux(FILE_H *file);
 int file_read_linux(FILE_H *file, uint8_t *buf, int64_t size);
 int file_write_linux(FILE_H *file, uint8_t *buf, int64_t size);
@@ -58,10 +58,10 @@ FILE_H *file_open_linux(const char* filename, const char *mode)
 
     DEBUG(DBG_CONFIGFILE, "Opening LINUX file %s... (0x%08x)\n", filename, file);
     file->close = file_close_linux;
-    file->seeko = file_seeko_linux;
+    file->seek = file_seek_linux;
     file->read = file_read_linux;
     file->write = file_write_linux;
-    file->tello = file_tello_linux;
+    file->tell = file_tell_linux;
 
     if ((fp = fopen(filename, mode))) {
         file->internal = fp;
