@@ -13,6 +13,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
     bd->aacs = NULL;
     bd->h_libaacs = NULL;
     bd->fp = NULL;
+    strncpy(bd->device_path, device_path, 100);
 
     // open aacs decryptor if present
     if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_LAZY))) {
@@ -78,6 +79,28 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
             bd->s_pos += len;
 
             return read;
+        }
+    }
+
+    return 0;
+}
+
+int bd_select_title(BLURAY *bd, uint64_t title)
+{
+    char f_name[100];
+
+    memset(f_name, 0, sizeof(f_name));
+    snprintf(f_name, 100, "%s/BDMV/STREAM/%05ld.m2ts", bd->device_path, title);
+
+    bd->s_size = 0;
+    bd->s_pos = 0;
+
+    if ((bd->fp = file_open(f_name, "rb"))) {
+        file_seek(bd->fp, 0, SEEK_END);
+        if ((bd->s_size = file_tell(bd->fp))) {
+            file_seek(bd->fp, 0, SEEK_SET);
+
+            return 1;
         }
     }
 
