@@ -8,6 +8,7 @@
 //#ifdef __LINUX__
 #define file_open file_open_linux
 #define _FILE_OFFSET_BITS 64
+#define __USE_LARGEFILE64
 //#endif
 
 #define file_close(X) X->close(X)
