@@ -58,10 +58,10 @@ FILE_H *file_open_linux(const char* filename, const char *mode)
 
     DEBUG(DBG_CONFIGFILE, "Opening LINUX file %s... (0x%08x)\n", filename, file);
     file->close = file_close_linux;
-    file->seek = file_seek_linux;
+    file->seeko = file_seeko_linux;
     file->read = file_read_linux;
     file->write = file_write_linux;
-    file->tell = file_tell_linux;
+    file->tello = file_tello_linux;
 
     if ((fp = fopen(filename, mode))) {
         file->internal = fp;

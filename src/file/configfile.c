@@ -39,9 +39,9 @@ CONFIGFILE *configfile_open(const char *path)
     DEBUG(DBG_CONFIGFILE, "Opening configfile %s... (0x%08x)\n", path, kf);
 
     if ((fp = file_open(path, "rb"))) {
-        file_seek(fp, 0, SEEK_END);
-        kf->size = file_tell(fp);
-        file_seek(fp, 0, SEEK_SET);
+        file_seeko(fp, 0, SEEK_END);
+        kf->size = file_tello(fp);
+        file_seeko(fp, 0, SEEK_SET);
 
         kf->buf = malloc(kf->size);
 
