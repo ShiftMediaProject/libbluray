@@ -8,7 +8,7 @@
 #include "file/file.h"
 #include "libaacs/aacs.h"
 
-typedef int* (*fptr_int)();
+typedef int (*fptr_int)();
 
 typedef struct bluray BLURAY;
 struct bluray {
@@ -17,7 +17,7 @@ struct bluray {
     uint64_t s_size;
     off_t s_pos;
     AACS_KEYS *aacs;
-    void *h_libaacs, *h_libbdplus;
+    void *h_libaacs;
     fptr_int libaacs_decrypt_unit;
 };
 

@@ -58,6 +58,8 @@ off_t bd_seek(BLURAY *bd, uint64_t pos)
         bd->s_pos = pos - (pos % 6144);
 
         file_seek(bd->fp, bd->s_pos, SEEK_SET);
+
+        DEBUG(DBG_BLURAY, "Seek to %ld (0x%08x)\n", bd->s_pos, bd);
     }
 
     return bd->s_pos;
@@ -65,22 +67,33 @@ off_t bd_seek(BLURAY *bd, uint64_t pos)
 
 int bd_read(BLURAY *bd, unsigned char *buf, int len)
 {
-    if (len + bd->s_pos < bd->s_size) {
-        int read;
+    if (bd->fp) {
+        DEBUG(DBG_BLURAY, "Reading unit [%d bytes] at %ld... (0x%08x)\n", len, bd->s_pos, bd);
 
-        if ((read = file_read(bd->fp, buf, len))) {
-            if (bd->h_libaacs) {
-                bd->libaacs_decrypt_unit = dlsym(bd->h_libaacs, "aacs_decrypt_unit");
-                if (!bd->libaacs_decrypt_unit(bd->aacs, buf, len)) {
-                    return 0;
+        if (len + bd->s_pos < bd->s_size) {
+            int read_len;
+
+            if ((read_len = file_read(bd->fp, buf, len))) {
+                if (bd->h_libaacs) {
+                    if ((bd->libaacs_decrypt_unit = dlsym(bd->h_libaacs, "aacs_decrypt_unit"))) {
+                        if (!bd->libaacs_decrypt_unit(bd->aacs, buf, len, bd->s_pos)) {
+                            DEBUG(DBG_BLURAY, "Unable decrypt unit! (0x%08x)\n", bd);
+
+                            return 0;
+                        }
+                    }
                 }
+
+                bd->s_pos += len;
+
+                DEBUG(DBG_BLURAY, "%d bytes read OK! (0x%08x)\n", read_len, bd);
+
+                return read_len;
             }
-
-            bd->s_pos += len;
-
-            return read;
         }
     }
+
+    DEBUG(DBG_BLURAY, "No valid title selected! (0x%08x)\n", bd->s_pos);
 
     return 0;
 }
@@ -98,11 +111,17 @@ int bd_select_title(BLURAY *bd, uint64_t title)
     if ((bd->fp = file_open(f_name, "rb"))) {
         file_seek(bd->fp, 0, SEEK_END);
         if ((bd->s_size = file_tell(bd->fp))) {
-            file_seek(bd->fp, 0, SEEK_SET);
+            bd_seek(bd, 0);
+
+            DEBUG(DBG_BLURAY, "Title %s selected! (0x%08x)\n", f_name, bd);
 
             return 1;
         }
+
+        DEBUG(DBG_BLURAY, "Title %s empty! (0x%08x)\n", f_name, bd);
     }
+
+    DEBUG(DBG_BLURAY, "Unable to select title %s! (0x%08x)\n", f_name, bd);
 
     return 0;
 }
