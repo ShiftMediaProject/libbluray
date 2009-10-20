@@ -6,33 +6,39 @@
 #include "util/macro.h"
 #include "util/logging.h"
 
-#if HAVE_BDPLUS
-#include "libbdplus/bdplus.h"
-#endif
-
 
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
-    BLURAY *bd = malloc(sizeof(BLURAY));
+    BLURAY *bd = NULL;
 
     bd->aacs = NULL;
     bd->h_libaacs = NULL;
     bd->fp = NULL;
-    strncpy(bd->device_path, device_path, 100);
 
-    // open aacs decryptor if present
-    if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_LAZY))) {
-        DEBUG(DBG_BLURAY, "Downloaded libaacs (0x%08x)\n", bd->h_libaacs);
+    if (device_path) {
+        strncpy(bd->device_path, device_path, 100);
 
-        typedef AACS_KEYS* (*fptr)();
+        bd = malloc(sizeof(BLURAY));
 
-        fptr fptr_s = dlsym(bd->h_libaacs, "aacs_open");
-        bd->aacs = fptr_s(device_path, keyfile_path);
+        if (keyfile_path) {
+            if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_LAZY))) {
+                DEBUG(DBG_BLURAY, "Downloaded libaacs (0x%08x)\n", bd->h_libaacs);
+
+                typedef AACS_KEYS* (*fptr)();
+
+                fptr fptr_s = dlsym(bd->h_libaacs, "aacs_open");
+                bd->aacs = fptr_s(device_path, keyfile_path);
+            } else {
+                DEBUG(DBG_BLURAY, "libaacs not present\n");
+            }
+        } else {
+            DEBUG(DBG_BLURAY, "No keyfile provided. You will not be able to make use of crypto functionality (0x%08x)\n", bd);
+        }
+
+        DEBUG(DBG_BLURAY, "BLURAY initialized! (0x%08x)\n", bd);
     } else {
-        DEBUG(DBG_BLURAY, "libaacs not present\n");
+        DEBUG(DBG_BLURAY, "No device path provided!\n");
     }
-
-    DEBUG(DBG_BLURAY, "BLURAY initialized! (0x%08x)\n", bd);
 
     return bd;
 }

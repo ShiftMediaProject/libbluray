@@ -7,6 +7,7 @@
 
 #include "file/file.h"
 #include "libaacs/aacs.h"
+#include "libbdplus/bdplus.h"
 
 typedef int (*fptr_int)();
 
