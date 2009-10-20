@@ -6,16 +6,12 @@
 #include "util/macro.h"
 #include "util/logging.h"
 
-
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
-    BLURAY *bd = NULL;
+    BLURAY *bd = malloc(sizeof(BLURAY));
 
-    printf("A\n");
     if (device_path) {
         strncpy(bd->device_path, device_path, 100);
-
-        bd = malloc(sizeof(BLURAY));
 
         bd->aacs = NULL;
         bd->h_libaacs = NULL;
@@ -38,6 +34,8 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
         DEBUG(DBG_BLURAY, "BLURAY initialized! (0x%08x)\n", bd);
     } else {
+        X_FREE(bd);
+
         DEBUG(DBG_BLURAY, "No device path provided!\n");
     }
 
