@@ -6,10 +6,9 @@
 #include <unistd.h>
 
 #include "file/file.h"
-#include "libaacs/aacs.h"
-#include "libbdplus/bdplus.h"
 
 typedef int (*fptr_int)();
+typedef void* (*fptr_p_void)();
 
 typedef struct bluray BLURAY;
 struct bluray {
@@ -17,8 +16,8 @@ struct bluray {
     FILE_H *fp;
     uint64_t s_size;
     off_t s_pos;
-    AACS_KEYS *aacs;
-    void *h_libaacs;
+    void *aacs;
+    void *h_libaacs, *h_libbdplus, *h_libbdnav;
     fptr_int libaacs_decrypt_unit;
 };
 

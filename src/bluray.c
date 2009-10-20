@@ -21,9 +21,9 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
             if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_LAZY))) {
                 DEBUG(DBG_BLURAY, "Downloaded libaacs (0x%08x)\n", bd->h_libaacs);
 
-                typedef AACS_KEYS* (*fptr)();
+             //   typedef AACS_KEYS* (*fptr)();
 
-                fptr fptr_s = dlsym(bd->h_libaacs, "aacs_open");
+                fptr_p_void fptr_s = dlsym(bd->h_libaacs, "aacs_open");
                 bd->aacs = fptr_s(device_path, keyfile_path);
             } else {
                 DEBUG(DBG_BLURAY, "libaacs not present\n");
@@ -49,9 +49,9 @@ void bd_close(BLURAY *bd)
 
         fptr fptr_s = dlsym(bd->h_libaacs, "aacs_close");
         fptr_s(bd->aacs);
-    }
 
-    dlclose(bd->h_libaacs);
+        dlclose(bd->h_libaacs);
+    }
 
     if (bd->fp) {
         file_close(bd->fp);
