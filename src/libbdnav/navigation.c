@@ -168,7 +168,6 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
                 clip->connection = CONNECT_NON_SEAMLESS;
             break;
         }
-        clip->seek_pkt = clip->start_pkt;
         clip->end_pkt = clpi_lookup_spn(&clip->cl->cpi, pi->out_time, 0);
         if (clip->end_pkt == (uint32_t)-1) {
             // The EP map couldn't tell us where the last packet is
@@ -206,7 +205,7 @@ void nav_title_close(NAV_TITLE *title)
 
 // Search for random access point closest to the requested packet
 // Packets are 192 byte TS packets
-NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt)
+NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *out_pkt)
 {
     uint32_t pos, len;
     NAV_CLIP *clip;
@@ -221,17 +220,17 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt)
     }
     if (ii == title->pl->list_count) {
         clip = &title->clip[ii-1];
-        clip->seek_pkt = clip->end_pkt;
+        *out_pkt = clip->end_pkt;
     } else {
         clip = &title->clip[ii];
-        clip->seek_pkt = clpi_access_point(&clip->cl->cpi, pkt - pos + clip->start_pkt);
+        *out_pkt = clpi_access_point(&clip->cl->cpi, pkt - pos + clip->start_pkt);
     }
     return clip;
 }
 
 // Search for random access point closest to the requested time
 // Time is in 45khz ticks
-NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick)
+NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt)
 {
     uint32_t pos, len;
     MPLS_PI *pi;
@@ -248,10 +247,10 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick)
     }
     if (ii == title->pl->list_count) {
         clip = &title->clip[ii-1];
-        clip->seek_pkt = clip->end_pkt;
+        *out_pkt = clip->end_pkt;
     } else {
         clip = &title->clip[ii];
-        clip->seek_pkt = clpi_lookup_spn(&clip->cl->cpi, tick - pos + pi->in_time, 1);
+        *out_pkt = clpi_lookup_spn(&clip->cl->cpi, tick - pos + pi->in_time, 1);
     }
     return clip;
 }

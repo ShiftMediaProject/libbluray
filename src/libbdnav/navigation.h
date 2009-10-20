@@ -1,3 +1,5 @@
+#if !defined(_NAVIGATION_H_)
+#define _NAVIGATION_H_
 
 #include <stdint.h>
 #include "mpls_parse.h"
@@ -23,7 +25,6 @@ typedef struct {
     int      play_item_ref;
     uint32_t start_pkt;
     uint32_t end_pkt;
-    uint32_t seek_pkt;
     uint8_t  connection;
 } NAV_CLIP;
 
@@ -39,3 +40,7 @@ char* nav_find_main_title(char *root);
 NAV_TITLE* nav_title_open(char *root, char *playlist);
 void nav_title_close(NAV_TITLE *title);
 NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip);
+NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *out_pkt);
+NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt);
+
+#endif // _NAVIGATION_H_
