@@ -26,14 +26,14 @@ typedef struct
 typedef struct
 {
     uint8_t           validity;
-    uint8_t           format_id[4];
+    uint8_t           format_id[5];
 } CLPI_TS_TYPE;
 
 typedef struct
 {
     uint32_t          unknown;
-    uint8_t           file_id[5];
-    uint8_t           file_code[4];
+    uint8_t           file_id[6];
+    uint8_t           file_code[5];
 } CLPI_CC5_INFO;
 
 typedef struct
@@ -57,7 +57,7 @@ typedef struct
     uint8_t           aspect;
     uint8_t           oc_flag;
     uint8_t           char_code;
-    uint8_t           lang[3];
+    uint8_t           lang[4];
 } CLPI_PROG_STREAM;
 
 typedef struct
@@ -127,6 +127,6 @@ typedef struct
 
 uint32_t clpi_lookup_spn(CLPI_CPI *cpi, uint32_t timestamp, int before);
 CLPI_CL* clpi_parse(char *path, int verbose);
-void clpi_free(CLPI_CL **cl);
+void clpi_free(CLPI_CL *cl);
 
 #endif // _CLPI_PARSE_H_

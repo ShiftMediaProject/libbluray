@@ -1,4 +1,3 @@
-#include "config.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -43,6 +42,7 @@ _parse_stream_attr(BITSTREAM *bits, CLPI_PROG_STREAM *ss)
     len = bs_read(bits, 8);
     pos = bs_pos(bits) >> 3;
 
+    ss->lang[0] = '\0';
     ss->coding_type = bs_read(bits, 8);
     switch (ss->coding_type) {
         case 0x01:
@@ -86,6 +86,7 @@ _parse_stream_attr(BITSTREAM *bits, CLPI_PROG_STREAM *ss)
             fprintf(stderr, "stream attr: unrecognized coding type %02x\n", ss->coding_type);
             break;
     };
+    ss->lang[3] = '\0';
 
     // Skip over any padding
     bs_seek_byte(bits, pos + len);
@@ -147,6 +148,7 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
     if (len) {
         cl->clip.ts_type_info.validity = bs_read(bits, 8);
         bs_read_bytes(bits, cl->clip.ts_type_info.format_id, 4);
+        cl->clip.ts_type_info.format_id[4] = '\0';
         // Seek past the stuff we don't know anything about
         bs_seek_byte(bits, pos + len);
     }
@@ -159,7 +161,9 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
         for (ii = 0; ii < cl->clip.cc5_thingy_count; ii++) {
             cl->clip.cc5_thingy[ii].unknown = bs_read(bits, 32);
             bs_read_bytes(bits, cl->clip.cc5_thingy[ii].file_id, 5);
+            cl->clip.cc5_thingy[ii].file_id[5] = '\0';
             bs_read_bytes(bits, cl->clip.cc5_thingy[ii].file_code, 4);
+            cl->clip.cc5_thingy[ii].file_code[4] = '\0';
             bs_skip(bits, 8);
         }
     }
@@ -363,11 +367,13 @@ clpi_lookup_spn(CLPI_CPI *cpi, uint32_t timestamp, int before)
 }
 
 void
-clpi_free(CLPI_CL **p_cl)
+clpi_free(CLPI_CL *cl)
 {
     int ii;
-    CLPI_CL *cl = *p_cl;
 
+    if (cl == NULL) {
+        return;
+    }
     if (cl->clip.cc5_thingy != NULL) {
         X_FREE(cl->clip.cc5_thingy);
     }
@@ -400,7 +406,7 @@ clpi_free(CLPI_CL **p_cl)
     if (cl->cpi.entry != NULL) {
         X_FREE(cl->cpi.entry);
     }
-    X_FREE(*p_cl);
+    X_FREE(cl);
 }
 
 CLPI_CL*
@@ -427,27 +433,27 @@ clpi_parse(char *path, int verbose)
     bs_init(&bits, fp);
     if (!_parse_header(&bits, cl)) {
         file_close(fp);
-        clpi_free(&cl);
+        clpi_free(cl);
         return NULL;
     }
     if (!_parse_clipinfo(&bits, cl)) {
         file_close(fp);
-        clpi_free(&cl);
+        clpi_free(cl);
         return NULL;
     }
     if (!_parse_sequence(&bits, cl)) {
         file_close(fp);
-        clpi_free(&cl);
+        clpi_free(cl);
         return NULL;
     }
     if (!_parse_program(&bits, cl)) {
         file_close(fp);
-        clpi_free(&cl);
+        clpi_free(cl);
         return NULL;
     }
     if (!_parse_cpi(&bits, cl)) {
         file_close(fp);
-        clpi_free(&cl);
+        clpi_free(cl);
         return NULL;
     }
     file_close(fp);

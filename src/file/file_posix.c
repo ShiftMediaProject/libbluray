@@ -61,6 +61,7 @@ FILE_H *file_open_linux(const char* filename, const char *mode)
     file->read = file_read_linux;
     file->write = file_write_linux;
     file->tell = file_tell_linux;
+    file->eof = file_eof_linux;
 
     if ((fp = fopen(filename, mode))) {
         file->internal = fp;

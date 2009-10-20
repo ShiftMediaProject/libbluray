@@ -14,7 +14,7 @@ typedef struct
     uint8_t         format;
     uint8_t         rate;
     uint8_t         char_code;
-    uint8_t         lang[3];
+    uint8_t         lang[4];
 } MPLS_STREAM;
 
 typedef struct
@@ -33,7 +33,7 @@ typedef struct
 
 typedef struct
 {
-    char            clip_id[5];
+    char            clip_id[6];
     uint8_t         connection_condition;
     uint8_t         stc_id;
     uint32_t        in_time;
@@ -77,6 +77,6 @@ typedef struct
 
 
 MPLS_PL* mpls_parse(char *path, int verbose);
-void mpls_free(MPLS_PL **pl);
+void mpls_free(MPLS_PL *pl);
 
 #endif // _MPLS_PARSE_H_

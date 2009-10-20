@@ -107,8 +107,6 @@ VALUE_MAP audio_rate_map[] = {
 static void
 _show_stream(CLPI_PROG_STREAM *ss, int level)
 {
-    STRING *lang;
-
     indent_printf(level, "Codec (%04x): %s", ss->coding_type,
                     _lookup_str(codec_map, ss->coding_type));
     indent_printf(level, "PID: %04x", ss->pid);
@@ -139,27 +137,18 @@ _show_stream(CLPI_PROG_STREAM *ss, int level)
                         _lookup_str(audio_format_map, ss->format));
             indent_printf(level, "Rate %02x:", ss->rate,
                         _lookup_str(audio_rate_map, ss->rate));
-            lang = str_substr((char*)ss->lang, 0, 3);
-            indent_printf(level, "Language: %s", lang->buf);
-            str_free(lang);
-            free(lang);
+            indent_printf(level, "Language: %s", ss->lang);
             break;
 
         case 0x90:
         case 0x91:
         case 0xa0:
-            lang = str_substr((char*)ss->lang, 0, 3);
-            indent_printf(level, "Language: %s", lang->buf);
-            str_free(lang);
-            free(lang);
+            indent_printf(level, "Language: %s", ss->lang);
             break;
 
         case 0x92:
             indent_printf(level, "Char Code: %02x", ss->char_code);
-            lang = str_substr((char*)ss->lang, 0, 3);
-            indent_printf(level, "Language: %s", lang->buf);
-            str_free(lang);
-            free(lang);
+            indent_printf(level, "Language: %s", ss->lang);
             break;
 
         default:
@@ -172,7 +161,6 @@ static void
 _show_clip_info(CLPI_CLIP_INFO *ci, int level)
 {
     int ii;
-    STRING *str;
 
     indent_printf(level, "Clip Info");
     indent_printf(level+1, "Clip Stream Type: %02x", ci->clip_stream_type);
@@ -185,22 +173,13 @@ _show_clip_info(CLPI_CLIP_INFO *ci, int level)
     // Show ts type info
     indent_printf(level+1, "TS Type Info");
     indent_printf(level+2, "Validity Flags %02x", ci->ts_type_info.validity);
-    str = str_substr((char*)ci->ts_type_info.format_id, 0, 4);
-    indent_printf(level+2, "Format Id %s", str->buf);
-    str_free(str);
-    free(str);
+    indent_printf(level+2, "Format Id %s", ci->ts_type_info.format_id);
     // Show cc5 thing
     for (ii = 0; ii < ci->cc5_thingy_count; ii++) {
         indent_printf(level+1, "CC5 %d", ii);
         indent_printf(level+2, "Unknown %08x", ci->cc5_thingy[ii].unknown);
-        str = str_substr((char*)ci->cc5_thingy[ii].file_id, 0, 5);
-        indent_printf(level+2, "File Id %s", str->buf);
-        str_free(str);
-        free(str);
-        str = str_substr((char*)&ci->cc5_thingy[ii].file_code, 0, 4);
-        indent_printf(level+2, "File Code %s", str->buf);
-        str_free(str);
-        free(str);
+        indent_printf(level+2, "File Id %s", ci->cc5_thingy[ii].file_id);
+        indent_printf(level+2, "File Code %s", ci->cc5_thingy[ii].file_code);
     }
     printf("\n");
 }
@@ -407,7 +386,7 @@ main(int argc, char *argv[])
             // Show cpi
             _show_cpi_info(&cl->cpi, 1);
         }
-        clpi_free(&cl);
+        clpi_free(cl);
     }
     return 0;
 }

@@ -1,4 +1,3 @@
-#include "config.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -8,7 +7,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <libgen.h>
+#include "util/strutl.h"
 #include "libbdnav/mpls_parse.h"
+#include "libbdnav/navigation.h"
 #include "util.h"
 
 static int verbose;
@@ -102,8 +103,6 @@ _lookup_str(VALUE_MAP *map, int val)
 static void
 _show_stream(MPLS_STREAM *ss, int level)
 {
-    STRING *lang;
-
     indent_printf(level, "Codec (%04x): %s", ss->coding_type,
                     _lookup_str(codec_map, ss->coding_type));
     switch (ss->stream_type) {
@@ -152,26 +151,17 @@ _show_stream(MPLS_STREAM *ss, int level)
                         _lookup_str(audio_format_map, ss->format));
             indent_printf(level, "Rate %02x:", ss->rate,
                         _lookup_str(audio_rate_map, ss->rate));
-            lang = str_substr((char*)ss->lang, 0, 3);
-            indent_printf(level, "Language: %s", lang->buf);
-            str_free(lang);
-            free(lang);
+            indent_printf(level, "Language: %s", ss->lang);
             break;
 
         case 0x90:
         case 0x91:
-            lang = str_substr((char*)ss->lang, 0, 3);
-            indent_printf(level, "Language: %s", lang->buf);
-            str_free(lang);
-            free(lang);
+            indent_printf(level, "Language: %s", ss->lang);
             break;
 
         case 0x92:
             indent_printf(level, "Char Code: %02x", ss->char_code);
-            lang = str_substr((char*)ss->lang, 0, 3);
-            indent_printf(level, "Language: %s", lang->buf);
-            str_free(lang);
-            free(lang);
+            indent_printf(level, "Language: %s", ss->lang);
             break;
 
         default:
@@ -187,13 +177,9 @@ _show_details(MPLS_PL *pl, int level)
 
     for (ii = 0; ii < pl->list_count; ii++) {
         MPLS_PI *pi;
-        STRING *clip_id;
 
         pi = &pl->play_item[ii];
-        clip_id = str_substr(pi->clip_id, 0, 5);
-        indent_printf(level, "Clip Id %s", clip_id->buf);
-        str_free(clip_id);
-        free(clip_id);
+        indent_printf(level, "Clip Id %s", pi->clip_id);
         indent_printf(level+1, "Connection Condition: %02x", 
                         pi->connection_condition);
         indent_printf(level+1, "Stc Id: %02x", pi->stc_id);
@@ -223,7 +209,6 @@ _show_marks(MPLS_PL *pl, int level)
     for (ii = 0; ii < pl->mark_count; ii++) {
         MPLS_PI *pi;
         MPLS_PLM *plm;
-        STRING *clip_id;
         int min;
         double sec;
 
@@ -232,10 +217,7 @@ _show_marks(MPLS_PL *pl, int level)
         indent_printf(level+1, "Type: %02x", plm->mark_type);
         if (plm->play_item_ref < pl->list_count) {
             pi = &pl->play_item[plm->play_item_ref];
-            clip_id = str_substr(pi->clip_id, 0, 5);
-            indent_printf(level+1, "PlayItem: %s", clip_id->buf);
-            str_free(clip_id);
-            free(clip_id);
+            indent_printf(level+1, "PlayItem: %s", pi->clip_id);
         } else {
             indent_printf(level+1, "PlayItem: Invalid reference");
         }
@@ -254,21 +236,19 @@ _show_clip_list(MPLS_PL *pl, int level)
 
     for (ii = 0; ii < pl->list_count; ii++) {
         MPLS_PI *pi;
-        STRING *m2ts_file;
+        char *m2ts_file;
 
         pi = &pl->play_item[ii];
-        m2ts_file = str_substr(pi->clip_id, 0, 5);
-        str_append(m2ts_file, ".m2ts");
+        m2ts_file = str_printf("%s.m2ts", pi->clip_id);
         if (verbose) {
             uint32_t duration;
 
             duration = pi->out_time - pi->in_time;
-            indent_printf(level, "%s -- Duration: %d:%02d", m2ts_file->buf,
+            indent_printf(level, "%s -- Duration: %3d:%02d", m2ts_file,
                         duration / (45000 * 60), (duration / 45000) % 60);
         } else {
-            indent_printf(level, "%s", m2ts_file->buf);
+            indent_printf(level, "%s", m2ts_file);
         }
-        str_free(m2ts_file);
         free(m2ts_file);
     }
 }
@@ -310,16 +290,12 @@ _find_repeats(MPLS_PL *pl, const char *m2ts)
 
     for (ii = 0; ii < pl->list_count; ii++) {
         MPLS_PI *pi;
-        STRING *m2ts_file;
 
         pi = &pl->play_item[ii];
-        m2ts_file = str_substr(pi->clip_id, 0, 5);
         // Ignore titles with repeated segments
-        if (strcmp(m2ts_file->buf, m2ts) == 0) {
+        if (strcmp(pi->clip_id, m2ts) == 0) {
             count++;
         }
-        str_free(m2ts_file);
-        free(m2ts_file);
     }
     return count;
 }
@@ -341,38 +317,14 @@ _filter_repeats(MPLS_PL *pl, int repeats)
 
     for (ii = 0; ii < pl->list_count; ii++) {
         MPLS_PI *pi;
-        STRING *m2ts_file;
 
         pi = &pl->play_item[ii];
-        m2ts_file = str_substr(pi->clip_id, 0, 5);
         // Ignore titles with repeated segments
-        if (_find_repeats(pl, m2ts_file->buf) > repeats) {
+        if (_find_repeats(pl, pi->clip_id) > repeats) {
             return 0;
         }
-        str_free(m2ts_file);
-        free(m2ts_file);
     }
     return 1;
-}
-
-static void
-_make_path(STRING *path, char *root, char *dir)
-{
-    struct stat st_buf;
-    char *base;
-
-    base = basename(root);
-    if (strcmp(base, dir) == 0) {
-        str_printf(path, "%s", root);
-    } else if (strcmp(base, "BDMV") != 0) {
-        str_printf(path, "%s/BDMV/%s", root, dir);
-    } else {
-        str_printf(path, "%s/%s", root, dir);
-    }
-
-    if (stat(path->buf, &st_buf) || !S_ISDIR(st_buf.st_mode)) {
-        str_free(path);
-    }
 }
 
 static int clip_list = 0, playlist_info = 0, chapter_marks = 0;
@@ -390,19 +342,19 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
     }
     if (seconds) {
         if (!_filter_short(pl, seconds)) {
-            mpls_free(&pl);
+            mpls_free(pl);
             return NULL;
         }
     }
     if (repeats) {
         if (!_filter_repeats(pl, repeats)) {
-            mpls_free(&pl);
+            mpls_free(pl);
             return NULL;
         }
     }
     if (dups) {
         if (!_filter_dup(pl_list, pl_count, pl)) {
-            mpls_free(&pl);
+            mpls_free(pl);
             return NULL;
         }
     }
@@ -470,7 +422,7 @@ main(int argc, char *argv[])
     int ii, pl_ii;
     MPLS_PL *pl_list[1000];
     struct stat st;
-    STRING path = {0,};
+    char *path = NULL;
     DIR *dir = NULL;
 
     do {
@@ -524,23 +476,34 @@ main(int argc, char *argv[])
     }
 
     for (pl_ii = 0, ii = optind; pl_ii < 1000 && ii < argc; ii++) {
+
         if (stat(argv[ii], &st)) {
             continue;
         }
         dir = NULL;
         if (S_ISDIR(st.st_mode)) {
+
+			char *main_title = NULL;
+
             printf("Directory: %s:\n", argv[ii]);
-            _make_path(&path, argv[ii], "PLAYLIST");
-            if (path.buf == NULL) {
+			path = str_printf("%s/BDMV/PLAYLIST", argv[ii]);
+            if (path == NULL) {
                 fprintf(stderr, "Failed to find playlist path: %s\n", argv[ii]);
                 continue;
             }
-            dir = opendir(path.buf);
+            dir = opendir(path);
             if (dir == NULL) {
-                fprintf(stderr, "Failed to open dir: %s\n", path.buf);
-                str_free(&path);
+                fprintf(stderr, "Failed to open dir: %s\n", path);
+                free(path);
                 continue;
             }
+			main_title = nav_find_main_title(argv[ii]);
+			if (main_title != NULL) {
+				printf("Main Title: %s\n", main_title);
+				free(main_title);
+			} else {
+				fprintf(stderr, "Main title search failed\n");
+			}
         }
         if (dir != NULL) {
             char **dirlist = calloc(10001, sizeof(char*));
@@ -553,25 +516,25 @@ main(int argc, char *argv[])
             }
             qsort(dirlist, jj, sizeof(char*), _qsort_str_cmp);
             for (jj = 0; dirlist[jj] != NULL; jj++) {
-                STRING name = {0,};
-                str_printf(&name, "%s/%s", path.buf, dirlist[jj]);
+                char *name = NULL;
+                name = str_printf("%s/%s", path, dirlist[jj]);
                 free(dirlist[jj]);
-                if (stat(name.buf, &st)) {
-                    str_free(&name);
+                if (stat(name, &st)) {
+                    free(name);
                     continue;
                 }
                 if (!S_ISREG(st.st_mode)) {
-                    str_free(&name);
+                    free(name);
                     continue;
                 }
-                pl = _process_file(name.buf, pl_list, pl_ii);
-                str_free(&name);
+                pl = _process_file(name, pl_list, pl_ii);
+                free(name);
                 if (pl != NULL) {
                     pl_list[pl_ii++] = pl;
                 }
             } while (ent != NULL);
             free(dirlist);
-            str_free(&path);
+            free(path);
         } else {
             pl = _process_file(argv[ii], pl_list, pl_ii);
             if (pl != NULL) {
@@ -581,7 +544,7 @@ main(int argc, char *argv[])
     }
     // Cleanup
     for (ii = 0; ii < pl_ii; ii++) {
-        mpls_free(&pl_list[ii]);
+        mpls_free(pl_list[ii]);
     }
     return 0;
 }

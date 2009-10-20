@@ -1,4 +1,3 @@
-#include "config.h"
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -6,30 +5,14 @@
 #include <unistd.h>
 #include <libgen.h>
 #include <string.h>
+#include "util/macro.h"
+#include "util/strutl.h"
 #include "libbdnav/clpi_parse.h"
 #include "libbdnav/mpls_parse.h"
-#include "util.h"
+#include "libbdnav/navigation.h"
 
 #define PKT_SIZE 192
 #define MIN(a,b) (((a) < (b)) ? a : b)
-
-static void
-_make_path(STRING *path, char *root, char *dir)
-{
-    struct stat st_buf;
-    char *base;
-
-    base = basename(root);
-    if (strcmp(base, "BDMV") != 0) {
-        str_printf(path, "%s/BDMV/%s", root, dir);
-    } else {
-        str_printf(path, "%s/%s", root, dir);
-    }
-
-    if (stat(path->buf, &st_buf) || !S_ISDIR(st_buf.st_mode)) {
-        str_free(path);
-    }
-}
 
 int64_t
 _write_packets(FILE *out, FILE *tsfile, uint32_t start_pkt, uint32_t end_pkt)
@@ -90,24 +73,15 @@ _usage(char *cmd)
 int
 main(int argc, char *argv[])
 {
-    int title = -1;
-    int chapter_start = 0;
-    int chapter_end = 0;
-    uint16_t start_ref;
-    uint16_t end_ref;
-    uint16_t chapter_start_ref;
-    uint16_t chapter_end_ref;
-    uint32_t chapter_start_time = 0;
-    uint32_t chapter_end_time = 0;
-    STRING path = {0,}, fname = {0,}, tspath = {0,};
+    int title_no = -1;
+    char *path = NULL, *fname = NULL, *tspath = NULL;
     char *bdpath = NULL, *dest = NULL;
     FILE *out, *tsfile;
-    MPLS_PL *pl;
-    CLPI_CL *cl;
-    int opt, ii;
-    uint32_t start_pkt, end_pkt;
+    int opt;
     int verbose = 0;
     int64_t size, total = 0;
+    NAV_TITLE *title;
+    NAV_CLIP *clip;
 
     do {
         opt = getopt(argc, argv, OPTS);
@@ -115,18 +89,8 @@ main(int argc, char *argv[])
             case -1: 
                 break;
 
-            case 'c':
-            {
-                int match;
-                match = sscanf(optarg, "%d-%d", &chapter_start, &chapter_end);
-                if (match == 1) {
-                    chapter_end = chapter_start;
-                }
-                break;
-            }
-
             case 't':
-                title = atoi(optarg);
+                title_no = atoi(optarg);
                 break;
 
             case 'v':
@@ -139,7 +103,7 @@ main(int argc, char *argv[])
         }
     } while (opt != -1);
 
-    if (title < 0) {
+    if (title_no < 0) {
         _usage(argv[0]);
     }
     if (optind >= argc) {
@@ -149,18 +113,15 @@ main(int argc, char *argv[])
     if (optind < argc) {
         dest = argv[optind];
     }
-    _make_path(&path, bdpath, "PLAYLIST");
-    if (path.buf == NULL) {
-        fprintf(stderr, "Failed to find playlist path\n");
+
+    fname = str_printf("%05d.mpls", title_no);
+    X_FREE(path);
+    title = nav_title_open(bdpath, fname);
+    if (title == NULL) {
+        fprintf(stderr, "Failed to open title: %s\n", fname);
         return 1;
     }
-    str_printf(&fname, "%s/%05d.mpls", path.buf, title);
-    str_free(&path);
-    pl = mpls_parse(fname.buf, verbose);
-    if (pl == NULL) {
-        fprintf(stderr, "Failed to parse playlist: %s\n", fname.buf);
-        return 1;
-    }
+
     if (dest) {
         out = fopen(dest, "wb");
         if (out == NULL) {
@@ -170,110 +131,40 @@ main(int argc, char *argv[])
     } else {
         out = stdout;
     }
-    _make_path(&path, bdpath, "CLIPINF");
-    if (path.buf == NULL) {
-        fprintf(stderr, "Failed to find clip info path\n");
-        return 1;
-    }
-    _make_path(&tspath, bdpath, "STREAM");
-    if (tspath.buf == NULL) {
-        str_free(&path);
+
+    tspath = str_printf("%s/BDMV/STREAM", bdpath);
+    if (tspath == NULL) {
+        X_FREE(path);
         fprintf(stderr, "Failed to find stream path\n");
         return 1;
     }
-    if (chapter_start > pl->mark_count) {
-        chapter_start = pl->mark_count;
-    }
-    if (chapter_end > pl->mark_count) {
-        chapter_end = pl->mark_count;
-    }
-    if (chapter_start) {
-        MPLS_PLM *plm;
+    for (clip = nav_next_clip(title); clip; clip = nav_next_clip(title)) {
 
-        plm = &pl->play_mark[chapter_start - 1];
-        start_ref = chapter_start_ref = plm->play_item_ref;
-        chapter_start_time = plm->time;
-        if (chapter_end < pl->mark_count) {
-            plm = &pl->play_mark[chapter_end];
-            end_ref = chapter_end_ref = plm->play_item_ref;
-            chapter_end_time = plm->time;
-        } else {
-            end_ref = chapter_end_ref = pl->list_count - 1;
-            chapter_end_ref = -1;
-        }
-    } else {
-        start_ref = 0;
-        chapter_start_ref = -1;
-        end_ref = chapter_end_ref = pl->list_count - 1;
-        chapter_end_ref = -1;
-    }
-    for (ii = start_ref; ii <= end_ref; ii++) {
-        MPLS_PI *pi;
-
-        pi = &pl->play_item[ii];
-
-        str_printf(&fname, "%s/", path.buf);
-        str_append_sub(&fname, pi->clip_id, 0, 5);
-        str_append(&fname, ".clpi");
-
-        cl = clpi_parse(fname.buf, verbose);
-        if (cl == NULL) {
-            fprintf(stderr, "Failed to parse clip info: %s\n", fname.buf);
-            return 1;
-        }
-
-        str_printf(&fname, "%s/", tspath.buf);
-        str_append_sub(&fname, pi->clip_id, 0, 5);
-        str_append(&fname, ".m2ts");
-        tsfile = fopen(fname.buf, "rb");
+        fname = str_printf("%s/%s", tspath, clip->name);
+        tsfile = fopen(fname, "rb");
         if (tsfile == NULL) {
-            fprintf(stderr, "Failed to open m2ts file: %s\n", fname.buf);
-            clpi_free(&cl);
+            fprintf(stderr, "Failed to open m2ts file: %s\n", fname);
+            X_FREE(clip);
             return 1;
         }
         if (verbose) {
-            fprintf(stderr, "Splicing: %s\n", basename(fname.buf));
+            fprintf(stderr, "Splicing: %s\n", basename(fname));
         }
 
-        if (ii == chapter_start_ref && chapter_start != 1) {
-            start_pkt = clpi_lookup_spn(&cl->cpi, chapter_start_time, 0);
-        } else {
-            // When the connection condition is seamless, start at 
-            // first source packet of the clip
-            if ((pi->connection_condition == 5 ||
-                pi->connection_condition == 6)) {
-
-                start_pkt = 0;
-            } else {
-                start_pkt = clpi_lookup_spn(&cl->cpi, pi->in_time, 1);
-                // For some reason, the in_time of a clip always resolves 
-                // to a packet that is 1 packet after a PCR which we need
-                // in order to handle the discontinuities correctly
-                if (start_pkt > 0) {
-                    start_pkt--;
-                }
-            }
-        }
-        if (ii == chapter_end_ref) {
-            end_pkt = clpi_lookup_spn(&cl->cpi, chapter_end_time, 0);
-        } else {
-            end_pkt = clpi_lookup_spn(&cl->cpi, pi->out_time, 0);
-        }
         if (verbose) {
-            fprintf(stderr, "Start SPN %u - End SPN %u\n", start_pkt, end_pkt);
+            fprintf(stderr, "Start SPN %u - End SPN %u\n", 
+                    clip->start_spn, clip->end_spn);
         }
-        size = _write_packets(out, tsfile, start_pkt, end_pkt);
+        size = _write_packets(out, tsfile, clip->start_spn, clip->end_spn);
         total += size;
-        if (verbose) {
-            fprintf(stderr, "Wrote %ld - Total %ld\n", size, total);
-        }
         fclose(tsfile);
-        clpi_free(&cl);
     }
-    mpls_free(&pl);
-    str_free(&fname);
-    str_free(&path);
-    str_free(&tspath);
+    if (verbose) {
+        fprintf(stderr, "Wrote %ld bytes\n", total);
+    }
+    X_FREE(fname);
+    X_FREE(path);
+    X_FREE(tspath);
     fclose(out);
     return 0;
 }

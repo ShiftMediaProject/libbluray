@@ -1,4 +1,3 @@
-#include "config.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -96,6 +95,7 @@ _parse_stream(BITSTREAM *bits, MPLS_STREAM *s)
     len = bs_read(bits, 8);
     pos = bs_pos(bits) >> 3;
 
+    s->lang[0] = '\0';
     s->coding_type = bs_read(bits, 8);
     switch (s->coding_type) {
         case 0x01:
@@ -134,6 +134,7 @@ _parse_stream(BITSTREAM *bits, MPLS_STREAM *s)
             fprintf(stderr, "unrecognized coding type %02x\n", s->coding_type);
             break;
     };
+    s->lang[3] = '\0';
 
     bs_seek_byte(bits, pos + len);
     return 1;
@@ -158,6 +159,7 @@ _parse_playitem(BITSTREAM *bits, MPLS_PI *pi)
 
     // Primary Clip identifer
     bs_read_bytes(bits, (uint8_t*)pi->clip_id, 5);
+    pi->clip_id[5] = '\0';
 
     // skip the redundant "M2TS" CodecIdentifier
     bs_read_bytes(bits, codecId, 4);
@@ -359,11 +361,13 @@ _extrapolate(MPLS_PL *pl)
 }
 
 void
-mpls_free(MPLS_PL **p_pl)
+mpls_free(MPLS_PL *pl)
 {
     int ii;
-    MPLS_PL *pl = *p_pl;
 
+    if (pl == NULL) {
+        return;
+    }
     if (pl->play_mark != NULL) {
         X_FREE(pl->play_mark);
     }
@@ -385,7 +389,7 @@ mpls_free(MPLS_PL **p_pl)
     if (pl->play_item != NULL) {
         X_FREE(pl->play_item);
     }
-    X_FREE(*p_pl);
+    X_FREE(pl);
 }
 
 MPLS_PL*
@@ -412,17 +416,17 @@ mpls_parse(char *path, int verbose)
     bs_init(&bits, fp);
     if (!_parse_header(&bits, pl)) {
         file_close(fp);
-        mpls_free(&pl);
+        mpls_free(pl);
         return NULL;
     }
     if (!_parse_playlist(&bits, pl)) {
         file_close(fp);
-        mpls_free(&pl);
+        mpls_free(pl);
         return NULL;
     }
     if (!_parse_playlistmark(&bits, pl)) {
         file_close(fp);
-        mpls_free(&pl);
+        mpls_free(pl);
         return NULL;
     }
     _extrapolate(pl);
