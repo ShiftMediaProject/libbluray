@@ -1,5 +1,5 @@
 
-SUBDIRS=src/libbdplus src/examples
+SUBDIRS=src/libbdplus src/libbdnav src/examples
 
 EXTRA_DIST=README.txt
 

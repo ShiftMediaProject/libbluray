@@ -12,6 +12,8 @@ AC_CONFIG_SUBDIRS([src/libbdplus])
 # Run ./configure in examples
 AC_CONFIG_SUBDIRS([src/examples])
 
+# Run ./configure in libbdnav
+AC_CONFIG_SUBDIRS([src/libbdnav])
 
 
 AC_CONFIG_FILES([Makefile])
