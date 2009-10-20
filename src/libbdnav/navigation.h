@@ -1,7 +1,7 @@
 
 #include <stdint.h>
-#include "libbdnav/mpls_parse.h"
-#include "libbdnav/clpi_parse.h"
+#include "mpls_parse.h"
+#include "clpi_parse.h"
 
 #define CONNECT_NON_SEAMLESS 0
 #define CONNECT_SEAMLESS 1

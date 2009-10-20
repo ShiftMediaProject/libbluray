@@ -5,9 +5,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <libgen.h>
-#include "util/macro.h"
-#include "file/file.h"
-#include "util/bits.h"
+#include "../util/macro.h"
+#include "../file/file.h"
+#include "../util/bits.h"
 #include "clpi_parse.h"
 
 #define CLPI_SIG1  ('H' << 24 | 'D' << 16 | 'M' << 8 | 'V')

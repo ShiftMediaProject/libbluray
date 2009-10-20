@@ -1,9 +1,9 @@
 #if !defined(_BDPARSE_H_)
 #define _BDPARSE_H_
 
-#include "libbdnav/mpls_parse.h"
-#include "libbdnav/clpi_parse.h"
-#include "libbdnav/navigation.h"
+#include "mpls_parse.h"
+#include "clpi_parse.h"
+#include "navigation.h"
 
 #define BD_STREAM_TYPE_VIDEO_MPEG1          0x01
 #define BD_STREAM_TYPE_VIDEO_MPEG2          0x02

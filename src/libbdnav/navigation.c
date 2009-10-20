@@ -1,12 +1,12 @@
 #include <stdint.h>
 #include <string.h>
-#include "util/macro.h"
-#include "util/logging.h"
-#include "util/strutl.h"
-#include "file/dir.h"
-#include "file/file.h"
-#include "libbdnav/mpls_parse.h"
-#include "libbdnav/navigation.h"
+#include "../util/macro.h"
+#include "../util/logging.h"
+#include "../util/strutl.h"
+#include "../file/dir.h"
+#include "../file/file.h"
+#include "mpls_parse.h"
+#include "navigation.h"
 
 static int _filter_dup(MPLS_PL *pl_list[], int count, MPLS_PL *pl)
 {

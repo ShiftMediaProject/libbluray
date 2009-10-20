@@ -11,14 +11,15 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
     BLURAY *bd = NULL;
 
-    bd->aacs = NULL;
-    bd->h_libaacs = NULL;
-    bd->fp = NULL;
-
+    printf("A\n");
     if (device_path) {
         strncpy(bd->device_path, device_path, 100);
 
         bd = malloc(sizeof(BLURAY));
+
+        bd->aacs = NULL;
+        bd->h_libaacs = NULL;
+        bd->fp = NULL;
 
         if (keyfile_path) {
             if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_LAZY))) {
