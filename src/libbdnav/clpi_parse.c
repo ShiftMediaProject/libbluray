@@ -366,6 +366,55 @@ clpi_lookup_spn(CLPI_CPI *cpi, uint32_t timestamp, int before)
     return spn;
 }
 
+// Looks up the start packet number that is closest to the requested packet
+// Returns the spn for the entry that is closest to but
+// before the given packet
+uint32_t
+clpi_access_point(CLPI_CPI *cpi, uint32_t pkt)
+{
+    CLPI_EP_MAP_ENTRY *entry;
+    int ii, jj;
+    uint32_t coarse_spn, spn;
+    int start, end;
+    int ref;
+
+    // TODO: Use sequence info to find spn_stc_start before doing
+    // PTS search.  So far, I've found no discs that have more than
+    // one STC sequence, so this hasn't been necessary.
+
+    // Assumes that there is only one pid of interest
+    entry = &cpi->entry[0];
+    for (ii = 0; ii < entry->num_ep_coarse; ii++) {
+        ref = entry->coarse[ii].ref_ep_fine_id;
+        spn = (entry->coarse[ii].spn_ep & ~0x1FFFF) + entry->fine[ref].spn_ep;
+        if (spn > pkt) {
+            break;
+        }
+    }
+    // If the timestamp is before the first entry, then return
+    // the beginning of the clip
+    if (ii == 0) {
+        return 0;
+    }
+    ii--;
+    coarse_spn = (entry->coarse[ii].spn_ep & ~0x1FFFF);
+    start = entry->coarse[ii].ref_ep_fine_id;
+    if (ii < entry->num_ep_coarse - 1) {
+        end = entry->coarse[ii+1].ref_ep_fine_id;
+    } else {
+        end = entry->num_ep_fine;
+    }
+    for (jj = start; jj < end; jj++) {
+
+        spn = coarse_spn + entry->fine[ref].spn_ep;
+        if (spn > pkt)
+            break;
+    }
+    jj--;
+    spn = (entry->coarse[ii].spn_ep & ~0x1FFFF) + entry->fine[jj].spn_ep;
+    return spn;
+}
+
 void
 clpi_free(CLPI_CL *cl)
 {

@@ -40,7 +40,7 @@ static int _filter_dup(MPLS_PL *pl_list[], int count, MPLS_PL *pl)
 char* nav_find_main_title(char *root)
 {
     DIR_H *dir;
-	DIRENT ent;
+    DIRENT ent;
     char *path = NULL;
     MPLS_PL **pl_list = NULL;
     MPLS_PL **tmp = NULL;
@@ -48,7 +48,7 @@ char* nav_find_main_title(char *root)
     int count, ii, pl_list_size = 0;
     int res;
     char longest[11];
-	int longest_ii = 0;
+    int longest_ii = 0;
 
     DEBUG(DBG_NAV, "Root: %s:\n", root);
     path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST", root);
@@ -67,9 +67,9 @@ char* nav_find_main_title(char *root)
 
     for (ii = 0, res = dir_read(dir, &ent); !res; res = dir_read(dir, &ent)) {
 
-		if (ent.d_name[0] == '.') {
-			continue;
-		}
+        if (ent.d_name[0] == '.') {
+            continue;
+        }
         path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST" DIR_SEP "%s",
                           root, ent.d_name);
 
@@ -89,7 +89,7 @@ char* nav_find_main_title(char *root)
                 if (pl_list[ii]->duration > pl_list[longest_ii]->duration) {
                     strncpy(longest, ent.d_name, 11);
                     longest[10] = '\0';
-					longest_ii = ii;
+                    longest_ii = ii;
                 }
                 ii++;
             } else {
@@ -97,14 +97,14 @@ char* nav_find_main_title(char *root)
             }
         }
     }
-	dir_close(dir);
+    dir_close(dir);
 
     count = ii;
     for (ii = 0; ii < count; ii++) {
         mpls_free(pl_list[ii]);
     }
     if (count > 0) {
-		return strdup(longest);
+        return strdup(longest);
     } else {
         return NULL;
     }
@@ -114,6 +114,7 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
 {
     NAV_TITLE *title = NULL;
     char *path;
+    int ii;
 
     title = malloc(sizeof(NAV_TITLE));
     if (title == NULL) {
@@ -121,6 +122,8 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
     }
     strncpy(title->root, root, 1024);
     title->root[1023] = '\0';
+    strncpy(title->name, playlist, 11);
+    title->name[10] = '\0';
     path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST" DIR_SEP "%s",
                       root, playlist);
     title->pl = mpls_parse(path, 0);
@@ -131,16 +134,126 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
         return NULL;
     }
     X_FREE(path);
-    title->cl = NULL;
-    title->clip_index = -1;
+    // Find length in packets and end_pkt for each clip
+    title->clip = malloc(title->pl->list_count * sizeof(NAV_CLIP));
+    title->packets = 0;
+    for (ii = 0; ii < title->pl->list_count; ii++) {
+        MPLS_PI *pi;
+        NAV_CLIP *clip;
+
+        pi = &title->pl->play_item[ii];
+
+        clip = &title->clip[ii];
+        clip->play_item_ref = ii;
+        strncpy(clip->name, pi->clip_id, 5);
+        strncpy(&clip->name[5], ".m2ts", 6);
+
+        path = str_printf("%s"DIR_SEP"BDMV"DIR_SEP"CLIPINF"DIR_SEP"%s.clpi",
+                      title->root, pi->clip_id);
+        clip->cl = clpi_parse(path, 0);
+        X_FREE(path);
+        if (clip->cl == NULL) {
+            clip->start_pkt = 0;
+            clip->end_pkt = 0;
+            continue;
+        }
+        switch (pi->connection_condition) {
+            case 5:
+            case 6:
+                clip->start_pkt = 0;
+                clip->connection = CONNECT_SEAMLESS;
+                break;
+            default:
+                clip->start_pkt = clpi_lookup_spn(&clip->cl->cpi, pi->in_time, 1);
+                clip->connection = CONNECT_NON_SEAMLESS;
+            break;
+        }
+        clip->seek_pkt = clip->start_pkt;
+        clip->end_pkt = clpi_lookup_spn(&clip->cl->cpi, pi->out_time, 0);
+        if (clip->end_pkt == (uint32_t)-1) {
+            // The EP map couldn't tell us where the last packet is
+            // because it runs through the end of the file.  Find the
+            // file's length.
+            FILE_H *fp;
+
+            path = str_printf("%s"DIR_SEP"BDMV"DIR_SEP"STREAM"DIR_SEP"%s.m2ts",
+                              title->root, pi->clip_id);
+            fp = file_open(path, "rb");
+            if (fp != NULL) {
+                file_seek(fp, 0, SEEK_END);
+                clip->end_pkt = file_tell(fp) / 192;
+                file_close(fp);
+            } else {
+                clip->end_pkt = clip->start_pkt;
+            }
+        }
+        title->packets += clip->end_pkt - clip->start_pkt;
+    }
     return title;
 }
 
 void nav_title_close(NAV_TITLE *title)
 {
+    int ii;
+
     mpls_free(title->pl);
-    clpi_free(title->cl);
+    for (ii = 0; ii < title->pl->list_count; ii++) {
+        clpi_free(title->clip[ii].cl);
+    }
+    X_FREE(title->clip);
     X_FREE(title);
+}
+
+// Search for random access point closest to the requested packet
+// Packets are 192 byte TS packets
+NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt)
+{
+    uint32_t pos, len;
+    NAV_CLIP *clip;
+    int ii;
+
+    pos = 0;
+    for (ii = 0; ii < title->pl->list_count; ii++) {
+        len = title->clip[ii].end_pkt - title->clip[ii].start_pkt;
+        if (pkt < pos + len)
+            break;
+        pos += len;
+    }
+    if (ii == title->pl->list_count) {
+        clip = &title->clip[ii-1];
+        clip->seek_pkt = clip->end_pkt;
+    } else {
+        clip = &title->clip[ii];
+        clip->seek_pkt = clpi_access_point(&clip->cl->cpi, pkt - pos + clip->start_pkt);
+    }
+    return clip;
+}
+
+// Search for random access point closest to the requested time
+// Time is in 45khz ticks
+NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick)
+{
+    uint32_t pos, len;
+    MPLS_PI *pi;
+    NAV_CLIP *clip;
+    int ii;
+
+    pos = 0;
+    for (ii = 0; ii < title->pl->list_count; ii++) {
+        pi = &title->pl->play_item[ii];
+        len = pi->out_time - pi->in_time;
+        if (tick < pos + len)
+            break;
+        pos += len;
+    }
+    if (ii == title->pl->list_count) {
+        clip = &title->clip[ii-1];
+        clip->seek_pkt = clip->end_pkt;
+    } else {
+        clip = &title->clip[ii];
+        clip->seek_pkt = clpi_lookup_spn(&clip->cl->cpi, tick - pos + pi->in_time, 1);
+    }
+    return clip;
 }
 
 /*
@@ -150,52 +263,15 @@ void nav_title_close(NAV_TITLE *title)
  * Return value:
  * Pointer to NAV_CLIP struct
  * NULL - End of clip list
- *
- * free with X_FREE
  */
-NAV_CLIP* nav_next_clip(NAV_TITLE *title)
+NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip)
 {
-    NAV_CLIP *clip;
-    MPLS_PI *pi;
-	char *path;
-
-    clip = malloc(sizeof(NAV_CLIP));
     if (clip == NULL) {
+        return &title->clip[0];
+    }
+    if (clip->play_item_ref >= title->pl->list_count - 1) {
         return NULL;
     }
-
-    clpi_free(title->cl);
-    title->cl = NULL;
-
-    title->clip_index++;
-    if (title->clip_index >= title->pl->list_count) {
-        return NULL;
-    }
-
-    pi = &title->pl->play_item[title->clip_index];
-    path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "CLIPINF" DIR_SEP "%s.clpi",
-                      title->root, pi->clip_id);
-    title->cl = clpi_parse(path, 0);
-	X_FREE(path);
-    if (title->cl == NULL) {
-        return NULL;
-    }
-
-    strncpy(clip->name, pi->clip_id, 5);
-    strncpy(&clip->name[5], ".m2ts", 6);
-    switch (pi->connection_condition) {
-        case 5:
-        case 6:
-            clip->start_spn = 0;
-            clip->connection = CONNECT_SEAMLESS;
-            break;
-        default:
-            clip->start_spn = clpi_lookup_spn(&title->cl->cpi, pi->in_time, 1);
-            clip->connection = CONNECT_NON_SEAMLESS;
-            break;
-    }
-    clip->end_spn = clpi_lookup_spn(&title->cl->cpi, pi->out_time, 0);
-
-    return clip;
+    return &title->clip[clip->play_item_ref + 1];
 }
 

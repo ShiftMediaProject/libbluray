@@ -138,13 +138,12 @@ main(int argc, char *argv[])
         fprintf(stderr, "Failed to find stream path\n");
         return 1;
     }
-    for (clip = nav_next_clip(title); clip; clip = nav_next_clip(title)) {
+    for (clip = nav_next_clip(title, NULL); clip; clip = nav_next_clip(title, clip)) {
 
         fname = str_printf("%s/%s", tspath, clip->name);
         tsfile = fopen(fname, "rb");
         if (tsfile == NULL) {
             fprintf(stderr, "Failed to open m2ts file: %s\n", fname);
-            X_FREE(clip);
             return 1;
         }
         if (verbose) {
@@ -153,9 +152,9 @@ main(int argc, char *argv[])
 
         if (verbose) {
             fprintf(stderr, "Start SPN %u - End SPN %u\n", 
-                    clip->start_spn, clip->end_spn);
+                    clip->start_pkt, clip->end_pkt);
         }
-        size = _write_packets(out, tsfile, clip->start_spn, clip->end_spn);
+        size = _write_packets(out, tsfile, clip->start_pkt, clip->end_pkt);
         total += size;
         fclose(tsfile);
     }

@@ -483,10 +483,10 @@ main(int argc, char *argv[])
         dir = NULL;
         if (S_ISDIR(st.st_mode)) {
 
-			char *main_title = NULL;
+            char *main_title = NULL;
 
             printf("Directory: %s:\n", argv[ii]);
-			path = str_printf("%s/BDMV/PLAYLIST", argv[ii]);
+            path = str_printf("%s/BDMV/PLAYLIST", argv[ii]);
             if (path == NULL) {
                 fprintf(stderr, "Failed to find playlist path: %s\n", argv[ii]);
                 continue;
@@ -497,13 +497,13 @@ main(int argc, char *argv[])
                 free(path);
                 continue;
             }
-			main_title = nav_find_main_title(argv[ii]);
-			if (main_title != NULL) {
-				printf("Main Title: %s\n", main_title);
-				free(main_title);
-			} else {
-				fprintf(stderr, "Main title search failed\n");
-			}
+            main_title = nav_find_main_title(argv[ii]);
+            if (main_title != NULL) {
+                printf("Main Title: %s\n", main_title);
+                free(main_title);
+            } else {
+                fprintf(stderr, "Main title search failed\n");
+            }
         }
         if (dir != NULL) {
             char **dirlist = calloc(10001, sizeof(char*));
