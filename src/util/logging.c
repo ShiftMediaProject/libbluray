@@ -1,7 +1,8 @@
 
+#include <stdlib.h>
+
 #include "logging.h"
 
-const uint32_t master_mask = 0xffff; // this is only temporary
 char out[512];
 
 char *print_hex(uint8_t *buf, int count)
@@ -18,10 +19,16 @@ char *print_hex(uint8_t *buf, int count)
 
 void debug(char *file, int line, uint32_t mask, const char *format, ...)
 {
-    uint32_t type = (mask & master_mask) & 0xfffe,
-             verbose = !((!(master_mask & 1)) & (mask & 1));
+    uint32_t master_mask;
+    char *env;
 
-    if (type && verbose) {
+    if ((env = getenv("BD_DEBUG_MASK"))) {
+        master_mask = atoi(env);
+    } else {
+        master_mask = 0xffff;
+    }
+
+    if (mask && master_mask) {
         char buffer[512];
         va_list args;
 
