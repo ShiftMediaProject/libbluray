@@ -28,7 +28,7 @@ void debug(char *file, int line, uint32_t mask, const char *format, ...)
         master_mask = 0xffff;
     }
 
-    if (mask && master_mask) {
+    if (mask & master_mask) {
         char buffer[512];
         va_list args;
 
