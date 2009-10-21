@@ -5,6 +5,11 @@
 
 char out[512];
 
+
+debug_mask_t debug_mask = 0;
+static int debug_init = 0;
+
+
 char *print_hex(uint8_t *buf, int count)
 {
     memset(out, 0, count);
@@ -19,16 +24,20 @@ char *print_hex(uint8_t *buf, int count)
 
 void debug(char *file, int line, uint32_t mask, const char *format, ...)
 {
-    uint32_t master_mask;
     char *env;
 
-    if ((env = getenv("BD_DEBUG_MASK"))) {
-        master_mask = atoi(env);
-    } else {
-        master_mask = 0xffff;
+    // Only call getenv() once.
+    if (!debug_init) {
+        debug_init = 1;
+
+        if ((env = getenv("BD_DEBUG_MASK"))) {
+            debug_mask = atoi(env);
+        } else {
+            debug_mask = 0xffff;
+        }
     }
 
-    if (mask & master_mask) {
+    if (mask & debug_mask) {
         char buffer[512];
         va_list args;
 

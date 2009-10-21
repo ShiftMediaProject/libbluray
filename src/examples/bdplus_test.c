@@ -1,3 +1,14 @@
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#if HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
+#if HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
 
 #if HAVE_STDINT_H
 #include <stdint.h>
@@ -6,9 +17,6 @@
 #include <stdio.h>
 #if HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-#if HAVE_STDLIB_H
-#include <stdlib.h>
 #endif
 
 
@@ -35,7 +43,7 @@ int main(int argc, char **argv)
 
 
     // Technically not required, yet
-    if (bdplus_init()) goto fail;
+    if (bdplus_init(NULL, NULL, NULL)) goto fail;
 
     // Debug flags?
     bluray_debuglevel = 3;

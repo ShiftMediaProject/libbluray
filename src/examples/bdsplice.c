@@ -1,3 +1,14 @@
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#if HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
+#if HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -52,7 +63,7 @@ _write_packets(FILE *out, FILE *tsfile, uint32_t start_pkt, uint32_t end_pkt)
 static void
 _usage(char *cmd)
 {
-    fprintf(stderr, 
+    fprintf(stderr,
 "Usage: %s -t playlist [-c first[-last]] <bd path> [dest]\n"
 "Summary:\n"
 "    Given a playlist number and Blu-Ray directory tree,\n"
@@ -86,7 +97,7 @@ main(int argc, char *argv[])
     do {
         opt = getopt(argc, argv, OPTS);
         switch (opt) {
-            case -1: 
+            case -1:
                 break;
 
             case 't':
@@ -151,7 +162,7 @@ main(int argc, char *argv[])
         }
 
         if (verbose) {
-            fprintf(stderr, "Start SPN %u - End SPN %u\n", 
+            fprintf(stderr, "Start SPN %u - End SPN %u\n",
                     clip->start_pkt, clip->end_pkt);
         }
         size = _write_packets(out, tsfile, clip->start_pkt, clip->end_pkt);

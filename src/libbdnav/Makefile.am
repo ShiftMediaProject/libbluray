@@ -1,10 +1,10 @@
 ## Process this file with automake to produce Makefile.in
 
-AM_CPPFLAGS = -I $(top_builddir)/..
+AM_CPPFLAGS = -I $(top_builddir)/src
 
-noinst_LIBRARIES = libbdnav.a
+noinst_LTLIBRARIES = libbdnav.la
 
-libbdnav_a_SOURCES = \
+libbdnav_la_SOURCES = \
 	../util/logging.c \
 	../util/strutl.c \
 	../file/file_posix.c \

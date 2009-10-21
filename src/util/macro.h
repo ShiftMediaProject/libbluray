@@ -3,7 +3,6 @@
 #define MACRO_H_
 
 #include <stdio.h>
-#include <malloc.h>
 
 #define HEX_PRINT(X,Y) { int zz; for(zz = 0; zz < Y; zz++) fprintf(stderr, "%02X", X[zz]); fprintf(stderr, "\n"); }
 #define MKINT_BE16(X) ( (X)[0] << 8 | (X)[1] )

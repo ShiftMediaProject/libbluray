@@ -9,7 +9,7 @@
 
 #define DEBUG(X,Y,...) debug(__FILE__,__LINE__,X,Y,##__VA_ARGS__)
 
-enum {
+enum debug_mask_enum {
     DBG_CONFIGFILE = 2,
     DBG_FILE = 4,
     DBG_AACS = 8,
@@ -18,7 +18,10 @@ enum {
     DBG_BLURAY = 64,
     DBG_DIR = 128,
     DBG_NAV = 256
-} debug_mask;
+};
+
+typedef enum debug_mask_enum debug_mask_t;
+extern debug_mask_t debug_mask;
 
 char *print_hex(uint8_t *str, int count);
 void debug(char *file, int line, uint32_t mask, const char *format, ...);

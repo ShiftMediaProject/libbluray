@@ -1,14 +1,15 @@
 
-AM_CPPFLAGS = -I $(top_builddir)/..
+# Set this for all builds, or use $bin_CPPFLAGS for individual
+AM_CPPFLAGS = -I$(top_builddir)/src
 
 bin_PROGRAMS=bdplus_test bdsplice mpls_dump clpi_dump
 
 bdplus_test_SOURCE=bdplus_test.c
 
-bdplus_test_LDADD=$(top_builddir)/../libbdplus/libbdplus.a
-bdplus_test_CPPFLAGS = -I$(top_builddir)/../libbdplus
- 
-BDNAV_LIB = $(top_builddir)/../libbdnav/libbdnav.a
+bdplus_test_LDADD=$(top_builddir)/src/libbluray.la
+bdplus_test_CPPFLAGS = -I$(top_builddir)/src/libbdplus
+
+BDNAV_LIB = $(top_builddir)/src/libbdnav/libbdnav.la
 
 bdsplice_SOURCES = \
 	bdsplice.c

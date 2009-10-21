@@ -1,3 +1,14 @@
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#if HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
+#if HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
 
 #include <dlfcn.h>
 #include <stdio.h>
@@ -5,6 +16,9 @@
 #include "bluray.h"
 #include "util/macro.h"
 #include "util/logging.h"
+
+#include "bdplus.h"
+
 
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
