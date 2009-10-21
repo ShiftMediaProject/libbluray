@@ -10,6 +10,7 @@
 #define DEBUG(X,Y,...) debug(__FILE__,__LINE__,X,Y,##__VA_ARGS__)
 
 enum debug_mask_enum {
+    DBG_RESERVED = 1,
     DBG_CONFIGFILE = 2,
     DBG_FILE = 4,
     DBG_AACS = 8,
