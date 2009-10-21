@@ -16,11 +16,11 @@
 #include <unistd.h>
 #include <libgen.h>
 #include <string.h>
-#include "util/macro.h"
-#include "util/strutl.h"
-#include "libbdnav/clpi_parse.h"
-#include "libbdnav/mpls_parse.h"
-#include "libbdnav/navigation.h"
+#include "../util/macro.h"
+#include "../util/strutl.h"
+#include "../libbdnav/clpi_parse.h"
+#include "../libbdnav/mpls_parse.h"
+#include "../libbdnav/navigation.h"
 
 #define PKT_SIZE 192
 #define MIN(a,b) (((a) < (b)) ? a : b)

@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "libbdnav/clpi_parse.h"
+#include "../libbdnav/clpi_parse.h"
 #include "util.h"
 
 static int verbose;
