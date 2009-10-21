@@ -22,7 +22,7 @@
  *****************************************************************************/
 
 #ifndef BD_BITS_H
-#define BD_BITS_H 1
+#define BD_BITS_H
 
 //#include <stdio.h>
 #include <fcntl.h>
