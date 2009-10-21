@@ -4,8 +4,6 @@
 #include "logging.h"
 
 char out[512];
-
-
 debug_mask_t debug_mask = 0;
 static int debug_init = 0;
 

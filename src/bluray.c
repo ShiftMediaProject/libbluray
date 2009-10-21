@@ -17,9 +17,6 @@
 #include "util/macro.h"
 #include "util/logging.h"
 
-#include "bdplus.h"
-
-
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
     BLURAY *bd = malloc(sizeof(BLURAY));
