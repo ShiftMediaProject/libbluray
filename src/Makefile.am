@@ -1,5 +1,5 @@
 
-SUBDIRS=libaacs libbdplus libbdnav examples
+SUBDIRS=libaacs libbdplus libbdnav . examples
 
 
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_builddir)/src/libbdplus
