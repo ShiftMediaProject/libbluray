@@ -305,27 +305,77 @@ _parse_cpi(BITSTREAM *bits, CLPI_CL *cl)
     return 1;
 }
 
+uint32_t
+_find_stc_spn(CLPI_CL *cl, uint8_t stc_id)
+{
+    int ii;
+    CLPI_ATC_SEQ *atc;
+
+    for (ii = 0; ii < cl->sequence.num_atc_seq; ii++) {
+        atc = &cl->sequence.atc_seq[ii];
+        if (stc_id < atc->offset_stc_id + atc->num_stc_seq) {
+            return atc->stc_seq[stc_id - atc->offset_stc_id].spn_stc_start;
+        }
+    }
+    return 0;
+}
+
 // Looks up the start packet number for the timestamp
 // Returns the spn for the entry that is closest to but
 // before the given timestamp
 uint32_t
-clpi_lookup_spn(CLPI_CL *cl, uint32_t timestamp, int before)
+clpi_lookup_spn(CLPI_CL *cl, uint32_t timestamp, int before, uint8_t stc_id)
 {
     CLPI_EP_MAP_ENTRY *entry;
     CLPI_CPI *cpi = &cl->cpi;
     int ii, jj;
-    uint32_t coarse_pts, pts, spn;
+    uint32_t coarse_pts, pts; // 45khz timestamps
+    uint32_t spn, coarse_spn, stc_spn;
     int start, end;
     int ref;
 
-    // TODO: Use sequence info to find spn_stc_start before doing
-    // PTS search.  So far, I've found no discs that have more than
-    // one STC sequence, so this hasn't been necessary.
-
     // Assumes that there is only one pid of interest
     entry = &cpi->entry[0];
+
+    // Use sequence info to find spn_stc_start before doing
+    // PTS search. The spn_stc_start defines the point in
+    // the EP map to start searching.
+    stc_spn = _find_stc_spn(cl, stc_id);
     for (ii = 0; ii < entry->num_ep_coarse; ii++) {
-        // "pts" here is really pts/2.  i.e. 45khz clock
+        ref = entry->coarse[ii].ref_ep_fine_id;
+        if (entry->coarse[ii].spn_ep >= stc_spn) {
+            // The desired starting point is either after this point
+            // or in the middle of the previous coarse entry
+            break;
+        }
+    }
+    if (ii >= entry->num_ep_coarse) {
+        return cl->clip.num_source_packets;
+    }
+    pts = ((uint64_t)(entry->coarse[ii].pts_ep & ~0x01) << 18) +
+          ((uint64_t)entry->fine[ref].pts_ep << 8);
+    if (pts > timestamp) {
+        // The starting point and desired PTS is in the previous coarse entry
+        ii--;
+        coarse_pts = (uint32_t)(entry->coarse[ii].pts_ep & ~0x01) << 18;
+        coarse_spn = entry->coarse[ii].spn_ep;
+        start = entry->coarse[ii].ref_ep_fine_id;
+        end = entry->coarse[ii+1].ref_ep_fine_id;
+        // Find a fine entry that has bothe spn > stc_spn and ptc > timestamp
+        for (jj = start; jj < end; jj++) {
+
+            pts = coarse_pts + ((uint32_t)entry->fine[jj].pts_ep << 8);
+            spn = (coarse_spn & ~0x1FFFF) + entry->fine[jj].spn_ep;
+            if (stc_spn >= spn && pts > timestamp)
+                break;
+        }
+        goto done;
+    }
+
+    // If we've gotten this far, the desired timestamp is somewhere
+    // after the coarse entry we found the stc_spn in.
+    start = ii;
+    for (ii = start; ii < entry->num_ep_coarse; ii++) {
         ref = entry->coarse[ii].ref_ep_fine_id;
         pts = ((uint64_t)(entry->coarse[ii].pts_ep & ~0x01) << 18) +
                 ((uint64_t)entry->fine[ref].pts_ep << 8);
@@ -352,6 +402,8 @@ clpi_lookup_spn(CLPI_CL *cl, uint32_t timestamp, int before)
         if (pts > timestamp)
             break;
     }
+
+done:
     if (before) {
         jj--;
     }
@@ -380,12 +432,9 @@ clpi_access_point(CLPI_CL *cl, uint32_t pkt)
     int start, end;
     int ref;
 
-    // TODO: Use sequence info to find spn_stc_start before doing
-    // PTS search.  So far, I've found no discs that have more than
-    // one STC sequence, so this hasn't been necessary.
-
     // Assumes that there is only one pid of interest
     entry = &cpi->entry[0];
+
     for (ii = 0; ii < entry->num_ep_coarse; ii++) {
         ref = entry->coarse[ii].ref_ep_fine_id;
         spn = (entry->coarse[ii].spn_ep & ~0x1FFFF) + entry->fine[ref].spn_ep;

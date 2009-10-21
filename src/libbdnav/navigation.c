@@ -176,11 +176,13 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
                 clip->connection = CONNECT_SEAMLESS;
                 break;
             default:
-                clip->start_pkt = clpi_lookup_spn(clip->cl, pi->in_time, 1);
+                clip->start_pkt = clpi_lookup_spn(clip->cl, pi->in_time, 1,
+                          title->pl->play_item[ii].stc_id);
                 clip->connection = CONNECT_NON_SEAMLESS;
             break;
         }
-        clip->end_pkt = clpi_lookup_spn(clip->cl, pi->out_time, 0);
+        clip->end_pkt = clpi_lookup_spn(clip->cl, pi->out_time, 0,
+                          title->pl->play_item[ii].stc_id);
         title->packets += clip->end_pkt - clip->start_pkt;
     }
     return title;
@@ -245,7 +247,8 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt)
         *out_pkt = clip->end_pkt;
     } else {
         clip = &title->clip[ii];
-        *out_pkt = clpi_lookup_spn(clip->cl, tick - pos + pi->in_time, 1);
+        *out_pkt = clpi_lookup_spn(clip->cl, tick - pos + pi->in_time, 1,
+                          title->pl->play_item[clip->play_item_ref].stc_id);
     }
     return clip;
 }

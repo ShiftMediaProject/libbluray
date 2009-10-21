@@ -125,7 +125,7 @@ typedef struct
     // skip clip mark & extension data
 } CLPI_CL;
 
-uint32_t clpi_lookup_spn(CLPI_CL *cl, uint32_t timestamp, int before);
+uint32_t clpi_lookup_spn(CLPI_CL *cl, uint32_t timestamp, int before, uint8_t stc_id);
 uint32_t clpi_access_point(CLPI_CL *cl, uint32_t pkt);
 CLPI_CL* clpi_parse(char *path, int verbose);
 void clpi_free(CLPI_CL *cl);
