@@ -166,8 +166,8 @@ _show_clip_info(CLPI_CLIP_INFO *ci, int level)
     indent_printf(level+1, "Clip Stream Type: %02x", ci->clip_stream_type);
     indent_printf(level+1, "Clip Application Type: %02x", 
                 ci->application_type);
-    indent_printf(level+1, "is_cc5: %s", ci->is_cc5 ? "True" : "False");
-    indent_printf(level+1, "cc5 count: %d", ci->cc5_thingy_count);
+    indent_printf(level+1, "is_ATC_delta: %s", ci->is_atc_delta ? "True" : "False");
+    indent_printf(level+1, "ATC delta count: %d", ci->atc_delta_count);
     indent_printf(level+1, "TS Recording Rate: %u", ci->ts_recording_rate);
     indent_printf(level+1, "Number Source Packets: %u", ci->num_source_packets);
     // Show ts type info
@@ -175,11 +175,11 @@ _show_clip_info(CLPI_CLIP_INFO *ci, int level)
     indent_printf(level+2, "Validity Flags %02x", ci->ts_type_info.validity);
     indent_printf(level+2, "Format Id %s", ci->ts_type_info.format_id);
     // Show cc5 thing
-    for (ii = 0; ii < ci->cc5_thingy_count; ii++) {
-        indent_printf(level+1, "CC5 %d", ii);
-        indent_printf(level+2, "Unknown %08x", ci->cc5_thingy[ii].unknown);
-        indent_printf(level+2, "File Id %s", ci->cc5_thingy[ii].file_id);
-        indent_printf(level+2, "File Code %s", ci->cc5_thingy[ii].file_code);
+    for (ii = 0; ii < ci->atc_delta_count; ii++) {
+        indent_printf(level+1, "ATC delta[ %d ]", ii);
+        indent_printf(level+2, "Delta %08x", ci->atc_delta[ii].delta);
+        indent_printf(level+2, "File Id %s", ci->atc_delta[ii].file_id);
+        indent_printf(level+2, "File Code %s", ci->atc_delta[ii].file_code);
     }
     printf("\n");
 }

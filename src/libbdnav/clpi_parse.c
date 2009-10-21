@@ -135,7 +135,7 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
     cl->clip.application_type = bs_read(bits, 8);
     // skip reserved 31 bits
     bs_skip(bits, 31);
-    cl->clip.is_cc5 = bs_read(bits, 1);
+    cl->clip.is_atc_delta       = bs_read(bits, 1);
     cl->clip.ts_recording_rate  = bs_read(bits, 32);
     cl->clip.num_source_packets = bs_read(bits, 32);
 
@@ -152,18 +152,18 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
         // Seek past the stuff we don't know anything about
         bs_seek_byte(bits, pos + len);
     }
-    if (cl->clip.is_cc5) {
+    if (cl->clip.is_atc_delta) {
         // Skip reserved bytes
         bs_skip(bits, 8);
-        cl->clip.cc5_thingy_count = bs_read(bits, 8);
-        cl->clip.cc5_thingy = 
-            malloc(cl->clip.cc5_thingy_count * sizeof(CLPI_CC5_INFO));
-        for (ii = 0; ii < cl->clip.cc5_thingy_count; ii++) {
-            cl->clip.cc5_thingy[ii].unknown = bs_read(bits, 32);
-            bs_read_bytes(bits, cl->clip.cc5_thingy[ii].file_id, 5);
-            cl->clip.cc5_thingy[ii].file_id[5] = '\0';
-            bs_read_bytes(bits, cl->clip.cc5_thingy[ii].file_code, 4);
-            cl->clip.cc5_thingy[ii].file_code[4] = '\0';
+        cl->clip.atc_delta_count = bs_read(bits, 8);
+        cl->clip.atc_delta = 
+            malloc(cl->clip.atc_delta_count * sizeof(CLPI_ATC_DELTA));
+        for (ii = 0; ii < cl->clip.atc_delta_count; ii++) {
+            cl->clip.atc_delta[ii].delta = bs_read(bits, 32);
+            bs_read_bytes(bits, cl->clip.atc_delta[ii].file_id, 5);
+            cl->clip.atc_delta[ii].file_id[5] = '\0';
+            bs_read_bytes(bits, cl->clip.atc_delta[ii].file_code, 4);
+            cl->clip.atc_delta[ii].file_code[4] = '\0';
             bs_skip(bits, 8);
         }
     }
@@ -309,9 +309,10 @@ _parse_cpi(BITSTREAM *bits, CLPI_CL *cl)
 // Returns the spn for the entry that is closest to but
 // before the given timestamp
 uint32_t
-clpi_lookup_spn(CLPI_CPI *cpi, uint32_t timestamp, int before)
+clpi_lookup_spn(CLPI_CL *cl, uint32_t timestamp, int before)
 {
     CLPI_EP_MAP_ENTRY *entry;
+    CLPI_CPI *cpi = &cl->cpi;
     int ii, jj;
     uint32_t coarse_pts, pts, spn;
     int start, end;
@@ -358,7 +359,7 @@ clpi_lookup_spn(CLPI_CPI *cpi, uint32_t timestamp, int before)
         ii++;
         if (ii >= entry->num_ep_coarse) {
             // End of file
-            return -1;
+            return cl->clip.num_source_packets;
         }
         jj = entry->coarse[ii].ref_ep_fine_id;
     }
@@ -370,9 +371,10 @@ clpi_lookup_spn(CLPI_CPI *cpi, uint32_t timestamp, int before)
 // Returns the spn for the entry that is closest to but
 // before the given packet
 uint32_t
-clpi_access_point(CLPI_CPI *cpi, uint32_t pkt)
+clpi_access_point(CLPI_CL *cl, uint32_t pkt)
 {
     CLPI_EP_MAP_ENTRY *entry;
+    CLPI_CPI *cpi = &cl->cpi;
     int ii, jj;
     uint32_t coarse_spn, spn;
     int start, end;
@@ -423,8 +425,8 @@ clpi_free(CLPI_CL *cl)
     if (cl == NULL) {
         return;
     }
-    if (cl->clip.cc5_thingy != NULL) {
-        X_FREE(cl->clip.cc5_thingy);
+    if (cl->clip.atc_delta != NULL) {
+        X_FREE(cl->clip.atc_delta);
     }
     for (ii = 0; ii < cl->sequence.num_atc_seq; ii++) {
         if (cl->sequence.atc_seq[ii].stc_seq != NULL) {

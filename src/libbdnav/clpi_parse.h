@@ -31,21 +31,21 @@ typedef struct
 
 typedef struct
 {
-    uint32_t          unknown;
+    uint32_t          delta;
     uint8_t           file_id[6];
     uint8_t           file_code[5];
-} CLPI_CC5_INFO;
+} CLPI_ATC_DELTA;
 
 typedef struct
 {
     uint8_t           clip_stream_type;
     uint8_t           application_type;
-    uint8_t           is_cc5;
+    uint8_t           is_atc_delta;
     uint32_t          ts_recording_rate;
     uint32_t          num_source_packets;
     CLPI_TS_TYPE      ts_type_info;
-    uint8_t           cc5_thingy_count;
-    CLPI_CC5_INFO    *cc5_thingy;
+    uint8_t           atc_delta_count;
+    CLPI_ATC_DELTA   *atc_delta;
 } CLPI_CLIP_INFO;
 
 typedef struct
@@ -125,8 +125,8 @@ typedef struct
     // skip clip mark & extension data
 } CLPI_CL;
 
-uint32_t clpi_lookup_spn(CLPI_CPI *cpi, uint32_t timestamp, int before);
-uint32_t clpi_access_point(CLPI_CPI *cpi, uint32_t pkt);
+uint32_t clpi_lookup_spn(CLPI_CL *cl, uint32_t timestamp, int before);
+uint32_t clpi_access_point(CLPI_CL *cl, uint32_t pkt);
 CLPI_CL* clpi_parse(char *path, int verbose);
 void clpi_free(CLPI_CL *cl);
 

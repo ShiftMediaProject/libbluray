@@ -176,28 +176,11 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
                 clip->connection = CONNECT_SEAMLESS;
                 break;
             default:
-                clip->start_pkt = clpi_lookup_spn(&clip->cl->cpi, pi->in_time, 1);
+                clip->start_pkt = clpi_lookup_spn(clip->cl, pi->in_time, 1);
                 clip->connection = CONNECT_NON_SEAMLESS;
             break;
         }
-        clip->end_pkt = clpi_lookup_spn(&clip->cl->cpi, pi->out_time, 0);
-        if (clip->end_pkt == (uint32_t)-1) {
-            // The EP map couldn't tell us where the last packet is
-            // because it runs through the end of the file.  Find the
-            // file's length.
-            FILE_H *fp;
-
-            path = str_printf("%s"DIR_SEP"BDMV"DIR_SEP"STREAM"DIR_SEP"%s.m2ts",
-                              title->root, pi->clip_id);
-            fp = file_open(path, "rb");
-            if (fp != NULL) {
-                file_seek(fp, 0, SEEK_END);
-                clip->end_pkt = file_tell(fp) / 192;
-                file_close(fp);
-            } else {
-                clip->end_pkt = clip->start_pkt;
-            }
-        }
+        clip->end_pkt = clpi_lookup_spn(clip->cl, pi->out_time, 0);
         title->packets += clip->end_pkt - clip->start_pkt;
     }
     return title;
@@ -235,7 +218,7 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *out_pkt)
         *out_pkt = clip->end_pkt;
     } else {
         clip = &title->clip[ii];
-        *out_pkt = clpi_access_point(&clip->cl->cpi, pkt - pos + clip->start_pkt);
+        *out_pkt = clpi_access_point(clip->cl, pkt - pos + clip->start_pkt);
     }
     return clip;
 }
@@ -262,7 +245,7 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt)
         *out_pkt = clip->end_pkt;
     } else {
         clip = &title->clip[ii];
-        *out_pkt = clpi_lookup_spn(&clip->cl->cpi, tick - pos + pi->in_time, 1);
+        *out_pkt = clpi_lookup_spn(clip->cl, tick - pos + pi->in_time, 1);
     }
     return clip;
 }
