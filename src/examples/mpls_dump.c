@@ -206,6 +206,7 @@ _show_marks(MPLS_PL *pl, int level)
 {
     int ii;
 
+    indent_printf(level, "PlayMark Count %d", pl->mark_count);
     for (ii = 0; ii < pl->mark_count; ii++) {
         MPLS_PI *pi;
         MPLS_PLM *plm;
@@ -222,9 +223,10 @@ _show_marks(MPLS_PL *pl, int level)
             indent_printf(level+1, "PlayItem: Invalid reference");
         }
         indent_printf(level+1, "Time (ticks): %lu", plm->time);
-        min = plm->abs_start / (45000*60);
-        sec = (double)(plm->abs_start - min * 45000 * 60) / 45000;
-        indent_printf(level+1, "Abs Time (mm:ss.ms): %d:%.2f", min, sec);
+        min = plm->duration / (45000*60);
+        sec = (double)(plm->duration - min * 45000 * 60) / 45000;
+        indent_printf(level+1, "Duration (mm:ss.ms, ticks): %d:%.2f, %lu", 
+                      min, sec, plm->duration);
         printf("\n");
     }
 }
@@ -253,6 +255,20 @@ _show_clip_list(MPLS_PL *pl, int level)
     }
 }
 
+static uint32_t
+_pl_duration(MPLS_PL *pl)
+{
+    int ii;
+    uint32_t duration = 0;
+    MPLS_PI *pi;
+
+    for (ii = 0; ii < pl->list_count; ii++) {
+        pi = &pl->play_item[ii];
+        duration += pi->out_time - pi->in_time;
+    }
+    return duration;
+}
+
 static int
 _filter_dup(MPLS_PL *pl_list[], int count, MPLS_PL *pl)
 {
@@ -260,7 +276,7 @@ _filter_dup(MPLS_PL *pl_list[], int count, MPLS_PL *pl)
 
     for (ii = 0; ii < count; ii++) {
         if (pl->list_count != pl_list[ii]->list_count ||
-            pl->duration != pl_list[ii]->duration) {
+            _pl_duration(pl) != _pl_duration(pl_list[ii])) {
             continue;
         }
         for (jj = 0; jj < pl->list_count; jj++) {
@@ -304,7 +320,7 @@ static int
 _filter_short(MPLS_PL *pl, int seconds)
 {
     // Ignore short playlists
-    if (pl->duration / 45000 <= seconds) {
+    if (_pl_duration(pl) / 45000 <= seconds) {
         return 0;
     }
     return 1;
@@ -363,13 +379,13 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
                     "%s -- Num Clips: %3d , Duration: minutes %4lu:%02lu", 
                     basename(name),
                     pl->list_count,
-                    pl->duration / (45000 * 60),
-                    (pl->duration / 45000) % 60);
+                    _pl_duration(pl) / (45000 * 60),
+                    (_pl_duration(pl) / 45000) % 60);
     } else {
         indent_printf(0, "%s -- Duration: minutes %4lu:%02lu", 
                     basename(name),
-                    pl->duration / (45000 * 60),
-                    (pl->duration / 45000) % 60);
+                    _pl_duration(pl) / (45000 * 60),
+                    (_pl_duration(pl) / 45000) % 60);
     }
     if (playlist_info) {
         _show_details(pl, 1);

@@ -331,35 +331,6 @@ _parse_playlist(BITSTREAM *bits, MPLS_PL *pl)
     return 1;
 }
 
-static void
-_extrapolate(MPLS_PL *pl)
-{
-    uint64_t duration = 0;
-    int ii;
-
-    for (ii = 0; ii < pl->list_count; ii++) {
-        MPLS_PI *pi;
-
-        pi = &pl->play_item[ii];
-        pi->abs_start = duration;
-        duration += pi->out_time - pi->in_time;
-        pi->abs_end = duration;
-    }
-    pl->duration = duration;
-    for (ii = 0; ii < pl->mark_count; ii++) {
-        MPLS_PI *pi;
-        MPLS_PLM *plm;
-
-        plm = &pl->play_mark[ii];
-        if (plm->play_item_ref < pl->list_count) {
-            pi = &pl->play_item[plm->play_item_ref];
-            plm->abs_start = pi->abs_start + plm->time - pi->in_time;
-        } else {
-            plm->abs_start = 0;
-        }
-    }
-}
-
 void
 mpls_free(MPLS_PL *pl)
 {
@@ -429,7 +400,6 @@ mpls_parse(char *path, int verbose)
         mpls_free(pl);
         return NULL;
     }
-    _extrapolate(pl);
     file_close(fp);
     return pl;
 }

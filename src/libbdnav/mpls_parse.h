@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#define BD_MARK_ENTRY   0x01
+#define BD_MARK_LINK    0x02
+
 typedef struct
 {
     uint8_t         stream_type;
@@ -39,10 +42,6 @@ typedef struct
     uint32_t        in_time;
     uint32_t        out_time;
     MPLS_PL_STN     stn;
-
-    // Extrapolated items
-    uint32_t        abs_start;
-    uint32_t        abs_end;
 } MPLS_PI;
 
 typedef struct
@@ -53,9 +52,6 @@ typedef struct
     uint32_t        time;
     uint16_t        entry_es_pid;
     uint32_t        duration;
-
-    // Extrapolated items
-    uint32_t        abs_start;
 } MPLS_PLM;
 
 typedef struct
@@ -70,9 +66,6 @@ typedef struct
     uint16_t        mark_count;
     MPLS_PI        *play_item;
     MPLS_PLM       *play_mark;
-
-    // Extrapolated items
-    uint64_t        duration;
 } MPLS_PL;
 
 

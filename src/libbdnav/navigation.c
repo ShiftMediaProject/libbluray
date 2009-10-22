@@ -25,8 +25,7 @@ static int _filter_dup(MPLS_PL *pl_list[], int count, MPLS_PL *pl)
     int ii, jj;
 
     for (ii = 0; ii < count; ii++) {
-        if (pl->list_count != pl_list[ii]->list_count ||
-            pl->duration != pl_list[ii]->duration) {
+        if (pl->list_count != pl_list[ii]->list_count) {
             continue;
         }
         for (jj = 0; jj < pl->list_count; jj++) {
@@ -49,6 +48,20 @@ static int _filter_dup(MPLS_PL *pl_list[], int count, MPLS_PL *pl)
     return 1;
 }
 
+static uint32_t
+_pl_duration(MPLS_PL *pl)
+{
+    int ii;
+    uint32_t duration = 0;
+    MPLS_PI *pi;
+
+    for (ii = 0; ii < pl->list_count; ii++) {
+        pi = &pl->play_item[ii];
+        duration += pi->out_time - pi->in_time;
+    }
+    return duration;
+}
+
 char* nav_find_main_title(char *root)
 {
     DIR_H *dir;
@@ -57,10 +70,9 @@ char* nav_find_main_title(char *root)
     MPLS_PL **pl_list = NULL;
     MPLS_PL **tmp = NULL;
     MPLS_PL *pl = NULL;
-    int count, ii, pl_list_size = 0;
+    int count, ii, jj, pl_list_size = 0;
     int res;
     char longest[11];
-    int longest_ii = 0;
 
     DEBUG(DBG_NAV, "Root: %s:\n", root);
     path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST", root);
@@ -77,7 +89,8 @@ char* nav_find_main_title(char *root)
     }
     X_FREE(path);
 
-    for (ii = 0, res = dir_read(dir, &ent); !res; res = dir_read(dir, &ent)) {
+    ii = jj = 0;
+    for (res = dir_read(dir, &ent); !res; res = dir_read(dir, &ent)) {
 
         if (ent.d_name[0] == '.') {
             continue;
@@ -98,10 +111,10 @@ char* nav_find_main_title(char *root)
         if (pl != NULL) {
             if (_filter_dup(pl_list, ii, pl)) {
                 pl_list[ii] = pl;
-                if (pl_list[ii]->duration > pl_list[longest_ii]->duration) {
+                if (_pl_duration(pl_list[ii]) > _pl_duration(pl_list[jj])) {
                     strncpy(longest, ent.d_name, 11);
                     longest[10] = '\0';
-                    longest_ii = ii;
+                    jj = ii;
                 }
                 ii++;
             } else {
@@ -119,6 +132,83 @@ char* nav_find_main_title(char *root)
         return strdup(longest);
     } else {
         return NULL;
+    }
+}
+
+static void
+_extrapolate(NAV_TITLE *title)
+{
+    uint64_t duration = 0;
+    uint64_t pkt = 0;
+    int ii, jj;
+    MPLS_PL *pl = title->pl;
+    MPLS_PI *pi;
+    MPLS_PLM *plm;
+    NAV_CHAP *chap, *prev = NULL;
+    NAV_CLIP *clip;
+    int chapters;
+
+    for (ii = 0; ii < title->clip_list.count; ii++) {
+        clip = &title->clip_list.clip[ii];
+        pi = &pl->play_item[ii];
+
+        clip->title_time = duration;
+        clip->duration = pi->out_time - pi->in_time;
+        clip->title_pkt = pkt;
+        duration += clip->duration;
+        pkt += clip->end_pkt - clip->start_pkt;
+    }
+    title->duration = duration;
+    title->packets = pkt;
+
+    // Count the number of "entry" marks (skipping "link" marks)
+    // This is the the number of chapters
+    for (ii = 0; ii < pl->mark_count; ii++) {
+        if (pl->play_mark[ii].mark_type == BD_MARK_ENTRY) {
+            chapters++;
+        }
+    }
+    title->chap_list.count = chapters;
+    title->chap_list.chapter = calloc(chapters, sizeof(NAV_CHAP));
+
+    for (ii = 0, jj = 0; ii < pl->mark_count; ii++) {
+        plm = &pl->play_mark[ii];
+        if (plm->mark_type == BD_MARK_ENTRY) {
+
+            chap = &title->chap_list.chapter[jj];
+
+            chap->number = jj;
+            chap->plm = plm;
+            chap->clip_ref = plm->play_item_ref;
+            clip = &title->clip_list.clip[chap->clip_ref];
+            chap->clip_pkt = clpi_lookup_spn(clip->cl, plm->time, 1,
+                          title->pl->play_item[chap->clip_ref].stc_id);
+
+            // Calculate start of mark relative to beginning of playlist
+            if (plm->play_item_ref < title->clip_list.count) {
+                clip = &title->clip_list.clip[plm->play_item_ref];
+                pi = &pl->play_item[plm->play_item_ref];
+                chap->title_time = clip->title_time + plm->time - pi->in_time;
+            } else {
+                // Invalid chapter mark
+                continue;
+            }
+
+            // Calculate duration of "entry" marks (chapters)
+            if (plm->duration != 0) {
+                chap->duration = plm->duration;
+            } else if (prev != NULL) {
+                if (prev->duration == 0) {
+                    prev->duration = chap->title_time - prev->title_time;
+                }
+            }
+            prev = chap;
+            jj++;
+        }
+    }
+    title->chap_list.count = jj;
+    if (prev->duration == 0) {
+        prev->duration = title->duration - prev->title_time;
     }
 }
 
@@ -147,7 +237,8 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
     }
     X_FREE(path);
     // Find length in packets and end_pkt for each clip
-    title->clip = malloc(title->pl->list_count * sizeof(NAV_CLIP));
+    title->clip_list.count = title->pl->list_count;
+    title->clip_list.clip = malloc(title->pl->list_count * sizeof(NAV_CLIP));
     title->packets = 0;
     for (ii = 0; ii < title->pl->list_count; ii++) {
         MPLS_PI *pi;
@@ -155,8 +246,8 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
 
         pi = &title->pl->play_item[ii];
 
-        clip = &title->clip[ii];
-        clip->play_item_ref = ii;
+        clip = &title->clip_list.clip[ii];
+        clip->ref = ii;
         strncpy(clip->name, pi->clip_id, 5);
         strncpy(&clip->name[5], ".m2ts", 6);
 
@@ -183,8 +274,8 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
         }
         clip->end_pkt = clpi_lookup_spn(clip->cl, pi->out_time, 0,
                           title->pl->play_item[ii].stc_id);
-        title->packets += clip->end_pkt - clip->start_pkt;
     }
+    _extrapolate(title);
     return title;
 }
 
@@ -194,10 +285,22 @@ void nav_title_close(NAV_TITLE *title)
 
     mpls_free(title->pl);
     for (ii = 0; ii < title->pl->list_count; ii++) {
-        clpi_free(title->clip[ii].cl);
+        clpi_free(title->clip_list.clip[ii].cl);
     }
-    X_FREE(title->clip);
+    X_FREE(title->clip_list.clip);
     X_FREE(title);
+}
+
+// Search for random access point closest to the requested packet
+// Packets are 192 byte TS packets
+NAV_CLIP* nav_chapter_search(NAV_TITLE *title, int chapter, uint32_t *out_pkt)
+{
+    if (chapter > title->chap_list.count) {
+        *out_pkt = title->clip_list.clip[0].start_pkt;
+        return &title->clip_list.clip[0];
+    }
+    *out_pkt = title->chap_list.chapter[chapter].clip_pkt;
+    return &title->clip_list.clip[title->chap_list.chapter[chapter].clip_ref];
 }
 
 // Search for random access point closest to the requested packet
@@ -210,16 +313,17 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *out_pkt)
 
     pos = 0;
     for (ii = 0; ii < title->pl->list_count; ii++) {
-        len = title->clip[ii].end_pkt - title->clip[ii].start_pkt;
+        clip = &title->clip_list.clip[ii];
+        len = clip->end_pkt - clip->start_pkt;
         if (pkt < pos + len)
             break;
         pos += len;
     }
     if (ii == title->pl->list_count) {
-        clip = &title->clip[ii-1];
+        clip = &title->clip_list.clip[ii-1];
         *out_pkt = clip->end_pkt;
     } else {
-        clip = &title->clip[ii];
+        clip = &title->clip_list.clip[ii];
         *out_pkt = clpi_access_point(clip->cl, pkt - pos + clip->start_pkt);
     }
     return clip;
@@ -243,12 +347,12 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt)
         pos += len;
     }
     if (ii == title->pl->list_count) {
-        clip = &title->clip[ii-1];
+        clip = &title->clip_list.clip[ii-1];
         *out_pkt = clip->end_pkt;
     } else {
-        clip = &title->clip[ii];
+        clip = &title->clip_list.clip[ii];
         *out_pkt = clpi_lookup_spn(clip->cl, tick - pos + pi->in_time, 1,
-                          title->pl->play_item[clip->play_item_ref].stc_id);
+                          title->pl->play_item[clip->ref].stc_id);
     }
     return clip;
 }
@@ -264,11 +368,11 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt)
 NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip)
 {
     if (clip == NULL) {
-        return &title->clip[0];
+        return &title->clip_list.clip[0];
     }
-    if (clip->play_item_ref >= title->pl->list_count - 1) {
+    if (clip->ref >= title->clip_list.count - 1) {
         return NULL;
     }
-    return &title->clip[clip->play_item_ref + 1];
+    return &title->clip_list.clip[clip->ref + 1];
 }
 

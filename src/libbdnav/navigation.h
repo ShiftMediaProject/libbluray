@@ -9,31 +9,53 @@
 #define CONNECT_SEAMLESS 1
 
 typedef struct {
-    int      play_item_ref;
-    uint32_t start_pkt;
-    uint32_t start_time;
+    int      number;
+    int      clip_ref;
+    uint32_t clip_pkt;
+
+    // Title relative metrics
+    uint32_t title_pkt;
+    uint32_t title_time;
+    uint32_t duration;
+
+    MPLS_PLM *plm;
 } NAV_CHAP;
 
 typedef struct {
     int      count;
-    NAV_CHAP *list;
+    NAV_CHAP *chapter;
 } NAV_CHAP_LIST;
 
 typedef struct {
     char     name[11];
-    CLPI_CL  *cl;
-    int      play_item_ref;
+    int      ref;
     uint32_t start_pkt;
     uint32_t end_pkt;
     uint8_t  connection;
+
+    // Title relative metrics
+    uint32_t title_pkt;
+    uint32_t title_time;
+    uint32_t duration;
+
+    CLPI_CL  *cl;
 } NAV_CLIP;
 
 typedef struct {
-    char     root[1024];
-    char     name[11];
-    MPLS_PL  *pl;
-    uint32_t packets;
+    int      count;
     NAV_CLIP *clip;
+} NAV_CLIP_LIST;
+
+typedef struct {
+    char          root[1024];
+    char          name[11];
+    NAV_CLIP_LIST clip_list;
+    NAV_CHAP_LIST chap_list;
+
+    uint32_t      packets;
+    uint32_t      duration;
+
+    MPLS_PL       *pl;
 } NAV_TITLE;
 
 char* nav_find_main_title(char *root);
@@ -42,5 +64,6 @@ void nav_title_close(NAV_TITLE *title);
 NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip);
 NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *out_pkt);
 NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt);
+NAV_CLIP* nav_chapter_search(NAV_TITLE *title, int chapter, uint32_t *out_pkt);
 
 #endif // _NAVIGATION_H_
