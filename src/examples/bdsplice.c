@@ -165,8 +165,8 @@ main(int argc, char *argv[])
             fprintf(stderr, "Start SPN %u - End SPN %u\n",
                     clip->start_pkt, clip->end_pkt);
         }
-        //size = _write_packets(out, tsfile, clip->start_pkt, clip->end_pkt);
-        //total += size;
+        size = _write_packets(out, tsfile, clip->start_pkt, clip->end_pkt);
+        total += size;
         fclose(tsfile);
     }
     if (verbose) {
