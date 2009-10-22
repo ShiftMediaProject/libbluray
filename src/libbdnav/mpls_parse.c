@@ -271,7 +271,7 @@ _parse_playlistmark(BITSTREAM *bits, MPLS_PL *pl)
 
     bs_seek_byte(bits, pl->mark_pos);
     // Skip the length field, I don't use it
-    bs_skip(bits, 4);
+    bs_skip(bits, 32);
     // Then get the number of marks
     pl->mark_count = bs_read(bits, 16);
 
