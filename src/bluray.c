@@ -53,7 +53,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
 void bd_close(BLURAY *bd)
 {
-    if (bd->h_libaacs) {
+    if (bd->h_libaacs && bd->aacs) {
         fptr_p_void fptr = dlsym(bd->h_libaacs, "aacs_close");
         fptr(bd->aacs);
 
@@ -91,7 +91,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
             int read_len;
 
             if ((read_len = file_read(bd->fp, buf, len))) {
-                if (bd->h_libaacs) {
+                if (bd->h_libaacs && bd->aacs) {
                     if ((bd->libaacs_decrypt_unit = dlsym(bd->h_libaacs, "aacs_decrypt_unit"))) {
                         if (!bd->libaacs_decrypt_unit(bd->aacs, buf, len, bd->s_pos)) {
                             DEBUG(DBG_BLURAY, "Unable decrypt unit! (0x%08x)\n", bd);
