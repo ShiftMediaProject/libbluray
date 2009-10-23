@@ -34,7 +34,7 @@ static int _filter_dup(MPLS_PL *pl_list[], int count, MPLS_PL *pl)
             pi1 = &pl->play_item[jj];
             pi2 = &pl_list[ii]->play_item[jj];
 
-            if (memcmp(pi1->clip_id, pi2->clip_id, 5) != 0 ||
+            if (memcmp(pi1->clip[0].clip_id, pi2->clip[0].clip_id, 5) != 0 ||
                 pi1->in_time != pi2->in_time ||
                 pi1->out_time != pi2->out_time) {
                 break;
@@ -182,7 +182,7 @@ _extrapolate(NAV_TITLE *title)
             chap->clip_ref = plm->play_item_ref;
             clip = &title->clip_list.clip[chap->clip_ref];
             chap->clip_pkt = clpi_lookup_spn(clip->cl, plm->time, 1,
-                          title->pl->play_item[chap->clip_ref].stc_id);
+                          title->pl->play_item[chap->clip_ref].clip[title->angle].stc_id);
 
             // Calculate start of mark relative to beginning of playlist
             if (plm->play_item_ref < title->clip_list.count) {
@@ -228,6 +228,7 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
     title->name[10] = '\0';
     path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST" DIR_SEP "%s",
                       root, playlist);
+    title->angle = 0;
     title->pl = mpls_parse(path, 0);
     if (title->pl == NULL) {
         DEBUG(DBG_NAV, "Fail: Playlist parse %s\n", path);
@@ -248,11 +249,11 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
 
         clip = &title->clip_list.clip[ii];
         clip->ref = ii;
-        strncpy(clip->name, pi->clip_id, 5);
+        strncpy(clip->name, pi->clip[title->angle].clip_id, 5);
         strncpy(&clip->name[5], ".m2ts", 6);
 
         path = str_printf("%s"DIR_SEP"BDMV"DIR_SEP"CLIPINF"DIR_SEP"%s.clpi",
-                      title->root, pi->clip_id);
+                      title->root, pi->clip[title->angle].clip_id);
         clip->cl = clpi_parse(path, 0);
         X_FREE(path);
         if (clip->cl == NULL) {
@@ -268,12 +269,12 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
                 break;
             default:
                 clip->start_pkt = clpi_lookup_spn(clip->cl, pi->in_time, 1,
-                          title->pl->play_item[ii].stc_id);
+                          title->pl->play_item[ii].clip[title->angle].stc_id);
                 clip->connection = CONNECT_NON_SEAMLESS;
             break;
         }
         clip->end_pkt = clpi_lookup_spn(clip->cl, pi->out_time, 0,
-                          title->pl->play_item[ii].stc_id);
+                          title->pl->play_item[ii].clip[title->angle].stc_id);
     }
     _extrapolate(title);
     return title;
@@ -352,7 +353,7 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt)
     } else {
         clip = &title->clip_list.clip[ii];
         *out_pkt = clpi_lookup_spn(clip->cl, tick - pos + pi->in_time, 1,
-                          title->pl->play_item[clip->ref].stc_id);
+                          title->pl->play_item[clip->ref].clip[title->angle].stc_id);
     }
     return clip;
 }

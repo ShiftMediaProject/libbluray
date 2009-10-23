@@ -179,12 +179,19 @@ _show_details(MPLS_PL *pl, int level)
         MPLS_PI *pi;
 
         pi = &pl->play_item[ii];
-        indent_printf(level, "Clip Id %s", pi->clip_id);
+        indent_printf(level, "Clip Id %s", pi->clip[0].clip_id);
+        indent_printf(level+1, "Stc Id: %02x", pi->clip[0].stc_id);
         indent_printf(level+1, "Connection Condition: %02x", 
                         pi->connection_condition);
-        indent_printf(level+1, "Stc Id: %02x", pi->stc_id);
         indent_printf(level+1, "In-Time: %d", pi->in_time);
         indent_printf(level+1, "Out-Time: %d", pi->out_time);
+        if (pi->angle_count > 1) {
+            for (jj = 1; jj < pi->angle_count; jj++) {
+                indent_printf(level+1, "Angle %d:", jj);
+                indent_printf(level+2, "Clip Id %s", pi->clip[jj].clip_id);
+                indent_printf(level+2, "Stc Id: %02x", pi->clip[jj].stc_id);
+            }
+        }
         for (jj = 0; jj < pi->stn.num_video; jj++) {
             indent_printf(level+1, "Video Stream %d:", jj);
             _show_stream(&pi->stn.video[jj], level + 2);
@@ -218,7 +225,7 @@ _show_marks(MPLS_PL *pl, int level)
         indent_printf(level+1, "Type: %02x", plm->mark_type);
         if (plm->play_item_ref < pl->list_count) {
             pi = &pl->play_item[plm->play_item_ref];
-            indent_printf(level+1, "PlayItem: %s", pi->clip_id);
+            indent_printf(level+1, "PlayItem: %s", pi->clip[0].clip_id);
         } else {
             indent_printf(level+1, "PlayItem: Invalid reference");
         }
@@ -234,24 +241,27 @@ _show_marks(MPLS_PL *pl, int level)
 static void
 _show_clip_list(MPLS_PL *pl, int level)
 {
-    int ii;
+    int ii, jj;
 
     for (ii = 0; ii < pl->list_count; ii++) {
         MPLS_PI *pi;
-        char *m2ts_file;
 
         pi = &pl->play_item[ii];
-        m2ts_file = str_printf("%s.m2ts", pi->clip_id);
         if (verbose) {
             uint32_t duration;
 
             duration = pi->out_time - pi->in_time;
-            indent_printf(level, "%s -- Duration: %3d:%02d", m2ts_file,
+            indent_printf(level, "%s.m2ts -- Duration: %3d:%02d", 
+                        pi->clip[0].clip_id,
                         duration / (45000 * 60), (duration / 45000) % 60);
         } else {
-            indent_printf(level, "%s", m2ts_file);
+            indent_printf(level, "%s.m2ts", pi->clip[0].clip_id);
         }
-        free(m2ts_file);
+        if (pi->angle_count > 1) {
+            for (jj = 1; jj < pi->angle_count; jj++) {
+                indent_printf(level+1, "Angle %d: %s.m2ts", jj+1, pi->clip[jj].clip_id);
+            }
+        }
     }
 }
 
@@ -285,7 +295,7 @@ _filter_dup(MPLS_PL *pl_list[], int count, MPLS_PL *pl)
             pi1 = &pl->play_item[jj];
             pi2 = &pl_list[ii]->play_item[jj];
 
-            if (memcmp(pi1->clip_id, pi2->clip_id, 5) != 0 ||
+            if (memcmp(pi1->clip[0].clip_id, pi2->clip[0].clip_id, 5) != 0 ||
                 pi1->in_time != pi2->in_time ||
                 pi1->out_time != pi2->out_time) {
                 break;
@@ -309,7 +319,7 @@ _find_repeats(MPLS_PL *pl, const char *m2ts)
 
         pi = &pl->play_item[ii];
         // Ignore titles with repeated segments
-        if (strcmp(pi->clip_id, m2ts) == 0) {
+        if (strcmp(pi->clip[0].clip_id, m2ts) == 0) {
             count++;
         }
     }
@@ -336,7 +346,7 @@ _filter_repeats(MPLS_PL *pl, int repeats)
 
         pi = &pl->play_item[ii];
         // Ignore titles with repeated segments
-        if (_find_repeats(pl, pi->clip_id) > repeats) {
+        if (_find_repeats(pl, pi->clip[0].clip_id) > repeats) {
             return 0;
         }
     }

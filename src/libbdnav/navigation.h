@@ -49,6 +49,7 @@ typedef struct {
 typedef struct {
     char          root[1024];
     char          name[11];
+    uint8_t       angle;
     NAV_CLIP_LIST clip_list;
     NAV_CHAP_LIST chap_list;
 
