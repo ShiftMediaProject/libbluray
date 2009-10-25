@@ -423,7 +423,7 @@ done:
 // Returns the spn for the entry that is closest to but
 // before the given packet
 uint32_t
-clpi_access_point(CLPI_CL *cl, uint32_t pkt)
+clpi_access_point(CLPI_CL *cl, uint32_t pkt, int next, int angle_change, uint32_t *time)
 {
     CLPI_EP_MAP_ENTRY *entry;
     CLPI_CPI *cpi = &cl->cpi;
@@ -457,13 +457,52 @@ clpi_access_point(CLPI_CL *cl, uint32_t pkt)
     }
     for (jj = start; jj < end; jj++) {
 
-        spn = coarse_spn + entry->fine[ref].spn_ep;
-        if (spn > pkt)
+        spn = coarse_spn + entry->fine[jj].spn_ep;
+        if (spn >= pkt) {
             break;
+        }
     }
-    jj--;
-    spn = (entry->coarse[ii].spn_ep & ~0x1FFFF) + entry->fine[jj].spn_ep;
-    return spn;
+    if (jj == end && next) {
+        ii++;
+        jj = 0;
+    } else if (spn != pkt && !next) {
+        jj--;
+    }
+    if (ii == entry->num_ep_coarse) {
+        *time = 0;
+        return cl->clip.num_source_packets;
+    }
+    coarse_spn = (entry->coarse[ii].spn_ep & ~0x1FFFF);
+    if (angle_change) {
+        // Keep looking till there's an angle change point
+        for (; jj < end; jj++) {
+
+            if (entry->fine[jj].is_angle_change_point) {
+                *time = ((uint64_t)(entry->coarse[ii].pts_ep & ~0x01) << 18) +
+                        ((uint64_t)entry->fine[jj].pts_ep << 8);
+                return coarse_spn + entry->fine[jj].spn_ep;
+            }
+        }
+        for (ii++; ii < entry->num_ep_coarse; ii++) {
+            start = entry->coarse[ii].ref_ep_fine_id;
+            if (ii < entry->num_ep_coarse - 1) {
+                end = entry->coarse[ii+1].ref_ep_fine_id;
+            } else {
+                end = entry->num_ep_fine;
+            }
+            for (jj = start; jj < end; jj++) {
+
+                if (entry->fine[jj].is_angle_change_point) {
+                    *time = ((uint64_t)(entry->coarse[ii].pts_ep & ~0x01) << 18) +
+                            ((uint64_t)entry->fine[jj].pts_ep << 8);
+                    return coarse_spn + entry->fine[jj].spn_ep;
+                }
+            }
+        }
+        *time = 0;
+        return cl->clip.num_source_packets;
+    }
+    return coarse_spn + entry->fine[jj].spn_ep;
 }
 
 void

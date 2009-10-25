@@ -126,7 +126,7 @@ typedef struct
 } CLPI_CL;
 
 uint32_t clpi_lookup_spn(CLPI_CL *cl, uint32_t timestamp, int before, uint8_t stc_id);
-uint32_t clpi_access_point(CLPI_CL *cl, uint32_t pkt);
+uint32_t clpi_access_point(CLPI_CL *cl, uint32_t pkt, int next, int angle_change, uint32_t *time);
 CLPI_CL* clpi_parse(char *path, int verbose);
 void clpi_free(CLPI_CL *cl);
 

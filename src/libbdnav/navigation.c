@@ -146,7 +146,6 @@ _extrapolate(NAV_TITLE *title)
     MPLS_PLM *plm;
     NAV_CHAP *chap, *prev = NULL;
     NAV_CLIP *clip;
-    int chapters;
 
     for (ii = 0; ii < title->clip_list.count; ii++) {
         clip = &title->clip_list.clip[ii];
@@ -161,16 +160,6 @@ _extrapolate(NAV_TITLE *title)
     title->duration = duration;
     title->packets = pkt;
 
-    // Count the number of "entry" marks (skipping "link" marks)
-    // This is the the number of chapters
-    for (ii = 0; ii < pl->mark_count; ii++) {
-        if (pl->play_mark[ii].mark_type == BD_MARK_ENTRY) {
-            chapters++;
-        }
-    }
-    title->chap_list.count = chapters;
-    title->chap_list.chapter = calloc(chapters, sizeof(NAV_CHAP));
-
     for (ii = 0, jj = 0; ii < pl->mark_count; ii++) {
         plm = &pl->play_mark[ii];
         if (plm->mark_type == BD_MARK_ENTRY) {
@@ -182,7 +171,7 @@ _extrapolate(NAV_TITLE *title)
             chap->clip_ref = plm->play_item_ref;
             clip = &title->clip_list.clip[chap->clip_ref];
             chap->clip_pkt = clpi_lookup_spn(clip->cl, plm->time, 1,
-                          title->pl->play_item[chap->clip_ref].clip[title->angle].stc_id);
+                title->pl->play_item[chap->clip_ref].clip[title->angle].stc_id);
 
             // Calculate start of mark relative to beginning of playlist
             if (plm->play_item_ref < title->clip_list.count) {
@@ -216,7 +205,7 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
 {
     NAV_TITLE *title = NULL;
     char *path;
-    int ii;
+    int ii, chapters;
 
     title = malloc(sizeof(NAV_TITLE));
     if (title == NULL) {
@@ -249,11 +238,12 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
 
         clip = &title->clip_list.clip[ii];
         clip->ref = ii;
-        strncpy(clip->name, pi->clip[title->angle].clip_id, 5);
+        clip->angle = 0;
+        strncpy(clip->name, pi->clip[clip->angle].clip_id, 5);
         strncpy(&clip->name[5], ".m2ts", 6);
 
         path = str_printf("%s"DIR_SEP"BDMV"DIR_SEP"CLIPINF"DIR_SEP"%s.clpi",
-                      title->root, pi->clip[title->angle].clip_id);
+                      title->root, pi->clip[clip->angle].clip_id);
         clip->cl = clpi_parse(path, 0);
         X_FREE(path);
         if (clip->cl == NULL) {
@@ -269,13 +259,23 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
                 break;
             default:
                 clip->start_pkt = clpi_lookup_spn(clip->cl, pi->in_time, 1,
-                          title->pl->play_item[ii].clip[title->angle].stc_id);
+                                                  pi->clip[clip->angle].stc_id);
                 clip->connection = CONNECT_NON_SEAMLESS;
             break;
         }
         clip->end_pkt = clpi_lookup_spn(clip->cl, pi->out_time, 0,
-                          title->pl->play_item[ii].clip[title->angle].stc_id);
+                                        pi->clip[clip->angle].stc_id);
     }
+    // Count the number of "entry" marks (skipping "link" marks)
+    // This is the the number of chapters
+    for (ii = 0; ii < title->pl->mark_count; ii++) {
+        if (title->pl->play_mark[ii].mark_type == BD_MARK_ENTRY) {
+            chapters++;
+        }
+    }
+    title->chap_list.count = chapters;
+    title->chap_list.chapter = calloc(chapters, sizeof(NAV_CHAP));
+
     _extrapolate(title);
     return title;
 }
@@ -306,7 +306,9 @@ NAV_CLIP* nav_chapter_search(NAV_TITLE *title, int chapter, uint32_t *out_pkt)
 
 // Search for random access point closest to the requested packet
 // Packets are 192 byte TS packets
-NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *out_pkt)
+// pkt is relative to the beginning of the title
+// out_pkt and out_time is relative to the the clip which the packet falls in
+NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *out_pkt, uint32_t *out_time)
 {
     uint32_t pos, len;
     NAV_CLIP *clip;
@@ -325,9 +327,34 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *out_pkt)
         *out_pkt = clip->end_pkt;
     } else {
         clip = &title->clip_list.clip[ii];
-        *out_pkt = clpi_access_point(clip->cl, pkt - pos + clip->start_pkt);
+        *out_pkt = clpi_access_point(clip->cl, pkt - pos + clip->start_pkt, 0, 0, out_time);
     }
     return clip;
+}
+
+// Search for the nearest random access point after the given pkt
+// which is an angle change point.
+// Packets are 192 byte TS packets
+// pkt is relative to the clip
+// time is the clip relative time where the angle change point occurs
+// returns a packet number
+//
+// To perform a seamless angle change, perform the following sequence:
+// 1. Find the next angle change point with nav_angle_change_search.
+// 2. Read and process packets until the angle change point is reached.
+//    This may mean progressing to the next play item if the angle change
+//    point is at the end of the current play item.
+// 3. Change angles with nav_set_angle. Changing angles means changing
+//    m2ts files. The new clip information is returned from nav_set_angle.
+// 4. Close the current m2ts file and open the new one returned 
+//    from nav_set_angle.
+// 4. If the angle change point was within the time period of the current
+//    play item (i.e. the angle change point is not at the end of the clip),
+//    Search to the timestamp obtained from nav_angle_change using
+//    nav_time_search. Otherwise start at the start_pkt defined by the clip.
+uint32_t nav_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time)
+{
+    return clpi_access_point(clip->cl, pkt, 1, 1, time);
 }
 
 // Search for random access point closest to the requested time
@@ -353,7 +380,7 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt)
     } else {
         clip = &title->clip_list.clip[ii];
         *out_pkt = clpi_lookup_spn(clip->cl, tick - pos + pi->in_time, 1,
-                          title->pl->play_item[clip->ref].clip[title->angle].stc_id);
+                      title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
     }
     return clip;
 }
@@ -375,5 +402,66 @@ NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip)
         return NULL;
     }
     return &title->clip_list.clip[clip->ref + 1];
+}
+
+NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, int angle)
+{
+    char *path;
+    int ii;
+
+    if (title == NULL) {
+        return clip;
+    }
+    if (angle < 0 || angle > 8) {
+        // invalid angle
+        return clip;
+    }
+    title->angle = angle;
+    // Find length in packets and end_pkt for each clip
+    title->packets = 0;
+    for (ii = 0; ii < title->pl->list_count; ii++) {
+        MPLS_PI *pi;
+        NAV_CLIP *clip;
+
+        pi = &title->pl->play_item[ii];
+        clip = &title->clip_list.clip[ii];
+        if (title->angle >= pi->angle_count) {
+            clip->angle = 0;
+        } else {
+            clip->angle = title->angle;
+        }
+
+        clpi_free(clip->cl);
+
+        clip->ref = ii;
+        strncpy(clip->name, pi->clip[clip->angle].clip_id, 5);
+        strncpy(&clip->name[5], ".m2ts", 6);
+
+        path = str_printf("%s"DIR_SEP"BDMV"DIR_SEP"CLIPINF"DIR_SEP"%s.clpi",
+                      title->root, pi->clip[clip->angle].clip_id);
+        clip->cl = clpi_parse(path, 0);
+        X_FREE(path);
+        if (clip->cl == NULL) {
+            clip->start_pkt = 0;
+            clip->end_pkt = 0;
+            continue;
+        }
+        switch (pi->connection_condition) {
+            case 5:
+            case 6:
+                clip->start_pkt = 0;
+                clip->connection = CONNECT_SEAMLESS;
+                break;
+            default:
+                clip->start_pkt = clpi_lookup_spn(clip->cl, pi->in_time, 1,
+                                                  pi->clip[clip->angle].stc_id);
+                clip->connection = CONNECT_NON_SEAMLESS;
+            break;
+        }
+        clip->end_pkt = clpi_lookup_spn(clip->cl, pi->out_time, 0,
+                                        pi->clip[clip->angle].stc_id);
+    }
+    _extrapolate(title);
+    return clip;
 }
 

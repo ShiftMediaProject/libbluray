@@ -32,6 +32,7 @@ typedef struct {
     uint32_t start_pkt;
     uint32_t end_pkt;
     uint8_t  connection;
+    uint8_t  angle;
 
     // Title relative metrics
     uint32_t title_pkt;
@@ -63,8 +64,10 @@ char* nav_find_main_title(char *root);
 NAV_TITLE* nav_title_open(char *root, char *playlist);
 void nav_title_close(NAV_TITLE *title);
 NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip);
-NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *out_pkt);
+NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *out_pkt, uint32_t *out_time);
 NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt);
 NAV_CLIP* nav_chapter_search(NAV_TITLE *title, int chapter, uint32_t *out_pkt);
+uint32_t nav_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time);
+NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, int angle);
 
 #endif // _NAVIGATION_H_
