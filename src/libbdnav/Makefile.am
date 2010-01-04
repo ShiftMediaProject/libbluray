@@ -2,7 +2,7 @@
 
 AM_CPPFLAGS = -I $(top_builddir)/src
 
-noinst_LTLIBRARIES = libbdnav.la
+lib_LTLIBRARIES = libbdnav.la
 
 libbdnav_la_SOURCES = \
 	../util/logging.c \
