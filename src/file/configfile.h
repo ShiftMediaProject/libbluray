@@ -31,8 +31,8 @@ uint8_t *configfile_record(CONFIGFILE *kf, enum configfile_types type, uint16_t 
  *          0                   | type
  *          1-3                 | length
  *          4-5                 | num entries
- *          6-9                | entry length
- *          10-(9+entry_length)| entry 1
+ *          6-9                 | entry length
+ *          10-(9+entry_length) | entry 1
  *          .
  *          .
  *          length-1            | end
