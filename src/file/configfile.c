@@ -19,6 +19,8 @@ uint8_t *configfile_record(CONFIGFILE *kf, enum configfile_types type, uint16_t 
 {
     size_t pos = 0, len = 0;
 
+    *entries = 0;
+
     while (pos + 4 <= kf->size) {
         len = MKINT_BE24(kf->buf + pos + 1);
 

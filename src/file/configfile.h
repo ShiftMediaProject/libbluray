@@ -17,7 +17,8 @@ enum configfile_types {
     KF_HOST_PRIV_KEY,
     KF_HOST_CERT,
     KF_HOST_NONCE,
-    KF_HOST_KEY_POINT
+    KF_HOST_KEY_POINT,
+    KF_VUK_ARRAY
 };
 
 CONFIGFILE *configfile_open(const char *path);
