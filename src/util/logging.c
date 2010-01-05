@@ -10,7 +10,7 @@ static int debug_init = 0;
 
 char *print_hex(uint8_t *buf, int count)
 {
-    memset(out, 0, count);
+    memset(out, 0, sizeof(out));
 
     int zz;
     for(zz = 0; zz < count; zz++) {
