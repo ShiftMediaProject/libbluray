@@ -142,3 +142,8 @@ int bd_select_title(BLURAY *bd, uint64_t title)
 
     return 0;
 }
+
+uint64_t bd_get_title_size(BLURAY *bd)
+{
+    return bd->s_size;
+}
