@@ -81,12 +81,12 @@ static void bd_stream_close(stream_t *s)
 static int bd_stream_seek(stream_t *s, off_t pos)
 {
     struct bd_obj_s *bd_s = s->priv;
-//    fptr_uint64 fptr_ui64 = dlsym(bd_s->handle, "bd_seek");
+    fptr_uint64 fptr_ui64 = dlsym(bd_s->handle, "bd_seek");
 
     if (pos > s->end_pos)
         return 0;
 
-//    s->pos = fptr_ui64(bd_s->bd, pos);
+    s->pos = fptr_ui64(bd_s->bd, pos);
 
     return 1;
 }
