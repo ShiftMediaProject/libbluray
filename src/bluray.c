@@ -19,7 +19,7 @@
 
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
-    BLURAY *bd = malloc(sizeof(BLURAY));
+    BLURAY *bd = calloc(1, sizeof(BLURAY));
 
     if (device_path) {
         strncpy(bd->device_path, device_path, 100);
