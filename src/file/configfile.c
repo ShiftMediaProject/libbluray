@@ -18,33 +18,33 @@
 uint8_t *configfile_record(CONFIGFILE *kf, enum configfile_types type, uint16_t *entries, size_t *entry_len)
 {
 
-    DEBUG(DBG_CONFIGFILE, "DEBUG!\n");
+    DEBUG(DBG_CONFIGFILE, "DEBUG %d!\n", kf->size);
     size_t pos = 0, len = 0;
 
     *entries = 0;
 
     while (pos + 4 <= kf->size) {
-        DEBUG(DBG_CONFIGFILE, "DEBUG!\n");
+        DEBUG(DBG_CONFIGFILE, "DEBUG2!\n");
         len = MKINT_BE24(kf->buf + pos + 1);
 
-        DEBUG(DBG_CONFIGFILE, "DEBUG!\n");
+        DEBUG(DBG_CONFIGFILE, "DEBUG3!\n");
         if (entries) {
             *entries = MKINT_BE16(kf->buf + pos + 4);
         }
 
-        DEBUG(DBG_CONFIGFILE, "DEBUG!\n");
+        DEBUG(DBG_CONFIGFILE, "DEBUG4!\n");
         if (entry_len) {
             *entry_len = MKINT_BE32(kf->buf + pos + 6);
         }
 
-        DEBUG(DBG_CONFIGFILE, "DEBUG!\n");
+        DEBUG(DBG_CONFIGFILE, "DEBUG5!\n");
         if (kf->buf[pos] == type) {
             DEBUG(DBG_CONFIGFILE, "Retrieved CONFIGFILE record 0x%02x (0x%08x)\n", type, kf->buf + pos + 10);
 
             return kf->buf + pos + 10;  // only return ptr to first byte of entry
         }
 
-        DEBUG(DBG_CONFIGFILE, "DEBUG!\n");
+        DEBUG(DBG_CONFIGFILE, "DEBUG6!\n");
         pos += len;
     }
 
