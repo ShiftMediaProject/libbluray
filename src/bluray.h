@@ -15,7 +15,7 @@ struct bluray {
     char device_path[100];
     FILE_H *fp;
     uint64_t s_size;
-    off_t s_pos;
+    uint64_t s_pos;
     void *aacs;
     void *h_libaacs, *h_libbdplus, *h_libbdnav;
     fptr_int libaacs_decrypt_unit;
@@ -24,7 +24,7 @@ struct bluray {
 BLURAY *bd_open(const char* device_path, const char* keyfile_path); // Init libbluray objs
 void bd_close(BLURAY *bd);                                          // Free libbluray objs
 
-off_t bd_seek(BLURAY *bd, uint64_t pos);                // Seek to pos in currently selected title file
+uint64_t bd_seek(BLURAY *bd, uint64_t pos);                // Seek to pos in currently selected title file
 int bd_read(BLURAY *bd, unsigned char *buf, int len);   // Read from currently selected title file, decrypt if possible
 
 int bd_select_title(BLURAY *bd, uint64_t title);    // Select an m2ts file (title is the file number, e.g. title = 123 will select 00123.m2ts)
