@@ -170,7 +170,7 @@ main(int argc, char *argv[])
         fclose(tsfile);
     }
     if (verbose) {
-        fprintf(stderr, "Wrote %ld bytes\n", total);
+        fprintf(stderr, "Wrote %lld bytes\n", total);
     }
     X_FREE(fname);
     X_FREE(path);
