@@ -69,7 +69,7 @@ void bd_close(BLURAY *bd)
     X_FREE(bd);
 }
 
-off_t bd_seek(BLURAY *bd, uint64_t pos)
+uint64_t bd_seek(BLURAY *bd, uint64_t pos)
 {
     if (pos < bd->s_size) {
         bd->s_pos = pos - (pos % 6144);
