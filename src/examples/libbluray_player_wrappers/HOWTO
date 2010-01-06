@@ -8,7 +8,7 @@ Tested with mplayer svn revision r30230.
 
 	svn checkout svn://svn.mplayerhq.hu/mplayer/trunk mplayer
 	
-2. Change into the 'mplayer' directory and apply the patch:
+2. Change into mplayer/ and apply the patch:
 
 	patch -p1 < mplayer.patch
 
@@ -16,13 +16,15 @@ Tested with mplayer svn revision r30230.
 
 	./configure --extra-libs="-ldl -lbluray" && make
 
-4. Run ./mplayer passing it a bd url as follows:
+4. Copy a libbluray keyfile to mplayer/ and name it keys.bin
+
+5. Run ./mplayer passing it a bd:// url as follows:
 
 	./mplayer bd://<title>/path/to/disc
 	
 	e.g.
 	
-	./mplayer bd://1/mnt/BLURAY_DISC
+	./mplayer bd://1/mnt/BLURAY_DISC	(<-- to play 00001.m2ts on disc /mnt/BLURAY_DISC)
 
 
 	
