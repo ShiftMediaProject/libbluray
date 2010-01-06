@@ -21,7 +21,9 @@ uint8_t *configfile_record(CONFIGFILE *kf, enum configfile_types type, uint16_t 
     DEBUG(DBG_CONFIGFILE, "DEBUG %d!\n", kf->size);
     size_t pos = 0, len = 0;
 
-    *entries = 0;
+    if (entries) {
+        *entries = 0;
+    }
 
     while (pos + 4 <= kf->size) {
         DEBUG(DBG_CONFIGFILE, "DEBUG2!\n");
