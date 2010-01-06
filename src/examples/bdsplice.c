@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <libgen.h>
 #include <string.h>
+#include <inttypes.h>
 #include "../util/macro.h"
 #include "../util/strutl.h"
 #include "../libbdnav/clpi_parse.h"
@@ -170,7 +171,7 @@ main(int argc, char *argv[])
         fclose(tsfile);
     }
     if (verbose) {
-        fprintf(stderr, "Wrote %lld bytes\n", total);
+        fprintf(stderr, "Wrote %"PRId64" bytes\n", total);
     }
     X_FREE(fname);
     X_FREE(path);
