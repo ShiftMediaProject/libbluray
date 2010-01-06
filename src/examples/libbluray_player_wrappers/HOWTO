@@ -27,4 +27,7 @@ Tested with mplayer svn revision r30230.
 	./mplayer bd://1/mnt/BLURAY_DISC	(<-- to play 00001.m2ts on disc /mnt/BLURAY_DISC)
 
 
-	
+NOTE:
+Before running mplayer, you can turn off all libbluray debug messages using 'export BD_DEBUG_MASK=0'.
+This will help with performance and clean up your terminal.
+You can also use different mplayer options such as caching, different VOs etc to ensure a smooth playback. 
