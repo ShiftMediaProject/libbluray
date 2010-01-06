@@ -147,3 +147,8 @@ uint64_t bd_get_title_size(BLURAY *bd)
 {
     return bd->s_size;
 }
+
+uint64_t bd_tell(BLURAY *bd)
+{
+    return bd->s_pos;
+}

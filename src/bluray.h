@@ -30,4 +30,6 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len);   // Read from currently s
 int bd_select_title(BLURAY *bd, uint64_t title);    // Select an m2ts file (title is the file number, e.g. title = 123 will select 00123.m2ts)
 uint64_t bd_get_title_size(BLURAY *bd);             // Returns file size in bytes of currently selected title, 0 in no title selected
 
+uint64_t bd_tell(BLURAY *bd);       // Return current pos
+
 #endif /* BLURAY_H_ */
