@@ -1,0 +1,28 @@
+====================
+HOW TO PATCH MPLAYER
+====================
+
+Tested with mplayer svn revision r30230.
+
+1. Get mplayer from repository:
+
+	svn checkout svn://svn.mplayerhq.hu/mplayer/trunk mplayer
+	
+2. Change into the 'mplayer' directory and apply the patch:
+
+	patch -p1 < mplayer.patch
+
+3. Configure mplayer to use libbluray and build it 
+
+	./configure --extra-libs="-ldl -lbluray" && make
+
+4. Run ./mplayer passing it a bd url as follows:
+
+	./mplayer bd://<title>/path/to/disc
+	
+	e.g.
+	
+	./mplayer bd://1/mnt/BLURAY_DISC
+
+
+	
