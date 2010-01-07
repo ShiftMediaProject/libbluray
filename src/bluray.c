@@ -16,7 +16,7 @@
 #include "bluray.h"
 #include "util/macro.h"
 #include "util/logging.h"
-/*
+
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
     BLURAY *bd = calloc(1, sizeof(BLURAY));
@@ -28,7 +28,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         bd->h_libaacs = NULL;
         bd->fp = NULL;
 
-        if (keyfile_path) {
+        if (keyfile_path) {/*
             if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_LAZY))) {
                 fptr_p_void fptr;
                 uint8_t *vid;
@@ -62,7 +62,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
             DEBUG(DBG_BLURAY, "No keyfile provided. You will not be able to make use of crypto functionality (0x%08x)\n", bd);
         }
 
-        DEBUG(DBG_BLURAY, "BLURAY initialized! (0x%08x)\n", bd);
+        DEBUG(DBG_BLURAY, "BLURAY initialized! (0x%08x)\n", bd);*/
     } else {
         X_FREE(bd);
 
@@ -99,7 +99,7 @@ void bd_close(BLURAY *bd)
     DEBUG(DBG_BLURAY, "BLURAY destroyed! (0x%08x)\n", bd);
 
     X_FREE(bd);
-}*/
+}
 
 uint64_t bd_seek(BLURAY *bd, uint64_t pos)
 {
