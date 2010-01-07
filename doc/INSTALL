@@ -1,0 +1,20 @@
+===================================
+LIBBLURAY INSTALLATION INSTRUCTIONS
+===================================
+
+1. Build the source code (dependancies - full OpenSSL):
+
+	make
+
+2. Install the library (as root):
+
+	make install
+	
+3. You're ready to go
+
+Note:
+This is a library. Which means that it doesn't do anything on its own!
+You need (obviously):
+	A player with support for libbluray
+	Compatible bluray drive
+	Relevant keyfile for the disc that you want to play
