@@ -29,7 +29,7 @@ void debug(char *file, int line, uint32_t mask, const char *format, ...)
         debug_init = 1;
 
         if ((env = getenv("BD_DEBUG_MASK"))) {
-            debug_mask = atoi(env);
+            debug_mask = strtol(env, NULL, 0);
         } else {
             debug_mask = 0xffff;
         }
