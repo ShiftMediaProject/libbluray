@@ -1,0 +1,20 @@
+=================================
+HOW TO CREATE (AND APPLY) A PATCH
+=================================
+
+Creating a patch is easy!
+
+1. Make sure you have two CLEAN copies of the directory that you want to patch, e.g. libbluray.orig/ and libbluray.new/
+
+2. Make your changes in libbluray.new/ (make sure that you ONLY make changes that you want to be included in the patch)
+
+3. Create the patch from the parent directory as follows:
+
+	diff -rupN libbluray.orig/ libbluray.new/ > libbluray.patch
+
+4. You now have a patch called 'libbluray.patch'.
+
+5. To apply the patch, change to the clean source directory that you want to patch (e.g. libbluray.clean/), and run:
+
+	patch -p1 < libbluray.patch
+
