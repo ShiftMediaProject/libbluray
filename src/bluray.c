@@ -100,7 +100,7 @@ void bd_close(BLURAY *bd)
 
     X_FREE(bd);
 }
-
+/*
 uint64_t bd_seek(BLURAY *bd, uint64_t pos)
 {
     if (pos < bd->s_size) {
@@ -156,7 +156,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
 
     return 0;
 }
-
+*/
 int bd_select_title(BLURAY *bd, uint64_t title)
 {
     char f_name[100];
