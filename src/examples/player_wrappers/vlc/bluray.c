@@ -27,7 +27,8 @@
     "value should be set in milliseconds." )
 #define KEYCFG_TEXT N_("KeyDB file for libbluray")
 #define KEYCFG_LONGTEXT N_("Filename for the keycfg.db file.")
-
+#define DEBUGMASK_TEXT N_("BD Debug mask")
+#define DEBUGMASK_LONGTEXT N_("Set up the debug mask value for libbluray")
 static int  blurayOpen ( vlc_object_t * );
 static void blurayClose( vlc_object_t * );
 
@@ -40,6 +41,8 @@ vlc_module_begin ()
         CACHING_TEXT, CACHING_LONGTEXT, true )
     add_file("keycfg-db", "/usr/local/share/bluray/keycfg.db", NULL, 
              KEYCFG_TEXT, KEYCFG_LONGTEXT, false);
+    add_string("debug-mask", "0x0000", NULL,
+	       DEBUGMASK_TEXT, DEBUGMASK_LONGTEXT, false);
     set_capability( "access", 10 )
     add_shortcut( "bluray" )
     add_shortcut( "file" )
@@ -74,6 +77,7 @@ static int     bluraySetTitle(access_t *p_access, int i_tile);
 static int blurayOpen( vlc_object_t *object )
 {
     char *keycfg = NULL;
+    char *debug_mask = NULL;
     char *pos_title;
     int i_title = 0;
     access_t *p_access = (access_t*)object;
@@ -88,11 +92,18 @@ static int blurayOpen( vlc_object_t *object )
 
     var_Create( p_access, "bd-caching", VLC_VAR_INTEGER|VLC_VAR_DOINHERIT );
     var_Create( p_access, "keycfg-db", VLC_VAR_STRING|VLC_VAR_DOINHERIT );
+    var_Create( p_access, "debug-mask", VLC_VAR_STRING|VLC_VAR_DOINHERIT );
+    
 
     keycfg = var_GetString(p_access, "keycfg-db");
     if ( keycfg == NULL ) {
         msg_Err( p_access, "read null string for keydb");
         return VLC_EGENERIC;
+    }
+
+    debug_mask = var_GetString(p_access, "debug-mask");
+    if ( debug_mask ) {
+        setenv("BD_DEBUG_MASK", debug_mask, 1);
     }
 
     /* init access fields */
