@@ -16,7 +16,7 @@
 #include "bluray.h"
 #include "util/macro.h"
 #include "util/logging.h"
-
+/*
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
     BLURAY *bd = calloc(1, sizeof(BLURAY));
@@ -99,8 +99,8 @@ void bd_close(BLURAY *bd)
     DEBUG(DBG_BLURAY, "BLURAY destroyed! (0x%08x)\n", bd);
 
     X_FREE(bd);
-}
-/*
+}*/
+
 uint64_t bd_seek(BLURAY *bd, uint64_t pos)
 {
     if (pos < bd->s_size) {
@@ -156,7 +156,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
 
     return 0;
 }
-*/
+
 int bd_select_title(BLURAY *bd, uint64_t title)
 {
     char f_name[100];
