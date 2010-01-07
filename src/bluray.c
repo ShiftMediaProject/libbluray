@@ -125,7 +125,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
     if (bd->fp) {
         DEBUG(DBG_BLURAY, "Reading unit [%d bytes] at %ld... (0x%08x)\n", len, bd->s_pos, bd);
 
-        if (len + bd->s_pos < bd->s_size) {
+        if (len + bd->s_pos <= bd->s_size) {
             int read_len;
 
             if ((read_len = file_read(bd->fp, buf, len))) {
