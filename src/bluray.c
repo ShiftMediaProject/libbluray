@@ -28,7 +28,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         bd->h_libaacs = NULL;
         bd->fp = NULL;
 
-        if (keyfile_path) {/*
+        if (keyfile_path) {
             if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_LAZY))) {
                 fptr_p_void fptr;
                 uint8_t *vid;
@@ -48,6 +48,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
                                 if (!(bd->bdplus = fptr(device_path, keyfile_path, vid))) {
                                     DEBUG(DBG_BLURAY, "libbdplus ret NULL!\n");
                                 }
+                            }
                         } else {
                             DEBUG(DBG_BLURAY, "libbdplus not present!\n");
                         }
@@ -62,7 +63,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
             DEBUG(DBG_BLURAY, "No keyfile provided. You will not be able to make use of crypto functionality (0x%08x)\n", bd);
         }
 
-        DEBUG(DBG_BLURAY, "BLURAY initialized! (0x%08x)\n", bd);*/
+        DEBUG(DBG_BLURAY, "BLURAY initialized! (0x%08x)\n", bd);
     } else {
         X_FREE(bd);
 
