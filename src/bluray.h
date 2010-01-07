@@ -16,7 +16,7 @@ struct bluray {
     FILE_H *fp;
     uint64_t s_size;
     uint64_t s_pos;
-    void *aacs;
+    void *aacs, *bdplus;
     void *h_libaacs, *h_libbdplus, *h_libbdnav;
     fptr_int libaacs_decrypt_unit;
 };
