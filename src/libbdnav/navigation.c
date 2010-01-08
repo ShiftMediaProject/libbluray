@@ -205,7 +205,7 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
 {
     NAV_TITLE *title = NULL;
     char *path;
-    int ii, chapters;
+    int ii, chapters = 0;
 
     title = malloc(sizeof(NAV_TITLE));
     if (title == NULL) {
