@@ -44,6 +44,7 @@ AC_SEARCH_LIBS([gethostbyname], [nsl])
 AC_SEARCH_LIBS([socket], [socket inet])
 AC_SEARCH_LIBS([crypt], [crypt])
 AC_SEARCH_LIBS([dlopen], [dl])
+AC_SEARCH_LIBS([gcry_cipher_open], [gcrypt])
 
 AC_CHECK_FUNC([snprintf],
                 [AC_DEFINE(HAVE_SNPRINTF,1,[Presence of snprintf found])],
@@ -76,7 +77,7 @@ AC_CACHE_CHECK([for OpenSSL directory], ac_cv_openssl_dir, [
   ssl_found=no
   for ssldir in $tryssldir "" $prefix /usr/local/openssl /usr/lib/openssl /usr/local/ssl /usr/lib/ssl /usr/local /usr/athena /usr/pkg /opt /opt/openssl ; do
     LDFLAGS="$saved_LDFLAGS"
-    LIBS="$saved_LIBS -lssl -lcrypto"
+    LIBS="$saved_LIBS -lssl -lcrypto -lgcrypt"
 
     # Skip the directory if it isn't there.
     if test ! -z "$ssldir" -a ! -d "$ssldir" ; then
