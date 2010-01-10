@@ -63,6 +63,8 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
             DEBUG(DBG_BLURAY, "No keyfile provided. You will not be able to make use of crypto functionality (0x%08x)\n", bd);
         }
 
+        bd->int_buf_off = 6144;
+
         DEBUG(DBG_BLURAY, "BLURAY initialized! (0x%08x)\n", bd);
     } else {
         X_FREE(bd);
@@ -114,6 +116,8 @@ uint64_t bd_seek(BLURAY *bd, uint64_t pos)
             fptr(bd->bdplus, bd->s_pos);
         }
 
+        bd->int_buf_off = 6144;
+
         DEBUG(DBG_BLURAY, "Seek to %ld (0x%08x)\n", bd->s_pos, bd);
     }
 
@@ -123,33 +127,42 @@ uint64_t bd_seek(BLURAY *bd, uint64_t pos)
 int bd_read(BLURAY *bd, unsigned char *buf, int len)
 {
     if (bd->fp) {
+        int out_len = 0;
+
         DEBUG(DBG_BLURAY, "Reading unit [%d bytes] at %ld... (0x%08x)\n", len, bd->s_pos, bd);
 
         if (len + bd->s_pos <= bd->s_size) {
-            int read_len;
+            while (out_len < len) {
+                if (bd->int_buf_off == 6144) {
+                    int read_len;
 
-            if ((read_len = file_read(bd->fp, buf, len))) {
-                if (bd->h_libaacs && bd->aacs) {
-                    if ((bd->libaacs_decrypt_unit = dlsym(bd->h_libaacs, "aacs_decrypt_unit"))) {
-                        if (!bd->libaacs_decrypt_unit(bd->aacs, buf, len, bd->s_pos)) {
-                            DEBUG(DBG_BLURAY, "Unable decrypt unit! (0x%08x)\n", bd);
+                    if ((read_len = file_read(bd->fp, bd->int_buf, 6144)) == 6144) {
+                        if (bd->h_libaacs && bd->aacs) {
+                            if ((bd->libaacs_decrypt_unit = dlsym(bd->h_libaacs, "aacs_decrypt_unit"))) {
+                                if (!bd->libaacs_decrypt_unit(bd->aacs, bd->int_buf, read_len, 0)) {
+                                    DEBUG(DBG_BLURAY, "Unable decrypt unit! (0x%08x)\n", bd);
 
-                            return 0;
-                        }
+                                    return 0;
+                                }
 
-                        if (bd->h_libbdplus && bd->bdplus) {
-                            fptr_p_void fptr = dlsym(bd->h_libbdplus, "bdplus_fixup");
-                            fptr(bd->bdplus, buf, len);
+                                if (bd->h_libbdplus && bd->bdplus) {
+                                    fptr_p_void fptr = dlsym(bd->h_libbdplus, "bdplus_fixup");
+                                    fptr(bd->bdplus, bd->int_buf, read_len);
+                                }
+                            }
                         }
                     }
+                    bd->int_buf_off = 0;
                 }
 
-                bd->s_pos += len;
-
-                DEBUG(DBG_BLURAY, "%d bytes read OK! (0x%08x)\n", read_len, bd);
-
-                return read_len;
+                buf[out_len++] = bd->int_buf[bd->int_buf_off++];
             }
+
+            bd->s_pos += len;
+
+            DEBUG(DBG_BLURAY, "%d bytes read OK! (0x%08x)\n", len, bd);
+
+            return len;
         }
     }
 

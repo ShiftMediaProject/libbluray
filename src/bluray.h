@@ -19,6 +19,8 @@ struct bluray {
     void *aacs, *bdplus;
     void *h_libaacs, *h_libbdplus, *h_libbdnav;
     fptr_int libaacs_decrypt_unit;
+    uint8_t int_buf[6144];
+    uint16_t int_buf_off;
 };
 
 BLURAY *bd_open(const char* device_path, const char* keyfile_path); // Init libbluray objs
