@@ -34,10 +34,10 @@ static void blurayClose( vlc_object_t * );
 
 vlc_module_begin ()
     set_shortname( N_("BLURAY") )
-    set_description( N_("Blue-Ray Disc (libbluray)") )
+    set_description( N_("Blu-Ray Disc (libbluray)") )
     set_category( CAT_INPUT )
     set_subcategory( SUBCAT_INPUT_ACCESS )
-    add_integer( "bd-caching", DEFAULT_PTS_DELAY / 1000, NULL,
+    add_integer( "bluray-caching", 1000, NULL,
         CACHING_TEXT, CACHING_LONGTEXT, true )
     add_file("keycfg-db", "/usr/local/share/bluray/keycfg.db", NULL, 
              KEYCFG_TEXT, KEYCFG_LONGTEXT, false);
@@ -90,7 +90,7 @@ static int blurayOpen( vlc_object_t *object )
         return VLC_EGENERIC;
     }
 
-    var_Create( p_access, "bd-caching", VLC_VAR_INTEGER|VLC_VAR_DOINHERIT );
+    var_Create( p_access, "bluray-caching", VLC_VAR_INTEGER|VLC_VAR_DOINHERIT );
     var_Create( p_access, "keycfg-db", VLC_VAR_STRING|VLC_VAR_DOINHERIT );
     var_Create( p_access, "debug-mask", VLC_VAR_STRING|VLC_VAR_DOINHERIT );
     
@@ -144,7 +144,7 @@ static int blurayOpen( vlc_object_t *object )
         return VLC_EGENERIC;
     }
 
-    p_sys->i_bd_delay = var_GetInteger(p_access, "bd-caching");
+    p_sys->i_bd_delay = var_GetInteger(p_access, "bluray-caching");
 
     return VLC_SUCCESS;
 }

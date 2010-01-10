@@ -1,12 +1,12 @@
-====================
+================
 HOW TO PATCH VLC
-====================
+================
 
 Tested with vlc git version (2010-01-07)
 
 1. Get vlc source from repository:
 
-	git clone git://git.videolan.org/vlc.git
+	git clone git://git.videolan.org/vlc.git --depth 1
 	
 2. Change into vlc/ directory and apply the patch:
 
@@ -24,7 +24,7 @@ Tested with vlc git version (2010-01-07)
 
 	sudo make install
 
-5. Start vlc and configure the new "Access modul" BLURAY
+5. Start vlc and configure the new "Access module" BLURAY
 
 6. Run vlc passing it a bluray:// url as follows:
 
@@ -36,6 +36,5 @@ Tested with vlc git version (2010-01-07)
 
 
 NOTE:
-Before running mplayer, you can turn off all libbluray debug messages using 'export BD_DEBUG_MASK=0'.
+Before running vlc, you can turn off all libbluray debug messages using 'export BD_DEBUG_MASK=0'.
 This will help with performance and clean up your terminal.
-You can also use different mplayer options such as caching, different VOs etc to ensure a smooth playback. 
