@@ -53,14 +53,14 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
                             DEBUG(DBG_BLURAY, "libbdplus not present!\n");
                         }
                     } else {
-                        DEBUG(DBG_BLURAY, "libaacs ret NULL!\n");
+                        DEBUG(DBG_BLURAY | DBG_CRIT, "libaacs failed to initialize! If this disc is encrypted, you will not be able to play it.\n");
                     }
                 }
             } else {
                 DEBUG(DBG_BLURAY, "libaacs not present!\n");
             }
         } else {
-            DEBUG(DBG_BLURAY, "No keyfile provided. You will not be able to make use of crypto functionality (0x%08x)\n", bd);
+            DEBUG(DBG_BLURAY | DBG_CRIT, "No keyfile provided. You will not be able to make use of crypto functionality (0x%08x)\n", bd);
         }
 
         bd->int_buf_off = 6144;
@@ -69,7 +69,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
     } else {
         X_FREE(bd);
 
-        DEBUG(DBG_BLURAY, "No device path provided!\n");
+        DEBUG(DBG_BLURAY | DBG_CRIT, "No device path provided!\n");
     }
 
     return bd;
@@ -199,7 +199,7 @@ int bd_select_title(BLURAY *bd, uint64_t title)
         DEBUG(DBG_BLURAY, "Title %s empty! (0x%08x)\n", f_name, bd);
     }
 
-    DEBUG(DBG_BLURAY, "Unable to select title %s! (0x%08x)\n", f_name, bd);
+    DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to select title %s! (0x%08x)\n", f_name, bd);
 
     return 0;
 }
