@@ -146,7 +146,7 @@ char* nav_find_main_title(char *root)
             if (_filter_dup(pl_list, ii, pl) &&
                 _filter_repeats(pl, 2)) {
                 pl_list[ii] = pl;
-                if (_pl_duration(pl_list[ii]) > _pl_duration(pl_list[jj])) {
+                if (_pl_duration(pl_list[ii]) >= _pl_duration(pl_list[jj])) {
                     strncpy(longest, ent.d_name, 11);
                     longest[10] = '\0';
                     jj = ii;
@@ -246,8 +246,7 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
     if (title == NULL) {
         return NULL;
     }
-    strncpy(title->root, root, 1024);
-    title->root[1023] = '\0';
+    title->root = strdup(root);
     strncpy(title->name, playlist, 11);
     title->name[10] = '\0';
     path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST" DIR_SEP "%s",
@@ -324,6 +323,7 @@ void nav_title_close(NAV_TITLE *title)
         clpi_free(title->clip_list.clip[ii].cl);
     }
     X_FREE(title->clip_list.clip);
+    X_FREE(title->root);
     X_FREE(title);
 }
 

@@ -48,7 +48,7 @@ typedef struct {
 } NAV_CLIP_LIST;
 
 typedef struct {
-    char          root[1024];
+    char          *root;
     char          name[11];
     uint8_t       angle;
     NAV_CLIP_LIST clip_list;
