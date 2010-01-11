@@ -48,6 +48,40 @@ static int _filter_dup(MPLS_PL *pl_list[], int count, MPLS_PL *pl)
     return 1;
 }
 
+static int
+_find_repeats(MPLS_PL *pl, const char *m2ts)
+{
+    int ii, count = 0;
+
+    for (ii = 0; ii < pl->list_count; ii++) {
+        MPLS_PI *pi;
+
+        pi = &pl->play_item[ii];
+        // Ignore titles with repeated segments
+        if (strcmp(pi->clip[0].clip_id, m2ts) == 0) {
+          count++;
+        }
+    }
+    return count;
+}
+
+static int
+_filter_repeats(MPLS_PL *pl, int repeats)
+{
+    int ii;
+
+    for (ii = 0; ii < pl->list_count; ii++) {
+      MPLS_PI *pi;
+
+      pi = &pl->play_item[ii];
+      // Ignore titles with repeated segments
+      if (_find_repeats(pl, pi->clip[0].clip_id) > repeats) {
+        return 0;
+      }
+    }
+    return 1;
+}
+
 static uint32_t
 _pl_duration(MPLS_PL *pl)
 {
@@ -109,7 +143,8 @@ char* nav_find_main_title(char *root)
         pl = mpls_parse(path, 0);
         X_FREE(path);
         if (pl != NULL) {
-            if (_filter_dup(pl_list, ii, pl)) {
+            if (_filter_dup(pl_list, ii, pl) &&
+                _filter_repeats(pl, 2)) {
                 pl_list[ii] = pl;
                 if (_pl_duration(pl_list[ii]) > _pl_duration(pl_list[jj])) {
                     strncpy(longest, ent.d_name, 11);
