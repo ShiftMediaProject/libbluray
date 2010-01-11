@@ -31,7 +31,7 @@ void debug(char *file, int line, uint32_t mask, const char *format, ...)
         if ((env = getenv("BD_DEBUG_MASK"))) {
             debug_mask = strtol(env, NULL, 0);
         } else {
-            debug_mask = 0xffff;
+            debug_mask = DBG_CRIT;
         }
     }
 

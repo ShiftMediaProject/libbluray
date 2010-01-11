@@ -18,7 +18,8 @@ enum debug_mask_enum {
     DBG_MMC = 32,
     DBG_BLURAY = 64,
     DBG_DIR = 128,
-    DBG_NAV = 256
+    DBG_NAV = 256,
+    DBG_CRIT = 512          // this is libbluray's default debug mask so use this if you want to display critical info
 };
 
 typedef enum debug_mask_enum debug_mask_t;
