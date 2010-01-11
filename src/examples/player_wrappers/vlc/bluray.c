@@ -25,8 +25,8 @@
 #define CACHING_LONGTEXT N_( \
     "Caching value for BDs. This "\
     "value should be set in milliseconds." )
-#define KEYCFG_TEXT N_("KeyDB file for libbluray")
-#define KEYCFG_LONGTEXT N_("Filename for the keycfg.db file.")
+#define KEYCFG_TEXT N_("Key file for libbluray")
+#define KEYCFG_LONGTEXT N_("Filename for the key file.")
 #define DEBUGMASK_TEXT N_("BD Debug mask")
 #define DEBUGMASK_LONGTEXT N_("Set up the debug mask value for libbluray")
 static int  blurayOpen ( vlc_object_t * );

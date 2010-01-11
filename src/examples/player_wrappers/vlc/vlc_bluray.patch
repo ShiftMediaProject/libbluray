@@ -58,8 +58,8 @@ diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray
 +#define CACHING_LONGTEXT N_( \
 +    "Caching value for BDs. This "\
 +    "value should be set in milliseconds." )
-+#define KEYCFG_TEXT N_("KeyDB file for libbluray")
-+#define KEYCFG_LONGTEXT N_("Filename for the keycfg.db file.")
++#define KEYCFG_TEXT N_("Key file for libbluray")
++#define KEYCFG_LONGTEXT N_("Filename for the key file.")
 +
 +static int  blurayOpen ( vlc_object_t * );
 +static void blurayClose( vlc_object_t * );
