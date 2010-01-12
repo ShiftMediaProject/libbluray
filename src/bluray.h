@@ -12,7 +12,7 @@ typedef void* (*fptr_p_void)();
 
 typedef struct bluray BLURAY;
 struct bluray {
-    char device_path[100];
+    char *device_path;
     FILE_H *fp;
     uint64_t s_size;
     uint64_t s_pos;

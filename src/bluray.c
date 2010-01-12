@@ -22,7 +22,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
     BLURAY *bd = calloc(1, sizeof(BLURAY));
 
     if (device_path) {
-        strncpy(bd->device_path, device_path, 100);
+        bd->device_path = strdup(device_path);
 
         bd->aacs = NULL;
         bd->h_libaacs = NULL;
@@ -50,14 +50,14 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
                                 }
                             }
                         } else {
-                            DEBUG(DBG_BLURAY, "libbdplus not present!\n");
+                            DEBUG(DBG_BLURAY, "libbdplus not found!\n");
                         }
                     } else {
-                        DEBUG(DBG_BLURAY | DBG_CRIT, "libaacs failed to initialize! If this disc is encrypted, you will not be able to play it.\n");
+                        DEBUG(DBG_BLURAY | DBG_CRIT, "libaacs failed to initialize! If this disc is encrypted, you will not be able to play it\n");
                     }
                 }
             } else {
-                DEBUG(DBG_BLURAY, "libaacs not present!\n");
+                DEBUG(DBG_BLURAY, "libaacs not found!\n");
             }
         } else {
             DEBUG(DBG_BLURAY | DBG_CRIT, "No keyfile provided. You will not be able to make use of crypto functionality (0x%08x)\n", bd);
@@ -98,6 +98,8 @@ void bd_close(BLURAY *bd)
     if (bd->fp) {
         file_close(bd->fp);
     }
+
+    X_FREE(bd->device_path);
 
     DEBUG(DBG_BLURAY, "BLURAY destroyed! (0x%08x)\n", bd);
 
