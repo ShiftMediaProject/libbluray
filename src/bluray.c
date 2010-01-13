@@ -10,52 +10,35 @@
 #include <stdlib.h>
 #endif
 
-#include <dlfcn.h>
 #include <stdio.h>
 
 #include "bluray.h"
 #include "util/macro.h"
 #include "util/logging.h"
+#include "util/strutl.h"
+#include "file/dl.h"
 
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
     BLURAY *bd = calloc(1, sizeof(BLURAY));
 
     if (device_path) {
-        bd->device_path = strdup(device_path);
+        strncpy(bd->device_path, device_path, 100); // <-- FIXME. bufrun,size,term
 
         bd->aacs = NULL;
         bd->h_libaacs = NULL;
         bd->fp = NULL;
 
         if (keyfile_path) {
-            if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_LAZY))) {
+            //if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_LAZY))) {
+            if ((bd->h_libaacs = dl_dlopen("aacs"))) {
                 fptr_p_void fptr;
                 uint8_t *vid;
 
                 DEBUG(DBG_BLURAY, "Downloaded libaacs (0x%08x)\n", bd->h_libaacs);
 
-                if ((fptr = dlsym(bd->h_libaacs, "aacs_open"))) {
-                    if ((bd->aacs = fptr(device_path, keyfile_path))) {
-                        if ((fptr = dlsym(bd->h_libaacs, "aacs_get_vid"))) {
-                            vid = fptr(bd->aacs);
-                        }
-
-                        if ((bd->h_libbdplus = dlopen("libbdplus.so", RTLD_LAZY))) {
-                            DEBUG(DBG_BLURAY, "Downloaded libbdplus (0x%08x)\n", bd->h_libbdplus);
-
-                            if ((fptr = dlsym(bd->h_libbdplus, "bdplus_open"))) {
-                                if (!(bd->bdplus = fptr(device_path, keyfile_path, vid))) {
-                                    DEBUG(DBG_BLURAY, "libbdplus ret NULL!\n");
-                                }
-                            }
-                        } else {
-                            DEBUG(DBG_BLURAY, "libbdplus not found!\n");
-                        }
-                    } else {
-                        DEBUG(DBG_BLURAY | DBG_CRIT, "libaacs failed to initialize! If this disc is encrypted, you will not be able to play it\n");
-                    }
-                }
+                fptr_p_void fptr = dl_dlsym(bd->h_libaacs, "aacs_open");
+                bd->aacs = fptr(device_path, keyfile_path);
             } else {
                 DEBUG(DBG_BLURAY, "libaacs not found!\n");
             }
@@ -63,7 +46,38 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
             DEBUG(DBG_BLURAY | DBG_CRIT, "No keyfile provided. You will not be able to make use of crypto functionality (0x%08x)\n", bd);
         }
 
-        bd->int_buf_off = 6144;
+
+        // Take a quick stab to see if we want/need bdplus
+        // we should fix this, and add various string functions.
+        {
+            uint8_t vid[16] = {0}; // FIXME
+            FILE_H *fd;
+            char *tmp = NULL;
+            tmp = str_printf("%s/BDSVM/00000.svm", bd->device_path);
+            if ((fd = file_open(tmp, "rb"))) {
+                file_close(fd);
+
+                DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
+                if ((bd->h_libbdplus = dl_dlopen("bdplus"))) {
+                    DEBUG(DBG_BLURAY, "Downloaded libbdplus (0x%08x)\n",
+                          bd->h_libbdplus);
+
+                    fptr_p_void bdplus_init = dl_dlsym(bd->h_libbdplus, "bdplus_init");
+                    //bdplus_t *bdplus_init(path,configfile_path,*vid );
+                    if (bdplus_init)
+                        bd->bdplus = bdplus_init(device_path, keyfile_path, vid);
+
+                    // Since we will call these functions a lot, we assign them
+                    // now.
+                    bd->bdplus_seek  = dl_dlsym(bd->h_libbdplus, "bdplus_seek");
+                    bd->bdplus_fixup = dl_dlsym(bd->h_libbdplus, "bdplus_fixup");
+
+                } // dlopen
+            } // file_open
+            X_FREE(tmp);
+        }
+
+
 
         DEBUG(DBG_BLURAY, "BLURAY initialized! (0x%08x)\n", bd);
     } else {
@@ -77,22 +91,23 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
 void bd_close(BLURAY *bd)
 {
-    if (bd->h_libaacs) {
-        if (bd->aacs) {
-            fptr_p_void fptr = dlsym(bd->h_libaacs, "aacs_close");
-            fptr(bd->aacs);
-        }
+    if (bd->h_libaacs && bd->aacs) {
+        fptr_p_void fptr = dl_dlsym(bd->h_libaacs, "aacs_close");
+        fptr(bd->aacs);
 
-        dlclose(bd->h_libaacs);
+        dl_dlclose(bd->h_libaacs);
     }
 
-    if (bd->h_libbdplus) {
-        if (bd->bdplus) {
-            fptr_p_void fptr = dlsym(bd->h_libbdplus, "bdplus_close");
-            fptr(bd->bdplus);
-        }
+    if (bd->h_libbdplus && bd->bdplus) {
+        fptr_p_void bdplus_free = dl_dlsym(bd->h_libbdplus, "bdplus_free");
+        if (bdplus_free) bdplus_free(bd->bdplus);
+        bd->bdplus = NULL;
 
-        dlclose(bd->h_libaacs);
+        dl_dlclose(bd->h_libbdplus);
+        bd->h_libbdplus = NULL;
+
+        bd->bdplus_seek  = NULL;
+        bd->bdplus_fixup = NULL;
     }
 
     if (bd->fp) {
@@ -121,6 +136,9 @@ uint64_t bd_seek(BLURAY *bd, uint64_t pos)
         bd->int_buf_off = 6144;
 
         DEBUG(DBG_BLURAY, "Seek to %ld (0x%08x)\n", bd->s_pos, bd);
+        if (bd->bdplus_seek && bd->bdplus)
+            bd->bdplus_seek(bd->bdplus, pos);
+
     }
 
     return bd->s_pos;
@@ -138,11 +156,12 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                 if (bd->int_buf_off == 6144) {
                     int read_len;
 
-                    if ((read_len = file_read(bd->fp, bd->int_buf, 6144)) == 6144) {
-                        if (bd->h_libaacs && bd->aacs) {
-                            if ((bd->libaacs_decrypt_unit = dlsym(bd->h_libaacs, "aacs_decrypt_unit"))) {
-                                if (!bd->libaacs_decrypt_unit(bd->aacs, bd->int_buf, read_len, 0)) {
-                                    DEBUG(DBG_BLURAY, "Unable decrypt unit! (0x%08x)\n", bd);
+            if ((read_len = file_read(bd->fp, buf, len))) {
+                if (bd->h_libaacs && bd->aacs) {
+                    // FIXME: calling dlsym for every read() call.
+                    if ((bd->libaacs_decrypt_unit = dl_dlsym(bd->h_libaacs, "aacs_decrypt_unit"))) {
+                        if (!bd->libaacs_decrypt_unit(bd->aacs, buf, len, bd->s_pos)) {
+                            DEBUG(DBG_BLURAY, "Unable decrypt unit! (0x%08x)\n", bd);
 
                                     return 0;
                                 }
@@ -157,8 +176,10 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                     bd->int_buf_off = 0;
                 }
 
-                buf[out_len++] = bd->int_buf[bd->int_buf_off++];
-            }
+                if (bd->bdplus_fixup && bd->bdplus)
+                    bd->bdplus_fixup(bd->bdplus, len, buf);
+
+                bd->s_pos += len;
 
             bd->s_pos += len;
 
@@ -173,7 +194,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
     return 0;
 }
 
-int bd_select_title(BLURAY *bd, uint64_t title)
+int bd_select_title(BLURAY *bd, uint32_t title)
 {
     char f_name[100];
 
@@ -194,6 +215,13 @@ int bd_select_title(BLURAY *bd, uint64_t title)
             bd_seek(bd, 0);
 
             DEBUG(DBG_BLURAY, "Title %s selected! (0x%08x)\n", f_name, bd);
+
+            if (bd->h_libbdplus && bd->bdplus) {
+                fptr_p_void bdplus_set_title;
+                bdplus_set_title = dl_dlsym(bd->h_libbdplus, "bdplus_set_title");
+                if (bdplus_set_title)
+                    bdplus_set_title(bd->bdplus, title);
+            }
 
             return 1;
         }

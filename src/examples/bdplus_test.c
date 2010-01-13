@@ -41,7 +41,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-
+#if 0
     // Technically not required, yet
     if (bdplus_init(NULL, NULL, NULL)) goto fail;
 
@@ -70,17 +70,17 @@ int main(int argc, char **argv)
     result = bdplus_run_convtab(vm);
 
     printf("run_convtab said %d\n", result);
-
+#endif
     printf("Cleaning up...\n");
 
 
  fail:
     if (vm) {
-        bdplus_VM_free(vm);
+        //        bdplus_VM_free(vm);
         vm = NULL;
     }
 
-    bdplus_free();
+    //    bdplus_free();
 
     exit(0);
 }

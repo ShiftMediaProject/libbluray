@@ -33,6 +33,13 @@ void debug(char *file, int line, uint32_t mask, const char *format, ...)
         } else {
             debug_mask = DBG_CRIT;
         }
+
+        // Send DEBUG to file?
+        if ((env = getenv("BD_DEBUG_FILE"))) {
+            freopen(env, "wb", stderr);
+            setvbuf(stderr, NULL, _IOLBF, 0);
+        }
+
     }
 
     if (mask & debug_mask) {
