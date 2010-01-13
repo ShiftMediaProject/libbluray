@@ -20,7 +20,7 @@ enum debug_mask_enum {
     DBG_DIR = 128,
     DBG_NAV = 256,
     DBG_BDPLUS = 512,
-    DBG_DLX = 1024
+    DBG_DLX = 1024,
     DBG_CRIT = 2048          // this is libbluray's default debug mask so use this if you want to display critical info
 };
 

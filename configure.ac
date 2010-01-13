@@ -77,7 +77,7 @@ AC_CACHE_CHECK([for OpenSSL directory], ac_cv_openssl_dir, [
   ssl_found=no
   for ssldir in $tryssldir "" $prefix /usr/local/openssl /usr/lib/openssl /usr/local/ssl /usr/lib/ssl /usr/local /usr/athena /usr/pkg /opt /opt/openssl ; do
     LDFLAGS="$saved_LDFLAGS"
-    LIBS="$saved_LIBS -lssl -lcrypto -lgcrypt"
+    LIBS="$saved_LIBS -lssl -lcrypto"
 
     # Skip the directory if it isn't there.
     if test ! -z "$ssldir" -a ! -d "$ssldir" ; then
@@ -205,6 +205,29 @@ fi
 AC_CHECK_HEADERS([openssl/ecdsa.h], [], [
   AC_MSG_ERROR([Version of OpenSSL does not feature openssl/ecdsa.h, please upgrade]) ]
       , [])
+
+
+dnl
+dnl libgcrypt
+dnl
+ AC_ARG_ENABLE(libgcrypt,
+   [  --disable-libgcrypt      gcrypt support (default enabled)])
+ AS_IF([test "${enable_libgcrypt}" != "no"], [
+     libgcrypt-config --version >/dev/null || \
+         AC_MSG_ERROR([gcrypt.h present but libgcrypt-config could not be found])
+     AC_CHECK_LIB(gcrypt, gcry_control, [
+       have_libgcrypt="yes"
+       GCRYPT_CFLAGS="`libgcrypt-config --cflags`"
+       GCRYPT_LIBS="`libgcrypt-config --libs`"
+     ], [
+       AC_MSG_ERROR([libgcrypt not found. Install libgcrypt or use --disable-libgcrypt. Have a nice day.])
+     ], [`libgcrypt-config --libs`])
+   ]
+)
+
+ AC_SUBST(GCRYPT_CFLAGS)
+ AC_SUBST(GCRYPT_LIBS)
+ AM_CONDITIONAL([HAVE_GCRYPT], [test "${have_libgcrypt}" = "yes"])
 
 
 AM_CONFIG_HEADER(config.h)
