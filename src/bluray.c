@@ -10,6 +10,10 @@
 #include <stdlib.h>
 #endif
 
+#if HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif
+
 #include <stdio.h>
 
 #include "bluray.h"
@@ -51,7 +55,9 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         // Take a quick stab to see if we want/need bdplus
         // we should fix this, and add various string functions.
         {
-            uint8_t vid[16] = {0}; // FIXME
+            uint8_t vid[16] = {
+                0xC5,0x43,0xEF,0x2A,0x15,0x0E,0x50,0xC4,0xE2,0xCA,
+                0x71,0x65,0xB1,0x7C,0xA7,0xCB}; // FIXME
             FILE_H *fd;
             char *tmp = NULL;
             tmp = str_printf("%s/BDSVM/00000.svm", bd->device_path);
@@ -131,9 +137,10 @@ uint64_t bd_seek(BLURAY *bd, uint64_t pos)
 
         bd->int_buf_off = 6144;
 
-        DEBUG(DBG_BLURAY, "Seek to %ld (0x%08x)\n", bd->s_pos, bd);
+        DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (0x%08x)\n",
+              bd->s_pos, bd);
         if (bd->bdplus_seek && bd->bdplus)
-            bd->bdplus_seek(bd->bdplus, pos);
+            bd->bdplus_seek(bd->bdplus, bd->s_pos);
 
     }
 
@@ -163,11 +170,20 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                                 } // decrypt
                             } // dlsym
                         } // aacs
-                        bd->int_buf_off = 0;
 
                         // bdplus fixup, if required.
-                        if (bd->bdplus_fixup && bd->bdplus)
-                            bd->bdplus_fixup(bd->bdplus, len, buf);
+                        if (bd->bdplus_fixup && bd->bdplus) {
+                            int32_t numFixes;
+                            numFixes = bd->bdplus_fixup(bd->bdplus,
+                                                        len,
+                                                        buf);
+#if 0
+                            if (numFixes) {
+                                DEBUG(DBG_BLURAY,
+                                      "BDPLUS did %u fixups\n", numFixes);
+                            }
+#endif
+                        }
 
                         bd->s_pos += len;
 
@@ -176,6 +192,8 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                         return len;
                     } // read
                 } // int_buf
+                        bd->int_buf_off = 0;
+
             } // while
         } // s_size
     } // if ->fp
@@ -189,7 +207,7 @@ int bd_select_title(BLURAY *bd, uint32_t title)
     char f_name[100];
 
     memset(f_name, 0, sizeof(f_name));
-    snprintf(f_name, 100, "%s/BDMV/STREAM/%05ld.m2ts", bd->device_path, title);
+    snprintf(f_name, 100, "%s/BDMV/STREAM/%05u.m2ts", bd->device_path, title);
 
     bd->s_size = 0;
     bd->s_pos = 0;
