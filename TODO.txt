@@ -1,0 +1,66 @@
+###################################################################################################
+The purpose of this file is to track the progression of the development of this project
+It should help pinpoint the gaps and address the work that has to be done 
+
+As a project participant:
+- please update/add/remove/split tasks when you see fit
+- please maintain the task-user relationship by adding/removing your name 
+
+###################################################################################################
+
+Development:
+------------
+Remove the dependency on openssl
+ Achievement: ?%  Who: ?
+
+BD+
+ Achievement: ?%  Who: ?
+
+AACS
+ Achievement: ?%  Who: ?
+
+
+Integration
+-----------
+VLC integration
+ Achievement: ?%  Who: ?
+
+mplayer integration
+ Achievement: ?%  Who: ?
+
+
+Tests:
+------
+non-encrypted BD:
+ Achievement: ?%  Who: ?
+
+? BD With MKB 1-10:
+ Achievement: ?%  Who: ?
+
+? BD With MKB 11-15:
+ Achievement: ?%  Who: ?
+
+? BD With MKB 16+:
+ Achievement: ?%  Who: ?
+
+? BD With subpaths:
+ Achievement: ?%  Who: ?
+
+
+Packaging
+---------
+Build Procedure
+ Achievement: ?%  Who: ?
+
+
+Portability
+-----------
+Compile/test on MAC OS X
+ Achievement: ?%  Who: ?
+
+? Compile/test on Fedora
+ Achievement: ?%  Who: ?
+
+? Compile/test on Ubuntu
+ Achievement: ?%  Who: ?
+
