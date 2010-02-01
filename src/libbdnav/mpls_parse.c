@@ -191,6 +191,8 @@ _parse_stream(BITSTREAM *bits, MPLS_STREAM *s)
         case 0x84:
         case 0x85:
         case 0x86:
+        case 0xa1:
+        case 0xa2:
             s->format = bs_read(bits, 4);
             s->rate   = bs_read(bits, 4);
             bs_read_bytes(bits, s->lang, 3);
@@ -221,8 +223,8 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
 {
     int len;
     int pos;
-    MPLS_STREAM *ss;
-    int ii;
+    MPLS_STREAM    *ss;
+    int ii,jj;
 
     if (!bs_is_align(bits, 0x07)) {
         fprintf(stderr, "_parse_stream: Stream alignment error\n");
@@ -245,44 +247,126 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
     // 5 reserve bytes
     bs_skip(bits, 5 * 8);
 
+    // Primary Video Streams
     ss = NULL;
     if (stn->num_video) {
         ss = calloc(stn->num_video, sizeof(MPLS_STREAM));
-    }
-    for (ii = 0; ii < stn->num_video; ii++) {
-        if (!_parse_stream(bits, &ss[ii])) {
-            X_FREE(ss);
-            fprintf(stderr, "error parsing video entry\n");
-            return 0;
+        for (ii = 0; ii < stn->num_video; ii++) {
+            if (!_parse_stream(bits, &ss[ii])) {
+                X_FREE(ss);
+                fprintf(stderr, "error parsing video entry\n");
+                return 0;
+            }
         }
     }
     stn->video = ss;
 
+    // Primary Audio Streams
     ss = NULL;
-    if (stn->num_audio)
+    if (stn->num_audio) {
         ss = calloc(stn->num_audio, sizeof(MPLS_STREAM));
-    for (ii = 0; ii < stn->num_audio; ii++) {
+        for (ii = 0; ii < stn->num_audio; ii++) {
 
-        if (!_parse_stream(bits, &ss[ii])) {
-            X_FREE(ss);
-            fprintf(stderr, "error parsing audio entry\n");
-            return 0;
+            if (!_parse_stream(bits, &ss[ii])) {
+                X_FREE(ss);
+                fprintf(stderr, "error parsing audio entry\n");
+                return 0;
+            }
         }
     }
     stn->audio = ss;
 
+    // Presentation Graphic Streams
     ss = NULL;
-    if (stn->num_pg) {
-        ss = calloc(stn->num_pg, sizeof(MPLS_STREAM));
-    }
-    for (ii = 0; ii < stn->num_pg; ii++) {
-        if (!_parse_stream(bits, &ss[ii])) {
-            X_FREE(ss);
-            fprintf(stderr, "error parsing pg entry\n");
-            return 0;
+    if (stn->num_pg  || stn->num_pip_pg) {
+        ss = calloc(stn->num_pg + stn->num_pip_pg, sizeof(MPLS_STREAM));
+        for (ii = 0; ii < (stn->num_pg + stn->num_pip_pg); ii++) {
+            if (!_parse_stream(bits, &ss[ii])) {
+                X_FREE(ss);
+                fprintf(stderr, "error parsing pg/pip-pg entry\n");
+                return 0;
+            }
         }
     }
     stn->pg = ss;
+
+    // Interactive Graphic Streams
+    ss = NULL;
+    if (stn->num_ig) {
+        ss = calloc(stn->num_ig, sizeof(MPLS_STREAM));
+        for (ii = 0; ii < stn->num_ig; ii++) {
+            if (!_parse_stream(bits, &ss[ii])) {
+                X_FREE(ss);
+                fprintf(stderr, "error parsing ig entry\n");
+                return 0;
+            }
+        }
+    }
+    stn->ig = ss;
+
+    // Secondary Audio Streams
+    ss = NULL;
+    if (stn->num_secondary_audio) {
+        ss = calloc(1, sizeof(MPLS_STREAM));
+        for (ii = 0; ii < stn->num_secondary_audio; ii++) {
+            if (!_parse_stream(bits, &ss[ii])) {
+                X_FREE(ss);
+                fprintf(stderr, "error parsing secondary audio entry\n");
+                return 0;
+            }
+            // Read Secondary Audio Extra Attributes
+            ss->sa_num_primary_audio_ref = bs_read(bits, 8);
+            bs_skip(bits, 8);
+            if (ss->sa_num_primary_audio_ref) {
+                ss->sa_primary_audio_ref = calloc(ss->sa_num_primary_audio_ref, sizeof(uint8_t));
+                for (jj = 0; jj < ss->sa_num_primary_audio_ref; jj++) {
+                   ss->sa_primary_audio_ref[jj] = bs_read(bits, 8);
+                }
+                if (ss->sa_num_primary_audio_ref % 2) {
+                    bs_skip(bits, 8);
+                }
+            }
+        }
+    }
+    stn->secondary_audio = ss;
+
+    // Secondary Video Streams
+    ss = NULL;
+    if (stn->num_secondary_video) {
+        ss = calloc(stn->num_secondary_video, sizeof(MPLS_STREAM));
+        for (ii = 0; ii < stn->num_secondary_video; ii++) {
+            if (!_parse_stream(bits, &ss[ii])) {
+                X_FREE(ss);
+                fprintf(stderr, "error parsing secondary video entry\n");
+                return 0;
+            }
+            // Read Secondary Video Extra Attributes
+            ss->sv_num_secondary_audio_ref = bs_read(bits, 8);
+           bs_skip(bits, 8);
+            if (ss->sv_num_secondary_audio_ref) {
+                ss->sv_secondary_audio_ref = calloc(ss->sv_num_secondary_audio_ref, sizeof(uint8_t));
+                for (jj = 0; jj < ss->sv_num_secondary_audio_ref; jj++) {
+                    ss->sv_secondary_audio_ref[jj] = bs_read(bits, 8);
+                }
+                if (ss->sv_num_secondary_audio_ref % 2) {
+                    bs_skip(bits, 8);
+                }
+            }
+            ss->sv_num_pip_pg_ref = bs_read(bits, 8);
+            bs_skip(bits, 8);
+            if (ss->sv_num_pip_pg_ref) {
+                ss->sv_pip_pg_ref = calloc(ss->sv_num_pip_pg_ref, sizeof(uint8_t));
+                for (jj = 0; jj < ss->sv_num_pip_pg_ref; jj++) {
+                    ss->sv_pip_pg_ref[jj] = bs_read(bits, 8);
+                }
+                if (ss->sv_num_pip_pg_ref % 2) {
+                    bs_skip(bits, 8);
+                }
+            }
+
+        }
+    }
+    stn->secondary_video = ss;
 
     bs_seek_byte(bits, pos + len);
     return 1;

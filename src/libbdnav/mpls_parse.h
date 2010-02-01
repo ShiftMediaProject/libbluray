@@ -54,6 +54,14 @@ typedef struct
     uint8_t         rate;
     uint8_t         char_code;
     uint8_t         lang[4];
+    // Secondary audio specific fields
+    uint8_t         sa_num_primary_audio_ref;
+    uint8_t        *sa_primary_audio_ref;
+    // Secondary video specific fields
+    uint8_t         sv_num_secondary_audio_ref;
+    uint8_t         sv_num_pip_pg_ref;
+    uint8_t        *sv_secondary_audio_ref;
+    uint8_t        *sv_pip_pg_ref;
 } MPLS_STREAM;
 
 typedef struct
@@ -68,6 +76,9 @@ typedef struct
     MPLS_STREAM    *video;
     MPLS_STREAM    *audio;
     MPLS_STREAM    *pg;
+    MPLS_STREAM    *ig;
+    MPLS_STREAM    *secondary_audio;
+    MPLS_STREAM    *secondary_video;
 } MPLS_STN;
 
 typedef struct

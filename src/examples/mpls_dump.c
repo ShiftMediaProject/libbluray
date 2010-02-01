@@ -31,6 +31,8 @@ VALUE_MAP codec_map[] = {
     {0x84, "AC-3 Plus"},
     {0x85, "DTS-HD"},
     {0x86, "DTS-HD Master"},
+    {0xa1, "AC-3 Plus for secondary audio"},
+    {0xa2, "DTS-HD for secondary audio"},
     {0xea, "VC-1"},
     {0x1b, "H.264"},
     {0x90, "Presentation Graphics"},
@@ -147,6 +149,8 @@ _show_stream(MPLS_STREAM *ss, int level)
         case 0x84:
         case 0x85:
         case 0x86:
+        case 0xa1:
+        case 0xa2:
             indent_printf(level, "Format %02x: %s", ss->format,
                         _lookup_str(audio_format_map, ss->format));
             indent_printf(level, "Rate %02x:", ss->rate,
@@ -173,7 +177,7 @@ _show_stream(MPLS_STREAM *ss, int level)
 static void
 _show_details(MPLS_PL *pl, int level)
 {
-    int ii, jj;
+    int ii, jj, kk;
 
     for (ii = 0; ii < pl->list_count; ii++) {
         MPLS_PI *pi;
@@ -200,9 +204,30 @@ _show_details(MPLS_PL *pl, int level)
             indent_printf(level+1, "Audio Stream %d:", jj);
             _show_stream(&pi->stn.audio[jj], level + 2);
         }
-        for (jj = 0; jj < pi->stn.num_pg; jj++) {
-            indent_printf(level+1, "Presentation Graphics Stream %d:", jj);
+        for (jj = 0; jj < (pi->stn.num_pg + pi->stn.num_pip_pg); jj++) {
+        	if (jj < pi->stn.num_pg) {
+               indent_printf(level+1, "Presentation Graphics Stream %d:", jj);
+        	} else {
+                indent_printf(level+1, "PIP Presentation Graphics Stream %d:", jj);
+        	}
             _show_stream(&pi->stn.pg[jj], level + 2);
+        }
+        for (jj = 0; jj < pi->stn.num_secondary_video; jj++) {
+            indent_printf(level+1, "Secondary Video Stream %d:", jj);
+            _show_stream(&pi->stn.secondary_video[jj], level + 2);
+            for (kk = 0; kk < pi->stn.secondary_video[jj].sv_num_secondary_audio_ref; kk++) {
+                indent_printf(level+2, "Secondary Audio Ref %d: %d", kk,pi->stn.secondary_video[jj].sv_secondary_audio_ref[kk]);
+            }
+            for (kk = 0; kk < pi->stn.secondary_video[jj].sv_num_pip_pg_ref; kk++) {
+                indent_printf(level+2, "PIP Presentation Graphic Ref %d: %d", kk,pi->stn.secondary_video[jj].sv_pip_pg_ref[kk]);
+            }
+        }
+        for (jj = 0; jj < pi->stn.num_secondary_audio; jj++) {
+            indent_printf(level+1, "Secondary Audio Stream %d:", jj);
+            _show_stream(&pi->stn.secondary_audio[jj], level + 2);
+            for (kk = 0; kk < pi->stn.secondary_audio[jj].sa_num_primary_audio_ref; kk++) {
+                indent_printf(level+2, "Primary Audio Ref %d: %d", kk,pi->stn.secondary_audio[jj].sa_primary_audio_ref[kk]);
+            }
         }
         printf("\n");
     }
