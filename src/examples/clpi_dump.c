@@ -40,6 +40,8 @@ VALUE_MAP codec_map[] = {
     {0x84, "AC-3 Plus"},
     {0x85, "DTS-HD"},
     {0x86, "DTS-HD Master"},
+    {0xa1, "AC-3 Plus for secondary audio"},
+    {0xa2, "DTS-HD for secondary audio"},
     {0xea, "VC-1"},
     {0x1b, "H.264"},
     {0x90, "Presentation Graphics"},
@@ -133,6 +135,8 @@ _show_stream(CLPI_PROG_STREAM *ss, int level)
         case 0x84:
         case 0x85:
         case 0x86:
+        case 0xa1:
+        case 0xa2:
             indent_printf(level, "Format %02x: %s", ss->format,
                         _lookup_str(audio_format_map, ss->format));
             indent_printf(level, "Rate %02x:", ss->rate,

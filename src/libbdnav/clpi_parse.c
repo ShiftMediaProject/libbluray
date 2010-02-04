@@ -66,6 +66,8 @@ _parse_stream_attr(BITSTREAM *bits, CLPI_PROG_STREAM *ss)
         case 0x84:
         case 0x85:
         case 0x86:
+        case 0xa1:
+        case 0xa2:
             ss->format = bs_read(bits, 4);
             ss->rate   = bs_read(bits, 4);
             bs_read_bytes(bits, ss->lang, 3);
