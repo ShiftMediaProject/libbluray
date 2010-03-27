@@ -6,6 +6,7 @@
 char out[512];
 debug_mask_t debug_mask = 0;
 static int debug_init = 0;
+FILE *logfile = NULL;
 
 
 char *print_hex(uint8_t *buf, int count)
@@ -22,10 +23,10 @@ char *print_hex(uint8_t *buf, int count)
 
 void debug(char *file, int line, uint32_t mask, const char *format, ...)
 {
-    char *env;
-
     // Only call getenv() once.
     if (!debug_init) {
+        char *env;
+
         debug_init = 1;
 
         if ((env = getenv("BD_DEBUG_MASK"))) {
@@ -36,10 +37,12 @@ void debug(char *file, int line, uint32_t mask, const char *format, ...)
 
         // Send DEBUG to file?
         if ((env = getenv("BD_DEBUG_FILE"))) {
-            freopen(env, "wb", stderr);
-            setvbuf(stderr, NULL, _IOLBF, 0);
+            logfile = fopen(env, "wb");
+            setvbuf(logfile, NULL, _IOLBF, 0);
         }
 
+        if (!logfile)
+            logfile = stderr;
     }
 
     if (mask & debug_mask) {
@@ -50,6 +53,6 @@ void debug(char *file, int line, uint32_t mask, const char *format, ...)
         vsprintf(buffer, format, args);
         va_end(args);
 
-        fprintf(stderr, "%s:%d: %s", file, line, buffer);
+        fprintf(logfile, "%s:%d: %s", file, line, buffer);
     }
 }
