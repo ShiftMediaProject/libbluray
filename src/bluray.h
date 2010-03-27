@@ -8,6 +8,7 @@
 #include "file/file.h"
 
 typedef int (*fptr_int)();
+typedef int32_t (*fptr_int32)();
 typedef void* (*fptr_p_void)();
 
 typedef struct bluray BLURAY;
@@ -17,8 +18,8 @@ struct bluray {
     uint64_t s_size;
     uint64_t s_pos;
     void *aacs, *bdplus;
-    fptr_p_void bdplus_seek; // frequently called
-    fptr_p_void bdplus_fixup; // frequently called
+    fptr_int32 bdplus_seek; // frequently called
+    fptr_int32 bdplus_fixup; // frequently called
     void *h_libaacs, *h_libbdplus, *h_libbdnav;
     fptr_int libaacs_decrypt_unit;
     uint8_t int_buf[6144];
