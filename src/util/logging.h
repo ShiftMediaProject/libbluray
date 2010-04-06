@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "attributes.h"
+
 #define DEBUG(X,Y,...) debug(__FILE__,__LINE__,X,Y,##__VA_ARGS__)
 
 enum debug_mask_enum {
@@ -28,6 +30,6 @@ typedef enum debug_mask_enum debug_mask_t;
 extern debug_mask_t debug_mask;
 
 char *print_hex(uint8_t *str, int count);
-void debug(char *file, int line, uint32_t mask, const char *format, ...);
+void debug(const char *file, int line, uint32_t mask, const char *format, ...) BD_ATTR_FORMAT_PRINTF(4,5);
 
 #endif /* LOGGING_H_ */

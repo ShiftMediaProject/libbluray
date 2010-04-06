@@ -21,7 +21,7 @@ char *print_hex(uint8_t *buf, int count)
     return out;
 }
 
-void debug(char *file, int line, uint32_t mask, const char *format, ...)
+void debug(const char *file, int line, uint32_t mask, const char *format, ...)
 {
     // Only call getenv() once.
     if (!debug_init) {
