@@ -45,13 +45,22 @@ void   *dl_dlopen  ( const char* name )
 #endif
     DEBUG(DBG_BDPLUS, "searching for library '%s' ...\n", path);
     result = dlopen(path, RTLD_LAZY);
+    if (!result) {
+        DEBUG(DBG_FILE | DBG_CRIT, "can't open library '%s'\n", path);
+    }
     free(path);
     return result;
 }
 
 void   *dl_dlsym   ( void* handle, const char* symbol )
 {
-    return dlsym(handle, symbol);
+    void *result = dlsym(handle, symbol);
+
+    if (!result) {
+      DEBUG(DBG_FILE | DBG_CRIT, "dlsym(%p, '%s') failed\n", handle, symbol);
+    }
+
+    return result;
 }
 
 int     dl_dlclose ( void* handle )
