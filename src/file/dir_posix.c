@@ -25,7 +25,7 @@ void dir_close_posix(DIR_H *dir)
     if (dir) {
         closedir((DIR *)dir->internal);
 
-        DEBUG(DBG_DIR, "Closed POSIX dir (0x%08x)\n", dir);
+        DEBUG(DBG_DIR, "Closed POSIX dir (%p)\n", dir);
 
         X_FREE(dir);
     }
@@ -51,7 +51,7 @@ DIR_H *dir_open_posix(const char* dirname)
     DIR *dp = NULL;
     DIR_H *dir = malloc(sizeof(DIR_H));
 
-    DEBUG(DBG_CONFIGFILE, "Opening POSIX dir %s... (0x%08x)\n", dirname, dir);
+    DEBUG(DBG_DIR, "Opening POSIX dir %s... (%p)\n", dirname, dir);
     dir->close = dir_close_posix;
     dir->read = dir_read_posix;
 
@@ -61,7 +61,7 @@ DIR_H *dir_open_posix(const char* dirname)
         return dir;
     }
 
-    DEBUG(DBG_DIR, "Error opening dir! (0x%08x)\n", dir);
+    DEBUG(DBG_DIR, "Error opening dir! (%p)\n", dir);
 
     X_FREE(dir);
 

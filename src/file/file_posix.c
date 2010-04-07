@@ -29,7 +29,7 @@ void file_close_linux(FILE_H *file)
     if (file) {
         fclose((FILE *)file->internal);
 
-        DEBUG(DBG_FILE, "Closed LINUX file (0x%08x)\n", file);
+        DEBUG(DBG_FILE, "Closed LINUX file (%p)\n", file);
 
         X_FREE(file);
     }
@@ -65,7 +65,7 @@ FILE_H *file_open_linux(const char* filename, const char *mode)
     FILE *fp = NULL;
     FILE_H *file = malloc(sizeof(FILE_H));
 
-    DEBUG(DBG_CONFIGFILE, "Opening LINUX file %s... (0x%08x)\n", filename, file);
+    DEBUG(DBG_FILE, "Opening LINUX file %s... (%p)\n", filename, file);
     file->close = file_close_linux;
     file->seek = file_seek_linux;
     file->read = file_read_linux;
@@ -79,7 +79,7 @@ FILE_H *file_open_linux(const char* filename, const char *mode)
         return file;
     }
 
-    DEBUG(DBG_FILE, "Error opening file! (0x%08x)\n", file);
+    DEBUG(DBG_FILE, "Error opening file! (%p)\n", file);
 
     X_FREE(file);
 

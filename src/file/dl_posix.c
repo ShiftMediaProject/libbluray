@@ -46,7 +46,7 @@ void   *dl_dlopen  ( const char* name )
     DEBUG(DBG_BDPLUS, "searching for library '%s' ...\n", path);
     result = dlopen(path, RTLD_LAZY);
     if (!result) {
-        DEBUG(DBG_FILE | DBG_CRIT, "can't open library '%s'\n", path);
+        DEBUG(DBG_FILE | DBG_CRIT, "can't open library '%s': %s\n", path, dlerror());
     }
     free(path);
     return result;
@@ -57,7 +57,7 @@ void   *dl_dlsym   ( void* handle, const char* symbol )
     void *result = dlsym(handle, symbol);
 
     if (!result) {
-      DEBUG(DBG_FILE | DBG_CRIT, "dlsym(%p, '%s') failed\n", handle, symbol);
+      DEBUG(DBG_FILE | DBG_CRIT, "dlsym(%p, '%s') failed: %s\n", handle, symbol, dlerror());
     }
 
     return result;

@@ -35,7 +35,7 @@ uint8_t *configfile_record(CONFIGFILE *kf, enum configfile_types type, uint16_t 
         }
 
         if (kf->buf[pos] == type) {
-            DEBUG(DBG_CONFIGFILE, "Retrieved CONFIGFILE record 0x%02x (0x%08x)\n", type, kf->buf + pos + 10);
+            DEBUG(DBG_CONFIGFILE, "Retrieved CONFIGFILE record 0x%02x (%p)\n", type, kf->buf + pos + 10);
 
             return kf->buf + pos + 10;  // only return ptr to first byte of entry
         }
@@ -51,7 +51,7 @@ CONFIGFILE *configfile_open(const char *path)
     FILE_H *fp = NULL;
     CONFIGFILE *kf = malloc(sizeof(CONFIGFILE));
 
-    DEBUG(DBG_CONFIGFILE, "Opening configfile %s... (0x%08x)\n", path, kf);
+    DEBUG(DBG_CONFIGFILE, "Opening configfile %s... (%p)\n", path, kf);
 
     if ((fp = file_open(path, "rb"))) {
         file_seek(fp, 0, SEEK_END);
@@ -72,7 +72,7 @@ CONFIGFILE *configfile_open(const char *path)
 
 void configfile_close(CONFIGFILE *kf)
 {
-    DEBUG(DBG_CONFIGFILE, "configfile closed (0x%08x)\n", kf);
+    DEBUG(DBG_CONFIGFILE, "configfile closed (%p)\n", kf);
 
     X_FREE(kf->buf);
     X_FREE(kf);
