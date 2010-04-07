@@ -66,6 +66,7 @@ static inline void bs_init( BITSTREAM *bs, FILE_H *fp )
     bs->pos = 0;
     file_seek(bs->fp, 0, SEEK_END);
     bs->end = file_tell(bs->fp);
+    file_seek(bs->fp, 0, SEEK_SET);
     bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
     bb_init(&bs->bb, bs->buf, bs->size);
 }
@@ -96,10 +97,10 @@ static inline void bb_seek( BITBUFFER *bb, off_t off, int whence)
 
     switch (whence) {
         case SEEK_CUR:
-            off = (bb->p - bb->p_start) + off;
+            off = (bb->p - bb->p_start) * 8 + off;
             break;
         case SEEK_END:
-            off = (bb->p_end - bb->p_start) - off;
+            off = (bb->p_end - bb->p_start) * 8 - off;
             break;
         case SEEK_SET:
         default:
@@ -116,7 +117,7 @@ static inline void bs_seek( BITSTREAM *bs, off_t off, int whence)
 
     switch (whence) {
         case SEEK_CUR:
-            off = bs->pos * 8 + (bs->bb.p - bs->bb.p_start) + off;
+            off = bs->pos * 8 + (bs->bb.p - bs->bb.p_start) * 8 + off;
             break;
         case SEEK_END:
             off = bs->end * 8 - off;
