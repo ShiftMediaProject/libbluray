@@ -52,10 +52,10 @@ static int _open_m2ts(BLURAY *bd)
             return 1;
         }
 
-        DEBUG(DBG_BLURAY, "Clip %s empty! (0x%08x)\n", f_name, bd);
+        DEBUG(DBG_BLURAY, "Clip %s empty! (%p)\n", f_name, bd);
     }
 
-    DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open clip %s! (0x%08x)\n", 
+    DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open clip %s! (%p)\n", 
           f_name, bd);
 
     X_FREE(f_name);
@@ -79,7 +79,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
             if ((bd->h_libaacs = dl_dlopen("aacs"))) {
                 fptr_p_void fptr;
 
-                DEBUG(DBG_BLURAY, "Downloaded libaacs (0x%08x)\n", bd->h_libaacs);
+                DEBUG(DBG_BLURAY, "Downloaded libaacs (%p)\n", bd->h_libaacs);
 
                 fptr = dl_dlsym(bd->h_libaacs, "aacs_open");
                 bd->aacs = fptr(device_path, keyfile_path);
@@ -87,7 +87,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
                 DEBUG(DBG_BLURAY, "libaacs not found!\n");
             }
         } else {
-            DEBUG(DBG_BLURAY | DBG_CRIT, "No keyfile provided. You will not be able to make use of crypto functionality (0x%08x)\n", bd);
+            DEBUG(DBG_BLURAY | DBG_CRIT, "No keyfile provided. You will not be able to make use of crypto functionality (%p)\n", bd);
         }
 
 
@@ -105,7 +105,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
                 DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
                 if ((bd->h_libbdplus = dl_dlopen("bdplus"))) {
-                    DEBUG(DBG_BLURAY, "Downloaded libbdplus (0x%08x)\n",
+                    DEBUG(DBG_BLURAY, "Downloaded libbdplus (%p)\n",
                           bd->h_libbdplus);
 
                     fptr_p_void bdplus_init = dl_dlsym(bd->h_libbdplus, "bdplus_init");
@@ -125,7 +125,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
 
 
-        DEBUG(DBG_BLURAY, "BLURAY initialized! (0x%08x)\n", bd);
+        DEBUG(DBG_BLURAY, "BLURAY initialized! (%p)\n", bd);
     } else {
         X_FREE(bd);
 
@@ -169,7 +169,7 @@ void bd_close(BLURAY *bd)
 
     X_FREE(bd->device_path);
 
-    DEBUG(DBG_BLURAY, "BLURAY destroyed! (0x%08x)\n", bd);
+    DEBUG(DBG_BLURAY, "BLURAY destroyed! (%p)\n", bd);
 
     X_FREE(bd);
 }
@@ -187,13 +187,13 @@ int _read_block(BLURAY *bd)
 
             if ((read_len = file_read(bd->fp, bd->int_buf, len))) {
                 if (read_len != len)
-            DEBUG(DBG_BLURAY | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d ! (%p)\n", read_len, bd->clip_block_pos, len, bd);
+                    DEBUG(DBG_BLURAY | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d ! (%p)\n", read_len, bd->clip_block_pos, len, bd);
 
                 if (bd->h_libaacs && bd->aacs) {
                     // FIXME: calling dlsym for every read() call.
                     if ((bd->libaacs_decrypt_unit = dl_dlsym(bd->h_libaacs, "aacs_decrypt_unit"))) {
                         if (!bd->libaacs_decrypt_unit(bd->aacs, bd->int_buf, len, bd->clip_block_pos)) {
-                            DEBUG(DBG_BLURAY, "Unable decrypt unit! (0x%08x)\n", bd);
+                            DEBUG(DBG_BLURAY, "Unable decrypt unit! (%p)\n", bd);
 
                             return 0;
                         } // decrypt
@@ -260,7 +260,7 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos)
 
         bd->int_buf_off = 6144;
 
-        DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (0x%08x)\n",
+        DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
               bd->s_pos, bd);
         if (bd->bdplus_seek && bd->bdplus)
             bd->bdplus_seek(bd->bdplus, bd->s_pos);
@@ -291,7 +291,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                 if (clip_pkt >= bd->clip->end_pkt) {
                     bd->clip = nav_next_clip(bd->title, bd->clip);
                     if (bd->clip == NULL) {
-                        DEBUG(DBG_BLURAY, "End of title (0x%08x)\n", bd);
+                        DEBUG(DBG_BLURAY, "End of title (%p)\n", bd);
                         return out_len;
                     }
                     if (!_open_m2ts(bd)) {
@@ -339,17 +339,17 @@ int bd_select_title(BLURAY *bd, uint32_t title_idx)
 
     // Open the playlist
     if (bd->title_list == NULL) {
-        DEBUG(DBG_BLURAY, "Title list not yet read! (0x%08x)\n", bd);
+        DEBUG(DBG_BLURAY, "Title list not yet read! (%p)\n", bd);
         return 0;
     }
     if (bd->title_list->count <= title_idx) {
-        DEBUG(DBG_BLURAY, "Invalid title index %d! (0x%08x)\n", title_idx, bd);
+        DEBUG(DBG_BLURAY, "Invalid title index %d! (%p)\n", title_idx, bd);
         return 0;
     }
     f_name = bd->title_list->title_info[title_idx].name;
     bd->title = nav_title_open(bd->device_path, f_name);
     if (bd->title == NULL) {
-        DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (0x%08x)\n", 
+        DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n", 
               f_name, bd);
         return 0;
     }
@@ -360,7 +360,7 @@ int bd_select_title(BLURAY *bd, uint32_t title_idx)
     // Get the initial clip of the playlist
     bd->clip = nav_next_clip(bd->title, NULL);
     if (_open_m2ts(bd)) {
-        DEBUG(DBG_BLURAY, "Title %s selected! (0x%08x)\n", f_name, bd);
+        DEBUG(DBG_BLURAY, "Title %s selected! (%p)\n", f_name, bd);
         return 1;
     }
     return 0;
@@ -412,16 +412,16 @@ BD_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
     int ii;
 
     if (bd->title_list == NULL) {
-        DEBUG(DBG_BLURAY, "Title list not yet read! (0x%08x)\n", bd);
+        DEBUG(DBG_BLURAY, "Title list not yet read! (%p)\n", bd);
         return NULL;
     }
     if (bd->title_list->count <= title_idx) {
-        DEBUG(DBG_BLURAY, "Invalid title index %d! (0x%08x)\n", title_idx, bd);
+        DEBUG(DBG_BLURAY, "Invalid title index %d! (%p)\n", title_idx, bd);
         return NULL;
     }
     title = nav_title_open(bd->device_path, bd->title_list->title_info[title_idx].name);
     if (title == NULL) {
-        DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (0x%08x)\n", 
+        DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n", 
               bd->title_list->title_info[title_idx].name, bd);
         return NULL;
     }
