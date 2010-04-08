@@ -366,6 +366,16 @@ int bd_select_title(BLURAY *bd, uint32_t title_idx)
     return 0;
 }
 
+int bd_select_angle(BLURAY *bd, int angle)
+{
+    if (bd->title == NULL) {
+        DEBUG(DBG_BLURAY, "Title not yet selected! (%p)\n", bd);
+        return 0;
+    }
+    bd->clip = nav_set_angle(bd->title, bd->clip, angle);
+    return 1;
+}
+
 uint64_t bd_get_title_size(BLURAY *bd)
 {
     return bd ? bd->s_size : UINT64_C(0);
