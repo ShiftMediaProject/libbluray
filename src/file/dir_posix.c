@@ -34,7 +34,7 @@ void dir_close_posix(DIR_H *dir)
 int dir_read_posix(DIR_H *dir, DIRENT *entry)
 {
     struct dirent e, *p_e;
-	int result;
+    int result;
 
     result = readdir_r((DIR*)dir->internal, &e, &p_e);
     if (result) {

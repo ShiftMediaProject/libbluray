@@ -205,11 +205,11 @@ _show_details(MPLS_PL *pl, int level)
             _show_stream(&pi->stn.audio[jj], level + 2);
         }
         for (jj = 0; jj < (pi->stn.num_pg + pi->stn.num_pip_pg); jj++) {
-        	if (jj < pi->stn.num_pg) {
+            if (jj < pi->stn.num_pg) {
                indent_printf(level+1, "Presentation Graphics Stream %d:", jj);
-        	} else {
+            } else {
                 indent_printf(level+1, "PIP Presentation Graphics Stream %d:", jj);
-        	}
+            }
             _show_stream(&pi->stn.pg[jj], level + 2);
         }
         for (jj = 0; jj < pi->stn.num_secondary_video; jj++) {

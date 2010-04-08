@@ -136,13 +136,13 @@ static inline void bs_seek( BITSTREAM *bs, off_t off, int whence)
             bs->pos = 0;
             file_seek(bs->fp, 0, SEEK_SET);
         }
-    	bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
+        bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
         bb_init(&bs->bb, bs->buf, bs->size);
         bs->bb.p = bs->bb.p_end;
     } else if (b < bs->pos || b >= (bs->pos + BF_BUF_SIZE)) {
         file_seek(bs->fp, b, SEEK_SET);
         bs->pos = b;
-    	bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
+        bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
         bb_init(&bs->bb, bs->buf, bs->size);
     } else {
         b -= bs->pos;
@@ -214,7 +214,7 @@ static inline uint32_t bs_read( BITSTREAM *bs, int i_count )
         bs->pos = bs->pos + (bs->bb.p - bs->bb.p_start);
         left = bs->bb.i_left;
         file_seek(bs->fp, bs->pos, SEEK_SET);
-    	bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
+        bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
         bb_init(&bs->bb, bs->buf, bs->size);
         bs->bb.i_left = left;
     }
@@ -266,7 +266,7 @@ static inline void bs_skip( BITSTREAM *bs, ssize_t i_count )
         bs->pos = bs->pos + (bs->bb.p - bs->bb.p_start);
         left = bs->bb.i_left;
         file_seek(bs->fp, bs->pos, SEEK_SET);
-    	bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
+        bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
         bb_init(&bs->bb, bs->buf, bs->size);
         bs->bb.i_left = left;
     }
