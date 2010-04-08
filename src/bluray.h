@@ -58,7 +58,8 @@ void bd_close(BLURAY *bd);                                          // Free libb
 int64_t bd_seek(BLURAY *bd, uint64_t pos);              // Seek to pos in currently selected title file
 int bd_read(BLURAY *bd, unsigned char *buf, int len);   // Read from currently selected title file, decrypt if possible
 
-int bd_select_title(BLURAY *bd, uint32_t title);    // TODO: FIX THE COMMENT
+int bd_select_title(BLURAY *bd, uint32_t title);    // Select the title from the list created by bd_get_titles()
+int bd_select_angle(BLURAY *bd, int angle);         // Set the angle to play
 uint64_t bd_get_title_size(BLURAY *bd);             // Returns file size in bytes of currently selected title, 0 in no title selected
 
 uint64_t bd_tell(BLURAY *bd);       // Return current pos
