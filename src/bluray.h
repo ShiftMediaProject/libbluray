@@ -31,6 +31,11 @@ struct bluray {
     fptr_int libaacs_decrypt_unit;
     uint8_t int_buf[6144];
     uint16_t int_buf_off;
+    int      seamless_angle_change;
+    uint32_t angle_change_pkt;
+    uint32_t angle_change_time;
+    int      request_angle;
+    int      angle;
 };
 
 typedef struct bd_chapter {
@@ -56,10 +61,12 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path); // Init libb
 void bd_close(BLURAY *bd);                                          // Free libbluray objs
 
 int64_t bd_seek(BLURAY *bd, uint64_t pos);              // Seek to pos in currently selected title file
+int64_t bd_seek_time(BLURAY *bd, uint64_t tick); // Seek to a specific time in 90Khz ticks
 int bd_read(BLURAY *bd, unsigned char *buf, int len);   // Read from currently selected title file, decrypt if possible
 
 int bd_select_title(BLURAY *bd, uint32_t title);    // Select the title from the list created by bd_get_titles()
 int bd_select_angle(BLURAY *bd, int angle);         // Set the angle to play
+void bd_seamless_angle_change(BLURAY *bd, int angle); // Initiate seamless angle change
 uint64_t bd_get_title_size(BLURAY *bd);             // Returns file size in bytes of currently selected title, 0 in no title selected
 
 uint64_t bd_tell(BLURAY *bd);       // Return current pos

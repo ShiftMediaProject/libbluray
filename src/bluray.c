@@ -235,11 +235,57 @@ int _read_block(BLURAY *bd)
     return 0;
 }
 
+int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
+{
+    uint32_t clip_pkt, out_pkt;
+    NAV_CLIP *clip;
+
+    if (bd->seamless_angle_change) {
+        bd->clip = nav_set_angle(bd->title, bd->clip, bd->request_angle);
+        bd->angle = bd->request_angle;
+        bd->seamless_angle_change = 0;
+    }
+    if (tick < bd->title->duration) {
+        tick /= 2;
+
+        // Find the closest access unit to the requested position
+        clip = nav_time_search(bd->title, tick, &clip_pkt, &out_pkt);
+        if (clip->ref != bd->clip->ref) {
+            // The position is in a new clip
+            bd->clip = clip;
+            if (!_open_m2ts(bd)) {
+                return -1;
+            }
+        }
+        bd->s_pos = (uint64_t)out_pkt * 192;
+        bd->clip_pos = (uint64_t)clip_pkt * 192;
+        bd->clip_block_pos = (bd->clip_pos / 6144) * 6144;
+
+        file_seek(bd->fp, bd->clip_block_pos, SEEK_SET);
+
+        bd->int_buf_off = 6144;
+
+        DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
+              bd->s_pos, bd);
+        if (bd->bdplus_seek && bd->bdplus)
+            bd->bdplus_seek(bd->bdplus, bd->clip_block_pos);
+
+        return bd->s_pos;
+    }
+
+    return bd->s_pos;
+}
+
 int64_t bd_seek(BLURAY *bd, uint64_t pos)
 {
     uint32_t pkt, clip_pkt, out_pkt, out_time;
     NAV_CLIP *clip;
 
+    if (bd->seamless_angle_change) {
+        bd->clip = nav_set_angle(bd->title, bd->clip, bd->request_angle);
+        bd->angle = bd->request_angle;
+        bd->seamless_angle_change = 0;
+    }
     if (pos < bd->s_size) {
         pkt = pos / 192;
 
@@ -263,7 +309,34 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos)
         DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
               bd->s_pos, bd);
         if (bd->bdplus_seek && bd->bdplus)
-            bd->bdplus_seek(bd->bdplus, bd->s_pos);
+            bd->bdplus_seek(bd->bdplus, bd->clip_block_pos);
+
+        return bd->s_pos;
+    }
+
+    return bd->s_pos;
+}
+
+static int64_t _clip_seek_time(BLURAY *bd, uint64_t tick)
+{
+    uint32_t clip_pkt, out_pkt;
+
+    if (tick < bd->clip->out_time) {
+
+        // Find the closest access unit to the requested position
+        nav_clip_time_search(bd->clip, tick, &clip_pkt, &out_pkt);
+        bd->s_pos = (uint64_t)out_pkt * 192;
+        bd->clip_pos = (uint64_t)clip_pkt * 192;
+        bd->clip_block_pos = (bd->clip_pos / 6144) * 6144;
+
+        file_seek(bd->fp, bd->clip_block_pos, SEEK_SET);
+
+        bd->int_buf_off = 6144;
+
+        DEBUG(DBG_BLURAY, "Clip seek to %"PRIu64" (%p)\n",
+              bd->s_pos, bd);
+        if (bd->bdplus_seek && bd->bdplus)
+            bd->bdplus_seek(bd->bdplus, bd->clip_block_pos);
 
         return bd->s_pos;
     }
@@ -283,8 +356,33 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
         while (len > 0) {
             uint32_t clip_pkt;
 
+            size = len;
             // Do we need to read more data?
             clip_pkt = bd->clip_pos / 192;
+            if (bd->seamless_angle_change) {
+                if (clip_pkt >= bd->angle_change_pkt) {
+                    if (clip_pkt >= bd->clip->end_pkt) {
+                        bd->clip = nav_next_clip(bd->title, bd->clip);
+                        if (!_open_m2ts(bd)) {
+                            return -1;
+                        }
+                        bd->s_pos = bd->clip->pos;
+                    } else {
+                        bd->clip = nav_set_angle(bd->title, bd->clip, bd->request_angle);
+                        _clip_seek_time(bd, bd->angle_change_time);
+                    }
+                    bd->angle = bd->request_angle;
+                    bd->seamless_angle_change = 0;
+                } else {
+                    int64_t angle_pos;
+
+                    angle_pos = (int64_t)bd->angle_change_pkt * 192;
+                    if (angle_pos - bd->clip_pos < size)
+                    {
+                        size = angle_pos - bd->clip_pos;
+                    }
+                }
+            }
             if (bd->int_buf_off == 6144 || clip_pkt >= bd->clip->end_pkt) {
 
                 // Do we need to get the next clip?
@@ -306,10 +404,8 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                     return out_len;
                 }
             }
-            if (len > 6144 - bd->int_buf_off) {
+            if (size > 6144 - bd->int_buf_off) {
                 size = 6144 - bd->int_buf_off;
-            } else {
-                size = len;
             }
             memcpy(buf, bd->int_buf + bd->int_buf_off, size);
             buf += size;
@@ -354,6 +450,8 @@ int bd_select_title(BLURAY *bd, uint32_t title_idx)
         return 0;
     }
 
+    bd->angle = 0;
+    bd->seamless_angle_change = 0;
     bd->s_pos = 0;
     bd->s_size = (uint64_t)bd->title->packets * 192;
 
@@ -374,6 +472,17 @@ int bd_select_angle(BLURAY *bd, int angle)
     }
     bd->clip = nav_set_angle(bd->title, bd->clip, angle);
     return 1;
+}
+
+void bd_seamless_angle_change(BLURAY *bd, int angle)
+{
+    uint32_t clip_pkt;
+
+    clip_pkt = (bd->clip_pos + 191) / 192;
+    bd->angle_change_pkt = nav_angle_change_search(bd->clip, clip_pkt, 
+                                                   &bd->angle_change_time);
+    bd->request_angle = angle;
+    bd->seamless_angle_change = 1;
 }
 
 uint64_t bd_get_title_size(BLURAY *bd)

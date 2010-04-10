@@ -332,6 +332,8 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
     NAV_TITLE *title = NULL;
     char *path;
     int ii, chapters = 0;
+    uint32_t pos = 0;
+    uint32_t time = 0;
 
     title = calloc(1, sizeof(NAV_TITLE));
     if (title == NULL) {
@@ -363,6 +365,8 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
         pi = &title->pl->play_item[ii];
 
         clip = &title->clip_list.clip[ii];
+
+        clip->title = title;
         clip->ref = ii;
         clip->angle = 0;
         strncpy(clip->name, pi->clip[clip->angle].clip_id, 5);
@@ -392,6 +396,12 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
         }
         clip->end_pkt = clpi_lookup_spn(clip->cl, pi->out_time, 0,
                                         pi->clip[clip->angle].stc_id);
+        clip->in_time = pi->in_time;
+        clip->out_time = pi->out_time;
+        clip->pos = pos;
+        pos += clip->end_pkt - clip->start_pkt;
+        clip->start_time = time;
+        time += clip->out_time - clip->in_time;
     }
     // Count the number of "entry" marks (skipping "link" marks)
     // This is the the number of chapters
@@ -457,8 +467,7 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, 
         clip = &title->clip_list.clip[ii];
         *clip_pkt = clpi_access_point(clip->cl, pkt - pos + clip->start_pkt, 0, 0, out_time);
     }
-    pos += *clip_pkt - clip->start_pkt;
-    *out_pkt = pos;
+    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
     return clip;
 }
 
@@ -480,8 +489,9 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, 
 //    from nav_set_angle.
 // 4. If the angle change point was within the time period of the current
 //    play item (i.e. the angle change point is not at the end of the clip),
-//    Search to the timestamp obtained from nav_angle_change using
-//    nav_time_search. Otherwise start at the start_pkt defined by the clip.
+//    Search to the timestamp obtained from nav_angle_change_search using
+//    nav_clip_time_search. Otherwise start at the start_pkt defined 
+//    by the clip.
 uint32_t nav_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time)
 {
     return clpi_access_point(clip->cl, pkt, 1, 1, time);
@@ -489,7 +499,7 @@ uint32_t nav_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time)
 
 // Search for random access point closest to the requested time
 // Time is in 45khz ticks
-NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt)
+NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt)
 {
     uint32_t pos, len;
     MPLS_PI *pi;
@@ -506,12 +516,27 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt)
     }
     if (ii == title->pl->list_count) {
         clip = &title->clip_list.clip[ii-1];
-        *out_pkt = clip->end_pkt;
+        *clip_pkt = clip->end_pkt;
     } else {
         clip = &title->clip_list.clip[ii];
-        *out_pkt = clpi_lookup_spn(clip->cl, tick - pos + pi->in_time, 1,
+        *clip_pkt = clpi_lookup_spn(clip->cl, tick - pos + pi->in_time, 1,
                       title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
     }
+    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    return clip;
+}
+
+// Search for random access point closest to the requested time
+// Time is in 45khz ticks relative to the beginning of a specific clip
+void nav_clip_time_search(NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt)
+{
+    if (tick >= clip->out_time) {
+        *out_pkt = clip->end_pkt;
+    } else {
+        *clip_pkt = clpi_lookup_spn(clip->cl, tick, 1,
+               clip->title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
+    }
+    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
     return clip;
 }
 
@@ -538,6 +563,8 @@ NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, int angle)
 {
     char *path;
     int ii;
+    uint32_t pos = 0;
+    uint32_t time = 0;
 
     if (title == NULL) {
         return clip;
@@ -591,6 +618,12 @@ NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, int angle)
         }
         clip->end_pkt = clpi_lookup_spn(clip->cl, pi->out_time, 0,
                                         pi->clip[clip->angle].stc_id);
+        clip->in_time = pi->in_time;
+        clip->out_time = pi->out_time;
+        clip->pos = pos;
+        pos += clip->end_pkt - clip->start_pkt;
+        clip->start_time = time;
+        time += clip->out_time - clip->in_time;
     }
     _extrapolate_title(title);
     return clip;

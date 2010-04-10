@@ -13,6 +13,8 @@
 #define TITLES_FILTER_DUP_CLIP  0x02
 #define TITLES_RELEVANT         (TITLES_FILTER_DUP_TITLE | TITLES_FILTER_DUP_CLIP)
 
+typedef struct nav_title_s NAV_TITLE;
+
 typedef struct {
     int      number;
     int      clip_ref;
@@ -35,16 +37,23 @@ typedef struct {
     char     name[11];
     uint32_t clip_id;
     int      ref;
+    uint32_t pos;
     uint32_t start_pkt;
     uint32_t end_pkt;
     uint8_t  connection;
     uint8_t  angle;
 
+    uint32_t start_time;
     uint32_t duration;
+
+    uint32_t in_time;
+    uint32_t out_time;
 
     // Title relative metrics
     uint32_t title_pkt;
     uint32_t title_time;
+
+    NAV_TITLE *title;
 
     CLPI_CL  *cl;
 } NAV_CLIP;
@@ -54,7 +63,7 @@ typedef struct {
     NAV_CLIP *clip;
 } NAV_CLIP_LIST;
 
-typedef struct {
+struct nav_title_s {
     char          *root;
     char          name[11];
     uint8_t       angle_count;
@@ -66,7 +75,7 @@ typedef struct {
     uint32_t      duration;
 
     MPLS_PL       *pl;
-} NAV_TITLE;
+};
 
 typedef struct {
     char            name[11];
@@ -85,7 +94,8 @@ NAV_TITLE* nav_title_open(char *root, char *playlist);
 void nav_title_close(NAV_TITLE *title);
 NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip);
 NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, uint32_t *out_pkt, uint32_t *out_time);
-NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *out_pkt);
+NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt);
+void nav_clip_time_search(NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt);
 NAV_CLIP* nav_chapter_search(NAV_TITLE *title, int chapter, uint32_t *out_pkt);
 uint32_t nav_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time);
 NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, int angle);
