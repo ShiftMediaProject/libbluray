@@ -4,6 +4,8 @@
 
 #include "../file/file.h"
 #include "../util/bits.h"
+#include "../util/logging.h"
+#include "../util/macro.h"
 
 #include "index_parse.h"
 
@@ -21,8 +23,8 @@ static int _parse_bdj_obj(BITSTREAM *bs, INDX_BDJ_OBJ *bdj)
 {
     bdj->playback_type = bs_read(bs, 2);
     bs_skip(bs, 14);
-    bs_read_bytes(bs, bdj->name, 5*8);
-    bdj->name[6] = 0;
+    bs_read_bytes(bs, bdj->name, 5);
+    bdj->name[5] = 0;
     bs_skip(bs, 8);
 
     return 1;
@@ -42,7 +44,7 @@ static int _parse_playback_obj(BITSTREAM *bs, INDX_PLAY_ITEM *obj)
 
 static int _parse_index(BITSTREAM *bs, INDX_ROOT *index)
 {
-    uint32_t index_len, num_titles, i, type, access_type;
+    uint32_t index_len, i;
 
     index_len = bs_read(bs, 32);
 
@@ -135,6 +137,7 @@ INDX_ROOT *indx_parse(const char *file_name)
     fp = file_open(file_name, "rb");
     if (!fp) {
       DEBUG(DBG_NAV | DBG_CRIT, "indx_parse(): error opening %s\n", file_name);
+      X_FREE(index);
       return NULL;
     }
 
