@@ -214,15 +214,12 @@ int _read_block(BLURAY *bd)
                 if (read_len != len)
                     DEBUG(DBG_BLURAY | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d ! (%p)\n", read_len, bd->clip_block_pos, len, bd);
 
-                if (bd->h_libaacs && bd->aacs) {
-                    // FIXME: calling dlsym for every read() call.
-                    if ((bd->libaacs_decrypt_unit = dl_dlsym(bd->h_libaacs, "aacs_decrypt_unit"))) {
-                        if (!bd->libaacs_decrypt_unit(bd->aacs, bd->int_buf, len, bd->clip_block_pos)) {
-                            DEBUG(DBG_BLURAY, "Unable decrypt unit! (%p)\n", bd);
+                if (bd->libaacs_decrypt_unit) {
+                    if (!bd->libaacs_decrypt_unit(bd->aacs, bd->int_buf, len, bd->clip_block_pos)) {
+                        DEBUG(DBG_BLURAY, "Unable decrypt unit! (%p)\n", bd);
 
-                            return 0;
-                        } // decrypt
-                    } // dlsym
+                        return 0;
+                    } // decrypt
                 } // aacs
 
                 bd->clip_block_pos += len;
