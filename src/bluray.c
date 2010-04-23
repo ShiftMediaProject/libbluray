@@ -62,6 +62,41 @@ static int _open_m2ts(BLURAY *bd)
     return 0;
 }
 
+static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
+{
+    if ((bd->h_libaacs = dl_dlopen("aacs"))) {
+        fptr_p_void fptr;
+
+        DEBUG(DBG_BLURAY, "Downloaded libaacs (%p)\n", bd->h_libaacs);
+
+        fptr = dl_dlsym(bd->h_libaacs, "aacs_open");
+        bd->libaacs_decrypt_unit = dl_dlsym(bd->h_libaacs, "aacs_decrypt_unit");
+
+        if (fptr && bd->libaacs_decrypt_unit) {
+
+            if ((bd->aacs = fptr(bd->device_path, keyfile_path))) {
+                DEBUG(DBG_BLURAY, "Opened libaacs (%p)\n", bd->aacs);
+                return 1;
+            }
+
+            DEBUG(DBG_BLURAY, "aacs_open() failed!\n");
+
+        } else {
+            DEBUG(DBG_BLURAY, "libaacs dlsym failed!\n");
+        }
+
+        dl_dlclose(bd->h_libaacs);
+
+    } else {
+        DEBUG(DBG_BLURAY, "libaacs not found!\n");
+    }
+
+    bd->h_libaacs = NULL;
+    bd->libaacs_decrypt_unit = NULL;
+
+    return 0;
+}
+
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
     BLURAY *bd = calloc(1, sizeof(BLURAY));
@@ -75,17 +110,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         bd->fp = NULL;
 
         if (keyfile_path) {
-            //if ((bd->h_libaacs = dlopen("libaacs.so", RTLD_LAZY))) {
-            if ((bd->h_libaacs = dl_dlopen("aacs"))) {
-                fptr_p_void fptr;
-
-                DEBUG(DBG_BLURAY, "Downloaded libaacs (%p)\n", bd->h_libaacs);
-
-                fptr = dl_dlsym(bd->h_libaacs, "aacs_open");
-                bd->aacs = fptr(device_path, keyfile_path);
-            } else {
-                DEBUG(DBG_BLURAY, "libaacs not found!\n");
-            }
+            _libaacs_open(bd, keyfile_path);
         } else {
             DEBUG(DBG_BLURAY | DBG_CRIT, "No keyfile provided. You will not be able to make use of crypto functionality (%p)\n", bd);
         }
