@@ -15,8 +15,10 @@ libbdnav_la_SOURCES = \
 	clpi_parse.c \
 	mpls_parse.h \
 	clpi_parse.h \
+	mobj_parse.c \
+	mobj_parse.h \
 	index_parse.c \
 	index_parse.h
 
-noinst_HEADERS = mpls_parse.h clpi_parse.h bdparse.h index_parse.h
+noinst_HEADERS = mpls_parse.h clpi_parse.h bdparse.h index_parse.h mobj_parse.h
 
