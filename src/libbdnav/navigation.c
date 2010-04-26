@@ -137,6 +137,7 @@ NAV_TITLE_LIST* nav_get_title_list(char *root, uint32_t flags)
             pl_list_size += 100;
             tmp = realloc(pl_list, pl_list_size * sizeof(MPLS_PL*));
             if (tmp == NULL) {
+                X_FREE(path);
                 break;
             }
             pl_list = tmp;
@@ -224,6 +225,7 @@ char* nav_find_main_title(char *root)
             pl_list_size += 100;
             tmp = realloc(pl_list, pl_list_size * sizeof(MPLS_PL*));
             if (tmp == NULL) {
+                X_FREE(path);
                 break;
             }
             pl_list = tmp;
@@ -425,6 +427,7 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
     }
     title->chap_list.count = chapters;
     title->chap_list.mark = calloc(chapters, sizeof(NAV_MARK));
+    title->mark_list.count = title->pl->mark_count;
     title->mark_list.mark = calloc(title->pl->mark_count, sizeof(NAV_MARK));
 
     _extrapolate_title(title);
@@ -441,6 +444,8 @@ void nav_title_close(NAV_TITLE *title)
     }
     X_FREE(title->clip_list.clip);
     X_FREE(title->root);
+    X_FREE(title->chap_list.mark);
+    X_FREE(title->mark_list.mark);
     X_FREE(title);
 }
 
