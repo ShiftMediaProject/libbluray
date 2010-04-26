@@ -17,6 +17,7 @@ typedef struct nav_title_s NAV_TITLE;
 
 typedef struct {
     int      number;
+    int      mark_type;
     int      clip_ref;
     uint32_t clip_pkt;
 
@@ -26,12 +27,12 @@ typedef struct {
     uint32_t duration;
 
     MPLS_PLM *plm;
-} NAV_CHAP;
+} NAV_MARK;
 
 typedef struct {
     int      count;
-    NAV_CHAP *chapter;
-} NAV_CHAP_LIST;
+    NAV_MARK *mark;
+} NAV_MARK_LIST;
 
 typedef struct {
     char     name[11];
@@ -69,7 +70,8 @@ struct nav_title_s {
     uint8_t       angle_count;
     uint8_t       angle;
     NAV_CLIP_LIST clip_list;
-    NAV_CHAP_LIST chap_list;
+    NAV_MARK_LIST chap_list;
+    NAV_MARK_LIST mark_list;
 
     uint32_t      packets;
     uint32_t      duration;
@@ -96,7 +98,8 @@ NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip);
 NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, uint32_t *out_pkt, uint32_t *out_time);
 NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt);
 void nav_clip_time_search(NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt);
-NAV_CLIP* nav_chapter_search(NAV_TITLE *title, int chapter, uint32_t *out_pkt);
+NAV_CLIP* nav_chapter_search(NAV_TITLE *title, int chapter, uint32_t *clip_pkt, uint32_t *out_pkt);
+NAV_CLIP* nav_mark_search(NAV_TITLE *title, int mark, uint32_t *clip_pkt, uint32_t *out_pkt);
 uint32_t nav_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time);
 NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, int angle);
 

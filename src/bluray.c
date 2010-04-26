@@ -298,6 +298,66 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
     return bd->s_pos;
 }
 
+int64_t bd_seek_chapter(BLURAY *bd, int chapter)
+{
+    uint32_t clip_pkt, out_pkt;
+    NAV_CLIP *clip;
+
+    // Find the closest access unit to the requested position
+    clip = nav_chapter_search(bd->title, chapter, &clip_pkt, &out_pkt);
+    if (clip->ref != bd->clip->ref) {
+        // The position is in a new clip
+        bd->clip = clip;
+        if (!_open_m2ts(bd)) {
+            return -1;
+        }
+    }
+    bd->s_pos = (uint64_t)out_pkt * 192;
+    bd->clip_pos = (uint64_t)clip_pkt * 192;
+    bd->clip_block_pos = (bd->clip_pos / 6144) * 6144;
+
+    file_seek(bd->fp, bd->clip_block_pos, SEEK_SET);
+
+    bd->int_buf_off = 6144;
+
+    DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
+          bd->s_pos, bd);
+    if (bd->bdplus_seek && bd->bdplus)
+        bd->bdplus_seek(bd->bdplus, bd->clip_block_pos);
+
+    return bd->s_pos;
+}
+
+int64_t bd_seek_mark(BLURAY *bd, int mark)
+{
+    uint32_t clip_pkt, out_pkt;
+    NAV_CLIP *clip;
+
+    // Find the closest access unit to the requested position
+    clip = nav_mark_search(bd->title, mark, &clip_pkt, &out_pkt);
+    if (clip->ref != bd->clip->ref) {
+        // The position is in a new clip
+        bd->clip = clip;
+        if (!_open_m2ts(bd)) {
+            return -1;
+        }
+    }
+    bd->s_pos = (uint64_t)out_pkt * 192;
+    bd->clip_pos = (uint64_t)clip_pkt * 192;
+    bd->clip_block_pos = (bd->clip_pos / 6144) * 6144;
+
+    file_seek(bd->fp, bd->clip_block_pos, SEEK_SET);
+
+    bd->int_buf_off = 6144;
+
+    DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
+          bd->s_pos, bd);
+    if (bd->bdplus_seek && bd->bdplus)
+        bd->bdplus_seek(bd->bdplus, bd->clip_block_pos);
+
+    return bd->s_pos;
+}
+
 int64_t bd_seek(BLURAY *bd, uint64_t pos)
 {
     uint32_t pkt, clip_pkt, out_pkt, out_time;
@@ -574,9 +634,9 @@ BD_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
     title_info->chapters = calloc(title_info->chapter_count, sizeof(BD_TITLE_CHAPTER));
     for (ii = 0; ii < title_info->chapter_count; ii++) {
         title_info->chapters[ii].idx = ii;
-        title_info->chapters[ii].start = (uint64_t)title->chap_list.chapter[ii].title_time * 2;
-        title_info->chapters[ii].duration = (uint64_t)title->chap_list.chapter[ii].duration * 2;
-        title_info->chapters[ii].offset = (uint64_t)title->chap_list.chapter[ii].title_pkt * 192;
+        title_info->chapters[ii].start = (uint64_t)title->chap_list.mark[ii].title_time * 2;
+        title_info->chapters[ii].duration = (uint64_t)title->chap_list.mark[ii].duration * 2;
+        title_info->chapters[ii].offset = (uint64_t)title->chap_list.mark[ii].title_pkt * 192;
     }
     nav_title_close(title);
     return title_info;

@@ -259,6 +259,31 @@ char* nav_find_main_title(char *root)
 }
 
 static void
+_fill_mark(NAV_TITLE *title, NAV_MARK *mark, int entry)
+{
+    MPLS_PL *pl = title->pl;
+    MPLS_PLM *plm;
+    MPLS_PI *pi;
+    NAV_CLIP *clip;
+
+    plm = &pl->play_mark[entry];
+
+    mark->plm = plm;
+    mark->mark_type = plm->mark_type;
+    mark->clip_ref = plm->play_item_ref;
+    clip = &title->clip_list.clip[mark->clip_ref];
+    mark->clip_pkt = clpi_lookup_spn(clip->cl, plm->time, 1,
+        title->pl->play_item[mark->clip_ref].clip[title->angle].stc_id);
+
+    // Calculate start of mark relative to beginning of playlist
+    if (plm->play_item_ref < title->clip_list.count) {
+        clip = &title->clip_list.clip[plm->play_item_ref];
+        pi = &pl->play_item[plm->play_item_ref];
+        mark->title_time = clip->title_time + plm->time - pi->in_time;
+    }
+}
+
+static void
 _extrapolate_title(NAV_TITLE *title)
 {
     uint64_t duration = 0;
@@ -267,7 +292,7 @@ _extrapolate_title(NAV_TITLE *title)
     MPLS_PL *pl = title->pl;
     MPLS_PI *pi;
     MPLS_PLM *plm;
-    NAV_CHAP *chap, *prev = NULL;
+    NAV_MARK *mark, *prev = NULL;
     NAV_CLIP *clip;
 
     for (ii = 0; ii < title->clip_list.count; ii++) {
@@ -290,36 +315,24 @@ _extrapolate_title(NAV_TITLE *title)
         plm = &pl->play_mark[ii];
         if (plm->mark_type == BD_MARK_ENTRY) {
 
-            chap = &title->chap_list.chapter[jj];
-
-            chap->number = jj;
-            chap->plm = plm;
-            chap->clip_ref = plm->play_item_ref;
-            clip = &title->clip_list.clip[chap->clip_ref];
-            chap->clip_pkt = clpi_lookup_spn(clip->cl, plm->time, 1,
-                title->pl->play_item[chap->clip_ref].clip[title->angle].stc_id);
-
-            // Calculate start of mark relative to beginning of playlist
-            if (plm->play_item_ref < title->clip_list.count) {
-                clip = &title->clip_list.clip[plm->play_item_ref];
-                pi = &pl->play_item[plm->play_item_ref];
-                chap->title_time = clip->title_time + plm->time - pi->in_time;
-            } else {
-                // Invalid chapter mark
-                continue;
-            }
+            mark = &title->chap_list.mark[jj];
+            _fill_mark(title, mark, ii);
+            mark->number = jj;
 
             // Calculate duration of "entry" marks (chapters)
             if (plm->duration != 0) {
-                chap->duration = plm->duration;
+                mark->duration = plm->duration;
             } else if (prev != NULL) {
                 if (prev->duration == 0) {
-                    prev->duration = chap->title_time - prev->title_time;
+                    prev->duration = mark->title_time - prev->title_time;
                 }
             }
-            prev = chap;
+            prev = mark;
             jj++;
         }
+        mark = &title->mark_list.mark[ii];
+        _fill_mark(title, mark, ii);
+        mark->number = ii;
     }
     title->chap_list.count = jj;
     if (prev->duration == 0) {
@@ -411,7 +424,8 @@ NAV_TITLE* nav_title_open(char *root, char *playlist)
         }
     }
     title->chap_list.count = chapters;
-    title->chap_list.chapter = calloc(chapters, sizeof(NAV_CHAP));
+    title->chap_list.mark = calloc(chapters, sizeof(NAV_MARK));
+    title->mark_list.mark = calloc(title->pl->mark_count, sizeof(NAV_MARK));
 
     _extrapolate_title(title);
     return title;
@@ -432,14 +446,38 @@ void nav_title_close(NAV_TITLE *title)
 
 // Search for random access point closest to the requested packet
 // Packets are 192 byte TS packets
-NAV_CLIP* nav_chapter_search(NAV_TITLE *title, int chapter, uint32_t *out_pkt)
+NAV_CLIP* nav_chapter_search(NAV_TITLE *title, int chapter, uint32_t *clip_pkt, uint32_t *out_pkt)
 {
+    NAV_CLIP *clip;
+
     if (chapter > title->chap_list.count) {
-        *out_pkt = title->clip_list.clip[0].start_pkt;
-        return &title->clip_list.clip[0];
+        clip = &title->clip_list.clip[0];
+        *clip_pkt = clip->start_pkt;
+        *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+        return clip;
     }
-    *out_pkt = title->chap_list.chapter[chapter].clip_pkt;
-    return &title->clip_list.clip[title->chap_list.chapter[chapter].clip_ref];
+    clip = &title->clip_list.clip[title->chap_list.mark[chapter].clip_ref];
+    *clip_pkt = title->chap_list.mark[chapter].clip_pkt;
+    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    return clip;
+}
+
+// Search for random access point closest to the requested packet
+// Packets are 192 byte TS packets
+NAV_CLIP* nav_mark_search(NAV_TITLE *title, int mark, uint32_t *clip_pkt, uint32_t *out_pkt)
+{
+    NAV_CLIP *clip;
+
+    if (mark > title->mark_list.count) {
+        clip = &title->clip_list.clip[0];
+        *clip_pkt = clip->start_pkt;
+        *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+        return clip;
+    }
+    clip = &title->clip_list.clip[title->mark_list.mark[mark].clip_ref];
+    *clip_pkt = title->mark_list.mark[mark].clip_pkt;
+    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    return clip;
 }
 
 // Search for random access point closest to the requested packet
