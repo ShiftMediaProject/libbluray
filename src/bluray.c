@@ -524,10 +524,15 @@ int bd_select_title(BLURAY *bd, uint32_t title_idx)
         DEBUG(DBG_BLURAY, "Invalid title index %d! (%p)\n", title_idx, bd);
         return 0;
     }
+
+    if (bd->title) {
+        nav_title_close(bd->title);
+    }
+
     f_name = bd->title_list->title_info[title_idx].name;
     bd->title = nav_title_open(bd->device_path, f_name);
     if (bd->title == NULL) {
-        DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n", 
+        DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n",
               f_name, bd);
         return 0;
     }
