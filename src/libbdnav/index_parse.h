@@ -76,7 +76,7 @@ typedef struct {
     };
 } INDX_TITLE;
 
-typedef struct {
+typedef struct indx_root_s {
     INDX_APP_INFO  app_info;
     INDX_PLAY_ITEM first_play;
     INDX_PLAY_ITEM top_menu;

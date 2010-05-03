@@ -8,6 +8,8 @@
 #include "file/file.h"
 #include "libbdnav/navigation.h"
 
+struct indx_root_s;
+
 typedef int (*fptr_int)();
 typedef int32_t (*fptr_int32)();
 typedef void* (*fptr_p_void)();
@@ -36,6 +38,8 @@ struct bluray {
     uint32_t angle_change_time;
     int      request_angle;
     int      angle;
+
+    struct indx_root_s *index;
 };
 
 typedef struct bd_chapter {

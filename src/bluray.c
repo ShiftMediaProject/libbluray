@@ -23,6 +23,8 @@
 #include "file/dl.h"
 #include "libbdnav/navigation.h"
 
+#include "libbdnav/index_parse.h"
+
 static int _open_m2ts(BLURAY *bd)
 {
     char *f_name;
@@ -97,6 +99,20 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
     return 0;
 }
 
+int _index_open(BLURAY *bd)
+{
+    char *file;
+
+    file = str_printf("%s/BDMV/index.bdmv", bd->device_path);
+    bd->index = indx_parse(file);
+    X_FREE(file);
+    if (!bd->index) {
+        return 0;
+    }
+
+    return 1;
+}
+
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
     BLURAY *bd = calloc(1, sizeof(BLURAY));
@@ -148,7 +164,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
             X_FREE(tmp);
         }
 
-
+        _index_open(bd);
 
         DEBUG(DBG_BLURAY, "BLURAY initialized! (%p)\n", bd);
     } else {
@@ -190,6 +206,9 @@ void bd_close(BLURAY *bd)
     }
     if (bd->title != NULL) {
         nav_title_close(bd->title);
+    }
+    if (bd->index != NULL) {
+        indx_free(bd->index);
     }
 
     X_FREE(bd->device_path);
