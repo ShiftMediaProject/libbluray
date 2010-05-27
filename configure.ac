@@ -42,10 +42,6 @@ AC_SEARCH_LIBS([dlopen], [dl])
 AC_CHECK_FUNC([snprintf],
                 [AC_DEFINE(HAVE_SNPRINTF,1,[Presence of snprintf found])],
                 [AC_MSG_WARN(Adding internal snprintf function)])
-AC_CHECK_FUNC([strcasestr],
-                [AC_DEFINE(HAVE_STRCASESTR,1,[Presence of strcasestr found])],
-                [])
-AC_CHECK_FUNCS([strtoul strtouq strtoull strtoll])
 
 # generate output files
 AC_CONFIG_FILES([Makefile src/Makefile src/libaacs/Makefile
