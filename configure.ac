@@ -36,11 +36,32 @@ AC_SYS_LARGEFILE
 PKG_CHECK_MODULES([OPENSSL], [openssl],
   [INCLUDES="$INCLUDES $OPENSSL_CFLAGS"; LIBS="$LIBS $OPENSSL_LIBS"],
   AC_MSG_ERROR($library_not_found))
+# Make sure OpenSSL is cool enough to play with the big boys.
+AC_CHECK_HEADERS([openssl/ecdsa.h], [], [
+  AC_MSG_ERROR([Version of OpenSSL does not feature openssl/ecdsa.h, please upgrade]) ]
+      , [])
 AC_SEARCH_LIBS([gethostbyname], [nsl])
 AC_SEARCH_LIBS([socket], [socket inet])
 AC_SEARCH_LIBS([crypt], [crypt])
 AC_SEARCH_LIBS([dlopen], [dl])
+
+# libgcrypt
 AC_SEARCH_LIBS([gcry_cipher_open], [gcrypt])
+AC_ARG_ENABLE(libgcrypt,
+  [  --disable-libgcrypt      gcrypt support (default enabled)])
+AS_IF([test "${enable_libgcrypt}" != "no"], [
+    libgcrypt-config --version >/dev/null || \
+        AC_MSG_ERROR([gcrypt.h present but libgcrypt-config could not be found])
+    AC_CHECK_LIB(gcrypt, gcry_control, [
+      have_libgcrypt="yes"
+      GCRYPT_CFLAGS="`libgcrypt-config --cflags`"
+      GCRYPT_LIBS="`libgcrypt-config --libs`"
+    ], [
+      AC_MSG_ERROR([libgcrypt not found. Install libgcrypt or use --disable-libgcrypt. Have a nice day.])
+    ], [`libgcrypt-config --libs`])
+  ]
+)
+AM_CONDITIONAL([HAVE_GCRYPT], [test "${have_libgcrypt}" = "yes"])
 
 # required functions
 AC_CHECK_FUNC([snprintf],
@@ -51,33 +72,10 @@ AC_CHECK_FUNC([strcasestr],
                 [])
 AC_CHECK_FUNCS([strtoul strtouq strtoull strtoll])
 
-# Make sure OpenSSL is cool enough to play with the big boys.
-AC_CHECK_HEADERS([openssl/ecdsa.h], [], [
-  AC_MSG_ERROR([Version of OpenSSL does not feature openssl/ecdsa.h, please upgrade]) ]
-      , [])
 
-
-dnl
-dnl libgcrypt
-dnl
- AC_ARG_ENABLE(libgcrypt,
-   [  --disable-libgcrypt      gcrypt support (default enabled)])
- AS_IF([test "${enable_libgcrypt}" != "no"], [
-     libgcrypt-config --version >/dev/null || \
-         AC_MSG_ERROR([gcrypt.h present but libgcrypt-config could not be found])
-     AC_CHECK_LIB(gcrypt, gcry_control, [
-       have_libgcrypt="yes"
-       GCRYPT_CFLAGS="`libgcrypt-config --cflags`"
-       GCRYPT_LIBS="`libgcrypt-config --libs`"
-     ], [
-       AC_MSG_ERROR([libgcrypt not found. Install libgcrypt or use --disable-libgcrypt. Have a nice day.])
-     ], [`libgcrypt-config --libs`])
-   ]
-)
 
  AC_SUBST(GCRYPT_CFLAGS)
  AC_SUBST(GCRYPT_LIBS)
- AM_CONDITIONAL([HAVE_GCRYPT], [test "${have_libgcrypt}" = "yes"])
 
 # List all Makefiles here.
 AC_CONFIG_FILES([Makefile src/Makefile src/libaacs/Makefile src/libbdnav/Makefile src/libbdplus/Makefile src/examples/Makefile])
