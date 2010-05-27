@@ -52,7 +52,7 @@ AC_CHECK_FUNC([strcasestr],
                 [])
 AC_CHECK_FUNCS([strtoul strtouq strtoull strtoll])
 
-# List all Makefiles here.
+# generate output files
 AC_CONFIG_FILES([Makefile src/Makefile src/libaacs/Makefile src/libbdnav/Makefile src/libbdplus/Makefile src/examples/Makefile])
 AC_OUTPUT
 
