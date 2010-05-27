@@ -17,14 +17,9 @@ AC_TYPE_SIGNAL
 
 # required headers
 AC_HEADER_TIME
-AC_CHECK_HEADERS([stdarg.h varargs.h sys/time.h sys/types.h dirent.h])
-AC_CHECK_HEADERS([sys/file.h sys/param.h sys/statfs.h sys/vfs.h sys/statvfs.h])
+AC_CHECK_HEADERS([stdarg.h sys/time.h sys/types.h dirent.h])
 AC_CHECK_HEADERS([errno.h libgen.h time.h malloc.h stdlib.h mntent.h])
 AC_CHECK_HEADERS([linux/cdrom.h dlfcn.h])
-# mount depends on param
-AC_CHECK_HEADERS([sys/mount.h], [], [], [#if HAVE_SYS_PARAM_H
-                                         #include <sys/param.h>
-                                         #endif])
 
 # required structures
 AC_STRUCT_DIRENT_D_TYPE
