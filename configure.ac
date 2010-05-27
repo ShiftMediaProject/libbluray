@@ -26,9 +26,6 @@ AC_CHECK_HEADERS([sys/mount.h], [], [], [#if HAVE_SYS_PARAM_H
 # required structures
 AC_STRUCT_DIRENT_D_TYPE
 
-AH_TEMPLATE([NEED_SYS_ERRLIST_DECLARED],
-        [Define this if sys_errlist must be declared (if it exists).])
-
 # required system services
 AC_SYS_LARGEFILE
 
