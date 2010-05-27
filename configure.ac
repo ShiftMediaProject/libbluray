@@ -1,4 +1,4 @@
-AC_INIT([libbluray],[0.1.0], [bug-report@bdplus])
+AC_INIT([libbluray],[0.1.0], [http://bd.videolan.org/])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([foreign])
 
