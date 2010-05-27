@@ -1,6 +1,9 @@
+# initilization
 AC_INIT([libbluray],[0.1.0], [http://bd.videolan.org/])
 AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign])
+AM_CONFIG_HEADER(config.h)
 
 # messages
 library_not_found="Could not find required library!"
@@ -24,7 +27,6 @@ AH_TEMPLATE([NEED_SYS_ERRLIST_DECLARED],
         [Define this if sys_errlist must be declared (if it exists).])
 
 AC_SYS_LARGEFILE
-AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_LIBTOOL
 
 # lib checks
@@ -74,9 +76,6 @@ dnl
  AC_SUBST(GCRYPT_CFLAGS)
  AC_SUBST(GCRYPT_LIBS)
  AM_CONDITIONAL([HAVE_GCRYPT], [test "${have_libgcrypt}" = "yes"])
-
-
-AM_CONFIG_HEADER(config.h)
 
 # List all Makefiles here.
 AC_CONFIG_FILES([Makefile src/Makefile src/libaacs/Makefile src/libbdnav/Makefile src/libbdplus/Makefile src/examples/Makefile])
