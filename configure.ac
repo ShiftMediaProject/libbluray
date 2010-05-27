@@ -7,8 +7,6 @@ library_not_found="Could not find required library!"
 
 AC_PROG_CC
 
-AC_PROG_CXX
-
 AC_TYPE_SIGNAL
 
 AC_HEADER_TIME
