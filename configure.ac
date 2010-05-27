@@ -50,7 +50,15 @@ else
 fi
 AM_CONDITIONAL([HAVE_LIBAACS_SRC], [test $libaacs_src_available = "1"])
 
+# libbdplus checks
+if [[ -d src/libbdplus ]]; then
+  libbdplus_src_available=1
+else
+  libbdplus_src_available=0
+fi
+AM_CONDITIONAL([HAVE_LIBBDPLUS_SRC], [test $libbdplus_src_available = "1"])
+
 # generate output files
 AC_CONFIG_FILES([Makefile src/Makefile src/libbdnav/Makefile
-  src/libbdplus/Makefile src/examples/Makefile])
+  src/examples/Makefile])
 AC_OUTPUT
