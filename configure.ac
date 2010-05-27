@@ -47,11 +47,6 @@ AC_CHECK_FUNC([strcasestr],
                 [AC_DEFINE(HAVE_STRCASESTR,1,[Presence of strcasestr found])],
                 [])
 
-if test "x$ac_cv_prog_gcc" = xyes ; then
-   CFLAGS="$CFLAGS -Wall -g "
-fi
-
-
 AC_CHECK_FUNCS([strtoul strtouq strtoull strtoll])
 
 # Make sure OpenSSL is cool enough to play with the big boys.
