@@ -8,28 +8,31 @@ AM_CONFIG_HEADER(config.h)
 # messages
 library_not_found="Could not find required library!"
 
+# required programs
 AC_PROG_CC
+AC_PROG_LIBTOOL
 
+# required types
 AC_TYPE_SIGNAL
 
+# required headers
 AC_HEADER_TIME
-
 AC_CHECK_HEADERS([stdarg.h varargs.h sys/time.h sys/types.h dirent.h sys/file.h sys/param.h sys/statfs.h sys/vfs.h sys/statvfs.h errno.h libgen.h time.h malloc.h stdlib.h mntent.h linux/cdrom.h dlfcn.h])
-
 # mount depends on param
 AC_CHECK_HEADERS([sys/mount.h], [], [], [#if HAVE_SYS_PARAM_H
                                          #include <sys/param.h>
                                          #endif])
 
+# required structures
 AC_STRUCT_DIRENT_D_TYPE
 
 AH_TEMPLATE([NEED_SYS_ERRLIST_DECLARED],
         [Define this if sys_errlist must be declared (if it exists).])
 
+# required system services
 AC_SYS_LARGEFILE
-AC_PROG_LIBTOOL
 
-# lib checks
+# required libraries
 PKG_CHECK_MODULES([OPENSSL], [openssl],
   [INCLUDES="$INCLUDES $OPENSSL_CFLAGS"; LIBS="$LIBS $OPENSSL_LIBS"],
   AC_MSG_ERROR($library_not_found))
@@ -39,14 +42,13 @@ AC_SEARCH_LIBS([crypt], [crypt])
 AC_SEARCH_LIBS([dlopen], [dl])
 AC_SEARCH_LIBS([gcry_cipher_open], [gcrypt])
 
+# required functions
 AC_CHECK_FUNC([snprintf],
                 [AC_DEFINE(HAVE_SNPRINTF,1,[Presence of snprintf found])],
                 [AC_MSG_WARN(Adding internal snprintf function)])
-
 AC_CHECK_FUNC([strcasestr],
                 [AC_DEFINE(HAVE_STRCASESTR,1,[Presence of strcasestr found])],
                 [])
-
 AC_CHECK_FUNCS([strtoul strtouq strtoull strtoll])
 
 # Make sure OpenSSL is cool enough to play with the big boys.
