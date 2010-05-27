@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-AM_CPPFLAGS = -I $(top_builddir)/src
+AM_CFLAGS = -I $(top_builddir)/src
 
 lib_LTLIBRARIES = libbdnav.la
 

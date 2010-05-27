@@ -2,7 +2,7 @@
 SUBDIRS=libaacs libbdplus libbdnav . examples
 
 
-AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_builddir)/src/libbdplus
+AM_CFLAGS = -I$(top_builddir)/src -I$(top_builddir)/src/libbdplus
 
 # The master library,
 lib_LTLIBRARIES=libbluray.la
