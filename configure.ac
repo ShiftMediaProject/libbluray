@@ -36,9 +36,6 @@ AC_CHECK_HEADERS([openssl/ecdsa.h], [], [
     upgrade]) ]
       , [])
 AC_SEARCH_LIBS([gcry_cipher_open], [gcrypt])
-AC_SEARCH_LIBS([gethostbyname], [nsl])
-AC_SEARCH_LIBS([socket], [socket inet])
-AC_SEARCH_LIBS([crypt], [crypt])
 AC_SEARCH_LIBS([dlopen], [dl])
 
 # required functions
