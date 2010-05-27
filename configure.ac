@@ -7,6 +7,7 @@ AM_CONFIG_HEADER(config.h)
 
 # messages
 library_not_found="Could not find required library!"
+function_not_found="Could not find required function!"
 
 # required programs
 AC_PROG_CC
@@ -39,9 +40,7 @@ AC_SEARCH_LIBS([gcry_cipher_open], [gcrypt])
 AC_SEARCH_LIBS([dlopen], [dl])
 
 # required functions
-AC_CHECK_FUNC([snprintf],
-                [AC_DEFINE(HAVE_SNPRINTF,1,[Presence of snprintf found])],
-                [AC_MSG_WARN(Adding internal snprintf function)])
+AC_CHECK_FUNC([snprintf],, [AC_MSG_ERROR($function_not_found)])
 
 # generate output files
 AC_CONFIG_FILES([Makefile src/Makefile src/libaacs/Makefile
