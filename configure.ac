@@ -42,7 +42,15 @@ AC_SEARCH_LIBS([dlopen], [dl])
 # required functions
 AC_CHECK_FUNC([snprintf],, [AC_MSG_ERROR($function_not_found)])
 
+# libaacs checks
+if [[ -d src/libaacs ]]; then
+  libaacs_src_available=1
+else
+  libaacs_src_available=0
+fi
+AM_CONDITIONAL([HAVE_LIBAACS_SRC], [test $libaacs_src_available = "1" ])
+
 # generate output files
-AC_CONFIG_FILES([Makefile src/Makefile src/libaacs/Makefile
-  src/libbdnav/Makefile src/libbdplus/Makefile src/examples/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/libbdnav/Makefile
+  src/libbdplus/Makefile src/examples/Makefile])
 AC_OUTPUT
