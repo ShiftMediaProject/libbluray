@@ -1,4 +1,3 @@
-
 # Set this for all builds, or use $bin_CFLAGS for individual
 AM_CFLAGS = -I$(top_builddir)/src
 

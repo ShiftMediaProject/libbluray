@@ -1,6 +1,4 @@
-
 SUBDIRS=libaacs libbdplus libbdnav . examples
-
 
 AM_CFLAGS = -I$(top_builddir)/src -I$(top_builddir)/src/libbdplus
 
@@ -10,5 +8,3 @@ lib_LTLIBRARIES=libbluray.la
 libbluray_la_SOURCES= bluray.c bluray.h file/dl_posix.c
 libbluray_la_LIBADD = libaacs/libaacs.la libbdplus/libbdplus.la libbdnav/libbdnav.la
 libbluray_la_LDFLAGS= -version-info 0:0:0
-
-

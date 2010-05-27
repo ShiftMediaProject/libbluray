@@ -17,7 +17,10 @@ AC_TYPE_SIGNAL
 
 # required headers
 AC_HEADER_TIME
-AC_CHECK_HEADERS([stdarg.h varargs.h sys/time.h sys/types.h dirent.h sys/file.h sys/param.h sys/statfs.h sys/vfs.h sys/statvfs.h errno.h libgen.h time.h malloc.h stdlib.h mntent.h linux/cdrom.h dlfcn.h])
+AC_CHECK_HEADERS([stdarg.h varargs.h sys/time.h sys/types.h dirent.h])
+AC_CHECK_HEADERS([sys/file.h sys/param.h sys/statfs.h sys/vfs.h sys/statvfs.h])
+AC_CHECK_HEADERS([errno.h libgen.h time.h malloc.h stdlib.h mntent.h])
+AC_CHECK_HEADERS([linux/cdrom.h dlfcn.h])
 # mount depends on param
 AC_CHECK_HEADERS([sys/mount.h], [], [], [#if HAVE_SYS_PARAM_H
                                          #include <sys/param.h>
@@ -35,7 +38,8 @@ PKG_CHECK_MODULES([OPENSSL], [openssl],
   AC_MSG_ERROR($library_not_found))
 # Make sure OpenSSL is cool enough to play with the big boys.
 AC_CHECK_HEADERS([openssl/ecdsa.h], [], [
-  AC_MSG_ERROR([Version of OpenSSL does not feature openssl/ecdsa.h, please upgrade]) ]
+  AC_MSG_ERROR([Version of OpenSSL does not feature openssl/ecdsa.h, please
+    upgrade]) ]
       , [])
 AC_SEARCH_LIBS([gcry_cipher_open], [gcrypt])
 AC_SEARCH_LIBS([gethostbyname], [nsl])
@@ -53,6 +57,6 @@ AC_CHECK_FUNC([strcasestr],
 AC_CHECK_FUNCS([strtoul strtouq strtoull strtoll])
 
 # generate output files
-AC_CONFIG_FILES([Makefile src/Makefile src/libaacs/Makefile src/libbdnav/Makefile src/libbdplus/Makefile src/examples/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/libaacs/Makefile
+  src/libbdnav/Makefile src/libbdplus/Makefile src/examples/Makefile])
 AC_OUTPUT
-

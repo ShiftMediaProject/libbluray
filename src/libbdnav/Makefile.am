@@ -1,5 +1,3 @@
-## Process this file with automake to produce Makefile.in
-
 AM_CFLAGS = -I $(top_builddir)/src
 
 lib_LTLIBRARIES = libbdnav.la
@@ -21,4 +19,3 @@ libbdnav_la_SOURCES = \
 	index_parse.h
 
 noinst_HEADERS = mpls_parse.h clpi_parse.h bdparse.h index_parse.h mobj_parse.h
-
