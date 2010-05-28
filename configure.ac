@@ -19,7 +19,7 @@ AC_TYPE_SIGNAL
 # required headers
 AC_HEADER_TIME
 AC_CHECK_HEADERS([stdarg.h sys/types.h dirent.h errno.h libgen.h malloc.h])
-AC_CHECK_HEADERS([stdlib.h mntent.h linux/cdrom.h dlfcn.h])
+AC_CHECK_HEADERS([stdlib.h mntent.h linux/cdrom.h dlfcn.h inttypes.h])
 
 # required structures
 AC_STRUCT_DIRENT_D_TYPE

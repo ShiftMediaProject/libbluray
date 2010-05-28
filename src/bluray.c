@@ -57,7 +57,7 @@ static int _open_m2ts(BLURAY *bd)
         DEBUG(DBG_BLURAY, "Clip %s empty! (%p)\n", f_name, bd);
     }
 
-    DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open clip %s! (%p)\n", 
+    DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open clip %s! (%p)\n",
           f_name, bd);
 
     X_FREE(f_name);
@@ -247,9 +247,9 @@ int _read_block(BLURAY *bd)
                 if (bd->bdplus_fixup && bd->bdplus) {
                     int32_t numFixes;
                     numFixes = bd->bdplus_fixup(bd->bdplus, len, bd->int_buf);
-#if 0
+#if 1
                     if (numFixes) {
-                        DEBUG(DBG_BLURAY,
+                        DEBUG(DBG_BDPLUS,
                               "BDPLUS did %u fixups\n", numFixes);
                     }
 #endif
@@ -528,7 +528,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
 }
 
 // Select a title for playback
-// The title index is an index into the list 
+// The title index is an index into the list
 // established by bd_get_titles()
 int bd_select_title(BLURAY *bd, uint32_t title_idx)
 {
@@ -585,7 +585,7 @@ void bd_seamless_angle_change(BLURAY *bd, int angle)
     uint32_t clip_pkt;
 
     clip_pkt = (bd->clip_pos + 191) / 192;
-    bd->angle_change_pkt = nav_angle_change_search(bd->clip, clip_pkt, 
+    bd->angle_change_pkt = nav_angle_change_search(bd->clip, clip_pkt,
                                                    &bd->angle_change_time);
     bd->request_angle = angle;
     bd->seamless_angle_change = 1;
@@ -646,7 +646,7 @@ BD_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
     }
     title = nav_title_open(bd->device_path, bd->title_list->title_info[title_idx].name);
     if (title == NULL) {
-        DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n", 
+        DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n",
               bd->title_list->title_info[title_idx].name, bd);
         return NULL;
     }
