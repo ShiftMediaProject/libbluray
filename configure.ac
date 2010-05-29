@@ -36,7 +36,6 @@ AC_CHECK_HEADERS([openssl/ecdsa.h], [], [
   AC_MSG_ERROR([Version of OpenSSL does not feature openssl/ecdsa.h, please
     upgrade]) ]
       , [])
-AC_SEARCH_LIBS([gcry_cipher_open], [gcrypt])
 AC_SEARCH_LIBS([dlopen], [dl])
 
 # required functions
