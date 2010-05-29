@@ -51,42 +51,24 @@ elif [[ $use_dlopen = "yes" ]]; then
      AC_DEFINE([USING_DLOPEN], [1], ["Define to 1 if using dlopen"])],
     [AC_MSG_ERROR($library_not_found)])
 else
+  AC_CHECK_LIB([aacs], [aacs_open],,
+    [AC_MSG_ERROR($library_not_found)])
   AC_MSG_NOTICE($using_normal_linking)
 fi
 AM_CONDITIONAL([USING_DLOPEN],
   [test $use_dlopen = "auto" || test $use_dlopen = "yes"])
 
-# libaacs checks
-if [[ -d src/libaacs ]]; then
+# libbdplus checks
+if [[ -d src/libbdplus ]]; then
   PKG_CHECK_MODULES([OPENSSL], [openssl],
     [OPENSSL_INCLUDES="$INCLUDES $OPENSSL_CFLAGS";
-     OPENSSL_LDFLAGS="$LIBS $OPENSSL_LIBS"],
+    OPENSSL_LDFLAGS="$LIBS $OPENSSL_LIBS"],
     AC_MSG_ERROR($library_not_found))
   # Make sure OpenSSL is cool enough to play with the big boys.
   AC_CHECK_HEADERS([openssl/ecdsa.h], [], [
     AC_MSG_ERROR([Version of OpenSSL does not feature openssl/ecdsa.h, please
       upgrade]) ]
         , [])
-  libaacs_src_available=1
-else
-  libaacs_src_available=0
-fi
-AM_CONDITIONAL([HAVE_LIBAACS_SRC], [test $libaacs_src_available = "1"])
-
-# libbdplus checks
-if [[ -d src/libbdplus ]]; then
-  # Don't check openssl again if already checked before
-  if [[ libaacs_src_available != "1" ]]; then
-    PKG_CHECK_MODULES([OPENSSL], [openssl],
-      [OPENSSL_INCLUDES="$INCLUDES $OPENSSL_CFLAGS";
-      OPENSSL_LDFLAGS="$LIBS $OPENSSL_LIBS"],
-      AC_MSG_ERROR($library_not_found))
-    # Make sure OpenSSL is cool enough to play with the big boys.
-    AC_CHECK_HEADERS([openssl/ecdsa.h], [], [
-      AC_MSG_ERROR([Version of OpenSSL does not feature openssl/ecdsa.h, please
-        upgrade]) ]
-          , [])
-  fi
   libbdplus_src_available=1
 else
   libbdplus_src_available=0

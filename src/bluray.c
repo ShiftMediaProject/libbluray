@@ -26,7 +26,7 @@
 #include "libbdnav/index_parse.h"
 
 #ifndef USING_DLOPEN
-#include "libaacs/aacs.h"
+#include <libaacs/aacs.h>
 #include "libbdplus/bdplus.h"
 #endif
 

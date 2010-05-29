@@ -4,15 +4,6 @@ AM_CFLAGS = -I$(top_builddir)/src
 
 lib_LTLIBRARIES=
 
-if HAVE_LIBAACS_SRC
-LIBAACS_LIBADD = libaacs.la
-lib_LTLIBRARIES += $(LIBAACS_LIBADD)
-libaacs_la_SOURCES=libaacs/aacs.c libaacs/crypto.c libaacs/mkb.c libaacs/mmc.c \
-	file/configfile.c file/file_posix.c util/logging.c
-libaacs_la_CFLAGS=@OPENSSL_INCLUDES@
-libaacs_la_LDFLAGS=@OPENSSL_LDFLAGS@
-endif
-
 if HAVE_LIBBDPLUS_SRC
 LIBBDPLUS_LIBADD = libbdplus.la
 lib_LTLIBRARIES += $(LIBBDPLUS_LIBADD)
@@ -29,7 +20,7 @@ endif
 if USING_DLOPEN
 LIBBLURAY_LDFLAGS=@DLOPEN_LDFLAGS@
 else
-LIBBLURAY_LIBADD=$(LIBAACS_LIBADD) $(LIBBDPLUS_LIBADD)
+LIBBLURAY_LIBADD=$(LIBBDPLUS_LIBADD)
 endif
 
 lib_LTLIBRARIES+=libbluray.la
