@@ -25,6 +25,11 @@
 
 #include "libbdnav/index_parse.h"
 
+#ifndef USING_DLOPEN
+#include "libaacs/aacs.h"
+#include "libbdplus/bdplus.h"
+#endif
+
 static int _open_m2ts(BLURAY *bd)
 {
     char *f_name;
@@ -66,32 +71,42 @@ static int _open_m2ts(BLURAY *bd)
 
 static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
 {
+#ifdef USING_DLOPEN
     if ((bd->h_libaacs = dl_dlopen("aacs"))) {
-        fptr_p_void fptr;
-
         DEBUG(DBG_BLURAY, "Downloaded libaacs (%p)\n", bd->h_libaacs);
 
-        fptr = dl_dlsym(bd->h_libaacs, "aacs_open");
+        fptr_p_void fptr = dl_dlsym(bd->h_libaacs, "aacs_open");
         bd->libaacs_decrypt_unit = dl_dlsym(bd->h_libaacs, "aacs_decrypt_unit");
 
         if (fptr && bd->libaacs_decrypt_unit) {
-
             if ((bd->aacs = fptr(bd->device_path, keyfile_path))) {
                 DEBUG(DBG_BLURAY, "Opened libaacs (%p)\n", bd->aacs);
                 return 1;
             }
-
             DEBUG(DBG_BLURAY, "aacs_open() failed!\n");
-
         } else {
             DEBUG(DBG_BLURAY, "libaacs dlsym failed!\n");
         }
-
         dl_dlclose(bd->h_libaacs);
-
     } else {
         DEBUG(DBG_BLURAY, "libaacs not found!\n");
     }
+#else
+    if ((bd->h_libaacs = NULL)) {
+        DEBUG(DBG_BLURAY, "Using libaacs via normal linking\n");
+
+        fptr_p_void fptr = (fptr_p_void)&aacs_open;
+        bd->libaacs_decrypt_unit = &aacs_decrypt_unit;
+
+        if (fptr && bd->libaacs_decrypt_unit) {
+            if ((bd->aacs = fptr(bd->device_path, keyfile_path))) {
+                DEBUG(DBG_BLURAY, "Opened libaacs (%p)\n", bd->aacs);
+                return 1;
+            }
+            DEBUG(DBG_BLURAY, "aacs_open() failed!\n");
+        }
+    }
+#endif
 
     bd->h_libaacs = NULL;
     bd->libaacs_decrypt_unit = NULL;
@@ -145,6 +160,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
                 file_close(fd);
 
                 DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
+#ifdef USING_DLOPEN
                 if ((bd->h_libbdplus = dl_dlopen("bdplus"))) {
                     DEBUG(DBG_BLURAY, "Downloaded libbdplus (%p)\n",
                           bd->h_libbdplus);
@@ -159,7 +175,23 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
                     bd->bdplus_seek  = dl_dlsym(bd->h_libbdplus, "bdplus_seek");
                     bd->bdplus_fixup = dl_dlsym(bd->h_libbdplus, "bdplus_fixup");
 
-                } // dlopen
+                }
+#else
+                if ((bd->h_libbdplus = NULL)) {
+                    DEBUG(DBG_BLURAY,"Using libbdplus via normal linking\n");
+
+                    fptr_p_void fp_bdplus_init = (fptr_p_void)&bdplus_init;
+                    //bdplus_t *bdplus_init(path,configfile_path,*vid );
+                    if (fp_bdplus_init)
+                        bd->bdplus = fp_bdplus_init(device_path, keyfile_path, vid);
+
+                    // Since we will call these functions a lot, we assign them
+                    // now.
+                    bd->bdplus_seek  = &bdplus_seek;
+                    bd->bdplus_fixup = &bdplus_fixup;
+
+                }
+#endif
             } // file_open
             X_FREE(tmp);
         }

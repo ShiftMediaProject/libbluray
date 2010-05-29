@@ -24,7 +24,13 @@ libbdplus_la_CFLAGS = -I$(top_builddir)/src/libbdplus \
 libbdplus_la_LDFLAGS = @OPENSSL_LDFLAGS@
 endif
 
+if USING_DLOPEN
+LIBBLURAY_LDFLAGS=@DLOPEN_LDFLAGS@
+else
+LIBBLURAY_LIBADD=$(LIBAACS_LIBADD) $(LIBBDPLUS_LIBADD)
+endif
+
 lib_LTLIBRARIES+=libbluray.la
 libbluray_la_SOURCES= bluray.c bluray.h file/dl_posix.c
-libbluray_la_LIBADD = libbdnav/libbdnav.la
-libbluray_la_LDFLAGS= -version-info 0:0:0 @DLOPEN_LDFLAGS@
+libbluray_la_LIBADD = libbdnav/libbdnav.la $(LIBBLURAY_LIBADD)
+libbluray_la_LDFLAGS= -version-info 0:0:0 $(LIBBLURAY_LDFLAGS)
