@@ -98,5 +98,5 @@ AC_SUBST(OPENSSL_INCLUDES)
 AC_SUBST(OPENSSL_LDFLAGS)
 AC_SUBST(DLOPEN_LDFLAGS)
 AC_CONFIG_FILES([Makefile src/Makefile src/libbdnav/Makefile
-  src/examples/Makefile])
+  src/examples/Makefile src/libbluray.pc])
 AC_OUTPUT
