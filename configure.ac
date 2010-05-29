@@ -28,14 +28,6 @@ AC_STRUCT_DIRENT_D_TYPE
 AC_SYS_LARGEFILE
 
 # required libraries
-PKG_CHECK_MODULES([OPENSSL], [openssl],
-  [INCLUDES="$INCLUDES $OPENSSL_CFLAGS"; LIBS="$LIBS $OPENSSL_LIBS"],
-  AC_MSG_ERROR($library_not_found))
-# Make sure OpenSSL is cool enough to play with the big boys.
-AC_CHECK_HEADERS([openssl/ecdsa.h], [], [
-  AC_MSG_ERROR([Version of OpenSSL does not feature openssl/ecdsa.h, please
-    upgrade]) ]
-      , [])
 AC_SEARCH_LIBS([dlopen], [dl])
 
 # required functions
@@ -43,6 +35,15 @@ AC_CHECK_FUNC([snprintf],, [AC_MSG_ERROR($function_not_found)])
 
 # libaacs checks
 if [[ -d src/libaacs ]]; then
+  PKG_CHECK_MODULES([OPENSSL], [openssl],
+    [OPENSSL_INCLUDES="$INCLUDES $OPENSSL_CFLAGS";
+     OPENSSL_LDFLAGS="$LIBS $OPENSSL_LIBS"],
+    AC_MSG_ERROR($library_not_found))
+  # Make sure OpenSSL is cool enough to play with the big boys.
+  AC_CHECK_HEADERS([openssl/ecdsa.h], [], [
+    AC_MSG_ERROR([Version of OpenSSL does not feature openssl/ecdsa.h, please
+      upgrade]) ]
+        , [])
   libaacs_src_available=1
 else
   libaacs_src_available=0
@@ -51,6 +52,18 @@ AM_CONDITIONAL([HAVE_LIBAACS_SRC], [test $libaacs_src_available = "1"])
 
 # libbdplus checks
 if [[ -d src/libbdplus ]]; then
+  # Don't check openssl again if already checked before
+  if [[ libaacs_src_available != "1" ]]; then
+    PKG_CHECK_MODULES([OPENSSL], [openssl],
+      [OPENSSL_INCLUDES="$INCLUDES $OPENSSL_CFLAGS";
+      OPENSSL_LDFLAGS="$LIBS $OPENSSL_LIBS"],
+      AC_MSG_ERROR($library_not_found))
+    # Make sure OpenSSL is cool enough to play with the big boys.
+    AC_CHECK_HEADERS([openssl/ecdsa.h], [], [
+      AC_MSG_ERROR([Version of OpenSSL does not feature openssl/ecdsa.h, please
+        upgrade]) ]
+          , [])
+  fi
   libbdplus_src_available=1
 else
   libbdplus_src_available=0
@@ -58,6 +71,8 @@ fi
 AM_CONDITIONAL([HAVE_LIBBDPLUS_SRC], [test $libbdplus_src_available = "1"])
 
 # generate output files
+AC_SUBST(OPENSSL_INCLUDES)
+AC_SUBST(OPENSSL_LDFLAGS)
 AC_CONFIG_FILES([Makefile src/Makefile src/libbdnav/Makefile
   src/examples/Makefile])
 AC_OUTPUT

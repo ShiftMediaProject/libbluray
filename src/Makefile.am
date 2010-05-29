@@ -8,6 +8,8 @@ if HAVE_LIBAACS_SRC
 LIBAACS_LIBADD = libaacs.la
 lib_LTLIBRARIES += $(LIBAACS_LIBADD)
 libaacs_la_SOURCES=libaacs/aacs.c libaacs/crypto.c libaacs/mkb.c libaacs/mmc.c file/configfile.c file/file_posix.c util/logging.c
+libaacs_la_CFLAGS=@OPENSSL_INCLUDES@
+libaacs_la_LDFLAGS=@OPENSSL_LDFLAGS@
 endif
 
 if HAVE_LIBBDPLUS_SRC
@@ -18,10 +20,11 @@ libbdplus_la_SOURCES=libbdplus/bdplus.c libbdplus/bdsvm/segment.c libbdplus/bdsv
 	libbdplus/bdsvm/diff.c libbdplus/bdsvm/slot.c libbdplus/bdsvm/ram.c libbdplus/internal.c \
 	util/logging.c
 libbdplus_la_CFLAGS = -I$(top_builddir)/src/libbdplus \
-	-I$(top_builddir)/src/libbdplus/bdsvm
+	-I$(top_builddir)/src/libbdplus/bdsvm @OPENSSL_INCLUDES@
+libbdplus_la_LDFLAGS = @OPENSSL_LDFLAGS@
 endif
 
 lib_LTLIBRARIES+=libbluray.la
 libbluray_la_SOURCES= bluray.c bluray.h file/dl_posix.c
-libbluray_la_LIBADD = $(LIBAACS_LIBADD) $(LIBBDPLUS_LIBADD) libbdnav/libbdnav.la
+libbluray_la_LIBADD = libbdnav/libbdnav.la
 libbluray_la_LDFLAGS= -version-info 0:0:0
