@@ -28,7 +28,8 @@ AC_STRUCT_DIRENT_D_TYPE
 AC_SYS_LARGEFILE
 
 # required libraries
-AC_SEARCH_LIBS([dlopen], [dl])
+AC_CHECK_LIB([dl], [dlopen], [DLOPEN_LDFLAGS="-ldl"],
+  [AC_MSG_ERROR($library_not_found)])
 
 # required functions
 AC_CHECK_FUNC([snprintf],, [AC_MSG_ERROR($function_not_found)])
@@ -73,6 +74,7 @@ AM_CONDITIONAL([HAVE_LIBBDPLUS_SRC], [test $libbdplus_src_available = "1"])
 # generate output files
 AC_SUBST(OPENSSL_INCLUDES)
 AC_SUBST(OPENSSL_LDFLAGS)
+AC_SUBST(DLOPEN_LDFLAGS)
 AC_CONFIG_FILES([Makefile src/Makefile src/libbdnav/Makefile
   src/examples/Makefile])
 AC_OUTPUT
