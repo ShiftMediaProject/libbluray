@@ -56,7 +56,6 @@ extern int bluray_debuglevel; // FIXME
 int main(int argc, char **argv)
 {
     VM *vm = NULL;
-    int result;
 
     if (argc < 2) {
         fprintf(stderr, "%s /path/tobluray\r\n", argv[0]);
