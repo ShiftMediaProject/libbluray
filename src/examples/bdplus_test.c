@@ -102,7 +102,6 @@ int main(int argc, char **argv)
     printf("Cleaning up...\n");
 
 
- fail:
     if (vm) {
         //        bdplus_VM_free(vm);
         vm = NULL;
