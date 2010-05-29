@@ -33,7 +33,7 @@ LIBBLURAY_LIBADD=$(LIBAACS_LIBADD) $(LIBBDPLUS_LIBADD)
 endif
 
 lib_LTLIBRARIES+=libbluray.la
-libbluray_ladir= @includedir@/libbluray
+libbluray_ladir= $(includedir)/libbluray
 libbluray_la_SOURCES= bluray.c file/dl_posix.c
 libbluray_la_HEADERS= bluray.h
 libbluray_la_LIBADD = libbdnav/libbdnav.la $(LIBBLURAY_LIBADD)
