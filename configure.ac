@@ -63,6 +63,5 @@ AM_CONDITIONAL([USING_DLOPEN],
 
 # generate output files
 AC_SUBST(DLOPEN_LDFLAGS)
-AC_CONFIG_FILES([Makefile src/Makefile src/libbdnav/Makefile
-  src/examples/Makefile src/libbluray.pc])
+AC_CONFIG_FILES([Makefile src/Makefile src/examples/Makefile src/libbluray.pc])
 AC_OUTPUT

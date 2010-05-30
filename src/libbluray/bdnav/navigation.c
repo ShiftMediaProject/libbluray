@@ -40,11 +40,11 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "../util/macro.h"
-#include "../util/logging.h"
-#include "../util/strutl.h"
-#include "../file/dir.h"
-#include "../file/file.h"
+#include "util/macro.h"
+#include "util/logging.h"
+#include "util/strutl.h"
+#include "file/dir.h"
+#include "file/file.h"
 #include "mpls_parse.h"
 #include "navigation.h"
 

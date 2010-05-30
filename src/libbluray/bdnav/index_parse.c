@@ -30,10 +30,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../file/file.h"
-#include "../util/bits.h"
-#include "../util/logging.h"
-#include "../util/macro.h"
+#include "file/file.h"
+#include "util/bits.h"
+#include "util/logging.h"
+#include "util/macro.h"
 
 #include "index_parse.h"
 

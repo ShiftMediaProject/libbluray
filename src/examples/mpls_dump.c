@@ -36,8 +36,8 @@
 #include <string.h>
 #include <libgen.h>
 #include "../util/strutl.h"
-#include "../libbdnav/mpls_parse.h"
-#include "../libbdnav/navigation.h"
+#include "libbluray/bdnav/mpls_parse.h"
+#include "libbluray/bdnav/navigation.h"
 #include "util.h"
 
 static int verbose;

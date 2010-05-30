@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #include "file/file.h"
-#include "libbdnav/navigation.h"
+#include "bdnav/navigation.h"
 
 struct indx_root_s;
 

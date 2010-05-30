@@ -21,9 +21,9 @@
 #include "util/logging.h"
 #include "util/strutl.h"
 #include "file/dl.h"
-#include "libbdnav/navigation.h"
+#include "bdnav/navigation.h"
 
-#include "libbdnav/index_parse.h"
+#include "bdnav/index_parse.h"
 
 #ifndef USING_DLOPEN
 #include <libaacs/aacs.h>

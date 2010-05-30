@@ -33,8 +33,8 @@
 
 #include "../util/macro.h"
 
-#include "../libbdnav/mobj_parse.h"
-#include "../libbdnav/hdmv_insn.h"
+#include "libbluray/bdnav/mobj_parse.h"
+#include "libbluray/bdnav/hdmv_insn.h"
 
 const char * const psr_info[128] = {
     "/*     PSR0:  Interactive graphics stream number */",
