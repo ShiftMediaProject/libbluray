@@ -15,15 +15,10 @@ libbluray_la_SOURCES= libbluray/bluray.c \
 	file/file_posix.c \
 	file/dir_posix.c \
 	libbluray/bdnav/navigation.c \
-	libbluray/bdnav/navigation.h \
 	libbluray/bdnav/mpls_parse.c \
 	libbluray/bdnav/clpi_parse.c \
-	libbluray/bdnav/mpls_parse.h \
-	libbluray/bdnav/clpi_parse.h \
 	libbluray/bdnav/mobj_parse.c \
-	libbluray/bdnav/mobj_parse.h \
-	libbluray/bdnav/index_parse.c \
-	libbluray/bdnav/index_parse.h
+	libbluray/bdnav/index_parse.c
 
 libbluray_la_HEADERS= libbluray/bluray.h
 libbluray_la_LDFLAGS= -version-info 0:0:0 $(LIBBLURAY_LDFLAGS)
