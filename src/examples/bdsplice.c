@@ -45,8 +45,8 @@
 #include <libgen.h>
 #include <string.h>
 #include <inttypes.h>
-#include "../util/macro.h"
-#include "../util/strutl.h"
+#include "util/macro.h"
+#include "util/strutl.h"
 #include "libbluray/bdnav/clpi_parse.h"
 #include "libbluray/bdnav/mpls_parse.h"
 #include "libbluray/bdnav/navigation.h"

@@ -13,8 +13,8 @@
 #include <stdio.h>
 
 #include "file.h"
-#include "../util/macro.h"
-#include "../util/logging.h"
+#include "util/macro.h"
+#include "util/logging.h"
 
 FILE_H *file_open_linux(const char* filename, const char *mode);
 void file_close_linux(FILE_H *file);

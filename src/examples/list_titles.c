@@ -39,7 +39,7 @@
 #include <unistd.h>
 
 #include "libbluray/bluray.h"
-#include "../util/logging.h"
+#include "util/logging.h"
 
 #define OPTS "hs:"
 

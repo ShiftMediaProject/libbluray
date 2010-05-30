@@ -31,7 +31,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "../util/macro.h"
+#include "util/macro.h"
 
 #include "libbluray/bdnav/mobj_parse.h"
 #include "libbluray/bdnav/hdmv_insn.h"

@@ -19,8 +19,8 @@
 #endif
 
 #include "dl.h"
-#include "../util/macro.h"
-#include "../util/logging.h"
+#include "util/macro.h"
+#include "util/logging.h"
 
 
 

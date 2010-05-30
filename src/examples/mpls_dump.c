@@ -35,7 +35,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <libgen.h>
-#include "../util/strutl.h"
+#include "util/strutl.h"
 #include "libbluray/bdnav/mpls_parse.h"
 #include "libbluray/bdnav/navigation.h"
 #include "util.h"
