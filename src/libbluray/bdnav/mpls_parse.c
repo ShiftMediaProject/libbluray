@@ -31,13 +31,8 @@
 #include "util/bits.h"
 #include "mpls_parse.h"
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdint.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <libgen.h>
 
 #define MPLS_SIG1  ('M' << 24 | 'P' << 16 | 'L' << 8 | 'S')
 #define MPLS_SIG2A ('0' << 24 | '2' << 16 | '0' << 8 | '0')

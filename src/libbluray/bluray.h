@@ -5,9 +5,6 @@
 #include "file/file.h"
 #include "bdnav/navigation.h"
 
-#include <stdint.h>
-#include <unistd.h>
-
 struct indx_root_s;
 
 typedef int (*fptr_int)();

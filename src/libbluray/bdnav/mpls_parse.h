@@ -29,7 +29,6 @@
 #if !defined(_MPLS_PARSE_H_)
 #define _MPLS_PARSE_H_
 
-#include <stdio.h>
 #include <stdint.h>
 
 #define BD_MARK_ENTRY   0x01

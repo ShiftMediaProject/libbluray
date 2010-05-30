@@ -29,7 +29,6 @@
 #if !defined(_MOBJ_PARSE_H_)
 #define _MOBJ_PARSE_H_
 
-#include <stdio.h>
 #include <stdint.h>
 
 typedef struct {

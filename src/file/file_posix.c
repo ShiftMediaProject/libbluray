@@ -6,15 +6,7 @@
 #include "util/macro.h"
 #include "util/logging.h"
 
-#if HAVE_MALLOC_H
-#include <malloc.h>
-#endif
-
-#if HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-
-#include <stdio.h>
 
 FILE_H *file_open_linux(const char* filename, const char *mode);
 void file_close_linux(FILE_H *file);

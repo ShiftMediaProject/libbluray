@@ -38,16 +38,7 @@
 #include "mpls_parse.h"
 #include "navigation.h"
 
-#if HAVE_MALLOC_H
-#include <malloc.h>
-#endif
-
-#if HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-
-#include <stdint.h>
-#include <string.h>
 
 static int _filter_dup(MPLS_PL *pl_list[], int count, MPLS_PL *pl)
 {

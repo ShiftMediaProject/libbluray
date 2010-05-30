@@ -29,8 +29,6 @@
 #ifndef DIR_H_
 #define DIR_H_
 
-#include <stdint.h>
-
 #define dir_open dir_open_posix
 
 #define dir_close(X) X->close(X)

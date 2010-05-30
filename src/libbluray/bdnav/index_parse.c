@@ -32,8 +32,6 @@
 #include "util/macro.h"
 #include "index_parse.h"
 
-#include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 
 static int _parse_hdmv_obj(BITSTREAM *bs, INDX_HDMV_OBJ *hdmv)

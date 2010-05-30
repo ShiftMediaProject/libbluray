@@ -6,21 +6,8 @@
 #include "util/macro.h"
 #include "util/logging.h"
 
-#if HAVE_MALLOC_H
-#include <malloc.h>
-#endif
-
-#if HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-
-#if HAVE_LIMITS_H
-#include <limits.h>
-#endif
-
-#if HAVE_DLFCN_H
 #include <dlfcn.h>
-#endif
 
 // Note the dlopen takes just the name part. "aacs", internally we
 // translate to "libaacs.so" "libaacs.dylib" or "aacs.dll".

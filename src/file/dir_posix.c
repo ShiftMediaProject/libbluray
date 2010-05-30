@@ -34,14 +34,7 @@
 #include "util/macro.h"
 #include "util/logging.h"
 
-#if HAVE_MALLOC_H
-#include <malloc.h>
-#endif
-
-#if HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-
 #include <dirent.h>
 
 DIR_H *dir_open_posix(const char* dirname);

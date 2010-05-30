@@ -29,7 +29,6 @@
 #if !defined(_INDX_PARSE_H_)
 #define _INDX_PARSE_H_
 
-#include <stdio.h>
 #include <stdint.h>
 
 typedef enum {

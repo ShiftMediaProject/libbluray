@@ -32,8 +32,6 @@
 #include "util/macro.h"
 #include "mobj_parse.h"
 
-#include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 
 #define MOBJ_SIG1  ('M' << 24 | 'O' << 16 | 'B' << 8 | 'J')

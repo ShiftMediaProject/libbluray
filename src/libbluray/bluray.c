@@ -10,24 +10,11 @@
 #include "bdnav/navigation.h"
 #include "bdnav/index_parse.h"
 
-#if HAVE_MALLOC_H
-#include <malloc.h>
-#endif
-
-#if HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-
-#if HAVE_INTTYPES_H
-#include <inttypes.h>
-#endif
-
-#include <stdio.h>
-
 #ifndef USING_DLOPEN
 #include <libaacs/aacs.h>
 #include <libbdplus/bdplus.h>
 #endif
+#include <stdlib.h>
 
 static int _open_m2ts(BLURAY *bd)
 {

@@ -31,13 +31,7 @@
 #include "util/bits.h"
 #include "clpi_parse.h"
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdint.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <libgen.h>
 
 #define CLPI_SIG1  ('H' << 24 | 'D' << 16 | 'M' << 8 | 'V')
 #define CLPI_SIG2A ('0' << 24 | '2' << 16 | '0' << 8 | '0')
