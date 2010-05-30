@@ -30,7 +30,7 @@ static void _usage(char *cmd)
 int main(int argc, char *argv[])
 {
     BLURAY *bd;
-    int count, ii, opt, seconds;
+    int count, ii, opt, seconds = 0;
 
     DEBUG(DBG_BLURAY,"\nListing titles:\n");
 
