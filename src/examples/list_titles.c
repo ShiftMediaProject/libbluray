@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
 {
     BLURAY *bd;
     int count, ii, opt, seconds = 0;
+    char *bd_dir = NULL;
 
     DEBUG(DBG_BLURAY,"\nListing titles:\n");
 
@@ -65,6 +66,12 @@ int main(int argc, char *argv[])
         switch (opt)
         {
             case -1:
+                if (optind < argc && bd_dir == NULL)
+                {
+                    bd_dir = argv[optind];
+                    optind++;
+                    opt = 1;
+                }
                 break;
             case 's':
                 seconds = strtol(optarg, NULL, 0);
@@ -76,11 +83,11 @@ int main(int argc, char *argv[])
         }
     } while (opt != -1);
 
-    if (optind >= argc)
+    if (bd_dir == NULL)
     {
         _usage(argv[0]);
     }
-    bd = bd_open(argv[optind], NULL);
+    bd = bd_open(bd_dir, NULL);
 
     count = bd_get_titles(bd, TITLES_RELEVANT);
     for (ii = 0; ii < count; ii++)
