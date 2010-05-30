@@ -36,20 +36,9 @@
 #include "libbluray/bdnav/mpls_parse.h"
 #include "libbluray/bdnav/navigation.h"
 
-#if HAVE_MALLOC_H
-#include <malloc.h>
-#endif
-
-#if HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#include <sys/stat.h>
-#include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <libgen.h>
-#include <string.h>
 #include <inttypes.h>
 
 #define PKT_SIZE 192

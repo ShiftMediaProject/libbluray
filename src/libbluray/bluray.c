@@ -15,6 +15,8 @@
 #include <libbdplus/bdplus.h>
 #endif
 #include <stdlib.h>
+#include <inttypes.h>
+#include <string.h>
 
 static int _open_m2ts(BLURAY *bd)
 {

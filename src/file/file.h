@@ -3,7 +3,6 @@
 #define FILE_H_
 
 #include <stdint.h>
-#include <unistd.h>
 
 //#ifdef __LINUX__
 #define file_open file_open_linux

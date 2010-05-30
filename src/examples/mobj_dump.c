@@ -30,10 +30,7 @@
 #include "libbluray/bdnav/mobj_parse.h"
 #include "libbluray/bdnav/hdmv_insn.h"
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
 
 const char * const psr_info[128] = {
     "/*     PSR0:  Interactive graphics stream number */",

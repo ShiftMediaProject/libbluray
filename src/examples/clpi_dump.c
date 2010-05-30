@@ -30,10 +30,7 @@
 #include "libbluray/bdnav/clpi_parse.h"
 #include "util.h"
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 

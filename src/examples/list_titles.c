@@ -35,10 +35,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#if HAVE_INTTYPES_H
 #include <inttypes.h>
-#endif
 #include <unistd.h>
 
 #define OPTS "hs:"

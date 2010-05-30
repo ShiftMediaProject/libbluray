@@ -8,6 +8,7 @@
 
 #include <stdlib.h>
 #include <dlfcn.h>
+#include <string.h>
 
 // Note the dlopen takes just the name part. "aacs", internally we
 // translate to "libaacs.so" "libaacs.dylib" or "aacs.dll".

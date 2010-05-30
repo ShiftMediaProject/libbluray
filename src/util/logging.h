@@ -4,10 +4,7 @@
 
 #include "attributes.h"
 
-#include <stdio.h>
-#include <stdarg.h>
 #include <stdint.h>
-#include <string.h>
 
 #define DEBUG(X,Y,...) debug(__FILE__,__LINE__,X,Y,##__VA_ARGS__)
 

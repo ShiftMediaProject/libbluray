@@ -39,6 +39,7 @@
 #include "navigation.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 static int _filter_dup(MPLS_PL *pl_list[], int count, MPLS_PL *pl)
 {

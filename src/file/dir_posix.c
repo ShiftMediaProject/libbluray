@@ -36,6 +36,7 @@
 
 #include <stdlib.h>
 #include <dirent.h>
+#include <string.h>
 
 DIR_H *dir_open_posix(const char* dirname);
 void dir_close_posix(DIR_H *dir);
