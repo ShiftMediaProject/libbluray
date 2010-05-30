@@ -52,9 +52,9 @@ typedef struct {
     int        size;
 } BITSTREAM;
 
-static inline void bb_init( BITBUFFER *bb, const void *p_data, size_t i_data )
+static inline void bb_init( BITBUFFER *bb, void *p_data, size_t i_data )
 {
-    bb->p_start = (void *)p_data;
+    bb->p_start = p_data;
     bb->p       = bb->p_start;
     bb->p_end   = bb->p_start + i_data;
     bb->i_left  = 8;

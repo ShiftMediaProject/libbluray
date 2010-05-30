@@ -8,7 +8,6 @@
 
 #include <stdlib.h>
 
-FILE_H *file_open_linux(const char* filename, const char *mode);
 void file_close_linux(FILE_H *file);
 int64_t file_seek_linux(FILE_H *file, int64_t offset, int32_t origin);
 int64_t file_tell_linux(FILE_H *file);

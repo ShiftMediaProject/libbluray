@@ -75,18 +75,18 @@ static void _indx_print_bdj_obj(INDX_BDJ_OBJ *bdj)
 static void _indx_print_play_item(INDX_PLAY_ITEM *title)
 {
     if (title->object_type == 1) {
-        _indx_print_hdmv_obj(&title->hdmv);
+        _indx_print_hdmv_obj(&title->indx_union.hdmv);
     } else {
-        _indx_print_bdj_obj(&title->bdj);
+        _indx_print_bdj_obj(&title->indx_union.bdj);
     }
 }
 
 static void _indx_print_title(INDX_TITLE *title)
 {
     if (title->object_type == 1) {
-        _indx_print_hdmv_obj(&title->hdmv);
+        _indx_print_hdmv_obj(&title->indx_union.hdmv);
     } else {
-        _indx_print_bdj_obj(&title->bdj);
+        _indx_print_bdj_obj(&title->indx_union.bdj);
     }
     printf("    access type   : %d\n", title->access_type);
 }

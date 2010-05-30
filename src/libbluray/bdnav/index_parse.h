@@ -91,7 +91,7 @@ typedef struct {
     union {
         INDX_BDJ_OBJ   bdj;
         INDX_HDMV_OBJ  hdmv;
-    };
+    } indx_union;
 } INDX_PLAY_ITEM;
 
 typedef struct {
@@ -100,7 +100,7 @@ typedef struct {
     union {
         INDX_BDJ_OBJ   bdj;
         INDX_HDMV_OBJ  hdmv;
-    };
+    } indx_union;
 } INDX_TITLE;
 
 typedef struct indx_root_s {

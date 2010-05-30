@@ -43,7 +43,7 @@ static int verbose;
 
 typedef struct {
     int value;
-    char *str;
+    const char *str;
 } VALUE_MAP;
 
 VALUE_MAP codec_map[] = {
@@ -116,7 +116,7 @@ VALUE_MAP audio_rate_map[] = {
     {0, NULL}
 };
 
-char*
+const char*
 _lookup_str(VALUE_MAP *map, int val)
 {
     int ii;
@@ -486,8 +486,8 @@ _usage(char *cmd)
 static int
 _qsort_str_cmp(const void *a, const void *b)
 {
-    char *stra = *(char**)a;
-    char *strb = *(char**)b;
+    const char *stra = (const char *)a;
+    const char *strb = (const char *)b;
 
     return strcmp(stra, strb);
 }
@@ -589,7 +589,9 @@ main(int argc, char *argv[])
             int jj = 0;
             for (ent = readdir(dir); ent != NULL; ent = readdir(dir)) {
                 if (ent->d_name != NULL) {
-                    dirlist[jj++] = strdup(ent->d_name);
+                    dirlist[jj] = (char*)malloc(strlen(ent->d_name) + 1);
+                    strcpy(dirlist[jj], ent->d_name);
+                    jj++;
                 }
             }
             qsort(dirlist, jj, sizeof(char*), _qsort_str_cmp);

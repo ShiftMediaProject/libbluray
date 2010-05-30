@@ -50,7 +50,7 @@ hex_dump(uint8_t *buf, int count)
 }
 
 void
-indent_printf(int level, char *fmt, ...)
+indent_printf(int level, const char *fmt, ...)
 {
     va_list ap;
     int ii;

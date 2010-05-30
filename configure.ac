@@ -17,6 +17,16 @@ AC_ARG_WITH([dlopen],
   [use libaacs and libbdplus via dlopen (default is auto)])],
   [use_dlopen=$withval],
   [use_dlopen=auto])
+AC_ARG_ENABLE([werror],
+  [AS_HELP_STRING([--enable-werror],
+  [set warnings as errors via -Werror (default is yes)])],
+  [use_werror=$enableval],
+  [use_werror=yes])
+AC_ARG_ENABLE([optimizations],
+  [AS_HELP_STRING([--enable-optimizations],
+  [enable optimizations (default is yes)])],
+  [use_optimizations=$enableval],
+  [use_optimizations=yes])
 
 # required programs
 AC_PROG_CC
@@ -60,8 +70,19 @@ fi
 AM_CONDITIONAL([USING_DLOPEN],
   [test $use_dlopen = "auto" || test $use_dlopen = "yes"])
 
+# use -Werror
+if [[ $use_werror = "yes" ]]; then
+  WERROR="-Werror"
+fi
+
+# use optimizations
+if [[ $use_optimizations = "yes" ]]; then
+  OPTIMIZATIONS="-O3 -fomit-frame-pointer"
+fi
 
 # generate output files
 AC_SUBST(DLOPEN_LDFLAGS)
+AC_SUBST(WERROR)
+AC_SUBST(OPTIMIZATIONS)
 AC_CONFIG_FILES([Makefile src/Makefile src/examples/Makefile src/libbluray.pc])
 AC_OUTPUT

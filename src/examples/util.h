@@ -47,5 +47,5 @@
 #endif
 
 void hex_dump(uint8_t *buf, int count);
-void indent_printf(int level, char *fmt, ...);
+void indent_printf(int level, const char *fmt, ...);
 

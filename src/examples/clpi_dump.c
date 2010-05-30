@@ -38,10 +38,10 @@ static int verbose;
 
 typedef struct {
     int value;
-    char *str;
+    const char *str;
 } VALUE_MAP;
 
-static inline char*
+static inline const char*
 _lookup_str(VALUE_MAP *map, int val)
 {
     int ii;

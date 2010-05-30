@@ -48,6 +48,6 @@ struct dir
     int (*read)(DIR_H *dir, DIRENT *entry);
 };
 
-extern DIR_H *dir_open_posix(const char* dirname);
+DIR_H *dir_open_posix(const char* dirname);
 
 #endif /* DIR_H_ */

@@ -28,6 +28,6 @@ struct file
     int (*write)(FILE_H *file, uint8_t *buf, int64_t size);
 };
 
-extern FILE_H *file_open_linux(const char* filename, const char *mode);
+FILE_H *file_open_linux(const char* filename, const char *mode);
 
 #endif /* FILE_H_ */
