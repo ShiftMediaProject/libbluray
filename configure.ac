@@ -53,31 +53,15 @@ elif [[ $use_dlopen = "yes" ]]; then
 else
   AC_CHECK_LIB([aacs], [aacs_open],,
     [AC_MSG_ERROR($library_not_found)])
+  AC_CHECK_LIB([bdplus], [bdplus_init],,
+    [AC_MSG_ERROR($library_not_found)])
   AC_MSG_NOTICE($using_normal_linking)
 fi
 AM_CONDITIONAL([USING_DLOPEN],
   [test $use_dlopen = "auto" || test $use_dlopen = "yes"])
 
-# libbdplus checks
-if [[ -d src/libbdplus ]]; then
-  PKG_CHECK_MODULES([OPENSSL], [openssl],
-    [OPENSSL_INCLUDES="$INCLUDES $OPENSSL_CFLAGS";
-    OPENSSL_LDFLAGS="$LIBS $OPENSSL_LIBS"],
-    AC_MSG_ERROR($library_not_found))
-  # Make sure OpenSSL is cool enough to play with the big boys.
-  AC_CHECK_HEADERS([openssl/ecdsa.h], [], [
-    AC_MSG_ERROR([Version of OpenSSL does not feature openssl/ecdsa.h, please
-      upgrade]) ]
-        , [])
-  libbdplus_src_available=1
-else
-  libbdplus_src_available=0
-fi
-AM_CONDITIONAL([HAVE_LIBBDPLUS_SRC], [test $libbdplus_src_available = "1"])
 
 # generate output files
-AC_SUBST(OPENSSL_INCLUDES)
-AC_SUBST(OPENSSL_LDFLAGS)
 AC_SUBST(DLOPEN_LDFLAGS)
 AC_CONFIG_FILES([Makefile src/Makefile src/libbdnav/Makefile
   src/examples/Makefile src/libbluray.pc])

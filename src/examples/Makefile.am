@@ -3,13 +3,6 @@ AM_CFLAGS = -I$(top_builddir)/src
 
 noinst_PROGRAMS=bdsplice mpls_dump clpi_dump index_dump mobj_dump libbluray_test
 
-if HAVE_LIBBDPLUS_SRC
-bdplus_test_SOURCE=bdplus_test.c
-bdplus_test_LDADD=$(top_builddir)/src/libbluray.la
-bdplus_test_CFLAGS = -I$(top_builddir)/src/libbdplus
-noinst_PROGRAMS+=bdplus_test
-endif
-
 BDNAV_LIB = $(top_builddir)/src/libbdnav/libbdnav.la
 
 bdsplice_SOURCES = \

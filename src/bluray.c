@@ -27,7 +27,7 @@
 
 #ifndef USING_DLOPEN
 #include <libaacs/aacs.h>
-#include "libbdplus/bdplus.h"
+#include <libbdplus/bdplus.h>
 #endif
 
 static int _open_m2ts(BLURAY *bd)
