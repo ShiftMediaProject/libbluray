@@ -26,13 +26,12 @@
  * so, delete this exception statement from your version.
  */
 
+#include "libbluray/bdnav/index_parse.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-
-#include "libbluray/bdnav/index_parse.h"
-
 
 static void _indx_print_app_info(INDX_APP_INFO *app_info)
 {

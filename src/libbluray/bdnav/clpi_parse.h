@@ -29,6 +29,8 @@
 #if !defined(_CLPI_PARSE_H_)
 #define _CLPI_PARSE_H_
 
+#include <inttypes.h>
+
 typedef struct
 {
     uint16_t          pcr_pid;

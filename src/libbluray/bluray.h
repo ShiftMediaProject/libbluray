@@ -2,11 +2,11 @@
 #ifndef BLURAY_H_
 #define BLURAY_H_
 
-#include <stdint.h>
-#include <unistd.h>
-
 #include "file/file.h"
 #include "bdnav/navigation.h"
+
+#include <stdint.h>
+#include <unistd.h>
 
 struct indx_root_s;
 

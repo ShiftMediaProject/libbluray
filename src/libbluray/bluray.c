@@ -2,6 +2,14 @@
 #include "config.h"
 #endif
 
+#include "bluray.h"
+#include "util/macro.h"
+#include "util/logging.h"
+#include "util/strutl.h"
+#include "file/dl.h"
+#include "bdnav/navigation.h"
+#include "bdnav/index_parse.h"
+
 #if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -15,15 +23,6 @@
 #endif
 
 #include <stdio.h>
-
-#include "bluray.h"
-#include "util/macro.h"
-#include "util/logging.h"
-#include "util/strutl.h"
-#include "file/dl.h"
-#include "bdnav/navigation.h"
-
-#include "bdnav/index_parse.h"
 
 #ifndef USING_DLOPEN
 #include <libaacs/aacs.h>

@@ -30,6 +30,12 @@
 #include "config.h"
 #endif
 
+#include "util/macro.h"
+#include "util/strutl.h"
+#include "libbluray/bdnav/clpi_parse.h"
+#include "libbluray/bdnav/mpls_parse.h"
+#include "libbluray/bdnav/navigation.h"
+
 #if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -45,11 +51,6 @@
 #include <libgen.h>
 #include <string.h>
 #include <inttypes.h>
-#include "util/macro.h"
-#include "util/strutl.h"
-#include "libbluray/bdnav/clpi_parse.h"
-#include "libbluray/bdnav/mpls_parse.h"
-#include "libbluray/bdnav/navigation.h"
 
 #define PKT_SIZE 192
 #define MIN(a,b) (((a) < (b)) ? a : b)

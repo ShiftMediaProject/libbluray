@@ -26,17 +26,15 @@
  * so, delete this exception statement from your version.
  */
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-
 #include "file/file.h"
 #include "util/bits.h"
 #include "util/logging.h"
 #include "util/macro.h"
-
 #include "mobj_parse.h"
 
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 #define MOBJ_SIG1  ('M' << 24 | 'O' << 16 | 'B' << 8 | 'J')
 #define MOBJ_SIG2A ('0' << 24 | '2' << 16 | '0' << 8 | '0')

@@ -2,6 +2,9 @@
 #include "config.h"
 #endif
 
+#include "libbluray/bluray.h"
+#include "util/logging.h"
+
 #include <stdio.h>
 #if HAVE_MALLOC_H
 #include <malloc.h>
@@ -11,9 +14,6 @@
 #if HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
-
-#include "libbluray/bluray.h"
-#include "util/logging.h"
 
 #define HEX_PRINT(X,Y) { int zz; for(zz = 0; zz < Y; zz++) fprintf(stderr, "%02X", X[zz]); fprintf(stderr, "\n"); }
 

@@ -30,6 +30,10 @@
 #include "config.h"
 #endif
 
+#include "dir.h"
+#include "util/macro.h"
+#include "util/logging.h"
+
 #if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -39,10 +43,6 @@
 #endif
 
 #include <dirent.h>
-
-#include "dir.h"
-#include "util/macro.h"
-#include "util/logging.h"
 
 DIR_H *dir_open_posix(const char* dirname);
 void dir_close_posix(DIR_H *dir);

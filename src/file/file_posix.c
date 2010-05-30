@@ -2,6 +2,10 @@
 #include "config.h"
 #endif
 
+#include "file.h"
+#include "util/macro.h"
+#include "util/logging.h"
+
 #if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -11,10 +15,6 @@
 #endif
 
 #include <stdio.h>
-
-#include "file.h"
-#include "util/macro.h"
-#include "util/logging.h"
 
 FILE_H *file_open_linux(const char* filename, const char *mode);
 void file_close_linux(FILE_H *file);

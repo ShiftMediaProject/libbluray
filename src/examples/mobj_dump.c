@@ -26,15 +26,14 @@
  * so, delete this exception statement from your version.
  */
 
+#include "util/macro.h"
+#include "libbluray/bdnav/mobj_parse.h"
+#include "libbluray/bdnav/hdmv_insn.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-
-#include "util/macro.h"
-
-#include "libbluray/bdnav/mobj_parse.h"
-#include "libbluray/bdnav/hdmv_insn.h"
 
 const char * const psr_info[128] = {
     "/*     PSR0:  Interactive graphics stream number */",

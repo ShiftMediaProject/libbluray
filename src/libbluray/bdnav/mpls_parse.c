@@ -26,6 +26,11 @@
  * so, delete this exception statement from your version.
  */
 
+#include "util/macro.h"
+#include "file/file.h"
+#include "util/bits.h"
+#include "mpls_parse.h"
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -33,10 +38,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <libgen.h>
-#include "util/macro.h"
-#include "file/file.h"
-#include "util/bits.h"
-#include "mpls_parse.h"
 
 #define MPLS_SIG1  ('M' << 24 | 'P' << 16 | 'L' << 8 | 'S')
 #define MPLS_SIG2A ('0' << 24 | '2' << 16 | '0' << 8 | '0')

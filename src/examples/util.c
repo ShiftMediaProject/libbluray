@@ -26,12 +26,13 @@
  * so, delete this exception statement from your version.
  */
 
+#include "util.h"
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "util.h"
 
 void
 hex_dump(uint8_t *buf, int count)

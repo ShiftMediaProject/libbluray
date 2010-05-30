@@ -2,6 +2,10 @@
 #include "config.h"
 #endif
 
+#include "dl.h"
+#include "util/macro.h"
+#include "util/logging.h"
+
 #if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -17,12 +21,6 @@
 #if HAVE_DLFCN_H
 #include <dlfcn.h>
 #endif
-
-#include "dl.h"
-#include "util/macro.h"
-#include "util/logging.h"
-
-
 
 // Note the dlopen takes just the name part. "aacs", internally we
 // translate to "libaacs.so" "libaacs.dylib" or "aacs.dll".

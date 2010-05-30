@@ -30,6 +30,9 @@
 #include "config.h"
 #endif
 
+#include "libbluray/bluray.h"
+#include "util/logging.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,9 +40,6 @@
 #include <inttypes.h>
 #endif
 #include <unistd.h>
-
-#include "libbluray/bluray.h"
-#include "util/logging.h"
 
 #define OPTS "hs:"
 
