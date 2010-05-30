@@ -1,7 +1,8 @@
 # Set this for all builds, or use $bin_CFLAGS for individual
 AM_CFLAGS = -I$(top_builddir)/src
 
-noinst_PROGRAMS=bdsplice mpls_dump clpi_dump index_dump mobj_dump libbluray_test
+noinst_PROGRAMS=bdsplice mpls_dump clpi_dump index_dump mobj_dump \
+    libbluray_test list_titles
 
 BDNAV_LIB = $(top_builddir)/src/libbdnav/libbdnav.la
 
@@ -34,3 +35,8 @@ libbluray_test_SOURCES = \
 	libbluray_test.c
 
 libbluray_test_LDADD = $(top_builddir)/src/libbluray.la
+
+list_titles_SOURCES = \
+	list_titles.c
+
+list_titles_LDADD = $(top_builddir)/src/libbluray.la
