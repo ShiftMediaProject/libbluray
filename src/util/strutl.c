@@ -26,11 +26,11 @@
  * so, delete this exception statement from your version.
  */
 
+#include "strutl.h"
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include "strutl.h"
-
 
 char * str_printf(const char *fmt, ...)
 {

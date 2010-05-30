@@ -24,9 +24,10 @@
 #ifndef BD_BITS_H
 #define BD_BITS_H
 
+#include "file/file.h"
+
 //#include <stdio.h>
 #include <fcntl.h>
-#include "../file/file.h"
 
 /**
  * \file
