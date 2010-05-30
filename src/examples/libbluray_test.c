@@ -12,7 +12,7 @@
 #include <inttypes.h>
 #endif
 
-#include "../bluray.h"
+#include "libbluray/bluray.h"
 #include "../util/logging.h"
 
 #define HEX_PRINT(X,Y) { int zz; for(zz = 0; zz < Y; zz++) fprintf(stderr, "%02X", X[zz]); fprintf(stderr, "\n"); }
