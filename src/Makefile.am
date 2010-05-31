@@ -1,3 +1,10 @@
+# library version info
+# NOTE: this is not the same as the library's release number
+LIB_CURRENT=0
+LIB_REVISION=0
+LIB_AGE=0
+LIB_VERSION_INFO="$(LIB_CURRENT):$(LIB_REVISION):$(LIB_AGE)"
+
 SUBDIRS= . examples
 
 SET_FEATURES = -D_ISOC99_SOURCE -D_POSIX_C_SOURCE=200112L -D_REENTRANT
@@ -44,7 +51,7 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	util/bits.h \
 	util/logging.h
 libbluray_la_HEADERS= libbluray/bluray.h
-libbluray_la_LDFLAGS= -version-info 0:0:0 $(LIBBLURAY_LDFLAGS)
+libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) $(LIBBLURAY_LDFLAGS)
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libbluray.pc
