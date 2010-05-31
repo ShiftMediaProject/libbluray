@@ -81,13 +81,15 @@ AM_CONDITIONAL([USING_DLOPEN],
 # function testing for supported compiler options
 check_cc_options()
 {
-  local tmpfile=$(mktemp tmp.XXXXXXXXXX.c)
+  local tmpfile=$(mktemp)
+  local tmpcfile="$tmpfile.c"
+  mv $tmpfile $tmpcfile
   local retval=1
   printf "Checking if compiler supports $@... "
-  if $CC -c $@ $tmpfile -o /dev/null >/dev/null 2>&1; then
+  if $CC -c $@ $tmpcfile -o /dev/null >/dev/null 2>&1; then
     local retval=0
   fi
-  rm $tmpfile
+  rm $tmpcfile
   if [[ $retval = "0" ]]; then
     echo "yes"
   else
