@@ -1,9 +1,8 @@
 SUBDIRS= . examples
 
 SET_FEATURES = -D_ISOC99_SOURCE -D_POSIX_C_SOURCE=200112L -D_REENTRANT
-SET_WARNINGS = -Wall -Wno-switch -Wdisabled-optimization -Wpointer-arith \
-	-Wredundant-decls -Wno-pointer-sign -Wcast-qual -Wwrite-strings \
-	-Wtype-limits -Wundef @WERROR@
+SET_WARNINGS = -Wall -Wdisabled-optimization -Wpointer-arith -Wredundant-decls \
+	-Wcast-qual -Wwrite-strings -Wtype-limits -Wundef @WERROR@
 SET_OPTIMIZATIONS = @OPTIMIZATIONS@
 SET_INCLUDES = -I$(top_srcdir)/src
 
