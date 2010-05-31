@@ -20,9 +20,9 @@ AC_ARG_WITH([dlopen],
 
 AC_ARG_ENABLE([werror],
   [AS_HELP_STRING([--enable-werror],
-  [set warnings as errors via -Werror (default is yes)])],
+  [set warnings as errors via -Werror (default is no)])],
   [use_werror=$enableval],
-  [use_werror=yes])
+  [use_werror=no])
 
 AC_ARG_ENABLE([extra-warnings],
   [AS_HELP_STRING([--enable-extra-warnings],
