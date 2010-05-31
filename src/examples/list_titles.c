@@ -55,7 +55,8 @@ static void _usage(char *cmd)
 int main(int argc, char *argv[])
 {
     BLURAY *bd;
-    int count, ii, opt, seconds = 0;
+    int count, ii, opt;
+    unsigned int seconds = 0;
     char *bd_dir = NULL;
 
     DEBUG(DBG_BLURAY,"\nListing titles:\n");

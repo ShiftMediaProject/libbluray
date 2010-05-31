@@ -114,7 +114,7 @@ typedef struct {
 } NAV_TITLE_INFO;
 
 typedef struct {
-    int             count;
+    unsigned int             count;
     NAV_TITLE_INFO  *title_info;
 } NAV_TITLE_LIST;
 

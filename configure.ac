@@ -24,6 +24,12 @@ AC_ARG_ENABLE([werror],
   [use_werror=$enableval],
   [use_werror=yes])
 
+AC_ARG_ENABLE([extra-warnings],
+  [AS_HELP_STRING([--enable-extra-warnings],
+  [set extra warnings (default is yes)])],
+  [use_extra_warnings=$enableval],
+  [use_extra_warnings=yes])
+
 AC_ARG_ENABLE([optimizations],
   [AS_HELP_STRING([--enable-optimizations],
   [enable optimizations (default is yes)])],
@@ -77,6 +83,11 @@ if [[ $use_werror = "yes" ]]; then
   WERROR="-Werror"
 fi
 
+# use extra warnings
+if [[ $use_extra_warnings = "yes" ]]; then
+  EXTRA_WARNINGS="-Wextra -Winline"
+fi
+
 # use optimizations
 if [[ $use_optimizations = "yes" ]]; then
   OPTIMIZATIONS="-O3 -fomit-frame-pointer"
@@ -85,6 +96,7 @@ fi
 # generate output files
 AC_SUBST(DLOPEN_LDFLAGS)
 AC_SUBST(WERROR)
+AC_SUBST(EXTRA_WARNINGS)
 AC_SUBST(OPTIMIZATIONS)
 AC_CONFIG_FILES([Makefile src/Makefile src/examples/Makefile src/libbluray.pc])
 AC_OUTPUT

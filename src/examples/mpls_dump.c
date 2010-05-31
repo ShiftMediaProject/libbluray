@@ -379,7 +379,7 @@ _find_repeats(MPLS_PL *pl, const char *m2ts)
 }
 
 static int
-_filter_short(MPLS_PL *pl, int seconds)
+_filter_short(MPLS_PL *pl, unsigned int seconds)
 {
     // Ignore short playlists
     if (_pl_duration(pl) / 45000 <= seconds) {

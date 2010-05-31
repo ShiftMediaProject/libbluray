@@ -124,10 +124,10 @@ NAV_TITLE_LIST* nav_get_title_list(char *root, uint32_t flags)
     char *path = NULL;
     MPLS_PL **pl_list = NULL;
     MPLS_PL *pl = NULL;
-    int ii, pl_list_size = 0;
+    unsigned int ii, pl_list_size = 0;
     int res;
     NAV_TITLE_LIST *title_list;
-    int title_info_alloc = 100;
+    unsigned int title_info_alloc = 100;
 
     title_list = calloc(1, sizeof(NAV_TITLE_LIST));
     title_list->title_info = calloc(title_info_alloc, sizeof(NAV_TITLE_INFO));

@@ -468,7 +468,6 @@ static int64_t _clip_seek_time(BLURAY *bd, uint64_t tick)
 
 int bd_read(BLURAY *bd, unsigned char *buf, int len)
 {
-    int size;
     int out_len;
 
     if (bd->fp) {
@@ -478,7 +477,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
         while (len > 0) {
             uint32_t clip_pkt;
 
-            size = len;
+            unsigned int size = len;
             // Do we need to read more data?
             clip_pkt = bd->clip_pos / 192;
             if (bd->seamless_angle_change) {
@@ -496,9 +495,9 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                     bd->angle = bd->request_angle;
                     bd->seamless_angle_change = 0;
                 } else {
-                    int64_t angle_pos;
+                    uint64_t angle_pos;
 
-                    angle_pos = (int64_t)bd->angle_change_pkt * 192;
+                    angle_pos = bd->angle_change_pkt * 192;
                     if (angle_pos - bd->clip_pos < size)
                     {
                         size = angle_pos - bd->clip_pos;
@@ -526,7 +525,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                     return out_len;
                 }
             }
-            if (size > 6144 - bd->int_buf_off) {
+            if (size > (unsigned int)6144 - bd->int_buf_off) {
                 size = 6144 - bd->int_buf_off;
             }
             memcpy(buf, bd->int_buf + bd->int_buf_off, size);
@@ -655,7 +654,7 @@ BD_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
 {
     NAV_TITLE *title;
     BD_TITLE_INFO *title_info;
-    int ii;
+    unsigned int ii;
 
     if (bd->title_list == NULL) {
         DEBUG(DBG_BLURAY, "Title list not yet read! (%p)\n", bd);
