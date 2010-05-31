@@ -17,11 +17,13 @@ AC_ARG_WITH([dlopen],
   [use libaacs and libbdplus via dlopen (default is auto)])],
   [use_dlopen=$withval],
   [use_dlopen=auto])
+
 AC_ARG_ENABLE([werror],
   [AS_HELP_STRING([--enable-werror],
   [set warnings as errors via -Werror (default is yes)])],
   [use_werror=$enableval],
   [use_werror=yes])
+
 AC_ARG_ENABLE([optimizations],
   [AS_HELP_STRING([--enable-optimizations],
   [enable optimizations (default is yes)])],
