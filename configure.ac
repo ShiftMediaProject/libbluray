@@ -1,5 +1,5 @@
 # initilization
-AC_INIT([libbluray],[0.1.0], [http://bd.videolan.org/])
+AC_INIT([libbluray],[0.1], [http://bd.videolan.org/])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign])
