@@ -10,9 +10,6 @@ As a project participant:
 
 Development:
 ------------
-Remove the dependency on openssl
- Achievement: ?%  Who: ?
-
 BD+
  Achievement: ?%  Who: ?
 
