@@ -18,12 +18,12 @@ bdsplice_SOURCES = \
 bdsplice_LDADD = $(BLURAY_LIB)
 
 mpls_dump_SOURCES = \
-	mpls_dump.c util.c
+	mpls_dump.c util.c util.h
 
 mpls_dump_LDADD = $(BLURAY_LIB)
 
 clpi_dump_SOURCES = \
-	clpi_dump.c util.c
+	clpi_dump.c util.c util.h
 
 clpi_dump_LDADD = $(BLURAY_LIB)
 
