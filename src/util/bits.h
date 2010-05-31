@@ -205,7 +205,7 @@ static inline uint32_t bb_read( BITBUFFER *bb, int i_count )
     return( i_result );
 }
 
-static inline uint32_t bs_read( BITSTREAM *bs, int i_count )
+static uint32_t bs_read( BITSTREAM *bs, int i_count )
 {
     int left;
     int bytes = (i_count + 7) >> 3;
