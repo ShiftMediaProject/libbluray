@@ -475,7 +475,7 @@ _usage(char *cmd)
 "    r <N>         - Filter out titles that have >N repeating clips\n"
 "    d             - Filter out duplicate titles\n"
 "    s <seconds>   - Filter out short titles\n"
-"    f             - Filter combination -r2 -d -s120\n"
+"    f             - Filter combination -r2 -d -s900\n"
 , cmd);
 
     exit(EXIT_FAILURE);
@@ -536,7 +536,7 @@ main(int argc, char *argv[])
             case 'f':
                 repeats = 2;
                 dups = 1;
-                seconds = 120;
+                seconds = 900;
                 break;
 
             case 's':
