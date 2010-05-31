@@ -60,7 +60,11 @@ static int _open_m2ts(BLURAY *bd)
 static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
 {
 #ifdef USING_DLOPEN
-    if ((bd->h_libaacs = dl_dlopen("aacs"))) {
+#ifdef __APPLE__
+    if ((bd->h_libaacs = dl_dlopen("libaacs.dylib"))) {
+#else
+    if ((bd->h_libaacs = dl_dlopen("libaacs.so.0"))) {
+#endif
         DEBUG(DBG_BLURAY, "Downloaded libaacs (%p)\n", bd->h_libaacs);
 
         fptr_p_void fptr = dl_dlsym(bd->h_libaacs, "aacs_open");
@@ -150,7 +154,11 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
                 DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
 #ifdef USING_DLOPEN
-                if ((bd->h_libbdplus = dl_dlopen("bdplus"))) {
+#ifdef __APPLE__
+                if ((bd->h_libbdplus = dl_dlopen("libbdplus.dylib"))) {
+#else
+                if ((bd->h_libbdplus = dl_dlopen("libbdplus.so.0"))) {
+#endif
                     DEBUG(DBG_BLURAY, "Downloaded libbdplus (%p)\n",
                           bd->h_libbdplus);
 

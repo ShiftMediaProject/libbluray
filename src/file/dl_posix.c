@@ -10,31 +10,13 @@
 #include <dlfcn.h>
 #include <string.h>
 
-// Note the dlopen takes just the name part. "aacs", internally we
-// translate to "libaacs.so" "libaacs.dylib" or "aacs.dll".
-void   *dl_dlopen  ( const char* name )
+void   *dl_dlopen  ( const char* path )
 {
-    char *path;
-    int len;
-    void *result;
-
-#ifdef __APPLE__
-    len = strlen(name) + 3 + 6 + 1;
-    path = (char *) malloc(len);
-    if (!path) return NULL;
-    snprintf(path, len, "lib%s.dylib", name);
-#else
-    len = strlen(name) + 3 + 3 + 1;
-    path = (char *) malloc(len);
-    if (!path) return NULL;
-    snprintf(path, len, "lib%s.so", name);
-#endif
     DEBUG(DBG_BDPLUS, "searching for library '%s' ...\n", path);
-    result = dlopen(path, RTLD_LAZY);
+    void *result = dlopen(path, RTLD_LAZY);
     if (!result) {
         DEBUG(DBG_FILE | DBG_CRIT, "can't open library '%s': %s\n", path, dlerror());
     }
-    free(path);
     return result;
 }
 
