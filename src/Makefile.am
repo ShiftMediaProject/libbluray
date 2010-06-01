@@ -10,7 +10,7 @@ SUBDIRS= . examples
 SET_FEATURES = -D_ISOC99_SOURCE -D_POSIX_C_SOURCE=200112L -D_REENTRANT
 SET_WARNINGS = @SET_WARNINGS@
 SET_OPTIMIZATIONS = @SET_OPTIMIZATIONS@
-SET_INCLUDES = -I$(top_srcdir)
+SET_INCLUDES = -I$(top_srcdir) -Ifile -Ilibbluray/bdnav
 
 AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_WARNINGS) $(SET_OPTIMIZATIONS) \
 	$(SET_INCLUDES)
@@ -50,7 +50,8 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	util/logging.c \
 	util/bits.h \
 	util/logging.h
-libbluray_la_HEADERS= libbluray/bluray.h
+libbluray_la_HEADERS= libbluray/bluray.h libbluray/bdnav/navigation.h \
+	libbluray/bdnav/mpls_parse.h libbluray/bdnav/clpi_parse.h file/file.h
 libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) $(LIBBLURAY_LDFLAGS)
 
 pkgconfigdir = $(libdir)/pkgconfig

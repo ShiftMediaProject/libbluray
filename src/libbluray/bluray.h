@@ -30,8 +30,8 @@
 #ifndef BLURAY_H_
 #define BLURAY_H_
 
-#include "file/file.h"
-#include "bdnav/navigation.h"
+#include "file.h"
+#include "navigation.h"
 
 struct indx_root_s;
 
