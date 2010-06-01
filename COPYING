@@ -338,6 +338,11 @@ consider it more useful to permit linking proprietary applications with the
 library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.
 
+END OF GNU GENERAL PUBLIC LICENSE
+--------------------------------------------------------------------------
+
+                         OPENSSL EXCEPTION
+
 In addition, as a special exception, the copyright holders of libbluray
 gives permission to link the code of its release of libbluray with the
 OpenSSL project's "OpenSSL" library (or with modified versions of it
