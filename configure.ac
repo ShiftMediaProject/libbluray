@@ -36,6 +36,12 @@ AC_ARG_ENABLE([optimizations],
   [use_optimizations=$enableval],
   [use_optimizations=yes])
 
+AC_ARG_ENABLE([debug],
+  [AS_HELP_STRING([--enable-debug],
+  [enable debugging information (default is yes)])],
+  [use_debug=$enableval],
+  [use_debug=yes])
+
 # required programs
 AC_PROG_CC
 AC_PROG_LIBTOOL
@@ -138,9 +144,16 @@ if [[ $use_optimizations = "yes" ]]; then
     SET_OPTIMIZATIONS="$SET_OPTIMIZATIONS -fomit-frame-pointer"
 fi
 
+# use debug
+if [[ $use_debug = "yes" ]]; then
+  check_cc_options -g && \
+    SET_DEBUG_OPTS="$SET_DEBUG_OPTS -g"
+fi
+
 # generate output files
 AC_SUBST(DLOPEN_LDFLAGS)
 AC_SUBST(SET_WARNINGS)
 AC_SUBST(SET_OPTIMIZATIONS)
+AC_SUBST(SET_DEBUG_OPTS)
 AC_CONFIG_FILES([Makefile src/Makefile src/examples/Makefile src/libbluray.pc])
 AC_OUTPUT
