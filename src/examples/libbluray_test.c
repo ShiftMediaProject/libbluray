@@ -69,10 +69,28 @@ int main(int argc, char *argv[])
     unsigned char *buf = malloc(6144);
     memset(buf,0,6144);
 
+#if 0
     bd_read(bd, buf, 2048);
     bd_read(bd, buf, 2048);
     bd_read(bd, buf, 2048);
     bd_read(bd, buf, 6144);
+#else
+
+    FILE *fd = fopen("streamdump.m2ts", "wb");
+    if (fd) {
+        for (ii = 0; ii < 10000; ii++) {
+            int len = bd_read(bd, buf, 6144);
+            if (len <= 0) break;
+            fwrite(buf, len, 1, fd);
+            if (!(ii % 1000))
+                DEBUG(DBG_BLURAY,
+                      "%d\r", ii);
+
+        }
+        fclose(fd);
+    }
+
+#endif
 
     bd_close(bd);
     } else {
