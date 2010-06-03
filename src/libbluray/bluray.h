@@ -34,6 +34,7 @@
 #include "navigation.h"
 
 struct indx_root_s;
+struct bd_registers_s;
 
 typedef int (*fptr_int)();
 typedef int32_t (*fptr_int32)();
@@ -65,6 +66,7 @@ struct bluray {
     int      angle;
 
     struct indx_root_s *index;
+    struct bd_registers_s *regs;
 };
 
 typedef struct bd_chapter {

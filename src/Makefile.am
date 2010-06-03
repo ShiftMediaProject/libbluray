@@ -25,6 +25,8 @@ lib_LTLIBRARIES=libbluray.la
 libbluray_ladir= $(includedir)/libbluray
 libbluray_la_SOURCES=libbluray/bluray.h \
 	libbluray/bluray.c \
+	libbluray/register.h \
+	libbluray/register.c \
 	libbluray/bdnav \
 	libbluray/bdnav/bdparse.h \
 	libbluray/bdnav/navigation.h \

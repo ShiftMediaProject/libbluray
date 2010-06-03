@@ -32,6 +32,7 @@
 #endif
 
 #include "bluray.h"
+#include "register.h"
 #include "util/macro.h"
 #include "util/logging.h"
 #include "util/strutl.h"
@@ -217,6 +218,8 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
         _index_open(bd);
 
+        bd->regs = bd_registers_init();
+
         DEBUG(DBG_BLURAY, "BLURAY initialized! (%p)\n", bd);
     } else {
         X_FREE(bd);
@@ -261,6 +264,8 @@ void bd_close(BLURAY *bd)
     if (bd->index != NULL) {
         indx_free(bd->index);
     }
+
+    bd_registers_free(bd->regs);
 
     X_FREE(bd->device_path);
 
