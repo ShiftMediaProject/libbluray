@@ -577,28 +577,12 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
     return -1;
 }
 
-// Select a title for playback
-// The title index is an index into the list
-// established by bd_get_titles()
-int bd_select_title(BLURAY *bd, uint32_t title_idx)
+static int _open_playlist(BLURAY *bd, const char *f_name)
 {
-    char *f_name;
-
-    // Open the playlist
-    if (bd->title_list == NULL) {
-        DEBUG(DBG_BLURAY, "Title list not yet read! (%p)\n", bd);
-        return 0;
-    }
-    if (bd->title_list->count <= title_idx) {
-        DEBUG(DBG_BLURAY, "Invalid title index %d! (%p)\n", title_idx, bd);
-        return 0;
-    }
-
     if (bd->title) {
         nav_title_close(bd->title);
     }
 
-    f_name = bd->title_list->title_info[title_idx].name;
     bd->title = nav_title_open(bd->device_path, f_name);
     if (bd->title == NULL) {
         DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n",
@@ -618,6 +602,28 @@ int bd_select_title(BLURAY *bd, uint32_t title_idx)
         return 1;
     }
     return 0;
+}
+
+// Select a title for playback
+// The title index is an index into the list
+// established by bd_get_titles()
+int bd_select_title(BLURAY *bd, uint32_t title_idx)
+{
+    const char *f_name;
+
+    // Open the playlist
+    if (bd->title_list == NULL) {
+        DEBUG(DBG_BLURAY, "Title list not yet read! (%p)\n", bd);
+        return 0;
+    }
+    if (bd->title_list->count <= title_idx) {
+        DEBUG(DBG_BLURAY, "Invalid title index %d! (%p)\n", title_idx, bd);
+        return 0;
+    }
+
+    f_name = bd->title_list->title_info[title_idx].name;
+
+    return _open_playlist(bd, f_name);
 }
 
 int bd_select_angle(BLURAY *bd, int angle)
