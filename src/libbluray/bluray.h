@@ -93,6 +93,7 @@ void bd_close(BLURAY *bd);                                          // Free libb
 
 int64_t bd_seek(BLURAY *bd, uint64_t pos);              // Seek to pos in currently selected title file
 int64_t bd_seek_time(BLURAY *bd, uint64_t tick); // Seek to a specific time in 90Khz ticks
+int64_t bd_seek_chapter(BLURAY *bd, int chapter);       // Seek to a specific chapter
 int bd_read(BLURAY *bd, unsigned char *buf, int len);   // Read from currently selected title file, decrypt if possible
 
 int bd_select_playlist(BLURAY *bd, uint32_t playlist);
