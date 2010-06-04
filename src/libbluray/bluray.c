@@ -161,12 +161,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         bd->h_libaacs = NULL;
         bd->fp = NULL;
 
-        if (keyfile_path) {
-            _libaacs_open(bd, keyfile_path);
-        } else {
-            DEBUG(DBG_BLURAY | DBG_CRIT, "No keyfile provided. You will not be able to make use of crypto functionality (%p)\n", bd);
-        }
-
+        _libaacs_open(bd, keyfile_path);
 
         // Take a quick stab to see if we want/need bdplus
         // we should fix this, and add various string functions.
