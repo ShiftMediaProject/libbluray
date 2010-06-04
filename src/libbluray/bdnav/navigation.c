@@ -117,7 +117,7 @@ _pl_duration(MPLS_PL *pl)
     return duration;
 }
 
-NAV_TITLE_LIST* nav_get_title_list(char *root, uint32_t flags)
+NAV_TITLE_LIST* nav_get_title_list(const char *root, uint32_t flags)
 {
     DIR_H *dir;
     DIRENT ent;
@@ -211,7 +211,7 @@ void nav_free_title_list(NAV_TITLE_LIST *title_list)
     X_FREE(title_list);
 }
 
-char* nav_find_main_title(char *root)
+char* nav_find_main_title(const char *root)
 {
     DIR_H *dir;
     DIRENT ent;
@@ -366,7 +366,7 @@ _extrapolate_title(NAV_TITLE *title)
     }
 }
 
-NAV_TITLE* nav_title_open(char *root, char *playlist)
+NAV_TITLE* nav_title_open(const char *root, const char *playlist)
 {
     NAV_TITLE *title = NULL;
     char *path;

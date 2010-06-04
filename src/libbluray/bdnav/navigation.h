@@ -118,8 +118,8 @@ typedef struct {
     NAV_TITLE_INFO  *title_info;
 } NAV_TITLE_LIST;
 
-char* nav_find_main_title(char *root);
-NAV_TITLE* nav_title_open(char *root, char *playlist);
+char* nav_find_main_title(const char *root);
+NAV_TITLE* nav_title_open(const char *root, const char *playlist);
 void nav_title_close(NAV_TITLE *title);
 NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip);
 NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, uint32_t *out_pkt, uint32_t *out_time);
@@ -130,7 +130,7 @@ NAV_CLIP* nav_mark_search(NAV_TITLE *title, int mark, uint32_t *clip_pkt, uint32
 uint32_t nav_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time);
 NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, int angle);
 
-NAV_TITLE_LIST* nav_get_title_list(char *root, uint32_t flags);
+NAV_TITLE_LIST* nav_get_title_list(const char *root, uint32_t flags);
 void nav_free_title_list(NAV_TITLE_LIST *title_list);
 
 #endif // _NAVIGATION_H_
