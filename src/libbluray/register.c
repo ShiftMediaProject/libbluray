@@ -26,15 +26,14 @@
  * so, delete this exception statement from your version.
  */
 
-#include <stdlib.h>
-#include <string.h>
-#include <inttypes.h>
-
+#include "register.h"
 #include "util/attributes.h"
 #include "util/macro.h"
 #include "util/logging.h"
 
-#include "register.h"
+#include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
 
 #define BD_PSR_COUNT 128
 #define BD_GPR_COUNT 4096
