@@ -95,6 +95,7 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos);              // Seek to pos in curren
 int64_t bd_seek_time(BLURAY *bd, uint64_t tick); // Seek to a specific time in 90Khz ticks
 int bd_read(BLURAY *bd, unsigned char *buf, int len);   // Read from currently selected title file, decrypt if possible
 
+int bd_select_playlist(BLURAY *bd, uint32_t playlist);
 int bd_select_title(BLURAY *bd, uint32_t title);    // Select the title from the list created by bd_get_titles()
 int bd_select_angle(BLURAY *bd, int angle);         // Set the angle to play
 void bd_seamless_angle_change(BLURAY *bd, int angle); // Initiate seamless angle change

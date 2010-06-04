@@ -604,6 +604,17 @@ static int _open_playlist(BLURAY *bd, const char *f_name)
     return 0;
 }
 
+int bd_select_playlist(BLURAY *bd, uint32_t playlist)
+{
+    char *f_name = str_printf("%05d.mpls", playlist);
+    int result;
+
+    result = _open_playlist(bd, f_name);
+
+    X_FREE(f_name);
+    return result;
+}
+
 // Select a title for playback
 // The title index is an index into the list
 // established by bd_get_titles()
