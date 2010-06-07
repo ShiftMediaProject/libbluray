@@ -100,12 +100,12 @@ int main(int argc, char *argv[])
             continue;
         }
         printf(
-       "index: %d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %d\n",
-              ii,
+       "index: %d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %d angles: %d\n",
+              ii + 1,
               (ti->duration / 90000) / (3600),
               ((ti->duration / 90000) % 3600) / 60,
               ((ti->duration / 90000) % 60),
-              ti->chapter_count
+              ti->chapter_count, ti->angle_count
         );
     }
     return 0;

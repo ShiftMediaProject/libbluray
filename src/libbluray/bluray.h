@@ -93,9 +93,10 @@ void bd_close(BLURAY *bd);                                          // Free libb
 
 int64_t bd_seek(BLURAY *bd, uint64_t pos);              // Seek to pos in currently selected title file
 int64_t bd_seek_time(BLURAY *bd, uint64_t tick); // Seek to a specific time in 90Khz ticks
-int64_t bd_seek_chapter(BLURAY *bd, int chapter);       // Seek to a specific chapter
 int bd_read(BLURAY *bd, unsigned char *buf, int len);   // Read from currently selected title file, decrypt if possible
-
+int64_t bd_seek_chapter(BLURAY *bd, int chapter); // Seek to a chapter. First chapter is 0
+int64_t bd_chapter_pos(BLURAY *bd, int chapter);  // Find the byte position of a chapter
+int64_t bd_seek_mark(BLURAY *bd, int mark);       // Seek to a playmark. First mark is 0
 int bd_select_playlist(BLURAY *bd, uint32_t playlist);
 int bd_select_title(BLURAY *bd, uint32_t title);    // Select the title from the list created by bd_get_titles()
 int bd_select_angle(BLURAY *bd, int angle);         // Set the angle to play

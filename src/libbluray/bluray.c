@@ -398,6 +398,16 @@ int64_t bd_seek_chapter(BLURAY *bd, int chapter)
     return bd->s_pos;
 }
 
+int64_t bd_chapter_pos(BLURAY *bd, int chapter)
+{
+    uint32_t clip_pkt, out_pkt;
+    NAV_CLIP *clip;
+
+    // Find the closest access unit to the requested position
+    clip = nav_chapter_search(bd->title, chapter, &clip_pkt, &out_pkt);
+    return (int64_t)out_pkt * 192;
+}
+
 int64_t bd_seek_mark(BLURAY *bd, int mark)
 {
     uint32_t clip_pkt, out_pkt;
@@ -537,6 +547,11 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
             if (bd->int_buf_off == 6144 || clip_pkt >= bd->clip->end_pkt) {
 
                 // Do we need to get the next clip?
+                if (bd->clip == NULL) {
+                    // We previously reached the last clip.  Nothing
+                    // else to read.
+                    return -1;
+                }
                 if (clip_pkt >= bd->clip->end_pkt) {
                     bd->clip = nav_next_clip(bd->title, bd->clip);
                     if (bd->clip == NULL) {

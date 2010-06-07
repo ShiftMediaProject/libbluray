@@ -30,11 +30,9 @@
 #include "config.h"
 #endif
 
+#include "libbluray/bluray.h"
 #include "util/macro.h"
 #include "util/strutl.h"
-#include "libbluray/bdnav/clpi_parse.h"
-#include "libbluray/bdnav/mpls_parse.h"
-#include "libbluray/bdnav/navigation.h"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -42,85 +40,91 @@
 #include <inttypes.h>
 
 #define PKT_SIZE 192
+#define BUF_SIZE (PKT_SIZE * 1024)
 #define MIN(a,b) (((a) < (b)) ? a : b)
-
-int64_t
-_write_packets(FILE *out, FILE *tsfile, uint32_t start_pkt, uint32_t end_pkt)
-{
-    uint8_t buf[PKT_SIZE * 1024];
-    uint32_t ii;
-    size_t num, wrote;
-    int64_t total = 0;
-
-    fseek(tsfile, start_pkt * PKT_SIZE, SEEK_SET);
-    for (ii = start_pkt; ii < end_pkt; ii += num) {
-
-        num = end_pkt - ii;
-        num = MIN(1024, num);
-        num = fread(buf, PKT_SIZE, num, tsfile);
-        if (!num) {
-            if (ferror(tsfile)) {
-                perror("Read error");
-            }
-            break;
-        }
-        wrote = fwrite(buf, PKT_SIZE, num, out);
-        if (wrote != num) {
-            fprintf(stderr, "read/write sizes do not match\n");
-        }
-        if (!wrote) {
-            if (ferror(out)) {
-                perror("Write error");
-            }
-            break;
-        }
-        total += PKT_SIZE * wrote;
-    }
-    return total;
-}
 
 static void
 _usage(char *cmd)
 {
     fprintf(stderr,
-"Usage: %s -t playlist [-c first[-last]] <bd path> [dest]\n"
+"Usage: %s -t playlist [-c first[-last]] [-k keyfile] [-a angle]  <bd path> [dest]\n"
 "Summary:\n"
 "    Given a playlist number and Blu-Ray directory tree,\n"
 "    find the clips that compose the movie and splice\n"
 "    them together in the destination file\n"
 "Options:\n"
-"    t N         - Index of title to splice\n"
-"    c N or N-M  - Chapter or chapter range\n"
-"    <bd path>   - Path to root of Blu-Ray directory tree\n"
-"    [dest]      - Destination of spliced clips\n"
+"    t N         - Index of title to splice. First title is 1.\n"
+"    a N         - Angle. First angle is 1.\n"
+"    c N or N-M  - Chapter or chapter range. First chapter is 1.\n"
+"    k keyfile   - AACS keyfile path.\n"
+"    <bd path>   - Path to root of Blu-Ray directory tree.\n"
+"    [dest]      - Destination of spliced clips. stdout if not specified.\n"
 , cmd);
 
     exit(EXIT_FAILURE);
 }
 
-#define OPTS "c:vt:"
+#define OPTS "c:vt:k:a:"
 
 int
 main(int argc, char *argv[])
 {
     int title_no = -1;
-    char *path = NULL, *fname = NULL, *tspath = NULL;
+    int angle = 0;
     char *bdpath = NULL, *dest = NULL;
-    FILE *out, *tsfile;
+    FILE *out;
     int opt;
     int verbose = 0;
-    int64_t size, total = 0;
-    NAV_TITLE *title;
-    NAV_CLIP *clip;
+    int64_t total = 0;
+    int64_t pos, end_pos = -1;
+    size_t size, wrote;
+    int bytes;
+    int title_count;
+    BLURAY *bd;
+    int chapter_start = 0;
+    int chapter_end = -1;
+    uint8_t buf[BUF_SIZE];
+    char *keyfile = NULL;
+    BD_TITLE_INFO* ti;
 
     do {
         opt = getopt(argc, argv, OPTS);
         switch (opt) {
             case -1:
+                if (optind < argc && bdpath == NULL) {
+                    bdpath = argv[optind];
+                    optind++;
+                    opt = 1;
+                }
+                else if (optind < argc && dest == NULL) {
+                    dest = argv[optind];
+                    optind++;
+                    opt = 1;
+                }
+                break;
+
+            case 'c': {
+                int match;
+                match = sscanf(optarg, "%d-%d", &chapter_start, &chapter_end);
+                if (match == 1) {
+                    chapter_end = chapter_start + 1;
+                }
+                chapter_start--;
+                chapter_end--;
+            } break;
+
+            case 'k':
+                keyfile = optarg;
+                break;
+
+            case 'a':
+                angle = atoi(optarg);
+                angle--;
                 break;
 
             case 't':
                 title_no = atoi(optarg);
+                title_no--;
                 break;
 
             case 'v':
@@ -136,19 +140,24 @@ main(int argc, char *argv[])
     if (title_no < 0) {
         _usage(argv[0]);
     }
-    if (optind >= argc) {
+    if (optind < argc) {
         _usage(argv[0]);
     }
-    bdpath = argv[optind++];
-    if (optind < argc) {
-        dest = argv[optind];
+
+    bd = bd_open(bdpath, keyfile);
+    if (bd == NULL) {
+        fprintf(stderr, "Failed to open disc: %s\n", bdpath);
+        return 1;
     }
 
-    fname = str_printf("%05d.mpls", title_no);
-    X_FREE(path);
-    title = nav_title_open(bdpath, fname);
-    if (title == NULL) {
-        fprintf(stderr, "Failed to open title: %s\n", fname);
+    title_count = bd_get_titles(bd, TITLES_RELEVANT);
+    if (title_count <= 0) {
+        fprintf(stderr, "No titles found: %s\n", bdpath);
+        return 1;
+    }
+
+    if (!bd_select_title(bd, title_no)) {
+        fprintf(stderr, "Failed to open title: %d\n", title_no);
         return 1;
     }
 
@@ -162,38 +171,56 @@ main(int argc, char *argv[])
         out = stdout;
     }
 
-    tspath = str_printf("%s/BDMV/STREAM", bdpath);
-    if (tspath == NULL) {
-        X_FREE(path);
-        fprintf(stderr, "Failed to find stream path\n");
+    ti = bd_get_title_info(bd, title_no);
+
+    if (angle >= (int)ti->angle_count) {
+        fprintf(stderr, "Invalid angle %d > angle count %d. Using angle 1.\n", 
+                angle+1, ti->angle_count);
+        angle = 0;
+    }
+    bd_select_angle(bd, angle);
+
+    if (chapter_start >= (int)ti->chapter_count) {
+        fprintf(stderr, "First chapter %d > chapter count %d\n", 
+                chapter_start+1, ti->chapter_count);
         return 1;
     }
-    for (clip = nav_next_clip(title, NULL); clip; clip = nav_next_clip(title, clip)) {
+    if (chapter_end >= (int)ti->chapter_count) {
+        chapter_end = -1;
+    }
+    if (chapter_end >= 0) {
+        end_pos = bd_chapter_pos(bd, chapter_end);
+    }
+    bd_free_title_info(ti);
 
-        fname = str_printf("%s/%s", tspath, clip->name);
-        tsfile = fopen(fname, "rb");
-        if (tsfile == NULL) {
-            fprintf(stderr, "Failed to open m2ts file: %s\n", fname);
-            return 1;
+    bd_seek_chapter(bd, chapter_start);
+    pos = bd_tell(bd);
+    while (end_pos < 0 || pos < end_pos) {
+        size = BUF_SIZE;
+        if (size > (size_t)(end_pos - pos)) {
+            size = end_pos - pos;
         }
-        if (verbose) {
-            fprintf(stderr, "Splicing: %s\n", basename(fname));
+        bytes = bd_read(bd, buf, size);
+        if (bytes <= 0) {
+            break;
         }
-
-        if (verbose) {
-            fprintf(stderr, "Start SPN %u - End SPN %u\n",
-                    clip->start_pkt, clip->end_pkt);
+        pos = bd_tell(bd);
+        wrote = fwrite(buf, 1, bytes, out);
+        if (wrote != (size_t)bytes) {
+            fprintf(stderr, "read/write sizes do not match: %d/%"PRIu64"\n", bytes, wrote);
         }
-        size = _write_packets(out, tsfile, clip->start_pkt, clip->end_pkt);
-        total += size;
-        fclose(tsfile);
+        if (wrote == 0) {
+            if (ferror(out)) {
+                perror("Write error");
+            }
+            break;
+        }
+        total += PKT_SIZE * wrote;
     }
     if (verbose) {
         fprintf(stderr, "Wrote %"PRId64" bytes\n", total);
     }
-    X_FREE(fname);
-    X_FREE(path);
-    X_FREE(tspath);
+    bd_close(bd);
     fclose(out);
     return 0;
 }
