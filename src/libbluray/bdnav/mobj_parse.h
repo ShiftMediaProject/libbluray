@@ -72,5 +72,6 @@ typedef struct {
 MOBJ_OBJECTS* mobj_parse(const char *path); /* parse MovieObject.bdmv */
 void mobj_free(MOBJ_OBJECTS *index);
 
-#endif // _MOBJ_PARSE_H_
+int mobj_sprint_cmd(char *buf, MOBJ_CMD *cmd); /* print MOBJ_CMD to string. buf is expected to be 256 bytes. */
 
+#endif // _MOBJ_PARSE_H_
