@@ -35,7 +35,8 @@
 #include <string.h>
 
 static int debug_init = 0;
-static debug_mask_t debug_mask = 0;
+static debug_mask_t debug_mask = DBG_CRIT;
+static FILE *logfile = NULL;
 
 char *print_hex(char *out, const uint8_t *buf, int count)
 {
@@ -49,27 +50,20 @@ char *print_hex(char *out, const uint8_t *buf, int count)
 
 void debug(const char *file, int line, uint32_t mask, const char *format, ...)
 {
-    FILE *logfile = NULL;
-
     // Only call getenv() once.
     if (!debug_init) {
         debug_init = 1;
-        char *env;
+        logfile = stderr;
 
-        if ((env = getenv("BD_DEBUG_MASK"))) {
-            debug_mask = strtol(env, NULL, 0);
-        } else {
-            debug_mask = DBG_CRIT;
-        }
+        char *env1 = NULL, *env2 = NULL;
+        if ((env1 = getenv("BD_DEBUG_MASK")))
+            debug_mask = strtol(env1, NULL, 0);
 
         // Send DEBUG to file?
-        if ((env = getenv("BD_DEBUG_FILE"))) {
-            logfile = fopen(env, "wb");
+        if ((env2 = getenv("BD_DEBUG_FILE"))) {
+            logfile = fopen(env2, "wb");
             setvbuf(logfile, NULL, _IOLBF, 0);
         }
-
-        if (!logfile)
-            logfile = stderr;
     }
 
     if (mask & debug_mask) {
