@@ -34,15 +34,10 @@
 #include <stdarg.h>
 #include <string.h>
 
-char out[512];
-debug_mask_t debug_mask = 0;
-static int debug_init = 0;
-FILE *logfile = NULL;
-
-
 char *print_hex(uint8_t *buf, int count)
 {
-    memset(out, 0, sizeof(out));
+    char *out = (char*)malloc(512);
+    memset(out, 0, 512);
 
     int zz;
     for(zz = 0; zz < count; zz++) {
@@ -54,6 +49,10 @@ char *print_hex(uint8_t *buf, int count)
 
 void debug(const char *file, int line, uint32_t mask, const char *format, ...)
 {
+    debug_mask_t debug_mask = 0;
+    static int debug_init = 0;
+    FILE *logfile = NULL;
+
     // Only call getenv() once.
     if (!debug_init) {
         char *env;
