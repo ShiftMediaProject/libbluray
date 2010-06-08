@@ -34,6 +34,9 @@
 #include <stdarg.h>
 #include <string.h>
 
+static int debug_init = 0;
+static debug_mask_t debug_mask = 0;
+
 char *print_hex(char *out, const uint8_t *buf, int count)
 {
     int zz;
@@ -46,15 +49,12 @@ char *print_hex(char *out, const uint8_t *buf, int count)
 
 void debug(const char *file, int line, uint32_t mask, const char *format, ...)
 {
-    debug_mask_t debug_mask = 0;
-    static int debug_init = 0;
     FILE *logfile = NULL;
 
     // Only call getenv() once.
     if (!debug_init) {
-        char *env;
-
         debug_init = 1;
+        char *env;
 
         if ((env = getenv("BD_DEBUG_MASK"))) {
             debug_mask = strtol(env, NULL, 0);
