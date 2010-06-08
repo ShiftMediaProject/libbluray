@@ -2,7 +2,7 @@
 HOW TO PATCH VLC
 ================
 
-Tested with vlc git version (2010-01-07)
+Tested with vlc git version (2010-06-04)
 
 1. Get vlc source from repository:
 
@@ -11,22 +11,20 @@ Tested with vlc git version (2010-01-07)
 2. Change into vlc/ directory and apply the patch:
 
 	cd vlc
-	patch -p1 < vlc_bluray.patch
+	git apply vlc_bluray.patch
 
 3. Configure vlc and build it 
 
 	./bootstrap
 	mkdir build && cd build 
-	../configure --disable-nls --enable-qt4 --enable-bluray
+	../configure --enable-bluray
 	make
 
 4. Install all files with make install
 
 	sudo make install
 
-5. Start vlc and configure the new "Access module" BLURAY
-
-6. Run vlc passing it a bluray:// url as follows:
+5. Run vlc passing it a bluray:// url as follows:
 
 	vlc bluray://</path/to/disc>:<title>
 	

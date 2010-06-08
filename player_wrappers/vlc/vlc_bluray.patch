@@ -1,25 +1,28 @@
-diff -rupN vlc.orig/configure.ac vlc.new/configure.ac
---- vlc.orig/configure.ac	2010-01-07 19:06:47.287568342 +0100
-+++ vlc.new/configure.ac	2010-01-07 19:12:37.018766274 +0100
-@@ -2171,6 +2171,17 @@ then
-   fi
- fi
+diff --git a/configure.ac b/configure.ac
+index 8556d25..948a56e 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1975,6 +1975,19 @@ fi
  
-+dnl
-+dnl  BlueRay Disc Support with libbluray
-+dnl
-+AC_ARG_ENABLE(bluray,
-+  AS_HELP_STRING([--enable-bluray],[use library libbluray for Blue Rays]))
-+if test "${enable_bluray}" != "no"
-+then
-+    VLC_ADD_PLUGIN([bluray])
-+    VLC_ADD_LIBS([bluray],[-lbluray])
-+    VLC_ADD_CXXFLAGS([bluray],[-I/usr/local/include])
-+fi
  
  dnl
++dnl  Blu-ray Disc Support with libbluray
++dnl
++AC_ARG_ENABLE(bluray,
++  AS_HELP_STRING([--enable-bluray],[use library libbluray for Blu-ray disc support]))
++if test "${enable_bluray}" != "no"
++then
++    AC_CHECK_HEADERS(libbluray/bluray.h,
++    [ VLC_ADD_PLUGIN([bluray])
++      VLC_ADD_CFLAGS([bluray],[])
++      VLC_ADD_LIBS([bluray],[-lbluray]) ])
++fi
++
++dnl
  dnl  OpenCV wrapper and example filters
-@@ -5078,6 +5089,7 @@ AC_CONFIG_FILES([
+ dnl
+ PKG_ENABLE_MODULES_VLC([OPENCV], [opencv_example], [opencv], (OpenCV (computer vision) filter), [off])
+@@ -4714,6 +4727,7 @@ AC_CONFIG_FILES([
    modules/access/Makefile
    modules/access/bd/Makefile
    modules/access/bda/Makefile
@@ -27,14 +30,55 @@ diff -rupN vlc.orig/configure.ac vlc.new/configure.ac
    modules/access/dshow/Makefile
    modules/access/dvb/Makefile
    modules/access/mms/Makefile
-diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray/bluray.c
---- vlc.orig/modules/access/bluray/bluray.c	1970-01-01 01:00:00.000000000 +0100
-+++ vlc.new/modules/access/bluray/bluray.c	2010-01-07 19:16:26.918944454 +0100
-@@ -0,0 +1,287 @@
-+/*
-+ * Bluray stream playback
-+ * by Doom9 libbluray Team 2010
-+ */
+diff --git a/modules/access/Modules.am b/modules/access/Modules.am
+index b7eefdf..0ae8b08 100644
+--- a/modules/access/Modules.am
++++ b/modules/access/Modules.am
+@@ -3,7 +3,7 @@
+ # obviously does not. Here is a fix for that.
+ LIBTOOL=@LIBTOOL@ --tag=CC
+ 
+-BASE_SUBDIRS = dvb mms rtp rtsp vcd vcdx screen bd zip
++BASE_SUBDIRS = dvb mms rtp rtsp vcd vcdx screen bd zip bluray
+ EXTRA_SUBDIRS = bda dshow
+ SUBDIRS = $(BASE_SUBDIRS)
+ DIST_SUBDIRS = $(BASE_SUBDIRS) $(EXTRA_SUBDIRS)
+diff --git a/modules/access/bluray/Modules.am b/modules/access/bluray/Modules.am
+new file mode 100644
+index 0000000..d896056
+--- /dev/null
++++ b/modules/access/bluray/Modules.am
+@@ -0,0 +1,5 @@
++SOURCES_bluray = \
++    bluray.c \
++    $(NULL)
++
++libvlc_LTLIBRARIES += libbluray_plugin.la
+diff --git a/modules/access/bluray/bluray.c b/modules/access/bluray/bluray.c
+new file mode 100644
+index 0000000..30ea17c
+--- /dev/null
++++ b/modules/access/bluray/bluray.c
+@@ -0,0 +1,282 @@
++/*****************************************************************************
++ * bluray.c: Blu-ray disc support plugin
++ *****************************************************************************
++ * Copyright (C) 2010 the VideoLAN team
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
++ *****************************************************************************/
 +
 +#ifdef HAVE_CONFIG_H
 +# include "config.h"
@@ -44,12 +88,12 @@ diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray
 +#   include <sys/stat.h>
 +#endif
 +#include <limits.h>
-+#include <dlfcn.h>
 +#include <vlc_common.h>
 +#include <vlc_plugin.h>
 +#include <vlc_access.h>
 +#include <vlc_messages.h>
 +#include <assert.h>
++#include <libbluray/bluray.h>
 +
 +/*****************************************************************************
 + * Module descriptor
@@ -58,31 +102,25 @@ diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray
 +#define CACHING_LONGTEXT N_( \
 +    "Caching value for BDs. This "\
 +    "value should be set in milliseconds." )
-+#define KEYCFG_TEXT N_("Key file for libbluray")
-+#define KEYCFG_LONGTEXT N_("Filename for the key file.")
-+
++#define DEBUGMASK_TEXT N_("BD Debug mask")
++#define DEBUGMASK_LONGTEXT N_("Set up the debug mask value for libbluray")
 +static int  blurayOpen ( vlc_object_t * );
 +static void blurayClose( vlc_object_t * );
 +
 +vlc_module_begin ()
 +    set_shortname( N_("BLURAY") )
-+    set_description( N_("Blu-Ray Disc (libbluray)") )
++    set_description( N_("Blu-Ray Disc support (libbluray)") )
 +    set_category( CAT_INPUT )
 +    set_subcategory( SUBCAT_INPUT_ACCESS )
-+    add_integer( "bluray-caching", DEFAULT_PTS_DELAY / 1000, NULL,
++    add_integer( "bluray-caching", 1000, NULL,
 +        CACHING_TEXT, CACHING_LONGTEXT, true )
-+    add_file("keycfg-db", "/usr/local/share/bluray/keycfg.db", NULL, 
-+             KEYCFG_TEXT, KEYCFG_LONGTEXT, false);
-+    set_capability( "access", 10 )
++    add_string("debug-mask", "0x0000", NULL,
++	       DEBUGMASK_TEXT, DEBUGMASK_LONGTEXT, false);
++    set_capability( "access", 60 )
 +    add_shortcut( "bluray" )
 +    add_shortcut( "file" )
 +    set_callbacks( blurayOpen, blurayClose )
 +vlc_module_end ()
-+
-+typedef int (*fptr_int)();
-+typedef uint64_t (*fptr_uint64)();
-+typedef void* (*fptr_p_void)();
-+
 +
 +/*****************************************************************************
 + * Local prototypes
@@ -97,7 +135,7 @@ diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray
 +
 +static ssize_t blurayRead   (access_t *, uint8_t *, size_t);
 +static block_t *blurayBlock (access_t *);
-+static int     bluraySeek   (access_t *, int64_t);
++static int     bluraySeek   (access_t *, uint64_t);
 +static int     blurayControl(access_t *, int, va_list);
 +static int     bluraySetTitle(access_t *p_access, int i_tile);
 +
@@ -106,7 +144,7 @@ diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray
 + *****************************************************************************/
 +static int blurayOpen( vlc_object_t *object )
 +{
-+    char *keycfg = NULL;
++    char *debug_mask = NULL;
 +    char *pos_title;
 +    int i_title = 0;
 +    access_t *p_access = (access_t*)object;
@@ -114,18 +152,18 @@ diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray
 +    char bd_path[512];
 +
 +    msg_Warn( p_access, "blurayOpen :)" );
-+    if( !p_access->psz_path || !*p_access->psz_path ) {
++    if( !p_access->psz_location || !*p_access->psz_location ) {
 +        msg_Warn( p_access, "blurayOpen - not selected" );
 +        return VLC_EGENERIC;
 +    }
 +
 +    var_Create( p_access, "bluray-caching", VLC_VAR_INTEGER|VLC_VAR_DOINHERIT );
-+    var_Create( p_access, "keycfg-db", VLC_VAR_STRING|VLC_VAR_DOINHERIT );
++    var_Create( p_access, "debug-mask", VLC_VAR_STRING|VLC_VAR_DOINHERIT );
++    
 +
-+    keycfg = var_GetString(p_access, "keycfg-db");
-+    if ( keycfg == NULL ) {
-+        msg_Err( p_access, "read null string for keydb");
-+        return VLC_EGENERIC;
++    debug_mask = var_GetString(p_access, "debug-mask");
++    if ( debug_mask ) {
++        setenv("BD_DEBUG_MASK", debug_mask, 1);
 +    }
 +
 +    /* init access fields */
@@ -140,23 +178,15 @@ diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray
 +        return VLC_ENOMEM;
 +    }
 +
-+    /* open libbluray handle */
-+    if ( !(p_sys->dl_handle = dlopen("libbluray.so", RTLD_LAZY))) {
-+        msg_Err( p_access, "library libbluray.so not found");
-+        return VLC_ENOMEM;
-+    }
-+ 
-+    fptr_p_void fptr = dlsym(p_sys->dl_handle, "bd_open");
-+
 +    /* store current bd_path */
-+    strncpy(bd_path, p_access->psz_path, sizeof bd_path);
++    strncpy(bd_path, p_access->psz_location, sizeof bd_path);
 +    if ( (pos_title = strrchr(bd_path, ':')) ) {
 +        /* found character ':' for title information */
 +        pos_title[0] = '\0';
 +        i_title = atoi(pos_title + 1);
 +    }
 +
-+    p_sys->bluray = fptr(bd_path, keycfg);
++    p_sys->bluray = bd_open(bd_path, NULL);
 +    if ( p_sys->bluray == NULL ) {
 +        return VLC_EGENERIC;
 +    }
@@ -183,10 +213,8 @@ diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray
 +
 +    msg_Warn( p_access, "close bluray");
 +    if ( p_sys->bluray != NULL ) {
-+	fptr_p_void fptr = dlsym(p_sys->dl_handle, "bd_close");
-+        fptr(p_sys->bluray);
++        bd_close(p_sys->bluray);
 +    }
-+    dlclose(p_sys->dl_handle);
 +}
 +
 +
@@ -196,18 +224,16 @@ diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray
 +static int bluraySetTitle(access_t *p_access, int i_title)
 +{
 +    access_sys_t *p_sys = p_access->p_sys;
-+    fptr_int fptr_i = dlsym(p_sys->dl_handle, "bd_select_title");
 + 
 +    /* select blue ray title */
-+    if ( fptr_i(p_access->p_sys->bluray, i_title) == 0 ) {
++    if ( bd_select_title(p_access->p_sys->bluray, i_title) == 0 ) {
 +        msg_Err( p_access, "cannot select bd title '%d'", p_access->info.i_title);
 +        return VLC_EGENERIC;
 +    }
 + 
 +    /* read title length and init some values */
-+    fptr_uint64 fptr_ui64 = dlsym(p_sys->dl_handle, "bd_get_title_size");
 +    p_access->info.i_title = i_title;
-+    p_access->info.i_size = fptr_ui64(p_sys->bluray);
++    p_access->info.i_size = bd_get_title_size(p_sys->bluray);
 +    p_access->info.i_pos = 0;
 +    p_access->info.b_eof = false;
 +    p_access->info.i_seekpoint = 0;
@@ -279,12 +305,11 @@ diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray
 +/*****************************************************************************
 + * bluraySeek: seek to the given position
 + *****************************************************************************/
-+static int bluraySeek(access_t *p_access, int64_t position)
++static int bluraySeek(access_t *p_access, uint64_t position)
 +{
 +    access_sys_t *p_sys = p_access->p_sys;
 +
-+    fptr_uint64 fptr_ui64 = dlsym(p_sys->dl_handle, "bd_seek");
-+    p_access->info.i_pos = fptr_ui64(p_sys->bluray, position);
++    p_access->info.i_pos = bd_seek(p_sys->bluray, position);
 +    p_access->info.b_eof = false;
 +
 +    return VLC_SUCCESS;
@@ -304,8 +329,7 @@ diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray
 +    }
 +
 +    /* read data into buffer with given length */
-+    fptr_int fptr_i = dlsym(p_sys->dl_handle, "bd_read");
-+    nread = fptr_i(p_sys->bluray, data, size);
++    nread = bd_read(p_sys->bluray, data, size);
 +
 +    if( nread == 0 ) {
 +        p_access->info.b_eof = true;
@@ -318,25 +342,6 @@ diff -rupN vlc.orig/modules/access/bluray/bluray.c vlc.new/modules/access/bluray
 +}
 +  
 +
-diff -rupN vlc.orig/modules/access/bluray/Modules.am vlc.new/modules/access/bluray/Modules.am
---- vlc.orig/modules/access/bluray/Modules.am	1970-01-01 01:00:00.000000000 +0100
-+++ vlc.new/modules/access/bluray/Modules.am	2010-01-07 19:12:04.691365078 +0100
-@@ -0,0 +1,6 @@
-+SOURCES_access_bluray = \
-+    bluray.c \
-+    $(NULL)
-+
-+libvlc_LTLIBRARIES += libaccess_bluray_plugin.la
-+
-diff -rupN vlc.orig/modules/access/Modules.am vlc.new/modules/access/Modules.am
---- vlc.orig/modules/access/Modules.am	2010-01-07 19:06:47.671239354 +0100
-+++ vlc.new/modules/access/Modules.am	2010-01-07 19:11:32.194771615 +0100
-@@ -3,7 +3,7 @@
- # obviously does not. Here is a fix for that.
- LIBTOOL=@LIBTOOL@ --tag=CC
- 
--BASE_SUBDIRS = dvb mms rtp rtsp vcd vcdx screen bd zip
-+BASE_SUBDIRS = dvb mms rtp rtsp vcd vcdx screen bd zip bluray
- EXTRA_SUBDIRS = bda dshow
- SUBDIRS = $(BASE_SUBDIRS)
- DIST_SUBDIRS = $(BASE_SUBDIRS) $(EXTRA_SUBDIRS)
+-- 
+1.7.1
+
