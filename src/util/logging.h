@@ -54,7 +54,7 @@ enum debug_mask_enum {
 
 typedef enum debug_mask_enum debug_mask_t;
 
-char *print_hex(uint8_t *str, int count);
+char *print_hex(char *out, const uint8_t *str, int count);
 void debug(const char *file, int line, uint32_t mask, const char *format, ...) BD_ATTR_FORMAT_PRINTF(4,5);
 
 #endif /* LOGGING_H_ */

@@ -34,11 +34,8 @@
 #include <stdarg.h>
 #include <string.h>
 
-char *print_hex(uint8_t *buf, int count)
+char *print_hex(char *out, const uint8_t *buf, int count)
 {
-    char *out = (char*)malloc(512);
-    memset(out, 0, 512);
-
     int zz;
     for(zz = 0; zz < count; zz++) {
         sprintf(out + (zz * 2), "%02X", buf[zz]);
