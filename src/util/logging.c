@@ -55,13 +55,13 @@ void debug(const char *file, int line, uint32_t mask, const char *format, ...)
         debug_init = 1;
         logfile = stderr;
 
-        char *env1 = NULL, *env2 = NULL;
-        if ((env1 = getenv("BD_DEBUG_MASK")))
-            debug_mask = strtol(env1, NULL, 0);
+        char *env = NULL;
+        if ((env = getenv("BD_DEBUG_MASK")))
+            debug_mask = strtol(env, NULL, 0);
 
         // Send DEBUG to file?
-        if ((env2 = getenv("BD_DEBUG_FILE"))) {
-            logfile = fopen(env2, "wb");
+        if ((env = getenv("BD_DEBUG_FILE"))) {
+            logfile = fopen(env, "wb");
             setvbuf(logfile, NULL, _IOLBF, 0);
         }
     }
