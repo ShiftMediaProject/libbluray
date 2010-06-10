@@ -34,9 +34,18 @@
 #include <stdarg.h>
 #include <string.h>
 
-static int debug_init = 0;
 static debug_mask_t debug_mask = DBG_CRIT;
-static FILE *logfile = NULL;
+
+
+void bd_set_debug_mask(debug_mask_t mask)
+{
+    debug_mask = mask;
+}
+
+debug_mask_t bd_get_debug_mask(void)
+{
+    return debug_mask;
+}
 
 char *print_hex(char *out, const uint8_t *buf, int count)
 {
@@ -50,6 +59,9 @@ char *print_hex(char *out, const uint8_t *buf, int count)
 
 void debug(const char *file, int line, uint32_t mask, const char *format, ...)
 {
+    static int   debug_init = 0;
+    static FILE *logfile    = NULL;
+
     // Only call getenv() once.
     if (!debug_init) {
         debug_init = 1;
