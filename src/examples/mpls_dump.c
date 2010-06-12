@@ -231,6 +231,10 @@ _show_details(MPLS_PL *pl, int level)
             indent_printf(level+1, "Audio Stream %d:", jj);
             _show_stream(&pi->stn.audio[jj], level + 2);
         }
+        for (jj = 0; jj < pi->stn.num_ig; jj++) {
+            indent_printf(level+1, "Interactive Graphics Stream %d:", jj);
+            _show_stream(&pi->stn.ig[jj], level + 2);
+        }
         for (jj = 0; jj < (pi->stn.num_pg + pi->stn.num_pip_pg); jj++) {
             if (jj < pi->stn.num_pg) {
                indent_printf(level+1, "Presentation Graphics Stream %d:", jj);
