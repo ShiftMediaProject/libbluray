@@ -207,7 +207,7 @@ main(int argc, char *argv[])
         pos = bd_tell(bd);
         wrote = fwrite(buf, 1, bytes, out);
         if (wrote != (size_t)bytes) {
-            fprintf(stderr, "read/write sizes do not match: %d/%"PRIu64"\n", bytes, wrote);
+            fprintf(stderr, "read/write sizes do not match: %d/%zu\n", bytes, wrote);
         }
         if (wrote == 0) {
             if (ferror(out)) {
