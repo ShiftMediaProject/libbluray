@@ -116,6 +116,12 @@ VALUE_MAP audio_rate_map[] = {
     {0, NULL}
 };
 
+VALUE_MAP subpath_type_map[] = {
+  {3, "Interactive Graphics presentation menu"},
+  {4, "Text Subtitle"},
+  {0,NULL}
+};
+
 const char*
 _lookup_str(VALUE_MAP *map, int val)
 {
@@ -319,6 +325,44 @@ _show_clip_list(MPLS_PL *pl, int level)
             }
         }
     }
+    printf("\n");
+}
+
+static void
+_show_sub_paths(MPLS_PL *pl, int level)
+{
+    int ss, ii;
+
+    for (ss = 0; ss < pl->sub_count; ss++) {
+        MPLS_SUB *sub;
+
+        sub = &pl->sub_path[ii];
+
+        indent_printf(level,   "Sub Path %d:", ss);
+        indent_printf(level+1, "Type: %d (%s)", sub->type, _lookup_str(subpath_type_map, sub->type));
+        indent_printf(level+1, "Repeat: %d", sub->is_repeat);
+        indent_printf(level+1, "Sub playitem count: %d", sub->sub_playitem_count);
+
+        for (ii = 0; ii < sub->sub_playitem_count; ii++) {
+            MPLS_SUB_PI *pi;
+
+            pi = &sub->sub_play_item[ii];
+
+            if (verbose) {
+                indent_printf(level+1, "Sub playitem %d", ii);
+                indent_printf(level+2, "Clip Id %s", pi->clip[0].clip_id);
+                indent_printf(level+2, "Multi clip: %d", pi->is_multi_clip);
+                indent_printf(level+2, "Clip count: %d", pi->clip_count);
+                indent_printf(level+2, "Connection Condition: %02x", pi->connection_condition);
+                indent_printf(level+2, "In-Time: %d", pi->in_time);
+                indent_printf(level+2, "Out-Time: %d", pi->out_time);
+                indent_printf(level+2, "Sync playitem Id: %d", pi->sync_play_item_id);
+                indent_printf(level+2, "Sync PTS: %d", pi->sync_pts);
+            } else {
+                indent_printf(level+1, "%s.m2ts", pi->clip[0].clip_id);
+            }
+        }
+    }
 }
 
 static uint32_t
@@ -409,7 +453,7 @@ _filter_repeats(MPLS_PL *pl, int repeats)
     return 1;
 }
 
-static int clip_list = 0, playlist_info = 0, chapter_marks = 0;
+static int clip_list = 0, playlist_info = 0, chapter_marks = 0, sub_paths = 0;
 static int repeats = 0, seconds = 0, dups = 0;
 
 static MPLS_PL*
@@ -462,6 +506,9 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
     if (clip_list) {
         _show_clip_list(pl, 1);
     }
+    if (sub_paths) {
+        _show_sub_paths(pl, 1);
+    }
     return pl;
 }
 
@@ -476,6 +523,7 @@ _usage(char *cmd)
 "    l             - Produces a list of the m2ts clips\n"
 "    i             - Dumps detailed information about each clip\n"
 "    c             - Show chapter marks\n"
+"    p             - Show sub paths\n"
 "    r <N>         - Filter out titles that have >N repeating clips\n"
 "    d             - Filter out duplicate titles\n"
 "    s <seconds>   - Filter out short titles\n"
@@ -485,7 +533,7 @@ _usage(char *cmd)
     exit(EXIT_FAILURE);
 }
 
-#define OPTS "vlicfr:ds:"
+#define OPTS "vlicpfr:ds:"
 
 static int
 _qsort_str_cmp(const void *a, const void *b)
@@ -527,6 +575,10 @@ main(int argc, char *argv[])
 
             case 'c':
                 chapter_marks = 1;
+                break;
+
+            case 'p':
+                sub_paths = 1;
                 break;
 
             case 'd':
