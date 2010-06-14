@@ -47,6 +47,7 @@ typedef struct {
     int      mark_type;
     int      clip_ref;
     uint32_t clip_pkt;
+    uint32_t clip_time;
 
     // Title relative metrics
     uint32_t title_pkt;

@@ -300,6 +300,8 @@ _fill_mark(NAV_TITLE *title, NAV_MARK *mark, int entry)
     clip = &title->clip_list.clip[mark->clip_ref];
     mark->clip_pkt = clpi_lookup_spn(clip->cl, plm->time, 1,
         title->pl->play_item[mark->clip_ref].clip[title->angle].stc_id);
+    mark->title_pkt = clip->title_pkt + mark->clip_pkt;
+    mark->clip_time = plm->time;
 
     // Calculate start of mark relative to beginning of playlist
     if (plm->play_item_ref < title->clip_list.count) {
