@@ -35,6 +35,8 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	libbluray/bdnav/hdmv_insn.h \
 	libbluray/bdnav/index_parse.c \
 	libbluray/bdnav/navigation.c \
+	libbluray/bdnav/sound_parse.c \
+	libbluray/bdnav/sound_parse.h \
 	libbluray/bdnav/mpls_parse.h \
 	libbluray/bdnav/clpi_parse.c \
 	libbluray/bdnav/mobj_parse.h \

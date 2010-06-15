@@ -8,7 +8,7 @@ AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_WARNINGS) $(SET_OPTIMIZATIONS) \
 	$(SET_DEBUG_OPTS) $(SET_INCLUDES)
 CFLAGS=$(shell test -z "$$CFLAGS" || echo "$$CFLAGS")
 
-noinst_PROGRAMS=bdsplice mpls_dump clpi_dump index_dump mobj_dump \
+noinst_PROGRAMS=bdsplice mpls_dump clpi_dump index_dump mobj_dump sound_dump \
     libbluray_test list_titles
 
 BLURAY_LIB = $(top_builddir)/src/libbluray.la
@@ -27,6 +27,11 @@ clpi_dump_SOURCES = \
 	clpi_dump.c util.c util.h
 
 clpi_dump_LDADD = $(BLURAY_LIB)
+
+sound_dump_SOURCES = \
+	sound_dump.c
+
+sound_dump_LDADD = $(BLURAY_LIB)
 
 index_dump_SOURCES = \
 	index_dump.c
