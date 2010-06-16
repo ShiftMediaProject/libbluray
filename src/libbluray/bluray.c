@@ -755,3 +755,66 @@ void bd_free_title_info(BD_TITLE_INFO *title_info)
     X_FREE(title_info);
 }
 
+/*
+ * player settings
+ */
+
+int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
+{
+    static const struct { uint32_t idx; uint32_t  psr; } map[] = {
+        { BD_PLAYER_SETTING_PARENTAL,       PSR_PARENTAL },
+        { BD_PLAYER_SETTING_AUDIO_CAP,      PSR_AUDIO_CAP },
+        { BD_PLAYER_SETTING_AUDIO_LANG,     PSR_AUDIO_LANG },
+        { BD_PLAYER_SETTING_PG_LANG,        PSR_PG_AND_SUB_LANG },
+        { BD_PLAYER_SETTING_MENU_LANG,      PSR_MENU_LANG },
+        { BD_PLAYER_SETTING_COUNTRY_CODE,   PSR_COUNTRY },
+        { BD_PLAYER_SETTING_REGION_CODE,    PSR_REGION },
+        { BD_PLAYER_SETTING_VIDEO_CAP,      PSR_VIDEO_CAP },
+        { BD_PLAYER_SETTING_TEXT_CAP,       PSR_TEXT_CAP },
+        { BD_PLAYER_SETTING_PLAYER_PROFILE, PSR_PROFILE_VERSION },
+    };
+
+    unsigned i;
+
+    if (idx == BD_PLAYER_SETTING_PLAYER_PROFILE) {
+        value = ((value & 0xf) << 16) | 0x0200;  /* version fixed to BD-RO Part 3, version 2.0 */
+    }
+
+    for (i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
+        if (idx == map[i].idx) {
+            return bd_psr_setting_write(bd->regs, idx, value);
+        }
+    }
+
+    return 0;
+}
+
+static uint32_t _string_to_uint(const char *s, int n)
+{
+    uint32_t val = 0;
+
+    if (n > 4)
+        n = 4;
+
+    while (n--)
+        val = (val << 8) | s[n];
+
+    return val;
+}
+
+int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
+{
+    switch (idx) {
+        case BD_PLAYER_SETTING_AUDIO_LANG:
+        case BD_PLAYER_SETTING_PG_LANG:
+        case BD_PLAYER_SETTING_MENU_LANG:
+            return bd_set_player_setting(bd, idx, s ? _string_to_uint(s, 3) : 0xffffff);
+
+        case BD_PLAYER_SETTING_COUNTRY_CODE:
+            return bd_set_player_setting(bd, idx, s ? _string_to_uint(s, 3) : 0xffff  );
+
+        default:
+            return 0;
+    }
+}
+
