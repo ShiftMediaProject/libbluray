@@ -135,6 +135,55 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
     return 0;
 }
 
+static void _libbdplus_open(BLURAY *bd, const char *keyfile_path)
+{
+    // Take a quick stab to see if we want/need bdplus
+    // we should fix this, and add various string functions.
+    uint8_t vid[16] = {
+        0xC5,0x43,0xEF,0x2A,0x15,0x0E,0x50,0xC4,0xE2,0xCA,
+        0x71,0x65,0xB1,0x7C,0xA7,0xCB}; // FIXME
+    FILE_H *fd;
+    char *tmp = NULL;
+    tmp = str_printf("%s/BDSVM/00000.svm", bd->device_path);
+    if ((fd = file_open(tmp, "rb"))) {
+        file_close(fd);
+
+        DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
+#ifdef USING_DLOPEN
+#ifdef __APPLE__
+        if ((bd->h_libbdplus = dl_dlopen("libbdplus.dylib"))) {
+#else
+        if ((bd->h_libbdplus = dl_dlopen("libbdplus.so.0"))) {
+#endif
+            DEBUG(DBG_BLURAY, "Downloaded libbdplus (%p)\n",
+                  bd->h_libbdplus);
+
+            fptr_p_void bdplus_init = dl_dlsym(bd->h_libbdplus, "bdplus_init");
+            //bdplus_t *bdplus_init(path,configfile_path,*vid );
+            if (bdplus_init)
+                bd->bdplus = bdplus_init(bd->device_path, keyfile_path, vid);
+
+            // Since we will call these functions a lot, we assign them
+            // now.
+            bd->bdplus_seek  = dl_dlsym(bd->h_libbdplus, "bdplus_seek");
+            bd->bdplus_fixup = dl_dlsym(bd->h_libbdplus, "bdplus_fixup");
+
+        }
+#else
+        bd->h_libbdplus = NULL;
+        DEBUG(DBG_BLURAY,"Using libbdplus via normal linking\n");
+
+        bd->bdplus = bdplus_init(bd->device_path, keyfile_path, vid);
+
+        // Since we will call these functions a lot, we assign them
+        // now.
+        bd->bdplus_seek  = &bdplus_seek;
+        bd->bdplus_fixup = &bdplus_fixup;
+#endif
+    } // file_open
+    X_FREE(tmp);
+}
+
 int _index_open(BLURAY *bd)
 {
     char *file;
@@ -164,53 +213,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
         _libaacs_open(bd, keyfile_path);
 
-        // Take a quick stab to see if we want/need bdplus
-        // we should fix this, and add various string functions.
-        {
-            uint8_t vid[16] = {
-                0xC5,0x43,0xEF,0x2A,0x15,0x0E,0x50,0xC4,0xE2,0xCA,
-                0x71,0x65,0xB1,0x7C,0xA7,0xCB}; // FIXME
-            FILE_H *fd;
-            char *tmp = NULL;
-            tmp = str_printf("%s/BDSVM/00000.svm", bd->device_path);
-            if ((fd = file_open(tmp, "rb"))) {
-                file_close(fd);
-
-                DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
-#ifdef USING_DLOPEN
-#ifdef __APPLE__
-                if ((bd->h_libbdplus = dl_dlopen("libbdplus.dylib"))) {
-#else
-                if ((bd->h_libbdplus = dl_dlopen("libbdplus.so.0"))) {
-#endif
-                    DEBUG(DBG_BLURAY, "Downloaded libbdplus (%p)\n",
-                          bd->h_libbdplus);
-
-                    fptr_p_void bdplus_init = dl_dlsym(bd->h_libbdplus, "bdplus_init");
-                    //bdplus_t *bdplus_init(path,configfile_path,*vid );
-                    if (bdplus_init)
-                        bd->bdplus = bdplus_init(device_path, keyfile_path, vid);
-
-                    // Since we will call these functions a lot, we assign them
-                    // now.
-                    bd->bdplus_seek  = dl_dlsym(bd->h_libbdplus, "bdplus_seek");
-                    bd->bdplus_fixup = dl_dlsym(bd->h_libbdplus, "bdplus_fixup");
-
-                }
-#else
-                bd->h_libbdplus = NULL;
-                DEBUG(DBG_BLURAY,"Using libbdplus via normal linking\n");
-
-                bd->bdplus = bdplus_init(device_path, keyfile_path, vid);
-
-                // Since we will call these functions a lot, we assign them
-                // now.
-                bd->bdplus_seek  = &bdplus_seek;
-                bd->bdplus_fixup = &bdplus_fixup;
-#endif
-            } // file_open
-            X_FREE(tmp);
-        }
+        _libbdplus_open(bd, keyfile_path);
 
         _index_open(bd);
 
