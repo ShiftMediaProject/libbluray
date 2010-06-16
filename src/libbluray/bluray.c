@@ -331,6 +331,34 @@ int _read_block(BLURAY *bd)
     return 0;
 }
 
+static int64_t _seek_internal(BLURAY *bd, NAV_CLIP *clip, uint32_t title_pkt, uint32_t clip_pkt)
+{
+    if (!clip)
+        return -1;
+
+    if (clip->ref != bd->clip->ref) {
+        // The position is in a new clip
+        bd->clip = clip;
+        if (!_open_m2ts(bd)) {
+            return -1;
+        }
+    }
+    bd->s_pos = (uint64_t)title_pkt * 192;
+    bd->clip_pos = (uint64_t)clip_pkt * 192;
+    bd->clip_block_pos = (bd->clip_pos / 6144) * 6144;
+
+    file_seek(bd->fp, bd->clip_block_pos, SEEK_SET);
+
+    bd->int_buf_off = 6144;
+
+    DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
+          bd->s_pos, bd);
+    if (bd->bdplus_seek && bd->bdplus)
+        bd->bdplus_seek(bd->bdplus, bd->clip_block_pos);
+
+    return bd->s_pos;
+}
+
 int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
 {
     uint32_t clip_pkt, out_pkt;
@@ -346,27 +374,8 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
 
         // Find the closest access unit to the requested position
         clip = nav_time_search(bd->title, tick, &clip_pkt, &out_pkt);
-        if (clip->ref != bd->clip->ref) {
-            // The position is in a new clip
-            bd->clip = clip;
-            if (!_open_m2ts(bd)) {
-                return -1;
-            }
-        }
-        bd->s_pos = (uint64_t)out_pkt * 192;
-        bd->clip_pos = (uint64_t)clip_pkt * 192;
-        bd->clip_block_pos = (bd->clip_pos / 6144) * 6144;
 
-        file_seek(bd->fp, bd->clip_block_pos, SEEK_SET);
-
-        bd->int_buf_off = 6144;
-
-        DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
-              bd->s_pos, bd);
-        if (bd->bdplus_seek && bd->bdplus)
-            bd->bdplus_seek(bd->bdplus, bd->clip_block_pos);
-
-        return bd->s_pos;
+        return _seek_internal(bd, clip, out_pkt, clip_pkt);
     }
 
     return bd->s_pos;
@@ -379,27 +388,8 @@ int64_t bd_seek_chapter(BLURAY *bd, int chapter)
 
     // Find the closest access unit to the requested position
     clip = nav_chapter_search(bd->title, chapter, &clip_pkt, &out_pkt);
-    if (clip->ref != bd->clip->ref) {
-        // The position is in a new clip
-        bd->clip = clip;
-        if (!_open_m2ts(bd)) {
-            return -1;
-        }
-    }
-    bd->s_pos = (uint64_t)out_pkt * 192;
-    bd->clip_pos = (uint64_t)clip_pkt * 192;
-    bd->clip_block_pos = (bd->clip_pos / 6144) * 6144;
 
-    file_seek(bd->fp, bd->clip_block_pos, SEEK_SET);
-
-    bd->int_buf_off = 6144;
-
-    DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
-          bd->s_pos, bd);
-    if (bd->bdplus_seek && bd->bdplus)
-        bd->bdplus_seek(bd->bdplus, bd->clip_block_pos);
-
-    return bd->s_pos;
+    return _seek_internal(bd, clip, out_pkt, clip_pkt);
 }
 
 int64_t bd_chapter_pos(BLURAY *bd, int chapter)
@@ -419,27 +409,8 @@ int64_t bd_seek_mark(BLURAY *bd, int mark)
 
     // Find the closest access unit to the requested position
     clip = nav_mark_search(bd->title, mark, &clip_pkt, &out_pkt);
-    if (clip->ref != bd->clip->ref) {
-        // The position is in a new clip
-        bd->clip = clip;
-        if (!_open_m2ts(bd)) {
-            return -1;
-        }
-    }
-    bd->s_pos = (uint64_t)out_pkt * 192;
-    bd->clip_pos = (uint64_t)clip_pkt * 192;
-    bd->clip_block_pos = (bd->clip_pos / 6144) * 6144;
 
-    file_seek(bd->fp, bd->clip_block_pos, SEEK_SET);
-
-    bd->int_buf_off = 6144;
-
-    DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
-          bd->s_pos, bd);
-    if (bd->bdplus_seek && bd->bdplus)
-        bd->bdplus_seek(bd->bdplus, bd->clip_block_pos);
-
-    return bd->s_pos;
+    return _seek_internal(bd, clip, out_pkt, clip_pkt);
 }
 
 int64_t bd_seek(BLURAY *bd, uint64_t pos)
@@ -457,27 +428,8 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos)
 
         // Find the closest access unit to the requested position
         clip = nav_packet_search(bd->title, pkt, &clip_pkt, &out_pkt, &out_time);
-        if (clip->ref != bd->clip->ref) {
-            // The position is in a new clip
-            bd->clip = clip;
-            if (!_open_m2ts(bd)) {
-                return -1;
-            }
-        }
-        bd->s_pos = (uint64_t)out_pkt * 192;
-        bd->clip_pos = (uint64_t)clip_pkt * 192;
-        bd->clip_block_pos = (bd->clip_pos / 6144) * 6144;
 
-        file_seek(bd->fp, bd->clip_block_pos, SEEK_SET);
-
-        bd->int_buf_off = 6144;
-
-        DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
-              bd->s_pos, bd);
-        if (bd->bdplus_seek && bd->bdplus)
-            bd->bdplus_seek(bd->bdplus, bd->clip_block_pos);
-
-        return bd->s_pos;
+        return _seek_internal(bd, clip, out_pkt, clip_pkt);
     }
 
     return bd->s_pos;
@@ -491,20 +443,8 @@ static int64_t _clip_seek_time(BLURAY *bd, uint64_t tick)
 
         // Find the closest access unit to the requested position
         nav_clip_time_search(bd->clip, tick, &clip_pkt, &out_pkt);
-        bd->s_pos = (uint64_t)out_pkt * 192;
-        bd->clip_pos = (uint64_t)clip_pkt * 192;
-        bd->clip_block_pos = (bd->clip_pos / 6144) * 6144;
 
-        file_seek(bd->fp, bd->clip_block_pos, SEEK_SET);
-
-        bd->int_buf_off = 6144;
-
-        DEBUG(DBG_BLURAY, "Clip seek to %"PRIu64" (%p)\n",
-              bd->s_pos, bd);
-        if (bd->bdplus_seek && bd->bdplus)
-            bd->bdplus_seek(bd->bdplus, bd->clip_block_pos);
-
-        return bd->s_pos;
+        return _seek_internal(bd, bd->clip, out_pkt, clip_pkt);
     }
 
     return bd->s_pos;
