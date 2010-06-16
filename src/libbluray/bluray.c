@@ -386,10 +386,15 @@ int64_t bd_seek_chapter(BLURAY *bd, int chapter)
     uint32_t clip_pkt, out_pkt;
     NAV_CLIP *clip;
 
-    // Find the closest access unit to the requested position
-    clip = nav_chapter_search(bd->title, chapter, &clip_pkt, &out_pkt);
+    if (chapter < bd->title->chap_list.count) {
 
-    return _seek_internal(bd, clip, out_pkt, clip_pkt);
+        // Find the closest access unit to the requested position
+        clip = nav_chapter_search(bd->title, chapter, &clip_pkt, &out_pkt);
+
+        return _seek_internal(bd, clip, out_pkt, clip_pkt);
+    }
+
+    return bd->s_pos;
 }
 
 int64_t bd_chapter_pos(BLURAY *bd, int chapter)
@@ -407,10 +412,15 @@ int64_t bd_seek_mark(BLURAY *bd, int mark)
     uint32_t clip_pkt, out_pkt;
     NAV_CLIP *clip;
 
-    // Find the closest access unit to the requested position
-    clip = nav_mark_search(bd->title, mark, &clip_pkt, &out_pkt);
+    if (mark < bd->title->mark_list.count) {
 
-    return _seek_internal(bd, clip, out_pkt, clip_pkt);
+        // Find the closest access unit to the requested position
+        clip = nav_mark_search(bd->title, mark, &clip_pkt, &out_pkt);
+
+        return _seek_internal(bd, clip, out_pkt, clip_pkt);
+    }
+
+    return bd->s_pos;
 }
 
 int64_t bd_seek(BLURAY *bd, uint64_t pos)
