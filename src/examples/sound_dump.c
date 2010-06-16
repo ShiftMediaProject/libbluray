@@ -41,10 +41,10 @@ static void _sound_print(SOUND_DATA *data)
 
     for (i = 0; i < data->num_sounds; i++) {
         printf("  Sound %d:\n", i);
-        printf("      bits per sample: %d:\n", data->sounds[i].bits_per_sample);
-        printf("      sample rate: %d:\n",     data->sounds[i].sample_rate);
-        printf("      channels: %d:\n",        data->sounds[i].num_channels);
-        printf("      audio frames: %d",       data->sounds[i].num_frames);
+        printf("      bits per sample: %d\n", data->sounds[i].bits_per_sample);
+        printf("      sample rate: %d\n",     data->sounds[i].sample_rate);
+        printf("      channels: %d\n",        data->sounds[i].num_channels);
+        printf("      audio frames: %d",      data->sounds[i].num_frames);
         printf(" (%d ms)\n", data->sounds[i].num_frames * 1000 / data->sounds[i].sample_rate);
     }
 }
