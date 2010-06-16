@@ -89,21 +89,30 @@ static int _sound_parse_attributes(BITSTREAM *bs, SOUND_OBJECT *obj)
     return 1;
 }
 
-static int _sound_read_samples(BITSTREAM *bs, uint32_t offset, SOUND_OBJECT *obj)
+static int _sound_parse_index(BITSTREAM *bs, uint32_t *sound_data_index, SOUND_OBJECT *obj)
 {
-  uint32_t n;
+    if (!_sound_parse_attributes(bs, obj))
+      return 0;
 
-  bs_seek_byte(bs, offset);
+    *sound_data_index = bs_read(bs, 32);
+    obj->num_frames   = bs_read(bs, 32);
+    obj->num_frames  /= (obj->bits_per_sample / 8) * obj->num_channels;
 
-  obj->samples = malloc(obj->num_frames);
+    return 1;
+}
 
-  for (n = 0; n < obj->num_frames; n += 2) {
-    obj->samples[n] = bs_read(bs, 16);
-  }
+static int _sound_read_samples(BITSTREAM *bs, SOUND_OBJECT *obj)
+{
+    uint32_t n;
+    uint32_t num_samples = obj->num_frames * obj->num_channels;
 
-  obj->num_frames /= (obj->bits_per_sample / 8) * obj->num_channels;
+    obj->samples = calloc(num_samples, sizeof(uint16_t));
 
-  return 1;
+    for (n = 0; n < num_samples; n++) {
+        obj->samples[n] = bs_read(bs, 16);
+    }
+
+    return 1;
 }
 
 void sound_free(SOUND_DATA *sounds)
@@ -160,20 +169,25 @@ SOUND_DATA *sound_parse(const char *file_name)
     data = calloc(1, sizeof(SOUND_DATA) + num_sounds * sizeof(SOUND_OBJECT));
     data->num_sounds = num_sounds;
 
+    /* parse headers */
+
     for (i = 0; i < data->num_sounds; i++) {
-        if (!_sound_parse_attributes(&bs, &data->sounds[i])) {
+        if (!_sound_parse_index(&bs, data_offsets + i, &data->sounds[i])) {
             DEBUG(DBG_NAV | DBG_CRIT, "%s: error parsing sound %d attribues\n", file_name, i);
             sound_free(data);
             X_FREE(data_offsets);
             file_close(fp);
             return NULL;
         }
-        data->sounds[i].num_frames = bs_read(&bs, 32);
-        data_offsets[i]            = bs_read(&bs, 32);
     }
 
+    /* read samples */
+
     for (i = 0; i < data->num_sounds; i++) {
-      if (!_sound_read_samples(&bs, data_offsets[i], &data->sounds[i])) {
+
+        bs_seek_byte(&bs, data_start + data_offsets[i]);
+
+        if (!_sound_read_samples(&bs, &data->sounds[i])) {
             DEBUG(DBG_NAV | DBG_CRIT, "%s: error reading samples for sound %d\n", file_name, i);
             sound_free(data);
             X_FREE(data_offsets);
