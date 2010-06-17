@@ -157,7 +157,7 @@ static int bd_stream_open(stream_t *s, int mode, void* opts, int* file_format)
 const stream_info_t stream_info_bd = {
     "Bluray",
     "bd",
-    "cRTrn13",
+    "Obliter0n",
     "",
     bd_stream_open,
     { "bd", NULL },

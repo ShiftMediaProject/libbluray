@@ -181,7 +181,7 @@ diff -rupN mplayer.orig/stream/stream_bd.c mplayer/stream/stream_bd.c
 +const stream_info_t stream_info_bd = {
 +    "Bluray",
 +    "bd",
-+    "cRTrn13",
++    "Obliter0n",
 +    "",
 +    bd_stream_open,
 +    { "bd", NULL },

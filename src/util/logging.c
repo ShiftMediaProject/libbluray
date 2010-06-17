@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2009-2010  cRTrn13
+ * Copyright (C) 2009-2010  Obliter0n
  * Copyright (C) 2009-2010  John Stebbins
  *
  * This library is free software; you can redistribute it and/or
