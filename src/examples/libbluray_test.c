@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
     FILE *fd = fopen("streamdump.m2ts", "wb");
     if (fd) {
-        for (ii = 0; ii < 10000; ii++) {
+        while (1) {
             int len = bd_read(bd, buf, 6144);
             if (len <= 0) break;
             fwrite(buf, len, 1, fd);
