@@ -19,6 +19,8 @@ CFLAGS=$(shell test -z "$$CFLAGS" || echo "$$CFLAGS")
 
 if USING_DLOPEN
 LIBBLURAY_LDFLAGS=@DLOPEN_LDFLAGS@
+DLOPEN_SOURCES=file/dl.h \
+	file/dl_posix.c
 endif
 
 lib_LTLIBRARIES=libbluray.la
@@ -47,15 +49,14 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	file/file.h \
 	file/file_posix.c \
 	file/dir.h \
-	file/dl.h \
-	file/dl_posix.c \
 	util/attributes.h \
 	util/strutl.c \
 	util/strutl.h \
 	util/macro.h \
 	util/logging.c \
 	util/bits.h \
-	util/logging.h
+	util/logging.h \
+	$(DLOPEN_SOURCES)
 libbluray_la_HEADERS= libbluray/bluray.h libbluray/bdnav/navigation.h \
 	libbluray/bdnav/mpls_parse.h libbluray/bdnav/clpi_parse.h file/file.h
 libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) $(LIBBLURAY_LDFLAGS)

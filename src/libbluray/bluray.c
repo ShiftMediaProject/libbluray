@@ -37,9 +37,11 @@
 #include "util/macro.h"
 #include "util/logging.h"
 #include "util/strutl.h"
-#include "file/dl.h"
 #include "bdnav/navigation.h"
 #include "bdnav/index_parse.h"
+#ifdef USING_DLOPEN
+#include "file/dl.h"
+#endif
 
 #ifndef USING_DLOPEN
 #include <libaacs/aacs.h>
@@ -70,10 +72,14 @@ static int _open_m2ts(BLURAY *bd)
             X_FREE(f_name);
 
             if (bd->h_libbdplus && bd->bdplus) {
+#ifdef USING_DLOPEN
                 fptr_p_void bdplus_set_title;
                 bdplus_set_title = dl_dlsym(bd->h_libbdplus, "bdplus_set_title");
                 if (bdplus_set_title)
                     bdplus_set_title(bd->bdplus, bd->clip->clip_id);
+#else
+                bdplus_set_title(bd->bdplus, bd->clip->clip_id);
+#endif
             }
             return 1;
         }
@@ -232,18 +238,27 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 void bd_close(BLURAY *bd)
 {
     if (bd->h_libaacs && bd->aacs) {
+#ifdef USING_DLOPEN
         fptr_p_void fptr = dl_dlsym(bd->h_libaacs, "aacs_close");
         fptr(bd->aacs);  // FIXME: NULL
-
         dl_dlclose(bd->h_libaacs);
+#else
+        aacs_close(bd->aacs);  // FIXME: NULL
+#endif
     }
 
     if (bd->h_libbdplus && bd->bdplus) {
+#ifdef USING_DLOPEN
         fptr_p_void bdplus_free = dl_dlsym(bd->h_libbdplus, "bdplus_free");
         if (bdplus_free) bdplus_free(bd->bdplus);
+#else
+        bdplus_free(bd->bdplus);
+#endif
         bd->bdplus = NULL;
 
+#ifdef USING_DLOPEN
         dl_dlclose(bd->h_libbdplus);
+#endif
         bd->h_libbdplus = NULL;
 
         bd->bdplus_seek  = NULL;
