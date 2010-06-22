@@ -57,8 +57,7 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	util/bits.h \
 	util/logging.h \
 	$(DLOPEN_SOURCES)
-libbluray_la_HEADERS= libbluray/bluray.h libbluray/bdnav/navigation.h \
-	libbluray/bdnav/mpls_parse.h libbluray/bdnav/clpi_parse.h file/file.h
+libbluray_la_HEADERS= libbluray/bluray.h
 libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) $(LIBBLURAY_LDFLAGS)
 
 pkgconfigdir = $(libdir)/pkgconfig

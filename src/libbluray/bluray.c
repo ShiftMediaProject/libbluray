@@ -39,6 +39,7 @@
 #include "util/strutl.h"
 #include "bdnav/navigation.h"
 #include "bdnav/index_parse.h"
+#include "file/file.h"
 #ifdef USING_DLOPEN
 #include "file/dl.h"
 #endif

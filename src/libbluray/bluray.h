@@ -31,9 +31,19 @@
 #ifndef BLURAY_H_
 #define BLURAY_H_
 
-#include "file.h"
-#include "navigation.h"
+#include <stdint.h>
 
+/* Title flags */
+#define TITLES_ALL              0
+#define TITLES_FILTER_DUP_TITLE 0x01
+#define TITLES_FILTER_DUP_CLIP  0x02
+#define TITLES_RELEVANT         (TITLES_FILTER_DUP_TITLE | TITLES_FILTER_DUP_CLIP)
+
+/* Forward declaration of internal objects */
+struct file;
+struct nav_title_list_s;
+struct nav_title_s;
+struct nav_clip_s;
 struct indx_root_s;
 struct bd_registers_s;
 
@@ -44,12 +54,12 @@ typedef void* (*fptr_p_void)();
 typedef struct bluray BLURAY;
 struct bluray {
     char *device_path;
-    NAV_TITLE_LIST *title_list;
-    NAV_TITLE *title;
+    struct nav_title_list_s *title_list;
+    struct nav_title_s *title;
     uint64_t s_size;
     uint64_t s_pos;
-    NAV_CLIP *clip;
-    FILE_H *fp;
+    struct nav_clip_s *clip;
+    struct file *fp;
     uint64_t clip_size;
     uint64_t clip_block_pos;
     uint64_t clip_pos;

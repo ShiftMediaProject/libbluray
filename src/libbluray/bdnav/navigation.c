@@ -36,6 +36,7 @@
 #include "util/strutl.h"
 #include "file/dir.h"
 #include "file/file.h"
+#include "libbluray/bluray.h"
 #include "mpls_parse.h"
 #include "navigation.h"
 
