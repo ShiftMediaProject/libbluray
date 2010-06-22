@@ -43,7 +43,9 @@
 
 typedef struct nav_title_s NAV_TITLE;
 
-typedef struct {
+typedef struct nav_mark_s NAV_MARK;
+struct nav_mark_s
+{
     int      number;
     int      mark_type;
     int      clip_ref;
@@ -56,14 +58,19 @@ typedef struct {
     uint32_t duration;
 
     MPLS_PLM *plm;
-} NAV_MARK;
+};
 
-typedef struct {
+
+typedef struct nav_mark_list_s NAV_MARK_LIST;
+struct nav_mark_list_s
+{
     int      count;
     NAV_MARK *mark;
-} NAV_MARK_LIST;
+};
 
-typedef struct {
+typedef struct nav_clip_s NAV_CLIP;
+struct nav_clip_s
+{
     char     name[11];
     uint32_t clip_id;
     int      ref;
@@ -86,12 +93,14 @@ typedef struct {
     NAV_TITLE *title;
 
     CLPI_CL  *cl;
-} NAV_CLIP;
+};
 
-typedef struct {
+typedef struct nav_clip_list_s NAV_CLIP_LIST;
+struct nav_clip_list_s
+{
     int      count;
     NAV_CLIP *clip;
-} NAV_CLIP_LIST;
+};
 
 struct nav_title_s {
     char          *root;
@@ -108,17 +117,21 @@ struct nav_title_s {
     MPLS_PL       *pl;
 };
 
-typedef struct {
+typedef struct nav_title_info_s NAV_TITLE_INFO;
+struct nav_title_info_s
+{
     char            name[11];
     uint32_t        mpls_id;
     uint32_t        duration;
     int             ref;
-} NAV_TITLE_INFO;
+};
 
-typedef struct {
+typedef struct nav_title_list_s NAV_TITLE_LIST;
+struct nav_title_list_s
+{
     unsigned int             count;
     NAV_TITLE_INFO  *title_info;
-} NAV_TITLE_LIST;
+};
 
 char* nav_find_main_title(const char *root);
 NAV_TITLE* nav_title_open(const char *root, const char *playlist);
