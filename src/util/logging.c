@@ -48,7 +48,7 @@ char *print_hex(char *out, const uint8_t *buf, int count)
     return out;
 }
 
-void debug(const char *file, int line, uint32_t mask, const char *format, ...)
+void bd_debug(const char *file, int line, uint32_t mask, const char *format, ...)
 {
     static int   debug_init = 0;
     static FILE *logfile    = NULL;

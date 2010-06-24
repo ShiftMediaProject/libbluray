@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 
-#define DEBUG(X,Y,...) debug(__FILE__,__LINE__,X,Y,##__VA_ARGS__)
+#define DEBUG(X,Y,...) bd_debug(__FILE__,__LINE__,X,Y,##__VA_ARGS__)
 
 enum debug_mask_enum {
     DBG_RESERVED = 1,
@@ -46,7 +46,7 @@ enum debug_mask_enum {
 typedef enum debug_mask_enum debug_mask_t;
 
 char *print_hex(char *out, const uint8_t *str, int count);
-void debug(const char *file, int line, uint32_t mask, const char *format, ...) BD_ATTR_FORMAT_PRINTF(4,5);
+void bd_debug(const char *file, int line, uint32_t mask, const char *format, ...) BD_ATTR_FORMAT_PRINTF(4,5);
 
 void bd_set_debug_mask(debug_mask_t mask);
 debug_mask_t bd_get_debug_mask(void);
