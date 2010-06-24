@@ -322,7 +322,7 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
     // Secondary Audio Streams
     ss = NULL;
     if (stn->num_secondary_audio) {
-        ss = calloc(1, sizeof(MPLS_STREAM));
+        ss = calloc(stn->num_secondary_audio, sizeof(MPLS_STREAM));
         for (ii = 0; ii < stn->num_secondary_audio; ii++) {
             if (!_parse_stream(bits, &ss[ii])) {
                 X_FREE(ss);
