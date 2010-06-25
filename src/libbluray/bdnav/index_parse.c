@@ -166,30 +166,29 @@ INDX_ROOT *indx_parse(const char *file_name)
 
     if (!_parse_header(&bs, &indexes_start, &extension_data_start)) {
         DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: invalid header\n");
-        X_FREE(index);
-        file_close(fp);
-        return NULL;
+        goto error;
     }
 
     if (!_parse_app_info(&bs, &index->app_info)) {
         DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: error parsing app info\n");
-        X_FREE(index);
-        file_close(fp);
-        return NULL;
+        goto error;
     }
 
     bs_seek_byte(&bs, indexes_start);
 
     if (!_parse_index(&bs, index)) {
         DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: error parsing indexes\n");
-        X_FREE(index);
-        file_close(fp);
-        return NULL;
+        goto error;
     }
 
     file_close(fp);
 
     return index;
+
+ error:
+    X_FREE(index);
+    file_close(fp);
+    return NULL;
 }
 
 void indx_free(INDX_ROOT *index)

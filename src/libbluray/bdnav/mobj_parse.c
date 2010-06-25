@@ -124,8 +124,7 @@ MOBJ_OBJECTS *mobj_parse(const char *file_name)
 
     if (!_mobj_parse_header(&bs, &extension_data_start)) {
         DEBUG(DBG_NAV | DBG_CRIT, "%s: invalid header\n", file_name);
-        file_close(fp);
-        return NULL;
+        goto error;
     }
 
     bs_seek_byte(&bs, 40);
@@ -140,13 +139,16 @@ MOBJ_OBJECTS *mobj_parse(const char *file_name)
     for (i = 0; i < objects->num_objects; i++) {
         if (!_mobj_parse_object(&bs, &objects->objects[i])) {
             DEBUG(DBG_NAV | DBG_CRIT, "%s: error parsing object %d\n", file_name, i);
-            mobj_free(objects);
-            file_close(fp);
-            return NULL;
+            goto error;
         }
     }
 
     file_close(fp);
 
     return objects;
+
+ error:
+    mobj_free(objects);
+    file_close(fp);
+    return NULL;
 }
