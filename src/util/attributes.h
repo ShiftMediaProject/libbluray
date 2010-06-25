@@ -1,7 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2009-2010  Obliter0n
- * Copyright (C) 2009-2010  John Stebbins
+ * Copyright (C) 2010  hpi1
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,6 +28,14 @@
 #  define BD_ATTR_FORMAT_PRINTF(format,var)
 #  define BD_ATTR_MALLOC
 #  define BD_ATTR_PACKED
+#endif
+
+#if __GNUC__ >= 4
+#  define BD_PUBLIC  __attribute__((visibility("default")))
+#  define BD_PRIVATE __attribute__((visibility("hidden")))
+#else
+#  define BD_PUBLIC
+#  define BD_PRIVATE
 #endif
 
 #endif /* LIBBLURAY_ATTRIBUTES_H_ */
