@@ -122,12 +122,12 @@ SOUND_DATA *sound_parse(const char *file_name)
 {
     BITSTREAM     bs;
     FILE_H       *fp;
-    SOUND_DATA   *data;
+    SOUND_DATA   *data = NULL;
     uint16_t      num_sounds;
     uint32_t      data_len;
     int           i;
     uint32_t      data_start, extension_data_start;
-    uint32_t     *data_offsets;
+    uint32_t     *data_offsets = NULL;
 
     fp = file_open(file_name, "rb");
     if (!fp) {
@@ -139,8 +139,7 @@ SOUND_DATA *sound_parse(const char *file_name)
 
     if (!_bclk_parse_header(&bs, &data_start, &extension_data_start)) {
         DEBUG(DBG_NAV | DBG_CRIT, "%s: invalid header\n", file_name);
-        file_close(fp);
-        return NULL;
+        goto error;
     }
 
     bs_seek_byte(&bs, 40);
@@ -151,8 +150,7 @@ SOUND_DATA *sound_parse(const char *file_name)
 
     if (data_len < 1) {
         DEBUG(DBG_NAV | DBG_CRIT, "%s: empty database\n", file_name);
-        file_close(fp);
-        return NULL;
+        goto error;
     }
 
     data_offsets = calloc(num_sounds, sizeof(uint32_t));
@@ -164,10 +162,7 @@ SOUND_DATA *sound_parse(const char *file_name)
     for (i = 0; i < data->num_sounds; i++) {
         if (!_sound_parse_index(&bs, data_offsets + i, &data->sounds[i])) {
             DEBUG(DBG_NAV | DBG_CRIT, "%s: error parsing sound %d attribues\n", file_name, i);
-            sound_free(data);
-            X_FREE(data_offsets);
-            file_close(fp);
-            return NULL;
+            goto error;
         }
     }
 
@@ -179,10 +174,7 @@ SOUND_DATA *sound_parse(const char *file_name)
 
         if (!_sound_read_samples(&bs, &data->sounds[i])) {
             DEBUG(DBG_NAV | DBG_CRIT, "%s: error reading samples for sound %d\n", file_name, i);
-            sound_free(data);
-            X_FREE(data_offsets);
-            file_close(fp);
-            return NULL;
+            goto error;
         }
     }
 
@@ -190,4 +182,10 @@ SOUND_DATA *sound_parse(const char *file_name)
     file_close(fp);
 
     return data;
+
+ error:
+    sound_free(data);
+    X_FREE(data_offsets);
+    file_close(fp);
+    return NULL;
 }
