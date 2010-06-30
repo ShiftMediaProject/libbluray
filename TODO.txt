@@ -18,16 +18,7 @@ Tests:
 non-encrypted BD:
  Achievement: ?
 
-? BD With MKB 1-10:
- Achievement: ?
-
-? BD With MKB 11-15:
- Achievement: ?
-
-? BD With MKB 16+:
- Achievement: ?
-
-? BD With subpaths:
+BD With subpaths:
  Achievement: ?
 
 
