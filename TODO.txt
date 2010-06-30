@@ -9,10 +9,7 @@ As a project participant:
 
 Development:
 ------------
-BD+
- Achievement: ?
-
-AACS
+BDJ
  Achievement: ?
 
 
