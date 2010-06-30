@@ -1,11 +1,12 @@
-###################################################################################################
-The purpose of this file is to track the progression of the development of this project
-It should help pinpoint the gaps and address the work that has to be done 
+###############################################################################
+The purpose of this file is to track the progression of the development of this
+project. It should help pinpoint the gaps and address the work that has to be
+done.
 
 As a project participant:
 - please update/add/remove/split tasks when you see fit
 
-###################################################################################################
+###############################################################################
 
 Development:
 ------------
