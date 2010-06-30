@@ -13,15 +13,6 @@ BDJ
  Achievement: ?
 
 
-Integration
------------
-VLC integration
- Achievement: ?
-
-mplayer integration
- Achievement: ?
-
-
 Tests:
 ------
 non-encrypted BD:
