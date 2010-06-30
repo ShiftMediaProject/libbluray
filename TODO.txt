@@ -4,60 +4,59 @@ It should help pinpoint the gaps and address the work that has to be done
 
 As a project participant:
 - please update/add/remove/split tasks when you see fit
-- please maintain the task-user relationship by adding/removing your name 
 
 ###################################################################################################
 
 Development:
 ------------
 BD+
- Achievement: ?%  Who: ?
+ Achievement: ?
 
 AACS
- Achievement: ?%  Who: ?
+ Achievement: ?
 
 
 Integration
 -----------
 VLC integration
- Achievement: ?%  Who: ?
+ Achievement: ?
 
 mplayer integration
- Achievement: ?%  Who: ?
+ Achievement: ?
 
 
 Tests:
 ------
 non-encrypted BD:
- Achievement: ?%  Who: ?
+ Achievement: ?
 
 ? BD With MKB 1-10:
- Achievement: ?%  Who: ?
+ Achievement: ?
 
 ? BD With MKB 11-15:
- Achievement: ?%  Who: ?
+ Achievement: ?
 
 ? BD With MKB 16+:
- Achievement: ?%  Who: ?
+ Achievement: ?
 
 ? BD With subpaths:
- Achievement: ?%  Who: ?
+ Achievement: ?
 
 
 Packaging
 ---------
 Build Procedure
- Achievement: ?%  Who: ?
+ Achievement: ?
 
 
 Portability
 -----------
 Compile/test on MAC OS X
- Achievement: ?%  Who: ?
+ Achievement: ?
 
 ? Compile/test on Fedora
- Achievement: ?%  Who: ?
+ Achievement: ?
 
 ? Compile/test on Ubuntu
- Achievement: ?%  Who: ?
+ Achievement: ?
 
