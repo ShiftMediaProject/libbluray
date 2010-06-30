@@ -27,9 +27,5 @@ Portability
 Compile/test on MAC OS X
  Achievement: ?
 
-? Compile/test on Fedora
+Compile/test on Linux/POSIX systems
  Achievement: ?
-
-? Compile/test on Ubuntu
- Achievement: ?
-
