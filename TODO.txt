@@ -22,12 +22,6 @@ BD With subpaths:
  Achievement: ?
 
 
-Packaging
----------
-Build Procedure
- Achievement: ?
-
-
 Portability
 -----------
 Compile/test on MAC OS X
