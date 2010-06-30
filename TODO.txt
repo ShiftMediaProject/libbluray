@@ -29,3 +29,6 @@ Compile/test on MAC OS X
 
 Compile/test on Linux/POSIX systems
  Achievement: ?
+
+Compile/test on Windows
+ Achievement: ?
