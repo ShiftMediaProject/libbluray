@@ -59,7 +59,7 @@ static int file_read_linux(FILE_H *file, uint8_t *buf, int64_t size)
     return fread(buf, 1, size, (FILE *)file->internal);
 }
 
-static int file_write_linux(FILE_H *file, uint8_t *buf, int64_t size)
+static int file_write_linux(FILE_H *file, const uint8_t *buf, int64_t size)
 {
     return fwrite(buf, 1, size, (FILE *)file->internal);
 }
