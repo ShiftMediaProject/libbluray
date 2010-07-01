@@ -321,7 +321,7 @@ _parse_cpi(BITSTREAM *bits, CLPI_CL *cl)
     return 1;
 }
 
-uint32_t
+static uint32_t
 _find_stc_spn(CLPI_CL *cl, uint8_t stc_id)
 {
     int ii;
