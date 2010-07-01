@@ -181,7 +181,7 @@ static void _libbdplus_open(BLURAY *bd, const char *keyfile_path)
     X_FREE(tmp);
 }
 
-int _index_open(BLURAY *bd)
+static int _index_open(BLURAY *bd)
 {
     char *file;
 
@@ -279,7 +279,7 @@ void bd_close(BLURAY *bd)
     X_FREE(bd);
 }
 
-int _read_block(BLURAY *bd)
+static int _read_block(BLURAY *bd)
 {
     const int len = 6144;
 
