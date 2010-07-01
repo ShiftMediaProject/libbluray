@@ -35,7 +35,7 @@ void   *dl_dlopen  ( const char* path )
     DEBUG(DBG_BDPLUS, "searching for library '%s' ...\n", path);
     void *result = dlopen(path, RTLD_LAZY);
     if (!result) {
-        DEBUG(DBG_FILE | DBG_CRIT, "can't open library '%s': %s\n", path, dlerror());
+        DEBUG(DBG_FILE, "can't open library '%s': %s\n", path, dlerror());
     }
     return result;
 }
