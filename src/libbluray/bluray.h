@@ -70,6 +70,29 @@ struct bluray {
     struct bd_registers_s *regs;
 };
 
+typedef struct bd_stream_info {
+    uint8_t     coding_type;
+    uint8_t     format;
+    uint8_t     rate;
+    uint8_t     char_code;
+    uint8_t     lang[4];
+} BD_STREAM_INFO;
+
+typedef struct bd_clip {
+    uint32_t       video_stream_count;
+    uint32_t       audio_stream_count;
+    uint32_t       pg_stream_count;
+    uint32_t       ig_stream_count;
+    uint32_t       sec_audio_stream_count;
+    uint32_t       sec_video_stream_count;
+    BD_STREAM_INFO *video_streams;
+    BD_STREAM_INFO *audio_streams;
+    BD_STREAM_INFO *pg_streams;
+    BD_STREAM_INFO *ig_streams;
+    BD_STREAM_INFO *sec_audio_streams;
+    BD_STREAM_INFO *sec_video_streams;
+} BD_CLIP_INFO;
+
 typedef struct bd_chapter {
     uint32_t    idx;
     uint64_t    start;
@@ -78,10 +101,12 @@ typedef struct bd_chapter {
 } BD_TITLE_CHAPTER;
 
 typedef struct bd_title_info {
-    uint32_t    idx;
-    uint64_t    duration;
-    uint32_t    angle_count;
-    uint32_t    chapter_count;
+    uint32_t         idx;
+    uint64_t         duration;
+    uint32_t         clip_count;
+    uint32_t         angle_count;
+    uint32_t         chapter_count;
+    BD_CLIP_INFO     *clips;
     BD_TITLE_CHAPTER *chapters;
 } BD_TITLE_INFO;
 

@@ -672,6 +672,19 @@ uint32_t bd_get_titles(BLURAY *bd, uint8_t flags)
     return bd->title_list->count;
 }
 
+static void _copy_streams(BD_STREAM_INFO *streams, MPLS_STREAM *si, int count)
+{
+    int ii;
+
+    for (ii = 0; ii < count; ii++) {
+        streams[ii].coding_type = si[ii].coding_type;
+        streams[ii].format = si[ii].format;
+        streams[ii].rate = si[ii].rate;
+        streams[ii].char_code = si[ii].char_code;
+        memcpy(streams[ii].lang, si[ii].lang, 4);
+    }
+}
+
 BD_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
 {
     NAV_TITLE *title;
@@ -704,13 +717,48 @@ BD_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
         title_info->chapters[ii].duration = (uint64_t)title->chap_list.mark[ii].duration * 2;
         title_info->chapters[ii].offset = (uint64_t)title->chap_list.mark[ii].title_pkt * 192;
     }
+    title_info->clip_count = title->clip_list.count;
+    title_info->clips = calloc(title_info->clip_count, sizeof(BD_CLIP_INFO));
+    for (ii = 0; ii < title_info->clip_count; ii++) {
+        MPLS_PI *pi = &title->pl->play_item[ii];
+        BD_CLIP_INFO *ci = &title_info->clips[ii];
+        ci->video_stream_count = pi->stn.num_video;
+        ci->audio_stream_count = pi->stn.num_audio;
+        ci->pg_stream_count = pi->stn.num_pg + pi->stn.num_pip_pg;
+        ci->ig_stream_count = pi->stn.num_ig;
+        ci->sec_video_stream_count = pi->stn.num_secondary_video;
+        ci->sec_audio_stream_count = pi->stn.num_secondary_audio;
+        ci->video_streams = calloc(ci->video_stream_count, sizeof(BD_STREAM_INFO));
+        ci->audio_streams = calloc(ci->audio_stream_count, sizeof(BD_STREAM_INFO));
+        ci->pg_streams = calloc(ci->pg_stream_count, sizeof(BD_STREAM_INFO));
+        ci->ig_streams = calloc(ci->ig_stream_count, sizeof(BD_STREAM_INFO));
+        ci->sec_video_streams = calloc(ci->sec_video_stream_count, sizeof(BD_STREAM_INFO));
+        ci->sec_audio_streams = calloc(ci->sec_audio_stream_count, sizeof(BD_STREAM_INFO));
+        _copy_streams(ci->video_streams, pi->stn.video, ci->video_stream_count);
+        _copy_streams(ci->audio_streams, pi->stn.audio, ci->audio_stream_count);
+        _copy_streams(ci->pg_streams, pi->stn.pg, ci->pg_stream_count);
+        _copy_streams(ci->ig_streams, pi->stn.ig, ci->ig_stream_count);
+        _copy_streams(ci->sec_video_streams, pi->stn.secondary_video, ci->sec_video_stream_count);
+        _copy_streams(ci->sec_audio_streams, pi->stn.secondary_audio, ci->sec_audio_stream_count);
+    }
     nav_title_close(title);
     return title_info;
 }
 
 void bd_free_title_info(BD_TITLE_INFO *title_info)
 {
+    unsigned int ii;
+
     X_FREE(title_info->chapters);
+    for (ii = 0; ii < title_info->clip_count; ii++) {
+        X_FREE(title_info->clips[ii].video_streams);
+        X_FREE(title_info->clips[ii].audio_streams);
+        X_FREE(title_info->clips[ii].pg_streams);
+        X_FREE(title_info->clips[ii].ig_streams);
+        X_FREE(title_info->clips[ii].sec_video_streams);
+        X_FREE(title_info->clips[ii].sec_audio_streams);
+    }
+    X_FREE(title_info->clips);
     X_FREE(title_info);
 }
 

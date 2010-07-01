@@ -91,13 +91,14 @@ int main(int argc, char *argv[])
             continue;
         }
         printf(
-       "index: %d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %d angles: %d\n",
+       "index: %d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %d angles: %u clips %u\n",
               ii + 1,
               (ti->duration / 90000) / (3600),
               ((ti->duration / 90000) % 3600) / 60,
               ((ti->duration / 90000) % 60),
-              ti->chapter_count, ti->angle_count
+              ti->chapter_count, ti->angle_count, ti->clip_count
         );
+        bd_free_title_info(ti);
     }
     return 0;
 }
