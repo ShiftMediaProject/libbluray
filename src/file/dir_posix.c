@@ -29,10 +29,7 @@
 #include <dirent.h>
 #include <string.h>
 
-void dir_close_posix(DIR_H *dir);
-int dir_read_posix(DIR_H *dir, DIRENT *ent);
-
-void dir_close_posix(DIR_H *dir)
+static void dir_close_posix(DIR_H *dir)
 {
     if (dir) {
         closedir((DIR *)dir->internal);
@@ -43,7 +40,7 @@ void dir_close_posix(DIR_H *dir)
     }
 }
 
-int dir_read_posix(DIR_H *dir, DIRENT *entry)
+static int dir_read_posix(DIR_H *dir, DIRENT *entry)
 {
     struct dirent e, *p_e;
     int result;

@@ -28,14 +28,7 @@
 
 #include <stdlib.h>
 
-void file_close_linux(FILE_H *file);
-int64_t file_seek_linux(FILE_H *file, int64_t offset, int32_t origin);
-int64_t file_tell_linux(FILE_H *file);
-int file_eof_linux(FILE_H *file);
-int file_read_linux(FILE_H *file, uint8_t *buf, int64_t size);
-int file_write_linux(FILE_H *file, uint8_t *buf, int64_t size);
-
-void file_close_linux(FILE_H *file)
+static void file_close_linux(FILE_H *file)
 {
     if (file) {
         fclose((FILE *)file->internal);
@@ -46,27 +39,27 @@ void file_close_linux(FILE_H *file)
     }
 }
 
-int64_t file_seek_linux(FILE_H *file, int64_t offset, int32_t origin)
+static int64_t file_seek_linux(FILE_H *file, int64_t offset, int32_t origin)
 {
     return fseeko((FILE *)file->internal, offset, origin);
 }
 
-int64_t file_tell_linux(FILE_H *file)
+static int64_t file_tell_linux(FILE_H *file)
 {
     return ftello((FILE *)file->internal);
 }
 
-int file_eof_linux(FILE_H *file)
+static int file_eof_linux(FILE_H *file)
 {
     return feof((FILE *)file->internal);
 }
 
-int file_read_linux(FILE_H *file, uint8_t *buf, int64_t size)
+static int file_read_linux(FILE_H *file, uint8_t *buf, int64_t size)
 {
     return fread(buf, 1, size, (FILE *)file->internal);
 }
 
-int file_write_linux(FILE_H *file, uint8_t *buf, int64_t size)
+static int file_write_linux(FILE_H *file, uint8_t *buf, int64_t size)
 {
     return fwrite(buf, 1, size, (FILE *)file->internal);
 }
