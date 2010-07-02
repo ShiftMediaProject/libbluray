@@ -191,11 +191,8 @@ static int _index_open(BLURAY *bd)
     file = str_printf("%s/BDMV/index.bdmv", bd->device_path);
     bd->index = indx_parse(file);
     X_FREE(file);
-    if (!bd->index) {
-        return 0;
-    }
 
-    return 1;
+    return !!bd->index;
 }
 
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
@@ -269,10 +266,8 @@ void bd_close(BLURAY *bd)
     if (bd->title != NULL) {
         nav_title_close(bd->title);
     }
-    if (bd->index != NULL) {
-        indx_free(bd->index);
-    }
 
+    indx_free(bd->index);
     bd_registers_free(bd->regs);
 
     X_FREE(bd->device_path);
