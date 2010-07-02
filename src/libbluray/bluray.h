@@ -36,6 +36,7 @@ struct nav_title_s;
 struct nav_clip_s;
 struct indx_root_s;
 struct bd_registers_s;
+struct bd_event_queue_s;
 
 typedef int (*fptr_int)();
 typedef int32_t (*fptr_int32)();
@@ -66,8 +67,10 @@ struct bluray {
     int      request_angle;
     int      angle;
 
+    enum { title_undef = 0, title_hdmv, title_bdj } title_type;
     struct indx_root_s *index;
     struct bd_registers_s *regs;
+    struct bd_event_queue_s *event_queue;
 };
 
 typedef struct bd_stream_info {
@@ -154,5 +157,31 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s);
  */
 int bd_start_bdj(BLURAY *bd, const char* start_object); // start BD-J from the specified BD-J object (should be a 5 character string)
 void bd_stop_bdj(BLURAY *bd); // shutdown BD-J and clean up resources
+
+/*
+ * navigaton mode
+ */
+
+typedef enum {
+    BD_EVENT_NONE = 0,
+    BD_EVENT_ERROR,
+
+    BD_EVENT_ANGLE_ID,
+    BD_EVENT_TITLE_ID,
+    BD_EVENT_PLAYLIST,
+    BD_EVENT_PLAYITEM,
+    BD_EVENT_CHAPTER,
+} bd_event_e;
+
+typedef struct {
+  bd_event_e event;
+  uint32_t   param;
+} BD_EVENT;
+
+int  bd_play(BLURAY *bd); /* start playing disc in navigation mode */
+int  bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event);
+
+int  bd_play_title(BLURAY *bd, unsigned title); /* play title (from disc index) */
+int  bd_menu_call(BLURAY *bd);                  /* open disc root menu */
 
 #endif /* BLURAY_H_ */
