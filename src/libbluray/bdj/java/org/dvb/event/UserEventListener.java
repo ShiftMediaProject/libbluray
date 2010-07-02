@@ -16,3 +16,12 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.event;
+
+import java.util.EventListener;
+
+public interface UserEventListener extends EventListener {
+    public void userEventReceived(UserEvent event);
+
+}

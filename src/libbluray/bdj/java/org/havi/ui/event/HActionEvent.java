@@ -16,3 +16,30 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui.event;
+
+import java.awt.event.ActionEvent;
+import org.havi.ui.HActionInputPreferred;
+
+public class HActionEvent extends ActionEvent {
+    public HActionEvent(HActionInputPreferred source, int id, String command)
+    {
+        super(source, id, command);
+
+        this.command = command;
+    }
+
+    public String getActionCommand()
+    {
+        return command;
+    }
+
+    public int getModifiers()
+    {
+        return 0;
+    }
+
+    private String command;
+    private static final long serialVersionUID = -906983727975217421L;
+}

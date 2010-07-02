@@ -16,3 +16,11 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui.event;
+
+import java.awt.event.KeyListener;
+
+public interface HKeyListener extends KeyListener {
+
+}

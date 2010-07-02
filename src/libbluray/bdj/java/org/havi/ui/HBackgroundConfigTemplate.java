@@ -16,3 +16,30 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HBackgroundConfigTemplate extends HScreenConfigTemplate {
+    public HBackgroundConfigTemplate()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public boolean isConfigSupported(HBackgroundConfiguration hbc)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setPreference(int preference, int priority)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public int getPreferencePriority(int preference)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public static final int CHANGEABLE_SINGLE_COLOR = 0x0A;
+    public static final int STILL_IMAGE = 0x0B;
+}

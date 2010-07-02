@@ -16,3 +16,16 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.media;
+
+import java.util.EventListener;
+
+public interface VideoFormatListener extends EventListener
+{
+	public void receiveVideoFormatEvent(VideoFormatEvent event);
+}
+
+
+
+

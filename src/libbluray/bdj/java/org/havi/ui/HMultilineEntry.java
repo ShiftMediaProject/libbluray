@@ -16,3 +16,63 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import java.awt.Color;
+import java.awt.Font;
+
+public class HMultilineEntry extends HSinglelineEntry {
+    public HMultilineEntry()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HMultilineEntry(String text, int x, int y, int width, int height,
+            int maxChars, Font font, Color color)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HMultilineEntry(int x, int y, int width, int height, int maxChars)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HMultilineEntry(String text, int maxChars, Font font, Color color)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HMultilineEntry(int maxChars)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public static void setDefaultLook(HMultilineEntryLook look)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public static HSinglelineEntryLook getDefaultLook()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setLook(HLook hlook) throws HInvalidLookException
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void caretNextLine()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void caretPreviousLine()
+    {
+        throw new Error("Not implemented");
+    }
+
+    private static final long serialVersionUID = 2690386579157062435L;
+}

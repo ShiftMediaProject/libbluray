@@ -16,3 +16,13 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.media;
+
+import org.davic.media.SubtitlingLanguageControl;
+
+public interface SubtitlingEventControl extends SubtitlingLanguageControl {
+    public void addSubtitleListener(SubtitleListener listener);
+
+    public void removeSubtitleListener(SubtitleListener listener);
+}

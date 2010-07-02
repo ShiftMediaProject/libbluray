@@ -16,3 +16,13 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui.event;
+
+import java.util.EventListener;
+
+public interface HItemListener extends EventListener {
+    public abstract void selectionChanged(HItemEvent event);
+
+    public abstract void currentItemChanged(HItemEvent event);
+}

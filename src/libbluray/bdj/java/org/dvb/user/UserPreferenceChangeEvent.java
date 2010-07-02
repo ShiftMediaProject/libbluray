@@ -16,3 +16,21 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.user;
+
+import java.util.EventObject;
+
+public class UserPreferenceChangeEvent extends EventObject {
+    public UserPreferenceChangeEvent(String preferenceName)
+    {
+        super(preferenceName);
+    }
+
+    public String getName()
+    {
+        return (String) getSource();
+    }
+
+    private static final long serialVersionUID = -7308163640495226059L;
+}

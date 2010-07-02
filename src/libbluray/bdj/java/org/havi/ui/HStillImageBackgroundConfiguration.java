@@ -16,3 +16,35 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import java.io.IOException;
+
+public class HStillImageBackgroundConfiguration extends
+        HBackgroundConfiguration {
+    protected HStillImageBackgroundConfiguration()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void displayImage(HBackgroundImage image) throws IOException,
+            HPermissionDeniedException, HConfigurationException
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void displayImage(HBackgroundImage image, HScreenRectangle r)
+            throws IOException, HPermissionDeniedException,
+            HConfigurationException
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setColor(java.awt.Color color)
+            throws HPermissionDeniedException, HConfigurationException
+    {
+        throw new Error("Not implemented");
+    }
+
+}

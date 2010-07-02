@@ -16,3 +16,22 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HScreenDimension {
+    public HScreenDimension(float width, float height)
+    {
+        this.width = width;
+        this.height = height;
+    }
+
+    public void setSize(float width, float height)
+    {
+        this.width = width;
+        this.height = height;
+    }
+
+    public float width;
+    public float height;
+}

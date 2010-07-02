@@ -16,3 +16,18 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import org.havi.ui.event.HKeyListener;
+import org.havi.ui.event.HTextListener;
+
+public interface HTextValue extends HNavigable, HKeyboardInputPreferred {
+    public void addHKeyListener(HKeyListener listener);
+
+    public void removeHKeyListener(HKeyListener listener);
+
+    public void addHTextListener(HTextListener listener);
+
+    public void removeHTextListener(HTextListener listener);
+}

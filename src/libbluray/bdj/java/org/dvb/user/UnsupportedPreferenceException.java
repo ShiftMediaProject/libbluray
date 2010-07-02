@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.user;
+
+public class UnsupportedPreferenceException extends java.lang.Exception {
+    public UnsupportedPreferenceException()
+    {
+        super();
+    }
+
+    public UnsupportedPreferenceException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = -6116238461289873882L;
+}

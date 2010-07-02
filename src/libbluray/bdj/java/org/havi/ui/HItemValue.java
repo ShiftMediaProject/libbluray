@@ -16,3 +16,17 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import org.havi.ui.event.HItemListener;
+
+public interface HItemValue extends HNavigable, HSelectionInputPreferred {
+    public void addItemListener(HItemListener listener);
+
+    public void removeItemListener(HItemListener listener);
+
+    public void setSelectionSound(HSound sound);
+
+    public HSound getSelectionSound();
+}

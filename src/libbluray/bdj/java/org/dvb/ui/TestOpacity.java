@@ -16,3 +16,11 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.ui;
+
+public interface TestOpacity {
+	public boolean isOpaque();
+}
+
+

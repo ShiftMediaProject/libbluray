@@ -16,3 +16,40 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import java.awt.Image;
+import java.awt.Point;
+
+public class HImageMatte implements HMatte {
+    public HImageMatte()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HImageMatte(Image data)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setMatteData(Image data)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public Image getMatteData()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setOffset(Point p)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public Point getOffset()
+    {
+        throw new Error("Not implemented");
+    }
+}

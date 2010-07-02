@@ -16,3 +16,11 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+import java.util.EventListener;
+
+public interface AsynchronousLoadingEventListener extends EventListener {
+    public void receiveEvent(AsynchronousLoadingEvent event);
+}

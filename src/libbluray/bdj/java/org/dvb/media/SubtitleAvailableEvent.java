@@ -16,3 +16,24 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.media;
+
+import java.util.EventObject;
+
+public class SubtitleAvailableEvent extends EventObject {
+    public SubtitleAvailableEvent(Object source)
+    {
+        super(source);
+
+        this.source = source;
+    }
+
+    public Object getSource()
+    {
+        return source;
+    }
+
+    private Object source;
+    private static final long serialVersionUID = -7714072037836958718L;
+}

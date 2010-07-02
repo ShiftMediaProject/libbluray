@@ -16,3 +16,11 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public interface HMatteLayer {
+    public void setMatte(HMatte matte) throws HMatteException;
+
+    public HMatte getMatte();
+}

@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HPermissionDeniedException extends Exception {
+    public HPermissionDeniedException()
+    {
+        super();
+    }
+
+    public HPermissionDeniedException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = 3810479071431655539L;
+}

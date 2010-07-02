@@ -16,3 +16,14 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.davic.media;
+
+import javax.media.Control;
+import javax.media.Time;
+
+public interface MediaTimePositionControl extends Control {
+    public javax.media.Time setMediaTimePosition(Time mediaTime);
+
+    public javax.media.Time getMediaTimePosition();
+}

@@ -16,3 +16,21 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.user;
+
+import java.security.BasicPermission;
+
+public class UserPreferencePermission extends BasicPermission {
+    public UserPreferencePermission(String name)
+    {
+        super(name);
+    }
+
+    public UserPreferencePermission(String name, String actions)
+    {
+        super(name, actions);
+    }
+
+    private static final long serialVersionUID = 9094691094019245435L;
+}

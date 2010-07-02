@@ -53,7 +53,7 @@ struct bluray {
     uint64_t clip_size;
     uint64_t clip_block_pos;
     uint64_t clip_pos;
-    void *aacs, *bdplus;
+    void *aacs, *bdplus, *bdjava;
     fptr_int32 bdplus_seek; // frequently called
     fptr_int32 bdplus_fixup; // frequently called
     void *h_libaacs, *h_libbdplus, *h_libbdnav;

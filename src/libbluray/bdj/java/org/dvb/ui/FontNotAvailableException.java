@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.ui;
+
+public class FontNotAvailableException extends Exception {
+    public FontNotAvailableException()
+    {
+        super();
+    }
+
+    public FontNotAvailableException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = -2052370094650636698L;
+}

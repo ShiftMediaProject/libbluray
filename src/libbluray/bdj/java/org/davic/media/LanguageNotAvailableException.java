@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.davic.media;
+
+public class LanguageNotAvailableException extends javax.media.MediaException {
+    public LanguageNotAvailableException()
+    {
+        super();
+    }
+
+    public LanguageNotAvailableException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = -1554615309290034756L;
+}

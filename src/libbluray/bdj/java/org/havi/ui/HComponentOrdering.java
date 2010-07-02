@@ -16,3 +16,25 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import java.awt.Component;
+
+public interface HComponentOrdering {
+    public java.awt.Component addBefore(Component component, Component behind);
+
+    public java.awt.Component addAfter(Component component, Component front);
+
+    public boolean popToFront(Component component);
+
+    public boolean pushToBack(Component component);
+
+    public boolean pop(Component component);
+
+    public boolean push(Component component);
+
+    public boolean popInFrontOf(Component move, Component behind);
+
+    public boolean pushBehind(Component move, Component front);
+}

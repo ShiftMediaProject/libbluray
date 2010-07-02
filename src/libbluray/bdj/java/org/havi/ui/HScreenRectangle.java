@@ -16,3 +16,32 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HScreenRectangle {
+    public HScreenRectangle(float x, float y, float width, float height)
+    {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
+    public void setLocation(float x, float y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void setSize(float width, float height)
+    {
+        this.width = width;
+        this.height = height;
+    }
+
+    public float x;
+    public float y;
+    public float width;
+    public float height;
+}

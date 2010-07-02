@@ -16,3 +16,37 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HChangeData
+{
+    public HChangeData(int hint, Object data)
+    {
+        this.hint = hint;
+        this.data = data;
+    }
+    
+    public int hint;
+    public Object data;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

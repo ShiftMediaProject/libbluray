@@ -16,3 +16,22 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.media;
+
+public class AspectRatioChangedEvent extends VideoFormatEvent {
+    public AspectRatioChangedEvent(Object source, int newRatio)
+    {
+        super(source);
+        
+        this.newRatio = newRatio;
+    }
+
+    public int getNewRatio()
+    {
+        return newRatio;
+    }
+
+    private int newRatio;
+    private static final long serialVersionUID = -897298629574550910L;
+}

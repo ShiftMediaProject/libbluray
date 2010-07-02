@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public abstract class HEmulatedGraphicsDevice extends HGraphicsDevice {
+    protected HEmulatedGraphicsDevice()
+    {
+
+    }
+
+    public boolean setGraphicsConfiguration(HEmulatedGraphicsConfiguration hegc)
+            throws SecurityException, HPermissionDeniedException,
+            HConfigurationException
+    {
+        throw new Error("Not implemented");
+    }
+}

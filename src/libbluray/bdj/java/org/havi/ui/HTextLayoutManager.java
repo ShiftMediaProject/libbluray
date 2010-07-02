@@ -16,3 +16,13 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import java.awt.Graphics;
+import java.awt.Insets;
+
+public interface HTextLayoutManager {
+    public void render(String markedUpString, Graphics g, HVisible v,
+            Insets insets);
+}

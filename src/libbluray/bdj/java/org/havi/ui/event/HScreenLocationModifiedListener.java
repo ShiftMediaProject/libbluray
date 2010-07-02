@@ -16,3 +16,12 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui.event;
+
+import java.util.EventListener;
+import org.havi.ui.event.HScreenLocationModifiedEvent;
+
+public interface HScreenLocationModifiedListener extends EventListener {
+    public abstract void report(HScreenLocationModifiedEvent event);
+}

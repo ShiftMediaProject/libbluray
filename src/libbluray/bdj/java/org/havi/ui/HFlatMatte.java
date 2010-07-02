@@ -16,3 +16,27 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HFlatMatte implements HMatte {
+    public HFlatMatte()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HFlatMatte(float data)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setMatteData(float data)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public float getMatteData()
+    {
+        throw new Error("Not implemented");
+    }
+}

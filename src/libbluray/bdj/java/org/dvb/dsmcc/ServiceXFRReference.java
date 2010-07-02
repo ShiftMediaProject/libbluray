@@ -16,3 +16,40 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+import org.davic.net.Locator;
+
+public class ServiceXFRReference {
+    public ServiceXFRReference(Locator serviceLocator, int carouselId,
+            String pathName)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public ServiceXFRReference(byte[] nsapAddress, String pathName)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public Locator getLocator()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public int getCarouselId()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public String getPathName()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public byte[] getNSAPAddress()
+    {
+        throw new Error("Not implemented");
+    }
+}

@@ -16,3 +16,17 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import java.awt.Graphics;
+
+public interface HExtendedLook extends HLook {
+    public void fillBackground(Graphics g, HVisible visible, int state);
+
+    public void renderBorders(Graphics g, HVisible visible, int state);
+
+    public void renderVisible(Graphics g, HVisible visible, int state);
+
+    public void showLook(Graphics g, HVisible visible, int state);
+}

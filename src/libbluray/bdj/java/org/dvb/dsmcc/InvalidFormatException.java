@@ -16,3 +16,20 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public class InvalidFormatException extends DSMCCException {
+
+    public InvalidFormatException()
+    {
+        super();
+    }
+
+    public InvalidFormatException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = 5732397886357486569L;
+}

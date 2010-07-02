@@ -16,3 +16,12 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui.event;
+
+import java.util.EventListener;
+import org.havi.ui.event.HScreenConfigurationEvent;
+
+public interface HScreenConfigurationListener extends EventListener {
+    public abstract void report(HScreenConfigurationEvent event);
+}

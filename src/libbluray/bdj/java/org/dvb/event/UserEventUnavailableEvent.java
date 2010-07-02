@@ -16,3 +16,23 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.event;
+
+public class UserEventUnavailableEvent extends
+        org.davic.resources.ResourceStatusEvent {
+    public UserEventUnavailableEvent(Object source)
+    {
+        super(source);
+
+        this.source = source;
+    }
+
+    public Object getSource()
+    {
+        return source;
+    }
+
+    private Object source;
+    private static final long serialVersionUID = -5243037969101337577L;
+}

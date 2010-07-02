@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public class InsufficientResourcesException extends DSMCCException {
+    public InsufficientResourcesException()
+    {
+        super();
+    }
+
+    public InsufficientResourcesException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = -3516421612040924361L;
+}

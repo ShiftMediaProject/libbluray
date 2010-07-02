@@ -16,3 +16,14 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.media;
+
+public interface BackgroundVideoPresentationControl extends
+        VideoPresentationControl {
+    public abstract boolean setVideoTransformation(VideoTransformation transform);
+
+    public abstract VideoTransformation getVideoTransformation();
+
+    public abstract VideoTransformation getClosestMatch(VideoTransformation transform);
+}

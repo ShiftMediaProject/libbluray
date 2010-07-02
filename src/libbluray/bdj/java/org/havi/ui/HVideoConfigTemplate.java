@@ -16,3 +16,34 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HVideoConfigTemplate extends HScreenConfigTemplate {
+    public HVideoConfigTemplate()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public boolean isConfigSupported(HVideoConfiguration hvc)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public int getPreferencePriority(int preference)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setPreference(int preference, Object object, int priority)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public Object getPreferenceObject(int preference)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public static final int GRAPHICS_MIXING = 0x0F;
+}

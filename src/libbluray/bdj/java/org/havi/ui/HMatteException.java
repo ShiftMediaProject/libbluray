@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HMatteException extends HUIException {
+    public HMatteException()
+    {
+        super();
+    }
+
+    public HMatteException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = -8263775647924683468L;
+}

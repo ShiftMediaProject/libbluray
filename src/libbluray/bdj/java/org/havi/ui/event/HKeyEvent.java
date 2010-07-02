@@ -16,3 +16,24 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui.event;
+
+import java.awt.Component;
+
+public class HKeyEvent extends HRcEvent {
+    public HKeyEvent(Component source, int id, long when, int modifiers,
+            int keyCode, char keyChar)
+    {
+        super(source, id, when, modifiers, keyCode, keyChar);
+    }
+
+    @Deprecated
+    public HKeyEvent(Component source, int id, long when, int modifiers,
+            int keyCode)
+    {
+        super(source, id, when, modifiers, keyCode);
+    }
+    
+    private static final long serialVersionUID = 1896658905645675252L;
+}

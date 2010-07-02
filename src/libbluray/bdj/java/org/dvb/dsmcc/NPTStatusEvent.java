@@ -16,3 +16,22 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public abstract class NPTStatusEvent extends java.util.EventObject {
+    public NPTStatusEvent(DSMCCStream source)
+    {
+        super(source);
+
+        this.source = source;
+    }
+
+    public Object getSource()
+    {
+        return source;
+    }
+
+    private DSMCCStream source;
+    private static final long serialVersionUID = 5167655544865128114L;
+}

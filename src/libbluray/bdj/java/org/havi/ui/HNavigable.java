@@ -16,3 +16,30 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import org.havi.ui.event.HFocusListener;
+
+public interface HNavigable extends HNavigationInputPreferred {
+    public void setMove(int keyCode, HNavigable target);
+
+    public HNavigable getMove(int keyCode);
+
+    public void setFocusTraversal(HNavigable up, HNavigable down,
+            HNavigable left, HNavigable right);
+
+    public boolean isSelected();
+
+    public void setGainFocusSound(HSound sound);
+
+    public void setLoseFocusSound(HSound sound);
+
+    public HSound getGainFocusSound();
+
+    public HSound getLoseFocusSound();
+
+    public void addHFocusListener(HFocusListener listener);
+
+    public void removeHFocusListener(HFocusListener listener);
+}

@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public class NothingToAbortException extends DSMCCException {
+    public NothingToAbortException()
+    {
+        super();
+    }
+
+    public NothingToAbortException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = 7869781537572849172L;
+}

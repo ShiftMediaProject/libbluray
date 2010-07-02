@@ -16,3 +16,16 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.davic.media;
+
+public interface LanguageControl extends javax.media.Control {
+    public String[] listAvailableLanguages();
+
+    public void selectLanguage(String lang)
+            throws LanguageNotAvailableException, NotAuthorizedException;
+
+    public String getCurrentLanguage();
+
+    public String selectDefaultLanguage() throws NotAuthorizedException;
+}

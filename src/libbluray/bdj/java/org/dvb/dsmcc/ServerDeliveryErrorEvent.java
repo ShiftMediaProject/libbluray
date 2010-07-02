@@ -16,3 +16,22 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public class ServerDeliveryErrorEvent extends AsynchronousLoadingEvent {
+    public ServerDeliveryErrorEvent(DSMCCObject source)
+    {
+        super(source);
+
+        this.source = source;
+    }
+
+    public java.lang.Object getSource()
+    {
+        return source;
+    }
+
+    private DSMCCObject source;
+    private static final long serialVersionUID = -4296190257030275354L;
+}

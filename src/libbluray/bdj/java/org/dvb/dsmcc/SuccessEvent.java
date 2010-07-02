@@ -16,3 +16,21 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public class SuccessEvent extends AsynchronousLoadingEvent {
+    public SuccessEvent(DSMCCObject source)
+    {
+        super(source);
+        this.source = source;
+    }
+
+    public Object getSource()
+    {
+        return source;
+    }
+
+    private DSMCCObject source;
+    private static final long serialVersionUID = -3861589087439809273L;
+}

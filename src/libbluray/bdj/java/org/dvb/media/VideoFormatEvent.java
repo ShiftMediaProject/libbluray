@@ -16,3 +16,16 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.media;
+
+import java.util.EventObject;
+
+public abstract class VideoFormatEvent extends EventObject {
+    public VideoFormatEvent(Object source)
+    {
+        super(source);
+    }
+
+    private static final long serialVersionUID = 8432740055225331694L;
+}

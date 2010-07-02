@@ -16,3 +16,22 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HScreenPoint {
+    public HScreenPoint(float x, float y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void setLocation(float x, float y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    public float x;
+    public float y;
+}

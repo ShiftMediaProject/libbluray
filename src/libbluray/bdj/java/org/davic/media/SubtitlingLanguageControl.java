@@ -16,3 +16,11 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.davic.media;
+
+public interface SubtitlingLanguageControl extends LanguageControl {
+    public boolean isSubtitlingOn();
+
+    public boolean setSubtitling(boolean value);
+}

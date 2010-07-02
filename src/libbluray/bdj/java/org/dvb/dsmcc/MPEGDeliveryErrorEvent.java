@@ -16,3 +16,21 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public class MPEGDeliveryErrorEvent extends AsynchronousLoadingEvent {
+    public MPEGDeliveryErrorEvent(DSMCCObject source)
+    {
+        super(source);
+        this.source = source;
+    }
+
+    public Object getSource()
+    {
+        return source;
+    }
+
+    private DSMCCObject source;
+    private static final long serialVersionUID = 5141570651831115465L;
+}

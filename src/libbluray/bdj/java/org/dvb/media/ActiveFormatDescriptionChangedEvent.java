@@ -16,3 +16,22 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.media;
+
+public class ActiveFormatDescriptionChangedEvent extends VideoFormatEvent {
+    public ActiveFormatDescriptionChangedEvent(Object source, int newFormat)
+    {
+        super(source);
+
+        this.newFormat = newFormat;
+    }
+
+    public int getNewFormat()
+    {
+        return newFormat;
+    }
+
+    private int newFormat;
+    private static final long serialVersionUID = -1102487117285915146L;
+}

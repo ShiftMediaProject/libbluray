@@ -16,3 +16,36 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import java.awt.Color;
+
+public class HBackgroundConfiguration extends HScreenConfiguration {
+    protected HBackgroundConfiguration()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HBackgroundDevice getDevice()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HBackgroundConfigTemplate getConfigTemplate()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public Color getColor()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setColor(Color color)
+            throws HPermissionDeniedException, HConfigurationException
+    {
+        throw new Error("Not implemented");
+    }
+
+}

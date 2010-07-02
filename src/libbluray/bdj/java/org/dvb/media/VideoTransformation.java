@@ -16,3 +16,58 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.media;
+
+import java.awt.Rectangle;
+import org.havi.ui.HScreenPoint;
+
+public class VideoTransformation {
+    public VideoTransformation()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public VideoTransformation(Rectangle clipRect,
+            float horizontalScalingFactor, float verticalScalingFactor,
+            HScreenPoint location)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setClipRegion(Rectangle clipRect)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public Rectangle getClipRegion()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setScalingFactors(float horizontalScalingFactor,
+            float verticalScalingFactor)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public float[] getScalingFactors()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setVideoPosition(HScreenPoint location)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HScreenPoint getVideoPosition()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public boolean isPanAndScan()
+    {
+        throw new Error("Not implemented");
+    }
+}

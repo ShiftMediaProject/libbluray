@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public class InvalidAddressException extends DSMCCException {
+    public InvalidAddressException()
+    {
+        super();
+    }
+
+    public InvalidAddressException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = 2608051519198127889L;
+}

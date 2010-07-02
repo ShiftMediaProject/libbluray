@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HUIException extends Exception {
+    public HUIException()
+    {
+        super();
+    }
+
+    public HUIException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = 153171066594088401L;
+}

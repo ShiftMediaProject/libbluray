@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.davic.media;
+
+public class MediaFreezeException extends javax.media.MediaException {
+    public MediaFreezeException()
+    {
+        super();
+    }
+
+    public MediaFreezeException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = 2323024971341929507L;
+}

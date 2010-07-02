@@ -16,3 +16,22 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui.event;
+
+public class HKeyCapabilities {
+    protected HKeyCapabilities()
+    {
+
+    }
+
+    public static boolean getInputDeviceSupported()
+    {
+        return true;
+    }
+
+    public static boolean isSupported(int keycode)
+    {
+        return true; // of course we support everything
+    }
+}

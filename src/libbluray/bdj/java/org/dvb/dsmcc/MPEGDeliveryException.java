@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public class MPEGDeliveryException extends DSMCCException {
+    public MPEGDeliveryException()
+    {
+        super();
+    }
+
+    public MPEGDeliveryException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = -513604711071908966L;
+}

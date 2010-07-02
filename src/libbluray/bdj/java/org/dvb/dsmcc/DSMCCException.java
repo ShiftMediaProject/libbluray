@@ -16,3 +16,21 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+import java.io.IOException;
+
+public class DSMCCException extends IOException {
+    public DSMCCException()
+    {
+        super();
+    }
+
+    public DSMCCException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = -4212988559885298015L;
+}

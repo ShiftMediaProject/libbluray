@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HConfigurationException extends java.lang.Exception {
+    public HConfigurationException()
+    {
+        super();
+    }
+
+    public HConfigurationException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = -4199659702736455602L;
+}

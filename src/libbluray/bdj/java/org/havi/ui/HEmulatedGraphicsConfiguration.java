@@ -16,3 +16,27 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HEmulatedGraphicsConfiguration extends HGraphicsConfiguration {
+    protected HEmulatedGraphicsConfiguration()
+    {
+
+    }
+
+    public HGraphicsConfigTemplate getConfigTemplate()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HGraphicsConfigTemplate getEmulation()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HGraphicsConfigTemplate getImplementation()
+    {
+        throw new Error("Not implemented");
+    }
+}

@@ -16,3 +16,21 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.davic.media;
+
+import java.io.IOException;
+
+public class NotAuthorizedException extends IOException {
+    public NotAuthorizedException()
+    {
+        super();
+    }
+
+    public NotAuthorizedException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = 2615331093154572679L;
+}

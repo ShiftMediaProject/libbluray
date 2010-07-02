@@ -16,3 +16,52 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HToggleGroup {
+    public HToggleGroup()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HToggleButton getCurrent()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setCurrent(HToggleButton selection)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setForcedSelection(boolean forceSelection)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public boolean getForcedSelection()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setEnabled(boolean enable)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public boolean isEnabled()
+    {
+        throw new Error("Not implemented");
+    }
+
+    protected void add(HToggleButton button)
+    {
+        throw new Error("Not implemented");
+    }
+
+    protected void remove(HToggleButton button)
+    {
+        throw new Error("Not implemented");
+    }
+}

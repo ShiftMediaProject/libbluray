@@ -16,3 +16,11 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.davic.media;
+
+public interface FreezeControl extends javax.media.Control {
+    public void freeze() throws MediaFreezeException;
+
+    public void resume() throws MediaFreezeException;
+}

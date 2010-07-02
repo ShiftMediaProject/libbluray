@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.event;
+
+public class OverallRepository extends UserEventRepository {
+    public OverallRepository()
+    {
+        super(null);
+        throw new Error("Not implemented");
+    }
+
+    public OverallRepository(String name)
+    {
+        super(name);
+        throw new Error("Not implemented");
+    }
+}

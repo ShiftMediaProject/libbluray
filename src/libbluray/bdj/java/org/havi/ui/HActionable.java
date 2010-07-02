@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import org.havi.ui.event.HActionListener;
+
+public interface HActionable extends HNavigable, HActionInputPreferred {
+    public void addHActionListener(HActionListener listener);
+
+    public void removeHActionListener(HActionListener listener);
+
+    public void setActionCommand(String command);
+
+    public void setActionSound(HSound sound);
+
+    public HSound getActionSound();
+}

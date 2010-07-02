@@ -16,3 +16,37 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Insets;
+
+public class HDefaultTextLayoutManager implements HTextLayoutManager {
+    public HDefaultTextLayoutManager()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public Dimension getMinimumSize(HVisible hvisible)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public Dimension getMaximumSize(HVisible hvisible)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public Dimension getPreferredSize(HVisible hvisible)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void render(String markedUpString, Graphics g, HVisible v,
+            Insets insets)
+    {
+        throw new Error("Not implemented");
+    }
+}

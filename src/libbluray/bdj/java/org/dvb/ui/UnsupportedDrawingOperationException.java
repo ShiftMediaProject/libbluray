@@ -16,3 +16,14 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.ui;
+
+public class UnsupportedDrawingOperationException extends Exception {
+    public UnsupportedDrawingOperationException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = -3013593803551791277L;
+}

@@ -16,3 +16,41 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import java.awt.Image;
+
+public class HStaticIcon extends HVisible implements HNoInputPreferred {
+    public HStaticIcon()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HStaticIcon(Image imageNormal, int x, int y, int width, int height)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HStaticIcon(Image imageNormal)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setLook(HLook hlook) throws HInvalidLookException
+    {
+        throw new Error("Not implemented");
+    }
+
+    public static void setDefaultLook(HGraphicLook hlook)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public static HGraphicLook getDefaultLook()
+    {
+        throw new Error("Not implemented");
+    }
+
+    private static final long serialVersionUID = 2015589998794748072L;
+}

@@ -16,3 +16,56 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HSceneFactory extends Object {
+    private HSceneFactory()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public static HSceneFactory getInstance()
+    {
+        return instance;
+    }
+
+    public HSceneTemplate getBestSceneTemplate(HSceneTemplate template)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HScene getBestScene(HSceneTemplate template)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HSceneTemplate resizeScene(HScene scene, HSceneTemplate template)
+            throws IllegalStateException
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HScene getDefaultHScene(HScreen screen)
+    {
+        return defaultHScene;
+    }
+
+    public HScene getDefaultHScene()
+    {
+        return defaultHScene;
+    }
+
+    public HScene getFullScreenScene(HGraphicsDevice device)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void dispose(HScene scene)
+    {
+        throw new Error("Not implemented");
+    }
+
+    private HScene defaultHScene = new HScene();
+    private static final HSceneFactory instance = new HSceneFactory();
+}

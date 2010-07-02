@@ -16,3 +16,14 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public class NPTPresentEvent extends NPTStatusEvent {
+    public NPTPresentEvent(DSMCCStream source)
+    {
+        super(source);
+    }
+
+    private static final long serialVersionUID = -5928350701518683379L;
+}

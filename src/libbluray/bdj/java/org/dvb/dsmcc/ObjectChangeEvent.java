@@ -16,3 +16,34 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+import java.util.EventObject;
+
+public class ObjectChangeEvent extends EventObject {
+    public ObjectChangeEvent(DSMCCObject source, int aVersionNumber)
+
+    {
+        super(source);
+
+        this.source = source;
+        this.aVersionNumber = aVersionNumber;
+    }
+
+    public int getNewVersionNumber()
+
+    {
+        return aVersionNumber;
+
+    }
+
+    public Object getSource()
+    {
+        return source;
+    }
+
+    private DSMCCObject source;
+    private int aVersionNumber;
+    private static final long serialVersionUID = -5093861428747809023L;
+}

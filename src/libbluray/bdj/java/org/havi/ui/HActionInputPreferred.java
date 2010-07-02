@@ -16,3 +16,32 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import org.havi.ui.event.HActionEvent;
+
+public interface HActionInputPreferred 
+{
+    public void processHActionEvent(HActionEvent event);
+
+    public String getActionCommand();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

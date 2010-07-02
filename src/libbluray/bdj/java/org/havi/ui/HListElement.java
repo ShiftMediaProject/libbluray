@@ -16,3 +16,39 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import java.awt.Image;
+
+public class HListElement {
+    public HListElement(String label)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HListElement(Image icon, String label)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public String getLabel()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public Image getIcon()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setLabel(String label)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void setIcon(Image icon)
+    {
+        throw new Error("Not implemented");
+    }
+}

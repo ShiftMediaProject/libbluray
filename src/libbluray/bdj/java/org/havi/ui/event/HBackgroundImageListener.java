@@ -16,3 +16,13 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui.event;
+
+import java.util.EventListener;
+
+public interface HBackgroundImageListener extends EventListener {
+    public void imageLoaded(HBackgroundImageEvent event);
+
+    public void imageLoadFailed(HBackgroundImageEvent event);
+}

@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HInvalidLookException extends HUIException {
+    public HInvalidLookException()
+    {
+        super();
+    }
+
+    public HInvalidLookException(String reason)
+    {
+        super(reason);
+    }
+    
+    private static final long serialVersionUID = -930701028428083791L;
+}

@@ -16,3 +16,17 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.davic.media;
+
+import javax.media.ControllerEvent;
+import javax.media.Controller;
+
+public class MediaPresentedEvent extends ControllerEvent {
+    public MediaPresentedEvent(Controller source)
+    {
+        super(source);
+    }
+
+    private static final long serialVersionUID = 133581431805272182L;
+}

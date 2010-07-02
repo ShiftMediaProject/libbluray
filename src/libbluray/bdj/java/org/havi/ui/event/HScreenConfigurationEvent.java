@@ -16,3 +16,14 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui.event;
+
+public class HScreenConfigurationEvent extends java.util.EventObject {
+    public HScreenConfigurationEvent(Object source)
+    {
+        super(source);
+    }
+    
+    private static final long serialVersionUID = 8631615705134051342L;
+}

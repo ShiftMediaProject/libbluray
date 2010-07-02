@@ -16,3 +16,50 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import java.io.IOException;
+import java.net.URL;
+
+public class HSound {
+    public HSound()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void load(String location) throws IOException, SecurityException
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void load(URL contents) throws IOException, SecurityException
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void set(byte data[])
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void play()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void stop()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void loop()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public void dispose()
+    {
+        throw new Error("Not implemented");
+    }
+}

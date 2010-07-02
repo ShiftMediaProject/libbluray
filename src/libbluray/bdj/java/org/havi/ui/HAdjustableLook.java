@@ -16,3 +16,20 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import java.awt.Point;
+
+public interface HAdjustableLook extends HLook {
+    public int hitTest(HOrientable component, Point point);
+
+    public Integer getValue(HOrientable component, Point point);
+
+    public static final int ADJUST_NONE = -1;
+    public static final int ADJUST_BUTTON_LESS = -2;
+    public static final int ADJUST_BUTTON_MORE = -3;
+    public static final int ADJUST_PAGE_LESS = -4;
+    public static final int ADJUST_PAGE_MORE = -5;
+    public static final int ADJUST_THUMB = -6;
+}

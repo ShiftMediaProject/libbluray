@@ -16,3 +16,28 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public class NPTRate {
+
+    // should only be called internally
+    public NPTRate(int numerator, int denominator)
+    {
+        this.numerator = numerator;
+        this.denominator = denominator;
+    }
+
+    public int getNumerator()
+    {
+        return numerator;
+    }
+
+    public int getDenominator()
+    {
+        return denominator;
+    }
+
+    private int numerator;
+    private int denominator;
+}

@@ -16,3 +16,12 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.media;
+
+import java.util.EventListener;
+import java.util.EventObject;
+
+public interface SubtitleListener extends EventListener {
+    public void subtitleStatusChanged(EventObject event);
+}

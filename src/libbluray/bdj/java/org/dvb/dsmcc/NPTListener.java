@@ -16,3 +16,11 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public interface NPTListener extends java.util.EventListener {
+    public void receiveRateChangedEvent(NPTRateChangeEvent event);
+
+    public void receiveNPTStatusEvent(NPTStatusEvent event);
+}

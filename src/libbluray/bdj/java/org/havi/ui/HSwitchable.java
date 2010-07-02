@@ -16,3 +16,15 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public interface HSwitchable extends HActionable {
+    public boolean getSwitchableState();
+
+    public void setSwitchableState(boolean state);
+
+    public void setUnsetActionSound(HSound sound);
+
+    public HSound getUnsetActionSound();
+}

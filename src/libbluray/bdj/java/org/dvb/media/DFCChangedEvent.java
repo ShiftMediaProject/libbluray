@@ -16,3 +16,22 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.media;
+
+public class DFCChangedEvent extends VideoFormatEvent {
+    public DFCChangedEvent(Object source, int newDFC)
+    {
+        super(source);
+
+        this.newDFC = newDFC;
+    }
+
+    public int getNewDFC()
+    {
+        return newDFC;
+    }
+
+    private int newDFC;
+    private static final long serialVersionUID = -4351969268893058245L;
+}

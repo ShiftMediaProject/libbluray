@@ -16,3 +16,22 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HVideoConfiguration extends HScreenConfiguration {
+    protected HVideoConfiguration()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HVideoDevice getDevice()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HVideoConfigTemplate getConfigTemplate()
+    {
+        throw new Error("Not implemented");
+    }
+}

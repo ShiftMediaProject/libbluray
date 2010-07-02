@@ -16,3 +16,27 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.media;
+
+import javax.media.MediaLocator;
+import javax.media.StopEvent;
+import javax.media.Controller;
+
+public class NoComponentSelectedEvent extends StopEvent {
+    public NoComponentSelectedEvent(Controller source, int previous,
+            int current, int target, MediaLocator stream)
+    {
+        super(source, 0, 0, 0, null);
+
+        this.stream = stream;
+    }
+
+    public MediaLocator getStream()
+    {
+        return stream;
+    }
+
+    private MediaLocator stream;
+    private static final long serialVersionUID = -5650793101305031432L;
+}

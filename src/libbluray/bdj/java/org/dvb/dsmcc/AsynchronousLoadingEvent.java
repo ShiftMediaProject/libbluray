@@ -16,3 +16,22 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+import java.util.EventObject;
+
+public abstract class AsynchronousLoadingEvent extends EventObject {
+    public AsynchronousLoadingEvent(DSMCCObject source)
+    {
+        super(source);
+    }
+
+    public Object getSource()
+    {
+        return source;
+    }
+
+    private DSMCCObject source;
+    private static final long serialVersionUID = -688613909871281279L;
+}

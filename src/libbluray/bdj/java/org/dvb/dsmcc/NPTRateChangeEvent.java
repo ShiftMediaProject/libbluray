@@ -16,3 +16,31 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+
+package org.dvb.dsmcc;
+
+public class NPTRateChangeEvent extends java.util.EventObject {
+    public NPTRateChangeEvent(DSMCCStream source, NPTRate rate)
+    {
+        super(source);
+
+        this.source = source;
+        this.rate = rate;
+    }
+
+    public Object getSource()
+    {
+        return source;
+    }
+
+    public NPTRate getRate()
+    {
+        return rate;
+    }
+
+    private DSMCCStream source;
+    private NPTRate rate;
+    private static final long serialVersionUID = -6414027595233343691L;
+
+}

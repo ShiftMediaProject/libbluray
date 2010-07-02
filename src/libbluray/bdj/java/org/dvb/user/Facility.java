@@ -16,3 +16,17 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.user;
+
+public class Facility {
+    public Facility(String preference, String value)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public Facility(String preference, String values[])
+    {
+        throw new Error("Not implemented");
+    }
+}

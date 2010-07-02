@@ -16,4 +16,21 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package org.davic.media;public class MediaTimePositionChangedEvent extends javax.media.RestartingEvent {    public MediaTimePositionChangedEvent(javax.media.Controller source)    {        super(source, 0, 0, 0, null);    }    public MediaTimePositionChangedEvent(javax.media.Controller from,            int previous, int current, int target, javax.media.Time mediaTime)    {        super(from, previous, current, target, mediaTime);    }    private static final long serialVersionUID = -2441357780558082254L;}
+package org.davic.media;
+
+public class MediaTimePositionChangedEvent extends javax.media.RestartingEvent {
+    public MediaTimePositionChangedEvent(javax.media.Controller source)
+    {
+
+        super(source, 0, 0, 0, null);
+
+    }
+
+    public MediaTimePositionChangedEvent(javax.media.Controller from,
+            int previous, int current, int target, javax.media.Time mediaTime)
+    {
+        super(from, previous, current, target, mediaTime);
+    }
+
+    private static final long serialVersionUID = -2441357780558082254L;
+}

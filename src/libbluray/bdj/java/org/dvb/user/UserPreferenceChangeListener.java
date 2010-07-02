@@ -16,3 +16,12 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.user;
+
+import java.util.EventListener;
+
+public interface UserPreferenceChangeListener extends EventListener {
+    public abstract void receiveUserPreferenceChangeEvent(
+            UserPreferenceChangeEvent event);
+}

@@ -16,3 +16,46 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HGraphicsDevice extends HScreenDevice {
+    protected HGraphicsDevice()
+    {
+
+    }
+
+    public HGraphicsConfiguration[] getConfigurations()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HGraphicsConfiguration getDefaultConfiguration()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HGraphicsConfiguration getBestConfiguration(
+            HGraphicsConfigTemplate hgct)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HGraphicsConfiguration getBestConfiguration(
+            HGraphicsConfigTemplate hgcta[])
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HGraphicsConfiguration getCurrentConfiguration()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public boolean setGraphicsConfiguration(HGraphicsConfiguration hgc)
+            throws SecurityException, HPermissionDeniedException,
+            HConfigurationException
+    {
+        throw new Error("Not implemented");
+    }
+}

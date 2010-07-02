@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public class InvalidPathNameException extends DSMCCException {
+    public InvalidPathNameException()
+    {
+        super();
+    }
+
+    public InvalidPathNameException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = -6530605302534027097L;
+}

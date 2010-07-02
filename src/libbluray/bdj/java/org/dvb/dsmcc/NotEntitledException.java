@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.dsmcc;
+
+public class NotEntitledException extends DSMCCException {
+    public NotEntitledException()
+    {
+        super();
+    }
+
+    public NotEntitledException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = -3766322418983618786L;
+}

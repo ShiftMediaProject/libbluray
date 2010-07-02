@@ -16,3 +16,19 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.dvb.ui;
+
+public class FontFormatException extends Exception {
+    public FontFormatException()
+    {
+        super();
+    }
+
+    public FontFormatException(String reason)
+    {
+        super(reason);
+    }
+
+    private static final long serialVersionUID = -339632509483792068L;
+}

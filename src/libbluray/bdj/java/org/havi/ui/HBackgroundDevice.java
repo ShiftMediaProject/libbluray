@@ -16,3 +16,46 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+public class HBackgroundDevice extends HScreenDevice {
+    protected HBackgroundDevice()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HBackgroundConfiguration[] getConfigurations()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HBackgroundConfiguration getDefaultConfiguration()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HBackgroundConfiguration getBestConfiguration(
+            HBackgroundConfigTemplate hbc)
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HBackgroundConfiguration getBestConfiguration(
+            HBackgroundConfigTemplate hbcta[])
+    {
+        throw new Error("Not implemented");
+    }
+
+    public HBackgroundConfiguration getCurrentConfiguration()
+    {
+        throw new Error("Not implemented");
+    }
+
+    public boolean setBackgroundConfiguration(HBackgroundConfiguration hbc)
+            throws SecurityException, HPermissionDeniedException,
+            HConfigurationException
+    {
+        throw new Error("Not implemented");
+    }
+}

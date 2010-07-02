@@ -16,3 +16,13 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+package org.havi.ui;
+
+import org.havi.ui.event.HFocusEvent;
+
+public interface HNavigationInputPreferred {
+    public int[] getNavigationKeys();
+
+    public void processHFocusEvent(HFocusEvent event);
+}
