@@ -19,7 +19,7 @@ bdsplice_SOURCES = \
 bdsplice_LDADD = $(BLURAY_LIB)
 
 mpls_dump_SOURCES = \
-	mpls_dump.c util.c util.h
+	mpls_dump.c util.c util.h ../util/strutl.c
 
 mpls_dump_LDADD = $(BLURAY_LIB)
 
@@ -44,12 +44,12 @@ mobj_dump_SOURCES = \
 mobj_dump_LDADD = $(BLURAY_LIB)
 
 libbluray_test_SOURCES = \
-	libbluray_test.c
+	libbluray_test.c ../util/logging.c
 
 libbluray_test_LDADD = $(BLURAY_LIB)
 
 list_titles_SOURCES = \
-	list_titles.c
+	list_titles.c ../util/logging.c
 
 list_titles_LDADD = $(BLURAY_LIB)
 
