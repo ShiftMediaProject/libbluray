@@ -23,4 +23,6 @@ src/examples/list_titles
 src/examples/mobj_dump
 src/examples/mpls_dump
 src/examples/sound_dump
+src/examples/bdj_test
+src/libbluray/bdj/build
 stamp-h1

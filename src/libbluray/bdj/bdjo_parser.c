@@ -376,7 +376,10 @@ BDJO* bdjo_read(const char* file)
         fseek(handle, 0, SEEK_SET);
 
         char* data = malloc(length);
-        fread(data, 1, length, handle);
+        if (fread(data, 1, length, handle) < length) {
+            free(data);
+            return NULL;
+        }
 
         BITBUFFER* buf = malloc(sizeof(BITBUFFER));
         bb_init(buf, data, length);
