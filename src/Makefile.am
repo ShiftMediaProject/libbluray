@@ -23,6 +23,12 @@ DLOPEN_SOURCES=file/dl.h \
 	file/dl_posix.c
 endif
 
+SOURCES_bdj = libbluray/bdj/bdj.h \
+	libbluray/bdj/bdj.c \
+	libbluray/bdj/bdjo_parser.h \
+	libbluray/bdj/bdjo_parser.c \
+	libbluray/bdj/common.h
+
 lib_LTLIBRARIES=libbluray.la
 libbluray_ladir= $(includedir)/libbluray
 libbluray_la_SOURCES=libbluray/bluray.h \
@@ -59,6 +65,15 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	$(DLOPEN_SOURCES)
 libbluray_la_HEADERS= libbluray/bluray.h
 libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) $(LIBBLURAY_LDFLAGS)
+
+if USING_BDJAVA
+libbluray_la_SOURCES+=$(SOURCES_bdj)
+libbluray_la_LDFLAGS+=@BDJAVA_LDFLAGS@
+AM_CFLAGS+=@BDJAVA_CFLAGS@
+
+all-local:
+	ant -f libbluray/bdj/build.xml
+endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libbluray.pc

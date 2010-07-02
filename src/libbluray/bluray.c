@@ -33,6 +33,9 @@
 #ifdef USING_DLOPEN
 #include "file/dl.h"
 #endif
+#ifdef USING_BDJAVA
+#include "bdj/bdj.h"
+#endif
 
 #ifndef USING_DLOPEN
 #include <libaacs/aacs.h>
@@ -824,4 +827,23 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
             return 0;
     }
 }
+
+#ifdef USING_BDJAVA
+int bd_start_bdj(BLURAY *bd, const char* start_object)
+{
+    if (bd->bdjava == NULL) {
+        bd->bdjava = bdj_open(bd->device_path, start_object);
+        return 0;
+    } else {
+        DEBUG(DBG_BLURAY | DBG_CRIT, "BD-J is already running (%p)\n", bd);
+        return -1;
+    }
+}
+
+void bd_stop_bdj(BLURAY *bd)
+{
+    if (bd->bdjava != NULL)
+        bdj_close((BDJAVA*)bd->bdjava);
+}
+#endif
 

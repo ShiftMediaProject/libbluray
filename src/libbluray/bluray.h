@@ -149,5 +149,10 @@ uint64_t bd_tell(BLURAY *bd);       // Return current pos
 int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value);
 int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s);
 
+/*
+ * Java
+ */
+int bd_start_bdj(BLURAY *bd, const char* start_object); // start BD-J from the specified BD-J object (should be a 5 character string)
+void bd_stop_bdj(BLURAY *bd); // shutdown BD-J and clean up resources
 
 #endif /* BLURAY_H_ */

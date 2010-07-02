@@ -52,3 +52,9 @@ list_titles_SOURCES = \
 	list_titles.c
 
 list_titles_LDADD = $(BLURAY_LIB)
+
+if USING_BDJAVA
+noinst_PROGRAMS+= bdj_test
+bdj_test_SOURCES = bdj_test.c
+bdj_test_LDADD = $(BLURAY_LIB)
+endif

@@ -108,7 +108,14 @@ static inline void bb_seek( BITBUFFER *bb, off_t off, int whence)
     }
     b = off >> 3;
     bb->p = &bb->p_start[b];
-    bb->i_left = 8 - (off & 0x07);
+
+    ssize_t i_tmp = bb->i_left - (off & 0x07);
+    if (i_tmp <= 0) {
+        bb->i_left = 8 + i_tmp;
+        bb->p++;
+    } else {
+        bb->i_left = i_tmp;
+    }
 }
 
 static inline void bs_seek( BITSTREAM *bs, off_t off, int whence)

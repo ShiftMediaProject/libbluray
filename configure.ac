@@ -2,6 +2,7 @@
 AC_INIT([libbluray],[0.1], [http://bd.videolan.org/])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
+AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE([foreign])
 AM_CONFIG_HEADER(config.h)
 
@@ -17,6 +18,12 @@ AC_ARG_WITH([dlopen],
   [use libaacs and libbdplus via dlopen (default is auto)])],
   [use_dlopen=$withval],
   [use_dlopen=auto])
+
+AC_ARG_WITH([java],
+  [AS_HELP_STRING([--with-java],
+  [set the path to the java home (use if $JAVA_HOME is not set)])],
+  [with_java=$withval],
+  [])
 
 AC_ARG_ENABLE([werror],
   [AS_HELP_STRING([--enable-werror],
@@ -41,6 +48,12 @@ AC_ARG_ENABLE([debug],
   [enable debugging information (default is yes)])],
   [use_debug=$enableval],
   [use_debug=yes])
+
+AC_ARG_ENABLE([bdjava],
+  [AS_HELP_STRING([--enable-bdjava],
+  [enable BD-Java support (default is no)])],
+  [use_bdjava=$enableval],
+  [use_bdjava=no])
 
 # required programs
 AC_PROG_CC
@@ -149,6 +162,48 @@ if [[ $use_debug = "yes" ]]; then
   check_cc_options -g && \
     SET_DEBUG_OPTS="$SET_DEBUG_OPTS -g"
 fi
+
+# use bdjava
+if [[ $use_bdjava = "yes" ]]; then
+  if [[ -z $with_java ]]; then
+    if [[ -z $JAVA_HOME ]]; then
+      AC_MSG_ERROR([ No JAVA_HOME and --with-java not set. ])
+    else 
+      java_path=$JAVA_HOME
+    fi
+  else
+    java_path=$with_java
+  fi
+
+  case $target_cpu in
+       x86_64) java_arch=amd64 ;;
+       i?86)   java_arch=i386 ;;
+       *)      java_arch=$target_cpu ;;
+  esac
+  case $target_os in
+       linux*) java_os=linux ;;
+       win*)   java_os=win32 ;;
+       *)      java_os=$target_os ;;
+  esac
+
+  BDJAVA_CFLAGS="-I$java_path/include -I$java_path/include/$java_os"
+  BDJAVA_LDFLAGS="-L$java_path/jre/lib/$java_arch -L$java_path/jre/lib/$java_arch/server"
+  
+  temp_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS="$BDJAVA_CFLAGS $CPPFLAGS"
+  AC_CHECK_HEADERS([jni.h], [], [AC_MSG_ERROR("Coudln't find jni.h")])
+  CPPFLAGS=$temp_CPPFLAGS
+
+  temp_LDFLAGS=$LDFLAGS
+  LDFLAGS="$BDJAVA_LDFLAGS $LDFLAGS"
+  AC_CHECK_LIB([jvm], [JNI_CreateJavaVM], [], [AC_MSG_ERROR("Coudn't find jvm library.")])
+  LDFLAGS=$temp_LDFLAGS
+  
+  AC_DEFINE([USING_BDJAVA], [1], ["Define to 1 if using BD-Java"])
+  AC_SUBST(BDJAVA_CFLAGS)
+  AC_SUBST(BDJAVA_LDFLAGS)
+fi 
+AM_CONDITIONAL([USING_BDJAVA], [ test $use_bdjava = "yes" ])
 
 # generate output files
 AC_SUBST(DLOPEN_LDFLAGS)
