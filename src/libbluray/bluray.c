@@ -228,6 +228,8 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
 void bd_close(BLURAY *bd)
 {
+    bd_stop_bdj(bd);
+
     if (bd->h_libaacs && bd->aacs) {
 #ifdef USING_DLOPEN
         fptr_p_void fptr = dl_dlsym(bd->h_libaacs, "aacs_close");
@@ -841,11 +843,13 @@ int bd_start_bdj(BLURAY *bd, const char* start_object)
 
 void bd_stop_bdj(BLURAY *bd)
 {
+    if (bd->bdjava != NULL) {
 #ifdef USING_BDJAVA
-    if (bd->bdjava != NULL)
         bdj_close((BDJAVA*)bd->bdjava);
 #else
-    DEBUG(DBG_BLURAY, "BD-J not compiled in (%p)\n", bd);
+        DEBUG(DBG_BLURAY, "BD-J not compiled in (%p)\n", bd);
 #endif
+        bd->bdjava = NULL;
+    }
 }
 
