@@ -823,9 +823,9 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
     }
 }
 
-#ifdef USING_BDJAVA
 int bd_start_bdj(BLURAY *bd, const char* start_object)
 {
+#ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
         bd->bdjava = bdj_open(bd->device_path, start_object);
         return 0;
@@ -833,12 +833,19 @@ int bd_start_bdj(BLURAY *bd, const char* start_object)
         DEBUG(DBG_BLURAY | DBG_CRIT, "BD-J is already running (%p)\n", bd);
         return -1;
     }
+#else
+    DEBUG(DBG_BLURAY | DBG_CRIT, "%s.bdjo: BD-J not compiled in (%p)\n", start_object, bd);
+#endif
+    return -1;
 }
 
 void bd_stop_bdj(BLURAY *bd)
 {
+#ifdef USING_BDJAVA
     if (bd->bdjava != NULL)
         bdj_close((BDJAVA*)bd->bdjava);
-}
+#else
+    DEBUG(DBG_BLURAY, "BD-J not compiled in (%p)\n", bd);
 #endif
+}
 
