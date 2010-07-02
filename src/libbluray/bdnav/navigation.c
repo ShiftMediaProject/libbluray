@@ -457,10 +457,10 @@ void nav_title_close(NAV_TITLE *title)
 {
     int ii;
 
-    mpls_free(title->pl);
     for (ii = 0; ii < title->pl->list_count; ii++) {
         clpi_free(title->clip_list.clip[ii].cl);
     }
+    mpls_free(title->pl);
     X_FREE(title->clip_list.clip);
     X_FREE(title->root);
     X_FREE(title->chap_list.mark);
