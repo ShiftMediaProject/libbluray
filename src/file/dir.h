@@ -20,6 +20,8 @@
 #ifndef DIR_H_
 #define DIR_H_
 
+#include <util/attributes.h>
+
 #define dir_open dir_open_posix
 
 #define dir_close(X) X->close(X)
@@ -39,6 +41,6 @@ struct dir
     int (*read)(DIR_H *dir, DIRENT *entry);
 };
 
-DIR_H *dir_open_posix(const char* dirname);
+BD_PRIVATE DIR_H *dir_open_posix(const char* dirname);
 
 #endif /* DIR_H_ */

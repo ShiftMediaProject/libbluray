@@ -21,6 +21,8 @@
 #ifndef FILE_H_
 #define FILE_H_
 
+#include <util/attributes.h>
+
 #include <stdint.h>
 
 //#ifdef __LINUX__
@@ -47,6 +49,6 @@ struct file
     int (*write)(FILE_H *file, const uint8_t *buf, int64_t size);
 };
 
-FILE_H *file_open_linux(const char* filename, const char *mode);
+BD_PRIVATE FILE_H *file_open_linux(const char* filename, const char *mode);
 
 #endif /* FILE_H_ */
