@@ -79,19 +79,19 @@ typedef struct {
 
 typedef struct {
     indx_object_type   object_type;
-    union {
+    /*union {*/
         INDX_BDJ_OBJ   bdj;
         INDX_HDMV_OBJ  hdmv;
-    } indx_union;
+    /*};*/
 } INDX_PLAY_ITEM;
 
 typedef struct {
     indx_object_type   object_type;
     uint8_t            access_type : 2;
-    union {
+    /*union {*/
         INDX_BDJ_OBJ   bdj;
         INDX_HDMV_OBJ  hdmv;
-    } indx_union;
+    /*};*/
 } INDX_TITLE;
 
 typedef struct indx_root_s {
