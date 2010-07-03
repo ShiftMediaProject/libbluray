@@ -126,7 +126,7 @@ static int _open_m2ts(BLURAY *bd)
             bd->int_buf_off = 6144;
             X_FREE(f_name);
 
-            if (bd->h_libbdplus && bd->bdplus) {
+            if (bd->bdplus) {
 #ifdef USING_DLOPEN
                 fptr_p_void bdplus_set_title;
                 bdplus_set_title = dl_dlsym(bd->h_libbdplus, "bdplus_set_title");
@@ -291,7 +291,7 @@ void bd_close(BLURAY *bd)
 {
     bd_stop_bdj(bd);
 
-    if (bd->h_libaacs && bd->aacs) {
+    if (bd->aacs) {
 #ifdef USING_DLOPEN
         fptr_p_void fptr = dl_dlsym(bd->h_libaacs, "aacs_close");
         fptr(bd->aacs);  // FIXME: NULL
@@ -301,7 +301,7 @@ void bd_close(BLURAY *bd)
 #endif
     }
 
-    if (bd->h_libbdplus && bd->bdplus) {
+    if (bd->bdplus) {
 #ifdef USING_DLOPEN
         fptr_p_void bdplus_free = dl_dlsym(bd->h_libbdplus, "bdplus_free");
         if (bdplus_free) bdplus_free(bd->bdplus);
