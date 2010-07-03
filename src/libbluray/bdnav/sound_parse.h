@@ -20,6 +20,8 @@
 #if !defined(_SOUND_PARSE_H_)
 #define _SOUND_PARSE_H_
 
+#include <util/attributes.h>
+
 #include <stdint.h>
 
 typedef struct {
@@ -37,7 +39,7 @@ typedef struct {
 } SOUND_DATA;
 
 
-SOUND_DATA * sound_parse(const char *path); /* parse sound.bdmv */
-void sound_free(SOUND_DATA *sound);
+BD_PRIVATE SOUND_DATA* sound_parse(const char *path); /* parse sound.bdmv */
+BD_PRIVATE void        sound_free(SOUND_DATA *sound);
 
 #endif // _MOBJ_PARSE_H_

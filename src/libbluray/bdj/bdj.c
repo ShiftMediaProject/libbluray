@@ -103,6 +103,7 @@ void bdj_close(BDJAVA *bdjava)
 
     free(bdjava->path);
     free(bdjava->start);
+    free(bdjava);
 }
 
 int start_xlet(JNIEnv* env, BDJO_APP_INFO* info)

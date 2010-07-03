@@ -2,6 +2,7 @@
  * This file is part of libbluray
  * Copyright (C) 2009-2010  Obliter0n
  * Copyright (C) 2009-2010  John Stebbins
+ * Copyright (C) 2010       hpi1
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -45,6 +46,66 @@
 #include <inttypes.h>
 #include <string.h>
 
+/*
+ * Navigation mode event queue
+ */
+
+#define MAX_EVENTS 31  /* 2^n - 1 */
+struct bd_event_queue_s {
+    unsigned in;  /* next free slot */
+    unsigned out; /* next event */
+    BD_EVENT ev[MAX_EVENTS];
+};
+
+static void _init_event_queue(BLURAY *bd)
+{
+    if (!bd->event_queue) {
+        bd->event_queue = calloc(1, sizeof(struct bd_event_queue_s));
+    } else {
+        memset(bd->event_queue, 0, sizeof(struct bd_event_queue_s));
+    }
+}
+
+static int _get_event(BLURAY *bd, BD_EVENT *ev)
+{
+    struct bd_event_queue_s *eq = bd->event_queue;
+
+    if (eq) {
+        if (eq->in != eq->out) {
+            *ev = eq->ev[eq->out];
+            eq->out = (eq->out + 1) & MAX_EVENTS;
+            return 1;
+        }
+    }
+
+    ev->event = BD_EVENT_NONE;
+
+    return 0;
+}
+
+static int _queue_event(BLURAY *bd, BD_EVENT ev)
+{
+    struct bd_event_queue_s *eq = bd->event_queue;
+
+    if (eq) {
+        unsigned new_in = (eq->in + 1) & MAX_EVENTS;
+
+        if (new_in != eq->out) {
+            eq->ev[eq->in] = ev;
+            eq->in = new_in;
+            return 0;
+        }
+
+        DEBUG(DBG_BLURAY|DBG_CRIT, "_queue_event(%d, %d): queue overflow !\n", ev.event, ev.param);
+    }
+
+    return -1;
+}
+
+/*
+ *
+ */
+
 static int _open_m2ts(BLURAY *bd)
 {
     char *f_name;
@@ -65,7 +126,7 @@ static int _open_m2ts(BLURAY *bd)
             bd->int_buf_off = 6144;
             X_FREE(f_name);
 
-            if (bd->h_libbdplus && bd->bdplus) {
+            if (bd->bdplus) {
 #ifdef USING_DLOPEN
                 fptr_p_void bdplus_set_title;
                 bdplus_set_title = dl_dlsym(bd->h_libbdplus, "bdplus_set_title");
@@ -91,11 +152,7 @@ static int _open_m2ts(BLURAY *bd)
 static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
 {
 #ifdef USING_DLOPEN
-#ifdef __APPLE__
-    if ((bd->h_libaacs = dl_dlopen("libaacs.dylib"))) {
-#else
-    if ((bd->h_libaacs = dl_dlopen("libaacs.so.0"))) {
-#endif
+    if ((bd->h_libaacs = dl_dlopen("libaacs", "0"))) {
         DEBUG(DBG_BLURAY, "Downloaded libaacs (%p)\n", bd->h_libaacs);
 
         fptr_p_void fptr = dl_dlsym(bd->h_libaacs, "aacs_open");
@@ -150,11 +207,7 @@ static void _libbdplus_open(BLURAY *bd, const char *keyfile_path)
 
         DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
 #ifdef USING_DLOPEN
-#ifdef __APPLE__
-        if ((bd->h_libbdplus = dl_dlopen("libbdplus.dylib"))) {
-#else
-        if ((bd->h_libbdplus = dl_dlopen("libbdplus.so.0"))) {
-#endif
+        if ((bd->h_libbdplus = dl_dlopen("libbdplus", "0"))) {
             DEBUG(DBG_BLURAY, "Downloaded libbdplus (%p)\n",
                   bd->h_libbdplus);
 
@@ -191,11 +244,8 @@ static int _index_open(BLURAY *bd)
     file = str_printf("%s/BDMV/index.bdmv", bd->device_path);
     bd->index = indx_parse(file);
     X_FREE(file);
-    if (!bd->index) {
-        return 0;
-    }
 
-    return 1;
+    return !!bd->index;
 }
 
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
@@ -231,7 +281,9 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
 void bd_close(BLURAY *bd)
 {
-    if (bd->h_libaacs && bd->aacs) {
+    bd_stop_bdj(bd);
+
+    if (bd->aacs) {
 #ifdef USING_DLOPEN
         fptr_p_void fptr = dl_dlsym(bd->h_libaacs, "aacs_close");
         fptr(bd->aacs);  // FIXME: NULL
@@ -241,7 +293,7 @@ void bd_close(BLURAY *bd)
 #endif
     }
 
-    if (bd->h_libbdplus && bd->bdplus) {
+    if (bd->bdplus) {
 #ifdef USING_DLOPEN
         fptr_p_void bdplus_free = dl_dlsym(bd->h_libbdplus, "bdplus_free");
         if (bdplus_free) bdplus_free(bd->bdplus);
@@ -269,12 +321,11 @@ void bd_close(BLURAY *bd)
     if (bd->title != NULL) {
         nav_title_close(bd->title);
     }
-    if (bd->index != NULL) {
-        indx_free(bd->index);
-    }
 
+    indx_free(bd->index);
     bd_registers_free(bd->regs);
 
+    X_FREE(bd->event_queue);
     X_FREE(bd->device_path);
 
     DEBUG(DBG_BLURAY, "BLURAY destroyed! (%p)\n", bd);
@@ -828,9 +879,13 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
     }
 }
 
-#ifdef USING_BDJAVA
+/*
+ * bdj
+ */
+
 int bd_start_bdj(BLURAY *bd, const char* start_object)
 {
+#ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
         bd->bdjava = bdj_open(bd->device_path, start_object);
         return 0;
@@ -838,12 +893,169 @@ int bd_start_bdj(BLURAY *bd, const char* start_object)
         DEBUG(DBG_BLURAY | DBG_CRIT, "BD-J is already running (%p)\n", bd);
         return -1;
     }
+#else
+    DEBUG(DBG_BLURAY | DBG_CRIT, "%s.bdjo: BD-J not compiled in (%p)\n", start_object, bd);
+#endif
+    return -1;
 }
 
 void bd_stop_bdj(BLURAY *bd)
 {
-    if (bd->bdjava != NULL)
+    if (bd->bdjava != NULL) {
+#ifdef USING_BDJAVA
         bdj_close((BDJAVA*)bd->bdjava);
+#else
+        DEBUG(DBG_BLURAY, "BD-J not compiled in (%p)\n", bd);
+#endif
+        bd->bdjava = NULL;
+    }
 }
+
+/*
+ * Navigation mode interface
+ */
+
+static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
+{
+    BLURAY *bd = (BLURAY*)handle;
+
+    DEBUG(DBG_BLURAY, "PSR event %d %d (%p)\n", ev->psr_idx, ev->new_val, bd);
+
+    switch (ev->psr_idx) {
+        case PSR_ANGLE_ID: _queue_event(bd, (BD_EVENT){BD_EVENT_ANGLE_ID, ev->new_val}); break;
+        case PSR_TITLE_ID: _queue_event(bd, (BD_EVENT){BD_EVENT_TITLE_ID, ev->new_val}); break;
+        case PSR_PLAYLIST: _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYLIST, ev->new_val}); break;
+        case PSR_PLAYITEM: _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYITEM, ev->new_val}); break;
+        case PSR_CHAPTER:  _queue_event(bd, (BD_EVENT){BD_EVENT_CHAPTER,  ev->new_val}); break;
+        default:;
+    }
+}
+
+static int _play_bdj(BLURAY *bd, const uint8_t *name)
+{
+    bd->title_type = title_bdj;
+
+#ifdef USING_BDJAVA
+    bd_stop_bdj(bd);
+    return bd_start_bdj(bd, name);
+#else
+    DEBUG(DBG_BLURAY|DBG_CRIT, "_bdj_play(BDMV/BDJ/%s.jar) not implemented (%p)\n", name, bd);
+    return -1;
+#endif
+}
+
+static int _play_hdmv(BLURAY *bd, unsigned id_ref)
+{
+    bd->title_type = title_hdmv;
+
+#ifdef USING_BDJAVA
+    bd_stop_bdj(bd);
 #endif
 
+    DEBUG(DBG_BLURAY|DBG_CRIT, "_hdmv_play(%u) not implemented (%p)\n", id_ref, bd);
+
+    return -1;
+}
+
+#define TITLE_FIRST_PLAY 0xffff   /* 10.4.3.2 (E) */
+#define TITLE_TOP_MENU   0x10000
+
+int bd_play_title(BLURAY *bd, unsigned title)
+{
+    /* first play object ? */
+    if (title == TITLE_FIRST_PLAY) {
+        INDX_PLAY_ITEM *p = &bd->index->first_play;
+
+        if (p->object_type == indx_object_type_hdmv) {
+            if (p->hdmv.id_ref == 0xffff) {
+                /* no first play title (5.2.3.3) */
+                bd->title_type = title_hdmv;
+                return 0;
+            }
+            return _play_hdmv(bd, p->hdmv.id_ref);
+        }
+
+        if (p->object_type == indx_object_type_bdj) {
+            return _play_bdj(bd, p->bdj.name);
+        }
+
+        return -1;
+    }
+
+    /* bd_play not called ? */
+    if (bd->title_type == title_undef) {
+        return -1;
+    }
+
+    /* top menu ? */
+    if (title == TITLE_TOP_MENU) {
+        INDX_PLAY_ITEM *p = &bd->index->top_menu;
+
+        if (p->object_type == indx_object_type_hdmv) {
+            if (p->hdmv.id_ref == 0xffff) {
+                /* no top menu (5.2.3.3) */
+                bd->title_type = title_hdmv;
+                return -1;
+            }
+            return _play_hdmv(bd, p->hdmv.id_ref);
+        }
+
+        if (p->object_type == indx_object_type_bdj) {
+            return _play_bdj(bd, p->bdj.name);
+        }
+
+        return -1;
+    }
+
+    /* valid title from disc index ? */
+    if (title < bd->index->num_titles) {
+        INDX_TITLE *t = &bd->index->titles[title];
+
+        if (t->object_type == indx_object_type_hdmv) {
+            return _play_hdmv(bd, t->hdmv.id_ref);
+        } else {
+            return _play_bdj(bd, t->bdj.name);
+        }
+    }
+
+    return -1;
+}
+
+int bd_play(BLURAY *bd)
+{
+    bd->title_type = title_undef;
+
+    _init_event_queue(bd);
+
+    bd_psr_register_cb(bd->regs, _process_psr_event, bd);
+
+    return bd_play_title(bd, TITLE_FIRST_PLAY);
+}
+
+int bd_menu_call(BLURAY *bd)
+{
+    if (bd->title_type == title_undef) {
+        // bd_play not called
+        return -1;
+    }
+
+    return bd_play_title(bd, TITLE_TOP_MENU);
+}
+
+int bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
+{
+    if (_get_event(bd, event)) {
+        return 0;
+    }
+
+    if (len < 1) {
+        /* just polled events ? */
+        return 0;
+    }
+
+    int bytes = bd_read(bd, buf, len);
+
+    _get_event(bd, event);
+
+    return bytes;
+}

@@ -24,7 +24,7 @@
 
 #include <stdio.h>
 
-const char * const psr_info[128] = {
+static const char * const psr_info[128] = {
     "/*     PSR0:  Interactive graphics stream number */",
     "/*     PSR1:  Primary audio stream number */",
     "/*     PSR2:  PG TextST stream number and PiP PG stream number */",
@@ -89,24 +89,24 @@ const char * const psr_info[128] = {
     "/* RO: PSR61: Characteristic text caps */",
 };
 
-const char * const insn_groups[4] = {
+static const char * const insn_groups[4] = {
     "BRANCH",
     "COMPARE",
     "SET",
 };
 
-const char * const insn_group_branch[8] = {
+static const char * const insn_group_branch[8] = {
     "GOTO",
     "JUMP",
     "PLAY",
 };
 
-const char * const insn_group_set[8] = {
+static const char * const insn_group_set[8] = {
     "SET",
     "SETSYSTEM",
 };
 
-const char * const insn_opt_set[32] = {
+static const char * const insn_opt_set[32] = {
     NULL,
     "move",
     "swap",
@@ -125,7 +125,7 @@ const char * const insn_opt_set[32] = {
     "shr",
 };
 
-const char * const insn_opt_setsys[32] = {
+static const char * const insn_opt_setsys[32] = {
     NULL,
     "SET_STREAM",
     "SET_NV_TIMER",
@@ -138,7 +138,7 @@ const char * const insn_opt_setsys[32] = {
     "STILL_OFF",
 };
 
-const char * const insn_opt_cmp[16] = {
+static const char * const insn_opt_cmp[16] = {
     NULL,
     "bc",
     "eq",
@@ -149,13 +149,13 @@ const char * const insn_opt_cmp[16] = {
     "lt",
 };
 
-const char * const insn_opt_goto[16] = {
+static const char * const insn_opt_goto[16] = {
     "nop",
     "goto",
     "break",
 };
 
-const char * const insn_opt_jump[16] = {
+static const char * const insn_opt_jump[16] = {
     "JUMP_OBJECT",
     "JUMP_TITLE",
     "CALL_OBJECT",
@@ -163,7 +163,7 @@ const char * const insn_opt_jump[16] = {
     "RESUME"
 };
 
-const char * const insn_opt_play[16] = {
+static const char * const insn_opt_play[16] = {
     "PLAY_PL",
     "PLAY_PL_PI",
     "PLAY_PL_MK",

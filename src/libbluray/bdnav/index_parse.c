@@ -54,9 +54,9 @@ static int _parse_playback_obj(BITSTREAM *bs, INDX_PLAY_ITEM *obj)
     bs_skip(bs, 30);
 
     if (obj->object_type == 1) {
-        return _parse_hdmv_obj(bs, &obj->indx_union.hdmv);
+        return _parse_hdmv_obj(bs, &obj->hdmv);
     } else {
-        return _parse_bdj_obj(bs, &obj->indx_union.bdj);
+        return _parse_bdj_obj(bs, &obj->bdj);
     }
 }
 
@@ -84,9 +84,9 @@ static int _parse_index(BITSTREAM *bs, INDX_ROOT *index)
         bs_skip(bs, 28);
 
         if (index->titles[i].object_type == 1) {
-            _parse_hdmv_obj(bs, &index->titles[i].indx_union.hdmv);
+            _parse_hdmv_obj(bs, &index->titles[i].hdmv);
         } else {
-            _parse_bdj_obj(bs, &index->titles[i].indx_union.bdj);
+            _parse_bdj_obj(bs, &index->titles[i].bdj);
         }
     }
 

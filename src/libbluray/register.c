@@ -177,6 +177,14 @@ void bd_registers_free(BD_REGISTERS *p)
 
 void bd_psr_register_cb  (BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*), void *cb_handle)
 {
+    /* no duplicates ! */
+    int i;
+    for (i = 0; i < p->num_cb; i++) {
+        if (p->cb[i].handle == cb_handle && p->cb[i].cb == callback) {
+            return;
+        }
+    }
+
     p->num_cb++;
     p->cb = realloc(p->cb, p->num_cb * sizeof(PSR_CB_DATA));
 
@@ -189,15 +197,15 @@ void bd_psr_unregister_cb(BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*)
     if (p->cb) {
         int i = 0;
 
-          while (i < p->num_cb) {
-              if (p->cb[i].handle == cb_handle && p->cb[i].cb == callback) {
-                  if (--p->num_cb) {
-                      memmove(p->cb + i, p->cb + i + 1, sizeof(PSR_CB_DATA) * p->num_cb);
-                      continue;
-                  }
-              }
-              i++;
-          }
+        while (i < p->num_cb) {
+            if (p->cb[i].handle == cb_handle && p->cb[i].cb == callback) {
+                if (--p->num_cb) {
+                    memmove(p->cb + i, p->cb + i + 1, sizeof(PSR_CB_DATA) * p->num_cb);
+                    continue;
+                }
+            }
+            i++;
+        }
     }
 }
 
