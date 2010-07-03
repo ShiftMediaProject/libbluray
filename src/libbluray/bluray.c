@@ -441,7 +441,7 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
     return bd->s_pos;
 }
 
-int64_t bd_seek_chapter(BLURAY *bd, int chapter)
+int64_t bd_seek_chapter(BLURAY *bd, unsigned chapter)
 {
     uint32_t clip_pkt, out_pkt;
     NAV_CLIP *clip;
@@ -457,17 +457,20 @@ int64_t bd_seek_chapter(BLURAY *bd, int chapter)
     return bd->s_pos;
 }
 
-int64_t bd_chapter_pos(BLURAY *bd, int chapter)
+int64_t bd_chapter_pos(BLURAY *bd, unsigned chapter)
 {
     uint32_t clip_pkt, out_pkt;
-    NAV_CLIP *clip;
 
-    // Find the closest access unit to the requested position
-    clip = nav_chapter_search(bd->title, chapter, &clip_pkt, &out_pkt);
-    return (int64_t)out_pkt * 192;
+    if (chapter < bd->title->chap_list.count) {
+        // Find the closest access unit to the requested position
+        nav_chapter_search(bd->title, chapter, &clip_pkt, &out_pkt);
+        return (int64_t)out_pkt * 192;
+    }
+
+    return -1;
 }
 
-int64_t bd_seek_mark(BLURAY *bd, int mark)
+int64_t bd_seek_mark(BLURAY *bd, unsigned mark)
 {
     uint32_t clip_pkt, out_pkt;
     NAV_CLIP *clip;
@@ -666,7 +669,7 @@ int bd_select_title(BLURAY *bd, uint32_t title_idx)
     return _open_playlist(bd, f_name);
 }
 
-int bd_select_angle(BLURAY *bd, int angle)
+int bd_select_angle(BLURAY *bd, unsigned angle)
 {
     if (bd->title == NULL) {
         DEBUG(DBG_BLURAY, "Title not yet selected! (%p)\n", bd);
@@ -676,7 +679,7 @@ int bd_select_angle(BLURAY *bd, int angle)
     return 1;
 }
 
-void bd_seamless_angle_change(BLURAY *bd, int angle)
+void bd_seamless_angle_change(BLURAY *bd, unsigned angle)
 {
     uint32_t clip_pkt;
 
