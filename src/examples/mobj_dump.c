@@ -18,7 +18,7 @@
  */
 
 #include "util/macro.h"
-#include "libbluray/bdnav/mobj_parse.h"
+#include "libbluray/hdmv/mobj_parse.h"
 
 #include <string.h>
 

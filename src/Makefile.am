@@ -38,19 +38,20 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	libbluray/bdnav \
 	libbluray/bdnav/bdparse.h \
 	libbluray/bdnav/navigation.h \
-	libbluray/bdnav/mobj_parse.c \
-	libbluray/bdnav/mobj_print.c \
-	libbluray/bdnav/hdmv_insn.h \
 	libbluray/bdnav/index_parse.c \
 	libbluray/bdnav/navigation.c \
 	libbluray/bdnav/sound_parse.c \
 	libbluray/bdnav/sound_parse.h \
 	libbluray/bdnav/mpls_parse.h \
 	libbluray/bdnav/clpi_parse.c \
-	libbluray/bdnav/mobj_parse.h \
 	libbluray/bdnav/mpls_parse.c \
 	libbluray/bdnav/index_parse.h \
 	libbluray/bdnav/clpi_parse.h \
+	libbluray/hdmv \
+	libbluray/hdmv/hdmv_insn.h \
+	libbluray/hdmv/mobj_parse.h \
+	libbluray/hdmv/mobj_parse.c \
+	libbluray/hdmv/mobj_print.c \
 	file/dir_posix.c \
 	file/file.h \
 	file/file_posix.c \
