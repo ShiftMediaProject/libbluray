@@ -46,16 +46,74 @@
 #include <inttypes.h>
 #include <string.h>
 
-/*
- * Navigation mode event queue
- */
+typedef int     (*fptr_int)();
+typedef int32_t (*fptr_int32)();
+typedef void*   (*fptr_p_void)();
 
 #define MAX_EVENTS 31  /* 2^n - 1 */
-struct bd_event_queue_s {
+typedef struct bd_event_queue_s {
     unsigned in;  /* next free slot */
     unsigned out; /* next event */
     BD_EVENT ev[MAX_EVENTS];
+} BD_EVENT_QUEUE;
+
+typedef enum {
+    title_undef = 0,
+    title_hdmv,
+    title_bdj,
+} BD_TITLE_TYPE;
+
+struct bluray {
+
+    /* current disc */
+    char           *device_path;
+    INDX_ROOT      *index;
+    NAV_TITLE_LIST *title_list;
+
+    /* current playlist */
+    NAV_TITLE      *title;
+    uint64_t       s_size;
+    uint64_t       s_pos;
+
+    /* current clip */
+    NAV_CLIP       *clip;
+    FILE_H         *fp;
+    uint64_t       clip_size;
+    uint64_t       clip_block_pos;
+    uint64_t       clip_pos;
+
+    /* current aligned unit */
+    uint8_t        int_buf[6144];
+    uint16_t       int_buf_off;
+
+    /* seamless angle change request */
+    int            seamless_angle_change;
+    uint32_t       angle_change_pkt;
+    uint32_t       angle_change_time;
+    unsigned       request_angle;
+
+    /* aacs */
+    void           *h_libaacs;   // library handle
+    void           *aacs;
+    fptr_int       libaacs_decrypt_unit;
+
+    /* BD+ */
+    void           *h_libbdplus; // library handle
+    void           *bdplus;
+    fptr_int32     bdplus_seek;
+    fptr_int32     bdplus_fixup;
+
+    /* player state */
+    BD_REGISTERS   *regs;       // player registers
+    BD_EVENT_QUEUE *event_queue; // navigation mode event queue
+    BD_TITLE_TYPE  title_type;  // type of current title (in navigation mode)
+
+    void           *bdjava;
 };
+
+/*
+ * Navigation mode event queue
+ */
 
 static void _init_event_queue(BLURAY *bd)
 {
@@ -426,7 +484,6 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
 
     if (bd->seamless_angle_change) {
         bd->clip = nav_set_angle(bd->title, bd->clip, bd->request_angle);
-        bd->angle = bd->request_angle;
         bd->seamless_angle_change = 0;
     }
     if (tick < bd->title->duration) {
@@ -493,7 +550,6 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos)
 
     if (bd->seamless_angle_change) {
         bd->clip = nav_set_angle(bd->title, bd->clip, bd->request_angle);
-        bd->angle = bd->request_angle;
         bd->seamless_angle_change = 0;
     }
     if (pos < bd->s_size) {
@@ -549,7 +605,6 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                         bd->clip = nav_set_angle(bd->title, bd->clip, bd->request_angle);
                         _clip_seek_time(bd, bd->angle_change_time);
                     }
-                    bd->angle = bd->request_angle;
                     bd->seamless_angle_change = 0;
                 } else {
                     uint64_t angle_pos;
@@ -622,7 +677,6 @@ static int _open_playlist(BLURAY *bd, const char *f_name)
         return 0;
     }
 
-    bd->angle = 0;
     bd->seamless_angle_change = 0;
     bd->s_pos = 0;
     bd->s_size = (uint64_t)bd->title->packets * 192;

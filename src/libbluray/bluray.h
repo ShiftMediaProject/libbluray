@@ -29,49 +29,7 @@
 #define TITLES_FILTER_DUP_CLIP  0x02
 #define TITLES_RELEVANT         (TITLES_FILTER_DUP_TITLE | TITLES_FILTER_DUP_CLIP)
 
-/* Forward declaration of internal objects */
-struct file;
-struct nav_title_list_s;
-struct nav_title_s;
-struct nav_clip_s;
-struct indx_root_s;
-struct bd_registers_s;
-struct bd_event_queue_s;
-
-typedef int (*fptr_int)();
-typedef int32_t (*fptr_int32)();
-typedef void* (*fptr_p_void)();
-
 typedef struct bluray BLURAY;
-struct bluray {
-    char *device_path;
-    struct nav_title_list_s *title_list;
-    struct nav_title_s *title;
-    uint64_t s_size;
-    uint64_t s_pos;
-    struct nav_clip_s *clip;
-    struct file *fp;
-    uint64_t clip_size;
-    uint64_t clip_block_pos;
-    uint64_t clip_pos;
-    void *aacs, *bdplus, *bdjava;
-    fptr_int32 bdplus_seek; // frequently called
-    fptr_int32 bdplus_fixup; // frequently called
-    void *h_libaacs, *h_libbdplus, *h_libbdnav;
-    fptr_int libaacs_decrypt_unit;
-    uint8_t int_buf[6144];
-    uint16_t int_buf_off;
-    int      seamless_angle_change;
-    uint32_t angle_change_pkt;
-    uint32_t angle_change_time;
-    unsigned request_angle;
-    unsigned angle;
-
-    enum { title_undef = 0, title_hdmv, title_bdj } title_type;
-    struct indx_root_s *index;
-    struct bd_registers_s *regs;
-    struct bd_event_queue_s *event_queue;
-};
 
 typedef struct bd_stream_info {
     uint8_t     coding_type;
