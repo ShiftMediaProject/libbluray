@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     count = bd_get_titles(bd, TITLES_RELEVANT);
     for (ii = 0; ii < count; ii++)
     {
-        BD_TITLE_INFO* ti;
+        BLURAY_TITLE_INFO* ti;
         ti = bd_get_title_info(bd, ii);
         if (ti->duration / 90000 < seconds)
         {

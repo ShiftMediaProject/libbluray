@@ -675,7 +675,7 @@ uint32_t bd_get_titles(BLURAY *bd, uint8_t flags)
     return bd->title_list->count;
 }
 
-static void _copy_streams(BD_STREAM_INFO *streams, MPLS_STREAM *si, int count)
+static void _copy_streams(BLURAY_STREAM_INFO *streams, MPLS_STREAM *si, int count)
 {
     int ii;
 
@@ -688,10 +688,10 @@ static void _copy_streams(BD_STREAM_INFO *streams, MPLS_STREAM *si, int count)
     }
 }
 
-BD_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
+BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
 {
     NAV_TITLE *title;
-    BD_TITLE_INFO *title_info;
+    BLURAY_TITLE_INFO *title_info;
     unsigned int ii;
 
     if (bd->title_list == NULL) {
@@ -708,12 +708,12 @@ BD_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
               bd->title_list->title_info[title_idx].name, bd);
         return NULL;
     }
-    title_info = calloc(1, sizeof(BD_TITLE_INFO));
+    title_info = calloc(1, sizeof(BLURAY_TITLE_INFO));
     title_info->idx = title_idx;
     title_info->duration = (uint64_t)title->duration * 2;
     title_info->angle_count = title->angle_count;
     title_info->chapter_count = title->chap_list.count;
-    title_info->chapters = calloc(title_info->chapter_count, sizeof(BD_TITLE_CHAPTER));
+    title_info->chapters = calloc(title_info->chapter_count, sizeof(BLURAY_TITLE_CHAPTER));
     for (ii = 0; ii < title_info->chapter_count; ii++) {
         title_info->chapters[ii].idx = ii;
         title_info->chapters[ii].start = (uint64_t)title->chap_list.mark[ii].title_time * 2;
@@ -721,22 +721,22 @@ BD_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
         title_info->chapters[ii].offset = (uint64_t)title->chap_list.mark[ii].title_pkt * 192;
     }
     title_info->clip_count = title->clip_list.count;
-    title_info->clips = calloc(title_info->clip_count, sizeof(BD_CLIP_INFO));
+    title_info->clips = calloc(title_info->clip_count, sizeof(BLURAY_CLIP_INFO));
     for (ii = 0; ii < title_info->clip_count; ii++) {
         MPLS_PI *pi = &title->pl->play_item[ii];
-        BD_CLIP_INFO *ci = &title_info->clips[ii];
+        BLURAY_CLIP_INFO *ci = &title_info->clips[ii];
         ci->video_stream_count = pi->stn.num_video;
         ci->audio_stream_count = pi->stn.num_audio;
         ci->pg_stream_count = pi->stn.num_pg + pi->stn.num_pip_pg;
         ci->ig_stream_count = pi->stn.num_ig;
         ci->sec_video_stream_count = pi->stn.num_secondary_video;
         ci->sec_audio_stream_count = pi->stn.num_secondary_audio;
-        ci->video_streams = calloc(ci->video_stream_count, sizeof(BD_STREAM_INFO));
-        ci->audio_streams = calloc(ci->audio_stream_count, sizeof(BD_STREAM_INFO));
-        ci->pg_streams = calloc(ci->pg_stream_count, sizeof(BD_STREAM_INFO));
-        ci->ig_streams = calloc(ci->ig_stream_count, sizeof(BD_STREAM_INFO));
-        ci->sec_video_streams = calloc(ci->sec_video_stream_count, sizeof(BD_STREAM_INFO));
-        ci->sec_audio_streams = calloc(ci->sec_audio_stream_count, sizeof(BD_STREAM_INFO));
+        ci->video_streams = calloc(ci->video_stream_count, sizeof(BLURAY_STREAM_INFO));
+        ci->audio_streams = calloc(ci->audio_stream_count, sizeof(BLURAY_STREAM_INFO));
+        ci->pg_streams = calloc(ci->pg_stream_count, sizeof(BLURAY_STREAM_INFO));
+        ci->ig_streams = calloc(ci->ig_stream_count, sizeof(BLURAY_STREAM_INFO));
+        ci->sec_video_streams = calloc(ci->sec_video_stream_count, sizeof(BLURAY_STREAM_INFO));
+        ci->sec_audio_streams = calloc(ci->sec_audio_stream_count, sizeof(BLURAY_STREAM_INFO));
         _copy_streams(ci->video_streams, pi->stn.video, ci->video_stream_count);
         _copy_streams(ci->audio_streams, pi->stn.audio, ci->audio_stream_count);
         _copy_streams(ci->pg_streams, pi->stn.pg, ci->pg_stream_count);
@@ -748,7 +748,7 @@ BD_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
     return title_info;
 }
 
-void bd_free_title_info(BD_TITLE_INFO *title_info)
+void bd_free_title_info(BLURAY_TITLE_INFO *title_info)
 {
     unsigned int ii;
 
@@ -772,21 +772,21 @@ void bd_free_title_info(BD_TITLE_INFO *title_info)
 int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
 {
     static const struct { uint32_t idx; uint32_t  psr; } map[] = {
-        { BD_PLAYER_SETTING_PARENTAL,       PSR_PARENTAL },
-        { BD_PLAYER_SETTING_AUDIO_CAP,      PSR_AUDIO_CAP },
-        { BD_PLAYER_SETTING_AUDIO_LANG,     PSR_AUDIO_LANG },
-        { BD_PLAYER_SETTING_PG_LANG,        PSR_PG_AND_SUB_LANG },
-        { BD_PLAYER_SETTING_MENU_LANG,      PSR_MENU_LANG },
-        { BD_PLAYER_SETTING_COUNTRY_CODE,   PSR_COUNTRY },
-        { BD_PLAYER_SETTING_REGION_CODE,    PSR_REGION },
-        { BD_PLAYER_SETTING_VIDEO_CAP,      PSR_VIDEO_CAP },
-        { BD_PLAYER_SETTING_TEXT_CAP,       PSR_TEXT_CAP },
-        { BD_PLAYER_SETTING_PLAYER_PROFILE, PSR_PROFILE_VERSION },
+        { BLURAY_PLAYER_SETTING_PARENTAL,       PSR_PARENTAL },
+        { BLURAY_PLAYER_SETTING_AUDIO_CAP,      PSR_AUDIO_CAP },
+        { BLURAY_PLAYER_SETTING_AUDIO_LANG,     PSR_AUDIO_LANG },
+        { BLURAY_PLAYER_SETTING_PG_LANG,        PSR_PG_AND_SUB_LANG },
+        { BLURAY_PLAYER_SETTING_MENU_LANG,      PSR_MENU_LANG },
+        { BLURAY_PLAYER_SETTING_COUNTRY_CODE,   PSR_COUNTRY },
+        { BLURAY_PLAYER_SETTING_REGION_CODE,    PSR_REGION },
+        { BLURAY_PLAYER_SETTING_VIDEO_CAP,      PSR_VIDEO_CAP },
+        { BLURAY_PLAYER_SETTING_TEXT_CAP,       PSR_TEXT_CAP },
+        { BLURAY_PLAYER_SETTING_PLAYER_PROFILE, PSR_PROFILE_VERSION },
     };
 
     unsigned i;
 
-    if (idx == BD_PLAYER_SETTING_PLAYER_PROFILE) {
+    if (idx == BLURAY_PLAYER_SETTING_PLAYER_PROFILE) {
         value = ((value & 0xf) << 16) | 0x0200;  /* version fixed to BD-RO Part 3, version 2.0 */
     }
 
@@ -815,12 +815,12 @@ static uint32_t _string_to_uint(const char *s, int n)
 int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
 {
     switch (idx) {
-        case BD_PLAYER_SETTING_AUDIO_LANG:
-        case BD_PLAYER_SETTING_PG_LANG:
-        case BD_PLAYER_SETTING_MENU_LANG:
+        case BLURAY_PLAYER_SETTING_AUDIO_LANG:
+        case BLURAY_PLAYER_SETTING_PG_LANG:
+        case BLURAY_PLAYER_SETTING_MENU_LANG:
             return bd_set_player_setting(bd, idx, s ? _string_to_uint(s, 3) : 0xffffff);
 
-        case BD_PLAYER_SETTING_COUNTRY_CODE:
+        case BLURAY_PLAYER_SETTING_COUNTRY_CODE:
             return bd_set_player_setting(bd, idx, s ? _string_to_uint(s, 3) : 0xffff  );
 
         default:

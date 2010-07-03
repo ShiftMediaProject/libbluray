@@ -76,43 +76,43 @@ typedef struct bd_stream_info {
     uint8_t     rate;
     uint8_t     char_code;
     uint8_t     lang[4];
-} BD_STREAM_INFO;
+} BLURAY_STREAM_INFO;
 
 typedef struct bd_clip {
-    uint32_t       video_stream_count;
-    uint32_t       audio_stream_count;
-    uint32_t       pg_stream_count;
-    uint32_t       ig_stream_count;
-    uint32_t       sec_audio_stream_count;
-    uint32_t       sec_video_stream_count;
-    BD_STREAM_INFO *video_streams;
-    BD_STREAM_INFO *audio_streams;
-    BD_STREAM_INFO *pg_streams;
-    BD_STREAM_INFO *ig_streams;
-    BD_STREAM_INFO *sec_audio_streams;
-    BD_STREAM_INFO *sec_video_streams;
-} BD_CLIP_INFO;
+    uint32_t           video_stream_count;
+    uint32_t           audio_stream_count;
+    uint32_t           pg_stream_count;
+    uint32_t           ig_stream_count;
+    uint32_t           sec_audio_stream_count;
+    uint32_t           sec_video_stream_count;
+    BLURAY_STREAM_INFO *video_streams;
+    BLURAY_STREAM_INFO *audio_streams;
+    BLURAY_STREAM_INFO *pg_streams;
+    BLURAY_STREAM_INFO *ig_streams;
+    BLURAY_STREAM_INFO *sec_audio_streams;
+    BLURAY_STREAM_INFO *sec_video_streams;
+} BLURAY_CLIP_INFO;
 
 typedef struct bd_chapter {
     uint32_t    idx;
     uint64_t    start;
     uint64_t    duration;
     uint64_t    offset;
-} BD_TITLE_CHAPTER;
+} BLURAY_TITLE_CHAPTER;
 
 typedef struct bd_title_info {
-    uint32_t         idx;
-    uint64_t         duration;
-    uint32_t         clip_count;
-    uint32_t         angle_count;
-    uint32_t         chapter_count;
-    BD_CLIP_INFO     *clips;
-    BD_TITLE_CHAPTER *chapters;
-} BD_TITLE_INFO;
+    uint32_t             idx;
+    uint64_t             duration;
+    uint32_t             clip_count;
+    uint32_t             angle_count;
+    uint32_t             chapter_count;
+    BLURAY_CLIP_INFO     *clips;
+    BLURAY_TITLE_CHAPTER *chapters;
+} BLURAY_TITLE_INFO;
 
 uint32_t bd_get_titles(BLURAY *bd, uint8_t flags);
-BD_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx);
-void bd_free_title_info(BD_TITLE_INFO *title_info);
+BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx);
+void bd_free_title_info(BLURAY_TITLE_INFO *title_info);
 
 BLURAY *bd_open(const char* device_path, const char* keyfile_path); // Init libbluray objs
 void bd_close(BLURAY *bd);                                          // Free libbluray objs
@@ -135,16 +135,16 @@ uint64_t bd_tell(BLURAY *bd);       // Return current pos
  * player settings
  */
 
-#define BD_PLAYER_SETTING_PARENTAL       13  /* Age for parental control (years) */
-#define BD_PLAYER_SETTING_AUDIO_CAP      15  /* Player capability for audio (bit mask) */
-#define BD_PLAYER_SETTING_AUDIO_LANG     16  /* Initial audio language: ISO 639-2 string, ex. "eng" */
-#define BD_PLAYER_SETTING_PG_LANG        17  /* Initial PG/SPU language: ISO 639-2 string, ex. "eng" */
-#define BD_PLAYER_SETTING_MENU_LANG      18  /* Initial menu language: ISO 639-2 string, ex. "eng" */
-#define BD_PLAYER_SETTING_COUNTRY_CODE   19  /* Player country code: ISO 3166-1 string, ex. "de" */
-#define BD_PLAYER_SETTING_REGION_CODE    20  /* Player region code: 1 - region A, 2 - B, 4 - C */
-#define BD_PLAYER_SETTING_VIDEO_CAP      29  /* Player capability for video (bit mask) */
-#define BD_PLAYER_SETTING_TEXT_CAP       30  /* Player capability for text subtitle (bit mask) */
-#define BD_PLAYER_SETTING_PLAYER_PROFILE 31  /* Profile1: 0, Profile1+: 1, Profile2: 3, Profile3: 8 */
+#define BLURAY_PLAYER_SETTING_PARENTAL       13  /* Age for parental control (years) */
+#define BLURAY_PLAYER_SETTING_AUDIO_CAP      15  /* Player capability for audio (bit mask) */
+#define BLURAY_PLAYER_SETTING_AUDIO_LANG     16  /* Initial audio language: ISO 639-2 string, ex. "eng" */
+#define BLURAY_PLAYER_SETTING_PG_LANG        17  /* Initial PG/SPU language: ISO 639-2 string, ex. "eng" */
+#define BLURAY_PLAYER_SETTING_MENU_LANG      18  /* Initial menu language: ISO 639-2 string, ex. "eng" */
+#define BLURAY_PLAYER_SETTING_COUNTRY_CODE   19  /* Player country code: ISO 3166-1 string, ex. "de" */
+#define BLURAY_PLAYER_SETTING_REGION_CODE    20  /* Player region code: 1 - region A, 2 - B, 4 - C */
+#define BLURAY_PLAYER_SETTING_VIDEO_CAP      29  /* Player capability for video (bit mask) */
+#define BLURAY_PLAYER_SETTING_TEXT_CAP       30  /* Player capability for text subtitle (bit mask) */
+#define BLURAY_PLAYER_SETTING_PLAYER_PROFILE 31  /* Profile1: 0, Profile1+: 1, Profile2: 3, Profile3: 8 */
 
 int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value);
 int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s);
