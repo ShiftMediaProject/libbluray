@@ -34,7 +34,7 @@
  * PS in comment indicates player setting -> register can't be changed from movie object code.
  */
 
-const uint32_t bd_psr_init[BD_PSR_COUNT] = {
+static const uint32_t bd_psr_init[BD_PSR_COUNT] = {
     1,           /*     PSR0:  Interactive graphics stream number */
     0xff,        /*     PSR1:  Primary audio stream number */
     0x0fff0fff,  /*     PSR2:  PG TextST stream number and PiP PG stream number*/
@@ -105,7 +105,7 @@ const uint32_t bd_psr_init[BD_PSR_COUNT] = {
 /*
  * PSR ids for debugging
  */
-const char *bd_psr_name[BD_PSR_COUNT] = {
+static const char * const bd_psr_name[BD_PSR_COUNT] = {
     "IG_STREAM_ID",
     "PRIMARY_AUDIO_ID",
     "PG_PIP_STREAM",
