@@ -25,18 +25,39 @@
 #include "dl.h"
 #include "util/macro.h"
 #include "util/logging.h"
+#include "util/strutl.h"
 
 #include <stdlib.h>
 #include <dlfcn.h>
 #include <string.h>
 
-void   *dl_dlopen  ( const char* path )
+void   *dl_dlopen  ( const char* path, const char *version )
 {
-    DEBUG(DBG_BDPLUS, "searching for library '%s' ...\n", path);
-    void *result = dlopen(path, RTLD_LAZY);
-    if (!result) {
-        DEBUG(DBG_FILE, "can't open library '%s': %s\n", path, dlerror());
+    char *name;
+    void *result;
+
+#if defined(__APPLE__)
+    static const char ext[] = ".dylib";
+    version = NULL;
+#else
+    static const char ext[] = ".so";
+#endif
+
+    if (version) {
+        name = str_printf("%s%s.%s", path, ext, version);
+    } else {
+        name = str_printf("%s%s", path, ext);
     }
+
+    DEBUG(DBG_BDPLUS, "searching for library '%s' ...\n", name);
+
+    result = dlopen(name, RTLD_LAZY);
+    if (!result) {
+        DEBUG(DBG_FILE, "can't open library '%s': %s\n", name, dlerror());
+    }
+
+    X_FREE(name);
+
     return result;
 }
 
@@ -45,7 +66,7 @@ void   *dl_dlsym   ( void* handle, const char* symbol )
     void *result = dlsym(handle, symbol);
 
     if (!result) {
-      DEBUG(DBG_FILE | DBG_CRIT, "dlsym(%p, '%s') failed: %s\n", handle, symbol, dlerror());
+        DEBUG(DBG_FILE | DBG_CRIT, "dlsym(%p, '%s') failed: %s\n", handle, symbol, dlerror());
     }
 
     return result;

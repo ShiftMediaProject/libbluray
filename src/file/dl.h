@@ -29,7 +29,7 @@
 
 // Note the dlopen takes just the name part. "aacs", internally we
 // translate to "libaacs.so" "libaacs.dylib" or "aacs.dll".
-BD_PRIVATE void   *dl_dlopen  ( const char* path );
+BD_PRIVATE void   *dl_dlopen  ( const char* path, const char *version );
 BD_PRIVATE void   *dl_dlsym   ( void* handle, const char* symbol );
 BD_PRIVATE int     dl_dlclose ( void* handle );
 
