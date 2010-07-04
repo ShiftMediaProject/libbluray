@@ -659,6 +659,11 @@ NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, unsigned angle)
         // invalid angle
         return clip;
     }
+    if (angle == title->angle) {
+        // no change
+        return clip;
+    }
+
     title->angle = angle;
     // Find length in packets and end_pkt for each clip
     title->packets = 0;
