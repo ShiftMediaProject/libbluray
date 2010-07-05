@@ -71,7 +71,7 @@ typedef struct {
 
 typedef struct {
     indx_bdj_playback_type playback_type;
-    uint8_t                name[6];
+    char                   name[6];
 } INDX_BDJ_OBJ;
 
 typedef struct {

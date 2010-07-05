@@ -940,7 +940,7 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
  * bdj
  */
 
-int bd_start_bdj(BLURAY *bd, const char* start_object)
+int bd_start_bdj(BLURAY *bd, const char *start_object)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
@@ -988,7 +988,7 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
     }
 }
 
-static int _play_bdj(BLURAY *bd, const uint8_t *name)
+static int _play_bdj(BLURAY *bd, const char *name)
 {
     bd->title_type = title_bdj;
 
