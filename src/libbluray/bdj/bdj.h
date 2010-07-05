@@ -23,9 +23,6 @@
 #include "common.h"
 
 typedef struct {
-    char *path;
-    char *start;
-
     // JNI
     void *jvm;
     void *env;

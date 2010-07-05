@@ -31,11 +31,6 @@ int start_xlet(JNIEnv* env, BDJO_APP_INFO* info);
 BDJAVA* bdj_open(const char *path, const char* start)
 {
     BDJAVA* bdjava = malloc(sizeof(BDJAVA));
-    
-    bdjava->start = malloc(strlen(start) + 1);
-    bdjava->path = malloc(strlen(path) + 1);
-    strcpy(bdjava->start, start);
-    strcpy(bdjava->path, path);
 
     // determine path of bdjo file to load
     char* bdjo_path = malloc(strlen(path) + strlen(BDJ_BDJO_PATH) + strlen(start) + 7);
@@ -76,17 +71,12 @@ BDJAVA* bdj_open(const char *path, const char* start)
         free(classpath_opt);
 
         if (result != JNI_OK || start_xlet(bdjava->env, &app_info) == BDJ_ERROR) {
-            goto error;
+            free(bdjava);
+            return NULL;
         }
 
         return bdjava;
     }
-
-error:
-    free(bdjava->path);
-    free(bdjava->start);
-    free(bdjava);
-    return NULL;
 }
 
 
@@ -101,8 +91,6 @@ void bdj_close(BDJAVA *bdjava)
 
     (*jvm)->DestroyJavaVM(jvm);
 
-    free(bdjava->path);
-    free(bdjava->start);
     free(bdjava);
 }
 
