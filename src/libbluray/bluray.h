@@ -83,12 +83,15 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick); // Seek to a specific time in 9
 int bd_read(BLURAY *bd, unsigned char *buf, int len);   // Read from currently selected title file, decrypt if possible
 int64_t bd_seek_chapter(BLURAY *bd, unsigned chapter);  // Seek to a chapter. First chapter is 0
 int64_t bd_chapter_pos(BLURAY *bd, unsigned chapter);   // Find the byte position of a chapter
+uint32_t bd_get_current_chapter(BLURAY *bd);            // Get the current chapter
 int64_t bd_seek_mark(BLURAY *bd, unsigned mark);        // Seek to a playmark. First mark is 0
 int bd_select_playlist(BLURAY *bd, uint32_t playlist);
 int bd_select_title(BLURAY *bd, uint32_t title);    // Select the title from the list created by bd_get_titles()
 int bd_select_angle(BLURAY *bd, unsigned angle);           // Set the angle to play
 void bd_seamless_angle_change(BLURAY *bd, unsigned angle); // Initiate seamless angle change
 uint64_t bd_get_title_size(BLURAY *bd);             // Returns file size in bytes of currently selected title, 0 in no title selected
+uint32_t bd_get_current_title(BLURAY *bd);          // Returns the current title index
+unsigned bd_get_current_angle(BLURAY *bd);          // Returns the current angle
 
 uint64_t bd_tell(BLURAY *bd);       // Return current pos
 
