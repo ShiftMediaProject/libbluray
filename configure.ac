@@ -19,11 +19,11 @@ AC_ARG_WITH([dlopen],
   [use_dlopen=$withval],
   [use_dlopen=auto])
 
-AC_ARG_WITH([java],
-  [AS_HELP_STRING([--with-java],
-  [set the path to the java home (use if $JAVA_HOME is not set)])],
-  [with_java=$withval],
-  [])
+AC_ARG_WITH([jdk],
+  AS_HELP_STRING([--with-jdk=DIR],
+  [Specify the path to the JDK (default is "/usr/lib/jvm/java-6-openjdk")]),
+  [JDK_HOME=$withval],
+  [JDK_HOME="/usr/lib/jvm/java-6-openjdk"])
 
 AC_ARG_ENABLE([werror],
   [AS_HELP_STRING([--enable-werror],
@@ -165,16 +165,6 @@ fi
 
 # use bdjava
 if [[ $use_bdjava = "yes" ]]; then
-  if [[ -z $with_java ]]; then
-    if [[ -z $JAVA_HOME ]]; then
-      AC_MSG_ERROR([ No JAVA_HOME and --with-java not set. ])
-    else 
-      java_path=$JAVA_HOME
-    fi
-  else
-    java_path=$with_java
-  fi
-
   case $target_cpu in
        x86_64) java_arch=amd64 ;;
        i?86)   java_arch=i386 ;;
@@ -186,26 +176,26 @@ if [[ $use_bdjava = "yes" ]]; then
        *)      java_os=$target_os ;;
   esac
 
-  BDJAVA_CFLAGS="-I$java_path/include -I$java_path/include/$java_os"
-  BDJAVA_LDFLAGS="-L$java_path/jre/lib/$java_arch -L$java_path/jre/lib/$java_arch/server"
-  
-  temp_CPPFLAGS=$CPPFLAGS
+  BDJAVA_CFLAGS="-I${JDK_HOME}/include -I${JDK_HOME}/include/$java_os"
+  BDJAVA_LDFLAGS="-L${JDK_HOME}/jre/lib/$java_arch -L${JDK_HOME}/jre/lib/$java_arch/server"
+
+  temp_CPPFLAGS="$CPPFLAGS"
   CPPFLAGS="$BDJAVA_CFLAGS $CPPFLAGS"
   AC_CHECK_HEADERS([jni.h], [], [AC_MSG_ERROR("Coudln't find jni.h")])
-  CPPFLAGS=$temp_CPPFLAGS
+  CPPFLAGS="$temp_CPPFLAGS"
 
-  temp_LDFLAGS=$LDFLAGS
+  temp_LDFLAGS="$LDFLAGS"
   LDFLAGS="$BDJAVA_LDFLAGS $LDFLAGS"
   AC_CHECK_LIB([jvm], [JNI_CreateJavaVM], [], [AC_MSG_ERROR("Coudn't find jvm library.")])
-  LDFLAGS=$temp_LDFLAGS
-  
+  LDFLAGS="$temp_LDFLAGS"
+
   AC_DEFINE([USING_BDJAVA], [1], ["Define to 1 if using BD-Java"])
-  AC_SUBST(BDJAVA_CFLAGS)
-  AC_SUBST(BDJAVA_LDFLAGS)
-fi 
+fi
 AM_CONDITIONAL([USING_BDJAVA], [ test $use_bdjava = "yes" ])
 
 # generate output files
+AC_SUBST(BDJAVA_CFLAGS)
+AC_SUBST(BDJAVA_LDFLAGS)
 AC_SUBST(DLOPEN_LDFLAGS)
 AC_SUBST(SET_WARNINGS)
 AC_SUBST(SET_OPTIMIZATIONS)
