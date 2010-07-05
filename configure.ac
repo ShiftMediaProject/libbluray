@@ -22,8 +22,7 @@ AC_ARG_WITH([dlopen],
 AC_ARG_WITH([jdk],
   AS_HELP_STRING([--with-jdk=DIR],
   [Specify the path to the JDK (default is "/usr/lib/jvm/java-6-openjdk")]),
-  [JDK_HOME=$withval],
-  [JDK_HOME="/usr/lib/jvm/java-6-openjdk"])
+  [JDK_HOME=$withval], [])
 
 AC_ARG_ENABLE([werror],
   [AS_HELP_STRING([--enable-werror],
@@ -179,14 +178,16 @@ if [[ $use_bdjava = "yes" ]]; then
   BDJAVA_CFLAGS="-I${JDK_HOME}/include -I${JDK_HOME}/include/$java_os"
   BDJAVA_LDFLAGS="-L${JDK_HOME}/jre/lib/$java_arch -L${JDK_HOME}/jre/lib/$java_arch/server"
 
+  echo "$BDJAVA_CFLAGS"
+
   temp_CPPFLAGS="$CPPFLAGS"
   CPPFLAGS="$BDJAVA_CFLAGS $CPPFLAGS"
-  AC_CHECK_HEADERS([jni.h], [], [AC_MSG_ERROR("Coudln't find jni.h")])
+  AC_CHECK_HEADERS([jni.h], [], [AC_MSG_ERROR("Could not find jni.h")])
   CPPFLAGS="$temp_CPPFLAGS"
 
   temp_LDFLAGS="$LDFLAGS"
   LDFLAGS="$BDJAVA_LDFLAGS $LDFLAGS"
-  AC_CHECK_LIB([jvm], [JNI_CreateJavaVM], [], [AC_MSG_ERROR("Coudn't find jvm library.")])
+  AC_CHECK_LIB([jvm], [JNI_CreateJavaVM], [], [AC_MSG_ERROR("Could not find jvm library.")])
   LDFLAGS="$temp_LDFLAGS"
 
   AC_DEFINE([USING_BDJAVA], [1], ["Define to 1 if using BD-Java"])
