@@ -77,6 +77,8 @@ BDJAVA* bdj_open(const char *path, const char* start)
 
         return bdjava;
     }
+
+    return NULL;
 }
 
 
