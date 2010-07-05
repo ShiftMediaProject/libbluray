@@ -486,6 +486,31 @@ NAV_CLIP* nav_chapter_search(NAV_TITLE *title, unsigned chapter, uint32_t *clip_
     return clip;
 }
 
+uint32_t nav_chapter_get_current(NAV_CLIP *clip, uint32_t pkt)
+{
+    NAV_MARK * mark;
+    NAV_TITLE *title = clip->title;
+    uint32_t ii;
+
+    // Clip can be null if we haven't started the first clip yet
+    if (clip == NULL) {
+        return 0;
+    }
+    for (ii = 0; ii < title->chap_list.count; ii++) {
+        mark = &title->chap_list.mark[ii];
+        if (mark->clip_ref == clip->ref && mark->clip_pkt <= pkt) {
+            if ( ii == title->chap_list.count - 1 ) {
+                return ii;
+            }
+            mark = &title->chap_list.mark[ii+1];
+            if (mark->clip_ref != clip->ref || mark->clip_pkt > pkt) {
+                return ii;
+            }
+        }
+    }
+    return 0;
+}
+
 // Search for random access point closest to the requested packet
 // Packets are 192 byte TS packets
 NAV_CLIP* nav_mark_search(NAV_TITLE *title, unsigned mark, uint32_t *clip_pkt, uint32_t *out_pkt)

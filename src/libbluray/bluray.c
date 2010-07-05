@@ -72,6 +72,7 @@ struct bluray {
 
     /* current playlist */
     NAV_TITLE      *title;
+    uint32_t       title_idx;
     uint64_t       s_size;
     uint64_t       s_pos;
 
@@ -527,6 +528,11 @@ int64_t bd_chapter_pos(BLURAY *bd, unsigned chapter)
     return -1;
 }
 
+uint32_t bd_get_current_chapter(BLURAY *bd)
+{
+    return nav_chapter_get_current(bd->clip, bd->clip_pos / 192);
+}
+
 int64_t bd_seek_mark(BLURAY *bd, unsigned mark)
 {
     uint32_t clip_pkt, out_pkt;
@@ -718,9 +724,15 @@ int bd_select_title(BLURAY *bd, uint32_t title_idx)
         return 0;
     }
 
+    bd->title_idx = title_idx;
     f_name = bd->title_list->title_info[title_idx].name;
 
     return _open_playlist(bd, f_name);
+}
+
+uint32_t bd_get_current_title(BLURAY *bd)
+{
+    return bd->title_idx;
 }
 
 int bd_select_angle(BLURAY *bd, unsigned angle)
@@ -732,6 +744,12 @@ int bd_select_angle(BLURAY *bd, unsigned angle)
     bd->clip = nav_set_angle(bd->title, bd->clip, angle);
     return 1;
 }
+
+unsigned bd_get_current_angle(BLURAY *bd)
+{
+    return bd->title->angle;
+}
+
 
 void bd_seamless_angle_change(BLURAY *bd, unsigned angle)
 {
