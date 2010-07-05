@@ -18,6 +18,8 @@
  */
 package org.bluray.system;
 
+import org.videolan.Libbluray;
+
 public class RegisterAccess {
     private RegisterAccess()
     {
@@ -31,23 +33,18 @@ public class RegisterAccess {
     
     public int getGPR(int num)
     {
-        throw new Error("Not implemented");
+        return Libbluray.readGPR(num);
     }
     
     public int getPSR(int num)
     {
-        throw new Error("Not implemented");
+        return Libbluray.readPSR(num);
     }
     
     public void setGPR(int num, int value)
     {
-        throw new Error("Not implemented");
+        Libbluray.writeGPR(num, value);
     }
-    
-    /*private native int getGPR_native(long bd, int num);
-    private native int getPSR_native(long bd, int num);
-    private native int setGPR_native(long bd, int num, int value);*/
-    
     
     public static final int PSR_AUDIO_STN = 1;
     public static final int PSR_PG_TXTST_STN = 2;

@@ -22,9 +22,10 @@ import java.util.logging.Logger;
 
 public class BasicXletContext implements javax.tv.xlet.XletContext {
     
-    BasicXletContext(String[] params)
+    protected BasicXletContext(String[] params, long nativePointer)
     {
         this.params = params;
+        this.nativePointer = nativePointer;
     }
     
     public void notifyDestroyed()
@@ -52,6 +53,14 @@ public class BasicXletContext implements javax.tv.xlet.XletContext {
         
     }
     
+    protected long getNativePointer()
+    {
+        return nativePointer;
+    }
+    
+    protected static BasicXletContext instance = null;
+    
+    private String[] params;
+    private long nativePointer;
     private static Logger log = Logger.getLogger(BasicXletContext.class.getName());
-    private String[] params = null;
 }
