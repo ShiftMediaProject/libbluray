@@ -376,7 +376,8 @@ BDJO* bdjo_read(const char* file)
         fseek(handle, 0, SEEK_SET);
 
         char* data = malloc(length);
-        if (fread(data, 1, length, handle) < length) {
+        long int size_read = fread(data, 1, length, handle);
+        if (size_read < length) {
             free(data);
             return NULL;
         }
