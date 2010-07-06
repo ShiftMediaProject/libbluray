@@ -21,16 +21,27 @@
 
 #include "bdjo_parser.h"
 #include "common.h"
+#include "libbluray/register.h"
 
 #include <jni.h>
 #include <stdlib.h>
 #include <string.h>
 
-int start_xlet(JNIEnv* env, BDJO_APP_INFO* info);
+struct bdjava_s {
+    BD_REGISTERS* reg;
 
-BDJAVA* bdj_open(const char *path, const char* start)
+    // JNI
+    JavaVM* jvm;
+    JNIEnv* env;
+};
+
+int start_xlet(JNIEnv* env, BDJO_APP_INFO* info, BDJAVA* bdjava);
+
+BDJAVA* bdj_open(const char *path, const char* start, void* registers)
 {
     BDJAVA* bdjava = malloc(sizeof(BDJAVA));
+
+    bdjava->reg = registers;
 
     // determine path of bdjo file to load
     char* bdjo_path = malloc(strlen(path) + strlen(BDJ_BDJO_PATH) + strlen(start) + 7);
@@ -66,11 +77,11 @@ BDJAVA* bdj_open(const char *path, const char* start)
         args.options = option;
         args.ignoreUnrecognized = JNI_FALSE; // don't ignore unrecognized options
 
-        int result = JNI_CreateJavaVM((JavaVM**)&bdjava->jvm, &bdjava->env, &args);
+        int result = JNI_CreateJavaVM(&bdjava->jvm, (void**)&bdjava->env, &args);
         free(option);
         free(classpath_opt);
 
-        if (result != JNI_OK || start_xlet(bdjava->env, &app_info) == BDJ_ERROR) {
+        if (result != JNI_OK || start_xlet(bdjava->env, &app_info, bdjava) == BDJ_ERROR) {
             free(bdjava);
             return NULL;
         }
@@ -96,7 +107,7 @@ void bdj_close(BDJAVA *bdjava)
     free(bdjava);
 }
 
-int start_xlet(JNIEnv* env, BDJO_APP_INFO* info)
+int start_xlet(JNIEnv* env, BDJO_APP_INFO* info, BDJAVA* bdjava)
 {
     jclass init_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
 
@@ -105,7 +116,7 @@ int start_xlet(JNIEnv* env, BDJO_APP_INFO* info)
         return BDJ_ERROR;
     }
 
-    jmethodID load_id = (*env)->GetStaticMethodID(env, init_class, "Load", "(Ljava/lang/String;[Ljava/lang/String;)V");
+    jmethodID load_id = (*env)->GetStaticMethodID(env, init_class, "Load", "(Ljava/lang/String;[Ljava/lang/String;J)V");
 
     if (load_id == NULL) {
         (*env)->ExceptionDescribe(env);
@@ -124,7 +135,9 @@ int start_xlet(JNIEnv* env, BDJO_APP_INFO* info)
         (*env)->SetObjectArrayElement(env, param_params, i, value);
     }
 
-    (*env)->CallStaticVoidMethod(env, init_class, load_id, param_init_class, param_params);
+    jlong param_bdjava_ptr = (jlong)bdjava;
+
+    (*env)->CallStaticVoidMethod(env, init_class, load_id, param_init_class, param_params, param_bdjava_ptr);
 
     return BDJ_SUCCESS;
 }

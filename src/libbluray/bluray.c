@@ -963,7 +963,7 @@ int bd_start_bdj(BLURAY *bd, const char *start_object)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
-        bd->bdjava = bdj_open(bd->device_path, start_object);
+        bd->bdjava = bdj_open(bd->device_path, start_object, bd->regs);
         return 0;
     } else {
         DEBUG(DBG_BLURAY | DBG_CRIT, "BD-J is already running (%p)\n", bd);

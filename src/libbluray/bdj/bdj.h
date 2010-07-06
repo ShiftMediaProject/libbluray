@@ -22,13 +22,9 @@
 
 #include "common.h"
 
-typedef struct {
-    // JNI
-    void *jvm;
-    void *env;
-} BDJAVA;
+typedef struct bdjava_s BDJAVA;
 
-BDJAVA* bdj_open(const char *path, const char *start);
+BDJAVA* bdj_open(const char *path, const char *start, void* registers);
 void bdj_close(BDJAVA *bdjava);
 
 #endif

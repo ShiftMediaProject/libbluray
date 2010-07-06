@@ -28,6 +28,8 @@ import javax.tv.service.selection.ServiceContentHandler;
 import javax.tv.service.selection.ServiceContextListener;
 
 import org.bluray.ti.Title;
+import org.bluray.ti.TitleImpl;
+import org.videolan.Libbluray;
 
 public class TitleContextImpl implements TitleContext {
 
@@ -39,7 +41,6 @@ public class TitleContextImpl implements TitleContext {
         
     }
 
-    @Override
     public void addListener(ServiceContextListener listener)
     {
         serviceContextListeners.add(listener);
@@ -56,7 +57,7 @@ public class TitleContextImpl implements TitleContext {
     public Service getService()
     {
         // TODO Auto-generated method stub
-        return null;
+        return new TitleImpl(Libbluray.getCurrentTitleNum());
     }
 
     @Override
