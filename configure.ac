@@ -176,27 +176,19 @@ if [[ $use_bdjava = "yes" ]]; then
   esac
 
   BDJAVA_CFLAGS="-I${JDK_HOME}/include -I${JDK_HOME}/include/$java_os"
-  BDJAVA_LDFLAGS="-L${JDK_HOME}/jre/lib/$java_arch -L${JDK_HOME}/jre/lib/$java_arch/server"
-
-  echo "$BDJAVA_CFLAGS"
 
   temp_CPPFLAGS="$CPPFLAGS"
   CPPFLAGS="$BDJAVA_CFLAGS $CPPFLAGS"
   AC_CHECK_HEADERS([jni.h], [], [AC_MSG_ERROR("Could not find jni.h")])
   CPPFLAGS="$temp_CPPFLAGS"
 
-  temp_LDFLAGS="$LDFLAGS"
-  LDFLAGS="$BDJAVA_LDFLAGS $LDFLAGS"
-  AC_CHECK_LIB([jvm], [JNI_CreateJavaVM], [], [AC_MSG_ERROR("Could not find jvm library.")])
-  LDFLAGS="$temp_LDFLAGS"
-
   AC_DEFINE([USING_BDJAVA], [1], ["Define to 1 if using BD-Java"])
+  AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
 fi
 AM_CONDITIONAL([USING_BDJAVA], [ test $use_bdjava = "yes" ])
 
 # generate output files
 AC_SUBST(BDJAVA_CFLAGS)
-AC_SUBST(BDJAVA_LDFLAGS)
 AC_SUBST(DLOPEN_LDFLAGS)
 AC_SUBST(SET_WARNINGS)
 AC_SUBST(SET_OPTIMIZATIONS)

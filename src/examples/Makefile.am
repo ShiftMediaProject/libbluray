@@ -22,53 +22,44 @@ bdsplice_SOURCES = \
 	bdsplice.c
 
 bdsplice_LDADD = $(BLURAY_LIB)
-bdsplice_LDFLAGS = @BDJAVA_LDFLAGS@
 
 mpls_dump_SOURCES = \
 	mpls_dump.c util.c util.h ../util/strutl.c
 
 mpls_dump_LDADD = $(BLURAY_LIB_STATIC)
-mpls_dump_LDFLAGS = @BDJAVA_LDFLAGS@
 
 clpi_dump_SOURCES = \
 	clpi_dump.c util.c util.h
 
 clpi_dump_LDADD = $(BLURAY_LIB_STATIC)
-clpi_dump_LDFLAGS = @BDJAVA_LDFLAGS@
 
 sound_dump_SOURCES = \
 	sound_dump.c
 
 sound_dump_LDADD = $(BLURAY_LIB_STATIC)
-sound_dump_LDFLAGS = @BDJAVA_LDFLAGS@
 
 index_dump_SOURCES = \
 	index_dump.c
 
 index_dump_LDADD = $(BLURAY_LIB_STATIC)
-index_dump_LDFLAGS = @BDJAVA_LDFLAGS@
 
 mobj_dump_SOURCES = \
 	mobj_dump.c
 
 mobj_dump_LDADD = $(BLURAY_LIB_STATIC)
-mobj_dump_LDFLAGS = @BDJAVA_LDFLAGS@
 
 libbluray_test_SOURCES = \
 	libbluray_test.c ../util/logging.c
 
 libbluray_test_LDADD = $(BLURAY_LIB)
-libbluray_test_LDFLAGS = @BDJAVA_LDFLAGS@
 
 list_titles_SOURCES = \
 	list_titles.c ../util/logging.c
 
 list_titles_LDADD = $(BLURAY_LIB)
-list_titles_LDFLAGS = @BDJAVA_LDFLAGS@
 
 if USING_BDJAVA
 noinst_PROGRAMS+= bdj_test
 bdj_test_SOURCES = bdj_test.c
 bdj_test_LDADD = $(BLURAY_LIB)
-bdj_test_LDFLAGS = @BDJAVA_LDFLAGS@
 endif

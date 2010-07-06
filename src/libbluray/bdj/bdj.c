@@ -19,32 +19,40 @@
 
 #include "bdj.h"
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "bdj_private.h"
 #include "bdjo_parser.h"
 #include "common.h"
 #include "libbluray/register.h"
+#include "file/dl.h"
+#include "util/strutl.h"
 
 #include <jni.h>
 #include <stdlib.h>
 #include <string.h>
 
-
+typedef jint (*JNICALL fptr_JNI_CreateJavaVM)(JavaVM **pvm, void **penv, void *args);
 
 int start_xlet(JNIEnv* env, BDJO_APP_INFO* info, BDJAVA* bdjava);
+void* load_jvm();
 
 BDJAVA* bdj_open(const char *path, const char* start, void* registers)
 {
-    BDJAVA* bdjava = malloc(sizeof(BDJAVA));
+    // first load the jvm using dlopen
+    void* jvm_lib = load_jvm();
 
+    if (!jvm_lib)
+        return NULL;
+    BDJAVA* bdjava = malloc(sizeof(BDJAVA));
     bdjava->reg = registers;
 
     // determine path of bdjo file to load
-    char* bdjo_path = malloc(strlen(path) + strlen(BDJ_BDJO_PATH) + strlen(start) + 7);
-    sprintf(bdjo_path, "%s%s/%s.bdjo", path, BDJ_BDJO_PATH, start);
+    char* bdjo_path = str_printf("%s%s/%s.bdjo", path, BDJ_BDJO_PATH, start);
 
     BDJO* bdjo = bdjo_read(bdjo_path);
     free(bdjo_path);
-    
 
     if (bdjo != NULL && bdjo->app_info_count > 0) {
         // for now just pick the first application in the bdjo
@@ -54,15 +62,13 @@ BDJAVA* bdj_open(const char *path, const char* start, void* registers)
 
         // check if overriding the classpath
         const char* classpath = getenv("LIBBLURAY_CP");
-        if (strlen(classpath) == 0)
+        if (classpath == NULL)
             classpath = BDJ_CLASSPATH;
 
         // determine classpath
-        char* classpath_opt = malloc(strlen(path)*2 + strlen(BDJ_BDJO_PATH) +
-                strlen(app_info.base_directory) + strlen(BDJ_JAR_PATH) +
-                strlen(app_info.classpath_extension) + strlen(classpath) + 30);
-        sprintf(classpath_opt, "-Djava.class.path=%s:%s%s/%s.jar:%s%s%s.jar", classpath, path, BDJ_JAR_PATH,
-                app_info.base_directory, path, BDJ_JAR_PATH, app_info.classpath_extension);
+        char* classpath_opt = str_printf("-Djava.class.path=%s:%s%s/%s.jar:%s%s%s.jar",
+                classpath, path, BDJ_JAR_PATH, app_info.base_directory, path,
+                BDJ_JAR_PATH, app_info.classpath_extension);
 
         JavaVMOption* option = malloc(sizeof(JavaVMOption)*1);
         option[0].optionString = classpath_opt;
@@ -72,7 +78,16 @@ BDJAVA* bdj_open(const char *path, const char* start, void* registers)
         args.options = option;
         args.ignoreUnrecognized = JNI_FALSE; // don't ignore unrecognized options
 
-        int result = JNI_CreateJavaVM(&bdjava->jvm, (void**)&bdjava->env, &args);
+        fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
+
+        if (JNI_CreateJavaVM_fp == NULL) {
+            free(bdjava);
+            free(option);
+            free(classpath_opt);
+            return NULL;
+        }
+
+        int result = JNI_CreateJavaVM_fp(&bdjava->jvm, (void**)&bdjava->env, &args);
         free(option);
         free(classpath_opt);
 
@@ -135,4 +150,17 @@ int start_xlet(JNIEnv* env, BDJO_APP_INFO* info, BDJAVA* bdjava)
     (*env)->CallStaticVoidMethod(env, init_class, load_id, param_init_class, param_params, param_bdjava_ptr);
 
     return BDJ_SUCCESS;
+}
+
+void* load_jvm()
+{
+    const char* java_home = getenv("JAVA_HOME");
+    if (java_home == NULL) {
+        DEBUG(DBG_CRIT, "JAVA_HOME not set, can't find Java VM.\n");
+        return NULL;
+    }
+
+    char* path = str_printf("%s/jre/lib/%s/server/libjvm", java_home, JAVA_ARCH);
+
+    return dl_dlopen(path, NULL);
 }

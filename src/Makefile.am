@@ -74,7 +74,6 @@ libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) $(LIBBLURAY_LDFLAGS)
 
 if USING_BDJAVA
 libbluray_la_SOURCES+=$(SOURCES_bdj)
-libbluray_la_LDFLAGS+=@BDJAVA_LDFLAGS@
 AM_CFLAGS+=@BDJAVA_CFLAGS@
 
 all-local:
