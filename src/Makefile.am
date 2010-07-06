@@ -24,10 +24,13 @@ DLOPEN_SOURCES=file/dl.h \
 endif
 
 SOURCES_bdj = libbluray/bdj/bdj.h \
+	libbluray/bdj/bdj_private.h \
 	libbluray/bdj/bdj.c \
 	libbluray/bdj/bdjo_parser.h \
 	libbluray/bdj/bdjo_parser.c \
-	libbluray/bdj/common.h
+	libbluray/bdj/common.h \
+	libbluray/bdj/native/org_videolan_Libbluray.h \
+	libbluray/bdj/native/org_videolan_Libbluray.c
 
 lib_LTLIBRARIES=libbluray.la
 libbluray_ladir= $(includedir)/libbluray

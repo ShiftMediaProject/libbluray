@@ -19,6 +19,7 @@
 
 #include "bdj.h"
 
+#include "bdj_private.h"
 #include "bdjo_parser.h"
 #include "common.h"
 #include "libbluray/register.h"
@@ -27,13 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct bdjava_s {
-    BD_REGISTERS* reg;
 
-    // JNI
-    JavaVM* jvm;
-    JNIEnv* env;
-};
 
 int start_xlet(JNIEnv* env, BDJO_APP_INFO* info, BDJAVA* bdjava);
 
