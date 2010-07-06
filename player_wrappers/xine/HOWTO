@@ -1,0 +1,17 @@
+Tested with xine-lib 1.1.18
+
+1. Build xine plugin
+
+	make
+	
+2. Install xine plugin
+
+	sudo make install
+
+3. Run xine passing it a bluray:// url as follows:
+
+	xine bluray:/path/to/disc
+	
+	e.g.
+	
+	xine bluray:/mnt/BLURAY_DISC

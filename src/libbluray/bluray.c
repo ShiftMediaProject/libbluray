@@ -811,6 +811,7 @@ static void _copy_streams(BLURAY_STREAM_INFO *streams, MPLS_STREAM *si, int coun
         streams[ii].rate = si[ii].rate;
         streams[ii].char_code = si[ii].char_code;
         memcpy(streams[ii].lang, si[ii].lang, 4);
+        streams[ii].pid = si[ii].pid;
     }
 }
 

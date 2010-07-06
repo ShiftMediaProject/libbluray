@@ -37,6 +37,7 @@ typedef struct bd_stream_info {
     uint8_t     rate;
     uint8_t     char_code;
     uint8_t     lang[4];
+    uint16_t    pid;
 } BLURAY_STREAM_INFO;
 
 typedef struct bd_clip {
