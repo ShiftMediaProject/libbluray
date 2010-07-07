@@ -93,6 +93,9 @@ struct bluray {
     uint32_t       angle_change_time;
     unsigned       request_angle;
 
+    /* chapter tracking */
+    uint32_t       next_chapter_start;
+
     /* aacs */
     void           *h_libaacs;   // library handle
     void           *aacs;
@@ -195,6 +198,9 @@ static int _open_m2ts(BLURAY *bd)
                 bdplus_set_title(bd->bdplus, bd->clip->clip_id);
 #endif
             }
+
+            bd_psr_write(bd->regs, PSR_PLAYITEM, bd->clip->clip_id);
+
             return 1;
         }
 
@@ -470,6 +476,11 @@ static int64_t _seek_internal(BLURAY *bd, NAV_CLIP *clip, uint32_t title_pkt, ui
 
     bd->int_buf_off = 6144;
 
+    /* chapter tracking */
+    uint32_t current_chapter = bd_get_current_chapter(bd);
+    bd->next_chapter_start = bd_chapter_pos(bd, current_chapter + 1);
+    bd_psr_write(bd->regs, PSR_CHAPTER,  current_chapter + 1);
+
     DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
           bd->s_pos, bd);
     if (bd->bdplus_seek && bd->bdplus)
@@ -486,6 +497,7 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
     if (bd->seamless_angle_change) {
         bd->clip = nav_set_angle(bd->title, bd->clip, bd->request_angle);
         bd->seamless_angle_change = 0;
+        bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
     }
     if (tick < bd->title->duration) {
         tick /= 2;
@@ -557,6 +569,7 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos)
     if (bd->seamless_angle_change) {
         bd->clip = nav_set_angle(bd->title, bd->clip, bd->request_angle);
         bd->seamless_angle_change = 0;
+        bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
     }
     if (pos < bd->s_size) {
         pkt = pos / 192;
@@ -609,6 +622,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                         bd->s_pos = bd->clip->pos;
                     } else {
                         bd->clip = nav_set_angle(bd->title, bd->clip, bd->request_angle);
+                        bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
                         _clip_seek_time(bd, bd->angle_change_time);
                     }
                     bd->seamless_angle_change = 0;
@@ -660,6 +674,13 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
             bd->s_pos += size;
         }
 
+        /* chapter tracking */
+        if (bd->s_pos > bd->next_chapter_start) {
+            uint32_t current_chapter = bd_get_current_chapter(bd);
+            bd->next_chapter_start = bd_chapter_pos(bd, current_chapter + 1);
+            bd_psr_write(bd->regs, PSR_CHAPTER, current_chapter + 1);
+        }
+
         DEBUG(DBG_BLURAY, "%d bytes read OK! (%p)\n", out_len, bd);
 
         return out_len;
@@ -686,6 +707,12 @@ static int _open_playlist(BLURAY *bd, const char *f_name)
     bd->seamless_angle_change = 0;
     bd->s_pos = 0;
     bd->s_size = (uint64_t)bd->title->packets * 192;
+
+    bd->next_chapter_start = bd_chapter_pos(bd, 1);
+
+    bd_psr_write(bd->regs, PSR_PLAYLIST, atoi(bd->title->name));
+    bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
+    bd_psr_write(bd->regs, PSR_CHAPTER, 1);
 
     // Get the initial clip of the playlist
     bd->clip = nav_next_clip(bd->title, NULL);
@@ -742,6 +769,8 @@ int bd_select_angle(BLURAY *bd, unsigned angle)
         return 0;
     }
     bd->clip = nav_set_angle(bd->title, bd->clip, angle);
+    bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
+
     return 1;
 }
 
@@ -1053,6 +1082,8 @@ int bd_play_title(BLURAY *bd, unsigned title)
     if (title == TITLE_FIRST_PLAY) {
         INDX_PLAY_ITEM *p = &bd->index->first_play;
 
+        bd_psr_write(bd->regs, PSR_TITLE_ID, 0xffff); /* 5.2.3.3 */
+
         if (p->object_type == indx_object_type_hdmv) {
             if (p->hdmv.id_ref == 0xffff) {
                 /* no first play title (5.2.3.3) */
@@ -1078,6 +1109,8 @@ int bd_play_title(BLURAY *bd, unsigned title)
     if (title == TITLE_TOP_MENU) {
         INDX_PLAY_ITEM *p = &bd->index->top_menu;
 
+        bd_psr_write(bd->regs, PSR_TITLE_ID, 0); /* 5.2.3.3 */
+
         if (p->object_type == indx_object_type_hdmv) {
             if (p->hdmv.id_ref == 0xffff) {
                 /* no top menu (5.2.3.3) */
@@ -1097,6 +1130,8 @@ int bd_play_title(BLURAY *bd, unsigned title)
     /* valid title from disc index ? */
     if (title < bd->index->num_titles) {
         INDX_TITLE *t = &bd->index->titles[title];
+
+        bd_psr_write(bd->regs, PSR_TITLE_ID, title + 1); /* 5.2.3.3 */
 
         if (t->object_type == indx_object_type_hdmv) {
             return _play_hdmv(bd, t->hdmv.id_ref);
