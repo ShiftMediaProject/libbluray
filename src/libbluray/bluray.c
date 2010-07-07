@@ -199,7 +199,7 @@ static int _open_m2ts(BLURAY *bd)
 #endif
             }
 
-            bd_psr_write(bd->regs, PSR_PLAYITEM, bd->clip->clip_id);
+            bd_psr_write(bd->regs, PSR_PLAYITEM, bd->clip->ref);
 
             return 1;
         }
