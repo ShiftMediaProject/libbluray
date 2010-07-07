@@ -772,6 +772,17 @@ uint64_t bd_tell(BLURAY *bd)
     return bd ? bd->s_pos : INT64_C(0);
 }
 
+uint64_t bd_tell_time(BLURAY *bd)
+{
+    uint32_t clip_pkt = 0, out_pkt = 0, out_time = 0;
+
+    if (bd && bd->title) {
+        nav_packet_search(bd->title, bd->s_pos / 192, &clip_pkt, &out_pkt, &out_time);
+    }
+
+    return ((uint64_t)out_time) * 2;
+}
+
 // This must be called after bd_open() and before bd_select_title().
 // Populates the title list in BLURAY.
 // Filtering of the returned list is controled throught flags
