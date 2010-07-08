@@ -499,7 +499,7 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
         bd->seamless_angle_change = 0;
         bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
     }
-    if (tick < bd->title->duration) {
+    if (tick < bd->title->duration * 2) {
         tick /= 2;
 
         // Find the closest access unit to the requested position
