@@ -212,11 +212,11 @@ static int _resume_object(HDMV_VM *p)
     }
 
     p->object = p->suspended_object;
-    p->pc     = p->suspended_pc + 1;
+    p->pc     = p->suspended_pc;
 
     bd_psr_restore_state(p->regs);
 
-    DEBUG(DBG_HDMV, "resuming object %p at %d\n", p->object, p->pc);
+    DEBUG(DBG_HDMV, "resuming object %p at %d\n", p->object, p->pc + 1);
 
     p->suspended_object = NULL;
 
@@ -245,6 +245,8 @@ static int _jump_object(HDMV_VM *p, int object)
 
 static int _jump_title(HDMV_VM *p, int title)
 {
+    DEBUG(DBG_HDMV, "_jump_title(%d)\n", title);
+
     if (p->suspended_object) {
         /* discard suspended object */
         p->suspended_object = NULL;
@@ -361,6 +363,7 @@ static int _hdmv_step(HDMV_VM *p)
     uint32_t   src0 = 0;
     uint32_t   dst0 = 0;
     uint32_t   orig_pc = p->pc;
+    int        inc_pc = 1;
 
     /* fetch operand values */
     if (insn->op_cnt > 0) {
@@ -402,11 +405,11 @@ static int _hdmv_step(HDMV_VM *p)
                         DEBUG(DBG_HDMV|DBG_CRIT, "[too many operands in BRANCH/JUMP opcode 0x%08x] ", *(uint32_t*)insn);
                     }
                     switch (insn->branch_opt) {
-                        case INSN_JUMP_OBJECT: if (!_jump_object  (p, dst)) return 0; break;
-                        case INSN_JUMP_TITLE:  if (!_jump_title   (p, dst)) return 0; break;
-                        case INSN_CALL_OBJECT: if (!_call_object  (p, dst)) return 0; break;
-                        case INSN_CALL_TITLE:  if (!_call_title   (p, dst)) return 0; break;
-                        case INSN_RESUME:      if (!_resume_object(p))      return 0; break;
+                        case INSN_JUMP_TITLE:  _jump_title(p, dst); break;
+                        case INSN_CALL_TITLE:  _call_title(p, dst); break;
+                        case INSN_RESUME:      _resume_object(p);   break;
+                        case INSN_JUMP_OBJECT: if (!_jump_object(p, dst)) { inc_pc = 0; } break;
+                        case INSN_CALL_OBJECT: if (!_call_object(p, dst)) { inc_pc = 0; } break;
                         default:
                             DEBUG(DBG_HDMV|DBG_CRIT, "[unknown BRANCH/JUMP option in opcode 0x%08x] ", *(uint32_t*)insn);
                             break;
@@ -504,7 +507,7 @@ static int _hdmv_step(HDMV_VM *p)
     _hdmv_trace_cmd(orig_pc, cmd, src0, dst0, src, dst);
 
     /* inc program counter to next instruction */
-    p->pc++;
+    p->pc += inc_pc;
 
     return 0;
 }
