@@ -135,6 +135,8 @@ static int _get_event(HDMV_VM *p, HDMV_EVENT *ev)
         return 0;
     }
 
+    ev->event = HDMV_EVENT_NONE;
+
     return -1;
 }
 
@@ -142,7 +144,7 @@ static int _queue_event(HDMV_VM *p, HDMV_EVENT ev)
 {
     unsigned i;
     for (i = 0; i < sizeof(p->event) / sizeof(p->event[0]) - 1; i++) {
-        if (p->event[i].event != HDMV_EVENT_NONE) {
+        if (p->event[i].event == HDMV_EVENT_NONE) {
             p->event[i] = ev;
             return 0;
         }
