@@ -538,6 +538,11 @@ int hdmv_vm_select_object(HDMV_VM *p, int object, void *ig_object)
     return 0;
 }
 
+int hdmv_vm_get_event(HDMV_VM *p, HDMV_EVENT *ev)
+{
+    return _get_event(p, ev);
+}
+
 /* terminate program after MAX_LOOP instructions */
 #define MAX_LOOP 1000000
 

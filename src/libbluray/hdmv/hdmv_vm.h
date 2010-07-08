@@ -62,5 +62,6 @@ BD_PRIVATE void     hdmv_vm_free(HDMV_VM *p);
 
 BD_PRIVATE int      hdmv_vm_select_object(HDMV_VM *p, int object, void *ig_object);
 BD_PRIVATE int      hdmv_vm_run(HDMV_VM *p, HDMV_EVENT *ev);
+BD_PRIVATE int      hdmv_vm_get_event(HDMV_VM *p, HDMV_EVENT *ev);
 
 #endif // _HDMV_VM_H_
