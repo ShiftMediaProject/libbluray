@@ -22,7 +22,13 @@ AC_ARG_WITH([dlopen],
 AC_ARG_WITH([jdk],
   AS_HELP_STRING([--with-jdk=DIR],
   [Specify the path to the JDK (default is "/usr/lib/jvm/java-6-openjdk")]),
-  [JDK_HOME=$withval], [])
+  [JDK_HOME=$withval],
+  [
+    # Set JDK_HOME unless already set in environment
+    if [[ -z "$JDK_HOME" ]]; then
+      JDK_HOME="/usr/lib/jvm/java-6-openjdk"
+    fi
+  ])
 
 AC_ARG_ENABLE([werror],
   [AS_HELP_STRING([--enable-werror],
