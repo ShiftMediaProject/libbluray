@@ -325,7 +325,7 @@ static void _hdmv_trace_cmd(int pc, MOBJ_CMD *cmd, uint32_t orig_src, uint32_t o
     if (bd_get_debug_mask() & DBG_HDMV) {
         char buf[384], *dst = buf;
 
-        dst += sprintf(dst, "%04d: %08x %08x,%08x  ", pc, MKINT_BE32((uint8_t*)&cmd->insn), cmd->dst, cmd->src);
+        dst += sprintf(dst, "%04d:  ", pc);
 
         dst += mobj_sprint_cmd(dst, cmd);
 
