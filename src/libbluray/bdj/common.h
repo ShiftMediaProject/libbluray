@@ -20,7 +20,7 @@
 #ifndef BDJ_COMMON_H_
 #define BDJ_COMMON_H_
 
-#define BDJ_CLASSPATH "libBDJ.jar"
+#define BDJ_CLASSPATH "libbluray.jar"
 #define BDJ_BDJO_PATH "/BDMV/BDJO"
 #define BDJ_JAR_PATH "/BDMV/JAR"
 

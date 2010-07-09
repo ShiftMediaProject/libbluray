@@ -24,32 +24,43 @@ import java.util.logging.Logger;
 import javax.tv.xlet.Xlet;
 import javax.tv.xlet.XletContext;
 
+import org.videolan.bdjo.AppCache;
+import org.videolan.bdjo.AppEntry;
+import org.videolan.bdjo.Bdjo;
+import org.videolan.bdjo.ControlCode;
+
 public class BDJLoader {
-    // this is for testing
-    public static void main(String[] args)
-    {
-        Load(args[0], null, 0);
-    }
-    
-    public static void Load(String init_class, String[] params, long nativePointer)
+    public static void Load(String baseDir, Bdjo bdjo, long nativePointer)
     {
         try { 
-        	ClassLoader classLoader = BDJLoader.class.getClassLoader();
-            Class<?> xlet_class = classLoader.loadClass(init_class);
-            logger.log(Level.INFO, "Loaded class: " + init_class);
-
-            xlet = (Xlet)xlet_class.newInstance();
-
-            // make context for xlet
-            XletContext context = new BasicXletContext(params, nativePointer);
-            BasicXletContext.instance = (BasicXletContext)context;
+            Libbluray.nativePointer = nativePointer;
             
-            logger.log(Level.INFO, "Attempting to start xlet");
-
-            xlet.initXlet(context);
-            xlet.startXlet();
+            BDJClassLoader classLoader = new BDJClassLoader(baseDir);
             
-            logger.log(Level.INFO, "Started xlet");
+            // add app caches (the locations where classes are stored)
+            for (AppCache cache : bdjo.getAppCaches())
+                classLoader.addAppCache(cache);
+            
+            // now load and initialize all the xlets
+            for (AppEntry entry : bdjo.getAppTable()) {
+                Class<?> xlet_class = classLoader.loadClass(entry.getInitialClass());
+                logger.log(Level.INFO, "Loaded class: " + entry.getInitialClass());
+                
+                xlet = (Xlet)xlet_class.newInstance();
+                
+                // make context for xlet
+                XletContext context = new BasicXletContext(entry);
+                
+                logger.log(Level.INFO, "Attempting to init a xlet");
+                xlet.initXlet(context);
+                
+                if (entry.getControlCode().equals(ControlCode.AUTOSTART)) {
+                    logger.log(Level.INFO, "Autostart requested, now starting xlet.");
+                    xlet.startXlet();
+                }
+            }
+            
+            logger.log(Level.INFO, "Finished initializing and starting xlets.");
 
         } catch (Throwable e) {
             logger.log(Level.SEVERE, "Failed to start xlet");

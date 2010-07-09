@@ -25,6 +25,8 @@ endif
 
 SOURCES_bdj = libbluray/bdj/bdj.h \
 	libbluray/bdj/bdj_private.h \
+	libbluray/bdj/bdj_util.h \
+	libbluray/bdj/bdj_util.c \
 	libbluray/bdj/bdj.c \
 	libbluray/bdj/bdjo_parser.h \
 	libbluray/bdj/bdjo_parser.c \

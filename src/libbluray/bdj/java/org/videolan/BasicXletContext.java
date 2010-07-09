@@ -20,12 +20,15 @@ package org.videolan;
 
 import java.util.logging.Logger;
 
-public class BasicXletContext implements javax.tv.xlet.XletContext {
+import javax.tv.xlet.XletContext;
+
+import org.videolan.bdjo.AppEntry;
+
+public class BasicXletContext implements XletContext {
     
-    protected BasicXletContext(String[] params, long nativePointer)
+    protected BasicXletContext(AppEntry info)
     {
-        this.params = params;
-        this.nativePointer = nativePointer;
+        this.info = info;
     }
     
     public void notifyDestroyed()
@@ -41,9 +44,13 @@ public class BasicXletContext implements javax.tv.xlet.XletContext {
     public Object getXletProperty(String key)
     {
         if (key.equals(ARGS))
-            return params;
+            return info.getParams();
+        else if (key.equals("dvb.org.id"))
+            return info.getOrgId();
+        else if (key.equals("dvb.app.id"))
+            return info.getAppId();
         else {
-            log.warning("[bdj] BasicXletContext: Unknown property requested: " + key);
+            log.warning("Unknown property requested: " + key);
             return null;
         }
     }
@@ -53,14 +60,6 @@ public class BasicXletContext implements javax.tv.xlet.XletContext {
         
     }
     
-    protected long getNativePointer()
-    {
-        return nativePointer;
-    }
-    
-    protected static BasicXletContext instance = null;
-    
-    private String[] params;
-    private long nativePointer;
+    private AppEntry info;
     private static Logger log = Logger.getLogger(BasicXletContext.class.getName());
 }

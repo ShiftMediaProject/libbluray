@@ -10,21 +10,23 @@
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * Lesser General Public License for more details.s
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BDJ_H_
-#define BDJ_H_
+#ifndef JNIUTIL_H_
+#define JNIUTIL_H_
 
-#include "common.h"
+#include <jni.h>
+#include <stdarg.h>
 
-typedef struct bdjava_s BDJAVA;
+// makes an object from the specified class name and constructor signature
+jobject bdj_make_object(JNIEnv* env, const char* name, const char* sig, ...);
 
-BDJAVA* bdj_open(const char *path, const char *start, void* bd, void* registers);
-void bdj_close(BDJAVA *bdjava);
+// makes an array for the specified class name, all elements are initialized to null
+jobjectArray bdj_make_array(JNIEnv* env, const char* name, int count);
 
 #endif

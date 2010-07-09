@@ -33,75 +33,85 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef jint (*JNICALL fptr_JNI_CreateJavaVM)(JavaVM **pvm, void **penv, void *args);
+typedef jint (*JNICALL fptr_JNI_CreateJavaVM)(JavaVM **pvm, void **penv,void *args);
 
-int start_xlet(JNIEnv* env, BDJO_APP_INFO* info, BDJAVA* bdjava);
+int start_xlet(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava);
 void* load_jvm();
 
-BDJAVA* bdj_open(const char *path, const char* start, void* registers)
+BDJAVA* bdj_open(const char *path, const char* start, void* bd, void* registers)
 {
     // first load the jvm using dlopen
     void* jvm_lib = load_jvm();
 
-    if (!jvm_lib)
+    if (!jvm_lib) {
+        DEBUG(DBG_BDJ | DBG_CRIT, "Wasn't able to load libjvm.so\n");
         return NULL;
+    }
+
     BDJAVA* bdjava = malloc(sizeof(BDJAVA));
+    bdjava->bd = bd;
     bdjava->reg = registers;
+
+    JavaVMInitArgs args;
+
+    // check if overriding the classpath
+    const char* classpath = getenv("LIBBLURAY_CP");
+    if (classpath == NULL)
+        classpath = BDJ_CLASSPATH;
+
+    // determine classpath
+    char* classpath_opt = str_printf("-Djava.class.path=%s", classpath);
+
+    JavaVMOption* option = malloc(sizeof(JavaVMOption) * 3);
+    option[0].optionString = classpath_opt;
+    option[1].optionString = "-Xcheck:jni";
+    option[2].optionString = "-verbose:jni";
+
+    args.version = JNI_VERSION_1_6;
+    args.nOptions = 3;
+    args.options = option;
+    args.ignoreUnrecognized = JNI_FALSE; // don't ignore unrecognized options
+
+    fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = dl_dlsym(jvm_lib,
+            "JNI_CreateJavaVM");
+
+    if (JNI_CreateJavaVM_fp == NULL) {
+        free(bdjava);
+        free(option);
+        free(classpath_opt);
+        DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't find symbol JNI_CreateJavaVM.\n");
+        return NULL;
+    }
+
+    int result = JNI_CreateJavaVM_fp(&bdjava->jvm, (void**) &bdjava->env, &args);
+    free(option);
+    free(classpath_opt);
+
+    if (result != JNI_OK) {
+        free(bdjava);
+        DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM.\n");
+        return NULL;
+    }
 
     // determine path of bdjo file to load
     char* bdjo_path = str_printf("%s%s/%s.bdjo", path, BDJ_BDJO_PATH, start);
-
-    BDJO* bdjo = bdjo_read(bdjo_path);
+    jobject bdjo = bdjo_read(bdjava->env, bdjo_path);
     free(bdjo_path);
 
-    if (bdjo != NULL && bdjo->app_info_count > 0) {
-        // for now just pick the first application in the bdjo
-        BDJO_APP_INFO app_info = bdjo->app_info_entries[0];
-
-        JavaVMInitArgs args;
-
-        // check if overriding the classpath
-        const char* classpath = getenv("LIBBLURAY_CP");
-        if (classpath == NULL)
-            classpath = BDJ_CLASSPATH;
-
-        // determine classpath
-        char* classpath_opt = str_printf("-Djava.class.path=%s:%s%s/%s.jar:%s%s%s.jar",
-                classpath, path, BDJ_JAR_PATH, app_info.base_directory, path,
-                BDJ_JAR_PATH, app_info.classpath_extension);
-
-        JavaVMOption* option = malloc(sizeof(JavaVMOption)*1);
-        option[0].optionString = classpath_opt;
-
-        args.version = JNI_VERSION_1_6;
-        args.nOptions = 1;
-        args.options = option;
-        args.ignoreUnrecognized = JNI_FALSE; // don't ignore unrecognized options
-
-        fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
-
-        if (JNI_CreateJavaVM_fp == NULL) {
-            free(bdjava);
-            free(option);
-            free(classpath_opt);
-            return NULL;
-        }
-
-        int result = JNI_CreateJavaVM_fp(&bdjava->jvm, (void**)&bdjava->env, &args);
-        free(option);
-        free(classpath_opt);
-
-        if (result != JNI_OK || start_xlet(bdjava->env, &app_info, bdjava) == BDJ_ERROR) {
-            free(bdjava);
-            return NULL;
-        }
-
-        return bdjava;
+    if (!bdjo) {
+        free(bdjava);
+        DEBUG(DBG_BDJ | DBG_CRIT, "Failed to load BDJO file.\n");
+        return NULL;
     }
 
-    return NULL;
-}
+    if (start_xlet(bdjava->env, path, bdjo, bdjava) == BDJ_ERROR) {
+        free(bdjava);
+        DEBUG(DBG_BDJ | DBG_CRIT, "Failed to start BDJ program.\n");
+        return NULL;
+    }
 
+    return bdjava;
+}
 
 void bdj_close(BDJAVA *bdjava)
 {
@@ -109,7 +119,8 @@ void bdj_close(BDJAVA *bdjava)
     JavaVM* jvm = bdjava->jvm;
 
     jclass init_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
-    jmethodID shutdown_id = (*env)->GetStaticMethodID(env, init_class, "Shutdown", "()V");
+    jmethodID shutdown_id = (*env)->GetStaticMethodID(env, init_class,
+            "Shutdown", "()V");
     (*env)->CallStaticVoidMethod(env, init_class, shutdown_id);
 
     (*jvm)->DestroyJavaVM(jvm);
@@ -117,7 +128,7 @@ void bdj_close(BDJAVA *bdjava)
     free(bdjava);
 }
 
-int start_xlet(JNIEnv* env, BDJO_APP_INFO* info, BDJAVA* bdjava)
+int start_xlet(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava)
 {
     jclass init_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
 
@@ -126,37 +137,28 @@ int start_xlet(JNIEnv* env, BDJO_APP_INFO* info, BDJAVA* bdjava)
         return BDJ_ERROR;
     }
 
-    jmethodID load_id = (*env)->GetStaticMethodID(env, init_class, "Load", "(Ljava/lang/String;[Ljava/lang/String;J)V");
+    jmethodID load_id = (*env)->GetStaticMethodID(env, init_class, "Load",
+            "(Ljava/lang/String;Lorg/videolan/bdjo/Bdjo;J)V");
 
     if (load_id == NULL) {
         (*env)->ExceptionDescribe(env);
         return BDJ_ERROR;
     }
 
-    jstring param_init_class = (*env)->NewStringUTF(env, info->initial_class);
+    jstring param_base_dir = (*env)->NewStringUTF(env, path);
+    jlong param_bdjava_ptr = (jlong) bdjava;
 
-    jclass str_class = (*env)->FindClass(env, "java/lang/String");
-    jobjectArray param_params = (*env)->NewObjectArray(env, info->param_count, str_class, NULL);
-
-    int i;
-    for (i = 0; i < info->param_count; i++) {
-        jstring value = (*env)->NewStringUTF(env, info->params[i]);
-
-        (*env)->SetObjectArrayElement(env, param_params, i, value);
-    }
-
-    jlong param_bdjava_ptr = (jlong)bdjava;
-
-    (*env)->CallStaticVoidMethod(env, init_class, load_id, param_init_class, param_params, param_bdjava_ptr);
+    (*env)->CallStaticVoidMethod(env, init_class, load_id, param_base_dir, bdjo,
+            param_bdjava_ptr);
 
     return BDJ_SUCCESS;
 }
 
 void* load_jvm()
 {
-    const char* java_home = getenv("JAVA_HOME");
+    const char* java_home = getenv("JAVA_HOME"); // FIXME: should probably search multiple directories
     if (java_home == NULL) {
-        DEBUG(DBG_CRIT, "JAVA_HOME not set, can't find Java VM.\n");
+        DEBUG(DBG_BDJ | DBG_CRIT, "JAVA_HOME not set, can't find Java VM.\n");
         return NULL;
     }
 
