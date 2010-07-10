@@ -22,7 +22,6 @@ package org.videolan;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tv.xlet.Xlet;
-import javax.tv.xlet.XletContext;
 
 import org.videolan.bdjo.AppCache;
 import org.videolan.bdjo.AppEntry;
@@ -33,6 +32,8 @@ public class BDJLoader {
     public static void Load(String baseDir, Bdjo bdjo, long nativePointer)
     {
         try { 
+            System.loadLibrary("bluray");
+            
             Libbluray.nativePointer = nativePointer;
             
             BDJClassLoader classLoader = new BDJClassLoader(baseDir);
@@ -49,7 +50,7 @@ public class BDJLoader {
                 xlet = (Xlet)xlet_class.newInstance();
                 
                 // make context for xlet
-                XletContext context = new BasicXletContext(entry);
+                BasicXletContext context = new BasicXletContext(entry);
                 
                 logger.log(Level.INFO, "Attempting to init a xlet");
                 xlet.initXlet(context);

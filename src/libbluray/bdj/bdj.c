@@ -62,13 +62,11 @@ BDJAVA* bdj_open(const char *path, const char* start, void* bd, void* registers)
     // determine classpath
     char* classpath_opt = str_printf("-Djava.class.path=%s", classpath);
 
-    JavaVMOption* option = malloc(sizeof(JavaVMOption) * 3);
+    JavaVMOption* option = malloc(sizeof(JavaVMOption) * 1);
     option[0].optionString = classpath_opt;
-    option[1].optionString = "-Xcheck:jni";
-    option[2].optionString = "-verbose:jni";
 
     args.version = JNI_VERSION_1_6;
-    args.nOptions = 3;
+    args.nOptions = 1;
     args.options = option;
     args.ignoreUnrecognized = JNI_FALSE; // don't ignore unrecognized options
 
