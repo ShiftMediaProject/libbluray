@@ -247,13 +247,13 @@ static int _jump_object(HDMV_VM *p, int object)
 static int _jump_title(HDMV_VM *p, int title)
 {
     if (title >= 0 && title <= 0xffff) {
-    DEBUG(DBG_HDMV, "_jump_title(%d)\n", title);
+        DEBUG(DBG_HDMV, "_jump_title(%d)\n", title);
 
-    if (p->suspended_object) {
-        /* discard suspended object */
-        p->suspended_object = NULL;
-        bd_psr_restore_state(p->regs);
-    }
+        if (p->suspended_object) {
+            /* discard suspended object */
+            p->suspended_object = NULL;
+            bd_psr_restore_state(p->regs);
+        }
 
         _queue_event(p, HDMV_EVENT_TITLE, title);
         return 0;
@@ -276,9 +276,9 @@ static int _call_object(HDMV_VM *p, int object)
 static int _call_title(HDMV_VM *p, int title)
 {
     if (title >= 0 && title <= 0xffff) {
-    DEBUG(DBG_HDMV, "_call_title(%d)\n", title);
+        DEBUG(DBG_HDMV, "_call_title(%d)\n", title);
 
-    _suspend_object(p);
+        _suspend_object(p);
 
         _queue_event(p, HDMV_EVENT_TITLE, title);
         return 0;
