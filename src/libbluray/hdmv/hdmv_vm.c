@@ -246,6 +246,7 @@ static int _jump_object(HDMV_VM *p, int object)
 
 static int _jump_title(HDMV_VM *p, int title)
 {
+    if (title >= 0 && title <= 0xffff) {
     DEBUG(DBG_HDMV, "_jump_title(%d)\n", title);
 
     if (p->suspended_object) {
@@ -254,10 +255,11 @@ static int _jump_title(HDMV_VM *p, int title)
         bd_psr_restore_state(p->regs);
     }
 
-    if (title >= 0) {
         _queue_event(p, HDMV_EVENT_TITLE, title);
         return 0;
     }
+
+    DEBUG(DBG_HDMV|DBG_CRIT, "_jump_title(%d): invalid title number\n", title);
 
     return -1;
 }
@@ -273,14 +275,16 @@ static int _call_object(HDMV_VM *p, int object)
 
 static int _call_title(HDMV_VM *p, int title)
 {
+    if (title >= 0 && title <= 0xffff) {
     DEBUG(DBG_HDMV, "_call_title(%d)\n", title);
 
     _suspend_object(p);
 
-    if (title >= 0) {
         _queue_event(p, HDMV_EVENT_TITLE, title);
         return 0;
     }
+
+    DEBUG(DBG_HDMV|DBG_CRIT, "_call_title(%d): invalid title number\n", title);
 
     return -1;
 }
@@ -292,17 +296,14 @@ static int _call_title(HDMV_VM *p, int title)
 static int _play_at(HDMV_VM *p, int playlist, int playitem, int playmark)
 {
     if (playlist >= 0) {
-        DEBUG(DBG_HDMV, "open playlist %d\n", playlist);
         _queue_event(p, HDMV_EVENT_PLAY_PL, playlist);
     }
 
     if (playitem >= 0) {
-        DEBUG(DBG_HDMV, "seek to playitem %d\n", playitem);
         _queue_event(p, HDMV_EVENT_PLAY_PI, playitem);
     }
 
     if (playmark >= 0) {
-        DEBUG(DBG_HDMV, "seek to playmark %d\n", playmark);
         _queue_event(p, HDMV_EVENT_PLAY_PM, playmark);
     }
 
