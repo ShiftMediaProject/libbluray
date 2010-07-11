@@ -140,17 +140,18 @@ static int _get_event(HDMV_VM *p, HDMV_EVENT *ev)
     return -1;
 }
 
-static int _queue_event(HDMV_VM *p, HDMV_EVENT ev)
+static int _queue_event(HDMV_VM *p, uint32_t event, uint32_t param)
 {
     unsigned i;
     for (i = 0; i < sizeof(p->event) / sizeof(p->event[0]) - 1; i++) {
         if (p->event[i].event == HDMV_EVENT_NONE) {
-            p->event[i] = ev;
+            p->event[i].event = event;
+            p->event[i].param = param;
             return 0;
         }
     }
 
-    DEBUG(DBG_HDMV|DBG_CRIT, "_queue_event(%d, %d): queue overflow !\n", ev.event, ev.param);
+    DEBUG(DBG_HDMV|DBG_CRIT, "_queue_event(%d, %d): queue overflow !\n", event, param);
     return -1;
 }
 
@@ -254,7 +255,7 @@ static int _jump_title(HDMV_VM *p, int title)
     }
 
     if (title >= 0) {
-        _queue_event(p, (HDMV_EVENT){HDMV_EVENT_TITLE, title});
+        _queue_event(p, HDMV_EVENT_TITLE, title);
         return 0;
     }
 
@@ -277,7 +278,7 @@ static int _call_title(HDMV_VM *p, int title)
     _suspend_object(p);
 
     if (title >= 0) {
-        _queue_event(p, (HDMV_EVENT){HDMV_EVENT_TITLE, title});
+        _queue_event(p, HDMV_EVENT_TITLE, title);
         return 0;
     }
 
@@ -292,17 +293,17 @@ static int _play_at(HDMV_VM *p, int playlist, int playitem, int playmark)
 {
     if (playlist >= 0) {
         DEBUG(DBG_HDMV, "open playlist %d\n", playlist);
-        _queue_event(p, (HDMV_EVENT){HDMV_EVENT_PLAY_PL, playlist});
+        _queue_event(p, HDMV_EVENT_PLAY_PL, playlist);
     }
 
     if (playitem >= 0) {
         DEBUG(DBG_HDMV, "seek to playitem %d\n", playitem);
-        _queue_event(p, (HDMV_EVENT){HDMV_EVENT_PLAY_PI, playitem});
+        _queue_event(p, HDMV_EVENT_PLAY_PI, playitem);
     }
 
     if (playmark >= 0) {
         DEBUG(DBG_HDMV, "seek to playmark %d\n", playmark);
-        _queue_event(p, (HDMV_EVENT){HDMV_EVENT_PLAY_PM, playmark});
+        _queue_event(p, HDMV_EVENT_PLAY_PM, playmark);
     }
 
     DEBUG(DBG_HDMV|DBG_CRIT, "play_at: list %d, item %d, mark %d\n",
@@ -314,7 +315,7 @@ static int _play_at(HDMV_VM *p, int playlist, int playitem, int playmark)
 static int _play_stop(HDMV_VM *p)
 {
     DEBUG(DBG_HDMV, "_play_stop()\n");
-    _queue_event(p, (HDMV_EVENT){HDMV_EVENT_PLAY_STOP, -1});
+    _queue_event(p, HDMV_EVENT_PLAY_STOP, 0);
     return 0;
 }
 
