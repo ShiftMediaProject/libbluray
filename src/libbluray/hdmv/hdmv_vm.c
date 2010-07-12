@@ -32,8 +32,6 @@
 #include <time.h>
 
 
-#define SWAP32(a,b) { uint32_t tmp = a; a = b; b = tmp; }
-
 struct hdmv_vm_s {
     /* state */
     uint32_t       pc;            /* program counter */
@@ -353,6 +351,31 @@ static void _hdmv_trace_cmd(int pc, MOBJ_CMD *cmd, uint32_t orig_src, uint32_t o
  */
 
 /*
+ * tools
+ */
+
+#define SWAP_u32(a, b) do { uint32_t tmp = a; a = b; b = tmp; } while(0)
+
+static inline uint32_t RAND_u32(uint32_t range)
+{
+  return range > 0 ? rand() % range + 1 : 0;
+}
+
+static inline uint32_t ADD_u32(uint32_t a, uint32_t b)
+{
+  /* overflow -> saturate */
+  uint64_t result = (uint64_t)a + b;
+  return result < 0xffffffff ? result : 0xffffffff;
+}
+
+static inline uint32_t MUL_u32(uint32_t a, uint32_t b)
+{
+  /* overflow -> saturate */
+  uint64_t result = (uint64_t)a * b;
+  return result < 0xffffffff ? result : 0xffffffff;
+}
+
+/*
  * _hdmv_step()
  *  - execute next instruction from current program
  */
@@ -442,7 +465,7 @@ static int _hdmv_step(HDMV_VM *p)
                 DEBUG(DBG_HDMV|DBG_CRIT, "missing operand in BRANCH/JUMP opcode 0x%08x] ", *(uint32_t*)insn);
             }
             switch (insn->cmp_opt) {
-                case INSN_BC: p->pc += !(dst == src); break;
+                case INSN_BC: p->pc += !(dst &  src); break;
                 case INSN_EQ: p->pc += !(dst == src); break;
                 case INSN_NE: p->pc += !(dst != src); break;
                 case INSN_GE: p->pc += !(dst >= src); break;
@@ -463,13 +486,13 @@ static int _hdmv_step(HDMV_VM *p)
                     }
                     switch (insn->set_opt) {
                         case INSN_MOVE:   dst  = src;         break;
-                        case INSN_SWAP:   SWAP32(src, dst);   break;
-                        case INSN_ADD:    dst += src;         break;
-                        case INSN_SUB:    dst  = dst < src ? 0         : dst - src;  break;
-                        case INSN_MUL:    dst *= src;         break;
+                        case INSN_SWAP:   SWAP_u32(src, dst);   break;
+                        case INSN_SUB:    dst  = dst > src ? dst - src :          0; break;
                         case INSN_DIV:    dst  = src > 0   ? dst / src : 0xffffffff; break;
                         case INSN_MOD:    dst  = src > 0   ? dst % src : 0xffffffff; break;
-                        case INSN_RND:    dst = (rand() % src) + 1;                  break;
+                        case INSN_ADD:    dst  = ADD_u32(src, dst);  break;
+                        case INSN_MUL:    dst  = MUL_u32(dst, src);  break;
+                        case INSN_RND:    dst  = RAND_u32(src);      break;
                         case INSN_AND:    dst &= src;         break;
                         case INSN_OR:     dst |= src;         break;
                         case INSN_XOR:    dst ^= src;         break;
