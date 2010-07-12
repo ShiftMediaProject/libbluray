@@ -323,7 +323,7 @@ static int _play_stop(HDMV_VM *p)
  * trace
  */
 
-static void _hdmv_trace_cmd(int pc, MOBJ_CMD *cmd, uint32_t orig_src, uint32_t orig_dst, uint32_t new_src, uint32_t new_dst)
+static void _hdmv_trace_cmd(int pc, MOBJ_CMD *cmd)
 {
     if (bd_get_debug_mask() & DBG_HDMV) {
         char buf[384], *dst = buf;
@@ -332,18 +332,28 @@ static void _hdmv_trace_cmd(int pc, MOBJ_CMD *cmd, uint32_t orig_src, uint32_t o
 
         dst += mobj_sprint_cmd(dst, cmd);
 
+        DEBUG(DBG_HDMV, "%s\n", buf);
+    }
+}
+
+static void _hdmv_trace_res(uint32_t new_src, uint32_t new_dst, uint32_t orig_src, uint32_t orig_dst)
+{
+    if (bd_get_debug_mask() & DBG_HDMV) {
+
         if (new_dst != orig_dst || new_src != orig_src) {
-            dst += sprintf(dst, " [");
+            char buf[384], *dst = buf;
+
+            dst += sprintf(dst, "    :  [");
             if (new_dst != orig_dst) {
                 dst += sprintf(dst, " dst 0x%x <== 0x%x ", orig_dst, new_dst);
             }
             if (new_src != orig_src) {
                 dst += sprintf(dst, " src 0x%x <== 0x%x ", orig_src, new_src);
             }
-            dst += sprintf(dst, "] ");
-        }
+            dst += sprintf(dst, "]");
 
-        DEBUG(DBG_HDMV, "%s\n", buf);
+            DEBUG(DBG_HDMV, "%s\n", buf);
+        }
     }
 }
 
@@ -386,9 +396,6 @@ static int _hdmv_step(HDMV_VM *p)
     HDMV_INSN *insn = &cmd->insn;
     uint32_t   src  = 0;
     uint32_t   dst  = 0;
-    uint32_t   src0 = 0;
-    uint32_t   dst0 = 0;
-    uint32_t   orig_pc = p->pc;
     int        inc_pc = 1;
 
     /* fetch operand values */
@@ -408,6 +415,9 @@ static int _hdmv_step(HDMV_VM *p)
     }
     src0 = src;
     dst0 = dst;
+
+    /* trace */
+    _hdmv_trace_cmd(p->pc, cmd);
 
     /* execute */
     switch (insn->grp) {
@@ -481,7 +491,10 @@ static int _hdmv_step(HDMV_VM *p)
 
         case INSN_GROUP_SET:
             switch (insn->sub_grp) {
-                case SET_SET:
+                case SET_SET: {
+                    uint32_t src0 = src;
+                    uint32_t dst0 = dst;
+
                     if (insn->op_cnt < 2) {
                         DEBUG(DBG_HDMV|DBG_CRIT, "missing operand in SET/SET opcode 0x%08x] ", *(uint32_t*)insn);
                     }
@@ -508,9 +521,13 @@ static int _hdmv_step(HDMV_VM *p)
 
                     /* store result(s) */
                     if (dst != dst0 || src != src0) {
+
+                        _hdmv_trace_res(src, dst, src0, dst0);
+
                         _store_result(p, cmd, src, dst, src0, dst0);
                     }
                     break;
+                }
                 case SET_SETSYSTEM:
                     switch (insn->set_opt) {
                         default:
@@ -528,9 +545,6 @@ static int _hdmv_step(HDMV_VM *p)
             DEBUG(DBG_HDMV|DBG_CRIT, "[unknown group in opcode 0x%08x] ", *(uint32_t*)insn);
             break;
     }
-
-    /* trace */
-    _hdmv_trace_cmd(orig_pc, cmd, src0, dst0, src, dst);
 
     /* inc program counter to next instruction */
     p->pc += inc_pc;
