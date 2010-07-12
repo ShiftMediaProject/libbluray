@@ -77,7 +77,8 @@ static int _store_reg(HDMV_VM *p, uint32_t reg, uint32_t val)
     }
 
     if (reg & PSR_FLAG) {
-        return bd_psr_write(p->regs, reg & 0x7f, val);
+        DEBUG(DBG_HDMV, "_store_reg(): storing to PSR is not allowed\n");
+        return -1;
     }  else {
         return bd_gpr_write(p->regs, reg, val);
     }
