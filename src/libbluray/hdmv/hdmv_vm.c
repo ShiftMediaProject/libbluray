@@ -98,6 +98,18 @@ static uint32_t _read_reg(HDMV_VM *p, uint32_t reg)
     }
 }
 
+static uint32_t _read_setstream_regs(HDMV_VM *p, uint32_t val)
+{
+    uint32_t flags = val & 0xf000f000;
+    uint32_t reg0 = val & 0xfff;
+    uint32_t reg1 = (val >> 16) & 0xfff;
+
+    uint32_t val0 = bd_gpr_read(p->regs, reg0) & 0x0fff;
+    uint32_t val1 = bd_gpr_read(p->regs, reg1) & 0x0fff;
+
+    return flags | val0 | (val1 << 16);
+}
+
 static int _store_result(HDMV_VM *p, MOBJ_CMD *cmd, uint32_t src, uint32_t dst, uint32_t src0, uint32_t dst0)
 {
     int ret = 0;
@@ -120,6 +132,46 @@ static int _store_result(HDMV_VM *p, MOBJ_CMD *cmd, uint32_t src, uint32_t dst, 
     }
 
     return ret;
+}
+
+static uint32_t _fetch_operand(HDMV_VM *p, int setstream, int imm, uint32_t value)
+{
+    if (setstream) {
+
+        if (!imm) {
+            return _read_setstream_regs(p, value);
+        } else {
+            return value;
+        }
+
+    } else {
+
+        if (!imm) {
+            return _read_reg(p, value);
+        } else {
+            return value;
+        }
+    }
+}
+
+static void _fetch_operands(HDMV_VM *p, MOBJ_CMD *cmd, uint32_t *dst, uint32_t *src)
+{
+    HDMV_INSN *insn = &cmd->insn;
+
+    int setstream = (insn->grp     == INSN_GROUP_SET &&
+                     insn->sub_grp == SET_SETSYSTEM  &&
+                     (  insn->set_opt == INSN_SET_STREAM ||
+                        insn->set_opt == INSN_SET_SEC_STREAM));
+
+    *dst = *src = 0;
+
+    if (insn->op_cnt > 0) {
+      *dst = _fetch_operand(p, setstream, insn->imm_op1, cmd->dst);
+    }
+
+    if (insn->op_cnt > 1) {
+      *src = _fetch_operand(p, setstream, insn->imm_op2, cmd->src);
+    }
 }
 
 /*
@@ -399,22 +451,7 @@ static int _hdmv_step(HDMV_VM *p)
     int        inc_pc = 1;
 
     /* fetch operand values */
-    if (insn->op_cnt > 0) {
-        if (!insn->imm_op1) {
-            dst = _read_reg(p, cmd->dst);
-        } else {
-            dst = cmd->dst;
-        }
-    }
-    if (insn->op_cnt > 1) {
-        if (!insn->imm_op2) {
-            src = _read_reg(p, cmd->src);
-        } else {
-            src = cmd->src;
-        }
-    }
-    src0 = src;
-    dst0 = dst;
+    _fetch_operands(p, cmd, &dst, &src);
 
     /* trace */
     _hdmv_trace_cmd(p->pc, cmd);
