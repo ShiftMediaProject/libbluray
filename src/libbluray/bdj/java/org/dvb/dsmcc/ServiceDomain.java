@@ -20,26 +20,42 @@ package org.dvb.dsmcc;
 
 import java.io.FileNotFoundException;
 import java.io.InterruptedIOException;
+import java.net.URL;
+import org.bluray.net.BDLocator;
 import org.davic.net.InvalidLocatorException;
 import org.davic.net.Locator;
+import org.videolan.MountException;
+import org.videolan.MountManager;
 
 public class ServiceDomain {
     public ServiceDomain()
     {
-        throw new Error("Not implemented");
+
     }
 
-    public void attach(org.davic.net.Locator aDVBService, int aCarouselId)
+    public void attach(Locator dvbService, int carouselId)
             throws ServiceXFRException, InterruptedIOException,
             MPEGDeliveryException
     {
         throw new Error("Not implemented");
     }
 
-    public void attach(org.davic.net.Locator locator) throws DSMCCException,
+    public void attach(Locator locator) throws DSMCCException,
             InterruptedIOException, MPEGDeliveryException
-    {
-        throw new Error("Not implemented");
+    {   
+        BDLocator bdl = checkLocator(locator);
+        if (bdl == null)
+            throw new DSMCCException("invalid BDLocator");
+        
+        if (!bdl.isJarFileItem())
+            throw new DSMCCException("invalid BDLocator");
+       
+        try {
+            this.mountPoint = new DSMCCObject(MountManager.mount(bdl.getJarFileId()));
+        } catch (MountException e) {
+            e.printStackTrace();
+            throw new DSMCCException("couldn't mount jar");
+        }
     }
 
     public void attach(byte[] NSAPAddress) throws DSMCCException,
@@ -51,7 +67,8 @@ public class ServiceDomain {
 
     public void detach() throws NotLoadedException
     {
-        throw new Error("Not implemented");
+        if (mountPoint == null)
+            throw new NotLoadedException();
     }
 
     public byte[] getNSAPAddress() throws NotLoadedException
@@ -59,30 +76,64 @@ public class ServiceDomain {
         throw new Error("Not implemented");
     }
 
-    public static java.net.URL getURL(org.davic.net.Locator locator)
+    public static URL getURL(Locator locator)
             throws NotLoadedException, InvalidLocatorException,
             FileNotFoundException
     {
-        throw new Error("Not implemented");
+        BDLocator bdl = checkLocator(locator);
+        if (bdl == null)
+            throw new InvalidLocatorException("invalid BDLocator");
+        
+        if (bdl.isJarFileItem()) {
+            String mountPt = MountManager.getMount(bdl.getJarFileId());
+            
+            if (mountPt == null)
+                throw new NotLoadedException();
+            
+            DSMCCObject obj = new DSMCCObject(mountPt, bdl.getPathSegments());
+            
+            if (!obj.exists())
+                throw new FileNotFoundException();
+            
+            return obj.getURL();
+        }
+        
+        throw new InvalidLocatorException();
     }
 
     public DSMCCObject getMountPoint()
     {
-        throw new Error("Not implemented");
+        return mountPoint;
     }
 
     public boolean isNetworkConnectionAvailable()
     {
-        throw new Error("Not implemented");
+        return false;
     }
 
     public boolean isAttached()
     {
-        throw new Error("Not implemented");
+        return mountPoint != null;
     }
 
     public Locator getLocator()
     {
-        throw new Error("Not implemented");
+        return locator;
     }
+    
+    private static BDLocator checkLocator(Locator locator)
+    {
+        if (!(locator instanceof BDLocator))
+            return null;
+        
+        BDLocator bdl = (BDLocator)locator;
+        
+        if (bdl.isJarFileItem())
+            return bdl;
+        else
+            return null;
+    }
+    
+    private DSMCCObject mountPoint = null;
+    private Locator locator = null;
 }

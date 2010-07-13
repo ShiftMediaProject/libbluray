@@ -22,6 +22,7 @@ package org.dvb.ui;
 import java.awt.Font;
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Logger;
 
 public class FontFactory {
     public FontFactory() throws FontFormatException, IOException
@@ -31,12 +32,16 @@ public class FontFactory {
 
     public FontFactory(URL u) throws IOException, FontFormatException
     {
+        logger.info(u.toString());
         throw new Error("Not implemented");
     }
 
     public Font createFont(String name, int style, int size)
             throws FontNotAvailableException, FontFormatException, IOException
     {
+        logger.info(name);
         throw new Error("Not implemented");
     }
+    
+    private static final Logger logger = Logger.getLogger(FontFactory.class.getName());
 }

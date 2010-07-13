@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "libbluray/bluray.h"
 
@@ -46,8 +47,9 @@ int main(int argc, char** argv) {
 
     if (bd_start_bdj(bd, argv[2]))
         printf("Failed to start BD-J application.\n");
-    else
+    else {
+        while (1) { sleep(20); }
         bd_stop_bdj(bd);
-
+    }
     return 0;
 }

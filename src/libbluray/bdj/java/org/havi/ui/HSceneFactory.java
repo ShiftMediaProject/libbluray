@@ -22,7 +22,7 @@ package org.havi.ui;
 public class HSceneFactory extends Object {
     private HSceneFactory()
     {
-        throw new Error("Not implemented");
+
     }
 
     public static HSceneFactory getInstance()

@@ -21,51 +21,46 @@ package org.dvb.dsmcc;
 
 import java.io.File;
 import java.io.InterruptedIOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.X509Certificate;
+import java.util.logging.Logger;
 
 public class DSMCCObject extends File {
     public DSMCCObject(String path)
     {
         super(path);
-
-        this.path = path;
     }
 
     public DSMCCObject(String path, String name)
     {
         super(path, name);
 
-        this.path = path;
-        this.name = name;
     }
 
     public DSMCCObject(DSMCCObject dir, String name)
     {
-        super(dir.path, name);
-
-        this.path = dir.path;
-        this.name = name;
+        super(dir.getPath(), name);
     }
 
     public boolean isLoaded()
     {
-        throw new Error("Not implemented");
+        return loaded;
     }
 
     public boolean isStream()
     {
-        throw new Error("Not implemented");
+        return stream;
     }
 
     public boolean isStreamEvent()
     {
-        throw new Error("Not implemented");
+        return streamEvent;
     }
 
     public boolean isObjectKindKnown()
     {
-        throw new Error("Not implemented");
+        return true;
     }
 
     public void synchronousLoad() throws InvalidFormatException,
@@ -74,55 +69,80 @@ public class DSMCCObject extends File {
             NotEntitledException, ServiceXFRException,
             InsufficientResourcesException
     {
-        throw new Error("Not implemented");
+        if (!super.exists())
+            throw new InvalidPathNameException();
+        
+        this.loaded = true;
     }
 
-    public void asynchronousLoad(AsynchronousLoadingEventListener l)
+    public void asynchronousLoad(AsynchronousLoadingEventListener listener)
             throws InvalidPathNameException
     {
-        throw new Error("Not implemented");
+        try {
+            synchronousLoad();
+            
+            listener.receiveEvent(new SuccessEvent(this));
+        } catch (DSMCCException e) {
+            // never really thrown so don't care
+        } catch (InterruptedIOException e) {
+            // never really thrown so don't care
+        }
     }
 
     public void abort() throws NothingToAbortException
     {
-        throw new Error("Not implemented");
+        throw new NothingToAbortException();
     }
 
     public static boolean prefetch(String path, byte priority)
     {
-        throw new Error("Not implemented");
+        return false;
     }
 
     public static boolean prefetch(DSMCCObject dir, String path, byte priority)
     {
-        throw new Error("Not implemented");
+        return false;
     }
 
     public void unload() throws NotLoadedException
     {
-        throw new Error("Not implemented");
+        if (loaded)
+            throw new NotLoadedException();
+        
+        loaded = false;
     }
 
     public URL getURL()
     {
-        throw new Error("Not implemented");
+        String url = "file://" + super.getAbsolutePath();
+        try {
+            return new URL(url);
+        } catch (MalformedURLException e) {
+            logger.warning("Failed to make url " + url);
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void addObjectChangeEventListener(ObjectChangeEventListener listener)
             throws InsufficientResourcesException
     {
-        throw new Error("Not implemented");
+        throw new Error("Not implemented"); // NOTE: probably unnecessary
     }
 
     public void removeObjectChangeEventListener(
             ObjectChangeEventListener listener)
     {
+        throw new Error("Not implemented"); // NOTE: probably unnecessary
     }
 
-    public void loadDirectoryEntry(AsynchronousLoadingEventListener l)
+    public void loadDirectoryEntry(AsynchronousLoadingEventListener listener)
             throws InvalidPathNameException
     {
-        throw new Error("Not implemented");
+        if (!super.exists())
+            throw new InvalidPathNameException();
+        
+        listener.receiveEvent(new SuccessEvent(this));
     }
 
     public void setRetrievalMode(int retrieval_mode)
@@ -149,8 +169,11 @@ public class DSMCCObject extends File {
     public static final int FROM_STREAM_ONLY = 3;
     public static final int FORCED_STATIC_CACHING = 4;
 
-    private String path;
-    private String name;
+    private boolean loaded = false;
+    private boolean stream = false;
+    private boolean streamEvent = false;
 
     private static final long serialVersionUID = -6845145080873848152L;
+
+    private static final Logger logger = Logger.getLogger(DSMCCObject.class.getName());
 }

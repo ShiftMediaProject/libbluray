@@ -21,25 +21,26 @@ package org.bluray.net;
 
 import org.davic.net.Locator;
 import org.davic.net.InvalidLocatorException;
-
-import java.text.DecimalFormat;
+import org.videolan.BDJUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class BDLocator extends Locator {
 
     public BDLocator(String url) throws InvalidLocatorException
     {
         super(url);
+        
+        logger.info("Parsing locator " + url);
 
         if (!url.startsWith("bd://"))
             throw new InvalidLocatorException("Locator must start with bd:// (" + url + ")");
 
         Scanner scan = new Scanner(url.substring(5));
 
-        scan.skip("bd://");
         scan.useDelimiter("[\\.:&]");
 
         try {
@@ -112,7 +113,7 @@ public class BDLocator extends Locator {
         this.playList = playList;
         this.playItem = playItem;
         this.mark = mark;
-        this.componentTags = componentTags;
+        this.componentTags = componentTags.clone();
         
         for (String comp : componentTags) {
             if (comp.startsWith("A1:"))
@@ -218,10 +219,7 @@ public class BDLocator extends Locator {
     public String toExternalForm()
     {
         StringBuilder str = new StringBuilder();
-        DecimalFormat fmt = new DecimalFormat();
-        fmt.setMaximumIntegerDigits(5);
-        fmt.setMinimumIntegerDigits(5);
-        
+
         str.append("bd://");
         
         if (disc != null || disc != "")
@@ -232,7 +230,7 @@ public class BDLocator extends Locator {
         
         if (isJarItem) {
             str.append("JAR:");
-            str.append(fmt.format(jar));
+            str.append(BDJUtil.makeFiveDigitStr(jar));
             
             if (pathSegments != null)
                 str.append(pathSegments);
@@ -242,15 +240,15 @@ public class BDLocator extends Locator {
             }
         } else if (isPlayItem) {
             str.append("PLAYLIST:");
-            str.append(fmt.format(playList));
+            str.append(BDJUtil.makeFiveDigitStr(playList));
             
             if (playItem != -1) {
                 str.append(".ITEM:");
-                str.append(fmt.format(playItem));
+                str.append(BDJUtil.makeFiveDigitStr(playItem));
             }
             if (mark != -1) {
                 str.append(".MARK:");
-                str.append(fmt.format(mark));
+                str.append(BDJUtil.makeFiveDigitStr(mark));
             }
             
             for (int i = 0; i < componentTags.length; i++) {
@@ -423,4 +421,6 @@ public class BDLocator extends Locator {
     protected boolean isJarItem = false;
     protected boolean isPlayItem = false;
     protected boolean isSoundItem = false;
+    
+    private static final Logger logger = Logger.getLogger(BDLocator.class.getName());
 }

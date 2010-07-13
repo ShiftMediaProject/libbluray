@@ -32,9 +32,10 @@ public class BDJLoader {
     public static void Load(String baseDir, Bdjo bdjo, long nativePointer)
     {
         try { 
-            System.loadLibrary("bluray");
+            System.loadLibrary("bluray"); // load libbluray.so
             
             Libbluray.nativePointer = nativePointer;
+            BDJLoader.baseDir = baseDir;
             
             BDJClassLoader classLoader = new BDJClassLoader(baseDir);
             
@@ -76,11 +77,19 @@ public class BDJLoader {
                 xlet.destroyXlet(true);
                 xlet = null;
             }
+            
+            MountManager.unmountAll();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
+    protected static String getBaseDir()
+    {
+        return baseDir;
+    }
+    
     private static Xlet xlet = null;
+    private static String baseDir = "";
     private static final Logger logger = Logger.getLogger(BDJLoader.class.getName());
 }

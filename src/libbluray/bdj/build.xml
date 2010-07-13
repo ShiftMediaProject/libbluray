@@ -15,12 +15,12 @@
 
     <target name="compile" depends="init"
             description="compile the source " >
-        <javac srcdir="${src}" destdir="${build}" />
+        <javac srcdir="${src}" destdir="${build}" debug="yes" />
     </target>
 
     <target name="dist" depends="compile"
             description="generate the distribution" >
-        <jar jarfile="${dist}/libbluray.jar" basedir="${build}"/>
+        <jar jarfile="${dist}/libbluray.jar" basedir="${build}" />
     </target>
 
     <target name="clean"
