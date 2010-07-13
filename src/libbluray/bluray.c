@@ -1039,7 +1039,7 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
 
     switch (ev->psr_idx) {
         case PSR_ANGLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_ANGLE_ID, ev->new_val - 1}); break;
-        case PSR_TITLE_ID: _queue_event(bd, (BD_EVENT){BD_EVENT_TITLE_ID, ev->new_val}); break;
+        case PSR_TITLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_TITLE_ID, ev->new_val}); break;
         case PSR_PLAYLIST: _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYLIST, ev->new_val}); break;
         case PSR_PLAYITEM: _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYITEM, ev->new_val}); break;
         case PSR_CHAPTER:  _queue_event(bd, (BD_EVENT){BD_EVENT_CHAPTER,  ev->new_val}); break;
@@ -1082,7 +1082,7 @@ int bd_play_title(BLURAY *bd, unsigned title)
     if (title == TITLE_FIRST_PLAY) {
         INDX_PLAY_ITEM *p = &bd->index->first_play;
 
-        bd_psr_write(bd->regs, PSR_TITLE_ID, 0xffff); /* 5.2.3.3 */
+        bd_psr_write(bd->regs, PSR_TITLE_NUMBER, 0xffff); /* 5.2.3.3 */
 
         if (p->object_type == indx_object_type_hdmv) {
             if (p->hdmv.id_ref == 0xffff) {
@@ -1109,7 +1109,7 @@ int bd_play_title(BLURAY *bd, unsigned title)
     if (title == TITLE_TOP_MENU) {
         INDX_PLAY_ITEM *p = &bd->index->top_menu;
 
-        bd_psr_write(bd->regs, PSR_TITLE_ID, 0); /* 5.2.3.3 */
+        bd_psr_write(bd->regs, PSR_TITLE_NUMBER, 0); /* 5.2.3.3 */
 
         if (p->object_type == indx_object_type_hdmv) {
             if (p->hdmv.id_ref == 0xffff) {
@@ -1131,7 +1131,7 @@ int bd_play_title(BLURAY *bd, unsigned title)
     if (title < bd->index->num_titles) {
         INDX_TITLE *t = &bd->index->titles[title];
 
-        bd_psr_write(bd->regs, PSR_TITLE_ID, title + 1); /* 5.2.3.3 */
+        bd_psr_write(bd->regs, PSR_TITLE_NUMBER, title + 1); /* 5.2.3.3 */
 
         if (t->object_type == indx_object_type_hdmv) {
             return _play_hdmv(bd, t->hdmv.id_ref);

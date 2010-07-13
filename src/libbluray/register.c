@@ -110,7 +110,7 @@ static const char * const bd_psr_name[BD_PSR_COUNT] = {
     "PRIMARY_AUDIO_ID",
     "PG_PIP_STREAM",
     "ANGLE_NUMBER",
-    "TITLE_ID",
+    "TITLE_NUMBER",
     "CHAPTER",
     "PLAYLIST",
     "PLAYITEM",
