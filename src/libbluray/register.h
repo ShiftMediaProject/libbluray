@@ -78,6 +78,9 @@ uint32_t bd_psr_read(BD_REGISTERS *, int reg);
 void     bd_psr_save_state(BD_REGISTERS *);
 void     bd_psr_restore_state(BD_REGISTERS *);
 
+void     bd_psr_lock(BD_REGISTERS *);
+void     bd_psr_unlock(BD_REGISTERS *);
+
 int      bd_gpr_write(BD_REGISTERS *, int reg, uint32_t val);
 uint32_t bd_gpr_read(BD_REGISTERS *, int reg);
 
