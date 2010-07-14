@@ -590,8 +590,8 @@ static int _check_nv_timer(HDMV_VM *p)
             return 0;
         }
 
-        unsigned int timeout = p->nv_timer.tv_sec - now.tv_sec;
-        if (p->nv_timer.usec < now.tv_usec)
+        unsigned int timeout = p->nv_timer.time.tv_sec - now.tv_sec;
+        if (p->nv_timer.time.tv_usec < now.tv_usec)
             timeout ++;
 
         bd_psr_write(p->regs, PSR_NAV_TIMER, timeout);
