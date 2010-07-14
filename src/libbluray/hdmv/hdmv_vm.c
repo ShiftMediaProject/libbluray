@@ -545,6 +545,9 @@ static void _set_nv_timer(HDMV_VM *p, uint32_t dst, uint32_t src)
   if (!timeout) {
     /* cancel timer */
     p->nv_timer.time.tv_sec = 0;
+
+    bd_psr_write(p->regs, PSR_NAV_TIMER, 0);
+
     return;
   }
 
@@ -563,6 +566,8 @@ static void _set_nv_timer(HDMV_VM *p, uint32_t dst, uint32_t src)
   p->nv_timer.time.tv_sec += timeout;
 
   p->nv_timer.mobj_id = mobj_id;
+
+  bd_psr_write(p->regs, PSR_NAV_TIMER, timeout);
 }
 
 static int _check_nv_timer(HDMV_VM *p)
@@ -577,11 +582,19 @@ static int _check_nv_timer(HDMV_VM *p)
 
             DEBUG(DBG_HDMV, "navigation timer expired, jumping to object %d\n", p->nv_timer.mobj_id);
 
+            bd_psr_write(p->regs, PSR_NAV_TIMER, 0);
+
             p->nv_timer.time.tv_sec = 0;
             _jump_object(p, p->nv_timer.mobj_id);
 
             return 0;
         }
+
+        unsigned int timeout = p->nv_timer.tv_sec - now.tv_sec;
+        if (p->nv_timer.usec < now.tv_usec)
+            timeout ++;
+
+        bd_psr_write(p->regs, PSR_NAV_TIMER, timeout);
     }
 
     return -1;
