@@ -403,6 +403,8 @@ static void _set_stream(HDMV_VM *p, uint32_t dst, uint32_t src)
 
     /* PSR2 */
 
+    bd_psr_lock(p->regs);
+
     uint32_t psr2 = bd_psr_read(p->regs, PSR_PG_PIP_STREAM);
 
     /* PG TextST stream number */
@@ -416,6 +418,8 @@ static void _set_stream(HDMV_VM *p, uint32_t dst, uint32_t src)
     psr2 = disp_s_flag | (psr2 & 0x7fffffff);
 
     bd_psr_write(p->regs, PSR_PG_PIP_STREAM, psr2);
+
+    bd_psr_unlock(p->regs);
 }
 
 static void _set_sec_stream(HDMV_VM *p, uint32_t dst, uint32_t src)
@@ -427,6 +431,8 @@ static void _set_sec_stream(HDMV_VM *p, uint32_t dst, uint32_t src)
     uint32_t text_st_flags = (src >> 13) & 3;
 
     /* PSR14 */
+
+    bd_psr_lock(p->regs);
 
     uint32_t psr14 = bd_psr_read(p->regs, PSR_SECONDARY_AUDIO_VIDEO);
 
@@ -466,6 +472,8 @@ static void _set_sec_stream(HDMV_VM *p, uint32_t dst, uint32_t src)
     psr2 = (text_st_flags << 30) | (psr2 & 0x3fffffff);
 
     bd_psr_write(p->regs, PSR_PG_PIP_STREAM, psr2);
+
+    bd_psr_unlock(p->regs);
 }
 
 /*
