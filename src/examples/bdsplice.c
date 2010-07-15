@@ -76,7 +76,7 @@ main(int argc, char *argv[])
     int chapter_end = -1;
     uint8_t buf[BUF_SIZE];
     char *keyfile = NULL;
-    BLURAY_TITLE_INFO* ti;
+    BLURAY_TITLE_INFO *ti;
 
     do {
         opt = getopt(argc, argv, OPTS);

@@ -9,15 +9,15 @@ AM_CONFIG_HEADER(config.h)
 # messages
 library_not_found="Could not find required library!"
 function_not_found="Could not find required function!"
-using_dlopen="Using libaacs and libbdplus via dlopen."
+using_dlopen_crypto_libs="Using libaacs and libbdplus via dlopen."
 using_normal_linking="Using libaacs and libbdplus via normal linking."
 
 # configure options
-AC_ARG_WITH([dlopen],
-  [AS_HELP_STRING([--with-dlopen],
+AC_ARG_ENABLE([dlopen-crypto-libs],
+  [AS_HELP_STRING([--with-dlopen-crypto-libs],
   [use libaacs and libbdplus via dlopen (default is auto)])],
-  [use_dlopen=$withval],
-  [use_dlopen=auto])
+  [use_dlopen_crypto_libs=$withval],
+  [use_dlopen_crypto_libs=auto])
 
 AC_ARG_WITH([jdk],
   AS_HELP_STRING([--with-jdk=DIR],
@@ -82,15 +82,15 @@ AC_SYS_LARGEFILE
 AC_CHECK_FUNC([snprintf],, [AC_MSG_ERROR($function_not_found)])
 
 # dlopen check
-if [[ $use_dlopen = "auto" ]]; then
+if [[ $use_dlopen_crypto_libs = "auto" ]]; then
   AC_CHECK_LIB([dl], [dlopen],
-    [DLOPEN_LDFLAGS="-ldl"; AC_MSG_NOTICE($using_dlopen)
-     AC_DEFINE([USING_DLOPEN], [1], ["Define to 1 if using dlopen"])],
-    [use_dlopen="no"; AC_MSG_NOTICE($using_normal_linking)])
-elif [[ $use_dlopen = "yes" ]]; then
+    [DLOPEN_LDFLAGS="-ldl"; AC_MSG_NOTICE($using_dlopen_crypto_libs)
+     AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])],
+    [use_dlopen_crypto_libs="no"; AC_MSG_NOTICE($using_normal_linking)])
+elif [[ $use_dlopen_crypto_libs = "yes" ]]; then
   AC_CHECK_LIB([dl], [dlopen],
-    [DLOPEN_LDFLAGS="-ldl"; AC_MSG_NOTICE($using_dlopen)
-     AC_DEFINE([USING_DLOPEN], [1], ["Define to 1 if using dlopen"])],
+    [DLOPEN_LDFLAGS="-ldl"; AC_MSG_NOTICE($using_dlopen_crypto_libs)
+     AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])],
     [AC_MSG_ERROR($library_not_found)])
 else
   AC_CHECK_LIB([aacs], [aacs_open],,
@@ -99,8 +99,8 @@ else
     [AC_MSG_ERROR($library_not_found)])
   AC_MSG_NOTICE($using_normal_linking)
 fi
-AM_CONDITIONAL([USING_DLOPEN],
-  [test $use_dlopen = "auto" || test $use_dlopen = "yes"])
+AM_CONDITIONAL([DLOPEN_CRYPTO_LIBS],
+  [test $use_dlopen_crypto_libs = "auto" || test $use_dlopen_crypto_libs = "yes"])
 
 # function testing for supported compiler options
 check_cc_options()

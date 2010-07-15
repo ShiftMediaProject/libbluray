@@ -17,12 +17,6 @@ AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_WARNINGS) $(SET_OPTIMIZATIONS) \
 	$(SET_DEBUG_OPTS) $(SET_INCLUDES)
 CFLAGS=$(shell test -z "$$CFLAGS" || echo "$$CFLAGS")
 
-if USING_DLOPEN
-LIBBLURAY_LDFLAGS=@DLOPEN_LDFLAGS@
-DLOPEN_SOURCES=file/dl.h \
-	file/dl_posix.c
-endif
-
 SOURCES_bdj = libbluray/bdj/bdj.h \
 	libbluray/bdj/bdj_private.h \
 	libbluray/bdj/bdj_util.h \
@@ -63,16 +57,17 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	file/file.h \
 	file/file_posix.c \
 	file/dir.h \
+	file/dl.h \
+	file/dl_posix.c \
 	util/attributes.h \
 	util/strutl.c \
 	util/strutl.h \
 	util/macro.h \
 	util/logging.c \
 	util/bits.h \
-	util/logging.h \
-	$(DLOPEN_SOURCES)
+	util/logging.h
 libbluray_la_HEADERS= libbluray/bluray.h
-libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) $(LIBBLURAY_LDFLAGS)
+libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) -ldl
 
 if USING_BDJAVA
 libbluray_la_SOURCES+=$(SOURCES_bdj)

@@ -31,14 +31,14 @@
 #include "bdnav/navigation.h"
 #include "bdnav/index_parse.h"
 #include "file/file.h"
-#ifdef USING_DLOPEN
+#ifdef DLOPEN_CRYPTO_LIBS
 #include "file/dl.h"
 #endif
 #ifdef USING_BDJAVA
 #include "bdj/bdj.h"
 #endif
 
-#ifndef USING_DLOPEN
+#ifndef DLOPEN_CRYPTO_LIBS
 #include <libaacs/aacs.h>
 #include <libbdplus/bdplus.h>
 #endif
@@ -189,7 +189,7 @@ static int _open_m2ts(BLURAY *bd)
             X_FREE(f_name);
 
             if (bd->bdplus) {
-#ifdef USING_DLOPEN
+#ifdef DLOPEN_CRYPTO_LIBS
                 fptr_p_void bdplus_set_title;
                 bdplus_set_title = dl_dlsym(bd->h_libbdplus, "bdplus_set_title");
                 if (bdplus_set_title)
@@ -216,7 +216,7 @@ static int _open_m2ts(BLURAY *bd)
 
 static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
 {
-#ifdef USING_DLOPEN
+#ifdef DLOPEN_CRYPTO_LIBS
     if ((bd->h_libaacs = dl_dlopen("libaacs", "0"))) {
         DEBUG(DBG_BLURAY, "Downloaded libaacs (%p)\n", bd->h_libaacs);
 
@@ -271,7 +271,7 @@ static void _libbdplus_open(BLURAY *bd, const char *keyfile_path)
         file_close(fd);
 
         DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
-#ifdef USING_DLOPEN
+#ifdef DLOPEN_CRYPTO_LIBS
         if ((bd->h_libbdplus = dl_dlopen("libbdplus", "0"))) {
             DEBUG(DBG_BLURAY, "Downloaded libbdplus (%p)\n",
                   bd->h_libbdplus);
@@ -349,7 +349,7 @@ void bd_close(BLURAY *bd)
     bd_stop_bdj(bd);
 
     if (bd->aacs) {
-#ifdef USING_DLOPEN
+#ifdef DLOPEN_CRYPTO_LIBS
         fptr_p_void fptr = dl_dlsym(bd->h_libaacs, "aacs_close");
         fptr(bd->aacs);  // FIXME: NULL
         dl_dlclose(bd->h_libaacs);
@@ -359,7 +359,7 @@ void bd_close(BLURAY *bd)
     }
 
     if (bd->bdplus) {
-#ifdef USING_DLOPEN
+#ifdef DLOPEN_CRYPTO_LIBS
         fptr_p_void bdplus_free = dl_dlsym(bd->h_libbdplus, "bdplus_free");
         if (bdplus_free) bdplus_free(bd->bdplus);
 #else
@@ -367,7 +367,7 @@ void bd_close(BLURAY *bd)
 #endif
         bd->bdplus = NULL;
 
-#ifdef USING_DLOPEN
+#ifdef DLOPEN_CRYPTO_LIBS
         dl_dlclose(bd->h_libbdplus);
 #endif
         bd->h_libbdplus = NULL;
