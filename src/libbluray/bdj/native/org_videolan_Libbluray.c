@@ -4,6 +4,11 @@
 #include "libbluray/bdj/bdj_private.h"
 #include "libbluray/register.h"
 
+/* Disable some warnings */
+#if defined __GNUC__
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentTitleNumN
   (JNIEnv * env, jclass cls, jlong pBDJ)
 {
