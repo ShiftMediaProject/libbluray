@@ -20,28 +20,72 @@
 package org.dvb.ui;
 
 import java.awt.Font;
+import java.awt.FontFormatException;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.logging.Logger;
+
+import org.videolan.BDJException;
+import org.videolan.BDJUtil;
+import org.videolan.FontIndex;
+import org.videolan.FontIndexData;
 
 public class FontFactory {
     public FontFactory() throws FontFormatException, IOException
     {
-        throw new Error("Not implemented");
+        String path = BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/dvb.fontindex");
+        
+        try {
+            fontIndex.parse(path);
+        } catch (BDJException e) {
+            throw new IOException();
+        }
+        
+        LinkedList<FontIndexData> fontIndexData = fontIndex.getFontIndexData();
+        
+        fonts = new HashMap<String, Font>(fontIndexData.size());
+        for (FontIndexData data : fontIndexData) {
+            FileInputStream inStream = new FileInputStream(BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/" + data.getFileName()));
+            
+            Font font = Font.createFont(Font.TRUETYPE_FONT, inStream);
+            font = font.deriveFont(data.getStyle(), data.getMaxSize());
+            
+            fonts.put(data.getName(), font);
+        }
     }
 
     public FontFactory(URL u) throws IOException, FontFormatException
     {
-        logger.info(u.toString());
-        throw new Error("Not implemented");
+        FileInputStream inStream = new FileInputStream(u.getPath()); 
+        
+        urlFont = Font.createFont(Font.TRUETYPE_FONT, inStream);
     }
 
     public Font createFont(String name, int style, int size)
             throws FontNotAvailableException, FontFormatException, IOException
     {
-        logger.info(name);
-        throw new Error("Not implemented");
+        logger.info("Creating font: " + name + " " + style + " " + size);
+        
+        if (urlFont != null && name.equals(urlFont.getName()))
+        {
+            return urlFont.deriveFont(style, size);
+        }
+        
+        Font font = fonts.get(name);
+        
+        if (font == null)
+            throw new FontNotAvailableException();
+        
+        return font.deriveFont(style, size);
     }
+    
+    private FontIndex fontIndex = new FontIndex();
+    private Font urlFont = null;
+    private Map<String, Font> fonts = null;
     
     private static final Logger logger = Logger.getLogger(FontFactory.class.getName());
 }
