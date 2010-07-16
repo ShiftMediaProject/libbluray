@@ -65,14 +65,12 @@ public final class Manager {
         throw new Error("Not implemented");
     }
 
-    @SuppressWarnings("unchecked")
-    public static Vector getDataSourceList(String protocolName)
+    public static Vector<?> getDataSourceList(String protocolName)
     {
         throw new Error("Not implemented");
     }
 
-    @SuppressWarnings("unchecked")
-    public static Vector getHandlerClassList(String contentName)
+    public static Vector<?> getHandlerClassList(String contentName)
     {
         throw new Error("Not implemented");
     }

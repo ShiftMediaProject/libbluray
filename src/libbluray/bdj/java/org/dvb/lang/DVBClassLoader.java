@@ -60,8 +60,7 @@ public abstract class DVBClassLoader extends java.security.SecureClassLoader {
         this.parent = parent;
     }
 
-    @SuppressWarnings("unchecked")
-    protected Class findClass(String name) throws ClassNotFoundException
+    protected Class<?> findClass(String name) throws ClassNotFoundException
     {
         throw new Error("Not implemented");
     }

@@ -21,36 +21,35 @@ package javax.media;
 
 import java.util.Vector;
 
-@SuppressWarnings("unchecked")
 public class PackageManager {
     public PackageManager()
     {
     }
 
-    public static Vector getProtocolPrefixList()
+    public static Vector<?> getProtocolPrefixList()
     {
         return protocolPrefix;
     }
 
-    public static void setProtocolPrefixList(Vector list)
+    public static void setProtocolPrefixList(Vector<?> list)
     {
         protocolPrefixTemp = list;
     }
 
-    public static void commitProtocolPrefixList()
+	public static void commitProtocolPrefixList()
     {
         SecurityManager sec = System.getSecurityManager();
         if (sec != null)
             sec.checkPropertiesAccess();
-        protocolPrefix = (Vector) protocolPrefixTemp.clone();
+        protocolPrefix = (Vector<?>) protocolPrefixTemp.clone();
     }
 
-    public static Vector getContentPrefixList()
+	public static Vector<?> getContentPrefixList()
     {
         return contentPrefix;
     }
 
-    public static void setContentPrefixList(Vector list)
+    public static void setContentPrefixList(Vector<?> list)
     {
         contentPrefixTemp = list;
     }
@@ -60,11 +59,11 @@ public class PackageManager {
         SecurityManager sec = System.getSecurityManager();
         if (sec != null)
             sec.checkPropertiesAccess();
-        contentPrefix = (Vector) contentPrefixTemp.clone();
+        contentPrefix = (Vector<?>) contentPrefixTemp.clone();
     }
     
-    private static Vector protocolPrefixTemp = null;
-    private static Vector contentPrefixTemp = null;
-    private static Vector protocolPrefix = null;
-    private static Vector contentPrefix = null;
+    private static Vector<?> protocolPrefixTemp = null;
+    private static Vector<?> contentPrefixTemp = null;
+    private static Vector<?> protocolPrefix = null;
+    private static Vector<?> contentPrefix = null;
 }

@@ -32,14 +32,12 @@ public class AppsDatabase {
         throw new Error("Not implemented");
     }
 
-    @SuppressWarnings("unchecked")
-    public Enumeration getAppIDs(AppsDatabaseFilter filter)
+    public Enumeration<?> getAppIDs(AppsDatabaseFilter filter)
     {
         throw new Error("Not implemented");
     }
 
-    @SuppressWarnings("unchecked")
-    public Enumeration getAppAttributes(AppsDatabaseFilter filter)
+    public Enumeration<?> getAppAttributes(AppsDatabaseFilter filter)
     {
         throw new Error("Not implemented");
     }
