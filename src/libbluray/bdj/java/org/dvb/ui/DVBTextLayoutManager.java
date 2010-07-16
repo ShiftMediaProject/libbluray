@@ -133,12 +133,12 @@ public class DVBTextLayoutManager implements org.havi.ui.HTextLayoutManager {
         throw new Error("Not implemented");
     }
 
-    public void addTextOverflowListener(TextOverflowListener l)
+    public void addTextOverflowListener(TextOverflowListener listener)
     {
         throw new Error("Not implemented");
     }
 
-    public void removeTextOverflowListener(TextOverflowListener l)
+    public void removeTextOverflowListener(TextOverflowListener listener)
     {
         throw new Error("Not implemented");
     }

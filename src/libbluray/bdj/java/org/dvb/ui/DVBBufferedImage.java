@@ -19,103 +19,135 @@
 
 package org.dvb.ui;
 
+import java.awt.AWTException;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
+import java.util.logging.Logger;
+import org.videolan.GUIManager;
 
 public class DVBBufferedImage extends Image {
     public DVBBufferedImage(int width, int height)
     {
-        throw new Error("Not implemented");
+        this(width, height, TYPE_BASE);
     }
 
     public DVBBufferedImage(int width, int height, int type)
     {
-        throw new Error("Not implemented");
+        this.type = type;
+        
+        try {
+            img = GUIManager.getInstance().createBufferedImage(width, height);
+        } catch (AWTException e) {
+            logger.severe("Failed to create DVBBufferedImage");
+            e.printStackTrace();
+        }
+    }
+    
+    private DVBBufferedImage(int type, BufferedImage img)
+    {
+        this.type = type;
+        this.img = img;
     }
 
     public DVBGraphics createGraphics()
     {
-        throw new Error("Not implemented");
+        DVBGraphics gfx = new DVBGraphicsImpl(img.createGraphics());
+        gfx.type = type;
+        return gfx;
     }
 
     public void flush()
     {
-        throw new Error("Not implemented");
+        img.flush();
     }
 
     public Graphics getGraphics()
     {
-        throw new Error("Not implemented");
+        return img.getGraphics();
     }
 
     public int getHeight()
     {
-        throw new Error("Not implemented");
+        return img.getHeight();
     }
 
     public int getHeight(ImageObserver observer)
     {
-        throw new Error("Not implemented");
+        return img.getHeight(observer);
     }
 
     public Image getImage()
     {
-        throw new Error("Not implemented");
+        return img;
     }
 
     public void dispose()
     {
-        throw new Error("Not implemented");
+
     }
 
     public Object getProperty(String name, ImageObserver observer)
     {
-        throw new Error("Not implemented");
+        return img.getProperty(name, observer);
     }
 
     public int getRGB(int x, int y)
     {
-        throw new Error("Not implemented");
+        if (x < 0 || y < 0 || x > getWidth() || y > getHeight())
+            throw new ArrayIndexOutOfBoundsException();
+        
+        return img.getRGB(x, y);
     }
 
     public int[] getRGB(int startX, int startY, int w, int h, int[] rgbArray,
             int offset, int scansize)
     {
-        throw new Error("Not implemented");
+        if (startX < 0 || startY < 0 || startX > getWidth() || startY > getHeight())
+            throw new ArrayIndexOutOfBoundsException();
+        if (startX + w < 0 || startY + h < 0 || startX + w > getWidth() || startY + h > getHeight())
+            throw new ArrayIndexOutOfBoundsException();
+        
+        return img.getRGB(startX, startY, w, h, rgbArray, offset, scansize);
     }
 
     public ImageProducer getSource()
     {
-        throw new Error("Not implemented");
+        return img.getSource();
     }
 
     public DVBBufferedImage getSubimage(int x, int y, int w, int h)
             throws DVBRasterFormatException
     {
-        throw new Error("Not implemented");
+        if (x < 0 || y < 0 || x > getWidth() || y > getHeight())
+            throw new DVBRasterFormatException("Out of bounds");
+        if (x + w < 0 || y + h < 0 || x + w > getWidth() || y + h > getHeight())
+            throw new DVBRasterFormatException("Out of bounds");
+        
+        return new DVBBufferedImage(type, img.getSubimage(x, y, w, h));
     }
 
     public int getWidth()
     {
-        throw new Error("Not implemented");
+        return img.getWidth();
     }
 
     public int getWidth(ImageObserver observer)
     {
-        throw new Error("Not implemented");
+        return img.getWidth(observer);
     }
 
     public synchronized void setRGB(int x, int y, int rgb)
     {
-        throw new Error("Not implemented");
+        img.setRGB(x, y, rgb);
     }
 
     public void setRGB(int startX, int startY, int w, int h, int[] rgbArray,
             int offset, int scansize)
     {
-        throw new Error("Not implemented");
+        img.setRGB(startX, startY, w, h, rgbArray, offset, scansize);
     }
 
     public String toString()
@@ -125,9 +157,14 @@ public class DVBBufferedImage extends Image {
 
     public Image getScaledInstance(int width, int height, int hints)
     {
-        throw new Error("Not implemented");
+        return img.getScaledInstance(width, height, hints);
     }
 
     public static final int TYPE_ADVANCED = 20;
     public static final int TYPE_BASE = 21;
+
+    private BufferedImage img;
+    private int type = TYPE_BASE;
+    
+    private static final Logger logger = Logger.getLogger(DVBBufferedImage.class.getName());
 }

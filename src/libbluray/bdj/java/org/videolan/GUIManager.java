@@ -16,21 +16,25 @@
  * License along with this library. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
 package org.videolan;
 
+import java.awt.AWTException;
 import java.awt.Component;
 import java.awt.Frame;
+import java.awt.image.BufferedImage;
 
 public class GUIManager extends Frame {
-    private GUIManager() {
-        
-        
+    private GUIManager()
+    {
+
     }
-    
-    public static GUIManager getInstance() {
+
+    public static GUIManager getInstance()
+    {
         return instance;
     }
-    
+
     public boolean popToFront(Component component)
     {
         if (super.getComponentZOrder(component) == -1)
@@ -39,7 +43,18 @@ public class GUIManager extends Frame {
         super.setComponentZOrder(component, 0);
 
         return true;
-    
+
+    }
+
+    public BufferedImage createBufferedImage(int width, int height)
+            throws AWTException
+    {
+        BufferedImage img = getGraphicsConfiguration().createCompatibleImage(width, height);
+
+        if (img == null)
+            throw new AWTException("Failed to create buffered image");
+
+        return img;
     }
 
     private static final GUIManager instance = new GUIManager();

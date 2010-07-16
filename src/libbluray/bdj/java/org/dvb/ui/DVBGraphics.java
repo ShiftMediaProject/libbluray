@@ -20,18 +20,19 @@
 package org.dvb.ui;
 
 import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 
-public abstract class DVBGraphics extends Graphics {
-    protected DVBGraphics()
+public abstract class DVBGraphics extends Graphics2D {
+    protected DVBGraphics(Graphics2D gfx)
     {
+        this.gfx = gfx;
     }
 
     public abstract int[] getAvailableCompositeRules();
 
     public DVBColor getBestColorMatch(Color c)
     {
-        throw new Error("Not implemented");
+        return new DVBColor(c);
     }
 
     public abstract Color getColor();
@@ -40,7 +41,7 @@ public abstract class DVBGraphics extends Graphics {
 
     public int getType()
     {
-        throw new Error("Not implemented");
+        return type;
     }
 
     public abstract void setColor(Color c);
@@ -53,4 +54,7 @@ public abstract class DVBGraphics extends Graphics {
         return getClass().getName() + "[font=" + getFont() + ",color="
                 + getColor() + "]";
     }
+    
+    protected int type = DVBBufferedImage.TYPE_BASE;
+    protected Graphics2D gfx;
 }

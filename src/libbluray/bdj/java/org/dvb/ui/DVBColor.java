@@ -45,32 +45,32 @@ public class DVBColor extends AlphaColor {
 
     public Color brighter()
     {
-        throw new Error("Not implemented");
+        return super.brighter();
     }
 
     public Color darker()
     {
-        throw new Error("Not implemented");
+        return super.darker();
     }
 
     public boolean equals(Object obj)
     {
-        throw new Error("Not implemented");
+        return super.equals(obj);
     }
 
     public int getAlpha()
     {
-        throw new Error("Not implemented");
+        return super.getAlpha();
     }
 
     public int getRGB()
     {
-        throw new Error("Not implemented");
+        return super.getRGB();
     }
 
     public String toString()
     {
-        throw new Error("Not implemented");
+        return super.toString();
     }
     
     private static final long serialVersionUID = -5411538049776187650L;
