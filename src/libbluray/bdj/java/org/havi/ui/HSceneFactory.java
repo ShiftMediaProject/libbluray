@@ -19,6 +19,8 @@
 
 package org.havi.ui;
 
+import org.videolan.GUIManager;
+
 public class HSceneFactory extends Object {
     private HSceneFactory()
     {
@@ -48,11 +50,25 @@ public class HSceneFactory extends Object {
 
     public HScene getDefaultHScene(HScreen screen)
     {
+        synchronized(defaultHSceneLock) {
+            if (defaultHScene == null) {
+                defaultHScene = new HScene();
+                GUIManager.getInstance().add(defaultHScene);
+            }
+        }
+        
         return defaultHScene;
     }
 
     public HScene getDefaultHScene()
     {
+        synchronized(defaultHSceneLock) {
+            if (defaultHScene == null) {
+                defaultHScene = new HScene();
+                GUIManager.getInstance().add(defaultHScene);
+            }
+        }
+        
         return defaultHScene;
     }
 
@@ -66,6 +82,7 @@ public class HSceneFactory extends Object {
         throw new Error("Not implemented");
     }
 
-    private HScene defaultHScene = new HScene();
+    private HScene defaultHScene = null;
+    private Object defaultHSceneLock = new Object();
     private static final HSceneFactory instance = new HSceneFactory();
 }
