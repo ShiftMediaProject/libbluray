@@ -27,6 +27,7 @@ import org.videolan.bdjo.AppCache;
 import org.videolan.bdjo.AppEntry;
 import org.videolan.bdjo.Bdjo;
 import org.videolan.bdjo.ControlCode;
+import org.videolan.bdjo.GraphicsResolution;
 
 public class BDJLoader {
     public static void Load(String baseDir, Bdjo bdjo, long nativePointer)
@@ -42,6 +43,12 @@ public class BDJLoader {
             // add app caches (the locations where classes are stored)
             for (AppCache cache : bdjo.getAppCaches())
                 classLoader.addAppCache(cache);
+            
+            // start test window
+            GUIManager gui = GUIManager.getInstance();
+            GraphicsResolution res = bdjo.getTerminalInfo().getResolution();
+            gui.setSize(res.getWidth(), res.getHeight());
+            gui.setVisible(true);
             
             // now load and initialize all the xlets
             for (AppEntry entry : bdjo.getAppTable()) {
