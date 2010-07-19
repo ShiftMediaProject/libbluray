@@ -193,6 +193,9 @@ if [[ $use_bdjava = "yes" ]]; then
 fi
 AM_CONDITIONAL([USING_BDJAVA], [ test $use_bdjava = "yes" ])
 
+# generate documentation
+DX_INIT_DOXYGEN(libbluray, doc/doxygen-config, [doc/doxygen])
+
 # generate output files
 AC_SUBST(BDJAVA_CFLAGS)
 AC_SUBST(DLOPEN_LDFLAGS)
