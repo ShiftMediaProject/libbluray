@@ -29,7 +29,7 @@
 typedef enum {
     PSR_IG_STREAM_ID     = 0,
     PSR_PRIMARY_AUDIO_ID = 1,
-    PSR_PG_PIP_STREAM    = 2, /* PG TextST and PIP PG TextST stream number */
+    PSR_PG_STREAM        = 2, /* PG TextST and PIP PG TextST stream number */
     PSR_ANGLE_NUMBER     = 3, /* 1..N */
     PSR_TITLE_NUMBER     = 4, /* 1..N  (0 = top menu, 0xffff = first play) */
     PSR_CHAPTER          = 5, /* 1..N  (0xffff = invalid) */

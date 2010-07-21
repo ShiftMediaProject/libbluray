@@ -109,7 +109,7 @@ static const uint32_t bd_psr_init[BD_PSR_COUNT] = {
 static const char * const bd_psr_name[BD_PSR_COUNT] = {
     "IG_STREAM_ID",
     "PRIMARY_AUDIO_ID",
-    "PG_PIP_STREAM",
+    "PG_STREAM",
     "ANGLE_NUMBER",
     "TITLE_NUMBER",
     "CHAPTER",

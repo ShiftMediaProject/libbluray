@@ -405,7 +405,7 @@ static void _set_stream(HDMV_VM *p, uint32_t dst, uint32_t src)
 
     bd_psr_lock(p->regs);
 
-    uint32_t psr2 = bd_psr_read(p->regs, PSR_PG_PIP_STREAM);
+    uint32_t psr2 = bd_psr_read(p->regs, PSR_PG_STREAM);
 
     /* PG TextST stream number */
     if (dst & 0x8000) {
@@ -417,7 +417,7 @@ static void _set_stream(HDMV_VM *p, uint32_t dst, uint32_t src)
     uint32_t disp_s_flag = (dst & 0x4000) << 17;
     psr2 = disp_s_flag | (psr2 & 0x7fffffff);
 
-    bd_psr_write(p->regs, PSR_PG_PIP_STREAM, psr2);
+    bd_psr_write(p->regs, PSR_PG_STREAM, psr2);
 
     bd_psr_unlock(p->regs);
 }
@@ -461,7 +461,7 @@ static void _set_sec_stream(HDMV_VM *p, uint32_t dst, uint32_t src)
 
     /* PSR2 */
 
-    uint32_t psr2  = bd_psr_read(p->regs, PSR_PG_PIP_STREAM);
+    uint32_t psr2  = bd_psr_read(p->regs, PSR_PG_STREAM);
 
     /* PiP PG TextST stream */
     if (src & 0x8000) {
@@ -471,7 +471,7 @@ static void _set_sec_stream(HDMV_VM *p, uint32_t dst, uint32_t src)
 
     psr2 = (text_st_flags << 30) | (psr2 & 0x3fffffff);
 
-    bd_psr_write(p->regs, PSR_PG_PIP_STREAM, psr2);
+    bd_psr_write(p->regs, PSR_PG_STREAM, psr2);
 
     bd_psr_unlock(p->regs);
 }
