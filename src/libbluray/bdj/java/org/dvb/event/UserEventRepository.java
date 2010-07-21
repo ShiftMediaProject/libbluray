@@ -23,22 +23,31 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.awt.event.KeyEvent;
 
+import org.havi.ui.event.HRcEvent;
+
 public class UserEventRepository extends RepositoryDescriptor {
 
     public UserEventRepository(String name)
     {
         super(null, name);
-        throw new Error("Not implemented");
     }
 
     public void addUserEvent(UserEvent event)
     {
-        throw new Error("Not implemented");
+        events.add(event);
     }
 
     public UserEvent[] getUserEvent()
     {
-        throw new Error("Not implemented");
+        UserEvent[] userEvents = new UserEvent[events.size()];
+        
+        int i = 0;
+        for (UserEvent e : userEvents) {
+            userEvents[i] = e;
+            i++;
+        }
+        
+        return userEvents;
     }
 
     public void removeUserEvent(UserEvent event)
@@ -66,37 +75,62 @@ public class UserEventRepository extends RepositoryDescriptor {
 
     public void addAllNumericKeys()
     {
-        throw new Error("Not implemented");
+        addKey(HRcEvent.VK_0);
+        addKey(HRcEvent.VK_1);
+        addKey(HRcEvent.VK_2);
+        addKey(HRcEvent.VK_3);
+        addKey(HRcEvent.VK_4);
+        addKey(HRcEvent.VK_5);
+        addKey(HRcEvent.VK_6);
+        addKey(HRcEvent.VK_7);
+        addKey(HRcEvent.VK_8);
+        addKey(HRcEvent.VK_9);
     }
 
     public void addAllColourKeys()
     {
-        throw new Error("Not implemented");
+        addKey(HRcEvent.VK_COLORED_KEY_0);
+        addKey(HRcEvent.VK_COLORED_KEY_1);
+        addKey(HRcEvent.VK_COLORED_KEY_2);
+        addKey(HRcEvent.VK_COLORED_KEY_3);
     }
 
     public void addAllArrowKeys()
     {
-        throw new Error("Not implemented");
+        addKey(HRcEvent.VK_LEFT);
+        addKey(HRcEvent.VK_RIGHT);
+        addKey(HRcEvent.VK_UP);
+        addKey(HRcEvent.VK_DOWN);
     }
 
     public void removeAllNumericKeys()
     {
-        throw new Error("Not implemented");
+        removeKey(HRcEvent.VK_0);
+        removeKey(HRcEvent.VK_1);
+        removeKey(HRcEvent.VK_2);
+        removeKey(HRcEvent.VK_3);
+        removeKey(HRcEvent.VK_4);
+        removeKey(HRcEvent.VK_5);
+        removeKey(HRcEvent.VK_6);
+        removeKey(HRcEvent.VK_7);
+        removeKey(HRcEvent.VK_8);
+        removeKey(HRcEvent.VK_9);
     }
 
     public void removeAllColourKeys()
     {
-        throw new Error("Not implemented");
+        removeKey(HRcEvent.VK_COLORED_KEY_0);
+        removeKey(HRcEvent.VK_COLORED_KEY_1);
+        removeKey(HRcEvent.VK_COLORED_KEY_2);
+        removeKey(HRcEvent.VK_COLORED_KEY_3);
     }
 
     public void removeAllArrowKeys()
     {
-        throw new Error("Not implemented");
-    }
-
-    public String getName()
-    {
-        throw new Error("Not implemented");
+        removeKey(HRcEvent.VK_LEFT);
+        removeKey(HRcEvent.VK_RIGHT);
+        removeKey(HRcEvent.VK_UP);
+        removeKey(HRcEvent.VK_DOWN);
     }
 
     private LinkedList<UserEvent> events = new LinkedList<UserEvent>();

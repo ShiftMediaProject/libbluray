@@ -22,13 +22,15 @@ package org.dvb.event;
 public class OverallRepository extends UserEventRepository {
     public OverallRepository()
     {
-        super(null);
-        throw new Error("Not implemented");
+        this("OverallRepository");
     }
 
     public OverallRepository(String name)
     {
         super(name);
-        throw new Error("Not implemented");
+        
+        super.addAllArrowKeys();
+        super.addAllColourKeys();
+        super.addAllNumericKeys();
     }
 }

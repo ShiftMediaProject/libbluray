@@ -126,6 +126,16 @@ void bdj_close(BDJAVA *bdjava)
     free(bdjava);
 }
 
+void bdj_send_event(BDJAVA *bdjava, int type, int keyCode)
+{
+	JNIEnv* env = bdjava->env;
+
+	jclass init_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
+	jmethodID send_key_event_id = (*env)->GetStaticMethodID(env, init_class,
+	            "SendKeyEvent", "(II)V");
+	(*env)->CallStaticVoidMethod(env, init_class, send_key_event_id, type, keyCode);
+}
+
 int start_xlet(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava)
 {
     jclass init_class = (*env)->FindClass(env, "org/videolan/BDJLoader");

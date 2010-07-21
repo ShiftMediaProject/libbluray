@@ -22,6 +22,8 @@ package org.videolan;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tv.xlet.Xlet;
+import javax.tv.xlet.XletContext;
+import javax.tv.xlet.XletStateChangeException;
 
 import org.videolan.bdjo.AppCache;
 import org.videolan.bdjo.AppEntry;
@@ -60,13 +62,10 @@ public class BDJLoader {
                 // make context for xlet
                 BasicXletContext context = new BasicXletContext(entry);
                 
-                logger.log(Level.INFO, "Attempting to init a xlet");
-                xlet.initXlet(context);
-                
-                if (entry.getControlCode().equals(ControlCode.AUTOSTART)) {
-                    logger.log(Level.INFO, "Autostart requested, now starting xlet.");
-                    xlet.startXlet();
-                }
+                Thread thread = new Thread(new BDJThreadGroup("", context), 
+                        new XletStarter(xlet, entry.getControlCode().equals(ControlCode.AUTOSTART)));
+                thread.start();
+                thread.join();
             }
             
             logger.log(Level.INFO, "Finished initializing and starting xlets.");
@@ -96,7 +95,53 @@ public class BDJLoader {
         return baseDir;
     }
     
+    public static void SendKeyEvent(int type, int keyCode)
+    {
+        if (inputListener != null) {
+            inputListener.receiveKeyEvent(type, keyCode);
+        } else {
+            logger.warning("Tried to send key event before listener set.");
+        }
+    }
+    
+    public static XletContext getContext()
+    {
+        BDJThreadGroup grp = (BDJThreadGroup)Thread.currentThread().getThreadGroup();
+        return grp.getContext();
+    }
+    
+    public static BDJInputListener inputListener = null;
+    
     private static Xlet xlet = null;
     private static String baseDir = "";
     private static final Logger logger = Logger.getLogger(BDJLoader.class.getName());
+
+    private static class XletStarter implements Runnable {
+        public XletStarter(Xlet xlet, boolean autostart)
+        {
+            this.xlet = xlet;
+            this.autostart = autostart;
+        }
+        
+        public void run()
+        {
+            try {
+                XletContext context = getContext();
+                logger.log(Level.INFO, "Attempting to init a xlet");
+                
+                xlet.initXlet(context);
+                
+                if (autostart) {
+                    logger.log(Level.INFO, "Autostart requested, now starting xlet.");
+                    xlet.startXlet();
+                }
+            } catch (XletStateChangeException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        
+        private Xlet xlet;
+        private boolean autostart;
+    }
 }
