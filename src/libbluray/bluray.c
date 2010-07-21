@@ -868,6 +868,7 @@ BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
     }
     title_info = calloc(1, sizeof(BLURAY_TITLE_INFO));
     title_info->idx = title_idx;
+    title_info->playlist = bd->title_list->title_info[title_idx].mpls_id;
     title_info->duration = (uint64_t)title->duration * 2;
     title_info->angle_count = title->angle_count;
     title_info->chapter_count = title->chap_list.count;
