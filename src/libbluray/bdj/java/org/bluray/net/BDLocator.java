@@ -251,11 +251,13 @@ public class BDLocator extends Locator {
                 str.append(BDJUtil.makeFiveDigitStr(mark));
             }
             
-            for (int i = 0; i < componentTags.length; i++) {
-                if (i != 0)
-                    str.append("&");
+            if (componentTags != null) {
+                for (int i = 0; i < componentTags.length; i++) {
+                    if (i != 0)
+                        str.append("&");
                 
-                str.append(componentTags[i]);
+                    str.append(componentTags[i]);
+                }
             }
         } else if (isSoundItem) {
             str.append("SOUND:");
