@@ -414,7 +414,7 @@ static int _read_block(BLURAY *bd)
                     DEBUG(DBG_BLURAY | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d ! (%p)\n", read_len, bd->clip_block_pos, len, bd);
 
                 if (bd->libaacs_decrypt_unit) {
-                    if (!bd->libaacs_decrypt_unit(bd->aacs, bd->int_buf, len, bd->clip_block_pos)) {
+                    if (!bd->libaacs_decrypt_unit(bd->aacs, bd->int_buf)) {
                         DEBUG(DBG_BLURAY, "Unable decrypt unit! (%p)\n", bd);
 
                         return 0;
