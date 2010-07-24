@@ -78,7 +78,7 @@ struct bluray {
 
     /* current clip */
     NAV_CLIP       *clip;
-    FILE_H         *fp;
+    BD_FILE_H      *fp;
     uint64_t       clip_size;
     uint64_t       clip_block_pos;
     uint64_t       clip_pos;
@@ -276,7 +276,7 @@ static void _libbdplus_open(BLURAY *bd, const char *keyfile_path)
     uint8_t vid[16] = {
         0xC5,0x43,0xEF,0x2A,0x15,0x0E,0x50,0xC4,0xE2,0xCA,
         0x71,0x65,0xB1,0x7C,0xA7,0xCB}; // FIXME
-    FILE_H *fd;
+    BD_FILE_H *fd;
     char *tmp = NULL;
     tmp = str_printf("%s/BDSVM/00000.svm", bd->device_path);
     if ((fd = file_open(tmp, "rb"))) {

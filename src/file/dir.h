@@ -31,16 +31,16 @@
 typedef struct
 {
     char    d_name[256];
-} DIRENT;
+} BD_DIRENT;
 
-typedef struct dir DIR_H;
-struct dir
+typedef struct bd_dir_s BD_DIR_H;
+struct bd_dir_s
 {
     void* internal;
-    void (*close)(DIR_H *dir);
-    int (*read)(DIR_H *dir, DIRENT *entry);
+    void (*close)(BD_DIR_H *dir);
+    int (*read)(BD_DIR_H *dir, BD_DIRENT *entry);
 };
 
-BD_PRIVATE DIR_H *dir_open_posix(const char* dirname);
+BD_PRIVATE BD_DIR_H *dir_open_posix(const char* dirname);
 
 #endif /* DIR_H_ */
