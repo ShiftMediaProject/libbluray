@@ -24,11 +24,9 @@
 
 #include <util/attributes.h>
 
-#define dir_open dir_open_posix
-
 #define dir_close(X) X->close(X)
 #define dir_read(X,Y) X->read(X,Y)
 
-BD_PRIVATE BD_DIR_H *dir_open_posix(const char* dirname);
+BD_PRIVATE BD_DIR_H* (*dir_open)(const char* dirname);
 
 #endif /* DIR_H_ */

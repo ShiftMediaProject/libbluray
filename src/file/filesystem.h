@@ -57,5 +57,26 @@ struct bd_dir_s
     int (*read)(BD_DIR_H *dir, BD_DIRENT *entry);
 };
 
+typedef BD_FILE_H* (*BD_FILE_OPEN)(const char* filename, const char *mode);
+typedef BD_DIR_H* (*BD_DIR_OPEN) (const char* dirname);
+
+/**
+ *
+ *  Register function pointer that will be used to open a file
+ *
+ * @param p function pointer
+ * @return previous function pointer registered
+ */
+BD_FILE_OPEN bd_register_file(BD_FILE_OPEN p);
+
+/**
+ *
+ *  Register function pointer that will be used to open a directory
+ *
+ * @param p function pointer
+ * @return previous function pointer registered
+ */
+BD_DIR_OPEN bd_register_dir(BD_DIR_OPEN p);
+
 
 #endif /* BD_FILESYSTEM_H_ */

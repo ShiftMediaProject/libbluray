@@ -28,7 +28,6 @@
 #include <stdint.h>
 
 //#ifdef __LINUX__
-#define file_open file_open_linux
 #define DIR_SEP "/"
 //#endif
 
@@ -39,6 +38,6 @@
 #define file_read(X,Y,Z) X->read(X,Y,Z)
 #define file_write(X,Y,Z) X->write(X,Y,Z)
 
-BD_PRIVATE BD_FILE_H *file_open_linux(const char* filename, const char *mode);
+BD_PRIVATE BD_FILE_H* (*file_open)(const char* filename, const char *mode);
 
 #endif /* FILE_H_ */

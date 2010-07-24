@@ -90,5 +90,4 @@ BD_FILE_H *file_open_linux(const char* filename, const char *mode)
     return NULL;
 }
 
-
-
+BD_FILE_H* (*file_open)(const char* filename, const char *mode) = file_open_linux;

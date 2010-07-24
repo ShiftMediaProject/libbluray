@@ -76,3 +76,5 @@ BD_DIR_H *dir_open_posix(const char* dirname)
 
     return NULL;
 }
+
+BD_DIR_H* (*dir_open)(const char* dirname) = dir_open_posix;
