@@ -728,6 +728,17 @@ int bd_select_playlist(BLURAY *bd, uint32_t playlist)
     char *f_name = str_printf("%05d.mpls", playlist);
     int result;
 
+    if (bd->title_list) {
+        /* update current title */
+        unsigned i;
+        for (i = 0; i < bd->title_list->count; i++) {
+            if (playlist == bd->title_list->title_info[i].mpls_id) {
+                bd->title_idx = i;
+                break;
+            }
+        }
+    }
+
     result = _open_playlist(bd, f_name);
 
     X_FREE(f_name);
