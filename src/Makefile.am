@@ -56,7 +56,6 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	file/dir_posix.c \
 	file/file.h \
 	file/file_posix.c \
-	file/dir.h \
 	file/dl.h \
 	file/dl_posix.c \
 	file/filesystem.h \

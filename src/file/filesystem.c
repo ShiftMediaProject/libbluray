@@ -22,7 +22,6 @@
 #endif
 
 #include "file.h"
-#include "dir.h"
 
 
 BD_FILE_OPEN bd_register_file(BD_FILE_OPEN p)

@@ -31,6 +31,10 @@
 #define DIR_SEP "/"
 //#endif
 
+/*
+ * file access
+ */
+
 #define file_close(X) X->close(X)
 #define file_seek(X,Y,Z) X->seek(X,Y,Z)
 #define file_tell(X) X->tell(X)
@@ -39,5 +43,14 @@
 #define file_write(X,Y,Z) X->write(X,Y,Z)
 
 BD_PRIVATE BD_FILE_H* (*file_open)(const char* filename, const char *mode);
+
+/*
+ * directory access
+ */
+
+#define dir_close(X) X->close(X)
+#define dir_read(X,Y) X->read(X,Y)
+
+BD_PRIVATE BD_DIR_H* (*dir_open)(const char* dirname);
 
 #endif /* FILE_H_ */
