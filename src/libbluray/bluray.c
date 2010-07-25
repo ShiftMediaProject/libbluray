@@ -199,6 +199,18 @@ static int _open_m2ts(BLURAY *bd)
 #endif
             }
 
+            if (bd->aacs) {
+                uint32_t title = bd_psr_read(bd->regs, PSR_TITLE_NUMBER);
+#ifdef DLOPEN_CRYPTO_LIBS
+                fptr_p_void aacs_select_title;
+                aacs_select_title = dl_dlsym(bd->h_libaacs, "aacs_select_title");
+                if (aacs_select_title)
+                    aacs_select_title(bd->aacs, title);
+#else
+                aacs_select_title(bd->aacs, title);
+#endif
+            }
+
             bd_psr_write(bd->regs, PSR_PLAYITEM, bd->clip->ref);
 
             return 1;
