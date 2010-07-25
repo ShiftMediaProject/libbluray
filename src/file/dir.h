@@ -20,26 +20,14 @@
 #ifndef DIR_H_
 #define DIR_H_
 
+#include "filesystem.h"
+
 #include <util/attributes.h>
 
 #define dir_open dir_open_posix
 
 #define dir_close(X) X->close(X)
 #define dir_read(X,Y) X->read(X,Y)
-
-// Our dirent struct only contains the parts we care about.
-typedef struct
-{
-    char    d_name[256];
-} BD_DIRENT;
-
-typedef struct bd_dir_s BD_DIR_H;
-struct bd_dir_s
-{
-    void* internal;
-    void (*close)(BD_DIR_H *dir);
-    int (*read)(BD_DIR_H *dir, BD_DIRENT *entry);
-};
 
 BD_PRIVATE BD_DIR_H *dir_open_posix(const char* dirname);
 

@@ -21,6 +21,8 @@
 #ifndef FILE_H_
 #define FILE_H_
 
+#include "filesystem.h"
+
 #include <util/attributes.h>
 
 #include <stdint.h>
@@ -36,18 +38,6 @@
 #define file_eof(X) X->eof(X)
 #define file_read(X,Y,Z) X->read(X,Y,Z)
 #define file_write(X,Y,Z) X->write(X,Y,Z)
-
-typedef struct bd_file_s BD_FILE_H;
-struct bd_file_s
-{
-    void* internal;
-    void (*close)(BD_FILE_H *file);
-    int64_t (*seek)(BD_FILE_H *file, int64_t offset, int32_t origin);
-    int64_t (*tell)(BD_FILE_H *file);
-    int (*eof)(BD_FILE_H *file);
-    int (*read)(BD_FILE_H *file, uint8_t *buf, int64_t size);
-    int (*write)(BD_FILE_H *file, const uint8_t *buf, int64_t size);
-};
 
 BD_PRIVATE BD_FILE_H *file_open_linux(const char* filename, const char *mode);
 

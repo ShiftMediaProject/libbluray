@@ -66,7 +66,7 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	util/logging.c \
 	util/bits.h \
 	util/logging.h
-libbluray_la_HEADERS= libbluray/bluray.h
+libbluray_la_HEADERS= libbluray/bluray.h file/filesystem.h
 libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) -ldl
 
 if USING_BDJAVA
