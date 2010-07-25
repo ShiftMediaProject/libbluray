@@ -59,6 +59,8 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	file/dir.h \
 	file/dl.h \
 	file/dl_posix.c \
+	file/filesystem.h \
+	file/filesystem.c \
 	util/attributes.h \
 	util/strutl.c \
 	util/strutl.h \
