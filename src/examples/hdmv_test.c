@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-//#include "util/macro.h"
-#include "util/logging.h"
-
+#include "util/log_control.h"
 #include "libbluray/bluray.h"
 
 #include <stdio.h>
