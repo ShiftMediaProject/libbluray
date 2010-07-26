@@ -37,7 +37,7 @@
     (*env)->ExceptionDescribe(env); \
     } if (!a) return NULL;
 
-int get_version(const uint8_t* str)
+static int _get_version(const uint8_t* str)
 {
     if (strcmp((const char*) str, "0100") != 0)
         return 100;
@@ -48,35 +48,35 @@ int get_version(const uint8_t* str)
 }
 
 // use when string is already allocated, out should be length + 1
-void get_string(BITBUFFER* buf, char* out, uint32_t length)
+static void _get_string(BITBUFFER* buf, char* out, uint32_t length)
 {
     bb_read_bytes(buf, (uint8_t*)out, length);
     out[length] = 0; // add null termination
 }
 
-void make_string(BITBUFFER* buf, char** out, uint32_t length)
+static void _make_string(BITBUFFER* buf, char** out, uint32_t length)
 {
     *out = malloc(length + 1);
     bb_read_bytes(buf, (uint8_t*)*out, length);
     (*out)[length] = 0; // add null termination
 }
 
-jstring read_jstring(JNIEnv* env, BITBUFFER* buf, uint32_t length)
+static jstring _read_jstring(JNIEnv* env, BITBUFFER* buf, uint32_t length)
 {
     char* str;
-    make_string(buf, &str, length);
+    _make_string(buf, &str, length);
     jstring jstr = (*env)->NewStringUTF(env, str);
     free(str);
     return jstr;
 }
 
-jobject parse_terminal_info(JNIEnv* env, BITBUFFER* buf)
+static jobject _parse_terminal_info(JNIEnv* env, BITBUFFER* buf)
 {
     // skip length specifier
     bb_seek(buf, 32, SEEK_CUR);
 
     char default_font[6];
-    get_string(buf, default_font, 5);
+    _get_string(buf, default_font, 5);
     jstring jdefault_font = (*env)->NewStringUTF(env, default_font);
 
     jint havi_config = bb_read(buf, 4);
@@ -89,7 +89,7 @@ jobject parse_terminal_info(JNIEnv* env, BITBUFFER* buf)
             jdefault_font, havi_config, menu_call_mask, title_search_mask);
 }
 
-jobject parse_app_cache_info(JNIEnv* env, BITBUFFER* buf)
+static jobject _parse_app_cache_info(JNIEnv* env, BITBUFFER* buf)
 {
     // skip length specifier
     bb_seek(buf, 32, SEEK_CUR);
@@ -107,12 +107,12 @@ jobject parse_app_cache_info(JNIEnv* env, BITBUFFER* buf)
         jint type = bb_read(buf, 8);
 
         char ref_to_name[6];
-        get_string(buf, ref_to_name, 5);
+        _get_string(buf, ref_to_name, 5);
         jstring jref_to_name = (*env)->NewStringUTF(env, ref_to_name);
         JNICHK(jref_to_name);
 
         char language_code[4];
-        get_string(buf, language_code, 3);
+        _get_string(buf, language_code, 3);
         jstring jlanguage_code = (*env)->NewStringUTF(env, language_code);
         JNICHK(jlanguage_code);
 
@@ -129,7 +129,7 @@ jobject parse_app_cache_info(JNIEnv* env, BITBUFFER* buf)
     return app_cache_array;
 }
 
-jobject parse_accessible_playlists(JNIEnv* env, BITBUFFER* buf)
+static jobject _parse_accessible_playlists(JNIEnv* env, BITBUFFER* buf)
 {
     // skip length specifier
     bb_seek(buf, 32, SEEK_CUR);
@@ -145,7 +145,7 @@ jobject parse_accessible_playlists(JNIEnv* env, BITBUFFER* buf)
 
     for (int i = 0; i < count; i++) {
         char playlist_name[6];
-        get_string(buf, playlist_name, 5);
+        _get_string(buf, playlist_name, 5);
         jstring jplaylist_name = (*env)->NewStringUTF(env, playlist_name);
         JNICHK(jplaylist_name);
 
@@ -159,7 +159,7 @@ jobject parse_accessible_playlists(JNIEnv* env, BITBUFFER* buf)
             access_to_all_flag, autostart_first_playlist, playlists);
 }
 
-jobjectArray parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
+static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
 {
     // skip length specifier
     bb_seek(buf, 32, SEEK_CUR);
@@ -240,12 +240,12 @@ jobjectArray parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
 
             for (int j = 0; j < app_name_count; j++) {
                 char language[4];
-                get_string(buf, language, 3);
+                _get_string(buf, language, 3);
                 jstring jlanguage = (*env)->NewStringUTF(env, language);
                 JNICHK(jlanguage);
 
                 uint8_t name_length = bb_read(buf, 8);
-                jstring jname = read_jstring(env, buf, name_length);
+                jstring jname = _read_jstring(env, buf, name_length);
                 JNICHK(jname);
 
                 jobject app_name = bdj_make_object(env, "org/videolan/bdjo/AppName",
@@ -263,7 +263,7 @@ jobjectArray parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
         }
 
         uint8_t icon_locator_length = bb_read(buf, 8);
-        jstring icon_locator = read_jstring(env, buf, icon_locator_length);
+        jstring icon_locator = _read_jstring(env, buf, icon_locator_length);
         JNICHK(icon_locator);
 
         // skip padding to word boundary
@@ -274,7 +274,7 @@ jobjectArray parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
         jshort icon_flags = bb_read(buf, 16);
 
         uint8_t base_dir_length = bb_read(buf, 8);
-        jstring base_dir = read_jstring(env, buf, base_dir_length);
+        jstring base_dir = _read_jstring(env, buf, base_dir_length);
         JNICHK(base_dir);
 
         // skip padding to word boundary
@@ -283,7 +283,7 @@ jobjectArray parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
         }
 
         uint8_t classpath_length = bb_read(buf, 8);
-        jstring classpath_extension = read_jstring(env, buf, classpath_length);
+        jstring classpath_extension = _read_jstring(env, buf, classpath_length);
         JNICHK(classpath_extension);
 
         // skip padding to word boundary
@@ -292,7 +292,7 @@ jobjectArray parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
         }
 
         uint8_t initial_class_length = bb_read(buf, 8);
-        jstring initial_class = read_jstring(env, buf, initial_class_length);
+        jstring initial_class = _read_jstring(env, buf, initial_class_length);
 
         // skip padding to word boundary
         if ((initial_class_length & 0x1) == 0) {
@@ -321,7 +321,7 @@ jobjectArray parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
 
             for (int j = 0; j < param_count; j++) {
                 uint8_t param_length = bb_read(buf, 8);
-                jstring param = read_jstring(env, buf, param_length);
+                jstring param = _read_jstring(env, buf, param_length);
                 JNICHK(param);
 
                 (*env)->SetObjectArrayElement(env, params, i, param);
@@ -347,7 +347,7 @@ jobjectArray parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
     return entries;
 }
 
-jobject parse_bdjo(JNIEnv* env, BITBUFFER* buf)
+static jobject _parse_bdjo(JNIEnv* env, BITBUFFER* buf)
 {
     // first check magic number
     uint8_t magic[4];
@@ -361,7 +361,7 @@ jobject parse_bdjo(JNIEnv* env, BITBUFFER* buf)
     // get version string
     uint8_t version[4];
     bb_read_bytes(buf, version, 4);
-    if (get_version(version) == BDJ_ERROR) {
+    if (_get_version(version) == BDJ_ERROR) {
         DEBUG(DBG_BDJ | DBG_CRIT, "Invalid version of BDJO.\n");
         return NULL;
     }
@@ -370,22 +370,22 @@ jobject parse_bdjo(JNIEnv* env, BITBUFFER* buf)
     // skip some unnecessary data
     bb_seek(buf, 8*0x28, SEEK_CUR);
 
-    jobject terminal_info = parse_terminal_info(env, buf);
+    jobject terminal_info = _parse_terminal_info(env, buf);
     JNICHK(terminal_info);
 
-    jobjectArray app_cache_info = parse_app_cache_info(env, buf);
+    jobjectArray app_cache_info = _parse_app_cache_info(env, buf);
     JNICHK(app_cache_info);
 
-    jobject accessible_playlists = parse_accessible_playlists(env, buf);
+    jobject accessible_playlists = _parse_accessible_playlists(env, buf);
     JNICHK(accessible_playlists);
 
-    jobjectArray app_table = parse_app_management_table(env, buf);
+    jobjectArray app_table = _parse_app_management_table(env, buf);
     JNICHK(app_table);
 
     jint key_interest_table = bb_read(buf, 32);
 
     uint16_t file_access_length = bb_read(buf, 16);
-    jstring file_access_info = read_jstring(env, buf, file_access_length);
+    jstring file_access_info = _read_jstring(env, buf, file_access_length);
     JNICHK(file_access_info);
 
     return bdj_make_object(env, "org/videolan/bdjo/Bdjo",
@@ -417,7 +417,7 @@ jobject bdjo_read(JNIEnv* env, const char* file)
         BITBUFFER* buf = malloc(sizeof(BITBUFFER));
         bb_init(buf, data, length);
 
-        jobject result = parse_bdjo(env, buf);
+        jobject result = _parse_bdjo(env, buf);
 
         free(buf);
         file_close(handle);
