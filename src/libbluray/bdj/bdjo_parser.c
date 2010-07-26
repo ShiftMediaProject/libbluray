@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "file/file.h"
 #include "util/bits.h"
 #include "bdj_util.h"
 
@@ -394,20 +395,20 @@ jobject parse_bdjo(JNIEnv* env, BITBUFFER* buf)
 
 jobject bdjo_read(JNIEnv* env, const char* file)
 {
-    FILE* handle = fopen(file, "rb");
+    BD_FILE_H *handle = file_open(file, "rb");
     if (handle == NULL) {
         DEBUG(DBG_BDJ | DBG_CRIT, "Failed to open bdjo file (%s)\n", file);
         return NULL;
     }
 
-    fseek(handle, 0, SEEK_END);
-    long int length = ftell(handle);
+    file_seek(handle, 0, SEEK_END);
+    int64_t length = file_tell(handle);
 
     if (length > 0) {
-        fseek(handle, 0, SEEK_SET);
+        file_seek(handle, 0, SEEK_SET);
 
-        char* data = malloc(length);
-        long int size_read = fread(data, 1, length, handle);
+        uint8_t *data = malloc(length);
+        int64_t size_read = file_read(handle, data, length);
         if (size_read < length) {
             free(data);
             return NULL;
@@ -419,7 +420,7 @@ jobject bdjo_read(JNIEnv* env, const char* file)
         jobject result = parse_bdjo(env, buf);
 
         free(buf);
-        fclose(handle);
+        file_close(handle);
 
         return result;
     } else {
