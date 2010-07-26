@@ -20,8 +20,10 @@
 #ifndef BDJO_PARSER_H_
 #define BDJO_PARSER_H_
 
+#include <util/attributes.h>
+
 #include <jni.h>
 
-jobject bdjo_read(JNIEnv* env, const char* file);
+BD_PRIVATE jobject bdjo_read(JNIEnv* env, const char* file);
 
 #endif /* BDJO_PARSER_H_ */
