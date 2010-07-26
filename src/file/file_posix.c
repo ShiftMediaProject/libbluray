@@ -64,7 +64,7 @@ static int file_write_linux(BD_FILE_H *file, const uint8_t *buf, int64_t size)
     return fwrite(buf, 1, size, (FILE *)file->internal);
 }
 
-BD_FILE_H *file_open_linux(const char* filename, const char *mode)
+static BD_FILE_H *file_open_linux(const char* filename, const char *mode)
 {
     FILE *fp = NULL;
     BD_FILE_H *file = malloc(sizeof(BD_FILE_H));

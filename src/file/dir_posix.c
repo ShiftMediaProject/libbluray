@@ -55,7 +55,7 @@ static int dir_read_posix(BD_DIR_H *dir, BD_DIRENT *entry)
     return 0;
 }
 
-BD_DIR_H *dir_open_posix(const char* dirname)
+static BD_DIR_H *dir_open_posix(const char* dirname)
 {
     DIR *dp = NULL;
     BD_DIR_H *dir = malloc(sizeof(BD_DIR_H));
