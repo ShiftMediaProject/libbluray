@@ -334,10 +334,6 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         bd->device_path = (char*)malloc(strlen(device_path) + 1);
         strcpy(bd->device_path, device_path);
 
-        bd->aacs = NULL;
-        bd->h_libaacs = NULL;
-        bd->fp = NULL;
-
         _libaacs_open(bd, keyfile_path);
 
         _libbdplus_open(bd, keyfile_path);
