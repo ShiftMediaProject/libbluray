@@ -231,8 +231,27 @@ static int _open_m2ts(BLURAY *bd)
     return 0;
 }
 
+static void _libaacs_close(BLURAY *bd)
+{
+    if (bd->aacs) {
+        DL_CALL(bd->h_libaacs, aacs_close, bd->aacs);
+        bd->aacs = NULL;
+    }
+
+#ifdef DLOPEN_CRYPTO_LIBS
+    if (bd->h_libaacs) {
+        dl_dlclose(bd->h_libaacs);
+        bd->h_libaacs = NULL;
+    }
+#endif
+
+    bd->libaacs_decrypt_unit = NULL;
+}
+
 static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
 {
+    _libaacs_close(bd);
+
 #ifdef DLOPEN_CRYPTO_LIBS
     if ((bd->h_libaacs = dl_dlopen("libaacs", "0"))) {
         DEBUG(DBG_BLURAY, "Downloaded libaacs (%p)\n", bd->h_libaacs);
@@ -273,8 +292,28 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
     return 0;
 }
 
+static void _libbdplus_close(BLURAY *bd)
+{
+    if (bd->bdplus) {
+        DL_CALL(bd->h_libbdplus, bdplus_free, bd->bdplus);
+        bd->bdplus = NULL;
+    }
+
+#ifdef DLOPEN_CRYPTO_LIBS
+    if (bd->h_libbdplus) {
+        dl_dlclose(bd->h_libbdplus);
+        bd->h_libbdplus = NULL;
+    }
+#endif
+
+    bd->bdplus_seek  = NULL;
+    bd->bdplus_fixup = NULL;
+}
+
 static void _libbdplus_open(BLURAY *bd, const char *keyfile_path)
 {
+    _libbdplus_close(bd);
+
     // Take a quick stab to see if we want/need bdplus
     // we should fix this, and add various string functions.
     uint8_t vid[16] = {
@@ -360,33 +399,9 @@ void bd_close(BLURAY *bd)
 {
     bd_stop_bdj(bd);
 
-    if (bd->aacs) {
-#ifdef DLOPEN_CRYPTO_LIBS
-        fptr_p_void fptr = dl_dlsym(bd->h_libaacs, "aacs_close");
-        fptr(bd->aacs);  // FIXME: NULL
-        dl_dlclose(bd->h_libaacs);
-#else
-        aacs_close(bd->aacs);  // FIXME: NULL
-#endif
-    }
+    _libaacs_close(bd);
 
-    if (bd->bdplus) {
-#ifdef DLOPEN_CRYPTO_LIBS
-        fptr_p_void bdplus_free = dl_dlsym(bd->h_libbdplus, "bdplus_free");
-        if (bdplus_free) bdplus_free(bd->bdplus);
-#else
-        bdplus_free(bd->bdplus);
-#endif
-        bd->bdplus = NULL;
-
-#ifdef DLOPEN_CRYPTO_LIBS
-        dl_dlclose(bd->h_libbdplus);
-#endif
-        bd->h_libbdplus = NULL;
-
-        bd->bdplus_seek  = NULL;
-        bd->bdplus_fixup = NULL;
-    }
+    _libbdplus_close(bd);
 
     if (bd->fp) {
         file_close(bd->fp);
