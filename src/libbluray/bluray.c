@@ -254,13 +254,12 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
 
     bd->libaacs_decrypt_unit = &aacs_decrypt_unit;
 
-    if (bd->libaacs_decrypt_unit) {
-        if ((bd->aacs = aacs_open(bd->device_path, keyfile_path))) {
-            DEBUG(DBG_BLURAY, "Opened libaacs (%p)\n", bd->aacs);
-            return 1;
-        }
-        DEBUG(DBG_BLURAY, "aacs_open() failed!\n");
+    if ((bd->aacs = aacs_open(bd->device_path, keyfile_path))) {
+
+        DEBUG(DBG_BLURAY, "Opened libaacs (%p)\n", bd->aacs);
+        return 1;
     }
+    DEBUG(DBG_BLURAY, "aacs_open() failed!\n");
 #endif
 
     bd->h_libaacs = NULL;
