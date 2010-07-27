@@ -119,6 +119,19 @@ struct bluray {
     void           *bdjava;
 };
 
+#ifdef DLOPEN_CRYPTO_LIBS
+#    define DL_CALL(lib,func,param,...)             \
+     do {                                           \
+          fptr_p_void fptr = dl_dlsym(lib, #func);  \
+          if (fptr) {                               \
+              fptr(param, ##__VA_ARGS__);           \
+          }                                         \
+      } while (0)
+#else
+#    define DL_CALL(lib,func,param,...)         \
+     func (param, ##__VA_ARGS__)
+#endif
+
 /*
  * Navigation mode event queue
  */
@@ -193,26 +206,14 @@ static int _open_m2ts(BLURAY *bd)
             X_FREE(f_name);
 
             if (bd->bdplus) {
-#ifdef DLOPEN_CRYPTO_LIBS
-                fptr_p_void bdplus_set_title;
-                bdplus_set_title = dl_dlsym(bd->h_libbdplus, "bdplus_set_title");
-                if (bdplus_set_title)
-                    bdplus_set_title(bd->bdplus, bd->clip->clip_id);
-#else
-                bdplus_set_title(bd->bdplus, bd->clip->clip_id);
-#endif
+                DL_CALL(bd->h_libbdplus, bdplus_set_title,
+                        bd->bdplus, bd->clip->clip_id);
             }
 
             if (bd->aacs) {
                 uint32_t title = bd_psr_read(bd->regs, PSR_TITLE_NUMBER);
-#ifdef DLOPEN_CRYPTO_LIBS
-                fptr_p_void aacs_select_title;
-                aacs_select_title = dl_dlsym(bd->h_libaacs, "aacs_select_title");
-                if (aacs_select_title)
-                    aacs_select_title(bd->aacs, title);
-#else
-                aacs_select_title(bd->aacs, title);
-#endif
+                DL_CALL(bd->h_libaacs, aacs_select_title,
+                        bd->aacs, title);
             }
 
             bd_psr_write(bd->regs, PSR_PLAYITEM, bd->clip->ref);
