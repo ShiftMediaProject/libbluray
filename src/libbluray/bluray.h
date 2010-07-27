@@ -2,6 +2,7 @@
  * This file is part of libbluray
  * Copyright (C) 2009-2010  Obliter0n
  * Copyright (C) 2009-2010  John Stebbins
+ * Copyright (C) 2010       hpi1
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -323,11 +324,12 @@ typedef enum {
     BD_EVENT_NONE = 0,
     BD_EVENT_ERROR,
 
-    BD_EVENT_ANGLE_ID,
-    BD_EVENT_TITLE_ID,
-    BD_EVENT_PLAYLIST,
-    BD_EVENT_PLAYITEM,
-    BD_EVENT_CHAPTER,
+    /* current playback position */
+    BD_EVENT_ANGLE,     /* current angle, 1...N */
+    BD_EVENT_TITLE,     /* current title, 1...N (0 = top menu) */
+    BD_EVENT_PLAYLIST,  /* current playlist (xxxxx.mpls) */
+    BD_EVENT_PLAYITEM,  /* current play item */
+    BD_EVENT_CHAPTER,   /* current chapter, 1...N */
 } bd_event_e;
 
 typedef struct {

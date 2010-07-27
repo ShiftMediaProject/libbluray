@@ -33,11 +33,12 @@ static void _print_event(BD_EVENT *ev)
         case BD_EVENT_ERROR:
             printf("EVENT_ERROR:\t%d\n", ev->param);
             break;
-        case BD_EVENT_ANGLE_ID:
-            printf("EVENT_ANGLE_ID:\t%d\n", ev->param);
+
+        case BD_EVENT_ANGLE:
+            printf("EVENT_ANGLE:\t%d\n", ev->param);
             break;
-        case BD_EVENT_TITLE_ID:
-            printf("EVENT_TITLE_ID:\t%d\n", ev->param);
+        case BD_EVENT_TITLE:
+            printf("EVENT_TITLE:\t%d\n", ev->param);
             break;
         case BD_EVENT_PLAYLIST:
             printf("EVENT_PLAYLIST:\t%d\n", ev->param);
@@ -48,6 +49,7 @@ static void _print_event(BD_EVENT *ev)
         case BD_EVENT_CHAPTER:
             printf("EVENT_CHAPTER:\t%d\n", ev->param);
             break;
+
 #if 0
         case BD_EVENT_AUDIO_STREAM:
             printf("EVENT_AUDIO_STREAM:\t%d\n", ev->param);

@@ -1080,8 +1080,8 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
     DEBUG(DBG_BLURAY, "PSR event %d %d (%p)\n", ev->psr_idx, ev->new_val, bd);
 
     switch (ev->psr_idx) {
-        case PSR_ANGLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_ANGLE_ID, ev->new_val - 1}); break;
-        case PSR_TITLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_TITLE_ID, ev->new_val}); break;
+        case PSR_ANGLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_ANGLE, ev->new_val}); break;
+        case PSR_TITLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_TITLE, ev->new_val}); break;
         case PSR_PLAYLIST: _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYLIST, ev->new_val}); break;
         case PSR_PLAYITEM: _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYITEM, ev->new_val}); break;
         case PSR_CHAPTER:  _queue_event(bd, (BD_EVENT){BD_EVENT_CHAPTER,  ev->new_val}); break;
