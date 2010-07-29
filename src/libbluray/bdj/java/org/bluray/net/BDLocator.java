@@ -222,8 +222,9 @@ public class BDLocator extends Locator {
 
         str.append("bd://");
         
-        if (disc != null || disc != "")
+        if (disc != null && disc != "")
             str.append(disc + ".");
+
             
         if (titleNum != -1)
             str.append(Integer.toString(titleNum, 16) + ".");

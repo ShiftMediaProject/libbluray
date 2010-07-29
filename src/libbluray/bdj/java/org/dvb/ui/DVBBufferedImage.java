@@ -20,7 +20,6 @@
 package org.dvb.ui;
 
 import java.awt.image.BufferedImage;
-import java.util.logging.Logger;
 
 public class DVBBufferedImage extends BufferedImage {
     public DVBBufferedImage(int width, int height)
@@ -38,6 +37,11 @@ public class DVBBufferedImage extends BufferedImage {
         DVBGraphics gfx = new DVBGraphicsImpl(super.createGraphics());
         gfx.type = type;
         return gfx;
+    }
+    
+    public void dispose()
+    {
+    
     }
 
     public String toString()
