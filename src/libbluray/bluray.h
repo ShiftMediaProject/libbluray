@@ -104,6 +104,16 @@ BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx);
 
 /**
  *
+ *  Get information about a playlist
+ *
+ * @param bd  BLURAY object
+ * @param playlist playlist number
+ * @return allocated BLURAY_TITLE_INFO object, NULL on error
+ */
+BLURAY_TITLE_INFO* bd_get_playlist_info(BLURAY *bd, uint32_t playlist);
+
+/**
+ *
  *  Free BLURAY_TITLE_INFO object
  *
  * @param title_info  BLURAY_TITLE_INFO object
