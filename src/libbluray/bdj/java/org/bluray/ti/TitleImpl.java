@@ -23,12 +23,12 @@ public class TitleImpl implements Title {
 
     public PlayList[] getPlayLists()
     {
-        return titleInfo.getPlayLists();
+        throw new Error("Not implemented");
     }
 
     public boolean hasAutoPlayList()
     {
-        return titleInfo.hasAutoPlayList();
+        throw new Error("Not implemented");
     }
 
     public Locator getLocator()

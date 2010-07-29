@@ -19,8 +19,11 @@
 
 package org.videolan;
 
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.media.PackageManager;
 import javax.tv.xlet.Xlet;
 import javax.tv.xlet.XletContext;
 import javax.tv.xlet.XletStateChangeException;
@@ -41,6 +44,14 @@ public class BDJLoader {
             BDJLoader.baseDir = baseDir;
             
             BDJClassLoader classLoader = new BDJClassLoader(baseDir);
+            
+            // setup JMF prefixes
+            Vector<String> prefix = new Vector<String>();
+            prefix.add("org.videolan");
+            PackageManager.setContentPrefixList(prefix);
+            PackageManager.setProtocolPrefixList(prefix);
+            PackageManager.commitContentPrefixList();
+            PackageManager.commitProtocolPrefixList();
             
             // add app caches (the locations where classes are stored)
             for (AppCache cache : bdjo.getAppCaches())

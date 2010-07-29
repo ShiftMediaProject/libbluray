@@ -57,7 +57,7 @@ public class TitleContextImpl implements TitleContext {
     public Service getService()
     {
         // TODO Auto-generated method stub
-        return new TitleImpl(Libbluray.getCurrentTitleNum());
+        return new TitleImpl(Libbluray.getCurrentTitle());
     }
 
     @Override

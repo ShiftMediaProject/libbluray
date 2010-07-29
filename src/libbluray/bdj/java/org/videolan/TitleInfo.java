@@ -19,21 +19,52 @@
 
 package org.videolan;
 
-import org.bluray.ti.PlayList;
-
 public class TitleInfo {
-    protected TitleInfo(int titleNum)
+    public TitleInfo(int index, int playlist, long duration, int angles, TIChapter[] chapters, TIClip[] clips)
     {
-        
+        this.index = index;
+        this.playlist = playlist;
+        this.duration = duration;
+        this.angles = angles;
+        this.chapters = chapters;
+        this.clips = clips;
     }
     
-    public PlayList[] getPlayLists()
+    public int getIndex()
     {
-        throw new Error("Not implemented");
+        return index;
+    }
+
+    public int getPlaylist()
+    {
+        return playlist;
+    }
+
+    public long getDuration()
+    {
+        return duration;
+    }
+
+    public TIChapter[] getChapters()
+    {
+        return chapters;
     }
     
-    public boolean hasAutoPlayList()
+    public TIClip[] getClips()
     {
-        throw new Error("Not implemented");
+        return clips;
     }
+    
+    public int getAngleCount()
+    {
+        return angles;
+    }
+
+    private int index;
+    private int playlist;
+    private long duration;
+    private int angles;
+    private TIChapter[] chapters;
+    private TIClip[] clips;
+    
 }
