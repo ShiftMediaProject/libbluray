@@ -330,6 +330,23 @@ typedef enum {
     BD_EVENT_PLAYLIST,  /* current playlist (xxxxx.mpls) */
     BD_EVENT_PLAYITEM,  /* current play item */
     BD_EVENT_CHAPTER,   /* current chapter, 1...N */
+
+    /* stream selection */
+    BD_EVENT_AUDIO_STREAM,           /* 1..32,  0xff  = none */
+    BD_EVENT_IG_STREAM,              /* 1..32                */
+    BD_EVENT_PG_TEXTST_STREAM,       /* 1..255, 0xfff = none */
+    BD_EVENT_SECONDARY_AUDIO_STREAM, /* 1..32,  0xff  = none */
+    BD_EVENT_SECONDARY_VIDEO_STREAM, /* 1..32,  0xff  = none */
+
+    BD_EVENT_PG_TEXTST,              /* 0 - disable, 1 - enable */
+    BD_EVENT_SECONDARY_AUDIO,        /* 0 - disable, 1 - enable */
+    BD_EVENT_SECONDARY_VIDEO,        /* 0 - disable, 1 - enable */
+    BD_EVENT_SECONDARY_VIDEO_SIZE,   /* 0 - PIP, 0xf - fullscreen */
+
+    /* Interactive Graphics */
+    BD_EVENT_MENU_PAGE_ID,           /* 0..0xfe */
+    BD_EVENT_SELECTED_BUTTON_ID,     /* 0..0x1fdf, 0xffff = invalid */
+
 } bd_event_e;
 
 typedef struct {

@@ -34,6 +34,8 @@ static void _print_event(BD_EVENT *ev)
             printf("EVENT_ERROR:\t%d\n", ev->param);
             break;
 
+        /* current playback position */
+
         case BD_EVENT_ANGLE:
             printf("EVENT_ANGLE:\t%d\n", ev->param);
             break;
@@ -50,14 +52,47 @@ static void _print_event(BD_EVENT *ev)
             printf("EVENT_CHAPTER:\t%d\n", ev->param);
             break;
 
-#if 0
+        /* Interactive Graphics */
+
+        case BD_EVENT_MENU_PAGE_ID:
+            printf("EVENT_MENU_PAGE_ID:\t%d\n", ev->param);
+            break;
+        case BD_EVENT_SELECTED_BUTTON_ID:
+            printf("EVENT_SELECTED_BUTTON_ID:\t%d\n", ev->param);
+            break;
+
+        /* stream selection */
+
         case BD_EVENT_AUDIO_STREAM:
             printf("EVENT_AUDIO_STREAM:\t%d\n", ev->param);
             break;
         case BD_EVENT_IG_STREAM:
             printf("EVENT_IG_STREAM:\t%d\n", ev->param);
             break;
-#endif
+        case BD_EVENT_PG_TEXTST_STREAM:
+            printf("EVENT_PG_TEXTST_STREAM:\t%d\n", ev->param);
+            break;
+        case BD_EVENT_SECONDARY_AUDIO_STREAM:
+            printf("EVENT_SECONDARY_AUDIO_STREAM:\t%d\n", ev->param);
+            break;
+        case BD_EVENT_SECONDARY_VIDEO_STREAM:
+            printf("EVENT_SECONDARY_VIDEO_STREAM:\t%d\n", ev->param);
+            break;
+
+        case BD_EVENT_PG_TEXTST:
+            printf("EVENT_PG_TEXTST:\t%s\n", ev->param ? "enable" : "disable");
+            break;
+        case BD_EVENT_SECONDARY_AUDIO:
+            printf("EVENT_SECONDARY_AUDIO:\t%s\n", ev->param ? "enable" : "disable");
+            break;
+        case BD_EVENT_SECONDARY_VIDEO:
+            printf("EVENT_SECONDARY_VIDEO:\t%s\n", ev->param ? "enable" : "disable");
+            break;
+        case BD_EVENT_SECONDARY_VIDEO_SIZE:
+            printf("EVENT_SECONDARY_VIDEO_SIZE:\t%s\n", ev->param==0 ? "PIP" : "fullscreen");
+            break;
+
+
         default:
           printf("UNKNOWN EVENT %d:\t%d\n", ev->event, ev->param);
           break;

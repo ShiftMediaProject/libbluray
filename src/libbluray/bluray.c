@@ -1080,11 +1080,54 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
     DEBUG(DBG_BLURAY, "PSR event %d %d (%p)\n", ev->psr_idx, ev->new_val, bd);
 
     switch (ev->psr_idx) {
+
+        /* current playback position */
+
         case PSR_ANGLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_ANGLE, ev->new_val}); break;
         case PSR_TITLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_TITLE, ev->new_val}); break;
         case PSR_PLAYLIST: _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYLIST, ev->new_val}); break;
         case PSR_PLAYITEM: _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYITEM, ev->new_val}); break;
         case PSR_CHAPTER:  _queue_event(bd, (BD_EVENT){BD_EVENT_CHAPTER,  ev->new_val}); break;
+
+        /* Interactive Graphics */
+
+        case PSR_SELECTED_BUTTON_ID:
+            _queue_event(bd, (BD_EVENT){BD_EVENT_SELECTED_BUTTON_ID, ev->new_val});
+            break;
+
+        case PSR_MENU_PAGE_ID:
+            _queue_event(bd, (BD_EVENT){BD_EVENT_MENU_PAGE_ID, ev->new_val});
+            break;
+
+        /* stream selection */
+
+        case PSR_IG_STREAM_ID:
+            _queue_event(bd, (BD_EVENT){BD_EVENT_IG_STREAM, ev->new_val});
+            break;
+
+        case PSR_PRIMARY_AUDIO_ID:
+            _queue_event(bd, (BD_EVENT){BD_EVENT_AUDIO_STREAM, ev->new_val});
+            break;
+
+        case PSR_PG_STREAM:
+            _queue_event(bd, (BD_EVENT){BD_EVENT_PG_TEXTST,        !!(ev->new_val & 0x80000000)});
+            _queue_event(bd, (BD_EVENT){BD_EVENT_PG_TEXTST_STREAM,    ev->new_val & 0xfff});
+            break;
+
+        case PSR_SECONDARY_AUDIO_VIDEO:
+            /* secondary video */
+            if ((ev->new_val & 0x8f00ff00) != (ev->old_val & 0x8f00ff00)) {
+                _queue_event(bd, (BD_EVENT){BD_EVENT_SECONDARY_VIDEO, !!(ev->new_val & 0x80000000)});
+                _queue_event(bd, (BD_EVENT){BD_EVENT_SECONDARY_VIDEO_SIZE, (ev->new_val >> 24) & 0xf});
+                _queue_event(bd, (BD_EVENT){BD_EVENT_SECONDARY_VIDEO_STREAM, (ev->new_val & 0xff00) >> 8});
+            }
+            /* secondary audio */
+            if ((ev->new_val & 0x400000ff) != (ev->old_val & 0x400000ff)) {
+                _queue_event(bd, (BD_EVENT){BD_EVENT_SECONDARY_AUDIO, !!(ev->new_val & 0x40000000)});
+                _queue_event(bd, (BD_EVENT){BD_EVENT_SECONDARY_AUDIO_STREAM, ev->new_val & 0xff});
+            }
+            break;
+
         default:;
     }
 }
