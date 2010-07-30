@@ -62,7 +62,7 @@ typedef struct {
 } MOBJ_OBJECTS;
 
 
-BD_PRIVATE MOBJ_OBJECTS* mobj_parse(const char *path); /* parse MovieObject.bdmv */
+BD_PRIVATE MOBJ_OBJECTS* mobj_parse(const char *path) BD_ATTR_MALLOC; /* parse MovieObject.bdmv */
 BD_PRIVATE void          mobj_parse_cmd(uint8_t *buf, MOBJ_CMD *cmd);
 BD_PRIVATE void          mobj_free(MOBJ_OBJECTS *index);
 
