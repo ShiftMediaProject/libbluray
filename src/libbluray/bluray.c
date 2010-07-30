@@ -1215,10 +1215,10 @@ int bd_play_title(BLURAY *bd, unsigned title)
     }
 
     /* valid title from disc index ? */
-    if (title < bd->index->num_titles) {
-        INDX_TITLE *t = &bd->index->titles[title];
+    if (title > 0 && title <= bd->index->num_titles) {
+        INDX_TITLE *t = &bd->index->titles[title-1];
 
-        bd_psr_write(bd->regs, PSR_TITLE_NUMBER, title + 1); /* 5.2.3.3 */
+        bd_psr_write(bd->regs, PSR_TITLE_NUMBER, title); /* 5.2.3.3 */
 
         if (t->object_type == indx_object_type_hdmv) {
             return _play_hdmv(bd, t->hdmv.id_ref);
