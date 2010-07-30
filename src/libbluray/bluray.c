@@ -946,8 +946,11 @@ BLURAY_TITLE_INFO* bd_get_playlist_info(BLURAY *bd, uint32_t playlist)
     if (title == NULL) {
         DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n",
               f_name, bd);
+        X_FREE(f_name);
         return NULL;
     }
+
+    X_FREE(f_name);
 
     // the title number doesn't matter in this case
     title_info = _fill_title_info(title, 0, playlist);
