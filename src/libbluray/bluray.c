@@ -1266,3 +1266,16 @@ int bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
 
     return bytes;
 }
+
+int bd_get_event(BLURAY *bd, BD_EVENT *event)
+{
+    if (!bd->event_queue) {
+        _init_event_queue(bd);
+
+        bd_psr_register_cb(bd->regs, _process_psr_event, bd);
+    }
+
+    if (_get_event(bd, event)) {
+        return 0;
+    }
+}
