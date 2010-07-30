@@ -651,7 +651,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                 if (bd->clip == NULL) {
                     // We previously reached the last clip.  Nothing
                     // else to read.
-                    return -1;
+                    return 0;
                 }
                 if (clip_pkt >= bd->clip->end_pkt) {
                     bd->clip = nav_next_clip(bd->title, bd->clip);
