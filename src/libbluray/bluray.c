@@ -1161,7 +1161,7 @@ static int _play_hdmv(BLURAY *bd, unsigned id_ref)
 }
 
 #define TITLE_FIRST_PLAY 0xffff   /* 10.4.3.2 (E) */
-#define TITLE_TOP_MENU   0x10000
+#define TITLE_TOP_MENU   0x0000   /* 5.2.3.3 */
 
 int bd_play_title(BLURAY *bd, unsigned title)
 {
