@@ -1277,4 +1277,6 @@ int bd_get_event(BLURAY *bd, BD_EVENT *event)
     if (_get_event(bd, event)) {
         return 0;
     }
+
+    return 1;
 }
