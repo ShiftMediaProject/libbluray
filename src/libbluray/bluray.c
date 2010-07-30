@@ -864,7 +864,7 @@ static void _copy_streams(BLURAY_STREAM_INFO *streams, MPLS_STREAM *si, int coun
     }
 }
 
-BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx, uint32_t playlist)
+static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx, uint32_t playlist)
 {
     BLURAY_TITLE_INFO *title_info;
     unsigned int ii;
