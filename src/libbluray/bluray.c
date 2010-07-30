@@ -918,11 +918,26 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
     return title_info;
 }
 
-BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
+static BLURAY_TITLE_INFO *_get_title_info(BLURAY *bd, uint32_t title_idx, uint32_t playlist, const char *mpls_name)
 {
     NAV_TITLE *title;
     BLURAY_TITLE_INFO *title_info;
 
+    title = nav_title_open(bd->device_path, mpls_name);
+    if (title == NULL) {
+        DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n",
+              mpls_name, bd);
+        return NULL;
+    }
+
+    title_info = _fill_title_info(title, title_idx, playlist);
+
+    nav_title_close(title);
+    return title_info;
+}
+
+BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
+{
     if (bd->title_list == NULL) {
         DEBUG(DBG_BLURAY, "Title list not yet read! (%p)\n", bd);
         return NULL;
@@ -931,39 +946,21 @@ BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx)
         DEBUG(DBG_BLURAY, "Invalid title index %d! (%p)\n", title_idx, bd);
         return NULL;
     }
-    title = nav_title_open(bd->device_path, bd->title_list->title_info[title_idx].name);
-    if (title == NULL) {
-        DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n",
-              bd->title_list->title_info[title_idx].name, bd);
-        return NULL;
-    }
 
-    title_info = _fill_title_info(title, title_idx, bd->title_list->title_info[title_idx].mpls_id);
-
-    nav_title_close(title);
-    return title_info;
+    return _get_title_info(bd,
+                           title_idx, bd->title_list->title_info[title_idx].mpls_id,
+                           bd->title_list->title_info[title_idx].name);
 }
 
 BLURAY_TITLE_INFO* bd_get_playlist_info(BLURAY *bd, uint32_t playlist)
 {
     char *f_name = str_printf("%05d.mpls", playlist);
-    NAV_TITLE *title;
     BLURAY_TITLE_INFO *title_info;
 
-    title = nav_title_open(bd->device_path, f_name);
-    if (title == NULL) {
-        DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n",
-              f_name, bd);
-        X_FREE(f_name);
-        return NULL;
-    }
+    title_info = _get_title_info(bd, 0, playlist, f_name);
 
     X_FREE(f_name);
 
-    // the title number doesn't matter in this case
-    title_info = _fill_title_info(title, 0, playlist);
-
-    nav_title_close(title);
     return title_info;
 }
 
