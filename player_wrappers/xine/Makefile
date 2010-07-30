@@ -13,14 +13,14 @@ CFLAGS      += -O2 -fPIC
 CFLAGS      += -Wall
 CFLAGS      += -D_REENTRANT -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 CFLAGS      += $(shell pkg-config libxine --cflags)
-CFLAGS      += $(shell PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/ pkg-config libbluray --cflags)
+CFLAGS      += $(shell pkg-config libbluray --cflags)
 
 #
 # linker options
 #
 
 LIBS_XINE    = $(shell pkg-config libxine --libs)
-LIBS_BD      = $(shell PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/ pkg-config libbluray --libs)
+LIBS_BD      = $(shell pkg-config libbluray --libs)
 
 LDFLAGS     += -shared -fvisibility=hidden
 
@@ -56,7 +56,7 @@ clean:
 
 install: all uninstall
 	@echo Installing $(DESTDIR)/$(XINEPLUGINDIR)/$(XINEINPUTPLUGIN)
-	@$(INSTALL) -m 0644 $(XINEINPUTPLUGIN) $(DESTDIR)/$(XINEPLUGINDIR)/$(XINEINPUTPLUGIN)
+	@$(INSTALL) -D -m 0644 $(XINEINPUTPLUGIN) $(DESTDIR)/$(XINEPLUGINDIR)/$(XINEINPUTPLUGIN)
 
 uninstall:
 	@echo Removing $(DESTDIR)/$(XINEPLUGINDIR)/$(XINEINPUTPLUGIN)
