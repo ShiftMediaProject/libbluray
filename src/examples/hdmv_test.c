@@ -21,9 +21,9 @@
 #include "libbluray/bluray.h"
 
 #include <stdio.h>
-
-int verbose = 1;
-
+#include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
 
 static void _print_event(BD_EVENT *ev)
 {
@@ -118,12 +118,18 @@ static void _read_to_eof(BLURAY *bd)
 {
     BD_EVENT ev;
     int      bytes;
+    uint64_t total = 0;
     uint8_t  buf[6144];
 
+    bd_seek(bd, bd_get_title_size(bd) - 6144);
+
     do {
-        bytes = bd_read_ext(bd, buf, 6144*4, &ev);
+        bytes = bd_read_ext(bd, buf, 6144, &ev);
+        total += bytes < 0 ? 0 : bytes;
         _print_event(&ev);
     } while (bytes > 0);
+
+    printf("_read_to_eof(): read %"PRIu64" bytes\n", total);
 }
 
 static void _print_events(BLURAY *bd)
@@ -133,21 +139,62 @@ static void _print_events(BLURAY *bd)
     do {
         bd_read_ext(bd, NULL, 0, &ev);
         _print_event(&ev);
-    } while (ev.event != BD_EVENT_NONE);
+    } while (ev.event != BD_EVENT_NONE && ev.event != BD_EVENT_ERROR);
+}
+
+static void _play_pl(BLURAY *bd)
+{
+    printf("Playing playlist\n");
+
+    fflush(stdout);
+    _read_to_eof(bd);
+
+    printf("Playing playlist done\n\n");
+
+    _print_events(bd);
+
+    printf("\n");
 }
 
 int main(int argc, char *argv[])
 {
+    int title = -1;
+    int verbose = 0;
+    int args = 0;
+
+    /*
+     * parse arguments
+     */
+
     if (argc < 2) {
-        printf("\nUsage:\n   %s <media_path> [<keyfile_path> [<title_number>]] \n\n", argv[0]);
+        printf("\nUsage:\n   %s [-v] [-t <title>] <media_path> [<keyfile_path>]\n\n", argv[0]);
         return -1;
     }
 
+    if (!strcmp(argv[1+args], "-v")) {
+        verbose = 1;
+        args++;
+    }
+
+    if (!strcmp(argv[1+args], "-t")) {
+        args++;
+        title = atoi(argv[1+args]);
+        args++;
+        printf("Requested title %d\n", title);
+    }
+
     if (verbose) {
+        printf("Enabling verbose debug\n");
         bd_set_debug_mask(bd_get_debug_mask() | DBG_HDMV | DBG_BLURAY);
     }
 
-    BLURAY  *bd = bd_open(argv[1], argv[2]);
+    printf("\n");
+
+    /*
+     * open and setup
+     */
+
+    BLURAY  *bd = bd_open(argv[1+args], argv[2+args]);
 
     if (!bd) {
         printf("bd_open(\'%s\') failed\n", argv[1]);
@@ -160,26 +207,47 @@ int main(int argc, char *argv[])
     bd_set_player_setting_str(bd, BLURAY_PLAYER_SETTING_MENU_LANG,    "eng");
     bd_set_player_setting_str(bd, BLURAY_PLAYER_SETTING_COUNTRY_CODE, NULL);
 
-    printf("Running first play movie object\n");
-    fflush(stdout);
+    /*
+     * play
+     */
 
+    printf("Running first play movie object\n");
+
+    fflush(stdout);
     bd_play(bd);
 
     _print_events(bd);
 
+    printf("\n");
 
-    printf("Playing playlist\n");
-    fflush(stdout);
+    /*
+     * play title
+     */
 
-    bd_seek(bd, bd_get_title_size(bd) - 6144);
+    if (title >= 0) {
+        printf("Playing title %d\n", title);
 
-    _read_to_eof(bd);
+        fflush(stdout);
+        bd_play_title(bd, title);
 
+        _print_events(bd);
 
-    printf("Playing playlist done\n");
+        printf("\n");
+    }
 
-    _print_events(bd);
+    /*
+     * play playlist
+     */
 
+    _play_pl(bd);
+
+    _play_pl(bd);
+
+    _play_pl(bd);
+
+    /*
+     * clean up
+     */
 
     bd_close(bd);
 
