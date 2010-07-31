@@ -1077,6 +1077,9 @@ void bd_stop_bdj(BLURAY *bd)
  * Navigation mode interface
  */
 
+/*
+ * notification events to APP
+ */
 static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
 {
     BLURAY *bd = (BLURAY*)handle;
@@ -1114,8 +1117,10 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
             break;
 
         case PSR_PG_STREAM:
-            _queue_event(bd, (BD_EVENT){BD_EVENT_PG_TEXTST,        !!(ev->new_val & 0x80000000)});
-            _queue_event(bd, (BD_EVENT){BD_EVENT_PG_TEXTST_STREAM,    ev->new_val & 0xfff});
+            if ((ev->new_val & 0x80000fff) != (ev->old_val & 0x80000fff)) {
+                _queue_event(bd, (BD_EVENT){BD_EVENT_PG_TEXTST,        !!(ev->new_val & 0x80000000)});
+                _queue_event(bd, (BD_EVENT){BD_EVENT_PG_TEXTST_STREAM,    ev->new_val & 0xfff});
+            }
             break;
 
         case PSR_SECONDARY_AUDIO_VIDEO:
