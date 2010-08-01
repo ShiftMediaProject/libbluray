@@ -1307,6 +1307,21 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             bd->hdmv_suspended = 0;
             break;
 
+        case HDMV_EVENT_STILL:
+            _queue_event(bd, (BD_EVENT){BD_EVENT_STILL, hev->param});
+            break;
+
+        case HDMV_EVENT_ENABLE_BUTTON:
+            _queue_event(bd, (BD_EVENT){BD_EVENT_ENABLE_BUTTON, hev->param});
+            break;
+
+        case HDMV_EVENT_DISABLE_BUTTON:
+            _queue_event(bd, (BD_EVENT){BD_EVENT_DISABLE_BUTTON, hev->param});
+            break;
+
+        case HDMV_EVENT_POPUP_OFF:
+            _queue_event(bd, (BD_EVENT){BD_EVENT_POPUP_OFF, 0});
+            break;
         case HDMV_EVENT_END:
         case HDMV_EVENT_NONE:
         default:

@@ -61,6 +61,19 @@ static void _print_event(BD_EVENT *ev)
             printf("EVENT_SELECTED_BUTTON_ID:\t%d\n", ev->param);
             break;
 
+        case BD_EVENT_STILL:
+            printf("EVENT_STILL:\t%d\n", ev->param);
+            break;
+        case BD_EVENT_ENABLE_BUTTON:
+            printf("EVENT_ENABLE_BUTTON:\t%d\n", ev->param);
+            break;
+        case BD_EVENT_DISABLE_BUTTON:
+            printf("EVENT_DISABLE_BUTTON:\t%d\n", ev->param);
+            break;
+        case BD_EVENT_POPUP_OFF:
+            printf("EVENT_POPUP_OFF:\t%d\n", ev->param);
+            break;
+
         /* stream selection */
 
         case BD_EVENT_AUDIO_STREAM:
