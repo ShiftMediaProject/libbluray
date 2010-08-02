@@ -411,7 +411,7 @@ void bd_close(BLURAY *bd)
     X_FREE(bd);
 }
 
-static int _read_block(BLURAY *bd)
+static int _read_block(BLURAY *bd, uint8_t *buf)
 {
     const int len = 6144;
 
@@ -422,12 +422,12 @@ static int _read_block(BLURAY *bd)
         if (len + bd->clip_block_pos <= bd->clip_size) {
             int read_len;
 
-            if ((read_len = file_read(bd->fp, bd->int_buf, len))) {
+            if ((read_len = file_read(bd->fp, buf, len))) {
                 if (read_len != len)
                     DEBUG(DBG_BLURAY | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d ! (%p)\n", read_len, bd->clip_block_pos, len, bd);
 
                 if (bd->libaacs_decrypt_unit) {
-                    if (!bd->libaacs_decrypt_unit(bd->aacs, bd->int_buf)) {
+                    if (!bd->libaacs_decrypt_unit(bd->aacs, buf)) {
                         DEBUG(DBG_BLURAY, "Unable decrypt unit! (%p)\n", bd);
 
                         return 0;
@@ -439,7 +439,7 @@ static int _read_block(BLURAY *bd)
                 // bdplus fixup, if required.
                 if (bd->bdplus_fixup && bd->bdplus) {
                     int32_t numFixes;
-                    numFixes = bd->bdplus_fixup(bd->bdplus, len, bd->int_buf);
+                    numFixes = bd->bdplus_fixup(bd->bdplus, len, buf);
 #if 1
                     if (numFixes) {
                         DEBUG(DBG_BDPLUS,
@@ -669,7 +669,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                         return -1;
                     }
                 }
-                if (_read_block(bd)) {
+                if (_read_block(bd, bd->int_buf)) {
 
                     bd->int_buf_off = bd->clip_pos % 6144;
 
