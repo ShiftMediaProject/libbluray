@@ -40,7 +40,6 @@
 #include <dlfcn.h>
 
 #include <libbluray/bluray.h>
-#include <libbluray/navigation.h>
 
 #define LOG_MODULE "input_bluray"
 #define LOG_VERBOSE
@@ -327,20 +326,6 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
     return -1;
   }
 
-  /* if title was not in mrl, find the main title */
-
-  if (title < 0) {
-    char *main_title = nav_find_main_title(this->disc_root);
-    title = 0;
-    if (main_title) {
-      if (sscanf(main_title, "%d.mpls", &title) != 1)
-        title = 0;
-      lprintf("main title: %s (%d) \n", main_title, title);
-    } else {
-      LOGMSG("nav_find_main_title(%s) failed\n", this->disc_root);
-    }
-  }
-
   /* open libbluray */
   if (! (this->bdh = bd_open (this->disc_root, NULL))) {
     LOGMSG("bd_open(\'%s\') failed: %s\n", this->disc_root, strerror(errno));
@@ -348,13 +333,34 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
   }
   lprintf("bd_open(\'%s\') OK\n", this->disc_root);
 
-  /* select playlist */
+  /* populate title list */
 
-  int num_titles = bd_get_titles(this->bdh, TITLES_RELEVANT);
-  LOGMSG("%d relevant titles\n", num_titles);
+  unsigned num_titles = bd_get_titles(this->bdh, TITLES_RELEVANT);
+  LOGMSG("%u relevant titles\n", num_titles);
 
-  if (bd_select_playlist(this->bdh, title) <= 0 &&
-      bd_select_playlist(this->bdh, 1) <= 0)
+  if (num_titles < 1)
+    return -1;
+
+  /* select title */
+
+  /* if title was not in mrl, find the main title */
+  if (title < 0) {
+    uint64_t duration = 0;
+    unsigned i, playlist = 99999;
+    for (i = 0; i < num_titles; i++) {
+      BLURAY_TITLE_INFO *info = bd_get_title_info(this->bdh, i);
+      if (info->duration > duration) {
+        title    = i;
+        duration = info->duration;
+        playlist = info->playlist;
+      }
+      bd_free_title_info(info);
+    }
+    lprintf("main title: %d (%05d.mpls)\n", title, playlist);
+  }
+
+  if (bd_select_title(this->bdh, title) <= 0 &&
+      bd_select_title(this->bdh, 1) <= 0)
     return -1;
 
   /* jump to chapter */
