@@ -193,6 +193,115 @@ static int _queue_event(BLURAY *bd, BD_EVENT ev)
 }
 
 /*
+ * clip access
+ */
+
+static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
+{
+    char *f_name;
+
+    f_name = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "STREAM" DIR_SEP "%s",
+                        bd->device_path, st->clip->name);
+
+    st->clip_pos = (uint64_t)st->clip->start_pkt * 192;
+    st->clip_block_pos = (st->clip_pos / 6144) * 6144;
+
+    if (st->fp != NULL) {
+        file_close(st->fp);
+    }
+    if ((st->fp = file_open(f_name, "rb"))) {
+        file_seek(st->fp, 0, SEEK_END);
+        if ((st->clip_size = file_tell(st->fp))) {
+            file_seek(st->fp, st->clip_block_pos, SEEK_SET);
+            st->int_buf_off = 6144;
+            X_FREE(f_name);
+
+            if (bd->bdplus) {
+                DL_CALL(bd->h_libbdplus, bdplus_set_title,
+                        bd->bdplus, st->clip->clip_id);
+            }
+
+            if (bd->aacs) {
+                uint32_t title = bd_psr_read(bd->regs, PSR_TITLE_NUMBER);
+                DL_CALL(bd->h_libaacs, aacs_select_title,
+                        bd->aacs, title);
+            }
+
+            if (st == &bd->st0)
+                bd_psr_write(bd->regs, PSR_PLAYITEM, st->clip->ref);
+
+            return 1;
+        }
+
+        DEBUG(DBG_BLURAY, "Clip %s empty! (%p)\n", f_name, bd);
+    }
+
+    DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open clip %s! (%p)\n",
+          f_name, bd);
+
+    X_FREE(f_name);
+    return 0;
+}
+
+static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
+{
+    const int len = 6144;
+
+    if (st->fp) {
+        DEBUG(DBG_BLURAY, "Reading unit [%d bytes] at %"PRIu64"... (%p)\n",
+              len, st->clip_block_pos, bd);
+
+        if (len + st->clip_block_pos <= st->clip_size) {
+            int read_len;
+
+            if ((read_len = file_read(st->fp, buf, len))) {
+                if (read_len != len)
+                    DEBUG(DBG_BLURAY | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d ! (%p)\n", read_len, st->clip_block_pos, len, bd);
+
+                if (bd->libaacs_decrypt_unit) {
+                    if (!bd->libaacs_decrypt_unit(bd->aacs, buf)) {
+                        DEBUG(DBG_BLURAY, "Unable decrypt unit! (%p)\n", bd);
+
+                        return 0;
+                    } // decrypt
+                } // aacs
+
+                st->clip_block_pos += len;
+
+                // bdplus fixup, if required.
+                if (bd->bdplus_fixup && bd->bdplus) {
+                    int32_t numFixes;
+                    numFixes = bd->bdplus_fixup(bd->bdplus, len, buf);
+#if 1
+                    if (numFixes) {
+                        DEBUG(DBG_BDPLUS,
+                              "BDPLUS did %u fixups\n", numFixes);
+                    }
+#endif
+
+                }
+
+                DEBUG(DBG_BLURAY, "Read unit OK! (%p)\n", bd);
+
+                return 1;
+            }
+
+            DEBUG(DBG_BLURAY | DBG_CRIT, "Read %d bytes at %"PRIu64" failed ! (%p)\n", len, st->clip_block_pos, bd);
+
+            return 0;
+        }
+
+        DEBUG(DBG_BLURAY | DBG_CRIT, "Read past EOF ! (%p)\n", bd);
+
+        return 0;
+    }
+
+    DEBUG(DBG_BLURAY, "No valid title selected! (%p)\n", bd);
+
+    return 0;
+}
+
+/*
  * open / close
  */
 
@@ -391,115 +500,6 @@ void bd_close(BLURAY *bd)
     DEBUG(DBG_BLURAY, "BLURAY destroyed! (%p)\n", bd);
 
     X_FREE(bd);
-}
-
-/*
- * clip access
- */
-
-static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
-{
-    char *f_name;
-
-    f_name = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "STREAM" DIR_SEP "%s",
-                        bd->device_path, st->clip->name);
-
-    st->clip_pos = (uint64_t)st->clip->start_pkt * 192;
-    st->clip_block_pos = (st->clip_pos / 6144) * 6144;
-
-    if (st->fp != NULL) {
-        file_close(st->fp);
-    }
-    if ((st->fp = file_open(f_name, "rb"))) {
-        file_seek(st->fp, 0, SEEK_END);
-        if ((st->clip_size = file_tell(st->fp))) {
-            file_seek(st->fp, st->clip_block_pos, SEEK_SET);
-            st->int_buf_off = 6144;
-            X_FREE(f_name);
-
-            if (bd->bdplus) {
-                DL_CALL(bd->h_libbdplus, bdplus_set_title,
-                        bd->bdplus, st->clip->clip_id);
-            }
-
-            if (bd->aacs) {
-                uint32_t title = bd_psr_read(bd->regs, PSR_TITLE_NUMBER);
-                DL_CALL(bd->h_libaacs, aacs_select_title,
-                        bd->aacs, title);
-            }
-
-            if (st == &bd->st0)
-                bd_psr_write(bd->regs, PSR_PLAYITEM, st->clip->ref);
-
-            return 1;
-        }
-
-        DEBUG(DBG_BLURAY, "Clip %s empty! (%p)\n", f_name, bd);
-    }
-
-    DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open clip %s! (%p)\n",
-          f_name, bd);
-
-    X_FREE(f_name);
-    return 0;
-}
-
-static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
-{
-    const int len = 6144;
-
-    if (st->fp) {
-        DEBUG(DBG_BLURAY, "Reading unit [%d bytes] at %"PRIu64"... (%p)\n",
-              len, st->clip_block_pos, bd);
-
-        if (len + st->clip_block_pos <= st->clip_size) {
-            int read_len;
-
-            if ((read_len = file_read(st->fp, buf, len))) {
-                if (read_len != len)
-                    DEBUG(DBG_BLURAY | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d ! (%p)\n", read_len, st->clip_block_pos, len, bd);
-
-                if (bd->libaacs_decrypt_unit) {
-                    if (!bd->libaacs_decrypt_unit(bd->aacs, buf)) {
-                        DEBUG(DBG_BLURAY, "Unable decrypt unit! (%p)\n", bd);
-
-                        return 0;
-                    } // decrypt
-                } // aacs
-
-                st->clip_block_pos += len;
-
-                // bdplus fixup, if required.
-                if (bd->bdplus_fixup && bd->bdplus) {
-                    int32_t numFixes;
-                    numFixes = bd->bdplus_fixup(bd->bdplus, len, buf);
-#if 1
-                    if (numFixes) {
-                        DEBUG(DBG_BDPLUS,
-                              "BDPLUS did %u fixups\n", numFixes);
-                    }
-#endif
-
-                }
-
-                DEBUG(DBG_BLURAY, "Read unit OK! (%p)\n", bd);
-
-                return 1;
-            }
-
-            DEBUG(DBG_BLURAY | DBG_CRIT, "Read %d bytes at %"PRIu64" failed ! (%p)\n", len, st->clip_block_pos, bd);
-
-            return 0;
-        }
-
-        DEBUG(DBG_BLURAY | DBG_CRIT, "Read past EOF ! (%p)\n", bd);
-
-        return 0;
-    }
-
-    DEBUG(DBG_BLURAY, "No valid title selected! (%p)\n", bd);
-
-    return 0;
 }
 
 /*
