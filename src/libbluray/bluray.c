@@ -866,12 +866,27 @@ uint32_t bd_get_current_title(BLURAY *bd)
 
 int bd_select_angle(BLURAY *bd, unsigned angle)
 {
+    unsigned orig_angle;
+
     if (bd->title == NULL) {
         DEBUG(DBG_BLURAY, "Title not yet selected! (%p)\n", bd);
         return 0;
     }
+
+    orig_angle = bd->title->angle;
+
     bd->st0.clip = nav_set_angle(bd->title, bd->st0.clip, angle);
+
+    if (orig_angle == bd->title->angle) {
+        return 1;
+    }
+
     bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
+
+    if (!_open_m2ts(bd, &bd->st0)) {
+        DEBUG(DBG_BLURAY|DBG_CRIT, "Error selecting angle %d ! (%p)\n", angle, bd);
+        return 0;
+    }
 
     return 1;
 }
