@@ -540,20 +540,25 @@ static int64_t _seek_internal(BLURAY *bd, BD_STREAM *st,
     return bd->s_pos;
 }
 
-int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
+static void _change_angle(BLURAY *bd)
 {
-    uint32_t clip_pkt, out_pkt;
-    NAV_CLIP *clip;
-
     if (bd->seamless_angle_change) {
         bd->st0.clip = nav_set_angle(bd->title, bd->st0.clip, bd->request_angle);
         bd->seamless_angle_change = 0;
         bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
     }
+}
+
+int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
+{
+    uint32_t clip_pkt, out_pkt;
+    NAV_CLIP *clip;
 
     tick /= 2;
 
     if (tick < bd->title->duration) {
+
+        _change_angle(bd);
 
         // Find the closest access unit to the requested position
         clip = nav_time_search(bd->title, tick, &clip_pkt, &out_pkt);
@@ -581,6 +586,8 @@ int64_t bd_seek_chapter(BLURAY *bd, unsigned chapter)
     NAV_CLIP *clip;
 
     if (chapter < bd->title->chap_list.count) {
+
+        _change_angle(bd);
 
         // Find the closest access unit to the requested position
         clip = nav_chapter_search(bd->title, chapter, &clip_pkt, &out_pkt);
@@ -616,6 +623,8 @@ int64_t bd_seek_mark(BLURAY *bd, unsigned mark)
 
     if (mark < bd->title->mark_list.count) {
 
+        _change_angle(bd);
+
         // Find the closest access unit to the requested position
         clip = nav_mark_search(bd->title, mark, &clip_pkt, &out_pkt);
 
@@ -630,13 +639,10 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos)
     uint32_t pkt, clip_pkt, out_pkt, out_time;
     NAV_CLIP *clip;
 
-    if (bd->seamless_angle_change) {
-        bd->st0.clip = nav_set_angle(bd->title, bd->st0.clip, bd->request_angle);
-        bd->seamless_angle_change = 0;
-        bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
-    }
     if (pos < (uint64_t)bd->title->packets * 192) {
         pkt = pos / 192;
+
+        _change_angle(bd);
 
         // Find the closest access unit to the requested position
         clip = nav_packet_search(bd->title, pkt, &clip_pkt, &out_pkt, &out_time);
