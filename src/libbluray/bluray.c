@@ -196,9 +196,19 @@ static int _queue_event(BLURAY *bd, BD_EVENT ev)
  * clip access
  */
 
+static void _close_m2ts(BD_STREAM *st)
+{
+    if (st->fp != NULL) {
+        file_close(st->fp);
+        st->fp = NULL;
+    }
+}
+
 static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
 {
     char *f_name;
+
+    _close_m2ts(st);
 
     f_name = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "STREAM" DIR_SEP "%s",
                         bd->device_path, st->clip->name);
@@ -206,9 +216,6 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
     st->clip_pos = (uint64_t)st->clip->start_pkt * 192;
     st->clip_block_pos = (st->clip_pos / 6144) * 6144;
 
-    if (st->fp != NULL) {
-        file_close(st->fp);
-    }
     if ((st->fp = file_open(f_name, "rb"))) {
         file_seek(st->fp, 0, SEEK_END);
         if ((st->clip_size = file_tell(st->fp))) {
@@ -479,9 +486,7 @@ void bd_close(BLURAY *bd)
 
     _libbdplus_close(bd);
 
-    if (bd->st0.fp) {
-        file_close(bd->st0.fp);
-    }
+    _close_m2ts(&bd->st0);
 
     if (bd->title_list != NULL) {
         nav_free_title_list(bd->title_list);
