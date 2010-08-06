@@ -87,7 +87,6 @@ struct bluray {
     /* current playlist */
     NAV_TITLE      *title;
     uint32_t       title_idx;
-    uint64_t       s_size;
     uint64_t       s_pos;
 
     /* streams */
@@ -636,7 +635,7 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos)
         bd->seamless_angle_change = 0;
         bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
     }
-    if (pos < bd->s_size) {
+    if (pos < (uint64_t)bd->title->packets * 192) {
         pkt = pos / 192;
 
         // Find the closest access unit to the requested position
@@ -650,7 +649,10 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos)
 
 uint64_t bd_get_title_size(BLURAY *bd)
 {
-    return bd ? bd->s_size : UINT64_C(0);
+    if (bd && bd->title) {
+        return (uint64_t)bd->title->packets * 192;
+    }
+    return UINT64_C(0);
 }
 
 uint64_t bd_tell(BLURAY *bd)
@@ -790,7 +792,6 @@ static int _open_playlist(BLURAY *bd, const char *f_name)
 
     bd->seamless_angle_change = 0;
     bd->s_pos = 0;
-    bd->s_size = (uint64_t)bd->title->packets * 192;
 
     bd->next_chapter_start = bd_chapter_pos(bd, 1);
 
@@ -1351,7 +1352,7 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
         case HDMV_EVENT_PLAY_STOP:
             DEBUG(DBG_BLURAY|DBG_CRIT, "HDMV_EVENT_PLAY_STOP: not tested !\n");
             // stop current playlist
-            bd_seek(bd, bd->s_size - 1);
+            bd_seek(bd, (uint64_t)bd->title->packets * 192 - 1);
             bd->st0.clip = NULL;
             // resume suspended movie object
             bd->hdmv_suspended = 0;
