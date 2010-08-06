@@ -517,7 +517,7 @@ static int64_t _seek_internal(BLURAY *bd, BD_STREAM *st,
     if (!clip)
         return -1;
 
-    if (clip->ref != st->clip->ref) {
+    if (!st->fp || clip->ref != st->clip->ref) {
         // The position is in a new clip
         st->clip = clip;
         if (!_open_m2ts(bd, st)) {
@@ -545,12 +545,16 @@ static int64_t _seek_internal(BLURAY *bd, BD_STREAM *st,
     return bd->s_pos;
 }
 
+/* _change_angle() should be used only before call to _seek_internal() ! */
 static void _change_angle(BLURAY *bd)
 {
     if (bd->seamless_angle_change) {
         bd->st0.clip = nav_set_angle(bd->title, bd->st0.clip, bd->request_angle);
         bd->seamless_angle_change = 0;
         bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
+
+        /* force re-opening .m2ts file in _seek_internal() */
+        _close_m2ts(&bd->st0);
     }
 }
 
