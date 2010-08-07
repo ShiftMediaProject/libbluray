@@ -519,7 +519,9 @@ void bd_close(BLURAY *bd)
         nav_title_close(bd->title);
     }
 
-    hdmv_vm_free(bd->hdmv_vm);
+    if (bd->hdmv_vm)
+        hdmv_vm_free(bd->hdmv_vm);
+
     indx_free(bd->index);
     bd_registers_free(bd->regs);
 
