@@ -359,13 +359,60 @@ _extrapolate_title(NAV_TITLE *title)
     }
 }
 
+static void _fill_clip(NAV_TITLE *title,
+                       MPLS_CLIP *mpls_clip,
+                       uint8_t connection_condition, uint32_t in_time, uint32_t out_time,
+                       NAV_CLIP *clip,
+                       unsigned ref)
+
+{
+    char *path;
+    uint32_t pos = 0;
+    uint32_t time = 0;
+
+    clip->title = title;
+    clip->ref   = ref;
+    clip->angle = 0;
+    strncpy(clip->name, mpls_clip[clip->angle].clip_id, 5);
+    strncpy(&clip->name[5], ".m2ts", 6);
+    clip->clip_id = atoi(mpls_clip[clip->angle].clip_id);
+
+    path = str_printf("%s"DIR_SEP"BDMV"DIR_SEP"CLIPINF"DIR_SEP"%s.clpi",
+                      title->root, mpls_clip[clip->angle].clip_id);
+    clip->cl = clpi_parse(path, 0);
+    X_FREE(path);
+    if (clip->cl == NULL) {
+        clip->start_pkt = 0;
+        clip->end_pkt = 0;
+        return;
+    }
+    switch (connection_condition) {
+        case 5:
+        case 6:
+            clip->start_pkt = 0;
+            clip->connection = CONNECT_SEAMLESS;
+            break;
+        default:
+            clip->start_pkt = clpi_lookup_spn(clip->cl, in_time, 1,
+                                              mpls_clip[clip->angle].stc_id);
+            clip->connection = CONNECT_NON_SEAMLESS;
+            break;
+    }
+    clip->end_pkt = clpi_lookup_spn(clip->cl, out_time, 0,
+                                    mpls_clip[clip->angle].stc_id);
+    clip->in_time = in_time;
+    clip->out_time = out_time;
+    clip->pos = pos;
+    pos += clip->end_pkt - clip->start_pkt;
+    clip->start_time = time;
+    time += clip->out_time - clip->in_time;
+}
+
 NAV_TITLE* nav_title_open(const char *root, const char *playlist)
 {
     NAV_TITLE *title = NULL;
     char *path;
     unsigned ii, chapters = 0;
-    uint32_t pos = 0;
-    uint32_t time = 0;
 
     title = calloc(1, sizeof(NAV_TITLE));
     if (title == NULL) {
@@ -399,42 +446,7 @@ NAV_TITLE* nav_title_open(const char *root, const char *playlist)
 
         clip = &title->clip_list.clip[ii];
 
-        clip->title = title;
-        clip->ref = ii;
-        clip->angle = 0;
-        strncpy(clip->name, pi->clip[clip->angle].clip_id, 5);
-        strncpy(&clip->name[5], ".m2ts", 6);
-        clip->clip_id  = atoi(pi->clip[clip->angle].clip_id);
-
-        path = str_printf("%s"DIR_SEP"BDMV"DIR_SEP"CLIPINF"DIR_SEP"%s.clpi",
-                      title->root, pi->clip[clip->angle].clip_id);
-        clip->cl = clpi_parse(path, 0);
-        X_FREE(path);
-        if (clip->cl == NULL) {
-            clip->start_pkt = 0;
-            clip->end_pkt = 0;
-            continue;
-        }
-        switch (pi->connection_condition) {
-            case 5:
-            case 6:
-                clip->start_pkt = 0;
-                clip->connection = CONNECT_SEAMLESS;
-                break;
-            default:
-                clip->start_pkt = clpi_lookup_spn(clip->cl, pi->in_time, 1,
-                                                  pi->clip[clip->angle].stc_id);
-                clip->connection = CONNECT_NON_SEAMLESS;
-            break;
-        }
-        clip->end_pkt = clpi_lookup_spn(clip->cl, pi->out_time, 0,
-                                        pi->clip[clip->angle].stc_id);
-        clip->in_time = pi->in_time;
-        clip->out_time = pi->out_time;
-        clip->pos = pos;
-        pos += clip->end_pkt - clip->start_pkt;
-        clip->start_time = time;
-        time += clip->out_time - clip->in_time;
+        _fill_clip(title, pi->clip, pi->connection_condition, pi->in_time, pi->out_time, clip, ii);
     }
     // Count the number of "entry" marks (skipping "link" marks)
     // This is the the number of chapters
