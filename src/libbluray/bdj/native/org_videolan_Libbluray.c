@@ -27,15 +27,8 @@ jobjectArray _make_stream_array(JNIEnv* env, int count, BLURAY_STREAM_INFO* stre
     return streamArr;
 }
 
-
-JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
-  (JNIEnv * env, jclass cls, jlong np, jint title)
+jobject _make_title_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
 {
-    BDJAVA* bdj = (BDJAVA*)np;
-    BLURAY_TITLE_INFO* ti = bd_get_title_info(bdj->bd, title);
-    if (!ti)
-        return NULL;
-
     jobjectArray chapters = bdj_make_array(env, "org/videolan/TIChapter",
             ti->chapter_count);
 
@@ -77,9 +70,38 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
         (*env)->SetObjectArrayElement(env, clips, i, clip);
     }
 
-    jobject titleInfo = bdj_make_object(env, "org/videolan/TitleInfo",
+    return bdj_make_object(env, "org/videolan/TitleInfo",
             "(IIJI[Lorg/videolan/TIChapter;[Lorg/videolan/TIClip;)V", ti->idx,
             ti->playlist, ti->duration, ti->angle_count, chapters, clips);
+}
+
+
+JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
+  (JNIEnv * env, jclass cls, jlong np, jint title)
+{
+    BDJAVA* bdj = (BDJAVA*)np;
+
+    BLURAY_TITLE_INFO* ti = bd_get_title_info(bdj->bd, title);
+    if (!ti)
+        return NULL;
+
+    jobject titleInfo = _make_title_info(env, ti);
+
+    bd_free_title_info(ti);
+
+    return titleInfo;
+}
+
+JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
+  (JNIEnv * env, jclass cls, jlong np, jint playlist)
+{
+    BDJAVA* bdj = (BDJAVA*)np;
+    BLURAY_TITLE_INFO* ti = bd_get_playlist_info(bdj->bd, playlist);
+    if (!ti)
+        return NULL;
+
+    jobject titleInfo = _make_title_info(env, ti);
+
     bd_free_title_info(ti);
 
     return titleInfo;

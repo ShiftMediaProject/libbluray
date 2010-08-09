@@ -17,17 +17,29 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package org.davic.media;
+package org.videolan.media.content.playlist;
 
-import javax.media.Control;
+import java.awt.Component;
 
-public interface LanguageControl extends Control {
-    public String[] listAvailableLanguages();
+import org.davic.media.MediaTimeEventControl;
+import org.davic.media.MediaTimeEventListener;
 
-    public void selectLanguage(String lang)
-            throws LanguageNotAvailableException, NotAuthorizedException;
+public class MediaTimeEventControlImpl implements MediaTimeEventControl {
 
-    public String getCurrentLanguage();
+    public Component getControlComponent()
+    {
+        return null;
+    }
 
-    public String selectDefaultLanguage() throws NotAuthorizedException;
+    public void notifyWhen(MediaTimeEventListener listener, long mediaTime,
+            int id)
+    {
+        throw new Error("Not implemented"); // TODO implement
+    }
+
+    public void notifyWhen(MediaTimeEventListener listener, long mediaTime)
+    {
+        throw new Error("Not implemented"); // TODO implement
+    }
+
 }

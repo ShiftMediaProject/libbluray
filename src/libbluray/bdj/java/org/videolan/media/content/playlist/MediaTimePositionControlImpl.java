@@ -17,17 +17,30 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package org.davic.media;
+package org.videolan.media.content.playlist;
 
-import javax.media.Control;
+import java.awt.Component;
 
-public interface LanguageControl extends Control {
-    public String[] listAvailableLanguages();
+import javax.media.Time;
 
-    public void selectLanguage(String lang)
-            throws LanguageNotAvailableException, NotAuthorizedException;
+import org.davic.media.MediaTimePositionControl;
+import org.videolan.Libbluray;
 
-    public String getCurrentLanguage();
+public class MediaTimePositionControlImpl implements MediaTimePositionControl {
 
-    public String selectDefaultLanguage() throws NotAuthorizedException;
+    public Component getControlComponent()
+    {
+        return null;
+    }
+
+    public Time setMediaTimePosition(Time mediaTime)
+    {
+         long tick = Libbluray.seekTime((long)(mediaTime.getSeconds() * Handler.FROM_SECONDS));
+         return new Time(tick * Handler.TO_SECONDS);
+    }
+
+    public Time getMediaTimePosition()
+    {
+        return new Time(Libbluray.tellTime() * Handler.TO_SECONDS);
+    }
 }

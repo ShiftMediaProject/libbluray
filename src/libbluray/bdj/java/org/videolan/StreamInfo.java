@@ -11,6 +11,36 @@ public class StreamInfo {
         this.pid = pid;
     }
     
+    public byte getCoding_type()
+    {
+        return coding_type;
+    }
+    
+    public byte getFormat()
+    {
+        return format;
+    }
+    
+    public byte getRate()
+    {
+        return rate;
+    }
+    
+    public char getChar_code()
+    {
+        return char_code;
+    }
+    
+    public String getLang()
+    {
+        return lang;
+    }
+    
+    public short getPid()
+    {
+        return pid;
+    }
+
     byte coding_type;
     byte format;
     byte rate;

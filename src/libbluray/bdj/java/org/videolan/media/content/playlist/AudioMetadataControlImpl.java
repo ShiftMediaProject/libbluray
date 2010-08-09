@@ -17,17 +17,27 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package org.davic.media;
+package org.videolan.media.content.playlist;
 
-import javax.media.Control;
+import java.awt.Component;
 
-public interface LanguageControl extends Control {
-    public String[] listAvailableLanguages();
+import org.bluray.media.AudioMetadataControl;
 
-    public void selectLanguage(String lang)
-            throws LanguageNotAvailableException, NotAuthorizedException;
+// TODO: Figure out what the hell this is for
+public class AudioMetadataControlImpl implements AudioMetadataControl {
+    public Component getControlComponent()
+    {
+        return null;
+    }
 
-    public String getCurrentLanguage();
+    public boolean isMetaDataProcessingOn()
+    {
+        throw new Error("Not implemented"); // TODO implement
+    }
 
-    public String selectDefaultLanguage() throws NotAuthorizedException;
+    public void setMetaDataProcessingOn(boolean value)
+    {
+        throw new Error("Not implemented"); // TODO implement
+    }
+
 }

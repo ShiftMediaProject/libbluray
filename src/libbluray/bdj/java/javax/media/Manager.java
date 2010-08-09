@@ -185,6 +185,7 @@ public final class Manager {
             
             try
             {
+                System.out.println(handlerClassName);
                 final Class<?> handlerClass = Class.forName(handlerClassName);
                 if (!Player.class.isAssignableFrom(handlerClass) && 
                     !MediaProxy.class.isAssignableFrom(handlerClass))
@@ -202,17 +203,17 @@ public final class Manager {
             }
             catch (ClassNotFoundException e)
             {
-                logger.finer("createPlayer: "  + e);    // no need for call stack
+                logger.warning("createPlayer: "  + e);    // no need for call stack
                 continue;
             }           
             catch (IncompatibleSourceException e)
             {
-                logger.finer("createPlayer(" + source + ", " + contentType + "): "  + e);   // no need for call stack
+                logger.warning("createPlayer(" + source + ", " + contentType + "): "  + e);   // no need for call stack
                 continue;
             }
             catch (IOException e)
             {
-                logger.log(Level.FINE, ""  + e, e);
+                logger.log(Level.WARNING, ""  + e, e);
                 continue;
             }
             catch (NoPlayerException e)
@@ -221,12 +222,12 @@ public final class Manager {
             }
             catch (NoClassDefFoundError e)
             {
-                logger.log(Level.FINE, ""  + e, e);
+                logger.log(Level.WARNING, ""  + e, e);
                 continue;
             }
             catch (Exception e)
             {
-                logger.log(Level.FINE, ""  + e, e);
+                logger.log(Level.WARNING, ""  + e, e);
                 continue;
             }
         }

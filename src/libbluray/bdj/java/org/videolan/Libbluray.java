@@ -30,6 +30,9 @@ public class Libbluray {
     
     public static TitleInfo getTitleInfo(int titleNum)
     {
+        if (titleNum < 0)
+            throw new IllegalArgumentException();
+        
         return getTitleInfoN(nativePointer, titleNum);
     }
     
@@ -73,7 +76,10 @@ public class Libbluray {
         if (mark < 0)
             throw new IllegalArgumentException("Mark cannot be negative");
         
-        return seekMarkN(nativePointer, mark);
+        long result = seekMarkN(nativePointer, mark);
+        if (result == -1)
+            throw new IllegalArgumentException("Seek error");
+        return result;
     }
 
     public static boolean selectPlaylist(int playlist)
@@ -141,6 +147,14 @@ public class Libbluray {
             throw new IllegalArgumentException("Invalid GPR");
     }
     
+    public static void writePSR(int num, int value)
+    {
+        int ret = writePSRN(nativePointer, num, value);
+        
+        if (ret == -1)
+            throw new IllegalArgumentException("Invalid GPR");
+    }
+    
     public static int readGPR(int num)
     {
         int value = readGPRN(nativePointer, num);
@@ -160,6 +174,39 @@ public class Libbluray {
         
         return value;
     }
+    
+    public static final int PSR_IG_STREAM_ID     = 0;
+    public static final int PSR_PRIMARY_AUDIO_ID = 1;
+    public static final int PSR_PG_STREAM        = 2;
+    public static final int PSR_ANGLE_NUMBER     = 3;
+    public static final int PSR_TITLE_NUMBER     = 4;
+    public static final int PSR_CHAPTER          = 5;
+    public static final int PSR_PLAYLIST         = 6;
+    public static final int PSR_PLAYITEM         = 7;
+    public static final int PSR_TIME             = 8;
+    public static final int PSR_NAV_TIMER        = 9;
+    public static final int PSR_SELECTED_BUTTON_ID = 10;
+    public static final int PSR_MENU_PAGE_ID     = 11;
+    public static final int PSR_STYLE            = 12;
+    public static final int PSR_PARENTAL         = 13;
+    public static final int PSR_SECONDARY_AUDIO_VIDEO = 14;
+    public static final int PSR_AUDIO_CAP        = 15;
+    public static final int PSR_AUDIO_LANG       = 16;
+    public static final int PSR_PG_AND_SUB_LANG  = 17;
+    public static final int PSR_MENU_LANG        = 18;
+    public static final int PSR_COUNTRY          = 19;
+    public static final int PSR_REGION           = 20;
+    public static final int PSR_VIDEO_CAP        = 29;
+    public static final int PSR_TEXT_CAP         = 30;
+    public static final int PSR_PROFILE_VERSION  = 31;
+    public static final int PSR_BACKUP_PSR4      = 36;
+    public static final int PSR_BACKUP_PSR5      = 37;
+    public static final int PSR_BACKUP_PSR6      = 38;
+    public static final int PSR_BACKUP_PSR7      = 39;
+    public static final int PSR_BACKUP_PSR8      = 40;
+    public static final int PSR_BACKUP_PSR10     = 42;
+    public static final int PSR_BACKUP_PSR11     = 43;
+    public static final int PSR_BACKUP_PSR12     = 44;
     
     protected static long nativePointer = 0; 
     
@@ -182,6 +229,7 @@ public class Libbluray {
     private static native long tellN(long np);
     private static native long tellTimeN(long np);
     private static native int writeGPRN(long np, int num, int value);
+    private static native int writePSRN(long np, int num, int value);
     private static native int readGPRN(long np, int num);
     private static native int readPSRN(long np, int num);
 }

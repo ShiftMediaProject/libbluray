@@ -19,15 +19,27 @@
 
 package org.davic.media;
 
-import javax.media.Control;
+public class MediaTimeEvent {
+    public MediaTimeEvent(Object source, long eventTime, int ID)
+    {
+        this.source = source;
+        this.eventTime = eventTime;
+        this.eventId = ID;
+    }
 
-public interface LanguageControl extends Control {
-    public String[] listAvailableLanguages();
+    public long getEventTime() {
+        return eventTime;
+    }
 
-    public void selectLanguage(String lang)
-            throws LanguageNotAvailableException, NotAuthorizedException;
+    public int getEventId() {
+        return eventId;
+    }
 
-    public String getCurrentLanguage();
-
-    public String selectDefaultLanguage() throws NotAuthorizedException;
+    public Object getSource() {
+        return source;
+    }
+    
+    private Object source;
+    private long eventTime;
+    private int eventId;
 }

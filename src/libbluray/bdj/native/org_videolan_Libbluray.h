@@ -17,6 +17,14 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
 
 /*
  * Class:     org_videolan_Libbluray
+ * Method:    getPlaylistInfoN
+ * Signature: (JI)Lorg/videolan/TitleInfo;
+ */
+JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     org_videolan_Libbluray
  * Method:    getTitlesN
  * Signature: (JC)I
  */

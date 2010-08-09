@@ -21,53 +21,73 @@ package org.dvb.media;
 
 import java.awt.Rectangle;
 import org.havi.ui.HScreenPoint;
+import org.videolan.BDJLoader;
+import org.videolan.bdjo.GraphicsResolution;
 
 public class VideoTransformation {
+    protected VideoTransformation(boolean panAndScan) {
+        this.panAndScan = panAndScan;
+    }
+    
     public VideoTransformation()
     {
-        throw new Error("Not implemented");
+        GraphicsResolution res = BDJLoader.getBdjo().getTerminalInfo().getResolution();
+        
+        this.clip = new Rectangle(res.getWidth(), res.getHeight());
+        this.scaling[0] = 1.0f;
+        this.scaling[1] = 1.0f;
+        this.position = new HScreenPoint(0.0f, 0.0f);
     }
 
     public VideoTransformation(Rectangle clipRect,
             float horizontalScalingFactor, float verticalScalingFactor,
             HScreenPoint location)
     {
-        throw new Error("Not implemented");
+        this.clip = clipRect;
+        this.scaling[0] = horizontalScalingFactor;
+        this.scaling[1] = verticalScalingFactor;
+        this.position = location;
     }
 
     public void setClipRegion(Rectangle clipRect)
     {
-        throw new Error("Not implemented");
+        this.clip = clipRect;
     }
 
     public Rectangle getClipRegion()
     {
-        throw new Error("Not implemented");
+        return clip;
     }
 
     public void setScalingFactors(float horizontalScalingFactor,
             float verticalScalingFactor)
     {
-        throw new Error("Not implemented");
+        this.scaling[0] = horizontalScalingFactor;
+        this.scaling[1] = verticalScalingFactor;
     }
 
     public float[] getScalingFactors()
     {
-        throw new Error("Not implemented");
+        return scaling;
     }
 
     public void setVideoPosition(HScreenPoint location)
     {
-        throw new Error("Not implemented");
+        this.position = location;
     }
 
     public HScreenPoint getVideoPosition()
     {
-        throw new Error("Not implemented");
+        return position;
     }
 
     public boolean isPanAndScan()
     {
-        throw new Error("Not implemented");
+        return panAndScan;
     }
+    
+    private float[] scaling = new float[2];
+    private HScreenPoint position = null;
+    private Rectangle clip = null;
+    private boolean panAndScan = false;
 }

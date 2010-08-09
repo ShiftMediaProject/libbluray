@@ -21,13 +21,9 @@ package org.davic.media;
 
 import javax.media.Control;
 
-public interface LanguageControl extends Control {
-    public String[] listAvailableLanguages();
+public interface MediaTimeEventControl extends Control {
+    public void notifyWhen(MediaTimeEventListener listener, long mediaTime,
+            int id);
 
-    public void selectLanguage(String lang)
-            throws LanguageNotAvailableException, NotAuthorizedException;
-
-    public String getCurrentLanguage();
-
-    public String selectDefaultLanguage() throws NotAuthorizedException;
+    public void notifyWhen(MediaTimeEventListener listener, long mediaTime);
 }

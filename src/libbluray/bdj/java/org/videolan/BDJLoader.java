@@ -42,6 +42,7 @@ public class BDJLoader {
             
             Libbluray.nativePointer = nativePointer;
             BDJLoader.baseDir = baseDir;
+            BDJLoader.bdjo = bdjo;
             
             BDJClassLoader classLoader = new BDJClassLoader(baseDir);
             
@@ -64,17 +65,20 @@ public class BDJLoader {
             gui.setVisible(true);
             
             // now load and initialize all the xlets
-            for (AppEntry entry : bdjo.getAppTable()) {
+            AppEntry[] appTable = bdjo.getAppTable();
+            xlet = new Xlet[appTable.length];
+            for (int i = 0; i < appTable.length; i++) {
+                AppEntry entry = appTable[i];
                 Class<?> xlet_class = classLoader.loadClass(entry.getInitialClass());
                 logger.log(Level.INFO, "Loaded class: " + entry.getInitialClass());
                 
-                xlet = (Xlet)xlet_class.newInstance();
+                xlet[i] = (Xlet)xlet_class.newInstance();
                 
                 // make context for xlet
                 BasicXletContext context = new BasicXletContext(entry);
                 
                 Thread thread = new Thread(new BDJThreadGroup("", context), 
-                        new XletStarter(xlet, entry.getControlCode().equals(ControlCode.AUTOSTART)));
+                        new XletStarter(xlet[i], entry.getControlCode().equals(ControlCode.AUTOSTART)));
                 thread.start();
                 thread.join();
             }
@@ -91,8 +95,10 @@ public class BDJLoader {
     {
         try {
             if (xlet != null) {
-                xlet.destroyXlet(true);
-                xlet = null;
+                for (int i = 0; i < xlet.length; i++){
+                    xlet[i].destroyXlet(true);
+                    xlet[i] = null;
+                }
             }
             
             MountManager.unmountAll();
@@ -121,9 +127,15 @@ public class BDJLoader {
         return grp.getContext();
     }
     
+    public static Bdjo getBdjo()
+    {
+        return bdjo;
+    }
+    
     public static BDJInputListener inputListener = null;
     
-    private static Xlet xlet = null;
+    private static Xlet[] xlet = null;
+    private static Bdjo bdjo = null;
     private static String baseDir = "";
     private static final Logger logger = Logger.getLogger(BDJLoader.class.getName());
 
