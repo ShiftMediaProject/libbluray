@@ -363,12 +363,10 @@ static void _fill_clip(NAV_TITLE *title,
                        MPLS_CLIP *mpls_clip,
                        uint8_t connection_condition, uint32_t in_time, uint32_t out_time,
                        NAV_CLIP *clip,
-                       unsigned ref)
+                       unsigned ref, uint32_t *pos, uint32_t *time)
 
 {
     char *path;
-    uint32_t pos = 0;
-    uint32_t time = 0;
 
     clip->title = title;
     clip->ref   = ref;
@@ -402,10 +400,10 @@ static void _fill_clip(NAV_TITLE *title,
                                     mpls_clip[clip->angle].stc_id);
     clip->in_time = in_time;
     clip->out_time = out_time;
-    clip->pos = pos;
-    pos += clip->end_pkt - clip->start_pkt;
-    clip->start_time = time;
-    time += clip->out_time - clip->in_time;
+    clip->pos = *pos;
+    *pos += clip->end_pkt - clip->start_pkt;
+    clip->start_time = *time;
+    *time += clip->out_time - clip->in_time;
 }
 
 NAV_TITLE* nav_title_open(const char *root, const char *playlist)
@@ -413,6 +411,8 @@ NAV_TITLE* nav_title_open(const char *root, const char *playlist)
     NAV_TITLE *title = NULL;
     char *path;
     unsigned ii, chapters = 0;
+    uint32_t pos = 0;
+    uint32_t time = 0;
 
     title = calloc(1, sizeof(NAV_TITLE));
     if (title == NULL) {
@@ -446,7 +446,7 @@ NAV_TITLE* nav_title_open(const char *root, const char *playlist)
 
         clip = &title->clip_list.clip[ii];
 
-        _fill_clip(title, pi->clip, pi->connection_condition, pi->in_time, pi->out_time, clip, ii);
+        _fill_clip(title, pi->clip, pi->connection_condition, pi->in_time, pi->out_time, clip, ii, &pos, &time);
     }
     // Count the number of "entry" marks (skipping "link" marks)
     // This is the the number of chapters
