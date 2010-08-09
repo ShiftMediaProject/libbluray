@@ -410,7 +410,7 @@ NAV_TITLE* nav_title_open(const char *root, const char *playlist)
 {
     NAV_TITLE *title = NULL;
     char *path;
-    unsigned ii, chapters = 0;
+    unsigned ii, ss, chapters = 0;
     uint32_t pos = 0;
     uint32_t time = 0;
 
@@ -448,6 +448,30 @@ NAV_TITLE* nav_title_open(const char *root, const char *playlist)
 
         _fill_clip(title, pi->clip, pi->connection_condition, pi->in_time, pi->out_time, clip, ii, &pos, &time);
     }
+
+    // sub paths
+    // Find length in packets and end_pkt for each clip
+    if (title->pl->sub_count > 0) {
+        title->sub_path_count = title->pl->sub_count;
+        title->sub_path       = calloc(title->sub_path_count, sizeof(NAV_SUB_PATH));
+
+        for (ss = 0; ss < title->sub_path_count; ss++) {
+            NAV_SUB_PATH *sub_path = &title->sub_path[ss];
+
+            sub_path->type            = title->pl->sub_path[ss].type;
+            sub_path->clip_list.count = title->pl->sub_path[ss].sub_playitem_count;
+            sub_path->clip_list.clip  = calloc(sub_path->clip_list.count, sizeof(NAV_CLIP));
+
+            pos = time = 0;
+            for (ii = 0; ii < sub_path->clip_list.count; ii++) {
+                MPLS_SUB_PI *pi   = &title->pl->sub_path[ss].sub_play_item[ii];
+                NAV_CLIP    *clip = &sub_path->clip_list.clip[ii];
+
+                _fill_clip(title, pi->clip, pi->connection_condition, pi->in_time, pi->out_time, clip, ii, &pos, &time);
+            }
+        }
+    }
+
     // Count the number of "entry" marks (skipping "link" marks)
     // This is the the number of chapters
     for (ii = 0; ii < title->pl->mark_count; ii++) {
@@ -466,7 +490,15 @@ NAV_TITLE* nav_title_open(const char *root, const char *playlist)
 
 void nav_title_close(NAV_TITLE *title)
 {
-    unsigned ii;
+    unsigned ii, ss;
+
+    for (ss = 0; ss < title->sub_path_count; ss++) {
+        for (ii = 0; ii < title->sub_path[ss].clip_list.count; ii++) {
+            clpi_free(title->sub_path[ss].clip_list.clip[ii].cl);
+        }
+        X_FREE(title->sub_path[ss].clip_list.clip);
+    }
+    X_FREE(title->sub_path);
 
     for (ii = 0; ii < title->pl->list_count; ii++) {
         clpi_free(title->clip_list.clip[ii].cl);
