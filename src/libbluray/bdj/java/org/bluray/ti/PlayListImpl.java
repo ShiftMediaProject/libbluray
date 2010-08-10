@@ -5,48 +5,66 @@ import java.util.Date;
 import javax.tv.locator.Locator;
 import javax.tv.service.ServiceInformationType;
 
-public class PlayListImpl implements PlayList {
+import org.bluray.net.BDLocator;
+import org.davic.net.InvalidLocatorException;
+import org.videolan.Libbluray;
+import org.videolan.TIClip;
+import org.videolan.TitleInfo;
 
-    @Override
+public class PlayListImpl implements PlayList {
+    protected PlayListImpl(String filename, Title service)
+    {
+        this.filename = filename;
+        this.id = Integer.parseInt(filename);
+        this.playlist = Libbluray.getPlaylistInfo(id);
+        this.service = service;
+    }
+
     public String getFileName()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return filename;
     }
 
-    @Override
     public int getId()
     {
-        // TODO Auto-generated method stub
-        return 0;
+        return id;
     }
 
-    @Override
     public PlayItem[] getPlayItems()
     {
-        // TODO Auto-generated method stub
-        return null;
+        TIClip[] clips = playlist.getClips();
+        PlayItem[] items = new PlayItem[clips.length];
+        
+        for (int i = 0; i < clips.length; i++) {
+            items[i] = new PlayItemImpl(id, i + 1, clips[i], service);
+        }
+        
+        return items;
     }
 
-    @Override
     public Locator getLocator()
     {
-        // TODO Auto-generated method stub
-        return null;
+        int title = Libbluray.getCurrentTitle();
+        
+        try {
+            return new BDLocator(null, title, id);
+        } catch (InvalidLocatorException e) {
+            return null;
+        }
     }
 
-    @Override
     public ServiceInformationType getServiceInformationType()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return TitleInformationType.BD_ROM;
     }
 
-    @Override
     public Date getUpdateTime()
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    String filename;
+    TitleInfo playlist;
+    int id;
+    Title service;
 }

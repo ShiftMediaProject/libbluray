@@ -6,12 +6,18 @@ public class PlayListTable {
     public PlayListTable(boolean accessToAll, boolean autostartFirst, String[] playLists)
     {
         this.accessToAll = accessToAll;
+        this.autostartFirst = autostartFirst;
         this.playLists = playLists;
     }
     
     public boolean isAccessToAll()
     {
         return accessToAll;
+    }
+    
+    public boolean isAutostartFirst()
+    {
+        return autostartFirst;
     }
     
     public String[] getPlayLists()
@@ -26,5 +32,6 @@ public class PlayListTable {
     }
 
     private boolean accessToAll;
+    private boolean autostartFirst;
     private String[] playLists;
 }

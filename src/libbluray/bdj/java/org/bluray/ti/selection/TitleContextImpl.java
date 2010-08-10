@@ -33,12 +33,10 @@ import org.videolan.Libbluray;
 
 public class TitleContextImpl implements TitleContext {
 
-    @Override
     public void start(Title title, boolean doSomething)
             throws SecurityException
     {
-        // TODO Auto-generated method stub
-        
+        throw new Error("Not implemented"); // TODO implement
     }
 
     public void addListener(ServiceContextListener listener)
@@ -46,54 +44,41 @@ public class TitleContextImpl implements TitleContext {
         serviceContextListeners.add(listener);
     }
 
-    @Override
     public void destroy() throws SecurityException
     {
-        // TODO Auto-generated method stub
         
     }
 
-    @Override
     public Service getService()
     {
-        // TODO Auto-generated method stub
         return new TitleImpl(Libbluray.getCurrentTitle());
     }
 
-    @Override
     public ServiceContentHandler[] getServiceContentHandlers()
             throws SecurityException
     {
-        // TODO Auto-generated method stub
-        return null;
+        throw new Error("Not implemented"); // TODO implement
     }
 
-    @Override
     public void removeListener(ServiceContextListener listener)
     {
         serviceContextListeners.remove(listener);
     }
 
-    @Override
     public void select(Service service) throws SecurityException
     {
-        // TODO Auto-generated method stub
-        
+        throw new Error("Not implemented"); // TODO implement
     }
 
-    @Override
     public void select(Locator[] locators) throws InvalidLocatorException,
             InvalidServiceComponentException, SecurityException
     {
-        // TODO Auto-generated method stub
-        
+        throw new Error("Not implemented"); // TODO implement
     }
 
-    @Override
     public void stop() throws SecurityException
     {
-        // TODO Auto-generated method stub
-        
+        throw new Error("Not implemented"); // TODO implement
     }
 
     private ArrayList<ServiceContextListener> serviceContextListeners = new ArrayList<ServiceContextListener>();

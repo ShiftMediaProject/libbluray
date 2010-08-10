@@ -10,6 +10,7 @@ import javax.tv.service.ServiceType;
 
 import org.bluray.net.BDLocator;
 import org.davic.net.InvalidLocatorException;
+import org.videolan.BDJLoader;
 import org.videolan.Libbluray;
 import org.videolan.TitleInfo;
 
@@ -23,12 +24,19 @@ public class TitleImpl implements Title {
 
     public PlayList[] getPlayLists()
     {
-        throw new Error("Not implemented");
+        String[] playlistNames = BDJLoader.getBdjo().getAccessiblePlaylists().getPlayLists();
+        PlayList[] playlists = new PlayList[playlistNames.length];
+        
+        for (int i = 0; i < playlistNames.length; i++) {
+            playlists[i] = new PlayListImpl(playlistNames[i], this);
+        }
+        
+        return playlists;
     }
 
     public boolean hasAutoPlayList()
     {
-        throw new Error("Not implemented");
+        return BDJLoader.getBdjo().getAccessiblePlaylists().isAutostartFirst();
     }
 
     public Locator getLocator()
@@ -63,6 +71,11 @@ public class TitleImpl implements Title {
     public SIRequest retrieveDetails(SIRequestor requestor)
     {
         throw new Error("Not implemented");
+    }
+    
+    protected int getTitleNum()
+    {
+        return titleNum;
     }
     
     private int titleNum;
