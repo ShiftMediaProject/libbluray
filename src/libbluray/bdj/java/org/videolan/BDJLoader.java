@@ -44,6 +44,8 @@ public class BDJLoader {
             BDJLoader.baseDir = baseDir;
             BDJLoader.bdjo = bdjo;
             
+            System.setProperty("bluray.vfs.root", baseDir);
+            
             BDJClassLoader classLoader = new BDJClassLoader(baseDir);
             
             // setup JMF prefixes
