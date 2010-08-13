@@ -52,8 +52,7 @@ static int _mobj_parse_header(BITSTREAM *bs, int *extension_data_start)
 
 static int _mobj_parse_object(BITSTREAM *bs, MOBJ_OBJECT *obj)
 {
-    uint16_t num_cmds;
-    int      i;
+    int i;
 
     obj->resume_intention_flag = bs_read(bs, 1);
     obj->menu_call_mask = bs_read(bs, 1);
@@ -61,10 +60,8 @@ static int _mobj_parse_object(BITSTREAM *bs, MOBJ_OBJECT *obj)
 
     bs_skip(bs, 13); /* padding */
 
-    num_cmds = bs_read(bs, 16);
-
-    obj->cmds = calloc(num_cmds, sizeof(MOBJ_CMD));
-    obj->num_cmds = num_cmds;
+    obj->num_cmds = bs_read(bs, 16);
+    obj->cmds     = calloc(obj->num_cmds, sizeof(MOBJ_CMD));
 
     for (i = 0; i < obj->num_cmds; i++) {
 
