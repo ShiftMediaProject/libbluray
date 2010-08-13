@@ -36,6 +36,7 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	libbluray/register.c \
 	libbluray/bdnav \
 	libbluray/bdnav/bdparse.h \
+	libbluray/bdnav/uo_mask_table.h \
 	libbluray/bdnav/navigation.h \
 	libbluray/bdnav/index_parse.c \
 	libbluray/bdnav/navigation.c \

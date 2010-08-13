@@ -46,7 +46,7 @@ _human_readable_sig(char *sig, uint32_t s1, uint32_t s2)
 }
 
 static int
-_parse_uo(BITSTREAM *bits, MPLS_UO *uo)
+_parse_uo(BITSTREAM *bits, BD_UO_MASK *uo)
 {
     uo->menu_call                       = bs_read(bits, 1);
     uo->title_search                    = bs_read(bits, 1);

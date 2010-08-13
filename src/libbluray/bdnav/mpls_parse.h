@@ -20,48 +20,14 @@
 #if !defined(_MPLS_PARSE_H_)
 #define _MPLS_PARSE_H_
 
+#include "uo_mask_table.h"
+
 #include <util/attributes.h>
 
 #include <stdint.h>
 
 #define BD_MARK_ENTRY   0x01
 #define BD_MARK_LINK    0x02
-
-typedef struct
-{
-    uint8_t         menu_call : 1;
-    uint8_t         title_search : 1;
-    uint8_t         chapter_search : 1;
-    uint8_t         time_search : 1;
-    uint8_t         skip_to_next_point : 1;
-    uint8_t         skip_to_prev_point : 1;
-    uint8_t         play_firstplay : 1;
-    uint8_t         stop : 1;
-    uint8_t         pause_on : 1;
-    uint8_t         pause_off : 1;
-    uint8_t         still : 1;
-    uint8_t         forward : 1;
-    uint8_t         backward : 1;
-    uint8_t         resume : 1;
-    uint8_t         move_up : 1;
-    uint8_t         move_down : 1;
-    uint8_t         move_left : 1;
-    uint8_t         move_right : 1;
-    uint8_t         select : 1;
-    uint8_t         activate : 1;
-    uint8_t         select_and_activate : 1;
-    uint8_t         primary_audio_change : 1;
-    uint8_t         angle_change : 1;
-    uint8_t         popup_on : 1;
-    uint8_t         popup_off : 1;
-    uint8_t         pg_enable_disable : 1;
-    uint8_t         pg_change : 1;
-    uint8_t         secondary_video_enable_disable : 1;
-    uint8_t         secondary_video_change : 1;
-    uint8_t         secondary_audio_enable_disable : 1;
-    uint8_t         secondary_audio_change : 1;
-    uint8_t         pip_pg_change : 1;
-} MPLS_UO;
 
 typedef struct
 {
@@ -114,7 +80,7 @@ typedef struct
     uint8_t         connection_condition;
     uint32_t        in_time;
     uint32_t        out_time;
-    MPLS_UO         uo_mask;
+    BD_UO_MASK      uo_mask;
     uint8_t         random_access_flag;
     uint8_t         still_mode;
     uint16_t        still_time;
@@ -139,7 +105,7 @@ typedef struct
 {
     uint8_t         playback_type;
     uint16_t        playback_count;
-    MPLS_UO         uo_mask;
+    BD_UO_MASK      uo_mask;
     uint8_t         random_access_flag;
     uint8_t         audio_mix_flag;
     uint8_t         lossless_bypass_flag;
