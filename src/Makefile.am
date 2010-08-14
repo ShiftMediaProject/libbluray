@@ -47,6 +47,17 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	libbluray/bdnav/mpls_parse.c \
 	libbluray/bdnav/index_parse.h \
 	libbluray/bdnav/clpi_parse.h \
+	libbluray/decoders \
+	libbluray/decoders/pes_buffer.h \
+	libbluray/decoders/pes_buffer.c \
+	libbluray/decoders/m2ts_demux.h \
+	libbluray/decoders/m2ts_demux.c \
+	libbluray/decoders/pg.h \
+	libbluray/decoders/pg_decode.h \
+	libbluray/decoders/pg_decode.c \
+	libbluray/decoders/ig.h \
+	libbluray/decoders/ig_decode.h \
+	libbluray/decoders/ig_decode.c \
 	libbluray/hdmv \
 	libbluray/hdmv/hdmv_insn.h \
 	libbluray/hdmv/hdmv_vm.h \
