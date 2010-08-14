@@ -71,6 +71,7 @@ AC_TYPE_SIGNAL
 AC_CHECK_HEADERS([stdarg.h sys/types.h dirent.h errno.h libgen.h malloc.h])
 AC_CHECK_HEADERS([stdlib.h mntent.h linux/cdrom.h inttypes.h])
 AC_CHECK_HEADERS([sys/time.h time.h])
+AC_CHECK_HEADERS(pthread.h,, [AC_MSG_ERROR([pthread.h required])])
 
 # required structures
 AC_STRUCT_DIRENT_D_TYPE
@@ -80,6 +81,10 @@ AC_SYS_LARGEFILE
 
 # required functions
 AC_CHECK_FUNC([snprintf],, [AC_MSG_ERROR($function_not_found)])
+
+# required libraries
+# pthreads
+AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"])
 
 # dlopen check
 if [[ $use_dlopen_crypto_libs = "auto" ]]; then
