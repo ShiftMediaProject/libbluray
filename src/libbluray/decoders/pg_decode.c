@@ -181,7 +181,18 @@ int pg_decode_object(BITBUFFER *bb, BD_PG_OBJECT *p)
         return 0;
     }
 
-    /*uint32_t data_len =*/ bb_read(bb, 24);
+    if (!bb_is_align(bb, 0x07)) {
+      ERROR("pg_decode_object(): alignment error\n");
+      return 0;
+    }
+
+    uint32_t data_len = bb_read(bb, 24);
+    uint32_t buf_len  = bb->p_end - bb->p;
+    if (data_len != buf_len) {
+        ERROR("pg_decode_object(): buffer size mismatch (expected %d, have %d)\n", data_len, buf_len);
+        return 0;
+    }
+
     p->width  = bb_read(bb, 16);
     p->height = bb_read(bb, 16);
 
