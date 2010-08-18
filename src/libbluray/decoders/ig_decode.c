@@ -261,22 +261,26 @@ static void _clean_interactive_composition(BD_IG_INTERACTIVE_COMPOSITION *p)
 
 int ig_decode_interactive(BITBUFFER *bb, BD_IG_INTERACTIVE *p)
 {
-  BD_PG_SEQUENCE_DESCRIPTOR sd;
+    BD_PG_SEQUENCE_DESCRIPTOR sd;
 
-  pg_decode_video_descriptor(bb, &p->video_descriptor);
-  pg_decode_composition_descriptor(bb, &p->composition_descriptor);
-  pg_decode_sequence_descriptor(bb, &sd);
+    pg_decode_video_descriptor(bb, &p->video_descriptor);
+    pg_decode_composition_descriptor(bb, &p->composition_descriptor);
+    pg_decode_sequence_descriptor(bb, &sd);
 
-  if (!sd.first_in_seq) {
-    ERROR("not first in seq\n");
-    return 0;
-  }
-  if (!sd.last_in_seq) {
-    ERROR("not last in seq\n");
-    return 0;
-  }
+    if (!sd.first_in_seq) {
+        ERROR("ig_decode_interactive(): not first in seq\n");
+        return 0;
+    }
+    if (!sd.last_in_seq) {
+        ERROR("ig_decode_interactive(): not last in seq\n");
+        return 0;
+    }
+    if (!bb_is_align(bb, 0x07)) {
+        ERROR("ig_decode_interactive(): alignment error\n");
+        return 0;
+    }
 
-  return _decode_interactive_composition(bb, &p->interactive_composition);
+    return _decode_interactive_composition(bb, &p->interactive_composition);
 }
 
 void ig_clean_interactive(BD_IG_INTERACTIVE *p)
