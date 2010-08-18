@@ -259,7 +259,7 @@ static void _clean_interactive_composition(BD_IG_INTERACTIVE_COMPOSITION *p)
  * segment
  */
 
-int ig_decode_interactive(BITBUFFER *bb, BD_PG_INTERACTIVE *p)
+int ig_decode_interactive(BITBUFFER *bb, BD_IG_INTERACTIVE *p)
 {
   BD_PG_SEQUENCE_DESCRIPTOR sd;
 
@@ -279,12 +279,12 @@ int ig_decode_interactive(BITBUFFER *bb, BD_PG_INTERACTIVE *p)
   return _decode_interactive_composition(bb, &p->interactive_composition);
 }
 
-void ig_clean_interactive(BD_PG_INTERACTIVE *p)
+void ig_clean_interactive(BD_IG_INTERACTIVE *p)
 {
     _clean_interactive_composition(&p->interactive_composition);
 }
 
-void ig_free_interactive(BD_PG_INTERACTIVE **p)
+void ig_free_interactive(BD_IG_INTERACTIVE **p)
 {
     if (p && *p) {
         _clean_interactive_composition(&(*p)->interactive_composition);

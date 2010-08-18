@@ -135,6 +135,6 @@ typedef struct bd_pg_interactive_s {
     BD_PG_VIDEO_DESCRIPTOR        video_descriptor;
     BD_PG_COMPOSITION_DESCRIPTOR  composition_descriptor;
     BD_IG_INTERACTIVE_COMPOSITION interactive_composition;
-} BD_PG_INTERACTIVE;
+} BD_IG_INTERACTIVE;
 
 #endif // _BD_IG_H_
