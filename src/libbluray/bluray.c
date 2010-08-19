@@ -734,8 +734,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                         }
                         bd->s_pos = st->clip->pos;
                     } else {
-                        st->clip = nav_set_angle(bd->title, st->clip, bd->request_angle);
-                        bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
+                        _change_angle(bd);
                         _clip_seek_time(bd, bd->angle_change_time);
                     }
                     bd->seamless_angle_change = 0;
