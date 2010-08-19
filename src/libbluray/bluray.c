@@ -314,7 +314,7 @@ static int64_t _seek_stream(BLURAY *bd, BD_STREAM *st,
     if (!clip)
         return -1;
 
-    if (!st->fp || clip->ref != st->clip->ref) {
+    if (!st->fp || !st->clip || clip->ref != st->clip->ref) {
         // The position is in a new clip
         st->clip = clip;
         if (!_open_m2ts(bd, st)) {
