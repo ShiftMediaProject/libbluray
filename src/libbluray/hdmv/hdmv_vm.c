@@ -311,8 +311,7 @@ static int _jump_object(HDMV_VM *p, int object)
 
     DEBUG(DBG_HDMV, "_jump_object(): jumping to object %d\n", object);
 
-    p->pc     = 0;
-    p->object = &p->movie_objects->objects[object];
+    hdmv_vm_select_object(p, object);
 
     return 0;
 }
@@ -851,8 +850,6 @@ static int _hdmv_step(HDMV_VM *p)
 
 int hdmv_vm_select_object(HDMV_VM *p, int object)
 {
-    p->object = NULL;
-
     if (object >= 0) {
         if (object >= p->movie_objects->num_objects) {
             DEBUG(DBG_HDMV|DBG_CRIT, "hdmv_vm_select_program(): invalid object reference (%d) !\n", object);
