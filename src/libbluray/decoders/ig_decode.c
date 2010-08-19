@@ -220,7 +220,12 @@ static int _decode_interactive_composition(BITBUFFER *bb, BD_IG_INTERACTIVE_COMP
 {
     unsigned ii;
 
-    /*uint32_t length = */ bb_read(bb, 24);
+    uint32_t data_len = bb_read(bb, 24);
+    uint32_t buf_len  = bb->p_end - bb->p;
+    if (data_len != buf_len) {
+        ERROR("ig_decode_interactive(): buffer size mismatch (expected %d, have %d)\n", data_len, buf_len);
+        return 0;
+    }
 
     p->stream_model = bb_read(bb, 1);
     p->ui_model     = bb_read(bb, 1);
