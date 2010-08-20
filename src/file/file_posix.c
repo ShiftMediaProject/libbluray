@@ -41,12 +41,20 @@ static void file_close_linux(BD_FILE_H *file)
 
 static int64_t file_seek_linux(BD_FILE_H *file, int64_t offset, int32_t origin)
 {
+#if defined(_WIN32)
+    return fseeko64((FILE *)file->internal, offset, origin);
+#else
     return fseeko((FILE *)file->internal, offset, origin);
+#endif
 }
 
 static int64_t file_tell_linux(BD_FILE_H *file)
 {
+#if defined(_WIN32)
+    return ftello64((FILE *)file->internal);
+#else
     return ftello((FILE *)file->internal);
+#endif
 }
 
 static int file_eof_linux(BD_FILE_H *file)
