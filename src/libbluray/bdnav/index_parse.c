@@ -154,12 +154,9 @@ INDX_ROOT *indx_parse(const char *file_name)
 
     fp = file_open(file_name, "rb");
     if (!fp) {
-      char str[100];
-      strerror_r(errno, str, sizeof(str));
-      DEBUG(DBG_NAV | DBG_CRIT, "indx_parse(): error opening %s: %s\n",
-            file_name, str);
-      X_FREE(index);
-      return NULL;
+        DEBUG(DBG_NAV | DBG_CRIT, "indx_parse(): error opening %s\n", file_name);
+        X_FREE(index);
+        return NULL;
     }
 
     bs_init(&bs, fp);
