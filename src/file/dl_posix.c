@@ -27,9 +27,7 @@
 #include "util/logging.h"
 #include "util/strutl.h"
 
-#include <stdlib.h>
 #include <dlfcn.h>
-#include <string.h>
 
 void   *dl_dlopen  ( const char* path, const char *version )
 {
