@@ -329,7 +329,7 @@ _show_sub_paths(MPLS_PL *pl, int level)
     for (ss = 0; ss < pl->sub_count; ss++) {
         MPLS_SUB *sub;
 
-        sub = &pl->sub_path[ii];
+        sub = &pl->sub_path[ss];
 
         indent_printf(level,   "Sub Path %d:", ss);
         indent_printf(level+1, "Type: %d (%s)", sub->type, _lookup_str(subpath_type_map, sub->type));
