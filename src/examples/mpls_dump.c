@@ -17,11 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "util/strutl.h"
-#include "libbluray/bdnav/mpls_parse.h"
-#include "libbluray/bdnav/navigation.h"
-#include "util.h"
-
 #include <sys/stat.h>
 #include <dirent.h>
 #include <stdio.h>
@@ -29,6 +24,13 @@
 #include <unistd.h>
 #include <string.h>
 #include <libgen.h>
+
+#include "util/strutl.h"
+
+#include "libbluray/bdnav/mpls_parse.h"
+#include "libbluray/bdnav/navigation.h"
+
+#include "util.h"
 
 static int verbose;
 

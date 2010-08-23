@@ -18,12 +18,14 @@
  */
 
 #include "config.h"
-#include "libbluray/bdnav/clpi_parse.h"
-#include "util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#include "libbluray/bdnav/clpi_parse.h"
+
+#include "util.h"
 
 static int verbose;
 
