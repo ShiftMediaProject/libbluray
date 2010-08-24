@@ -112,10 +112,14 @@ fi
 
 # dlopen check
 if [[ $use_dlopen_crypto_libs = "auto" ]]; then
-  AC_CHECK_LIB([dl], [dlopen],
-    [DLOPEN_LDFLAGS="-ldl"; AC_MSG_NOTICE($using_dlopen_crypto_libs)
-     AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])],
-    [use_dlopen_crypto_libs="no"; AC_MSG_NOTICE($using_normal_linking)])
+  if test "${SYS}" != "mingw32" ; then
+      AC_CHECK_LIB([dl], [dlopen],
+        [DLOPEN_LDFLAGS="-ldl"; AC_MSG_NOTICE($using_dlopen_crypto_libs)
+         AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])],
+        [use_dlopen_crypto_libs="no"; AC_MSG_NOTICE($using_normal_linking)])
+  else
+         AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])
+  fi
 elif [[ $use_dlopen_crypto_libs = "yes" ]]; then
   AC_CHECK_LIB([dl], [dlopen],
     [DLOPEN_LDFLAGS="-ldl"; AC_MSG_NOTICE($using_dlopen_crypto_libs)
