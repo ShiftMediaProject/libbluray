@@ -6,6 +6,26 @@ AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE([foreign])
 AM_CONFIG_HEADER(config.h)
 
+case "${host_os}" in
+  "")
+    SYS=unknown
+    ;;
+  *mingw32* | *cygwin* | *wince* | *mingwce*)
+    case "${host_os}" in
+      *wince* | *mingwce* | *mingw32ce*)
+        SYS=mingwce
+        ;;
+      *mingw32*)
+        SYS=mingw32
+        AC_DEFINE([_WIN32_WINNT], 0x0501, [Define to '0x0500' for Windows XP APIs.])
+        ;;
+    esac
+    ;;
+  *)
+    SYS="${host_os}"
+    ;;
+esac
+
 # messages
 library_not_found="Could not find required library!"
 function_not_found="Could not find required function!"
@@ -71,7 +91,9 @@ AC_TYPE_SIGNAL
 AC_CHECK_HEADERS([stdarg.h sys/types.h dirent.h errno.h libgen.h malloc.h])
 AC_CHECK_HEADERS([stdlib.h mntent.h linux/cdrom.h inttypes.h])
 AC_CHECK_HEADERS([sys/time.h time.h])
-AC_CHECK_HEADERS(pthread.h,, [AC_MSG_ERROR([pthread.h required])])
+if test "${SYS}" != "mingw32" ; then
+    AC_CHECK_HEADERS(pthread.h,, [AC_MSG_ERROR([pthread.h required])])
+fi
 
 # required structures
 AC_STRUCT_DIRENT_D_TYPE
@@ -83,8 +105,10 @@ AC_SYS_LARGEFILE
 AC_CHECK_FUNC([snprintf],, [AC_MSG_ERROR($function_not_found)])
 
 # required libraries
-# pthreads
-AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"])
+# pthreads (not on win32)
+if test "${SYS}" != "mingw32" ; then
+    AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"])
+fi
 
 # dlopen check
 if [[ $use_dlopen_crypto_libs = "auto" ]]; then
