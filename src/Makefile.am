@@ -58,6 +58,8 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	libbluray/decoders/ig.h \
 	libbluray/decoders/ig_decode.h \
 	libbluray/decoders/ig_decode.c \
+	libbluray/decoders/graphics_processor.h \
+	libbluray/decoders/graphics_processor.c \
 	libbluray/hdmv \
 	libbluray/hdmv/hdmv_insn.h \
 	libbluray/hdmv/hdmv_vm.h \
