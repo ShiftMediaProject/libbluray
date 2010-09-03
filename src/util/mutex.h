@@ -48,7 +48,7 @@ typedef CRITICAL_SECTION BD_MUTEX;
 #define bd_mutex_trylock(m) \
   (TryEnterCriticalSection(m) ? 0 : EBUSY)
 
-#define bd_mutex_init(m, a) \
+#define bd_mutex_init(m) \
   (InitializeCriticalSection(m), 0)
 
 #define bd_mutex_destroy(m) \
