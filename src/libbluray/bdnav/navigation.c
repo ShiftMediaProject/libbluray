@@ -275,6 +275,24 @@ char* nav_find_main_title(const char *root)
     }
 }
 
+uint8_t nav_lookup_aspect(NAV_CLIP *clip, int pid)
+{
+    CLPI_PROG *progs;
+    int ii, jj;
+
+    progs = clip->cl->program.progs;
+    for (ii = 0; ii < clip->cl->program.num_prog; ii++) {
+        CLPI_PROG_STREAM *ps = progs[ii].streams;
+        for (jj = 0; jj < progs[ii].num_streams; jj++) {
+            if (ps[jj].pid == pid)
+            {
+                return ps[jj].aspect;
+            }
+        }
+    }
+    return 0;
+}
+
 static void
 _fill_mark(NAV_TITLE *title, NAV_MARK *mark, int entry)
 {
