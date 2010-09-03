@@ -1497,9 +1497,5 @@ int bd_get_event(BLURAY *bd, BD_EVENT *event)
         bd_psr_register_cb(bd->regs, _process_psr_event, bd);
     }
 
-    if (_get_event(bd, event)) {
-        return 0;
-    }
-
-    return 1;
+    return _get_event(bd, event);
 }
