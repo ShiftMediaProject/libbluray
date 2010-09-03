@@ -102,7 +102,7 @@ struct bluray {
     unsigned       request_angle;
 
     /* chapter tracking */
-    uint32_t       next_chapter_start;
+    uint64_t       next_chapter_start;
 
     /* aacs */
 #ifdef DLOPEN_CRYPTO_LIBS

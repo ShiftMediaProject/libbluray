@@ -542,6 +542,13 @@ uint32_t nav_chapter_get_current(NAV_CLIP *clip, uint32_t pkt)
     title = clip->title;
     for (ii = 0; ii < title->chap_list.count; ii++) {
         mark = &title->chap_list.mark[ii];
+        if (mark->clip_ref > clip->ref)
+        {
+            if (ii)
+                return ii-1;
+            else
+                return 0;
+        }
         if (mark->clip_ref == clip->ref && mark->clip_pkt <= pkt) {
             if ( ii == title->chap_list.count - 1 ) {
                 return ii;
