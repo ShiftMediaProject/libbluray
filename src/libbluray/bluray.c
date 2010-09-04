@@ -183,13 +183,13 @@ static int _queue_event(BLURAY *bd, BD_EVENT ev)
         if (new_in != eq->out) {
             eq->ev[eq->in] = ev;
             eq->in = new_in;
-            return 0;
+            return 1;
         }
 
         DEBUG(DBG_BLURAY|DBG_CRIT, "_queue_event(%d, %d): queue overflow !\n", ev.event, ev.param);
     }
 
-    return -1;
+    return 0;
 }
 
 /*
