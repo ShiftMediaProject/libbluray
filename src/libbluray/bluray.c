@@ -807,11 +807,19 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
  * select title / angle
  */
 
-static int _open_playlist(BLURAY *bd, const char *f_name)
+static void _close_playlist(BLURAY *bd)
 {
+    _close_m2ts(&bd->st0);
+
     if (bd->title) {
         nav_title_close(bd->title);
+        bd->title = NULL;
     }
+}
+
+static int _open_playlist(BLURAY *bd, const char *f_name)
+{
+    _close_playlist(bd);
 
     bd->title = nav_title_open(bd->device_path, f_name);
     if (bd->title == NULL) {
