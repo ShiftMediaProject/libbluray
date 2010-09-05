@@ -53,6 +53,7 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	libbluray/decoders/pes_buffer.c \
 	libbluray/decoders/m2ts_demux.h \
 	libbluray/decoders/m2ts_demux.c \
+	libbluray/decoders/overlay.h \
 	libbluray/decoders/pg.h \
 	libbluray/decoders/pg_decode.h \
 	libbluray/decoders/pg_decode.c \
@@ -83,7 +84,7 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	util/log_control.h \
 	util/bits.h \
 	util/logging.h
-libbluray_la_HEADERS= libbluray/bluray.h file/filesystem.h util/log_control.h libbluray/keys.h
+libbluray_la_HEADERS= libbluray/bluray.h file/filesystem.h util/log_control.h libbluray/keys.h libbluray/decoders/overlay.h
 libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) $(DLOPEN_LDFLAGS)
 
 if USING_BDJAVA
