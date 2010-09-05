@@ -34,6 +34,7 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	libbluray/bluray.c \
 	libbluray/register.h \
 	libbluray/register.c \
+	libbluray/keys.h \
 	libbluray/bdnav \
 	libbluray/bdnav/bdparse.h \
 	libbluray/bdnav/uo_mask_table.h \
@@ -82,7 +83,7 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	util/log_control.h \
 	util/bits.h \
 	util/logging.h
-libbluray_la_HEADERS= libbluray/bluray.h file/filesystem.h util/log_control.h
+libbluray_la_HEADERS= libbluray/bluray.h file/filesystem.h util/log_control.h libbluray/keys.h
 libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) $(DLOPEN_LDFLAGS)
 
 if USING_BDJAVA
