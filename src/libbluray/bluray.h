@@ -415,7 +415,7 @@ typedef enum {
 } bd_event_e;
 
 typedef struct {
-  bd_event_e event;
+  uint32_t   event;  /* bd_event_e */
   uint32_t   param;
 } BD_EVENT;
 
