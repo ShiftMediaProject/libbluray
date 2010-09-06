@@ -24,30 +24,32 @@
  * User input
  */
 
-#define BD_VK_NONE       0xffff
+typedef enum {
+    BD_VK_NONE      = 0xffff,
 
-/* numeric key events */
-#define BD_VK_0          0
-#define BD_VK_1          1
-#define BD_VK_2          2
-#define BD_VK_3          3
-#define BD_VK_4          4
-#define BD_VK_5          5
-#define BD_VK_6          6
-#define BD_VK_7          7
-#define BD_VK_8          8
-#define BD_VK_9          9
+    /* numeric key events */
+    BD_VK_0         = 0,
+    BD_VK_1         = 1,
+    BD_VK_2         = 2,
+    BD_VK_3         = 3,
+    BD_VK_4         = 4,
+    BD_VK_5         = 5,
+    BD_VK_6         = 6,
+    BD_VK_7         = 7,
+    BD_VK_8         = 8,
+    BD_VK_9         = 9,
 
-/* */
-#define BD_VK_ROOT_MENU  10  /* open root menu */
-#define BD_VK_POPUP      11  /* toggle popup menu */
+    /* */
+    BD_VK_ROOT_MENU = 10,  /* open root menu */
+    BD_VK_POPUP     = 11,  /* toggle popup menu */
 
-/* interactive key events */
-#define BD_VK_UP         12
-#define BD_VK_DOWN       13
-#define BD_VK_LEFT       14
-#define BD_VK_RIGHT      15
-#define BD_VK_ENTER      16
+    /* interactive key events */
+    BD_VK_UP        = 12,
+    BD_VK_DOWN      = 13,
+    BD_VK_LEFT      = 14,
+    BD_VK_RIGHT     = 15,
+    BD_VK_ENTER     = 16,
 
+} bd_vk_key_e;
 
 #endif // _BD_KEYS_H_
