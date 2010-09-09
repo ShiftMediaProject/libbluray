@@ -153,29 +153,18 @@ static int _store_result(HDMV_VM *p, MOBJ_CMD *cmd, uint32_t src, uint32_t dst, 
 
 static uint32_t _fetch_operand(HDMV_VM *p, int setstream, int setbuttonpage, int imm, uint32_t value)
 {
-    if (setstream) {
+    if (imm) {
+        return value;
+    }
 
-        if (!imm) {
-            return _read_setstream_regs(p, value);
-        } else {
-            return value;
-        }
+    if (setstream) {
+        return _read_setstream_regs(p, value);
 
     } else if (setbuttonpage) {
-
-        if (!imm) {
-            return _read_setbuttonpage_reg(p, value);
-        } else {
-            return value;
-        }
+        return _read_setbuttonpage_reg(p, value);
 
     } else {
-
-        if (!imm) {
-            return _read_reg(p, value);
-        } else {
-            return value;
-        }
+        return _read_reg(p, value);
     }
 }
 
