@@ -117,6 +117,16 @@ static uint32_t _read_setstream_regs(HDMV_VM *p, uint32_t val)
     return flags | val0 | (val1 << 16);
 }
 
+static uint32_t _read_setbuttonpage_reg(HDMV_VM *p, uint32_t val)
+{
+    uint32_t flags = val & 0xc0000000;
+    uint32_t reg0  = val & 0x00000fff;
+
+    uint32_t val0  = bd_gpr_read(p->regs, reg0) & 0x3fffffff;
+
+    return flags | val0;
+}
+
 static int _store_result(HDMV_VM *p, MOBJ_CMD *cmd, uint32_t src, uint32_t dst, uint32_t src0, uint32_t dst0)
 {
     int ret = 0;
@@ -141,12 +151,20 @@ static int _store_result(HDMV_VM *p, MOBJ_CMD *cmd, uint32_t src, uint32_t dst, 
     return ret;
 }
 
-static uint32_t _fetch_operand(HDMV_VM *p, int setstream, int imm, uint32_t value)
+static uint32_t _fetch_operand(HDMV_VM *p, int setstream, int setbuttonpage, int imm, uint32_t value)
 {
     if (setstream) {
 
         if (!imm) {
             return _read_setstream_regs(p, value);
+        } else {
+            return value;
+        }
+
+    } else if (setbuttonpage) {
+
+        if (!imm) {
+            return _read_setbuttonpage_reg(p, value);
         } else {
             return value;
         }
@@ -169,15 +187,18 @@ static void _fetch_operands(HDMV_VM *p, MOBJ_CMD *cmd, uint32_t *dst, uint32_t *
                      insn->sub_grp == SET_SETSYSTEM  &&
                      (  insn->set_opt == INSN_SET_STREAM ||
                         insn->set_opt == INSN_SET_SEC_STREAM));
+    int setbuttonpage = (insn->grp     == INSN_GROUP_SET &&
+                         insn->sub_grp == SET_SETSYSTEM  &&
+                         insn->set_opt == INSN_SET_BUTTON_PAGE);
 
     *dst = *src = 0;
 
     if (insn->op_cnt > 0) {
-      *dst = _fetch_operand(p, setstream, insn->imm_op1, cmd->dst);
+        *dst = _fetch_operand(p, setstream, setbuttonpage, insn->imm_op1, cmd->dst);
     }
 
     if (insn->op_cnt > 1) {
-      *src = _fetch_operand(p, setstream, insn->imm_op2, cmd->src);
+        *src = _fetch_operand(p, setstream, setbuttonpage, insn->imm_op2, cmd->src);
     }
 }
 
@@ -488,13 +509,13 @@ static void _set_sec_stream(HDMV_VM *p, uint32_t dst, uint32_t src)
 static void _set_button_page(HDMV_VM *p, uint32_t dst, uint32_t src)
 {
     if (p->ig_object) {
-        uint32_t current_page = bd_psr_read(p->regs, PSR_MENU_PAGE_ID) & 0xff;
-        if (src & 0x80000000 && (src & 0xff) == current_page) {
-            /* page does not change --> no effect (8.8.4.6.5.3.4) */
-            return;
-        }
+        uint32_t param;
+        param =  (src & 0xc0000000) |        /* page and effects flags */
+                ((dst & 0x80000000) >> 2) |  /* button flag */
+                ((src & 0x000000ff) << 16) | /* page id */
+                 (dst & 0x0000ffff);         /* button id */
 
-        // TODO - need to know valid page/button ids from IG stream
+         _queue_event(p, HDMV_EVENT_SET_BUTTON_PAGE, param);
 
         return;
     }
