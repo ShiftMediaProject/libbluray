@@ -17,10 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "util.h"
-
 #include <stdio.h>
 #include <stdarg.h>
+
+#include "util.h"
 
 void
 hex_dump(uint8_t *buf, int count)
