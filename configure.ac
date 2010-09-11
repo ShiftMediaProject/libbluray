@@ -68,6 +68,12 @@ AC_ARG_ENABLE([optimizations],
   [use_optimizations=$enableval],
   [use_optimizations=yes])
 
+AC_ARG_ENABLE([examples],
+  [AS_HELP_STRING([--enable-examples],
+  [build examples (default is yes)])],
+  [use_examples=$enableval],
+  [use_examples=yes])
+
 AC_ARG_ENABLE([debug],
   [AS_HELP_STRING([--enable-debug],
   [enable debugging information (default is yes)])],
@@ -200,6 +206,9 @@ if [[ $use_debug = "yes" ]]; then
   check_cc_options -g && \
     SET_DEBUG_OPTS="$SET_DEBUG_OPTS -g"
 fi
+
+# use examples
+AM_CONDITIONAL([USING_EXAMPLES], [ test $use_examples = "yes" ])
 
 # use bdjava
 if [[ $use_bdjava = "yes" ]]; then

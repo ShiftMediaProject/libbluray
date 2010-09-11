@@ -8,6 +8,8 @@ AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_WARNINGS) $(SET_OPTIMIZATIONS) \
 	$(SET_DEBUG_OPTS) $(SET_INCLUDES)
 CFLAGS=$(shell test -z "$$CFLAGS" || echo "$$CFLAGS")
 
+if USING_EXAMPLES
+
 noinst_PROGRAMS=bdsplice mpls_dump clpi_dump index_dump mobj_dump sound_dump \
     libbluray_test list_titles hdmv_test
 
@@ -67,4 +69,6 @@ if USING_BDJAVA
 noinst_PROGRAMS+= bdj_test
 bdj_test_SOURCES = bdj_test.c
 bdj_test_LDADD = $(BLURAY_LIB)
+endif
+
 endif
