@@ -93,7 +93,7 @@ int main(int argc, const char *argv[])
             _sound_print(data);
         }
 
-        sound_free(data);
+        sound_free(&data);
     }
 
     return 0;
