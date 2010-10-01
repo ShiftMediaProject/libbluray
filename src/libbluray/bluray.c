@@ -55,7 +55,7 @@ typedef void*   (*fptr_p_void)();
 typedef struct bd_event_queue_s {
     unsigned in;  /* next free slot */
     unsigned out; /* next event */
-    BD_EVENT ev[MAX_EVENTS];
+    BD_EVENT ev[MAX_EVENTS+1];
 } BD_EVENT_QUEUE;
 
 typedef enum {
