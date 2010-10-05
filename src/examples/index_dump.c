@@ -119,7 +119,7 @@ int main(int argc, const char *argv[])
     if (index) {
         _indx_print(index);
 
-        indx_free(index);
+        indx_free(&index);
     }
 
     return 0;

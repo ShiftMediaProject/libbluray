@@ -519,10 +519,9 @@ void bd_close(BLURAY *bd)
         nav_title_close(bd->title);
     }
 
-    if (bd->hdmv_vm)
-        hdmv_vm_free(bd->hdmv_vm);
+    hdmv_vm_free(&bd->hdmv_vm);
 
-    indx_free(bd->index);
+    indx_free(&bd->index);
     bd_registers_free(bd->regs);
 
     X_FREE(bd->event_queue);
@@ -1361,8 +1360,7 @@ int bd_play(BLURAY *bd)
     bd->title_type = title_undef;
 
     if (bd->hdmv_vm) {
-        hdmv_vm_free(bd->hdmv_vm);
-        bd->hdmv_vm = NULL;
+        hdmv_vm_free(&bd->hdmv_vm);
         bd->hdmv_suspended = 1;
     }
 

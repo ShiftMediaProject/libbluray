@@ -76,7 +76,7 @@ int main(int argc, const char *argv[])
     if (mobj) {
         _mobj_print(mobj, disasm);
 
-        mobj_free(mobj);
+        mobj_free(&mobj);
     }
 
     return 0;
