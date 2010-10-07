@@ -900,6 +900,24 @@ int hdmv_vm_get_event(HDMV_VM *p, HDMV_EVENT *ev)
     return _get_event(p, ev);
 }
 
+int hdmv_vm_running(HDMV_VM *p)
+{
+    return !!p->object;
+}
+
+int hdmv_vm_resume(HDMV_VM *p)
+{
+    return _resume_object(p);
+}
+
+int hdmv_vm_suspend(HDMV_VM *p)
+{
+    if (p->object && !p-ig_object) {
+        return _suspend_object(p);
+    }
+    return -1;
+}
+
 /* terminate program after MAX_LOOP instructions */
 #define MAX_LOOP 1000000
 
