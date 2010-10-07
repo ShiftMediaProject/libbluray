@@ -382,6 +382,16 @@ typedef enum {
     BLURAY_PLAYER_SETTING_PLAYER_PROFILE = 31,  /* Profile1: 0, Profile1+: 1, Profile2: 3, Profile3: 8 */
 } bd_player_setting;
 
+/**
+ *
+ *  Update player setting registers
+ *
+ * @param bd  BLURAY object
+ * @param idx Player setting register
+ * @param value New value for player setting register
+ * @return 1 on success, 0 on error (invalid setting)
+ */
+
 int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value);
 int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s);
 
