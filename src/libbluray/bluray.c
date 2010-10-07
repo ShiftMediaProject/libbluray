@@ -1146,7 +1146,7 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
             return bd_set_player_setting(bd, idx, s ? _string_to_uint(s, 3) : 0xffffff);
 
         case BLURAY_PLAYER_SETTING_COUNTRY_CODE:
-            return bd_set_player_setting(bd, idx, s ? _string_to_uint(s, 3) : 0xffff  );
+            return bd_set_player_setting(bd, idx, s ? _string_to_uint(s, 2) : 0xffff  );
 
         default:
             return 0;
