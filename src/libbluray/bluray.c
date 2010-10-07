@@ -1117,7 +1117,7 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
 
     for (i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
         if (idx == map[i].idx) {
-            return bd_psr_setting_write(bd->regs, idx, value);
+            return !bd_psr_setting_write(bd->regs, idx, value);
         }
     }
 
