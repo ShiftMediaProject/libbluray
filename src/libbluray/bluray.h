@@ -369,16 +369,18 @@ uint64_t bd_tell_time(BLURAY *bd);
  * player settings
  */
 
-#define BLURAY_PLAYER_SETTING_PARENTAL       13  /* Age for parental control (years) */
-#define BLURAY_PLAYER_SETTING_AUDIO_CAP      15  /* Player capability for audio (bit mask) */
-#define BLURAY_PLAYER_SETTING_AUDIO_LANG     16  /* Initial audio language: ISO 639-2 string, ex. "eng" */
-#define BLURAY_PLAYER_SETTING_PG_LANG        17  /* Initial PG/SPU language: ISO 639-2 string, ex. "eng" */
-#define BLURAY_PLAYER_SETTING_MENU_LANG      18  /* Initial menu language: ISO 639-2 string, ex. "eng" */
-#define BLURAY_PLAYER_SETTING_COUNTRY_CODE   19  /* Player country code: ISO 3166-1 string, ex. "de" */
-#define BLURAY_PLAYER_SETTING_REGION_CODE    20  /* Player region code: 1 - region A, 2 - B, 4 - C */
-#define BLURAY_PLAYER_SETTING_VIDEO_CAP      29  /* Player capability for video (bit mask) */
-#define BLURAY_PLAYER_SETTING_TEXT_CAP       30  /* Player capability for text subtitle (bit mask) */
-#define BLURAY_PLAYER_SETTING_PLAYER_PROFILE 31  /* Profile1: 0, Profile1+: 1, Profile2: 3, Profile3: 8 */
+typedef enum {
+    BLURAY_PLAYER_SETTING_PARENTAL       = 13,  /* Age for parental control (years) */
+    BLURAY_PLAYER_SETTING_AUDIO_CAP      = 15,  /* Player capability for audio (bit mask) */
+    BLURAY_PLAYER_SETTING_AUDIO_LANG     = 16,  /* Initial audio language: ISO 639-2 string, ex. "eng" */
+    BLURAY_PLAYER_SETTING_PG_LANG        = 17,  /* Initial PG/SPU language: ISO 639-2 string, ex. "eng" */
+    BLURAY_PLAYER_SETTING_MENU_LANG      = 18,  /* Initial menu language: ISO 639-2 string, ex. "eng" */
+    BLURAY_PLAYER_SETTING_COUNTRY_CODE   = 19,  /* Player country code: ISO 3166-1 string, ex. "de" */
+    BLURAY_PLAYER_SETTING_REGION_CODE    = 20,  /* Player region code: 1 - region A, 2 - B, 4 - C */
+    BLURAY_PLAYER_SETTING_VIDEO_CAP      = 29,  /* Player capability for video (bit mask) */
+    BLURAY_PLAYER_SETTING_TEXT_CAP       = 30,  /* Player capability for text subtitle (bit mask) */
+    BLURAY_PLAYER_SETTING_PLAYER_PROFILE = 31,  /* Profile1: 0, Profile1+: 1, Profile2: 3, Profile3: 8 */
+} bd_player_setting;
 
 int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value);
 int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s);
