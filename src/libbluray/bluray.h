@@ -429,8 +429,8 @@ typedef enum {
 } bd_event_e;
 
 typedef struct {
-  uint32_t   event;  /* bd_event_e */
-  uint32_t   param;
+    uint32_t   event;  /* bd_event_e */
+    uint32_t   param;
 } BD_EVENT;
 
 int  bd_play(BLURAY *bd); /* start playing disc in navigation mode */
