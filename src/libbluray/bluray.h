@@ -420,10 +420,12 @@ typedef enum {
     BD_EVENT_AUDIO_STREAM,           /* 1..32,  0xff  = none */
     BD_EVENT_IG_STREAM,              /* 1..32                */
     BD_EVENT_PG_TEXTST_STREAM,       /* 1..255, 0xfff = none */
+    BD_EVENT_PIP_PG_TEXTST_STREAM,   /* 1..255, 0xfff = none */
     BD_EVENT_SECONDARY_AUDIO_STREAM, /* 1..32,  0xff  = none */
     BD_EVENT_SECONDARY_VIDEO_STREAM, /* 1..32,  0xff  = none */
 
     BD_EVENT_PG_TEXTST,              /* 0 - disable, 1 - enable */
+    BD_EVENT_PIP_PG_TEXTST,          /* 0 - disable, 1 - enable */
     BD_EVENT_SECONDARY_AUDIO,        /* 0 - disable, 1 - enable */
     BD_EVENT_SECONDARY_VIDEO,        /* 0 - disable, 1 - enable */
     BD_EVENT_SECONDARY_VIDEO_SIZE,   /* 0 - PIP, 0xf - fullscreen */
