@@ -912,8 +912,9 @@ int hdmv_vm_resume(HDMV_VM *p)
 
 int hdmv_vm_suspend(HDMV_VM *p)
 {
-    if (p->object && !p-ig_object) {
-        return _suspend_object(p);
+    if (p->object && !p->ig_object) {
+        _suspend_object(p);
+        return 0;
     }
     return -1;
 }
