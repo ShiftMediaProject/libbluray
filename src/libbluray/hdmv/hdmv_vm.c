@@ -855,7 +855,7 @@ int hdmv_vm_select_object(HDMV_VM *p, int object)
 {
     if (object >= 0) {
         if (object >= p->movie_objects->num_objects) {
-            DEBUG(DBG_HDMV|DBG_CRIT, "hdmv_vm_select_program(): invalid object reference (%d) !\n", object);
+            DEBUG(DBG_HDMV|DBG_CRIT, "hdmv_vm_select_object(): invalid object reference (%d) !\n", object);
             return -1;
         }
         p->pc     = 0;
