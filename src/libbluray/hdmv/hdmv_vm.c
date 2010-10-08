@@ -279,6 +279,7 @@ static void _suspend_object(HDMV_VM *p)
     p->suspended_object = p->object;
     p->suspended_pc     = p->pc;
 
+    p->object = NULL;
 }
 
 static int _resume_object(HDMV_VM *p)
