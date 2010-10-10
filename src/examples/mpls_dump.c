@@ -531,8 +531,8 @@ _usage(char *cmd)
 static int
 _qsort_str_cmp(const void *a, const void *b)
 {
-    const char *stra = (const char *)a;
-    const char *strb = (const char *)b;
+    const char *stra = *(char * const *)a;
+    const char *strb = *(char * const *)b;
 
     return strcmp(stra, strb);
 }
