@@ -222,21 +222,21 @@ void bd_psr_register_cb  (BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*)
 
 void bd_psr_unregister_cb(BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*), void *cb_handle)
 {
-        unsigned i = 0;
+    unsigned i = 0;
 
-        bd_psr_lock(p);
+    bd_psr_lock(p);
 
-        while (i < p->num_cb) {
-            if (p->cb[i].handle == cb_handle && p->cb[i].cb == callback) {
-                if (--p->num_cb) {
-                    memmove(p->cb + i, p->cb + i + 1, sizeof(PSR_CB_DATA) * p->num_cb);
-                    continue;
-                }
+    while (i < p->num_cb) {
+        if (p->cb[i].handle == cb_handle && p->cb[i].cb == callback) {
+            if (--p->num_cb) {
+                memmove(p->cb + i, p->cb + i + 1, sizeof(PSR_CB_DATA) * p->num_cb);
+                continue;
             }
-            i++;
         }
+        i++;
+    }
 
-        bd_psr_unlock(p);
+    bd_psr_unlock(p);
 }
 
 /*
