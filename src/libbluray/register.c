@@ -146,7 +146,7 @@ struct bd_registers_s
     uint32_t     gpr[BD_GPR_COUNT];
 
     /* callbacks */
-    int          num_cb;
+    unsigned     num_cb;
     PSR_CB_DATA *cb;
 
     BD_MUTEX     mutex;
@@ -199,7 +199,7 @@ void bd_psr_unlock(BD_REGISTERS *p)
 void bd_psr_register_cb  (BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*), void *cb_handle)
 {
     /* no duplicates ! */
-    int i;
+    unsigned i;
 
     bd_psr_lock(p);
 
@@ -222,8 +222,7 @@ void bd_psr_register_cb  (BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*)
 
 void bd_psr_unregister_cb(BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*), void *cb_handle)
 {
-    if (p->cb) {
-        int i = 0;
+        unsigned i = 0;
 
         bd_psr_lock(p);
 
@@ -238,7 +237,6 @@ void bd_psr_unregister_cb(BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*)
         }
 
         bd_psr_unlock(p);
-    }
 }
 
 /*
@@ -263,7 +261,7 @@ void bd_psr_restore_state(BD_REGISTERS *p)
 
     bd_psr_lock(p);
 
-    if (p->cb)
+    if (p->num_cb)
         memcpy(old_psr, p->psr, sizeof(old_psr));
 
     /* restore backup registers */
@@ -275,14 +273,15 @@ void bd_psr_restore_state(BD_REGISTERS *p)
     memcpy(p->psr + 42, bd_psr_init + 42, sizeof(uint32_t) * 3);
 
     /* generate restore events */
-    if (p->cb) {
-        int i;
+    if (p->num_cb) {
+        BD_PSR_EVENT ev;
+        unsigned     i, j;
+
+        ev.ev_type = BD_PSR_RESTORE;
+
         for (i = 4; i < 13; i++) {
             if (i != 9 && old_psr[i] != p->psr[i]) {
-                BD_PSR_EVENT ev;
-                int j;
 
-                ev.ev_type = BD_PSR_RESTORE;
                 ev.psr_idx = i;
                 ev.old_val = old_psr[i];
                 ev.new_val = p->psr[i];
@@ -366,7 +365,7 @@ int bd_psr_setting_write(BD_REGISTERS *p, int reg, uint32_t val)
 
     if (p->num_cb) {
         BD_PSR_EVENT ev;
-        int i;
+        unsigned i;
 
         ev.ev_type = BD_PSR_CHANGE;
         ev.psr_idx = reg;
