@@ -287,8 +287,8 @@ void bd_psr_restore_state(BD_REGISTERS *p)
                 ev.old_val = old_psr[i];
                 ev.new_val = p->psr[i];
 
-                for (j = 0; j < p->num_cb; i++) {
-                    p->cb[i].cb(p->cb[i].handle, &ev);
+                for (j = 0; j < p->num_cb; j++) {
+                    p->cb[j].cb(p->cb[j].handle, &ev);
                 }
             }
         }
