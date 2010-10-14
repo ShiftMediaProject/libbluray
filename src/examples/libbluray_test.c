@@ -72,7 +72,8 @@ int main(int argc, char *argv[])
         while (1) {
             int len = bd_read(bd, buf, 6144);
             if (len <= 0) break;
-            fwrite(buf, len, 1, fd);
+            if (fwrite(buf, len, 1, fd) < 1)
+              break;
             if (!(ii % 1000)) {
                 DEBUG(DBG_BLURAY,
                       "%d\r", ii);
