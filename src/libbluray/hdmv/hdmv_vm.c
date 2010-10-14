@@ -295,7 +295,7 @@ static int _resume_object(HDMV_VM *p)
     }
 
     p->object = p->suspended_object;
-    p->pc     = p->suspended_pc;
+    p->pc     = p->suspended_pc + 1;
 
     bd_psr_restore_state(p->regs);
 
