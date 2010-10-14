@@ -390,6 +390,9 @@ static int _play_at(HDMV_VM *p, int playlist, int playitem, int playmark)
         return -1;
     }
 
+    DEBUG(DBG_HDMV, "play_at(list %d, item %d, mark %d)\n",
+          playlist, playitem, playmark);
+
     if (playlist >= 0) {
         _queue_event(p, HDMV_EVENT_PLAY_PL, playlist);
     }
@@ -401,9 +404,6 @@ static int _play_at(HDMV_VM *p, int playlist, int playitem, int playmark)
     if (playmark >= 0) {
         _queue_event(p, HDMV_EVENT_PLAY_PM, playmark);
     }
-
-    DEBUG(DBG_HDMV, "play_at(list %d, item %d, mark %d)\n",
-          playlist, playitem, playmark);
 
     return 0;
 }
