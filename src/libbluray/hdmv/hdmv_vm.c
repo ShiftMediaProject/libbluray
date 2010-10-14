@@ -965,6 +965,11 @@ int hdmv_vm_run(HDMV_VM *p, HDMV_EVENT *ev)
             DEBUG(DBG_HDMV, "terminated with PC=%d\n", p->pc);
             p->object = NULL;
             ev->event = HDMV_EVENT_END;
+
+            if (p->ig_object) {
+                ev->event = HDMV_EVENT_IG_END;
+            }
+
             return 0;
         }
 
