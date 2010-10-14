@@ -270,14 +270,15 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
 }
 
 static void _render_page(GRAPHICS_CONTROLLER *gc,
-                         unsigned page_id,
-                         unsigned selected_button_id, unsigned activated_button_id,
+                         unsigned activated_button_id,
                          GC_NAV_CMDS *cmds)
 {
     PG_DISPLAY_SET *s       = gc->igs;
     BD_IG_PAGE     *page    = NULL;
     BD_PG_PALETTE  *palette = NULL;
-    unsigned       ii;
+    unsigned        page_id = bd_psr_read(gc->regs, PSR_MENU_PAGE_ID);
+    unsigned        ii;
+    unsigned        selected_button_id = bd_psr_read(gc->regs, PSR_SELECTED_BUTTON_ID);
 
     if (s->ics->interactive_composition.ui_model == 1 && !gc->popup_visible) {
         TRACE("_render_page(): popup menu not visible\n");
@@ -414,7 +415,7 @@ static void _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *c
 
         bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, new_btn_id);
 
-        _render_page(gc, page_id, new_btn_id, activated_btn_id, cmds);
+        _render_page(gc, activated_btn_id, cmds);
     }
 }
 
@@ -492,7 +493,7 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
 
     gc->ig_drawn = 0;
 
-    _render_page(gc, page_id, button_id, -1, cmds);
+    _render_page(gc, 0xffff, cmds);
 }
 
 void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS *cmds)
@@ -532,8 +533,6 @@ void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS
 
         case GC_CTRL_NOP:
             _render_page(gc,
-                         bd_psr_read(gc->regs, PSR_MENU_PAGE_ID),
-                         bd_psr_read(gc->regs, PSR_SELECTED_BUTTON_ID),
                          0xffff,
                          cmds);
             break;
