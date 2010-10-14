@@ -246,16 +246,21 @@ HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs)
     return  p;
 }
 
+static void _free_ig_object(HDMV_VM *p)
+{
+    if (p->ig_object) {
+        X_FREE(p->ig_object->cmds);
+        X_FREE(p->ig_object);
+    }
+}
+
 void hdmv_vm_free(HDMV_VM **p)
 {
     if (p && *p) {
 
-      mobj_free(&(*p)->movie_objects);
+        mobj_free(&(*p)->movie_objects);
 
-        if ((*p)->ig_object) {
-            X_FREE((*p)->ig_object->cmds);
-            X_FREE((*p)->ig_object);
-        }
+        _free_ig_object(*p);
 
         X_FREE(*p);
     }
@@ -889,10 +894,7 @@ int hdmv_vm_set_object(HDMV_VM *p, int num_nav_cmds, void *nav_cmds)
 {
     p->object = NULL;
 
-    if (p->ig_object) {
-        X_FREE(p->ig_object->cmds);
-        X_FREE(p->ig_object);
-    }
+    _free_ig_object(p);
 
     if (nav_cmds && num_nav_cmds > 0) {
         MOBJ_OBJECT *ig_object = calloc(1, sizeof(MOBJ_OBJECT));
