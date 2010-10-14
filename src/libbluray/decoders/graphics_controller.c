@@ -72,21 +72,43 @@ GRAPHICS_CONTROLLER *gc_init(BD_REGISTERS *regs, void *handle, gc_overlay_proc_f
     return p;
 }
 
+static void _gc_clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
+{
+    if (gc->overlay_proc) {
+        /* clear plane */
+        BD_OVERLAY ov = { -1, plane, 0, 0, 1920, 1080, NULL, NULL };
+        gc->overlay_proc(gc->overlay_proc_handle, &ov);
+    }
+
+    if (plane) {
+        gc->ig_drawn      = 0;
+        gc->popup_visible = 0;
+    } else {
+        gc->pg_drawn      = 0;
+    }
+}
+
+static void _gc_reset(GRAPHICS_CONTROLLER *gc)
+{
+    _gc_clear_osd(gc, 0);
+    _gc_clear_osd(gc, 1);
+
+    graphics_processor_free(&gc->igp);
+    graphics_processor_free(&gc->pgp);
+
+    pg_display_set_free(&gc->pgs);
+    pg_display_set_free(&gc->igs);
+}
+
 void gc_free(GRAPHICS_CONTROLLER **p)
 {
     if (p && *p) {
 
-        GRAPHICS_CONTROLLER *gc = *p;
+        _gc_reset(*p);
 
-        if (gc->overlay_proc) {
-            gc->overlay_proc((*p)->overlay_proc_handle, NULL);
+        if ((*p)->overlay_proc) {
+            (*p)->overlay_proc((*p)->overlay_proc_handle, NULL);
         }
-
-        graphics_processor_free(&gc->igp);
-        graphics_processor_free(&gc->pgp);
-
-        pg_display_set_free(&gc->pgs);
-        pg_display_set_free(&gc->igs);
 
         X_FREE(*p);
     }
@@ -260,11 +282,7 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
     if (s->ics->interactive_composition.ui_model == 1 && !gc->popup_visible) {
         TRACE("_render_page(): popup menu not visible\n");
 
-        if (gc->overlay_proc) {
-            /* clear IG plane */
-            BD_OVERLAY ov = { -1, 1, 0, 0, 1920, 1080, NULL, NULL };
-            gc->overlay_proc(gc->overlay_proc_handle, &ov);
-        }
+        _gc_clear_osd(gc, 1);
 
         return;
     }
