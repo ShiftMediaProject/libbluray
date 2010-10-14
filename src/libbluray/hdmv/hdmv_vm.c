@@ -371,6 +371,20 @@ static int _call_title(HDMV_VM *p, int title)
 
 static int _play_at(HDMV_VM *p, int playlist, int playitem, int playmark)
 {
+    if (p->ig_object && playlist >= 0) {
+        DEBUG(DBG_HDMV, "play_at(list %d, item %d, mark %d): "
+              "playlist change not allowed in interactive composition\n",
+              playlist, playitem, playmark);
+        return -1;
+    }
+
+    if (!p->ig_object && playlist < 0) {
+        DEBUG(DBG_HDMV, "play_at(list %d, item %d, mark %d): "
+              "playlist not given in movie object (link commands not allowed)\n",
+              playlist, playitem, playmark);
+        return -1;
+    }
+
     if (playlist >= 0) {
         _queue_event(p, HDMV_EVENT_PLAY_PL, playlist);
     }
@@ -383,7 +397,7 @@ static int _play_at(HDMV_VM *p, int playlist, int playitem, int playmark)
         _queue_event(p, HDMV_EVENT_PLAY_PM, playmark);
     }
 
-    DEBUG(DBG_HDMV, "play_at: list %d, item %d, mark %d\n",
+    DEBUG(DBG_HDMV, "play_at(list %d, item %d, mark %d)\n",
           playlist, playitem, playmark);
 
     return 0;
@@ -391,6 +405,11 @@ static int _play_at(HDMV_VM *p, int playlist, int playitem, int playmark)
 
 static int _play_stop(HDMV_VM *p)
 {
+    if (!p->ig_object) {
+        DEBUG(DBG_HDMV, "_play_stop() not allowed in movie object\n");
+        return -1;
+    }
+
     DEBUG(DBG_HDMV, "_play_stop()\n");
     _queue_event(p, HDMV_EVENT_PLAY_STOP, 0);
     return 0;
