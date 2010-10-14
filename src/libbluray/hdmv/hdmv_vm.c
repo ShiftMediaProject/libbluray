@@ -883,6 +883,9 @@ int hdmv_vm_select_object(HDMV_VM *p, int object)
             DEBUG(DBG_HDMV|DBG_CRIT, "hdmv_vm_select_object(): invalid object reference (%d) !\n", object);
             return -1;
         }
+
+        _free_ig_object(p);
+
         p->pc     = 0;
         p->object = &p->movie_objects->objects[object];
     }
@@ -968,6 +971,7 @@ int hdmv_vm_run(HDMV_VM *p, HDMV_EVENT *ev)
 
             if (p->ig_object) {
                 ev->event = HDMV_EVENT_IG_END;
+                _free_ig_object(p);
             }
 
             return 0;
