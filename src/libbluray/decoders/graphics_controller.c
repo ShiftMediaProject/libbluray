@@ -257,11 +257,6 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
     BD_PG_PALETTE  *palette = NULL;
     unsigned       ii;
 
-    if (!s || !s->ics) {
-        ERROR("_render_page(): no interactive composition\n");
-        return;
-    }
-
     if (s->ics->interactive_composition.ui_model == 1 && !gc->popup_visible) {
         TRACE("_render_page(): popup menu not visible\n");
 
@@ -340,10 +335,6 @@ static void _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *c
     unsigned        ii;
     int             activated_btn_id = -1;
 
-    if (!s || !s->ics) {
-        ERROR("_user_input(): no interactive composition\n");
-        return;
-    }
     if (s->ics->interactive_composition.ui_model == 1 && !gc->popup_visible) {
         TRACE("_user_input(): popup menu not visible\n");
         return;
@@ -424,11 +415,6 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
     TRACE("_set_button_page(0x%08x): page flag %d, id %d, effects %d   button flag %d, id %d",
           param, !!page_flag, page_id, !!effect_flag, !!button_flag, button_id);
 
-    if (!s || !s->ics) {
-        ERROR("_set_button_page(): no interactive composition\n");
-        return;
-    }
-
     /* 10.4.3.4 (D) */
 
     if (!page_flag && !button_flag) {
@@ -496,6 +482,11 @@ void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS
     cmds->num_nav_cmds = 0;
     cmds->nav_cmds     = NULL;
     cmds->sound_id_ref = -1;
+
+    if (!gc || !gc->igs || !gc->igs->ics) {
+        ERROR("gc_run(): no interactive composition\n");
+        return;
+    }
 
     switch (ctrl) {
 
