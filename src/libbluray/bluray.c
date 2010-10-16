@@ -78,6 +78,12 @@ typedef struct {
 
 } BD_STREAM;
 
+typedef struct {
+    NAV_CLIP *clip;
+    uint64_t  clip_size;
+    uint8_t  *buf;
+} BD_PRELOAD;
+
 struct bluray {
 
     /* current disc */
@@ -92,6 +98,7 @@ struct bluray {
 
     /* streams */
     BD_STREAM      st0; /* main path */
+    BD_PRELOAD     st_ig; /* preloaded IG stream sub path */
 
     /* buffer for bd_read(): current aligned unit of main stream (st0) */
     uint8_t        int_buf[6144];
@@ -312,6 +319,58 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
     return 0;
 }
 
+/*
+ * clip preload (BD_PRELOAD)
+ */
+
+static void _close_preload(BD_PRELOAD *p)
+{
+    X_FREE(p->buf);
+    memset(p, 0, sizeof(*p));
+}
+
+static int _preload_m2ts(BLURAY *bd, BD_PRELOAD *p)
+{
+    /* setup and open BD_STREAM */
+
+    BD_STREAM st;
+
+    memset(&st, 0, sizeof(st));
+    st.clip = p->clip;
+
+    if (!_open_m2ts(bd, &st)) {
+        return 0;
+    }
+
+    /* allocate buffer */
+    p->clip_size = st.clip_size;
+    p->buf       = realloc(p->buf, p->clip_size);
+
+    /* read clip to buffer */
+
+    uint8_t *buf = p->buf;
+    uint8_t *end = p->buf + p->clip_size;
+
+    for (; buf < end; buf += 6144) {
+        if (!_read_block(bd, &st, buf)) {
+            DEBUG(DBG_BLURAY|DBG_CRIT, "_preload_m2ts(): error loading %s at %"PRIu64"\n",
+                  st.clip->name, (uint64_t)(buf - p->buf));
+            _close_m2ts(&st);
+            _close_preload(p);
+            return 0;
+        }
+    }
+
+    /* */
+
+    DEBUG(DBG_BLURAY, "_preload_m2ts(): loaded %"PRIu64" bytes from %s\n",
+          st.clip_size, st.clip->name);
+
+    _close_m2ts(&st);
+
+    return 1;
+}
+
 static int64_t _seek_stream(BLURAY *bd, BD_STREAM *st,
                             NAV_CLIP *clip, uint32_t clip_pkt)
 {
@@ -515,6 +574,7 @@ void bd_close(BLURAY *bd)
     _libbdplus_close(bd);
 
     _close_m2ts(&bd->st0);
+    _close_preload(&bd->st_ig);
 
     if (bd->title_list != NULL) {
         nav_free_title_list(bd->title_list);
@@ -808,12 +868,74 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
 }
 
 /*
+ * preloader for asynchronous sub paths
+ */
+
+static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx)
+{
+    MPLS_PI  *pi        = &bd->title->pl->play_item[0];
+    unsigned  ig_stream = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
+    unsigned  ii;
+
+    for (ii = 0; ii < pi->stn.num_ig; ii++) {
+        if (ii + 1 == ig_stream) {
+            if (pi->stn.ig[ii].stream_type == 2) {
+                *sub_path_idx = pi->stn.ig[ii].subpath_id;
+            }
+            *pid = pi->stn.ig[ii].pid;
+
+            DEBUG(DBG_BLURAY, "_find_ig_stream(): current IG stream pid 0x%04x sub-path %d\n",
+                  *pid, *sub_path_idx);
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static int _preload_ig_subpath(BLURAY *bd)
+{
+    int      ig_subpath = -1;
+    uint16_t ig_pid     = 0;
+
+    _find_ig_stream(bd, &ig_pid, &ig_subpath);
+
+    if (!bd->graphics_controller) {
+        return 0;
+    }
+
+    if (ig_subpath < 0) {
+        return 0;
+    }
+
+    bd->st_ig.clip = &bd->title->sub_path[ig_subpath].clip_list.clip[0];
+
+    if (!_preload_m2ts(bd, &bd->st_ig)) {
+        return 0;
+    }
+
+    gc_decode_ts(bd->graphics_controller, ig_pid, bd->st_ig.buf, bd->st_ig.clip_size / 6144, -1);
+
+    return 1;
+}
+
+static int _preload_subpaths(BLURAY *bd)
+{
+    if (bd->title->pl->sub_count <= 0) {
+        return 0;
+    }
+
+    return _preload_ig_subpath(bd);
+}
+
+/*
  * select title / angle
  */
 
 static void _close_playlist(BLURAY *bd)
 {
     _close_m2ts(&bd->st0);
+    _close_preload(&bd->st_ig);
 
     if (bd->title) {
         nav_title_close(bd->title);
@@ -845,6 +967,9 @@ static int _open_playlist(BLURAY *bd, const char *f_name)
     bd->st0.clip = nav_next_clip(bd->title, NULL);
     if (_open_m2ts(bd, &bd->st0)) {
         DEBUG(DBG_BLURAY, "Title %s selected! (%p)\n", f_name, bd);
+
+        _preload_subpaths(bd);
+
         return 1;
     }
     return 0;
