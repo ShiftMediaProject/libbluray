@@ -259,7 +259,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
     const int len = 6144;
 
     if (st->fp) {
-        DEBUG(DBG_BLURAY, "Reading unit [%d bytes] at %"PRIu64"... (%p)\n",
+        DEBUG(DBG_STREAM, "Reading unit [%d bytes] at %"PRIu64"... (%p)\n",
               len, st->clip_block_pos, bd);
 
         if (len + st->clip_block_pos <= st->clip_size) {
@@ -267,11 +267,11 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 
             if ((read_len = file_read(st->fp, buf, len))) {
                 if (read_len != len)
-                    DEBUG(DBG_BLURAY | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d ! (%p)\n", read_len, st->clip_block_pos, len, bd);
+                    DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d ! (%p)\n", read_len, st->clip_block_pos, len, bd);
 
                 if (bd->libaacs_decrypt_unit) {
                     if (!bd->libaacs_decrypt_unit(bd->aacs, buf)) {
-                        DEBUG(DBG_BLURAY, "Unable decrypt unit! (%p)\n", bd);
+                        DEBUG(DBG_AACS | DBG_CRIT, "Unable decrypt unit! (%p)\n", bd);
 
                         return 0;
                     } // decrypt
@@ -292,17 +292,17 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 
                 }
 
-                DEBUG(DBG_BLURAY, "Read unit OK! (%p)\n", bd);
+                DEBUG(DBG_STREAM, "Read unit OK! (%p)\n", bd);
 
                 return 1;
             }
 
-            DEBUG(DBG_BLURAY | DBG_CRIT, "Read %d bytes at %"PRIu64" failed ! (%p)\n", len, st->clip_block_pos, bd);
+            DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" failed ! (%p)\n", len, st->clip_block_pos, bd);
 
             return 0;
         }
 
-        DEBUG(DBG_BLURAY | DBG_CRIT, "Read past EOF ! (%p)\n", bd);
+        DEBUG(DBG_STREAM | DBG_CRIT, "Read past EOF ! (%p)\n", bd);
 
         return 0;
     }
@@ -721,7 +721,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
 
     if (st->fp) {
         out_len = 0;
-        DEBUG(DBG_BLURAY, "Reading [%d bytes] at %"PRIu64"... (%p)\n", len, bd->s_pos, bd);
+        DEBUG(DBG_STREAM, "Reading [%d bytes] at %"PRIu64"... (%p)\n", len, bd->s_pos, bd);
 
         while (len > 0) {
             uint32_t clip_pkt;
@@ -763,7 +763,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                 if (clip_pkt >= st->clip->end_pkt) {
                     st->clip = nav_next_clip(bd->title, st->clip);
                     if (st->clip == NULL) {
-                        DEBUG(DBG_BLURAY, "End of title (%p)\n", bd);
+                        DEBUG(DBG_BLURAY|DBG_STREAM, "End of title (%p)\n", bd);
                         return out_len;
                     }
                     if (!_open_m2ts(bd, st)) {
@@ -797,12 +797,12 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
             bd_psr_write(bd->regs, PSR_CHAPTER, current_chapter + 1);
         }
 
-        DEBUG(DBG_BLURAY, "%d bytes read OK! (%p)\n", out_len, bd);
+        DEBUG(DBG_STREAM, "%d bytes read OK! (%p)\n", out_len, bd);
 
         return out_len;
     }
 
-    DEBUG(DBG_BLURAY, "No valid title selected! (%p)\n", bd);
+    DEBUG(DBG_STREAM | DBG_CRIT, "bd_read(): no valid title selected! (%p)\n", bd);
 
     return -1;
 }
