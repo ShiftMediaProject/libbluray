@@ -51,8 +51,8 @@ typedef void (*BD_LOG_FUNC)(const char *);
 
 void bd_set_debug_handler(BD_LOG_FUNC);
 
-void bd_set_debug_mask(debug_mask_t mask);
-debug_mask_t bd_get_debug_mask(void);
+void bd_set_debug_mask(uint32_t mask);
+uint32_t bd_get_debug_mask(void);
 
 
 #endif /* BD_LOG_CONTROL_H_ */
