@@ -1584,6 +1584,12 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             _queue_event(bd, (BD_EVENT){BD_EVENT_POPUP_OFF, 0});
             _run_gc(bd, GC_CTRL_POPUP, 0);
             break;
+
+        case HDMV_EVENT_IG_END:
+            DEBUG(DBG_BLURAY|DBG_CRIT, "HDMV_EVENT_IG_END\n");
+            _run_gc(bd, GC_CTRL_IG_END, 0);
+            break;
+
         case HDMV_EVENT_END:
         case HDMV_EVENT_NONE:
         default:
