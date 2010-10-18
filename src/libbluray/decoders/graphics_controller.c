@@ -365,6 +365,7 @@ static void _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *c
     if (!page) {
         ERROR("_user_input(): unknown page id %d (have %d pages)\n",
               page_id, s->ics->interactive_composition.num_pages);
+        return;
     }
 
     for (ii = 0; ii < page->num_bogs; ii++) {
