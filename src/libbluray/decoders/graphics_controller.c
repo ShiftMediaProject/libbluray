@@ -535,9 +535,15 @@ void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS
             /* fall thru */
 
         case GC_CTRL_NOP:
-            _render_page(gc,
-                         0xffff,
-                         cmds);
+            _render_page(gc, 0xffff, cmds);
+            break;
+
+        case GC_CTRL_RESET:
+            _gc_reset(gc);
+            break;
+
+        case GC_CTRL_IG_END:
+            _render_page(gc, 0xffff, cmds);
             break;
 
         case GC_CTRL_ENABLE_BUTTON:
