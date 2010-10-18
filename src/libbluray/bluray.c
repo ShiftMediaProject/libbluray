@@ -478,7 +478,7 @@ static void _libbdplus_close(BLURAY *bd)
     bd->bdplus_fixup = NULL;
 }
 
-static void _libbdplus_open(BLURAY *bd, const char *keyfile_path)
+static int _libbdplus_open(BLURAY *bd, const char *keyfile_path)
 {
     _libbdplus_close(bd);
 
@@ -525,6 +525,8 @@ static void _libbdplus_open(BLURAY *bd, const char *keyfile_path)
 #endif
     } // file_open
     X_FREE(tmp);
+
+    return !!bd->bdplus;
 }
 
 static int _index_open(BLURAY *bd)
