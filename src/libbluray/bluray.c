@@ -529,11 +529,13 @@ static void _libbdplus_open(BLURAY *bd, const char *keyfile_path)
 
 static int _index_open(BLURAY *bd)
 {
-    char *file;
+    if (!bd->index) {
+        char *file;
 
-    file = str_printf("%s/BDMV/index.bdmv", bd->device_path);
-    bd->index = indx_parse(file);
-    X_FREE(file);
+        file = str_printf("%s/BDMV/index.bdmv", bd->device_path);
+        bd->index = indx_parse(file);
+        X_FREE(file);
+    }
 
     return !!bd->index;
 }
