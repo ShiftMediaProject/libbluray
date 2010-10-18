@@ -936,6 +936,10 @@ static int _preload_subpaths(BLURAY *bd)
 
 static void _close_playlist(BLURAY *bd)
 {
+    if (bd->graphics_controller) {
+        gc_run(bd->graphics_controller, GC_CTRL_RESET, 0, NULL);
+    }
+
     _close_m2ts(&bd->st0);
     _close_preload(&bd->st_ig);
 
