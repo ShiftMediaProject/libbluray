@@ -416,9 +416,34 @@ static void _libaacs_close(BLURAY *bd)
     bd->libaacs_decrypt_unit = NULL;
 }
 
+static int _libaacs_required(BLURAY *bd)
+{
+    BD_FILE_H *fd;
+    char      *tmp;
+
+    tmp = str_printf("%s/AACS/Unit_Key_RO.inf", bd->device_path);
+    fd = file_open(tmp, "rb");
+    X_FREE(tmp);
+
+    if (fd) {
+        file_close(fd);
+
+        DEBUG(DBG_BLURAY, "AACS/Unit_Key_RO.inf found. Disc seems to be AACS protected (%p)\n", bd);
+        return 1;
+    }
+
+    DEBUG(DBG_BLURAY, "AACS/Unit_Key_RO.inf not found. No AACS protection (%p)\n", bd);
+    return 0;
+}
+
 static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
 {
     _libaacs_close(bd);
+
+    if (!_libaacs_required(bd)) {
+        /* no AACS */
+        return 1; /* no error if libaacs is not needed */
+    }
 
 #ifdef DLOPEN_CRYPTO_LIBS
     if ((bd->h_libaacs = dl_dlopen("libaacs", "0"))) {
@@ -478,20 +503,40 @@ static void _libbdplus_close(BLURAY *bd)
     bd->bdplus_fixup = NULL;
 }
 
+static int _libbdplus_required(BLURAY *bd)
+{
+    BD_FILE_H *fd;
+    char      *tmp;
+
+    tmp = str_printf("%s/BDSVM/00000.svm", bd->device_path);
+    fd = file_open(tmp, "rb");
+    X_FREE(tmp);
+
+    if (fd) {
+        file_close(fd);
+
+        DEBUG(DBG_BLURAY, "BDSVM/00000.svm found. Disc seems to be BD+ protected (%p)\n", bd);
+        return 1;
+    }
+
+    DEBUG(DBG_BLURAY, "BDSVM/00000.svm not found. No BD+ protection (%p)\n", bd);
+    return 0;
+}
+
 static int _libbdplus_open(BLURAY *bd, const char *keyfile_path)
 {
     _libbdplus_close(bd);
+
+    if (!_libbdplus_required(bd)) {
+        /* no BD+ */
+        return 1; /* no error if libbdplus is not needed */
+    }
 
     // Take a quick stab to see if we want/need bdplus
     // we should fix this, and add various string functions.
     uint8_t vid[16] = {
         0xC5,0x43,0xEF,0x2A,0x15,0x0E,0x50,0xC4,0xE2,0xCA,
         0x71,0x65,0xB1,0x7C,0xA7,0xCB}; // FIXME
-    BD_FILE_H *fd;
-    char *tmp = NULL;
-    tmp = str_printf("%s/BDSVM/00000.svm", bd->device_path);
-    if ((fd = file_open(tmp, "rb"))) {
-        file_close(fd);
 
         DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
 #ifdef DLOPEN_CRYPTO_LIBS
@@ -523,8 +568,6 @@ static int _libbdplus_open(BLURAY *bd, const char *keyfile_path)
         bd->bdplus_seek  = &bdplus_seek;
         bd->bdplus_fixup = &bdplus_fixup;
 #endif
-    } // file_open
-    X_FREE(tmp);
 
     return !!bd->bdplus;
 }
