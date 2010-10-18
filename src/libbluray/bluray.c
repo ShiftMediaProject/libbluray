@@ -1542,6 +1542,8 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
         case HDMV_EVENT_PLAY_PL:
             bd_select_playlist(bd, hev->param);
             bd->hdmv_suspended = 1;
+            /* initialize menus */
+            _run_gc(bd, GC_CTRL_NOP, 0);
             break;
 
         case HDMV_EVENT_PLAY_PI:
