@@ -40,6 +40,7 @@
 #include <dlfcn.h>
 
 #include <libbluray/bluray.h>
+#include <libbluray/keys.h>
 #include <libbluray/overlay.h>
 
 #define LOG_MODULE "input_bluray"
@@ -95,6 +96,7 @@ typedef struct {
   input_plugin_t        input_plugin;
 
   xine_stream_t        *stream;
+  xine_event_queue_t   *event_queue;
   xine_osd_t           *osd;
 
   bluray_input_class_t *class;
@@ -296,6 +298,114 @@ static void handle_libbluray_events(bluray_input_plugin_t *this)
   }
 }
 
+static void handle_events(bluray_input_plugin_t *this)
+{
+  if (!this->event_queue)
+    return;
+
+  xine_event_t *event;
+  while (NULL != (event = xine_event_get(this->event_queue))) {
+
+    if (!this->bdh || !this->title_info) {
+      xine_event_free(event);
+      return;
+    }
+
+    int64_t pts = xine_get_current_vpts(this->stream) -
+      this->stream->metronom->get_option(this->stream->metronom, METRONOM_VPTS_OFFSET);
+
+    if (this->menu_open) {
+      switch (event->type) {
+        case XINE_EVENT_INPUT_LEFT:      bd_user_input(this->bdh, pts, BD_VK_LEFT);  break;
+        case XINE_EVENT_INPUT_RIGHT:     bd_user_input(this->bdh, pts, BD_VK_RIGHT); break;
+      }
+    } else {
+      switch (event->type) {
+
+        case XINE_EVENT_INPUT_LEFT:
+          lprintf("XINE_EVENT_INPUT_LEFT: next title\n");
+          open_title(this, MAX(0, this->current_title - 1));
+          break;
+
+        case XINE_EVENT_INPUT_RIGHT:
+          lprintf("XINE_EVENT_INPUT_RIGHT: previous title\n");
+          open_title(this, MIN(this->num_titles, this->current_title + 1));
+          break;
+      }
+    }
+
+    switch (event->type) {
+
+      case XINE_EVENT_INPUT_MENU1:     bd_menu_call(this->bdh); break;
+      case XINE_EVENT_INPUT_MENU2:     bd_user_input(this->bdh, pts, BD_VK_POPUP); break;
+      case XINE_EVENT_INPUT_UP:        bd_user_input(this->bdh, pts, BD_VK_UP);    break;
+      case XINE_EVENT_INPUT_DOWN:      bd_user_input(this->bdh, pts, BD_VK_DOWN);  break;
+      case XINE_EVENT_INPUT_SELECT:    bd_user_input(this->bdh, pts, BD_VK_ENTER); break;
+      case XINE_EVENT_INPUT_NUMBER_0:  bd_user_input(this->bdh, pts, BD_VK_0); break;
+      case XINE_EVENT_INPUT_NUMBER_1:  bd_user_input(this->bdh, pts, BD_VK_1); break;
+      case XINE_EVENT_INPUT_NUMBER_2:  bd_user_input(this->bdh, pts, BD_VK_2); break;
+      case XINE_EVENT_INPUT_NUMBER_3:  bd_user_input(this->bdh, pts, BD_VK_3); break;
+      case XINE_EVENT_INPUT_NUMBER_4:  bd_user_input(this->bdh, pts, BD_VK_4); break;
+      case XINE_EVENT_INPUT_NUMBER_5:  bd_user_input(this->bdh, pts, BD_VK_5); break;
+      case XINE_EVENT_INPUT_NUMBER_6:  bd_user_input(this->bdh, pts, BD_VK_6); break;
+      case XINE_EVENT_INPUT_NUMBER_7:  bd_user_input(this->bdh, pts, BD_VK_7); break;
+      case XINE_EVENT_INPUT_NUMBER_8:  bd_user_input(this->bdh, pts, BD_VK_8); break;
+      case XINE_EVENT_INPUT_NUMBER_9:  bd_user_input(this->bdh, pts, BD_VK_9); break;
+
+      case XINE_EVENT_INPUT_NEXT: {
+        unsigned chapter = bd_get_current_chapter(this->bdh) + 1;
+
+        lprintf("XINE_EVENT_INPUT_NEXT: next chapter\n");
+
+        if (chapter >= this->title_info->chapter_count) {
+          if (this->current_title < this->num_titles - 1) {
+            open_title(this, this->current_title + 1);
+          }
+        } else {
+          bd_seek_chapter(this->bdh, chapter);
+          update_stream_info(this);
+        }
+        break;
+      }
+
+      case XINE_EVENT_INPUT_PREVIOUS: {
+        int chapter = bd_get_current_chapter(this->bdh) - 1;
+
+        lprintf("XINE_EVENT_INPUT_PREVIOUS: previous chapter\n");
+
+        if (chapter < 0 && this->current_title > 0) {
+          open_title(this, this->current_title - 1);
+        } else {
+          chapter = MAX(0, chapter);
+          bd_seek_chapter(this->bdh, chapter);
+          update_stream_info(this);
+        }
+        break;
+      }
+
+      case XINE_EVENT_INPUT_ANGLE_NEXT: {
+        unsigned curr_angle = bd_get_current_angle(this->bdh);
+        unsigned angle      = MIN(8, curr_angle + 1);
+        lprintf("XINE_EVENT_INPUT_ANGLE_NEXT: set angle %d --> %d\n", curr_angle, angle);
+        bd_seamless_angle_change(this->bdh, angle);
+        _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_ANGLE_NUMBER, bd_get_current_angle(this->bdh));
+        break;
+      }
+
+      case XINE_EVENT_INPUT_ANGLE_PREVIOUS: {
+        unsigned curr_angle = bd_get_current_angle(this->bdh);
+        unsigned angle      = curr_angle ? curr_angle - 1 : 0;
+        lprintf("XINE_EVENT_INPUT_ANGLE_PREVIOUS: set angle %d --> %d\n", curr_angle, angle);
+        bd_seamless_angle_change(this->bdh, angle);
+        _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_ANGLE_NUMBER, bd_get_current_angle(this->bdh));
+        break;
+      }
+    }
+
+    xine_event_free(event);
+  }
+}
+
 /*
  * xine plugin interface
  */
@@ -319,6 +429,8 @@ static off_t bluray_plugin_read (input_plugin_t *this_gen, char *buf, off_t len)
 
   if (!this || !this->bdh || len < 0)
     return -1;
+
+  handle_events(this);
 
   result = bd_read(this->bdh, (unsigned char *)buf, len);
   handle_libbluray_events(this);
@@ -526,6 +638,9 @@ static void bluray_plugin_dispose (input_plugin_t *this_gen)
 
   close_overlay(this);
 
+  if (this->event_queue)
+    xine_event_dispose_queue(this->event_queue);
+
   if (this->title_info)
     bd_free_title_info(this->title_info);
 
@@ -676,6 +791,8 @@ static input_plugin_t *bluray_class_get_instance (input_class_t *cls_gen, xine_s
   this->input_plugin.get_optional_data  = bluray_plugin_get_optional_data;
   this->input_plugin.dispose            = bluray_plugin_dispose;
   this->input_plugin.input_class        = cls_gen;
+
+  this->event_queue = xine_event_new_queue (this->stream);
 
   return &this->input_plugin;
 }
