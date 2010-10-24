@@ -40,6 +40,7 @@
 #include <dlfcn.h>
 
 #include <libbluray/bluray.h>
+#include <libbluray/overlay.h>
 
 #define LOG_MODULE "input_bluray"
 #define LOG_VERBOSE
@@ -94,6 +95,8 @@ typedef struct {
   input_plugin_t        input_plugin;
 
   xine_stream_t        *stream;
+  xine_osd_t           *osd;
+
   bluray_input_class_t *class;
   char                 *mrl;
   char                 *disc_root;
@@ -104,8 +107,74 @@ typedef struct {
   int                current_title;
   BLURAY_TITLE_INFO *title_info;
   int                current_clip;
+  int                menu_open;
 
 } bluray_input_plugin_t;
+
+static void close_overlay(bluray_input_plugin_t *this)
+{
+  if (this->osd) {
+    xine_osd_free(this->osd);
+    this->osd = NULL;
+  }
+}
+
+static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
+{
+  bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
+  uint32_t color[256];
+  uint8_t  trans[256];
+  unsigned i;
+
+  if (!this) {
+    return;
+  }
+
+  if (!ov || ov->plane == 1)
+    this->menu_open = 0;
+
+  if (!ov || !ov->img) {
+    /* hide OSD */
+    close_overlay(this);
+    return;
+  }
+
+  /* open xine OSD */
+
+  if (!this->osd) {
+    this->osd = xine_osd_new(this->stream, 0, 0, 1920, 1080);
+  }
+
+  /* convert and set palette */
+
+  for(i = 0; i < 256; i++) {
+    trans[i] = ov->palette[i].T;
+    color[i] = (ov->palette[i].Y << 16) | (ov->palette[i].Cr << 8) | ov->palette[i].Cb;
+  }
+
+  xine_osd_set_palette(this->osd, color, trans);
+
+  /* uncompress and draw bitmap */
+
+  const BD_PG_RLE_ELEM *rlep = ov->img;
+  uint8_t *img = malloc(ov->w * ov->h);
+  unsigned pixels = ov->w * ov->h;
+
+  for (i = 0; i < pixels; i += rlep->len, rlep++) {
+    memset(img + i, rlep->color, rlep->len);
+  }
+
+  xine_osd_draw_bitmap(this->osd, img, ov->x, ov->y, ov->w, ov->h, NULL);
+
+  free(img);
+
+  /* display */
+
+  xine_osd_show(this->osd, 0);
+
+  if (ov->plane == 1)
+    this->menu_open = 1;
+}
 
 static void update_stream_info(bluray_input_plugin_t *this)
 {
@@ -380,6 +449,11 @@ static void bluray_plugin_dispose (input_plugin_t *this_gen)
 {
   bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
 
+  if (this->bdh)
+    bd_register_overlay_proc(this->bdh, NULL, NULL);
+
+  close_overlay(this);
+
   if (this->title_info)
     bd_free_title_info(this->title_info);
 
@@ -466,6 +540,10 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
     }
     lprintf("main title: %d (%05d.mpls)\n", title, playlist);
   }
+
+  /* register overlay (graphics) handler */
+
+  bd_register_overlay_proc(this->bdh, this, overlay_proc);
 
   /* update player settings */
   bd_set_player_setting    (this->bdh, BLURAY_PLAYER_SETTING_REGION_CODE,  this->class->region);
