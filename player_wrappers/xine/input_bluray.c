@@ -107,6 +107,7 @@ typedef struct {
   int                current_title;
   BLURAY_TITLE_INFO *title_info;
   int                current_clip;
+  int                error;
   int                menu_open;
 
 } bluray_input_plugin_t;
@@ -226,6 +227,75 @@ static int open_title (bluray_input_plugin_t *this, int title)
   return 1;
 }
 
+static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
+{
+    switch (ev.event) {
+
+      case BD_EVENT_ERROR:
+        this->error = 1;
+        return;
+
+      /* playback control */
+
+      case BD_EVENT_STILL:
+        break;
+
+      /* playback position */
+
+      case BD_EVENT_ANGLE:
+        lprintf("BD_EVENT_ANGLE_NUMBER %d\n", ev.param);
+        _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_ANGLE_NUMBER, ev.param);
+        break;
+
+      case BD_EVENT_TITLE:
+        break;
+
+      case BD_EVENT_PLAYLIST:
+        lprintf("BD_EVENT_PLAYLIST %d\n", ev.param);
+        this->current_title = bd_get_current_title(this->bdh);
+        update_title_info(this);
+        break;
+
+      case BD_EVENT_PLAYITEM:
+        lprintf("BD_EVENT_PLAYITEM %d\n", ev.param);
+        this->current_clip = ev.param;
+        break;
+
+      case BD_EVENT_CHAPTER:
+        lprintf("BD_EVENT_CHAPTER %d\n", ev.param);
+        _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_CHAPTER_NUMBER, ev.param);
+        break;
+
+      /* stream selection */
+
+      case BD_EVENT_AUDIO_STREAM:
+      case BD_EVENT_PG_TEXTST:
+      case BD_EVENT_PG_TEXTST_STREAM:
+      case BD_EVENT_IG_STREAM:
+      case BD_EVENT_SECONDARY_AUDIO:
+      case BD_EVENT_SECONDARY_AUDIO_STREAM:
+      case BD_EVENT_SECONDARY_VIDEO:
+      case BD_EVENT_SECONDARY_VIDEO_SIZE:
+      case BD_EVENT_SECONDARY_VIDEO_STREAM:
+
+      case BD_EVENT_NONE:
+        break;
+
+      default:
+        break;
+    }
+}
+
+static void handle_libbluray_events(bluray_input_plugin_t *this)
+{
+  BD_EVENT ev;
+  while (bd_get_event(this->bdh, &ev)) {
+    handle_libbluray_event(this, ev);
+    if (this->error || ev.event == BD_EVENT_NONE || ev.event == BD_EVENT_ERROR)
+      break;
+  }
+}
+
 /*
  * xine plugin interface
  */
@@ -245,11 +315,13 @@ static off_t bluray_plugin_read (input_plugin_t *this_gen, char *buf, off_t len)
 #endif
 {
   bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
+  off_t result;
 
   if (!this || !this->bdh || len < 0)
     return -1;
 
-  off_t result = bd_read (this->bdh, (unsigned char *)buf, len);
+  result = bd_read(this->bdh, (unsigned char *)buf, len);
+  handle_libbluray_events(this);
 
   if (result < 0)
     LOGMSG("bd_read() failed: %s (%d of %d)\n", strerror(errno), (int)result, (int)len);
@@ -544,6 +616,10 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
   /* register overlay (graphics) handler */
 
   bd_register_overlay_proc(this->bdh, this, overlay_proc);
+
+  /* init libbluray event queue */
+
+  handle_libbluray_events(this);
 
   /* update player settings */
   bd_set_player_setting    (this->bdh, BLURAY_PLAYER_SETTING_REGION_CODE,  this->class->region);
