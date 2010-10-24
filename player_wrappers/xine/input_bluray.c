@@ -57,6 +57,10 @@
 # include <xine/input_plugin.h>
 #endif
 
+#ifndef XINE_VERSION_CODE
+# error XINE_VERSION_CODE undefined !
+#endif
+
 #ifndef EXPORTED
 #  define EXPORTED __attribute__((visibility("default")))
 #endif
@@ -80,7 +84,10 @@ typedef struct {
 
   /* config */
   char           *mountpoint;
-
+  char           *language;
+  char           *country;
+  int             region;
+  int             parental;
 } bluray_input_class_t;
 
 typedef struct {
@@ -111,18 +118,15 @@ static void update_stream_info(bluray_input_plugin_t *this)
   _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_CHAPTER_NUMBER, bd_get_current_chapter(this->bdh) + 1);
 }
 
-static int open_title (bluray_input_plugin_t *this, int title)
+static void update_title_info(bluray_input_plugin_t *this)
 {
-  if (bd_select_title(this->bdh, title) <= 0) {
-    LOGMSG("bd_select_title(%d) failed\n", title);
-    return 0;
-  }
-
-  this->current_title = title;
-
   if (this->title_info)
     bd_free_title_info(this->title_info);
   this->title_info = bd_get_title_info(this->bdh, this->current_title);
+  if (!this->title_info) {
+    LOGMSG("bd_get_title_info(%d) failed\n", this->current_title);
+    return;
+  }
 
   /* calculate and set stream rate */
 
@@ -134,9 +138,21 @@ static int open_title (bluray_input_plugin_t *this, int title)
   /* set stream info */
 
   _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_COUNT,  this->num_titles);
-  _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_NUMBER, this->current_title);
+  _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_NUMBER, this->current_title + 1);
 
   update_stream_info(this);
+}
+
+static int open_title (bluray_input_plugin_t *this, int title)
+{
+  if (bd_select_title(this->bdh, title) <= 0) {
+    LOGMSG("bd_select_title(%d) failed\n", title);
+    return 0;
+  }
+
+  this->current_title = title;
+
+  update_title_info(this);
 
   return 1;
 }
@@ -153,7 +169,11 @@ static uint32_t bluray_plugin_get_capabilities (input_plugin_t *this_gen)
          INPUT_CAP_SPULANG;
 }
 
+#if XINE_VERSION_CODE >= 10190
+static off_t bluray_plugin_read (input_plugin_t *this_gen, void *buf, off_t len)
+#else
 static off_t bluray_plugin_read (input_plugin_t *this_gen, char *buf, off_t len)
+#endif
 {
   bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
 
@@ -447,6 +467,16 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
     lprintf("main title: %d (%05d.mpls)\n", title, playlist);
   }
 
+  /* update player settings */
+  bd_set_player_setting    (this->bdh, BLURAY_PLAYER_SETTING_REGION_CODE,  this->class->region);
+  bd_set_player_setting    (this->bdh, BLURAY_PLAYER_SETTING_PARENTAL,     this->class->parental);
+  bd_set_player_setting_str(this->bdh, BLURAY_PLAYER_SETTING_AUDIO_LANG,   this->class->language);
+  bd_set_player_setting_str(this->bdh, BLURAY_PLAYER_SETTING_PG_LANG,      this->class->language);
+  bd_set_player_setting_str(this->bdh, BLURAY_PLAYER_SETTING_MENU_LANG,    this->class->language);
+  bd_set_player_setting_str(this->bdh, BLURAY_PLAYER_SETTING_COUNTRY_CODE, this->class->country);
+
+  /* open */
+
   if (open_title(this, title) <= 0 &&
       open_title(this, 0) <= 0)
     return -1;
@@ -507,15 +537,51 @@ static void mountpoint_change_cb(void *data, xine_cfg_entry_t *cfg)
   this->mountpoint = cfg->str_value;
 }
 
-static const char *bluray_class_get_description (input_class_t *this_gen)
+static void language_change_cb(void *data, xine_cfg_entry_t *cfg)
 {
-  return _("BluRay input plugin");
+  bluray_input_class_t *this = (bluray_input_class_t *) data;
+
+  this->language = cfg->str_value;
 }
 
+static void country_change_cb(void *data, xine_cfg_entry_t *cfg)
+{
+  bluray_input_class_t *this = (bluray_input_class_t *) data;
+
+  this->country = cfg->str_value;
+}
+
+static void region_change_cb(void *data, xine_cfg_entry_t *cfg)
+{
+  bluray_input_class_t *this = (bluray_input_class_t *) data;
+
+  this->region = cfg->num_value;
+}
+
+static void parental_change_cb(void *data, xine_cfg_entry_t *cfg)
+{
+  bluray_input_class_t *this = (bluray_input_class_t *) data;
+
+  this->parental = cfg->num_value;
+}
+
+#if INPUT_PLUGIN_IFACE_VERSION < 18
+static const char *bluray_class_get_description (input_class_t *this_gen)
+{
+  (void)this_gen;
+
+  return _("BluRay input plugin");
+}
+#endif
+
+#if INPUT_PLUGIN_IFACE_VERSION < 18
 static const char *bluray_class_get_identifier (input_class_t *this_gen)
 {
+  (void)this_gen;
+
   return "bluray";
 }
+#endif
 
 static char **bluray_class_get_autoplay_list (input_class_t *this_gen, int *num_files)
 {
@@ -537,6 +603,10 @@ static void bluray_class_dispose (input_class_t *this_gen)
   config_values_t      *config = this->xine->config;
 
   config->unregister_callback(config, "media.bluray.mountpoint");
+  config->unregister_callback(config, "media.bluray.region");
+  config->unregister_callback(config, "media.bluray.language");
+  config->unregister_callback(config, "media.bluray.country");
+  config->unregister_callback(config, "media.bluray.parental");
 
   free (this);
 }
@@ -549,8 +619,13 @@ static void *bluray_init_plugin (xine_t *xine, void *data)
   this->xine = xine;
 
   this->input_class.get_instance       = bluray_class_get_instance;
+#if INPUT_PLUGIN_IFACE_VERSION < 18
   this->input_class.get_identifier     = bluray_class_get_identifier;
   this->input_class.get_description    = bluray_class_get_description;
+#else
+  this->input_class.identifier         = "bluray";
+  this->input_class.description        = _("BluRay input plugin");
+#endif
   this->input_class.get_dir            = NULL;
   this->input_class.get_autoplay_list  = bluray_class_get_autoplay_list;
   this->input_class.dispose            = bluray_class_dispose;
@@ -561,6 +636,39 @@ static void *bluray_init_plugin (xine_t *xine, void *data)
                                                _("BluRay mount point"),
                                                _("Default mount location for BluRay discs."),
                                                0, mountpoint_change_cb, (void *) this);
+
+  /* Player settings */
+  this->language =
+    config->register_string(config, "media.bluray.language",
+                            "eng",
+                            _("default language for BluRay playback"),
+                            _("xine tries to use this language as a default for BluRay playback. "
+                              "As far as the BluRay supports it, menus and audio tracks will be presented "
+                              "in this language.\nThe value must be a three character"
+                              "ISO639-2 language code."),
+                            0, language_change_cb, this);
+  this->country =
+    config->register_string(config, "media.bluray.country",
+                            "en",
+                            _("BluRay player country code"),
+                            _("The value must be a two character ISO3166-1 country code."),
+                            0, country_change_cb, this);
+  this->region =
+    config->register_num(config, "media.bluray.region",
+                         7,
+                         _("BluRay player region code (1=A, 2=B, 4=C)"),
+                         _("This only needs to be changed if your BluRay jumps to a screen "
+                           "complaining about a wrong region code. It has nothing to do with "
+                           "the region code set in BluRay drives, this is purely software."),
+                         0, region_change_cb, this);
+  this->parental =
+    config->register_num(config, "media.bluray.parental",
+                         99,
+                         _("parental control age limit (1-99)"),
+                         _("Prevents playback of BluRay titles where parental "
+                           "control age limit is higher than this limit"),
+                         0, parental_change_cb, this);
+
   return this;
 }
 
@@ -570,6 +678,10 @@ static void *bluray_init_plugin (xine_t *xine, void *data)
 
 const plugin_info_t xine_plugin_info[] EXPORTED = {
   /* type, API, "name", version, special_info, init_function */
+#if INPUT_PLUGIN_IFACE_VERSION <= 17
   { PLUGIN_INPUT | PLUGIN_MUST_PRELOAD, 17, "BLURAY", XINE_VERSION_CODE, NULL, bluray_init_plugin },
+#elif INPUT_PLUGIN_IFACE_VERSION >= 18
+  { PLUGIN_INPUT | PLUGIN_MUST_PRELOAD, 18, "BLURAY", XINE_VERSION_CODE, NULL, bluray_init_plugin },
+#endif
   { PLUGIN_NONE, 0, "", 0, NULL, NULL }
 };
