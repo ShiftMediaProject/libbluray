@@ -405,6 +405,11 @@ static void _libaacs_close(BLURAY *bd)
         DL_CALL(bd->h_libaacs, aacs_close, bd->aacs);
         bd->aacs = NULL;
     }
+}
+
+static void _libaacs_unload(BLURAY *bd)
+{
+    _libaacs_close(bd);
 
 #ifdef DLOPEN_CRYPTO_LIBS
     if (bd->h_libaacs) {
@@ -438,7 +443,7 @@ static int _libaacs_required(BLURAY *bd)
 
 static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
 {
-    _libaacs_close(bd);
+    _libaacs_unload(bd);
 
     if (!_libaacs_required(bd)) {
         /* no AACS */
@@ -491,6 +496,11 @@ static void _libbdplus_close(BLURAY *bd)
         DL_CALL(bd->h_libbdplus, bdplus_free, bd->bdplus);
         bd->bdplus = NULL;
     }
+}
+
+static void _libbdplus_unload(BLURAY *bd)
+{
+    _libbdplus_close(bd);
 
 #ifdef DLOPEN_CRYPTO_LIBS
     if (bd->h_libbdplus) {
@@ -525,7 +535,7 @@ static int _libbdplus_required(BLURAY *bd)
 
 static int _libbdplus_open(BLURAY *bd, const char *keyfile_path)
 {
-    _libbdplus_close(bd);
+    _libbdplus_unload(bd);
 
     if (!_libbdplus_required(bd)) {
         /* no BD+ */
@@ -616,9 +626,9 @@ void bd_close(BLURAY *bd)
 {
     bd_stop_bdj(bd);
 
-    _libaacs_close(bd);
+    _libaacs_unload(bd);
 
-    _libbdplus_close(bd);
+    _libbdplus_unload(bd);
 
     _close_m2ts(&bd->st0);
     _close_preload(&bd->st_ig);
