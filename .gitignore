@@ -29,6 +29,8 @@ src/examples/mobj_dump
 src/examples/mpls_dump
 src/examples/sound_dump
 src/examples/bdj_test
+src/examples/bd_info
+src/examples/hdmv_test
 src/examples/*.exe
 src/libbluray/bdj/build
 stamp-h1
