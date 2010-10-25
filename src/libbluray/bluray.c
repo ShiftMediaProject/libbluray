@@ -87,9 +87,10 @@ typedef struct {
 struct bluray {
 
     /* current disc */
-    char           *device_path;
-    INDX_ROOT      *index;
-    NAV_TITLE_LIST *title_list;
+    char             *device_path;
+    BLURAY_DISC_INFO  disc_info;
+    INDX_ROOT        *index;
+    NAV_TITLE_LIST   *title_list;
 
     /* current playlist */
     NAV_TITLE      *title;
@@ -437,10 +438,12 @@ static int _libaacs_required(BLURAY *bd)
         file_close(fd);
 
         DEBUG(DBG_BLURAY, "AACS/Unit_Key_RO.inf found. Disc seems to be AACS protected (%p)\n", bd);
+        bd->disc_info.aacs_detected = 1;
         return 1;
     }
 
     DEBUG(DBG_BLURAY, "AACS/Unit_Key_RO.inf not found. No AACS protection (%p)\n", bd);
+    bd->disc_info.aacs_detected = 0;
     return 0;
 }
 
@@ -451,6 +454,7 @@ static int _libaacs_load(BLURAY *bd)
         return 1;
     }
 
+    bd->disc_info.libaacs_detected = 0;
     if ((bd->h_libaacs = dl_dlopen("libaacs", "0"))) {
 
         DEBUG(DBG_BLURAY, "Loading libaacs (%p)\n", bd->h_libaacs);
@@ -460,6 +464,7 @@ static int _libaacs_load(BLURAY *bd)
 
         if (bd->libaacs_open && bd->libaacs_decrypt_unit) {
             DEBUG(DBG_BLURAY, "Loaded libaacs (%p)\n", bd->h_libaacs);
+            bd->disc_info.libaacs_detected = 1;
             return 1;
 
         } else {
@@ -479,6 +484,7 @@ static int _libaacs_load(BLURAY *bd)
 
     bd->libaacs_open         = &aacs_open;
     bd->libaacs_decrypt_unit = &aacs_decrypt_unit;
+    bd->disc_info.libaacs_detected = 1;
 
     return 1;
 #endif
@@ -502,10 +508,12 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
 
     if (bd->aacs) {
         DEBUG(DBG_BLURAY, "Opened libaacs (%p)\n", bd->aacs);
+        bd->disc_info.aacs_handled = 1;
         return 1;
     }
 
     DEBUG(DBG_BLURAY, "aacs_open() failed!\n");
+    bd->disc_info.aacs_handled = 0;
 
     _libaacs_unload(bd);
     return 0;
@@ -548,10 +556,12 @@ static int _libbdplus_required(BLURAY *bd)
         file_close(fd);
 
         DEBUG(DBG_BLURAY, "BDSVM/00000.svm found. Disc seems to be BD+ protected (%p)\n", bd);
+        bd->disc_info.bdplus_detected = 1;
         return 1;
     }
 
     DEBUG(DBG_BLURAY, "BDSVM/00000.svm not found. No BD+ protection (%p)\n", bd);
+    bd->disc_info.bdplus_detected = 0;
     return 0;
 }
 
@@ -564,6 +574,7 @@ static int _libbdplus_load(BLURAY *bd)
         return 1;
     }
 
+    bd->disc_info.libbdplus_detected = 0;
     if ((bd->h_libbdplus = dl_dlopen("libbdplus", "0"))) {
 
         DEBUG(DBG_BLURAY, "Loading libbdplus (%p)\n", bd->h_libbdplus);
@@ -574,6 +585,7 @@ static int _libbdplus_load(BLURAY *bd)
 
         if (bd->bdplus_init && bd->bdplus_seek && bd->bdplus_fixup) {
             DEBUG(DBG_BLURAY, "Loaded libbdplus (%p)\n", bd->h_libbdplus);
+            bd->disc_info.libbdplus_detected = 1;
             return 1;
         }
 
@@ -593,6 +605,7 @@ static int _libbdplus_load(BLURAY *bd)
     bd->bdplus_init  = &bdplus_init;
     bd->bdplus_seek  = &bdplus_seek;
     bd->bdplus_fixup = &bdplus_fixup;
+    bd->disc_info.libbdplus_detected = 1;
 
     return 1;
 #endif
@@ -622,10 +635,12 @@ static int _libbdplus_open(BLURAY *bd, const char *keyfile_path)
 
     if (bd->bdplus) {
         DEBUG(DBG_BLURAY,"libbdplus initialized\n");
+        bd->disc_info.bdplus_handled = 1;
         return 1;
     }
 
     DEBUG(DBG_BLURAY,"bdplus_init() failed\n");
+    bd->disc_info.bdplus_handled = 0;
 
     _libbdplus_unload(bd);
     return 0;
@@ -648,6 +663,56 @@ static int _index_open(BLURAY *bd)
     return !!bd->index;
 }
 
+/*
+ * disc info
+ */
+
+const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd)
+{
+    return &bd->disc_info;
+}
+
+static void _fill_disc_info(BLURAY *bd)
+{
+    bd->disc_info.bluray_detected        = 0;
+    bd->disc_info.top_menu_supported     = 0;
+    bd->disc_info.first_play_supported   = 0;
+    bd->disc_info.num_hdmv_titles        = 0;
+    bd->disc_info.num_bdj_titles         = 0;
+    bd->disc_info.num_unsupported_titles = 0;
+
+    if (bd->index) {
+        INDX_PLAY_ITEM *pi;
+        unsigned        ii;
+
+        bd->disc_info.bluray_detected = 1;
+
+        pi = &bd->index->first_play;
+        if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
+            bd->disc_info.first_play_supported = 1;
+        }
+
+        pi = &bd->index->top_menu;
+        if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
+            bd->disc_info.top_menu_supported = 1;
+        }
+
+        for (ii = 0; ii < bd->index->num_titles; ii++) {
+            if (bd->index->titles[ii].object_type == indx_object_type_hdmv) {
+                bd->disc_info.num_hdmv_titles++;
+            }
+            if (bd->index->titles[ii].object_type == indx_object_type_bdj) {
+                bd->disc_info.num_bdj_titles++;
+                bd->disc_info.num_unsupported_titles++;
+            }
+        }
+    }
+}
+
+/*
+ * open / close
+ */
+
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
     BLURAY *bd = calloc(1, sizeof(BLURAY));
@@ -664,6 +729,8 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         _index_open(bd);
 
         bd->regs = bd_registers_init();
+
+        _fill_disc_info(bd);
 
         DEBUG(DBG_BLURAY, "BLURAY initialized! (%p)\n", bd);
     } else {

@@ -11,7 +11,7 @@ CFLAGS=$(shell test -z "$$CFLAGS" || echo "$$CFLAGS")
 if USING_EXAMPLES
 
 noinst_PROGRAMS=bdsplice mpls_dump clpi_dump index_dump mobj_dump sound_dump \
-    libbluray_test list_titles hdmv_test
+    libbluray_test bd_info list_titles hdmv_test
 
 BLURAY_LIB = $(top_builddir)/src/libbluray.la
 BLURAY_LIB_STATIC = $(top_builddir)/src/.libs/libbluray.a
@@ -64,6 +64,11 @@ list_titles_SOURCES = \
 	list_titles.c ../util/logging.c
 
 list_titles_LDADD = $(BLURAY_LIB)
+
+bd_info_SOURCES = \
+	bd_info.c
+
+bd_info_LDADD = $(BLURAY_LIB)
 
 if USING_BDJAVA
 noinst_PROGRAMS+= bdj_test
