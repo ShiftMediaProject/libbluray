@@ -499,9 +499,11 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
 
 void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS *cmds)
 {
-    cmds->num_nav_cmds = 0;
-    cmds->nav_cmds     = NULL;
-    cmds->sound_id_ref = -1;
+    if (cmds) {
+        cmds->num_nav_cmds = 0;
+        cmds->nav_cmds     = NULL;
+        cmds->sound_id_ref = -1;
+    }
 
     if (!gc || !gc->igs || !gc->igs->ics) {
         ERROR("gc_run(): no interactive composition\n");
