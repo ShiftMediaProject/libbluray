@@ -1606,7 +1606,7 @@ int bd_play_title(BLURAY *bd, unsigned title)
             if (p->hdmv.id_ref == 0xffff) {
                 /* no first play title (5.2.3.3) */
                 bd->title_type = title_hdmv;
-                return 0;
+                return 1;
             }
             return _play_hdmv(bd, p->hdmv.id_ref);
         }
@@ -1615,13 +1615,13 @@ int bd_play_title(BLURAY *bd, unsigned title)
             return _play_bdj(bd, p->bdj.name);
         }
 
-        return -1;
+        return 0;
     }
 
     /* bd_play not called ? */
     if (bd->title_type == title_undef) {
         DEBUG(DBG_BLURAY|DBG_CRIT, "bd_call_title(): bd_play() not called !\n");
-        return -1;
+        return 0;
     }
 
     /* top menu ? */
@@ -1634,7 +1634,7 @@ int bd_play_title(BLURAY *bd, unsigned title)
             if (p->hdmv.id_ref == 0xffff) {
                 /* no top menu (5.2.3.3) */
                 bd->title_type = title_hdmv;
-                return -1;
+                return 0;
             }
             return _play_hdmv(bd, p->hdmv.id_ref);
         }
@@ -1643,7 +1643,7 @@ int bd_play_title(BLURAY *bd, unsigned title)
             return _play_bdj(bd, p->bdj.name);
         }
 
-        return -1;
+        return 0;
     }
 
     /* valid title from disc index ? */
@@ -1659,7 +1659,7 @@ int bd_play_title(BLURAY *bd, unsigned title)
         }
     }
 
-    return -1;
+    return 0;
 }
 
 int bd_play(BLURAY *bd)
