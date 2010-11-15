@@ -1697,7 +1697,7 @@ int bd_menu_call(BLURAY *bd)
 static void _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
 {
     if (bd && bd->graphics_controller && bd->hdmv_vm) {
-        GC_NAV_CMDS cmds;
+        GC_NAV_CMDS cmds = {-1, NULL, -1};
 
         gc_run(bd->graphics_controller, msg, param, &cmds);
 
