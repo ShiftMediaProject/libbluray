@@ -556,6 +556,49 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
     _render_page(gc, 0xffff, cmds);
 }
 
+static void _enable_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id, unsigned enable)
+{
+    PG_DISPLAY_SET *s          = gc->igs;
+    BD_IG_PAGE     *page       = NULL;
+    BD_IG_BUTTON   *button     = NULL;
+    unsigned        page_id    = bd_psr_read(gc->regs, PSR_MENU_PAGE_ID);
+    unsigned        cur_btn_id = bd_psr_read(gc->regs, PSR_SELECTED_BUTTON_ID);
+    unsigned        bog_idx    = 0;
+
+    TRACE("_enable_button(#%d, %s)\n", button_id, enable ? "enable" : "disable");
+
+    page = _find_page(&s->ics->interactive_composition, page_id);
+    if (!page) {
+        TRACE("_enable_button(): unknown page #%d (have %d pages)\n",
+              page_id, s->ics->interactive_composition.num_pages);
+        return;
+    }
+
+    /* find correct button overlap group */
+    button = _find_button_page(page, button_id, &bog_idx);
+    if (!button) {
+        TRACE("_enable_button(): unknown button #%d (page #%d)\n", button_id, page_id);
+        return;
+    }
+
+    if (enable) {
+        if (gc->enabled_button[bog_idx] == cur_btn_id) {
+            /* selected button goes to disabled state */
+            bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, 0x10000|button_id);
+        }
+        gc->enabled_button[bog_idx] = button_id;
+
+    } else {
+        if (gc->enabled_button[bog_idx] == button_id) {
+            gc->enabled_button[bog_idx] = 0xffff;
+        }
+
+        if (cur_btn_id == button_id) {
+            bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, 0xffff);
+        }
+    }
+}
+
 void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS *cmds)
 {
     if (cmds) {
@@ -612,8 +655,11 @@ void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS
             break;
 
         case GC_CTRL_ENABLE_BUTTON:
+            _enable_button(gc, param, 1);
+            break;
+
         case GC_CTRL_DISABLE_BUTTON:
-            ERROR("run_gc(): unhandled case %d\n", ctrl);
+            _enable_button(gc, param, 0);
             break;
     }
 }
