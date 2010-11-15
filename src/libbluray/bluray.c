@@ -1586,9 +1586,13 @@ static int _play_hdmv(BLURAY *bd, unsigned id_ref)
     if (!bd->hdmv_vm) {
         bd->hdmv_vm = hdmv_vm_init(bd->device_path, bd->regs);
     }
-    bd->hdmv_suspended = 0;
 
-    return hdmv_vm_select_object(bd->hdmv_vm, id_ref);
+    if (hdmv_vm_select_object(bd->hdmv_vm, id_ref)) {
+        return 0;
+    }
+
+    bd->hdmv_suspended = 0;
+    return 1;
 }
 
 #define TITLE_FIRST_PLAY 0xffff   /* 10.4.3.2 (E) */
