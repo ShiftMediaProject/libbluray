@@ -521,14 +521,14 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
         button = _find_button_page(page, button_id, NULL);
         if (!page_flag) {
             if (!button) {
-              /* page not given, invalid button --> ignore command */
-              TRACE("  button is invalid\n");
-              return;
+                /* page not given, invalid button --> ignore command */
+                TRACE("  button is invalid\n");
+                return;
             }
             if (button_id == bd_psr_read(gc->regs, PSR_SELECTED_BUTTON_ID)) {
-              /* page not given, current button --> ignore command */
-              TRACE("  button is current\n");
-              return;
+                /* page not given, current button --> ignore command */
+                TRACE("  button is current\n");
+                return;
             }
         }
     }
