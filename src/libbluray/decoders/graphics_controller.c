@@ -599,6 +599,67 @@ static void _enable_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id, unsigned
     }
 }
 
+static int _is_button_enabled(GRAPHICS_CONTROLLER *gc, BD_IG_PAGE *page, unsigned button_id)
+{
+    unsigned ii;
+    for (ii = 0; ii < page->num_bogs; ii++) {
+        if (gc->enabled_button[ii] == button_id) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void _update_selected_button(GRAPHICS_CONTROLLER *gc)
+{
+    unsigned button_id = bd_psr_read(gc->regs, PSR_SELECTED_BUTTON_ID);
+
+    TRACE("_update_enabled_button(): currently enabled button is #%d\n", button_id);
+
+    // special case: triggered only after enable button disables selected button
+    if (button_id & 0x10000) {
+        button_id &= 0xffff;
+        bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, button_id);
+        TRACE("_update_enabled_button() -> #%d [last enabled]\n", button_id);
+        return;
+    }
+
+   if (button_id == 0xffff) {
+        PG_DISPLAY_SET *s       = gc->igs;
+        BD_IG_PAGE     *page    = NULL;
+        unsigned        page_id = bd_psr_read(gc->regs, PSR_MENU_PAGE_ID);
+
+        page = _find_page(&s->ics->interactive_composition, page_id);
+        if (!page) {
+            TRACE("_update_enabled_button(): unknown page #%d (have %d pages)\n",
+                  page_id, s->ics->interactive_composition.num_pages);
+            return;
+        }
+
+        // run 5.9.8.3
+
+        if (_find_button_page(page, page->default_selected_button_id_ref, NULL) &&
+            _is_button_enabled(gc, page, page->default_selected_button_id_ref)) {
+
+            button_id = page->default_selected_button_id_ref;
+
+        } else {
+            unsigned ii;
+            for (ii = 0; ii < page->num_bogs; ii++) {
+
+                BD_IG_BOG *bog = &page->bog[ii];
+                if (_find_button_bog(bog, gc->enabled_button[ii])) {
+                    button_id = gc->enabled_button[ii];
+                    break;
+                }
+            }
+        }
+
+        bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, button_id);
+        TRACE("_update_enabled_button() -> #%d\n", button_id);
+    }
+}
+
 void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS *cmds)
 {
     if (cmds) {
@@ -651,6 +712,7 @@ void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS
             break;
 
         case GC_CTRL_IG_END:
+            _update_selected_button(gc);
             _render_page(gc, 0xffff, cmds);
             break;
 
