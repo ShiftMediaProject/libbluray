@@ -591,6 +591,12 @@ void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS
 
             gc->popup_visible = !!param;
 
+            if (gc->popup_visible) {
+                bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, 0);
+                _reset_enabled_button(gc);
+                _gc_clear_osd(gc, 1);
+            }
+
             /* fall thru */
 
         case GC_CTRL_NOP:
