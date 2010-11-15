@@ -1481,15 +1481,15 @@ int bd_start_bdj(BLURAY *bd, const char *start_object)
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
         bd->bdjava = bdj_open(bd->device_path, start_object, bd, bd->regs);
-        return 0;
+        return !!bd->bdjava;
     } else {
         DEBUG(DBG_BLURAY | DBG_CRIT, "BD-J is already running (%p)\n", bd);
-        return -1;
+        return 1;
     }
 #else
     DEBUG(DBG_BLURAY | DBG_CRIT, "%s.bdjo: BD-J not compiled in (%p)\n", start_object, bd);
 #endif
-    return -1;
+    return 0;
 }
 
 void bd_stop_bdj(BLURAY *bd)
