@@ -134,8 +134,6 @@ void gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigne
     if (pid >= 0x1400 && pid < 0x1500) {
         /* IG stream */
 
-        gc->popup_visible = 0;
-
         if (!gc->igp) {
             gc->igp = graphics_processor_init();
         }
@@ -146,7 +144,12 @@ void gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigne
             return;
         }
 
+        bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, 0);
+
         gc->ig_drawn = 0;
+        gc->popup_visible = 0;
+
+        _gc_clear_osd(gc, 1);
     }
 
     else if (pid >= 0x1200 && pid < 0x1300) {
