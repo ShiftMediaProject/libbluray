@@ -54,6 +54,7 @@ struct graphics_controller_s {
     /* data */
     PG_DISPLAY_SET *pgs;
     PG_DISPLAY_SET *igs;
+    uint16_t       *enabled_button;
 
     /* */
     GRAPHICS_PROCESSOR *pgp;
@@ -109,6 +110,8 @@ static void _gc_reset(GRAPHICS_CONTROLLER *gc)
 
     pg_display_set_free(&gc->pgs);
     pg_display_set_free(&gc->igs);
+
+    X_FREE(gc->enabled_button);
 }
 
 void gc_free(GRAPHICS_CONTROLLER **p)
@@ -128,6 +131,8 @@ void gc_free(GRAPHICS_CONTROLLER **p)
 /*
  * graphics stream input
  */
+
+static void _reset_enabled_button(GRAPHICS_CONTROLLER *gc);
 
 void gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned num_blocks, int64_t stc)
 {
@@ -150,6 +155,7 @@ void gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigne
         gc->popup_visible = 0;
 
         _gc_clear_osd(gc, 1);
+        _reset_enabled_button(gc);
     }
 
     else if (pid >= 0x1200 && pid < 0x1300) {
@@ -325,7 +331,7 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
 
     for (ii = 0; ii < page->num_bogs; ii++) {
         BD_IG_BOG    *bog      = &page->bog[ii];
-        unsigned      valid_id = bog->default_valid_button_id_ref;
+        unsigned      valid_id = gc->enabled_button[ii];
         BD_IG_BUTTON *button;
 
         button = _find_button_bog(bog, valid_id);
@@ -387,7 +393,7 @@ static void _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *c
 
     for (ii = 0; ii < page->num_bogs; ii++) {
         BD_IG_BOG *bog      = &page->bog[ii];
-        unsigned   valid_id = bog->default_valid_button_id_ref;
+        unsigned   valid_id = gc->enabled_button[ii];
 
         if (VK_IS_CURSOR(key) || key == BD_VK_ENTER) {
             BD_IG_BUTTON *button = _find_button_bog(bog, valid_id);
@@ -437,6 +443,28 @@ static void _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *c
     }
 }
 
+static void _reset_enabled_button(GRAPHICS_CONTROLLER *gc)
+{
+    PG_DISPLAY_SET *s       = gc->igs;
+    BD_IG_PAGE     *page    = NULL;
+    unsigned        page_id = bd_psr_read(gc->regs, PSR_MENU_PAGE_ID);
+    unsigned        ii;
+
+    page = _find_page(&s->ics->interactive_composition, page_id);
+    if (!page) {
+        ERROR("_reset_enabled_button(): unknown page #%d (have %d pages)\n",
+              page_id, s->ics->interactive_composition.num_pages);
+        return;
+    }
+
+    gc->enabled_button = realloc(gc->enabled_button,
+                                 page->num_bogs * sizeof(uint16_t));
+
+    for (ii = 0; ii < page->num_bogs; ii++) {
+        gc->enabled_button[ii] = page->bog[ii].default_valid_button_id_ref;
+    }
+}
+
 static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMDS *cmds)
 {
     unsigned page_flag   = param & 0x80000000;
@@ -475,6 +503,8 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
         }
 
         bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, page_id);
+
+        _reset_enabled_button(gc);
 
     } else {
         /* page does not change */
