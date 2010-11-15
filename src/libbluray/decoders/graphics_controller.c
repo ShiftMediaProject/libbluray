@@ -505,9 +505,13 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
             return;
         }
 
+        /* page changes */
+
         bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, page_id);
 
         _reset_enabled_button(gc);
+        _gc_clear_osd(gc, 1);
+
 
     } else {
         /* page does not change */
