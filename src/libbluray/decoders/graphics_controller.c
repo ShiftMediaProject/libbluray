@@ -475,6 +475,7 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
     unsigned button_flag = param & 0x20000000;
     unsigned page_id     = (param >> 16) & 0xff;
     unsigned button_id   = param & 0xffff;
+    unsigned bog_idx     = 0;
 
     PG_DISPLAY_SET *s      = gc->igs;
     BD_IG_PAGE     *page   = NULL;
@@ -525,7 +526,9 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
     }
 
     if (button_flag) {
-        button = _find_button_page(page, button_id, NULL);
+        /* find correct button and overlap group */
+        button = _find_button_page(page, button_id, &bog_idx);
+
         if (!page_flag) {
             if (!button) {
                 /* page not given, invalid button --> ignore command */
@@ -542,6 +545,8 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
 
     if (!button) {
         button_id = 0xffff; // run 5.9.7.4 and 5.9.8.3
+    } else {
+        gc->enabled_button[bog_idx] = button_id;
     }
 
     bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, button_id);
