@@ -92,7 +92,6 @@ static void _gc_clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
 
     if (plane) {
         gc->ig_drawn      = 0;
-        gc->popup_visible = 0;
     } else {
         gc->pg_drawn      = 0;
     }
@@ -102,6 +101,8 @@ static void _gc_reset(GRAPHICS_CONTROLLER *gc)
 {
     _gc_clear_osd(gc, 0);
     _gc_clear_osd(gc, 1);
+
+    gc->popup_visible = 0;
 
     graphics_processor_free(&gc->igp);
     graphics_processor_free(&gc->pgp);
