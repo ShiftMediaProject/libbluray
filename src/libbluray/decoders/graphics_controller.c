@@ -200,20 +200,23 @@ static BD_IG_BUTTON *_find_button_bog(BD_IG_BOG *bog, unsigned button_id)
 
     for (ii = 0; ii < bog->num_buttons; ii++) {
         if (bog->button[ii].id == button_id) {
-          return &bog->button[ii];
+            return &bog->button[ii];
         }
     }
 
     return NULL;
 }
 
-static BD_IG_BUTTON *_find_button_page(BD_IG_PAGE *page, unsigned button_id)
+static BD_IG_BUTTON *_find_button_page(BD_IG_PAGE *page, unsigned button_id, unsigned *bog_idx)
 {
     unsigned ii;
 
     for (ii = 0; ii < page->num_bogs; ii++) {
         BD_IG_BUTTON *button = _find_button_bog(&page->bog[ii], button_id);
         if (button) {
+            if (bog_idx) {
+                *bog_idx = ii;
+            }
             return button;
         }
     }
@@ -414,7 +417,7 @@ static void _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *c
             }
 
             if (new_btn_id != cur_btn_id) {
-                BD_IG_BUTTON *button = _find_button_page(page, new_btn_id);
+                BD_IG_BUTTON *button = _find_button_page(page, new_btn_id, NULL);
                 if (button) {
                     cmds->sound_id_ref = button->selected_sound_id_ref;
                 }
@@ -482,7 +485,7 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
     }
 
     if (button_flag) {
-        button = _find_button_page(page, button_id);
+        button = _find_button_page(page, button_id, NULL);
         if (!page_flag) {
             if (!button) {
               /* page not given, invalid button --> ignore command */
