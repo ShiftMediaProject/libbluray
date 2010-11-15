@@ -76,7 +76,17 @@ static void _gc_clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
 {
     if (gc->overlay_proc) {
         /* clear plane */
-        BD_OVERLAY ov = { -1, plane, 0, 0, 1920, 1080, NULL, NULL };
+        const BD_OVERLAY ov = {
+            .pts     = -1,
+            .plane   = plane,
+            .x       = 0,
+            .y       = 0,
+            .w       = 1920,
+            .h       = 1080,
+            .palette = NULL,
+            .img     = NULL,
+        };
+
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
     }
 
