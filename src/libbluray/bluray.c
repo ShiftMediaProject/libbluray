@@ -1519,16 +1519,6 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
         case PSR_PLAYITEM: _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYITEM, ev->new_val}); break;
         case PSR_CHAPTER:  _queue_event(bd, (BD_EVENT){BD_EVENT_CHAPTER,  ev->new_val}); break;
 
-        /* Interactive Graphics */
-
-        case PSR_SELECTED_BUTTON_ID:
-            _queue_event(bd, (BD_EVENT){BD_EVENT_SELECTED_BUTTON_ID, ev->new_val});
-            break;
-
-        case PSR_MENU_PAGE_ID:
-            _queue_event(bd, (BD_EVENT){BD_EVENT_MENU_PAGE_ID, ev->new_val});
-            break;
-
         /* stream selection */
 
         case PSR_IG_STREAM_ID:
@@ -1744,12 +1734,10 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             break;
 
         case HDMV_EVENT_ENABLE_BUTTON:
-            _queue_event(bd, (BD_EVENT){BD_EVENT_ENABLE_BUTTON, hev->param});
             _run_gc(bd, GC_CTRL_ENABLE_BUTTON, hev->param);
             break;
 
         case HDMV_EVENT_DISABLE_BUTTON:
-            _queue_event(bd, (BD_EVENT){BD_EVENT_DISABLE_BUTTON, hev->param});
             _run_gc(bd, GC_CTRL_DISABLE_BUTTON, hev->param);
             break;
 
@@ -1758,7 +1746,6 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             break;
 
         case HDMV_EVENT_POPUP_OFF:
-            _queue_event(bd, (BD_EVENT){BD_EVENT_POPUP_OFF, 0});
             _run_gc(bd, GC_CTRL_POPUP, 0);
             break;
 
