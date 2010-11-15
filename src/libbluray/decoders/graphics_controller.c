@@ -272,7 +272,7 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
 
     object = _find_object(gc->igs, object_id);
     if (!object) {
-        ERROR("_render_button(#%d): object #%d (state %d) not found\n", button->id, object_id, state);
+        TRACE("_render_button(#%d): object #%d (state %d) not found\n", button->id, object_id, state);
         return;
     }
 
@@ -324,6 +324,9 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
               page->palette_id_ref, s->num_palette);
         return;
     }
+
+    TRACE("rendering page #%d using palette #%d. page has %d bogs\n",
+          page->id, page->palette_id_ref, page->num_bogs);
 
     if (selected_button_id == 0xffff) {
         selected_button_id = page->default_selected_button_id_ref;
