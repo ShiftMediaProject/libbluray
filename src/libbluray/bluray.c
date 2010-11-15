@@ -1688,7 +1688,7 @@ int bd_menu_call(BLURAY *bd)
 {
     if (bd->title_type == title_undef) {
         // bd_play not called
-        return -1;
+        return 0;
     }
 
     return bd_play_title(bd, TITLE_TOP_MENU);
