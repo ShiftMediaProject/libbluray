@@ -1571,7 +1571,7 @@ static int _play_bdj(BLURAY *bd, const char *name)
     return bd_start_bdj(bd, name);
 #else
     DEBUG(DBG_BLURAY|DBG_CRIT, "_bdj_play(BDMV/BDJ/%s.jar) not implemented (%p)\n", name, bd);
-    return -1;
+    return 0;
 #endif
 }
 
