@@ -1591,7 +1591,8 @@ static int _play_hdmv(BLURAY *bd, unsigned id_ref)
         return 0;
     }
 
-    bd->hdmv_suspended = 0;
+    bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
+
     return 1;
 }
 
@@ -1674,7 +1675,6 @@ int bd_play(BLURAY *bd)
 
     if (bd->hdmv_vm) {
         hdmv_vm_free(&bd->hdmv_vm);
-        bd->hdmv_suspended = 1;
     }
 
     _init_event_queue(bd);
@@ -1703,6 +1703,7 @@ static void _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
 
         if (cmds.num_nav_cmds > 0) {
             hdmv_vm_set_object(bd->hdmv_vm, cmds.num_nav_cmds, cmds.nav_cmds);
+            bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
         }
     }
 }
@@ -1718,7 +1719,6 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
 
         case HDMV_EVENT_PLAY_PL:
             bd_select_playlist(bd, hev->param);
-            bd->hdmv_suspended = 1;
             /* initialize menus */
             _run_gc(bd, GC_CTRL_NOP, 0);
             break;
@@ -1738,7 +1738,7 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             bd_seek(bd, (uint64_t)bd->title->packets * 192 - 1);
             bd->st0.clip = NULL;
             // resume suspended movie object
-            bd->hdmv_suspended = 0;
+            hdmv_vm_resume(bd->hdmv_vm);
             break;
 
         case HDMV_EVENT_STILL:
@@ -1780,6 +1780,7 @@ static int _run_hdmv(BLURAY *bd)
     /* run VM */
     if (hdmv_vm_run(bd->hdmv_vm, &hdmv_ev) < 0) {
         _queue_event(bd, (BD_EVENT){BD_EVENT_ERROR, 0});
+        bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
         return -1;
     }
 
@@ -1788,6 +1789,9 @@ static int _run_hdmv(BLURAY *bd)
         _process_hdmv_vm_event(bd, &hdmv_ev);
 
     } while (!hdmv_vm_get_event(bd->hdmv_vm, &hdmv_ev));
+
+    /* update VM state */
+    bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
 
     return 0;
 }
@@ -1799,7 +1803,7 @@ int bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
     }
 
     /* run HDMV VM ? */
-    if (bd->title_type == title_hdmv) {
+    if (!bd->hdmv_suspended && bd->title_type == title_hdmv) {
 
         while (!bd->hdmv_suspended) {
 
@@ -1823,8 +1827,9 @@ int bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
 
     if (bytes == 0) {
         if (bd->title_type == title_hdmv) {
+            hdmv_vm_resume(bd->hdmv_vm);
+            bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
             DEBUG(DBG_BLURAY, "bd_read_ext(): reached end of playlist. hdmv_suspended=%d\n", bd->hdmv_suspended);
-            bd->hdmv_suspended = 0;
         }
     }
 
