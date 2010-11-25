@@ -111,6 +111,10 @@ typedef struct {
   int                current_clip;
   int                error;
   int                menu_open;
+  int                pg_enable;
+  int                pg_stream;
+
+  int                nav_mode;
 
 } bluray_input_plugin_t;
 
@@ -147,6 +151,8 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
   if (!this->osd) {
     this->osd = xine_osd_new(this->stream, 0, 0, 1920, 1080);
   }
+  if (!this->pg_enable)
+    _x_select_spu_channel(this->stream, -1);
 
   /* convert and set palette */
 
@@ -271,8 +277,28 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
       /* stream selection */
 
       case BD_EVENT_AUDIO_STREAM:
+        lprintf("BD_EVENT_AUDIO_STREAM %d\n", ev.param);
+        xine_set_param(this->stream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL, ev.param - 1);
+        break;
+
       case BD_EVENT_PG_TEXTST:
+        lprintf("BD_EVENT_PG_TEXTST %s\n", ev.param ? "ON" : "OFF");
+        this->pg_enable = ev.param;
+        if (!this->pg_enable) {
+          _x_select_spu_channel(this->stream, -2);
+        } else {
+          _x_select_spu_channel(this->stream, this->pg_stream);
+        }
+        break;
+
       case BD_EVENT_PG_TEXTST_STREAM:
+        lprintf("BD_EVENT_PG_TEXTST_STREAM %d\n", ev.param);
+        this->pg_stream = ev.param - 1;
+        if (this->pg_enable) {
+          _x_select_spu_channel(this->stream, this->pg_stream);
+        }
+        break;
+
       case BD_EVENT_IG_STREAM:
       case BD_EVENT_SECONDARY_AUDIO:
       case BD_EVENT_SECONDARY_AUDIO_STREAM:
@@ -432,8 +458,18 @@ static off_t bluray_plugin_read (input_plugin_t *this_gen, char *buf, off_t len)
 
   handle_events(this);
 
-  result = bd_read(this->bdh, (unsigned char *)buf, len);
-  handle_libbluray_events(this);
+  if (this->nav_mode) {
+    do {
+      BD_EVENT ev;
+      result = bd_read_ext (this->bdh, (unsigned char *)buf, len, &ev);
+      handle_libbluray_event(this, ev);
+      if (result == 0)
+        handle_events(this);
+    } while (!this->error && result == 0);
+  } else {
+    result = bd_read (this->bdh, (unsigned char *)buf, len);
+    handle_libbluray_events(this);
+  }
 
   if (result < 0)
     LOGMSG("bd_read() failed: %s (%d of %d)\n", strerror(errno), (int)result, (int)len);
@@ -653,49 +689,83 @@ static void bluray_plugin_dispose (input_plugin_t *this_gen)
   free (this);
 }
 
+static int parse_mrl(const char *mrl_in, char **path, int *title, int *chapter)
+{
+  int skip = 0;
+
+  if (!strncasecmp(mrl_in, "bluray:", 7))
+    skip = 7;
+  else if (!strncasecmp(mrl_in, "bd:", 3))
+    skip = 3;
+  else
+    return -1;
+
+  char *mrl = strdup(mrl_in + skip);
+
+  /* title[.chapter] given ? parse and drop it */
+  if (mrl[strlen(mrl)-1] != '/') {
+    char *end = strrchr(mrl, '/');
+    if (end && end[1]) {
+      if (sscanf(end, "/%d.%d", title, chapter) < 1)
+        *title = -1;
+      else
+        *end = 0;
+    }
+  }
+  lprintf(" -> title %d, chapter %d, mrl \'%s\'\n", *title, *chapter, mrl);
+
+  if ((mrl[0] == 0) ||
+      (mrl[1] == 0 && mrl[0] == '/') ||
+      (mrl[2] == 0 && mrl[1] == '/' && mrl[0] == '/') ||
+      (mrl[3] == 0 && mrl[2] == '/' && mrl[1] == '/' && mrl[0] == '/')){
+
+    /* default device */
+    *path = NULL;
+
+  } else if (*mrl == '/') {
+
+    /* strip extra slashes */
+    char *start = mrl;
+    while (start[0] == '/' && start[1] == '/')
+      start++;
+
+    *path = strdup(start);
+
+    _x_mrl_unescape(*path);
+
+    lprintf("non-defaut mount point \'%s\'\n", *path);
+
+  } else {
+    lprintf("invalid mrl \'%s\'\n", mrl_in);
+    free(mrl);
+    return 0;
+  }
+
+  free(mrl);
+
+  return 1;
+}
+
 static int bluray_plugin_open (input_plugin_t *this_gen)
 {
-  bluray_input_plugin_t *this  = (bluray_input_plugin_t *) this_gen;
-  int                    title = -1, chapter = 0;
+  bluray_input_plugin_t *this    = (bluray_input_plugin_t *) this_gen;
+  int                    title   = -1;
+  int                    chapter = 0;
 
   lprintf("bluray_plugin_open\n");
 
-  /* validate mrl */
-
-  if (strncasecmp (this->mrl, "bluray:", 7))
+  /* validate and parse mrl */
+  if (!parse_mrl(this->mrl, &this->disc_root, &title, &chapter))
     return -1;
 
-  if (!strcasecmp (this->mrl, "bluray:") ||
-      !strcasecmp (this->mrl, "bluray:/") ||
-      !strcasecmp (this->mrl, "bluray://") ||
-      !strcasecmp (this->mrl, "bluray:///")) {
+  if (!strncasecmp(this->mrl, "bd:", 3))
+    this->nav_mode = 1;
 
+  if (!this->disc_root)
     this->disc_root = strdup(this->class->mountpoint);
 
-  } else if (!strncasecmp (this->mrl, "bluray:/", 8)) {
-
-    if (!strncasecmp (this->mrl, "bluray:///", 10))
-      this->disc_root = strdup(this->mrl + 9);
-    else if (!strncasecmp (this->mrl, "bluray://", 9))
-      this->disc_root = strdup(this->mrl + 8);
-    else
-      this->disc_root = strdup(this->mrl + 7);
-
-    _x_mrl_unescape(this->disc_root);
-
-    if (this->disc_root[strlen(this->disc_root)-1] != '/') {
-      char *end = strrchr(this->disc_root, '/');
-      if (end && end[1])
-        if (sscanf(end, "/%d.%d", &title, &chapter) < 1)
-          title = -1;
-      *end = 0;
-    }
-
-  } else {
-    return -1;
-  }
-
   /* open libbluray */
+
   if (! (this->bdh = bd_open (this->disc_root, NULL))) {
     LOGMSG("bd_open(\'%s\') failed: %s\n", this->disc_root, strerror(errno));
     return -1;
@@ -745,9 +815,15 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
   bd_set_player_setting_str(this->bdh, BLURAY_PLAYER_SETTING_COUNTRY_CODE, this->class->country);
 
   /* open */
+  if (this->nav_mode) {
+    if (bd_play(this->bdh) <= 0) {
+      LOGMSG("bd_play() failed\n");
+      return -1;
+    }
+    this->current_title = -1;
 
-  if (open_title(this, title) <= 0 &&
-      open_title(this, 0) <= 0)
+  } else if (open_title(this, title) <= 0 &&
+           open_title(this, 0) <= 0)
     return -1;
 
   /* jump to chapter */
@@ -768,7 +844,7 @@ static input_plugin_t *bluray_class_get_instance (input_class_t *cls_gen, xine_s
 
   lprintf("bluray_class_get_instance\n");
 
-  if (strncasecmp (mrl, "bluray:", 7))
+  if (strncasecmp(mrl, "bluray:", 7) && strncasecmp(mrl, "bd:", 3))
     return NULL;
 
   this = (bluray_input_plugin_t *) calloc(1, sizeof (bluray_input_plugin_t));
@@ -951,8 +1027,10 @@ const plugin_info_t xine_plugin_info[] EXPORTED = {
   /* type, API, "name", version, special_info, init_function */
 #if INPUT_PLUGIN_IFACE_VERSION <= 17
   { PLUGIN_INPUT | PLUGIN_MUST_PRELOAD, 17, "BLURAY", XINE_VERSION_CODE, NULL, bluray_init_plugin },
+  { PLUGIN_INPUT | PLUGIN_MUST_PRELOAD, 17, "BD",     XINE_VERSION_CODE, NULL, bluray_init_plugin },
 #elif INPUT_PLUGIN_IFACE_VERSION >= 18
   { PLUGIN_INPUT | PLUGIN_MUST_PRELOAD, 18, "BLURAY", XINE_VERSION_CODE, NULL, bluray_init_plugin },
+  { PLUGIN_INPUT | PLUGIN_MUST_PRELOAD, 18, "BD",     XINE_VERSION_CODE, NULL, bluray_init_plugin },
 #endif
   { PLUGIN_NONE, 0, "", 0, NULL, NULL }
 };

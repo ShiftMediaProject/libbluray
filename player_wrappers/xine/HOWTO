@@ -8,10 +8,10 @@ Tested with xine-lib 1.1.18
 
 	sudo make install
 
-3. Run xine passing it a bluray:// url as follows:
+3. Run xine passing it a bluray:// or bd:// mrl as follows:
 
-	xine bluray:/path/to/disc
-	
-	e.g.
-	
 	xine bluray:/mnt/BLURAY_DISC
+
+	or using BluRay disc menus:
+
+	xine bd:/mnt/BLURAY_DISC
