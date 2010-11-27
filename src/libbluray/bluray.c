@@ -822,7 +822,8 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
 
     tick /= 2;
 
-    if (tick < bd->title->duration) {
+    if (bd->title &&
+        tick < bd->title->duration) {
 
         _change_angle(bd);
 
@@ -851,7 +852,8 @@ int64_t bd_seek_chapter(BLURAY *bd, unsigned chapter)
     uint32_t clip_pkt, out_pkt;
     NAV_CLIP *clip;
 
-    if (chapter < bd->title->chap_list.count) {
+    if (bd->title &&
+        chapter < bd->title->chap_list.count) {
 
         _change_angle(bd);
 
@@ -868,7 +870,9 @@ int64_t bd_chapter_pos(BLURAY *bd, unsigned chapter)
 {
     uint32_t clip_pkt, out_pkt;
 
-    if (chapter < bd->title->chap_list.count) {
+    if (bd->title &&
+        chapter < bd->title->chap_list.count) {
+
         // Find the closest access unit to the requested position
         nav_chapter_search(bd->title, chapter, &clip_pkt, &out_pkt);
         return (int64_t)out_pkt * 192;
@@ -879,7 +883,11 @@ int64_t bd_chapter_pos(BLURAY *bd, unsigned chapter)
 
 uint32_t bd_get_current_chapter(BLURAY *bd)
 {
-    return nav_chapter_get_current(bd->st0.clip, bd->st0.clip_pos / 192);
+    if (bd->title) {
+        return nav_chapter_get_current(bd->st0.clip, bd->st0.clip_pos / 192);
+    }
+
+    return 0;
 }
 
 int64_t bd_seek_mark(BLURAY *bd, unsigned mark)
@@ -887,7 +895,8 @@ int64_t bd_seek_mark(BLURAY *bd, unsigned mark)
     uint32_t clip_pkt, out_pkt;
     NAV_CLIP *clip;
 
-    if (mark < bd->title->mark_list.count) {
+    if (bd->title &&
+        mark < bd->title->mark_list.count) {
 
         _change_angle(bd);
 
@@ -905,7 +914,9 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos)
     uint32_t pkt, clip_pkt, out_pkt, out_time;
     NAV_CLIP *clip;
 
-    if (pos < (uint64_t)bd->title->packets * 192) {
+    if (bd->title &&
+        pos < (uint64_t)bd->title->packets * 192) {
+
         pkt = pos / 192;
 
         _change_angle(bd);
