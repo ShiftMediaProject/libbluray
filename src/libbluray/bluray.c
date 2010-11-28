@@ -1839,6 +1839,15 @@ int bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
     int bytes = bd_read(bd, buf, len);
 
     if (bytes == 0) {
+
+        MPLS_PI  *pi        = &bd->title->pl->play_item[0];
+        if (pi->still_mode == BLURAY_STILL_INFINITE) {
+            // most likely menu background ; waiting for user interaction
+            DEBUG(DBG_BLURAY, "Reached end of infinite still mode play item\n");
+            _get_event(bd, event);
+            return 0;
+        }
+
         if (bd->title_type == title_hdmv) {
             hdmv_vm_resume(bd->hdmv_vm);
             bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
