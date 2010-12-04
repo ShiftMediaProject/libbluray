@@ -669,7 +669,7 @@ void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS
     }
 
     if (!gc || !gc->igs || !gc->igs->ics) {
-        ERROR("gc_run(): no interactive composition\n");
+        TRACE("gc_run(): no interactive composition\n");
         return;
     }
 
