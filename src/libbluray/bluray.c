@@ -1581,6 +1581,33 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
     }
 }
 
+static void _queue_initial_psr_events(BLURAY *bd)
+{
+    const uint32_t psrs[] = {
+        PSR_ANGLE_NUMBER,
+        PSR_TITLE_NUMBER,
+        PSR_CHAPTER,
+        PSR_PLAYLIST,
+        PSR_PLAYITEM,
+        PSR_IG_STREAM_ID,
+        PSR_PRIMARY_AUDIO_ID,
+        PSR_PG_STREAM,
+        PSR_SECONDARY_AUDIO_VIDEO,
+    };
+    unsigned ii;
+
+    for (ii = 0; ii < sizeof(psrs) / sizeof(psrs[0]); ii++) {
+        BD_PSR_EVENT ev = {
+            .ev_type = 0,
+            .psr_idx = psrs[ii],
+            .old_val = 0,
+            .new_val = bd_psr_read(bd->regs, psrs[ii]),
+        };
+
+        _process_psr_event(bd, &ev);
+    }
+}
+
 static int _play_bdj(BLURAY *bd, const char *name)
 {
     bd->title_type = title_bdj;
@@ -1699,6 +1726,7 @@ int bd_play(BLURAY *bd)
     _init_event_queue(bd);
 
     bd_psr_register_cb(bd->regs, _process_psr_event, bd);
+    _queue_initial_psr_events(bd);
 
     return bd_play_title(bd, TITLE_FIRST_PLAY);
 }
@@ -1876,6 +1904,7 @@ int bd_get_event(BLURAY *bd, BD_EVENT *event)
         _init_event_queue(bd);
 
         bd_psr_register_cb(bd->regs, _process_psr_event, bd);
+        _queue_initial_psr_events(bd);
     }
 
     return _get_event(bd, event);
