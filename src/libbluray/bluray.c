@@ -1703,8 +1703,12 @@ int bd_play(BLURAY *bd)
     return bd_play_title(bd, TITLE_FIRST_PLAY);
 }
 
-int bd_menu_call(BLURAY *bd)
+int bd_menu_call(BLURAY *bd, int64_t pts)
 {
+    if (pts >= 0) {
+        bd_psr_write(bd->regs, PSR_TIME, (uint32_t)(((uint64_t)pts) >> 1));
+    }
+
     if (bd->title_type == title_undef) {
         // bd_play not called
         return 0;

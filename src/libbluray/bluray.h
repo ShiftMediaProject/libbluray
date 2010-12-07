@@ -483,7 +483,7 @@ int  bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event);
 int  bd_get_event(BLURAY *bd, BD_EVENT *event);
 
 int  bd_play_title(BLURAY *bd, unsigned title); /* play title (from disc index) */
-int  bd_menu_call(BLURAY *bd);                  /* open disc root menu */
+int  bd_menu_call(BLURAY *bd, int64_t pts);     /* open disc root menu */
 
 void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func);
 void bd_user_input(BLURAY *bd, int64_t pts, uint32_t key);
