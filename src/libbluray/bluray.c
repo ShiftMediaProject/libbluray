@@ -1071,19 +1071,17 @@ static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx)
 {
     MPLS_PI  *pi        = &bd->title->pl->play_item[0];
     unsigned  ig_stream = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
-    unsigned  ii;
 
-    for (ii = 0; ii < pi->stn.num_ig; ii++) {
-        if (ii + 1 == ig_stream) {
-            if (pi->stn.ig[ii].stream_type == 2) {
-                *sub_path_idx = pi->stn.ig[ii].subpath_id;
-            }
-            *pid = pi->stn.ig[ii].pid;
-
-            DEBUG(DBG_BLURAY, "_find_ig_stream(): current IG stream pid 0x%04x sub-path %d\n",
-                  *pid, *sub_path_idx);
-            return 1;
+    if (ig_stream > 0 && ig_stream <= pi->stn.num_ig) {
+        ig_stream--;
+        if (pi->stn.ig[ig_stream].stream_type == 2) {
+            *sub_path_idx = pi->stn.ig[ig_stream].subpath_id;
         }
+        *pid = pi->stn.ig[ig_stream].pid;
+
+        DEBUG(DBG_BLURAY, "_find_ig_stream(): current IG stream pid 0x%04x sub-path %d\n",
+              *pid, *sub_path_idx);
+        return 1;
     }
 
     return 0;
