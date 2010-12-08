@@ -362,7 +362,7 @@ static void handle_events(bluray_input_plugin_t *this)
 
     switch (event->type) {
 
-      case XINE_EVENT_INPUT_MENU1:     bd_menu_call(this->bdh); break;
+      case XINE_EVENT_INPUT_MENU1:     bd_menu_call(this->bdh, pts); break;
       case XINE_EVENT_INPUT_MENU2:     bd_user_input(this->bdh, pts, BD_VK_POPUP); break;
       case XINE_EVENT_INPUT_UP:        bd_user_input(this->bdh, pts, BD_VK_UP);    break;
       case XINE_EVENT_INPUT_DOWN:      bd_user_input(this->bdh, pts, BD_VK_DOWN);  break;
