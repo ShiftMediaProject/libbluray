@@ -248,8 +248,10 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
                         bd->aacs, title);
             }
 
-            if (st == &bd->st0)
+            if (st == &bd->st0) {
                 bd_psr_write(bd->regs, PSR_PLAYITEM, st->clip->ref);
+                bd_psr_write(bd->regs, PSR_TIME,     st->clip->in_time);
+            }
 
             return 1;
         }
