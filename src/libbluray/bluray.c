@@ -1017,6 +1017,12 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                     return 0;
                 }
                 if (clip_pkt >= st->clip->end_pkt) {
+
+                    // split read()'s at clip boundary
+                    if (out_len) {
+                        return out_len;
+                    }
+
                     st->clip = nav_next_clip(bd->title, st->clip);
                     if (st->clip == NULL) {
                         DEBUG(DBG_BLURAY|DBG_STREAM, "End of title (%p)\n", bd);
