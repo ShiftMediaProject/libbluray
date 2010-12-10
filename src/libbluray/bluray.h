@@ -585,4 +585,16 @@ void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func);
  */
 void bd_user_input(BLURAY *bd, int64_t pts, uint32_t key);
 
+/**
+ *
+ *  Select menu button at location (x,y).
+ *
+ * @param bd  BLURAY object
+ * @param pts current playback position (1/90000s) or -1
+ * @param x mouse pointer x-position
+ * @param y mouse pointer y-position
+ * @return none
+ */
+void bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y);
+
 #endif /* BLURAY_H_ */

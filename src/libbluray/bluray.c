@@ -1943,6 +1943,15 @@ int bd_get_event(BLURAY *bd, BD_EVENT *event)
  * user interaction
  */
 
+void bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
+{
+    if (pts >= 0) {
+        bd_psr_write(bd->regs, PSR_TIME, (uint32_t)(((uint64_t)pts) >> 1));
+    }
+
+    _run_gc(bd, GC_CTRL_MOUSE_MOVE, (x << 16) | y);
+}
+
 void bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
 {
     if (pts >= 0) {
