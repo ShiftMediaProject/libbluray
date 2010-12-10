@@ -1785,11 +1785,16 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             break;
 
         case HDMV_EVENT_PLAY_PI:
-            //bd_seek_pi(bd, hev->param);
+#if 0
+            _queue_event(bd, (BD_EVENT){BD_EVENT_SEEK, 0});
+            bd_seek_pi(bd, hev->param);
+#else
             DEBUG(DBG_BLURAY|DBG_CRIT, "HDMV_EVENT_PLAY_PI: not implemented\n");
+#endif
             break;
 
         case HDMV_EVENT_PLAY_PM:
+            _queue_event(bd, (BD_EVENT){BD_EVENT_SEEK, 0});
             bd_seek_mark(bd, hev->param);
             break;
 
