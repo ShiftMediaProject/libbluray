@@ -477,7 +477,10 @@ typedef enum {
     BD_EVENT_SEEK,
 
     /* still playback (pause) */
-    BD_EVENT_STILL,         /* 0 - off, 1 - on */
+    BD_EVENT_STILL,                  /* 0 - off, 1 - on */
+
+    /* Still playback for n seconds (reached end of still mode play item) */
+    BD_EVENT_STILL_TIME,             /* 0 = infinite ; 1...300 = seconds */
 
 } bd_event_e;
 

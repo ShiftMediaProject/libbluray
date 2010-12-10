@@ -1026,6 +1026,18 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                         return out_len;
                     }
 
+                    MPLS_PI *pi = &st->clip->title->pl->play_item[st->clip->ref];
+
+                    // handle still mode clips
+                    if (pi->still_mode == BLURAY_STILL_INFINITE) {
+                        _queue_event(bd, (BD_EVENT){BD_EVENT_STILL_TIME, 0});
+                        return 0;
+                    }
+                    if (pi->still_mode == BLURAY_STILL_TIME) {
+                        _queue_event(bd, (BD_EVENT){BD_EVENT_STILL_TIME, pi->still_time});
+                    }
+
+                    // find next clip
                     st->clip = nav_next_clip(bd->title, st->clip);
                     if (st->clip == NULL) {
                         DEBUG(DBG_BLURAY|DBG_STREAM, "End of title (%p)\n", bd);
@@ -1035,7 +1047,16 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                     if (!_open_m2ts(bd, st)) {
                         return -1;
                     }
+
+                    // timed still mode: allow application to process BD_EVENT_STILL_TIME.
+                    // next bd_read() will return new data.
+                    if (bd->event_queue) {
+                        if (pi->still_mode == BLURAY_STILL_TIME) {
+                            return 0;
+                        }
+                    }
                 }
+
                 if (_read_block(bd, st, bd->int_buf)) {
 
                     st->int_buf_off = st->clip_pos % 6144;
@@ -1893,15 +1914,8 @@ int bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
 
     if (bytes == 0) {
 
-        MPLS_PI  *pi        = &bd->title->pl->play_item[0];
-        if (pi->still_mode == BLURAY_STILL_INFINITE) {
-            // most likely menu background ; waiting for user interaction
-            DEBUG(DBG_BLURAY, "Reached end of infinite still mode play item\n");
-            _get_event(bd, event);
-            return 0;
-        }
-
-        if (bd->title_type == title_hdmv) {
+        // if no next clip (=end of title), resume HDMV VM
+        if (!bd->st0.clip && bd->title_type == title_hdmv) {
             hdmv_vm_resume(bd->hdmv_vm);
             bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
             DEBUG(DBG_BLURAY, "bd_read_ext(): reached end of playlist. hdmv_suspended=%d\n", bd->hdmv_suspended);
