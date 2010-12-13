@@ -246,17 +246,13 @@ static BD_IG_PAGE *_find_page(BD_IG_INTERACTIVE_COMPOSITION *c, unsigned page_id
     return NULL;
 }
 
-/*
- * IG rendering
- */
-
 enum { BTN_NORMAL, BTN_SELECTED, BTN_ACTIVATED };
 
-static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_PALETTE *palette, int state)
+static BD_PG_OBJECT *_find_object_for_button(PG_DISPLAY_SET *s,
+                                             BD_IG_BUTTON *button, int state)
 {
-    BD_PG_OBJECT *object    = NULL;
-    unsigned      object_id = 0xffff;
-    BD_OVERLAY    ov;
+    BD_PG_OBJECT *object   = NULL;
+    unsigned object_id     = 0xffff;
 
     switch (state) {
         case BTN_NORMAL:
@@ -270,9 +266,25 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
             break;
     }
 
-    object = _find_object(gc->igs, object_id);
+    object = _find_object(s, object_id);
+
+    return object;
+}
+
+
+/*
+ * IG rendering
+ */
+
+static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_PALETTE *palette,
+                           int state)
+{
+    BD_PG_OBJECT *object    = NULL;
+    BD_OVERLAY    ov;
+
+    object = _find_object_for_button(gc->igs, button, state);
     if (!object) {
-        TRACE("_render_button(#%d): object #%d (state %d) not found\n", button->id, object_id, state);
+        TRACE("_render_button(#%d): object (state %d) not found\n", button->id, state);
         return;
     }
 
