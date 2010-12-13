@@ -681,6 +681,67 @@ static void _update_selected_button(GRAPHICS_CONTROLLER *gc)
     }
 }
 
+static void _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_CMDS *cmds)
+{
+    PG_DISPLAY_SET *s          = gc->igs;
+    BD_IG_PAGE     *page       = NULL;
+    unsigned        page_id    = bd_psr_read(gc->regs, PSR_MENU_PAGE_ID);
+    unsigned        cur_btn_id = bd_psr_read(gc->regs, PSR_SELECTED_BUTTON_ID);
+    unsigned        new_btn_id = 0xffff;
+    unsigned        ii;
+
+    gc->valid_mouse_position = 0;
+
+    page = _find_page(&s->ics->interactive_composition, page_id);
+    if (!page) {
+        ERROR("_mouse_move(): unknown page #%d (have %d pages)\n",
+              page_id, s->ics->interactive_composition.num_pages);
+        return;
+    }
+
+    for (ii = 0; ii < page->num_bogs; ii++) {
+        BD_IG_BOG    *bog      = &page->bog[ii];
+        unsigned      valid_id = gc->enabled_button[ii];
+        BD_IG_BUTTON *button   = _find_button_bog(bog, valid_id);
+
+        if (!button)
+            continue;
+
+        if (x < button->x_pos || y < button->y_pos)
+            continue;
+
+        BD_PG_OBJECT *object = _find_object_for_button(s, button, BTN_NORMAL);
+        if (!object)
+            continue;
+
+        if (x >= button->x_pos + object->width || y >= button->y_pos + object->height)
+            continue;
+
+        // mouse is over button
+
+        // is button already selected ?
+        if (button->id == cur_btn_id) {
+            gc->valid_mouse_position = 1;
+            return;
+        }
+
+        // can button be selected ?
+        if (!_find_object_for_button(s, button, BTN_SELECTED))
+            return;
+
+        new_btn_id = button->id;
+        break;
+    }
+
+    if (new_btn_id != 0xffff) {
+        bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, new_btn_id);
+
+        _render_page(gc, -1, cmds);
+
+        gc->valid_mouse_position = 1;
+    }
+}
+
 void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS *cmds)
 {
     if (cmds) {
@@ -706,7 +767,7 @@ void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS
                 break;
             }
             param = !gc->popup_visible;
-            /* fall thru */
+            /* fall thru (BD_VK_POPUP) */
 
         case GC_CTRL_POPUP:
             if (!gc->igs || !gc->igs->ics || gc->igs->ics->interactive_composition.ui_model != 1) {
@@ -744,5 +805,9 @@ void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS
         case GC_CTRL_DISABLE_BUTTON:
             _enable_button(gc, param, 0);
             break;
+
+        case GC_CTRL_MOUSE_MOVE:
+          _mouse_move(gc, param >> 16, param & 0xffff, cmds);
+          return;
     }
 }
