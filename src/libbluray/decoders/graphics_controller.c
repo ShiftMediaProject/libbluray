@@ -50,6 +50,7 @@ struct graphics_controller_s {
     unsigned        ig_drawn;
     unsigned        pg_drawn;
     unsigned        popup_visible;
+    unsigned        valid_mouse_position;
 
     /* data */
     PG_DISPLAY_SET *pgs;
@@ -404,6 +405,14 @@ static void _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *c
         ERROR("_user_input(): unknown page id %d (have %d pages)\n",
               page_id, s->ics->interactive_composition.num_pages);
         return;
+    }
+
+    if (key == BD_VK_MOUSE_ACTIVATE) {
+        if (!gc->valid_mouse_position) {
+            TRACE("_user_input(): BD_VK_MOUSE_ACTIVATE outside of valid buttons\n");
+            return;
+        }
+        key = BD_VK_ENTER;
     }
 
     for (ii = 0; ii < page->num_bogs; ii++) {
