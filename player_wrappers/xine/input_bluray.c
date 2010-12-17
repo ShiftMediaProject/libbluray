@@ -105,8 +105,12 @@ typedef struct {
 
   BLURAY               *bdh;
 
+  const BLURAY_DISC_INFO *disc_info;
+
   int                num_title_idx;     /* number of relevant playlists */
   int                current_title_idx;
+  int                num_titles;        /* navigation mode, number of titles in disc index */
+  int                current_title;     /* navigation mode, title from disc index */
   BLURAY_TITLE_INFO *title_info;
   int                current_clip;
   int                error;
@@ -256,6 +260,7 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
         break;
 
       case BD_EVENT_TITLE:
+        this->current_title = ev.param;
         break;
 
       case BD_EVENT_PLAYLIST:
@@ -349,20 +354,52 @@ static void handle_events(bluray_input_plugin_t *this)
       switch (event->type) {
 
         case XINE_EVENT_INPUT_LEFT:
-          lprintf("XINE_EVENT_INPUT_LEFT: next title\n");
-          open_title(this, MAX(0, this->current_title_idx - 1));
+          lprintf("XINE_EVENT_INPUT_LEFT: previous title\n");
+          if (!this->nav_mode) {
+            open_title(this, MAX(0, this->current_title_idx - 1));
+          } else {
+            bd_play_title(this->bdh, MAX(1, this->current_title - 1));
+          }
           break;
 
         case XINE_EVENT_INPUT_RIGHT:
-          lprintf("XINE_EVENT_INPUT_RIGHT: previous title\n");
-          open_title(this, MIN(this->num_title_idx, this->current_title_idx + 1));
+          lprintf("XINE_EVENT_INPUT_RIGHT: next title\n");
+          if (!this->nav_mode) {
+            open_title(this, MIN(this->num_title_idx - 1, this->current_title_idx + 1));
+          } else {
+            bd_play_title(this->bdh, MIN(this->num_titles, this->current_title + 1));
+          }
           break;
       }
     }
 
     switch (event->type) {
 
-      case XINE_EVENT_INPUT_MENU1:     bd_menu_call(this->bdh, pts); break;
+      case XINE_EVENT_INPUT_MOUSE_BUTTON: {
+        xine_input_data_t *input = event->data;
+        lprintf("mouse click: button %d at (%d,%d)\n", input->button, input->x, input->y);
+        if (input->button == 1) {
+          bd_mouse_select(this->bdh, pts, input->x, input->y);
+          bd_user_input(this->bdh, pts, BD_VK_MOUSE_ACTIVATE);
+        }
+        break;
+      }
+
+      case XINE_EVENT_INPUT_MOUSE_MOVE: {
+        xine_input_data_t *input = event->data;
+        bd_mouse_select(this->bdh, pts, input->x, input->y);
+        break;
+      }
+
+      case XINE_EVENT_INPUT_MENU1:
+        if (!this->disc_info->top_menu_supported) {
+          _x_message (this->stream, XINE_MSG_GENERAL_WARNING,
+                      "Can't open Top Menu",
+                      "Top Menu title not supported", NULL);
+        }
+        bd_menu_call(this->bdh, pts);
+        break;
+
       case XINE_EVENT_INPUT_MENU2:     bd_user_input(this->bdh, pts, BD_VK_POPUP); break;
       case XINE_EVENT_INPUT_UP:        bd_user_input(this->bdh, pts, BD_VK_UP);    break;
       case XINE_EVENT_INPUT_DOWN:      bd_user_input(this->bdh, pts, BD_VK_DOWN);  break;
@@ -746,6 +783,64 @@ static int parse_mrl(const char *mrl_in, char **path, int *title, int *chapter)
   return 1;
 }
 
+static int get_disc_info(bluray_input_plugin_t *this)
+{
+  const BLURAY_DISC_INFO *disc_info;
+
+  disc_info = bd_get_disc_info(this->bdh);
+
+  if (!disc_info) {
+    LOGMSG("bd_get_disc_info() failed\n");
+    return -1;
+  }
+
+  if (!disc_info->bluray_detected) {
+    LOGMSG("bd_get_disc_info(): BluRay not detected\n");
+    this->nav_mode = 0;
+    return 0;
+  }
+
+  if (disc_info->aacs_detected && !disc_info->aacs_handled) {
+    if (!disc_info->libaacs_detected)
+      _x_message (this->stream, XINE_MSG_ENCRYPTED_SOURCE,
+                  "Media stream scrambled/encrypted with AACS",
+                  "libaacs not installed", NULL);
+    else
+      _x_message (this->stream, XINE_MSG_ENCRYPTED_SOURCE,
+                  "Media stream scrambled/encrypted with AACS", NULL);
+    return -1;
+  }
+
+  if (disc_info->bdplus_detected && !disc_info->bdplus_handled) {
+    if (!disc_info->libbdplus_detected)
+      _x_message (this->stream, XINE_MSG_ENCRYPTED_SOURCE,
+                  "Media scrambled/encrypted with BD+",
+                  "libbdplus not installed.", NULL);
+    else
+      _x_message (this->stream, XINE_MSG_ENCRYPTED_SOURCE,
+                  "Media stream scrambled/encrypted with BD+", NULL);
+    return -1;
+  }
+
+  if (this->nav_mode && !disc_info->first_play_supported) {
+    _x_message (this->stream, XINE_MSG_GENERAL_WARNING,
+                "Can't play disc in HDMV navigation mode",
+                "First Play title not supported", NULL);
+    this->nav_mode = 0;
+  }
+
+  if (this->nav_mode && disc_info->num_unsupported_titles > 0) {
+    _x_message (this->stream, XINE_MSG_GENERAL_WARNING,
+                "Unsupported titles found",
+                "Some titles can't be played in navigation mode", NULL);
+  }
+
+  this->num_titles = disc_info->num_hdmv_titles + disc_info->num_bdj_titles;
+  this->disc_info  = disc_info;
+
+  return 1;
+}
+
 static int bluray_plugin_open (input_plugin_t *this_gen)
 {
   bluray_input_plugin_t *this    = (bluray_input_plugin_t *) this_gen;
@@ -771,6 +866,10 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
     return -1;
   }
   lprintf("bd_open(\'%s\') OK\n", this->disc_root);
+
+  if (get_disc_info(this) < 0) {
+    return -1;
+  }
 
   /* load title list */
 
@@ -815,16 +914,20 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
   bd_set_player_setting_str(this->bdh, BLURAY_PLAYER_SETTING_COUNTRY_CODE, this->class->country);
 
   /* open */
+  this->current_title = -1;
+  this->current_title_idx = -1;
+
   if (this->nav_mode) {
     if (bd_play(this->bdh) <= 0) {
       LOGMSG("bd_play() failed\n");
       return -1;
     }
-    this->current_title_idx = -1;
 
-  } else if (open_title(this, title) <= 0 &&
-           open_title(this, 0) <= 0)
-    return -1;
+  } else {
+    if (open_title(this, title) <= 0 &&
+        open_title(this, 0) <= 0)
+      return -1;
+  }
 
   /* jump to chapter */
 
