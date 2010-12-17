@@ -50,6 +50,7 @@
 
 #define LOGMSG(x...)  xine_log (this->stream->xine, XINE_LOG_MSG, "input_bluray: " x);
 
+#define XINE_ENGINE_INTERNAL
 
 #ifdef HAVE_CONFIG_H
 # include "xine_internal.h"
@@ -118,7 +119,8 @@ typedef struct {
   int                pg_enable;
   int                pg_stream;
 
-  int                nav_mode;
+  uint32_t           cap_seekable;
+  uint8_t            nav_mode;
 
 } bluray_input_plugin_t;
 
@@ -239,6 +241,19 @@ static int open_title (bluray_input_plugin_t *this, int title)
   return 1;
 }
 
+static void stream_reset(bluray_input_plugin_t *this)
+{
+  lprintf("Stream reset\n");
+
+  this->cap_seekable = 0;
+
+  xine_set_param(this->stream, XINE_PARAM_FINE_SPEED, XINE_FINE_SPEED_NORMAL);
+  this->stream->demux_plugin->seek(this->stream->demux_plugin, 0, 0, 1);
+  _x_demux_control_start(this->stream);
+
+  this->cap_seekable = INPUT_CAP_SEEKABLE;
+}
+
 static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
 {
     switch (ev.event) {
@@ -255,6 +270,11 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
         return;
 
       /* playback control */
+
+      case BD_EVENT_SEEK:
+        lprintf("BD_EVENT_SEEK\n");
+        stream_reset(this);
+        break;
 
       case BD_EVENT_STILL:
         break;
@@ -275,6 +295,7 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
         this->current_title_idx = bd_get_current_title(this->bdh);
         this->current_clip = 0;
         update_title_info(this);
+        stream_reset(this);
         break;
 
       case BD_EVENT_PLAYITEM:
@@ -434,10 +455,12 @@ static void handle_events(bluray_input_plugin_t *this)
         if (chapter >= this->title_info->chapter_count) {
           if (this->current_title_idx < this->num_title_idx - 1) {
             open_title(this, this->current_title_idx + 1);
+            stream_reset(this);
           }
         } else {
           bd_seek_chapter(this->bdh, chapter);
           update_stream_info(this);
+          stream_reset(this);
         }
         break;
       }
@@ -449,10 +472,12 @@ static void handle_events(bluray_input_plugin_t *this)
 
         if (chapter < 0 && this->current_title_idx > 0) {
           open_title(this, this->current_title_idx - 1);
+          stream_reset(this);
         } else {
           chapter = MAX(0, chapter);
           bd_seek_chapter(this->bdh, chapter);
           update_stream_info(this);
+          stream_reset(this);
         }
         break;
       }
@@ -486,7 +511,8 @@ static void handle_events(bluray_input_plugin_t *this)
 
 static uint32_t bluray_plugin_get_capabilities (input_plugin_t *this_gen)
 {
-  return INPUT_CAP_SEEKABLE  |
+  bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
+  return this->cap_seekable  |
          INPUT_CAP_BLOCK     |
          INPUT_CAP_AUDIOLANG |
          INPUT_CAP_SPULANG;
@@ -968,6 +994,8 @@ static input_plugin_t *bluray_class_get_instance (input_class_t *cls_gen, xine_s
   this->stream = stream;
   this->class  = (bluray_input_class_t*)cls_gen;
   this->mrl    = strdup(mrl);
+
+  this->cap_seekable = INPUT_CAP_SEEKABLE;
 
   this->input_plugin.open               = bluray_plugin_open;
   this->input_plugin.get_capabilities   = bluray_plugin_get_capabilities;
