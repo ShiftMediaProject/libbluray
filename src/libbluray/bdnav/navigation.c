@@ -589,7 +589,7 @@ NAV_CLIP* nav_mark_search(NAV_TITLE *title, unsigned mark, uint32_t *clip_pkt, u
     if (mark > title->mark_list.count) {
         clip = &title->clip_list.clip[0];
         *clip_pkt = clip->start_pkt;
-        *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+        *out_pkt = clip->pos;
         return clip;
     }
     clip = &title->clip_list.clip[title->mark_list.mark[mark].clip_ref];
