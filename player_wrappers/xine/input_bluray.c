@@ -105,8 +105,8 @@ typedef struct {
 
   BLURAY               *bdh;
 
-  int                num_titles;
-  int                current_title;
+  int                num_title_idx;     /* number of relevant playlists */
+  int                current_title_idx;
   BLURAY_TITLE_INFO *title_info;
   int                current_clip;
   int                error;
@@ -200,9 +200,9 @@ static void update_title_info(bluray_input_plugin_t *this)
 {
   if (this->title_info)
     bd_free_title_info(this->title_info);
-  this->title_info = bd_get_title_info(this->bdh, this->current_title);
+  this->title_info = bd_get_title_info(this->bdh, this->current_title_idx);
   if (!this->title_info) {
-    LOGMSG("bd_get_title_info(%d) failed\n", this->current_title);
+    LOGMSG("bd_get_title_info(%d) failed\n", this->current_title_idx);
     return;
   }
 
@@ -215,8 +215,8 @@ static void update_title_info(bluray_input_plugin_t *this)
 
   /* set stream info */
 
-  _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_COUNT,  this->num_titles);
-  _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_NUMBER, this->current_title + 1);
+  _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_COUNT,  this->num_title_idx);
+  _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_NUMBER, this->current_title_idx + 1);
 
   update_stream_info(this);
 }
@@ -228,7 +228,7 @@ static int open_title (bluray_input_plugin_t *this, int title)
     return 0;
   }
 
-  this->current_title = title;
+  this->current_title_idx = title;
 
   update_title_info(this);
 
@@ -260,7 +260,7 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
 
       case BD_EVENT_PLAYLIST:
         lprintf("BD_EVENT_PLAYLIST %d\n", ev.param);
-        this->current_title = bd_get_current_title(this->bdh);
+        this->current_title_idx = bd_get_current_title(this->bdh);
         update_title_info(this);
         break;
 
@@ -350,12 +350,12 @@ static void handle_events(bluray_input_plugin_t *this)
 
         case XINE_EVENT_INPUT_LEFT:
           lprintf("XINE_EVENT_INPUT_LEFT: next title\n");
-          open_title(this, MAX(0, this->current_title - 1));
+          open_title(this, MAX(0, this->current_title_idx - 1));
           break;
 
         case XINE_EVENT_INPUT_RIGHT:
           lprintf("XINE_EVENT_INPUT_RIGHT: previous title\n");
-          open_title(this, MIN(this->num_titles, this->current_title + 1));
+          open_title(this, MIN(this->num_title_idx, this->current_title_idx + 1));
           break;
       }
     }
@@ -384,8 +384,8 @@ static void handle_events(bluray_input_plugin_t *this)
         lprintf("XINE_EVENT_INPUT_NEXT: next chapter\n");
 
         if (chapter >= this->title_info->chapter_count) {
-          if (this->current_title < this->num_titles - 1) {
-            open_title(this, this->current_title + 1);
+          if (this->current_title_idx < this->num_title_idx - 1) {
+            open_title(this, this->current_title_idx + 1);
           }
         } else {
           bd_seek_chapter(this->bdh, chapter);
@@ -399,8 +399,8 @@ static void handle_events(bluray_input_plugin_t *this)
 
         lprintf("XINE_EVENT_INPUT_PREVIOUS: previous chapter\n");
 
-        if (chapter < 0 && this->current_title > 0) {
-          open_title(this, this->current_title - 1);
+        if (chapter < 0 && this->current_title_idx > 0) {
+          open_title(this, this->current_title_idx - 1);
         } else {
           chapter = MAX(0, chapter);
           bd_seek_chapter(this->bdh, chapter);
@@ -774,10 +774,10 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
 
   /* load title list */
 
-  this->num_titles = bd_get_titles(this->bdh, TITLES_RELEVANT);
-  LOGMSG("%d titles\n", this->num_titles);
+  this->num_title_idx = bd_get_titles(this->bdh, TITLES_RELEVANT);
+  LOGMSG("%d titles\n", this->num_title_idx);
 
-  if (this->num_titles < 1)
+  if (this->num_title_idx < 1)
     return -1;
 
   /* select title */
@@ -786,7 +786,7 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
   if (title < 0) {
     uint64_t duration = 0;
     int i, playlist = 99999;
-    for (i = 0; i < this->num_titles; i++) {
+    for (i = 0; i < this->num_title_idx; i++) {
       BLURAY_TITLE_INFO *info = bd_get_title_info(this->bdh, i);
       if (info->duration > duration) {
         title    = i;
@@ -820,7 +820,7 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
       LOGMSG("bd_play() failed\n");
       return -1;
     }
-    this->current_title = -1;
+    this->current_title_idx = -1;
 
   } else if (open_title(this, title) <= 0 &&
            open_title(this, 0) <= 0)
