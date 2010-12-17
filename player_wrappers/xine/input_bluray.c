@@ -254,6 +254,38 @@ static void stream_reset(bluray_input_plugin_t *this)
   this->cap_seekable = INPUT_CAP_SEEKABLE;
 }
 
+static void wait_secs(bluray_input_plugin_t *this, unsigned seconds)
+{
+  // infinite still mode ?
+  if (!seconds) {
+    xine_usec_sleep(10*1000);
+    return;
+  }
+
+  // clip to allowed range
+  if (seconds > 300) {
+    seconds = 300;
+  }
+
+  // pause the stream
+  int paused = _x_get_fine_speed(this->stream) == XINE_SPEED_PAUSE;
+  if (!paused) {
+    _x_set_fine_speed(this->stream, XINE_SPEED_PAUSE);
+  }
+
+  // wait until interrupted
+  int loops = seconds * 25; /* N * 40 ms */
+  while (!this->stream->demux_action_pending && loops-- > 0) {
+    xine_usec_sleep(40*1000);
+  }
+
+  lprintf("paused for %d seconds (%d ms left)\n", seconds - loops/25, loops * 40);
+
+  if (!paused) {
+    _x_set_fine_speed(this->stream, XINE_FINE_SPEED_NORMAL);
+  }
+}
+
 static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
 {
     switch (ev.event) {
@@ -276,7 +308,20 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
         stream_reset(this);
         break;
 
+      case BD_EVENT_STILL_TIME:
+        lprintf("BD_EVENT_STILL_TIME %d\n", ev.param);
+        wait_secs(this, ev.param);
+        break;
+
       case BD_EVENT_STILL:
+        lprintf("BD_EVENT_STILL %d\n", ev.param);
+        int paused = _x_get_fine_speed(this->stream) == XINE_SPEED_PAUSE;
+        if (paused && !ev.param) {
+          _x_set_fine_speed(this->stream, XINE_FINE_SPEED_NORMAL);
+        }
+        if (!paused && ev.param) {
+          _x_set_fine_speed(this->stream, XINE_SPEED_PAUSE);
+        }
         break;
 
       /* playback position */
