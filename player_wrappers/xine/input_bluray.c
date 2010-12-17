@@ -247,6 +247,13 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
         this->error = 1;
         return;
 
+      case BD_EVENT_ENCRYPTED:
+        lprintf("BD_EVENT_ENCRYPTED\n");
+        _x_message (this->stream, XINE_MSG_ENCRYPTED_SOURCE,
+                    "Media stream scrambled/encrypted", NULL);
+        this->error = 1;
+        return;
+
       /* playback control */
 
       case BD_EVENT_STILL:
@@ -266,12 +273,16 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
       case BD_EVENT_PLAYLIST:
         lprintf("BD_EVENT_PLAYLIST %d\n", ev.param);
         this->current_title_idx = bd_get_current_title(this->bdh);
+        this->current_clip = 0;
         update_title_info(this);
         break;
 
       case BD_EVENT_PLAYITEM:
         lprintf("BD_EVENT_PLAYITEM %d\n", ev.param);
-        this->current_clip = ev.param;
+        if (ev.param < this->title_info->clip_count)
+          this->current_clip = ev.param;
+        else
+          this->current_clip = 0;
         break;
 
       case BD_EVENT_CHAPTER:
@@ -490,7 +501,7 @@ static off_t bluray_plugin_read (input_plugin_t *this_gen, char *buf, off_t len)
   bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
   off_t result;
 
-  if (!this || !this->bdh || len < 0)
+  if (!this || !this->bdh || len < 0 || this->error)
     return -1;
 
   handle_events(this);
@@ -547,6 +558,8 @@ static off_t bluray_plugin_seek (input_plugin_t *this_gen, off_t offset, int ori
 
   if (!this || !this->bdh)
     return -1;
+  if (this->current_title_idx < 0)
+    return offset;
 
   /* convert relative seeks to absolute */
 
