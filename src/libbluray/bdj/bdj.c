@@ -85,7 +85,7 @@ BDJAVA* bdj_open(const char *path, const char* start, void* bd, void* registers)
     free(option);
     free(classpath_opt);
 
-    if (result != JNI_OK) {
+    if (result != JNI_OK || !bdjava->env) {
         free(bdjava);
         DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM.\n");
         return NULL;
