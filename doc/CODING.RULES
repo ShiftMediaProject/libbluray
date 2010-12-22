@@ -43,9 +43,9 @@ int main(int argc, char *argv[])
         }
         something_more();
         if (x == 1) {
-		x_eq_1(x, y);
+            x_eq_1(x, y);
 	} else {
-		x_neq_1(x, y);
+            x_neq_1(x, y);
 	}
     }
     final_thing();
