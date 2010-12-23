@@ -21,6 +21,7 @@
 #include "config.h"
 #endif
 
+#include "libbluray/bdnav/meta_data.h"
 #include "libbluray/bluray.h"
 
 #include <stdio.h>
@@ -31,6 +32,64 @@
 static const char *_yes_no(int i)
 {
     return i > 0 ? "yes" : i < 0 ? "unknown" : "no";
+}
+
+static const char *_str_chk_null(const char *s)
+{
+    return s ? s : "<undefined>";
+}
+
+static const char *_num2str(int i)
+{
+    if (i > 0 && i < 0xff) {
+        static char str[32];
+        sprintf(str, "%d", i);
+        return str;
+    }
+
+    return "<undefined>";
+}
+
+static const char *_res2str(int x, int y)
+{
+    if (x > 0 && y > 0 && x < 0xffff && y < 0xffff) {
+        static char str[64];
+        sprintf(str, "%dx%d", x, y);
+        return str;
+    }
+
+    return "";
+}
+
+static void _print_meta(META_DL *meta)
+{
+    if (!meta) {
+        printf("\nNo disc library metadata\n");
+        return;
+    }
+
+    unsigned ii;
+
+    printf("\nDisc library metadata:\n");
+    printf("Metadata file       : %s\n", _str_chk_null(meta->filename));
+    printf("Language            : %s\n", _str_chk_null(meta->language_code));
+    printf("Disc name           : %s\n", _str_chk_null(meta->di_name));
+    printf("Alternative         : %s\n", _str_chk_null(meta->di_alternative));
+    printf("Disc #              : %s/%s\n", _num2str(meta->di_set_number), _num2str(meta->di_num_sets));
+
+    printf("TOC count           : %d\n", meta->toc_count);
+    for (ii = 0; ii < meta->toc_count; ii++) {
+        printf("\tTitle %d: %s\n",
+               meta->toc_entries[ii].title_number,
+               _str_chk_null(meta->toc_entries[ii].title_name));
+    }
+
+    printf("Thumbnail count     : %d\n", meta->thumb_count);
+    for (ii = 0; ii < meta->thumb_count; ii++) {
+        printf("\t%s \t%s\n",
+               _str_chk_null(meta->thumbnails[ii].path),
+               _res2str(meta->thumbnails[ii].xres, meta->thumbnails[ii].yres));
+    }
 }
 
 int main(int argc, char *argv[])
@@ -59,7 +118,6 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-
     printf("BluRay detected     : %s\n", _yes_no(info->bluray_detected));
     if (info->bluray_detected) {
         printf("First Play supported: %s\n", _yes_no(info->first_play_supported));
@@ -80,6 +138,8 @@ int main(int argc, char *argv[])
         printf("libbdplus detected  : %s\n", _yes_no(info->libbdplus_detected));
         printf("BD+ handled         : %s\n", _yes_no(info->bdplus_handled));
     }
+
+    _print_meta(bd_get_meta(bd));
 
     return 0;
 }
