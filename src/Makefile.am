@@ -14,7 +14,7 @@ SET_DEBUG_OPTS = @SET_DEBUG_OPTS@
 SET_INCLUDES = -I$(top_srcdir) -Ifile -Ilibbluray/bdnav
 
 AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_WARNINGS) $(SET_OPTIMIZATIONS) \
-	$(SET_DEBUG_OPTS) $(SET_INCLUDES)
+        $(SET_DEBUG_OPTS) $(SET_INCLUDES) $(LIBXML2_CFLAGS)
 CFLAGS=$(shell test -z "$$CFLAGS" || echo "$$CFLAGS")
 
 SOURCES_bdj = libbluray/bdj/bdj.h \
@@ -48,6 +48,9 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	libbluray/bdnav/mpls_parse.c \
 	libbluray/bdnav/index_parse.h \
 	libbluray/bdnav/clpi_parse.h \
+	libbluray/bdnav/meta_data.h \
+	libbluray/bdnav/meta_parse.c \
+	libbluray/bdnav/meta_parse.h \
 	libbluray/decoders \
 	libbluray/decoders/pes_buffer.h \
 	libbluray/decoders/pes_buffer.c \
@@ -86,8 +89,8 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	util/log_control.h \
 	util/bits.h \
 	util/logging.h
-libbluray_la_HEADERS= libbluray/bluray.h file/filesystem.h util/log_control.h libbluray/keys.h libbluray/decoders/overlay.h
-libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) $(DLOPEN_LDFLAGS)
+libbluray_la_HEADERS= libbluray/bluray.h file/filesystem.h util/log_control.h libbluray/keys.h libbluray/decoders/overlay.h libbluray/bdnav/meta_data.h
+libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO) $(DLOPEN_LDFLAGS) $(LIBXML2_LIBS)
 
 if USING_BDJAVA
 libbluray_la_SOURCES+=$(SOURCES_bdj)
