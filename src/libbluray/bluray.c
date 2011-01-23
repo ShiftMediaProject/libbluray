@@ -1338,7 +1338,10 @@ int bd_select_angle(BLURAY *bd, unsigned angle)
 
 unsigned bd_get_current_angle(BLURAY *bd)
 {
-    return bd->title->angle;
+    if (bd->title) {
+        return bd->title->angle;
+    }
+    return 0;
 }
 
 
