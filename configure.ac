@@ -32,6 +32,7 @@ function_not_found="Could not find required function!"
 using_dlopen_crypto_libs="Using libaacs and libbdplus via dlopen."
 using_normal_linking="Using libaacs and libbdplus via normal linking."
 libxml2_missing="Could not find libxml2 - disclib meta parser disabled."
+pkg_config_missing="Could not find pkg-config.  Assuming..."
 
 # configure options
 AC_ARG_ENABLE([dlopen-crypto-libs],
@@ -142,8 +143,19 @@ fi
 AM_CONDITIONAL([DLOPEN_CRYPTO_LIBS],
   [test $use_dlopen_crypto_libs = "auto" || test $use_dlopen_crypto_libs = "yes"])
 
+# check for pkg-config itself so we don't try the m4 macro without pkg-config
+AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
+
 # libxml2 for metadata parser
-PKG_CHECK_MODULES(LIBXML2, libxml-2.0 >= 2.6, AC_DEFINE([HAVE_LIBXML2], [1], [Define to 1 if libxml2 is to be used for metadata parsing]), AC_MSG_NOTICE($libxml2_missing))
+if test "x$HAVE_PKG_CONFIG" = "xyes"
+then
+    PKG_CHECK_MODULES([LIBXML2], libxml-2.0 >= 2.6, 
+        [AC_DEFINE([HAVE_LIBXML2], [1], 
+            [Define to 1 if libxml2 is to be used for metadata parsing])],
+        [AC_MSG_NOTICE($libxml2_missing)])
+else
+    AC_MSG_NOTICE($pkg_config_missing $libxml2_missing)
+fi
 
 # function testing for supported compiler options
 check_cc_options()
