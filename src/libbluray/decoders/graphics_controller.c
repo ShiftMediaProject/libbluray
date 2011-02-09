@@ -270,6 +270,11 @@ void gc_free(GRAPHICS_CONTROLLER **p)
 
 void gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned num_blocks, int64_t stc)
 {
+    if (!gc) {
+        TRACE("gc_decode_ts(): no graphics controller\n");
+        return;
+    }
+
     if (pid >= 0x1400 && pid < 0x1500) {
         /* IG stream */
 
@@ -774,6 +779,11 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         cmds->sound_id_ref = -1;
     }
 
+    if (!gc) {
+        TRACE("gc_run(): no graphics controller\n");
+        return result;
+    }
+
     bd_mutex_lock(&gc->mutex);
 
     /* always accept reset */
@@ -787,7 +797,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
     }
 
     /* other operations require complete display set */
-    if (!gc || !gc->igs || !gc->igs->ics || !gc->igs->complete) {
+    if (!gc->igs || !gc->igs->ics || !gc->igs->complete) {
         TRACE("gc_run(): no interactive composition\n");
         bd_mutex_unlock(&gc->mutex);
         return result;
