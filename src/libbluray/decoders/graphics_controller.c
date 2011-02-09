@@ -383,7 +383,7 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
 #define VK_IS_NUMERIC(vk) (/*vk >= BD_VK_0  &&*/ vk <= BD_VK_9)
 #define VK_IS_CURSOR(vk)  (vk >= BD_VK_UP && vk <= BD_VK_RIGHT)
 
-static void _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *cmds)
+static int _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *cmds)
 {
     PG_DISPLAY_SET *s          = gc->igs;
     BD_IG_PAGE     *page       = NULL;
@@ -395,7 +395,7 @@ static void _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *c
 
     if (s->ics->interactive_composition.ui_model == 1 && !gc->popup_visible) {
         TRACE("_user_input(): popup menu not visible\n");
-        return;
+        return -1;
     }
 
     TRACE("_user_input(%d)\n", key);
@@ -404,13 +404,13 @@ static void _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *c
     if (!page) {
         ERROR("_user_input(): unknown page id %d (have %d pages)\n",
               page_id, s->ics->interactive_composition.num_pages);
-        return;
+        return -1;
     }
 
     if (key == BD_VK_MOUSE_ACTIVATE) {
         if (!gc->valid_mouse_position) {
             TRACE("_user_input(): BD_VK_MOUSE_ACTIVATE outside of valid buttons\n");
-            return;
+            return -1;
         }
         key = BD_VK_ENTER;
     }
@@ -464,7 +464,12 @@ static void _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *c
         bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, new_btn_id);
 
         _render_page(gc, activated_btn_id, cmds);
+
+        /* found one*/
+        return 1;
     }
+
+    return 0;
 }
 
 static void _reset_enabled_button(GRAPHICS_CONTROLLER *gc)
@@ -681,7 +686,7 @@ static void _update_selected_button(GRAPHICS_CONTROLLER *gc)
     }
 }
 
-static void _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_CMDS *cmds)
+static int _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_CMDS *cmds)
 {
     PG_DISPLAY_SET *s          = gc->igs;
     BD_IG_PAGE     *page       = NULL;
@@ -696,7 +701,7 @@ static void _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_
     if (!page) {
         ERROR("_mouse_move(): unknown page #%d (have %d pages)\n",
               page_id, s->ics->interactive_composition.num_pages);
-        return;
+        return -1;
     }
 
     for (ii = 0; ii < page->num_bogs; ii++) {
@@ -718,12 +723,12 @@ static void _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_
         if (x >= button->x_pos + object->width || y >= button->y_pos + object->height)
             continue;
 
-        // mouse is over button
+        /* mouse is over button */
 
-        // is button already selected ?
+        /* is button already selected? */
         if (button->id == cur_btn_id) {
             gc->valid_mouse_position = 1;
-            return;
+            return 0;
         }
 
         new_btn_id = button->id;
@@ -737,10 +742,14 @@ static void _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_
 
         gc->valid_mouse_position = 1;
     }
+
+     return gc->valid_mouse_position;
 }
 
-void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS *cmds)
+int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS *cmds)
 {
+    int result = -1;
+
     if (cmds) {
         cmds->num_nav_cmds = 0;
         cmds->nav_cmds     = NULL;
@@ -749,7 +758,7 @@ void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS
 
     if (!gc || !gc->igs || !gc->igs->ics) {
         TRACE("gc_run(): no interactive composition\n");
-        return;
+        return result;
     }
 
     switch (ctrl) {
@@ -760,7 +769,7 @@ void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS
 
         case GC_CTRL_VK_KEY:
             if (param != BD_VK_POPUP) {
-                _user_input(gc, param, cmds);
+                result = _user_input(gc, param, cmds);
                 break;
             }
             param = !gc->popup_visible;
@@ -804,7 +813,9 @@ void gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS
             break;
 
         case GC_CTRL_MOUSE_MOVE:
-          _mouse_move(gc, param >> 16, param & 0xffff, cmds);
-          return;
+            result = _mouse_move(gc, param >> 16, param & 0xffff, cmds);
+            break;
     }
+
+    return result;
 }
