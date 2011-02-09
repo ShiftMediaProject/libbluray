@@ -62,17 +62,9 @@ struct graphics_controller_s {
     GRAPHICS_PROCESSOR *igp;
 };
 
-GRAPHICS_CONTROLLER *gc_init(BD_REGISTERS *regs, void *handle, gc_overlay_proc_f func)
-{
-    GRAPHICS_CONTROLLER *p = calloc(1, sizeof(*p));
-
-    p->regs = regs;
-
-    p->overlay_proc_handle = handle;
-    p->overlay_proc        = func;
-
-    return p;
-}
+/*
+ * util
+ */
 
 static void _gc_clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
 {
@@ -113,6 +105,22 @@ static void _gc_reset(GRAPHICS_CONTROLLER *gc)
     pg_display_set_free(&gc->igs);
 
     X_FREE(gc->enabled_button);
+}
+
+/*
+ * init / free
+ */
+
+GRAPHICS_CONTROLLER *gc_init(BD_REGISTERS *regs, void *handle, gc_overlay_proc_f func)
+{
+    GRAPHICS_CONTROLLER *p = calloc(1, sizeof(*p));
+
+    p->regs = regs;
+
+    p->overlay_proc_handle = handle;
+    p->overlay_proc        = func;
+
+    return p;
 }
 
 void gc_free(GRAPHICS_CONTROLLER **p)
