@@ -25,6 +25,7 @@
 
 #include "util/macro.h"
 #include "util/logging.h"
+#include "util/mutex.h"
 
 #include "../register.h"
 #include "../keys.h"
@@ -41,6 +42,8 @@
 struct graphics_controller_s {
 
     BD_REGISTERS   *regs;
+
+    BD_MUTEX        mutex;
 
     /* overlay output */
     void           *overlay_proc_handle;
@@ -240,6 +243,8 @@ GRAPHICS_CONTROLLER *gc_init(BD_REGISTERS *regs, void *handle, gc_overlay_proc_f
     p->overlay_proc_handle = handle;
     p->overlay_proc        = func;
 
+    bd_mutex_init(&p->mutex);
+
     return p;
 }
 
@@ -252,6 +257,8 @@ void gc_free(GRAPHICS_CONTROLLER **p)
         if ((*p)->overlay_proc) {
             (*p)->overlay_proc((*p)->overlay_proc_handle, NULL);
         }
+
+        bd_mutex_destroy(&(*p)->mutex);
 
         X_FREE(*p);
     }
@@ -269,10 +276,14 @@ void gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigne
         if (!gc->igp) {
             gc->igp = graphics_processor_init();
         }
+
+        bd_mutex_lock(&gc->mutex);
+
         graphics_processor_decode_ts(gc->igp, &gc->igs,
                                      pid, block, num_blocks,
                                      stc);
         if (!gc->igs || !gc->igs->complete) {
+            bd_mutex_unlock(&gc->mutex);
             return;
         }
 
@@ -283,6 +294,8 @@ void gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigne
 
         _gc_clear_osd(gc, 1);
         _reset_enabled_button(gc);
+
+        bd_mutex_unlock(&gc->mutex);
     }
 
     else if (pid >= 0x1200 && pid < 0x1300) {
@@ -761,10 +774,14 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         cmds->sound_id_ref = -1;
     }
 
+    bd_mutex_lock(&gc->mutex);
+
     /* always accept reset */
     switch (ctrl) {
         case GC_CTRL_RESET:
             _gc_reset(gc);
+
+            bd_mutex_unlock(&gc->mutex);
             return 0;
         default:;
     }
@@ -772,6 +789,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
     /* other operations require complete display set */
     if (!gc || !gc->igs || !gc->igs->ics || !gc->igs->complete) {
         TRACE("gc_run(): no interactive composition\n");
+        bd_mutex_unlock(&gc->mutex);
         return result;
     }
 
@@ -829,6 +847,8 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
             /* already handled */
             break;
     }
+
+    bd_mutex_unlock(&gc->mutex);
 
     return result;
 }
