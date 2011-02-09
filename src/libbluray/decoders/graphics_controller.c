@@ -756,7 +756,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         cmds->sound_id_ref = -1;
     }
 
-    if (!gc || !gc->igs || !gc->igs->ics) {
+    if (!gc || !gc->igs || !gc->igs->ics || !gc->igs->complete) {
         TRACE("gc_run(): no interactive composition\n");
         return result;
     }
