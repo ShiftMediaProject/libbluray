@@ -316,7 +316,7 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
     unsigned        ii;
     unsigned        selected_button_id = bd_psr_read(gc->regs, PSR_SELECTED_BUTTON_ID);
 
-    if (s->ics->interactive_composition.ui_model == 1 && !gc->popup_visible) {
+    if (s->ics->interactive_composition.ui_model == IG_UI_MODEL_POPUP && !gc->popup_visible) {
         TRACE("_render_page(): popup menu not visible\n");
 
         _gc_clear_osd(gc, 1);
@@ -393,7 +393,7 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *cm
     unsigned        ii;
     int             activated_btn_id = -1;
 
-    if (s->ics->interactive_composition.ui_model == 1 && !gc->popup_visible) {
+    if (s->ics->interactive_composition.ui_model == IG_UI_MODEL_POPUP && !gc->popup_visible) {
         TRACE("_user_input(): popup menu not visible\n");
         return -1;
     }
@@ -776,7 +776,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
             /* fall thru (BD_VK_POPUP) */
 
         case GC_CTRL_POPUP:
-            if (!gc->igs || !gc->igs->ics || gc->igs->ics->interactive_composition.ui_model != 1) {
+            if (gc->igs->ics->interactive_composition.ui_model != IG_UI_MODEL_POPUP) {
                 /* not pop-up menu */
                 break;
             }
