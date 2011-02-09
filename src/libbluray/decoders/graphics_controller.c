@@ -756,6 +756,15 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         cmds->sound_id_ref = -1;
     }
 
+    /* always accept reset */
+    switch (ctrl) {
+        case GC_CTRL_RESET:
+            _gc_reset(gc);
+            return 0;
+        default:;
+    }
+
+    /* other operations require complete display set */
     if (!gc || !gc->igs || !gc->igs->ics || !gc->igs->complete) {
         TRACE("gc_run(): no interactive composition\n");
         return result;
@@ -795,10 +804,6 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
             _render_page(gc, 0xffff, cmds);
             break;
 
-        case GC_CTRL_RESET:
-            _gc_reset(gc);
-            break;
-
         case GC_CTRL_IG_END:
             _update_selected_button(gc);
             _render_page(gc, 0xffff, cmds);
@@ -814,6 +819,9 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
 
         case GC_CTRL_MOUSE_MOVE:
             result = _mouse_move(gc, param >> 16, param & 0xffff, cmds);
+            break;
+        case GC_CTRL_RESET:
+            /* already handled */
             break;
     }
 
