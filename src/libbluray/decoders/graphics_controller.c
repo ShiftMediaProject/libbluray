@@ -63,126 +63,6 @@ struct graphics_controller_s {
 };
 
 /*
- * util
- */
-
-static void _gc_clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
-{
-    if (gc->overlay_proc) {
-        /* clear plane */
-        const BD_OVERLAY ov = {
-            .pts     = -1,
-            .plane   = plane,
-            .x       = 0,
-            .y       = 0,
-            .w       = 1920,
-            .h       = 1080,
-            .palette = NULL,
-            .img     = NULL,
-        };
-
-        gc->overlay_proc(gc->overlay_proc_handle, &ov);
-    }
-
-    if (plane) {
-        gc->ig_drawn      = 0;
-    } else {
-        gc->pg_drawn      = 0;
-    }
-}
-
-static void _gc_reset(GRAPHICS_CONTROLLER *gc)
-{
-    _gc_clear_osd(gc, 0);
-    _gc_clear_osd(gc, 1);
-
-    gc->popup_visible = 0;
-
-    graphics_processor_free(&gc->igp);
-    graphics_processor_free(&gc->pgp);
-
-    pg_display_set_free(&gc->pgs);
-    pg_display_set_free(&gc->igs);
-
-    X_FREE(gc->enabled_button);
-}
-
-/*
- * init / free
- */
-
-GRAPHICS_CONTROLLER *gc_init(BD_REGISTERS *regs, void *handle, gc_overlay_proc_f func)
-{
-    GRAPHICS_CONTROLLER *p = calloc(1, sizeof(*p));
-
-    p->regs = regs;
-
-    p->overlay_proc_handle = handle;
-    p->overlay_proc        = func;
-
-    return p;
-}
-
-void gc_free(GRAPHICS_CONTROLLER **p)
-{
-    if (p && *p) {
-
-        _gc_reset(*p);
-
-        if ((*p)->overlay_proc) {
-            (*p)->overlay_proc((*p)->overlay_proc_handle, NULL);
-        }
-
-        X_FREE(*p);
-    }
-}
-
-/*
- * graphics stream input
- */
-
-static void _reset_enabled_button(GRAPHICS_CONTROLLER *gc);
-
-void gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned num_blocks, int64_t stc)
-{
-    if (pid >= 0x1400 && pid < 0x1500) {
-        /* IG stream */
-
-        if (!gc->igp) {
-            gc->igp = graphics_processor_init();
-        }
-        graphics_processor_decode_ts(gc->igp, &gc->igs,
-                                     pid, block, num_blocks,
-                                     stc);
-        if (!gc->igs || !gc->igs->complete) {
-            return;
-        }
-
-        bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, 0);
-
-        gc->ig_drawn = 0;
-        gc->popup_visible = 0;
-
-        _gc_clear_osd(gc, 1);
-        _reset_enabled_button(gc);
-    }
-
-    else if (pid >= 0x1200 && pid < 0x1300) {
-        /* PG stream */
-        if (!gc->pgp) {
-            gc->pgp = graphics_processor_init();
-        }
-        graphics_processor_decode_ts(gc->pgp, &gc->pgs,
-                                     pid, block, num_blocks,
-                                     stc);
-
-        if (!gc->pgs || !gc->pgs->complete) {
-            return;
-        }
-    }
-}
-
-/*
  * object lookup
  */
 
@@ -280,6 +160,145 @@ static BD_PG_OBJECT *_find_object_for_button(PG_DISPLAY_SET *s,
     return object;
 }
 
+/*
+ * util
+ */
+
+static void _reset_enabled_button(GRAPHICS_CONTROLLER *gc)
+{
+    PG_DISPLAY_SET *s       = gc->igs;
+    BD_IG_PAGE     *page    = NULL;
+    unsigned        page_id = bd_psr_read(gc->regs, PSR_MENU_PAGE_ID);
+    unsigned        ii;
+
+    page = _find_page(&s->ics->interactive_composition, page_id);
+    if (!page) {
+        ERROR("_reset_enabled_button(): unknown page #%d (have %d pages)\n",
+              page_id, s->ics->interactive_composition.num_pages);
+        return;
+    }
+
+    gc->enabled_button = realloc(gc->enabled_button,
+                                 page->num_bogs * sizeof(uint16_t));
+
+    for (ii = 0; ii < page->num_bogs; ii++) {
+        gc->enabled_button[ii] = page->bog[ii].default_valid_button_id_ref;
+    }
+}
+
+static void _gc_clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
+{
+    if (gc->overlay_proc) {
+        /* clear plane */
+        const BD_OVERLAY ov = {
+            .pts     = -1,
+            .plane   = plane,
+            .x       = 0,
+            .y       = 0,
+            .w       = 1920,
+            .h       = 1080,
+            .palette = NULL,
+            .img     = NULL,
+        };
+
+        gc->overlay_proc(gc->overlay_proc_handle, &ov);
+    }
+
+    if (plane) {
+        gc->ig_drawn      = 0;
+    } else {
+        gc->pg_drawn      = 0;
+    }
+}
+
+static void _gc_reset(GRAPHICS_CONTROLLER *gc)
+{
+    _gc_clear_osd(gc, 0);
+    _gc_clear_osd(gc, 1);
+
+    gc->popup_visible = 0;
+
+    graphics_processor_free(&gc->igp);
+    graphics_processor_free(&gc->pgp);
+
+    pg_display_set_free(&gc->pgs);
+    pg_display_set_free(&gc->igs);
+
+    X_FREE(gc->enabled_button);
+}
+
+/*
+ * init / free
+ */
+
+GRAPHICS_CONTROLLER *gc_init(BD_REGISTERS *regs, void *handle, gc_overlay_proc_f func)
+{
+    GRAPHICS_CONTROLLER *p = calloc(1, sizeof(*p));
+
+    p->regs = regs;
+
+    p->overlay_proc_handle = handle;
+    p->overlay_proc        = func;
+
+    return p;
+}
+
+void gc_free(GRAPHICS_CONTROLLER **p)
+{
+    if (p && *p) {
+
+        _gc_reset(*p);
+
+        if ((*p)->overlay_proc) {
+            (*p)->overlay_proc((*p)->overlay_proc_handle, NULL);
+        }
+
+        X_FREE(*p);
+    }
+}
+
+/*
+ * graphics stream input
+ */
+
+void gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned num_blocks, int64_t stc)
+{
+    if (pid >= 0x1400 && pid < 0x1500) {
+        /* IG stream */
+
+        if (!gc->igp) {
+            gc->igp = graphics_processor_init();
+        }
+        graphics_processor_decode_ts(gc->igp, &gc->igs,
+                                     pid, block, num_blocks,
+                                     stc);
+        if (!gc->igs || !gc->igs->complete) {
+            return;
+        }
+
+        bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, 0);
+
+        gc->ig_drawn = 0;
+        gc->popup_visible = 0;
+
+        _gc_clear_osd(gc, 1);
+        _reset_enabled_button(gc);
+    }
+
+    else if (pid >= 0x1200 && pid < 0x1300) {
+        /* PG stream */
+        if (!gc->pgp) {
+            gc->pgp = graphics_processor_init();
+        }
+        graphics_processor_decode_ts(gc->pgp, &gc->pgs,
+                                     pid, block, num_blocks,
+                                     stc);
+
+        if (!gc->pgs || !gc->pgs->complete) {
+            return;
+        }
+    }
+}
 
 /*
  * IG rendering
@@ -478,28 +497,6 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *cm
     }
 
     return 0;
-}
-
-static void _reset_enabled_button(GRAPHICS_CONTROLLER *gc)
-{
-    PG_DISPLAY_SET *s       = gc->igs;
-    BD_IG_PAGE     *page    = NULL;
-    unsigned        page_id = bd_psr_read(gc->regs, PSR_MENU_PAGE_ID);
-    unsigned        ii;
-
-    page = _find_page(&s->ics->interactive_composition, page_id);
-    if (!page) {
-        ERROR("_reset_enabled_button(): unknown page #%d (have %d pages)\n",
-              page_id, s->ics->interactive_composition.num_pages);
-        return;
-    }
-
-    gc->enabled_button = realloc(gc->enabled_button,
-                                 page->num_bogs * sizeof(uint16_t));
-
-    for (ii = 0; ii < page->num_bogs; ii++) {
-        gc->enabled_button[ii] = page->bog[ii].default_valid_button_id_ref;
-    }
 }
 
 static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMDS *cmds)
