@@ -214,6 +214,13 @@ static void _gc_clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
     }
 }
 
+static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
+{
+    bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, page_id);
+    _gc_clear_osd(gc, 1);
+    _reset_enabled_button(gc);
+}
+
 static void _gc_reset(GRAPHICS_CONTROLLER *gc)
 {
     _gc_clear_osd(gc, 0);
@@ -292,13 +299,9 @@ void gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigne
             return;
         }
 
-        bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, 0);
-
-        gc->ig_drawn = 0;
         gc->popup_visible = 0;
 
-        _gc_clear_osd(gc, 1);
-        _reset_enabled_button(gc);
+        _select_page(gc, 0);
 
         bd_mutex_unlock(&gc->mutex);
     }
@@ -557,11 +560,7 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
 
         /* page changes */
 
-        bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, page_id);
-
-        _reset_enabled_button(gc);
-        _gc_clear_osd(gc, 1);
-
+        _select_page(gc, page_id);
 
     } else {
         /* page does not change */
@@ -826,9 +825,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
             gc->popup_visible = !!param;
 
             if (gc->popup_visible) {
-                bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, 0);
-                _reset_enabled_button(gc);
-                _gc_clear_osd(gc, 1);
+                _select_page(gc, 0);
             }
 
             /* fall thru */
