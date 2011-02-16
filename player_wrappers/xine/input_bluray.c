@@ -42,6 +42,7 @@
 #include <libbluray/bluray.h>
 #include <libbluray/keys.h>
 #include <libbluray/overlay.h>
+#include <libbluray/meta_data.h>
 
 #define LOG_MODULE "input_bluray"
 #define LOG_VERBOSE
@@ -103,10 +104,12 @@ typedef struct {
   bluray_input_class_t *class;
   char                 *mrl;
   char                 *disc_root;
+  char                 *disc_name;
 
   BLURAY               *bdh;
 
   const BLURAY_DISC_INFO *disc_info;
+  const META_DL          *meta_dl; /* disc library meta data */
 
   int                num_title_idx;     /* number of relevant playlists */
   int                current_title_idx;
@@ -212,6 +215,52 @@ static void update_title_info(bluray_input_plugin_t *this)
     return;
   }
 
+  /* set title */
+
+  xine_ui_data_t udata;
+  xine_event_t uevent = {
+    .type = XINE_EVENT_UI_SET_TITLE,
+    .stream = this->stream,
+    .data = &udata,
+    .data_length = sizeof(udata)
+  };
+
+  char title_name[64] = "";
+
+  if (this->meta_dl) {
+    unsigned i;
+    for (i = 0; i < this->meta_dl->toc_count; i++)
+      if (this->meta_dl->toc_entries[i].title_number == (unsigned)this->current_title)
+        if (this->meta_dl->toc_entries[i].title_name)
+          if (strlen(this->meta_dl->toc_entries[i].title_name) > 2)
+            strncpy(title_name, this->meta_dl->toc_entries[i].title_name, sizeof(title_name));
+  }
+
+  if (title_name[0]) {
+  } else if (this->current_title == BLURAY_TITLE_TOP_MENU) {
+    strcpy(title_name, "Top Menu");
+  } else if (this->current_title == BLURAY_TITLE_FIRST_PLAY) {
+    strcpy(title_name, "First Play");
+  } else if (this->nav_mode) {
+    snprintf(title_name, sizeof(title_name), "Title %d/%d (PL %d/%d)",
+             this->current_title, this->num_titles,
+             this->current_title_idx + 1, this->num_title_idx);
+  } else {
+    snprintf(title_name, sizeof(title_name), "Title %d/%d",
+             this->current_title_idx + 1, this->num_title_idx);
+  }
+
+  if (this->disc_name && this->disc_name[0]) {
+    udata.str_len = snprintf(udata.str, sizeof(udata.str), "%s, %s",
+                             this->disc_name, title_name);
+  } else {
+    udata.str_len = snprintf(udata.str, sizeof(udata.str), "%s",
+                             title_name);
+  }
+  xine_event_send(this->stream, &uevent);
+
+  _x_meta_info_set(this->stream, XINE_META_INFO_TITLE, udata.str);
+
   /* calculate and set stream rate */
 
   uint64_t rate = bd_get_title_size(this->bdh) * UINT64_C(8) // bits
@@ -243,6 +292,9 @@ static int open_title (bluray_input_plugin_t *this, int title)
 
 static void stream_reset(bluray_input_plugin_t *this)
 {
+  if (!this || !this->stream || !this->stream->demux_plugin)
+    return;
+
   lprintf("Stream reset\n");
 
   this->cap_seekable = 0;
@@ -582,8 +634,14 @@ static off_t bluray_plugin_read (input_plugin_t *this_gen, char *buf, off_t len)
       BD_EVENT ev;
       result = bd_read_ext (this->bdh, (unsigned char *)buf, len, &ev);
       handle_libbluray_event(this, ev);
-      if (result == 0)
+      if (result == 0) {
         handle_events(this);
+        if (ev.event == BD_EVENT_NONE) {
+          if (this->stream->demux_action_pending) {
+            break;
+          }
+        }
+      }
     } while (!this->error && result == 0);
   } else {
     result = bd_read (this->bdh, (unsigned char *)buf, len);
@@ -806,6 +864,7 @@ static void bluray_plugin_dispose (input_plugin_t *this_gen)
 
   free (this->mrl);
   free (this->disc_root);
+  free (this->disc_name);
 
   free (this);
 }
@@ -981,21 +1040,37 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
     lprintf("main title: %d (%05d.mpls)\n", title, playlist);
   }
 
-  /* register overlay (graphics) handler */
-
-  bd_register_overlay_proc(this->bdh, this, overlay_proc);
-
-  /* init libbluray event queue */
-
-  handle_libbluray_events(this);
-
   /* update player settings */
+
   bd_set_player_setting    (this->bdh, BLURAY_PLAYER_SETTING_REGION_CODE,  this->class->region);
   bd_set_player_setting    (this->bdh, BLURAY_PLAYER_SETTING_PARENTAL,     this->class->parental);
   bd_set_player_setting_str(this->bdh, BLURAY_PLAYER_SETTING_AUDIO_LANG,   this->class->language);
   bd_set_player_setting_str(this->bdh, BLURAY_PLAYER_SETTING_PG_LANG,      this->class->language);
   bd_set_player_setting_str(this->bdh, BLURAY_PLAYER_SETTING_MENU_LANG,    this->class->language);
   bd_set_player_setting_str(this->bdh, BLURAY_PLAYER_SETTING_COUNTRY_CODE, this->class->country);
+
+  /* get disc name */
+
+  this->meta_dl = bd_get_meta(this->bdh);
+
+  if (this->meta_dl && this->meta_dl->di_name && strlen(this->meta_dl->di_name) > 1) {
+    this->disc_name = strdup(this->meta_dl->di_name);
+  }
+  else if (strcmp(this->disc_root, this->class->mountpoint)) {
+    char *t = strrchr(this->disc_root, '/');
+    if (!t[1])
+      while (t > this->disc_root && t[-1] != '/') t--;
+    else
+      while (t[0] == '/') t++;
+    this->disc_name = strdup(t);
+    char *end = this->disc_name + strlen(this->disc_name) - 1;
+    if (*end ==  '/')
+      *end = 0;
+  }
+
+  /* register overlay (graphics) handler */
+
+  bd_register_overlay_proc(this->bdh, this, overlay_proc);
 
   /* open */
   this->current_title = -1;
