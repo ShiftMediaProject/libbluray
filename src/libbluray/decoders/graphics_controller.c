@@ -665,15 +665,16 @@ static void _enable_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id, unsigned
 
 static void _update_selected_button(GRAPHICS_CONTROLLER *gc)
 {
+    /* executed after IG command sequence terminates */
     unsigned button_id = bd_psr_read(gc->regs, PSR_SELECTED_BUTTON_ID);
 
-    TRACE("_update_enabled_button(): currently enabled button is #%d\n", button_id);
+    TRACE("_update_selected_button(): currently enabled button is #%d\n", button_id);
 
-    // special case: triggered only after enable button disables selected button
+    /* special case: triggered only after enable button disables selected button */
     if (button_id & 0x10000) {
         button_id &= 0xffff;
         bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, button_id);
-        TRACE("_update_enabled_button() -> #%d [last enabled]\n", button_id);
+        TRACE("_update_selected_button() -> #%d [last enabled]\n", button_id);
         return;
     }
 
