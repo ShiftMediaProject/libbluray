@@ -446,6 +446,10 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *cm
         TRACE("_user_input(): popup menu not visible\n");
         return -1;
     }
+    if (!gc->ig_drawn) {
+        ERROR("_user_input(): menu not visible\n");
+        return -1;
+    }
 
     TRACE("_user_input(%d)\n", key);
 
@@ -508,7 +512,7 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *cm
     }
 
     /* render page ? */
-    if (new_btn_id != cur_btn_id || activated_btn_id >= 0 || !gc->ig_drawn) {
+    if (new_btn_id != cur_btn_id || activated_btn_id >= 0) {
 
         bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, new_btn_id);
 
@@ -719,6 +723,11 @@ static int _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_C
     unsigned        ii;
 
     gc->valid_mouse_position = 0;
+
+    if (!gc->ig_drawn) {
+        ERROR("_mouse_move(): menu not visible\n");
+        return -1;
+    }
 
     page = _find_page(&s->ics->interactive_composition, page_id);
     if (!page) {
