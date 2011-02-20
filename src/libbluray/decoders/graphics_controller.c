@@ -756,10 +756,10 @@ static int _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_C
             continue;
 
         /* mouse is over button */
+        gc->valid_mouse_position = 1;
 
         /* is button already selected? */
         if (button->id == cur_btn_id) {
-            gc->valid_mouse_position = 1;
             return 0;
         }
 
@@ -771,11 +771,9 @@ static int _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_C
         bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, new_btn_id);
 
         _render_page(gc, -1, cmds);
-
-        gc->valid_mouse_position = 1;
     }
 
-     return gc->valid_mouse_position;
+    return gc->valid_mouse_position;
 }
 
 int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS *cmds)
