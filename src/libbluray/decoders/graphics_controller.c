@@ -350,6 +350,7 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
 
     if (gc->overlay_proc) {
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
+        gc->ig_drawn = 1;
     }
 }
 
