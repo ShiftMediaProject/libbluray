@@ -167,6 +167,17 @@ static BD_PG_OBJECT *_find_object_for_button(PG_DISPLAY_SET *s,
  * util
  */
 
+static int _is_button_enabled(GRAPHICS_CONTROLLER *gc, BD_IG_PAGE *page, unsigned button_id)
+{
+    unsigned ii;
+    for (ii = 0; ii < page->num_bogs; ii++) {
+        if (gc->enabled_button[ii] == button_id) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static void _reset_enabled_button(GRAPHICS_CONTROLLER *gc)
 {
     PG_DISPLAY_SET *s       = gc->igs;
@@ -650,17 +661,6 @@ static void _enable_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id, unsigned
             bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, 0xffff);
         }
     }
-}
-
-static int _is_button_enabled(GRAPHICS_CONTROLLER *gc, BD_IG_PAGE *page, unsigned button_id)
-{
-    unsigned ii;
-    for (ii = 0; ii < page->num_bogs; ii++) {
-        if (gc->enabled_button[ii] == button_id) {
-            return 1;
-        }
-    }
-    return 0;
 }
 
 static void _update_selected_button(GRAPHICS_CONTROLLER *gc)
