@@ -252,7 +252,7 @@ static void _reset_enabled_button(GRAPHICS_CONTROLLER *gc)
     }
 }
 
-static void _gc_clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
+static void _clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
 {
     if (gc->overlay_proc) {
         /* clear plane */
@@ -280,7 +280,7 @@ static void _gc_clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
 static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
 {
     bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, page_id);
-    _gc_clear_osd(gc, 1);
+    _clear_osd(gc, 1);
     _reset_enabled_button(gc);
 
     uint16_t button_id = _find_selected_button_id(gc);
@@ -289,8 +289,8 @@ static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
 
 static void _gc_reset(GRAPHICS_CONTROLLER *gc)
 {
-    _gc_clear_osd(gc, 0);
-    _gc_clear_osd(gc, 1);
+    _clear_osd(gc, 0);
+    _clear_osd(gc, 1);
 
     gc->popup_visible = 0;
 
@@ -434,7 +434,7 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
     if (s->ics->interactive_composition.ui_model == IG_UI_MODEL_POPUP && !gc->popup_visible) {
         TRACE("_render_page(): popup menu not visible\n");
 
-        _gc_clear_osd(gc, 1);
+        _clear_osd(gc, 1);
 
         return;
     }
