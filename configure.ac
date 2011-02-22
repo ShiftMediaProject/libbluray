@@ -35,7 +35,7 @@ libxml2_missing="Could not find libxml2 - disclib meta parser disabled."
 pkg_config_missing="Could not find pkg-config.  Assuming..."
 
 # configure options
-AC_ARG_ENABLE([dlopen-crypto-libs],
+AC_ARG_WITH([dlopen-crypto-libs],
   [AS_HELP_STRING([--with-dlopen-crypto-libs],
   [use libaacs and libbdplus via dlopen (default is auto)])],
   [use_dlopen_crypto_libs=$withval],
