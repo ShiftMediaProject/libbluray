@@ -234,9 +234,10 @@ if [[ $use_bdjava = "yes" ]]; then
        *)      java_arch=$target_cpu ;;
   esac
   case $target_os in
-       linux*) java_os=linux ;;
-       win*)   java_os=win32 ;;
-       *)      java_os=$target_os ;;
+       linux*)   java_os=linux ;;
+       win*)     java_os=win32 ;;
+       freebsd*) java_os=freebsd ;;
+       *)        java_os=$target_os ;;
   esac
 
   BDJAVA_CFLAGS="-I${JDK_HOME}/include -I${JDK_HOME}/include/$java_os"
