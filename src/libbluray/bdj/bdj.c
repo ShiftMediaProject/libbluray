@@ -170,7 +170,11 @@ void* load_jvm()
         return NULL;
     }
 
+#ifdef WIN32
+    char* path = str_printf("%s/jre/bin/server/jvm", java_home);
+#else	//	#ifdef WIN32
     char* path = str_printf("%s/jre/lib/%s/server/libjvm", java_home, JAVA_ARCH);
+#endif	//	#ifdef WIN32
 
     return dl_dlopen(path, NULL);
 }
