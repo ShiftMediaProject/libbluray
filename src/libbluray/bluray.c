@@ -149,7 +149,7 @@ struct bluray {
 #ifdef DLOPEN_CRYPTO_LIBS
 #    define DL_CALL(lib,func,param,...)             \
      do {                                           \
-          fptr_p_void fptr = dl_dlsym(lib, #func);  \
+          fptr_p_void fptr = (fptr_p_void)dl_dlsym(lib, #func);  \
           if (fptr) {                               \
               fptr(param, ##__VA_ARGS__);           \
           }                                         \
@@ -471,8 +471,8 @@ static int _libaacs_load(BLURAY *bd)
 
         DEBUG(DBG_BLURAY, "Loading libaacs (%p)\n", bd->h_libaacs);
 
-        bd->libaacs_open         = dl_dlsym(bd->h_libaacs, "aacs_open");
-        bd->libaacs_decrypt_unit = dl_dlsym(bd->h_libaacs, "aacs_decrypt_unit");
+        bd->libaacs_open         = (fptr_p_void)dl_dlsym(bd->h_libaacs, "aacs_open");
+        bd->libaacs_decrypt_unit = (fptr_int)dl_dlsym(bd->h_libaacs, "aacs_decrypt_unit");
 
         if (bd->libaacs_open && bd->libaacs_decrypt_unit) {
             DEBUG(DBG_BLURAY, "Loaded libaacs (%p)\n", bd->h_libaacs);
@@ -535,7 +535,7 @@ static uint8_t *_libaacs_get_vid(BLURAY *bd)
 {
     if (bd->aacs) {
 #ifdef DLOPEN_CRYPTO_LIBS
-        fptr_p_void fptr = dl_dlsym(bd->h_libaacs, "aacs_get_vid");
+        fptr_p_void fptr = (fptr_p_void)dl_dlsym(bd->h_libaacs, "aacs_get_vid");
         if (fptr) {
             return (uint8_t*)fptr(bd->aacs);
         }
@@ -610,9 +610,9 @@ static int _libbdplus_load(BLURAY *bd)
 
         DEBUG(DBG_BLURAY, "Loading libbdplus (%p)\n", bd->h_libbdplus);
 
-        bd->bdplus_init  = dl_dlsym(bd->h_libbdplus, "bdplus_init");
-        bd->bdplus_seek  = dl_dlsym(bd->h_libbdplus, "bdplus_seek");
-        bd->bdplus_fixup = dl_dlsym(bd->h_libbdplus, "bdplus_fixup");
+        bd->bdplus_init  = (fptr_p_void)dl_dlsym(bd->h_libbdplus, "bdplus_init");
+        bd->bdplus_seek  = (fptr_int32)dl_dlsym(bd->h_libbdplus, "bdplus_seek");
+        bd->bdplus_fixup = (fptr_int32)dl_dlsym(bd->h_libbdplus, "bdplus_fixup");
 
         if (bd->bdplus_init && bd->bdplus_seek && bd->bdplus_fixup) {
             DEBUG(DBG_BLURAY, "Loaded libbdplus (%p)\n", bd->h_libbdplus);

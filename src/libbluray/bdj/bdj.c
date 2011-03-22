@@ -70,7 +70,7 @@ BDJAVA* bdj_open(const char *path, const char* start, void* bd, void* registers)
     args.options = option;
     args.ignoreUnrecognized = JNI_FALSE; // don't ignore unrecognized options
 
-    fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = dl_dlsym(jvm_lib,
+    fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = (fptr_JNI_CreateJavaVM)dl_dlsym(jvm_lib,
             "JNI_CreateJavaVM");
 
     if (JNI_CreateJavaVM_fp == NULL) {
