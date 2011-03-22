@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef jint (*JNICALL fptr_JNI_CreateJavaVM)(JavaVM **pvm, void **penv,void *args);
+typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
 
 int start_xlet(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava);
 void* load_jvm();
