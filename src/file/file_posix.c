@@ -34,6 +34,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef WIN32
+#define	ftello	_ftelli64
+#define	fseeko	_fseeki64
+#endif	//	#ifdef WIN32
+
 static void file_close_linux(BD_FILE_H *file)
 {
     if (file) {
