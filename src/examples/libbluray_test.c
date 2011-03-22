@@ -39,14 +39,14 @@ int main(int argc, char *argv[])
 
     //bd_get_titles(bd, 0);
 
-    DEBUG(DBG_BLURAY,"\nListing titles:\n");
+    BD_DEBUG(DBG_BLURAY,"\nListing titles:\n");
 
     count = bd_get_titles(bd, TITLES_RELEVANT);
     for (ii = 0; ii < count; ii++)
     {
         BLURAY_TITLE_INFO* ti;
         ti = bd_get_title_info(bd, ii);
-        DEBUG(DBG_BLURAY,
+        BD_DEBUG(DBG_BLURAY,
        "index: %d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %d\n",
               ii,
               (ti->duration / 90000) / (3600),
@@ -75,8 +75,8 @@ int main(int argc, char *argv[])
             if (fwrite(buf, len, 1, fd) < 1)
               break;
             if (!(ii % 1000)) {
-                DEBUG(DBG_BLURAY,
-                      "%d\r", ii);
+                BD_DEBUG(DBG_BLURAY,
+                         "%d\r", ii);
             }
 
         }

@@ -44,7 +44,7 @@ BDJAVA* bdj_open(const char *path, const char* start, void* bd, void* registers)
     void* jvm_lib = load_jvm();
 
     if (!jvm_lib) {
-        DEBUG(DBG_BDJ | DBG_CRIT, "Wasn't able to load libjvm.so\n");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Wasn't able to load libjvm.so\n");
         return NULL;
     }
 
@@ -77,7 +77,7 @@ BDJAVA* bdj_open(const char *path, const char* start, void* bd, void* registers)
         free(bdjava);
         free(option);
         free(classpath_opt);
-        DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't find symbol JNI_CreateJavaVM.\n");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't find symbol JNI_CreateJavaVM.\n");
         return NULL;
     }
 
@@ -87,7 +87,7 @@ BDJAVA* bdj_open(const char *path, const char* start, void* bd, void* registers)
 
     if (result != JNI_OK || !bdjava->env) {
         free(bdjava);
-        DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM.\n");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM.\n");
         return NULL;
     }
 
@@ -98,13 +98,13 @@ BDJAVA* bdj_open(const char *path, const char* start, void* bd, void* registers)
 
     if (!bdjo) {
         free(bdjava);
-        DEBUG(DBG_BDJ | DBG_CRIT, "Failed to load BDJO file.\n");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to load BDJO file.\n");
         return NULL;
     }
 
     if (start_xlet(bdjava->env, path, bdjo, bdjava) == BDJ_ERROR) {
         free(bdjava);
-        DEBUG(DBG_BDJ | DBG_CRIT, "Failed to start BDJ program.\n");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to start BDJ program.\n");
         return NULL;
     }
 
@@ -166,7 +166,7 @@ void* load_jvm()
 {
     const char* java_home = getenv("JAVA_HOME"); // FIXME: should probably search multiple directories
     if (java_home == NULL) {
-        DEBUG(DBG_BDJ | DBG_CRIT, "JAVA_HOME not set, can't find Java VM.\n");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "JAVA_HOME not set, can't find Java VM.\n");
         return NULL;
     }
 

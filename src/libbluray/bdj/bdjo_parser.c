@@ -33,7 +33,7 @@
  */
 
 #define JNICHK(a) if((*env)->ExceptionOccurred(env)) { \
-    DEBUG(DBG_BDJ, "Exception occured\n"); \
+    BD_DEBUG(DBG_BDJ, "Exception occured\n"); \
     (*env)->ExceptionDescribe(env); \
     } if (!a) return NULL;
 
@@ -354,7 +354,7 @@ static jobject _parse_bdjo(JNIEnv* env, BITBUFFER* buf)
     bb_read_bytes(buf, magic, 4);
 
     if (strncmp((const char*) magic, "BDJO", 4) != 0) {
-        DEBUG(DBG_BDJ | DBG_CRIT, "Invalid magic number in BDJO.\n");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Invalid magic number in BDJO.\n");
         return NULL;
     }
 
@@ -362,10 +362,10 @@ static jobject _parse_bdjo(JNIEnv* env, BITBUFFER* buf)
     uint8_t version[4];
     bb_read_bytes(buf, version, 4);
     if (_get_version(version) == BDJ_ERROR) {
-        DEBUG(DBG_BDJ | DBG_CRIT, "Invalid version of BDJO.\n");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Invalid version of BDJO.\n");
         return NULL;
     }
-    DEBUG(DBG_BDJ, "[bdj] BDJO > Version: %.4s\n", version);
+    BD_DEBUG(DBG_BDJ, "[bdj] BDJO > Version: %.4s\n", version);
 
     // skip some unnecessary data
     bb_seek(buf, 8*0x28, SEEK_CUR);
@@ -397,7 +397,7 @@ jobject bdjo_read(JNIEnv* env, const char* file)
 {
     BD_FILE_H *handle = file_open(file, "rb");
     if (handle == NULL) {
-        DEBUG(DBG_BDJ | DBG_CRIT, "Failed to open bdjo file (%s)\n", file);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to open bdjo file (%s)\n", file);
         return NULL;
     }
 

@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     unsigned int seconds = 0;
     char *bd_dir = NULL;
 
-    DEBUG(DBG_BLURAY,"\nListing titles:\n");
+    BD_DEBUG(DBG_BLURAY,"\nListing titles:\n");
 
     do
     {
