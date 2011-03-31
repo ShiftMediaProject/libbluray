@@ -30,11 +30,11 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
+#include <time.h>
 
 
 typedef struct {
-    struct timeval time;
+    time_t   time;
     uint32_t mobj_id;
 } NV_TIMER;
 
@@ -601,7 +601,7 @@ static void _set_nv_timer(HDMV_VM *p, uint32_t dst, uint32_t src)
 
   if (!timeout) {
     /* cancel timer */
-    p->nv_timer.time.tv_sec = 0;
+    p->nv_timer.time = 0;
 
     bd_psr_write(p->regs, PSR_NAV_TIMER, 0);
 
@@ -619,8 +619,8 @@ static void _set_nv_timer(HDMV_VM *p, uint32_t dst, uint32_t src)
   }
 
   /* set expiration time */
-  gettimeofday(&p->nv_timer.time, NULL);
-  p->nv_timer.time.tv_sec += timeout;
+  p->nv_timer.time = time(NULL);
+  p->nv_timer.time += timeout;
 
   p->nv_timer.mobj_id = mobj_id;
 
@@ -631,29 +631,21 @@ static void _set_nv_timer(HDMV_VM *p, uint32_t dst, uint32_t src)
  * Commenting out to disable "‘_check_nv_timer’ defined but not used" warning
 static int _check_nv_timer(HDMV_VM *p)
 {
-    if (p->nv_timer.time.tv_sec > 0) {
-        struct timeval now;
-        gettimeofday(&now, NULL);
+    if (p->nv_timer.time > 0) {
+        time_t now = time(NULL);
 
-        if (now.tv_sec > p->nv_timer.time.tv_sec ||
-            ( now.tv_sec  == p->nv_timer.time.tv_sec &&
-              now.tv_usec >= p->nv_timer.time.tv_usec)) {
-
+        if (now >= p->nv_timer.time) {
             BD_DEBUG(DBG_HDMV, "navigation timer expired, jumping to object %d\n", p->nv_timer.mobj_id);
 
             bd_psr_write(p->regs, PSR_NAV_TIMER, 0);
 
-            p->nv_timer.time.tv_sec = 0;
+            p->nv_timer.time = 0;
             _jump_object(p, p->nv_timer.mobj_id);
 
             return 0;
         }
 
-        unsigned int timeout = p->nv_timer.time.tv_sec - now.tv_sec;
-        if (p->nv_timer.time.tv_usec < now.tv_usec)
-            timeout ++;
-
-        bd_psr_write(p->regs, PSR_NAV_TIMER, timeout);
+        bd_psr_write(p->regs, PSR_NAV_TIMER, (p->nv_timer.time - now));
     }
 
     return -1;
