@@ -273,7 +273,7 @@ _parse_ep_map_stream(BITSTREAM *bits, CLPI_EP_MAP_ENTRY *ee)
 
     bs_seek_byte(bits, ee->ep_map_stream_start_addr+fine_start);
 
-    fine = malloc(ee->num_ep_fine * sizeof(CLPI_EP_COARSE));
+    fine = malloc(ee->num_ep_fine * sizeof(CLPI_EP_FINE));
     ee->fine = fine;
     for (ii = 0; ii < ee->num_ep_fine; ii++) {
         fine[ii].is_angle_change_point = bs_read(bits, 1);
