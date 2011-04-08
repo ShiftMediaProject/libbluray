@@ -31,6 +31,7 @@
 #include "bdnav/navigation.h"
 #include "bdnav/index_parse.h"
 #include "bdnav/meta_parse.h"
+#include "bdnav/clpi_parse.h"
 #include "hdmv/hdmv_vm.h"
 #include "decoders/graphics_controller.h"
 #include "file/file.h"
@@ -2094,4 +2095,21 @@ struct meta_dl *bd_get_meta(BLURAY *bd)
     else {
         return meta_get(bd->meta, NULL);
     }
+}
+
+struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref)
+{
+    NAV_CLIP *clip;
+
+    if (bd->title && clip_ref < bd->title->clip_list.count) {
+      clip = &bd->title->clip_list.clip[clip_ref];
+      CLPI_CL *cl = (CLPI_CL*) calloc(1, sizeof(CLPI_CL));
+      return clpi_copy(cl, clip->cl);
+    }
+    return NULL;
+}
+
+void bd_free_clpi(struct clpi_cl *cl)
+{
+    clpi_free(cl);
 }
