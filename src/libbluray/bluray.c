@@ -276,6 +276,14 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
     }
 }
 
+
+static void _update_chapter_psr(BLURAY *bd)
+{
+  uint32_t current_chapter = bd_get_current_chapter(bd);
+  bd->next_chapter_start = bd_chapter_pos(bd, current_chapter + 1);
+  bd_psr_write(bd->regs, PSR_CHAPTER,  current_chapter + 1);
+}
+
 /*
  * clip access (BD_STREAM)
  */
@@ -899,9 +907,7 @@ static int64_t _seek_internal(BLURAY *bd,
         bd->s_pos = (uint64_t)title_pkt * 192;
 
         /* chapter tracking */
-        uint32_t current_chapter = bd_get_current_chapter(bd);
-        bd->next_chapter_start = bd_chapter_pos(bd, current_chapter + 1);
-        bd_psr_write(bd->regs, PSR_CHAPTER,  current_chapter + 1);
+        _update_chapter_psr(bd);
 
         BD_DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
               bd->s_pos, bd);
@@ -1201,9 +1207,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
 
         /* chapter tracking */
         if (bd->s_pos > bd->next_chapter_start) {
-            uint32_t current_chapter = bd_get_current_chapter(bd);
-            bd->next_chapter_start = bd_chapter_pos(bd, current_chapter + 1);
-            bd_psr_write(bd->regs, PSR_CHAPTER, current_chapter + 1);
+            _update_chapter_psr(bd);
         }
 
         BD_DEBUG(DBG_STREAM, "%d bytes read OK! (%p)\n", out_len, bd);
