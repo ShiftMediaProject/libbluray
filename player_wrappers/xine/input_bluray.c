@@ -102,6 +102,7 @@ typedef struct {
   xine_osd_t           *osd;
 
   bluray_input_class_t *class;
+
   char                 *mrl;
   char                 *disc_root;
   char                 *disc_name;
@@ -205,11 +206,16 @@ static void update_stream_info(bluray_input_plugin_t *this)
   _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_CHAPTER_NUMBER, bd_get_current_chapter(this->bdh) + 1);
 }
 
-static void update_title_info(bluray_input_plugin_t *this)
+static void update_title_info(bluray_input_plugin_t *this, int playlist_id)
 {
   if (this->title_info)
     bd_free_title_info(this->title_info);
-  this->title_info = bd_get_title_info(this->bdh, this->current_title_idx);
+
+  if (playlist_id < 0)
+    this->title_info = bd_get_title_info(this->bdh, this->current_title_idx);
+  else
+    this->title_info = bd_get_playlist_info(this->bdh, playlist_id);
+
   if (!this->title_info) {
     LOGMSG("bd_get_title_info(%d) failed\n", this->current_title_idx);
     return;
@@ -276,16 +282,16 @@ static void update_title_info(bluray_input_plugin_t *this)
   update_stream_info(this);
 }
 
-static int open_title (bluray_input_plugin_t *this, int title)
+static int open_title (bluray_input_plugin_t *this, int title_idx)
 {
-  if (bd_select_title(this->bdh, title) <= 0) {
-    LOGMSG("bd_select_title(%d) failed\n", title);
+  if (bd_select_title(this->bdh, title_idx) <= 0) {
+    LOGMSG("bd_select_title(%d) failed\n", title_idx);
     return 0;
   }
 
-  this->current_title_idx = title;
+  this->current_title_idx = title_idx;
 
-  update_title_info(this);
+  update_title_info(this, -1);
 
   return 1;
 }
@@ -335,6 +341,30 @@ static void wait_secs(bluray_input_plugin_t *this, unsigned seconds)
 
   if (!paused) {
     _x_set_fine_speed(this->stream, XINE_FINE_SPEED_NORMAL);
+  }
+}
+
+static void update_spu_channel(bluray_input_plugin_t *this, int channel)
+{
+  if (this->stream->video_fifo) {
+    buf_element_t *buf = this->stream->video_fifo->buffer_pool_alloc(this->stream->video_fifo);
+    buf->type = BUF_CONTROL_SPU_CHANNEL;
+    buf->decoder_info[0] = channel;
+    buf->decoder_info[1] = channel;
+    buf->decoder_info[2] = channel;
+
+    this->stream->video_fifo->put(this->stream->video_fifo, buf);
+  }
+}
+
+static void update_audio_channel(bluray_input_plugin_t *this, int channel)
+{
+  if (this->stream->audio_fifo) {
+    buf_element_t *buf = this->stream->audio_fifo->buffer_pool_alloc(this->stream->audio_fifo);
+    buf->type = BUF_CONTROL_AUDIO_CHANNEL;
+    buf->decoder_info[0] = channel;
+
+    this->stream->audio_fifo->put(this->stream->audio_fifo, buf);
   }
 }
 
@@ -391,7 +421,7 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
         lprintf("BD_EVENT_PLAYLIST %d\n", ev.param);
         this->current_title_idx = bd_get_current_title(this->bdh);
         this->current_clip = 0;
-        update_title_info(this);
+        update_title_info(this, ev.param);
         stream_reset(this);
         break;
 
@@ -412,24 +442,20 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
 
       case BD_EVENT_AUDIO_STREAM:
         lprintf("BD_EVENT_AUDIO_STREAM %d\n", ev.param);
-        xine_set_param(this->stream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL, ev.param - 1);
+        update_audio_channel(this, ev.param - 1);
         break;
 
       case BD_EVENT_PG_TEXTST:
         lprintf("BD_EVENT_PG_TEXTST %s\n", ev.param ? "ON" : "OFF");
         this->pg_enable = ev.param;
-        if (!this->pg_enable) {
-          _x_select_spu_channel(this->stream, -2);
-        } else {
-          _x_select_spu_channel(this->stream, this->pg_stream);
-        }
+        update_spu_channel(this, this->pg_enable ? this->pg_stream : -1);
         break;
 
       case BD_EVENT_PG_TEXTST_STREAM:
         lprintf("BD_EVENT_PG_TEXTST_STREAM %d\n", ev.param);
         this->pg_stream = ev.param - 1;
         if (this->pg_enable) {
-          _x_select_spu_channel(this->stream, this->pg_stream);
+          update_spu_channel(this, this->pg_stream);
         }
         break;
 
@@ -755,6 +781,8 @@ static off_t bluray_plugin_get_length (input_plugin_t *this_gen)
 
 static uint32_t bluray_plugin_get_blocksize (input_plugin_t *this_gen)
 {
+  (void)this_gen;
+
   return ALIGNED_UNIT_SIZE;
 }
 
@@ -786,7 +814,7 @@ static int bluray_plugin_get_optional_data (input_plugin_t *this_gen, void *data
         int               channel = *((int *)data);
         BLURAY_CLIP_INFO *clip    = &this->title_info->clips[this->current_clip];
 
-        if (channel < clip->audio_stream_count) {
+        if (channel >= 0 && channel < clip->audio_stream_count) {
           memcpy(data, clip->audio_streams[channel].lang, 4);
           lprintf("INPUT_OPTIONAL_DATA_AUDIOLANG: %02d [pid 0x%04x]: %s\n",
                   channel, clip->audio_streams[channel].pid, clip->audio_streams[channel].lang);
@@ -816,7 +844,7 @@ static int bluray_plugin_get_optional_data (input_plugin_t *this_gen, void *data
         int               channel = *((int *)data);
         BLURAY_CLIP_INFO *clip    = &this->title_info->clips[this->current_clip];
 
-        if (channel < clip->pg_stream_count) {
+        if (channel >= 0 && channel < clip->pg_stream_count) {
           memcpy(data, clip->pg_streams[channel].lang, 4);
           lprintf("INPUT_OPTIONAL_DATA_SPULANG: %02d [pid 0x%04x]: %s\n",
                   channel, clip->pg_streams[channel].pid, clip->pg_streams[channel].lang);
@@ -1049,6 +1077,10 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
   bd_set_player_setting_str(this->bdh, BLURAY_PLAYER_SETTING_MENU_LANG,    this->class->language);
   bd_set_player_setting_str(this->bdh, BLURAY_PLAYER_SETTING_COUNTRY_CODE, this->class->country);
 
+  /* init eq */
+  BD_EVENT ev;
+  bd_get_event(this->bdh, &ev);
+
   /* get disc name */
 
   this->meta_dl = bd_get_meta(this->bdh);
@@ -1134,6 +1166,8 @@ static input_plugin_t *bluray_class_get_instance (input_class_t *cls_gen, xine_s
 
   this->event_queue = xine_event_new_queue (this->stream);
 
+  this->pg_stream = -1;
+
   return &this->input_plugin;
 }
 
@@ -1196,6 +1230,8 @@ static const char *bluray_class_get_identifier (input_class_t *this_gen)
 
 static char **bluray_class_get_autoplay_list (input_class_t *this_gen, int *num_files)
 {
+  (void)this_gen;
+
   static char *autoplay_list[] = { "bluray:/", NULL };
 
   *num_files = 1;
@@ -1224,6 +1260,8 @@ static void bluray_class_dispose (input_class_t *this_gen)
 
 static void *bluray_init_plugin (xine_t *xine, void *data)
 {
+  (void)data;
+
   config_values_t      *config = xine->config;
   bluray_input_class_t *this   = (bluray_input_class_t *) calloc(1, sizeof (bluray_input_class_t));
 
