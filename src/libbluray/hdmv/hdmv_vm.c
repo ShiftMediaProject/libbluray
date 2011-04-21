@@ -341,11 +341,9 @@ static int _jump_title(HDMV_VM *p, int title)
     if (title >= 0 && title <= 0xffff) {
         BD_DEBUG(DBG_HDMV, "_jump_title(%d)\n", title);
 
-        if (p->suspended_object) {
-            /* discard suspended object */
-            p->suspended_object = NULL;
-            bd_psr_restore_state(p->regs);
-        }
+        /* discard suspended object */
+        p->suspended_object = NULL;
+        bd_psr_reset_backup_registers(p->regs);
 
         _queue_event(p, HDMV_EVENT_TITLE, title);
         return 0;

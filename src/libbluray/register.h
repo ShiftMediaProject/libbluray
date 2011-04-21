@@ -189,6 +189,16 @@ void bd_psr_save_state(BD_REGISTERS *);
  */
 void bd_psr_restore_state(BD_REGISTERS *);
 
+/**
+ *
+ *  Reset backup registers
+ *
+ *  Initialize backup registers 36-40 and 42-44 to default values.
+ *
+ * @param registers  BD_REGISTERS object
+ */
+void bd_psr_reset_backup_registers(BD_REGISTERS *);
+
 
 /*
  * Events when PSR value is changed
