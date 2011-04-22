@@ -533,9 +533,12 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *cm
     for (ii = 0; ii < page->num_bogs; ii++) {
         BD_IG_BOG *bog      = &page->bog[ii];
         unsigned   valid_id = gc->enabled_button[ii];
+        BD_IG_BUTTON *button = _find_button_bog(bog, valid_id);
+        if (!button) {
+            continue;
+        }
 
         if (VK_IS_CURSOR(key) || key == BD_VK_ENTER) {
-            BD_IG_BUTTON *button = _find_button_bog(bog, valid_id);
             if (button->id == cur_btn_id) {
                 switch(key) {
                     case BD_VK_UP:
