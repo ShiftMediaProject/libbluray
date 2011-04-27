@@ -1782,7 +1782,7 @@ static int _play_hdmv(BLURAY *bd, unsigned id_ref)
     return 1;
 }
 
-int bd_play_title(BLURAY *bd, unsigned title)
+static int _play_title(BLURAY *bd, unsigned title)
 {
     /* first play object ? */
     if (title == BLURAY_TITLE_FIRST_PLAY) {
@@ -1865,7 +1865,17 @@ int bd_play(BLURAY *bd)
     bd_psr_register_cb(bd->regs, _process_psr_event, bd);
     _queue_initial_psr_events(bd);
 
-    return bd_play_title(bd, BLURAY_TITLE_FIRST_PLAY);
+    return _play_title(bd, BLURAY_TITLE_FIRST_PLAY);
+}
+
+int bd_play_title(BLURAY *bd, unsigned title)
+{
+    if (bd->title_type == title_undef && title != BLURAY_TITLE_FIRST_PLAY) {
+        // bd_play not called
+        return 0;
+    }
+
+    return _play_title(bd, title);
 }
 
 int bd_menu_call(BLURAY *bd, int64_t pts)
@@ -1879,7 +1889,7 @@ int bd_menu_call(BLURAY *bd, int64_t pts)
         return 0;
     }
 
-    return bd_play_title(bd, BLURAY_TITLE_TOP_MENU);
+    return _play_title(bd, BLURAY_TITLE_TOP_MENU);
 }
 
 static void _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
@@ -1902,7 +1912,7 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
 
     switch (hev->event) {
         case HDMV_EVENT_TITLE:
-            bd_play_title(bd, hev->param);
+            _play_title(bd, hev->param);
             break;
 
         case HDMV_EVENT_PLAY_PL:
