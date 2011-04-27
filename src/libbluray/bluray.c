@@ -1875,6 +1875,13 @@ int bd_play_title(BLURAY *bd, unsigned title)
         return 0;
     }
 
+    if (bd->title_type == title_hdmv) {
+        if (hdmv_vm_get_uo_mask(bd->hdmv_vm) & HDMV_TITLE_SEARCH_MASK) {
+            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "title search masked by movie object\n");
+            return 0;
+        }
+    }
+
     return _play_title(bd, title);
 }
 
@@ -1887,6 +1894,13 @@ int bd_menu_call(BLURAY *bd, int64_t pts)
     if (bd->title_type == title_undef) {
         // bd_play not called
         return 0;
+    }
+
+    if (bd->title_type == title_hdmv) {
+        if (hdmv_vm_get_uo_mask(bd->hdmv_vm) & HDMV_MENU_CALL_MASK) {
+            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "menu call masked by movie object\n");
+            return 0;
+        }
     }
 
     return _play_title(bd, BLURAY_TITLE_TOP_MENU);
