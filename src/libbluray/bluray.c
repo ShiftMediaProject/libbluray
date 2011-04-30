@@ -1674,6 +1674,43 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
 {
     BLURAY *bd = (BLURAY*)handle;
 
+    /* PSR restore events are handled internally */
+
+    if (ev->ev_type == BD_PSR_RESTORE) {
+
+        BD_DEBUG(DBG_BLURAY, "PSR RESTORE event %d %d (%p)\n", ev->psr_idx, ev->new_val, bd);
+
+        /* Restore stored playback position */
+
+        switch (ev->psr_idx) {
+            case PSR_ANGLE_NUMBER:
+                /* can't set angle before playlist is opened */
+                return;
+            case PSR_TITLE_NUMBER:
+                /* pass to the application */
+                break;
+            case PSR_CHAPTER:
+                /* will be selected automatically */
+                return;
+            case PSR_PLAYLIST:
+                bd_select_playlist(bd, ev->new_val);
+                nav_set_angle(bd->title, bd->st0.clip, bd_psr_read(bd->regs, PSR_ANGLE_NUMBER) - 1);
+                return;
+            case PSR_PLAYITEM:
+                bd_seek_playitem(bd, ev->new_val);
+                return;
+            case PSR_TIME:
+                bd_seek_time(bd, ((int64_t)ev->new_val) << 1);
+                return;
+            case PSR_SELECTED_BUTTON_ID:
+            case PSR_MENU_PAGE_ID:
+                /* TODO: need to inform graphics controller ? */
+            default:
+                /* others: ignore */
+                return;
+        }
+    }
+
     BD_DEBUG(DBG_BLURAY, "PSR event %d %d (%p)\n", ev->psr_idx, ev->new_val, bd);
 
     switch (ev->psr_idx) {
