@@ -1938,6 +1938,10 @@ int bd_menu_call(BLURAY *bd, int64_t pts)
             BD_DEBUG(DBG_BLURAY|DBG_CRIT, "menu call masked by movie object\n");
             return 0;
         }
+
+        if (hdmv_vm_suspend_pl(bd->hdmv_vm) < 0) {
+            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_menu_call(): error storing playback location\n");
+        }
     }
 
     return _play_title(bd, BLURAY_TITLE_TOP_MENU);

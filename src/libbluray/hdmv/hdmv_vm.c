@@ -974,13 +974,25 @@ int hdmv_vm_resume(HDMV_VM *p)
     return result;
 }
 
-int hdmv_vm_suspend(HDMV_VM *p)
+int hdmv_vm_suspend_pl(HDMV_VM *p)
 {
     int result = -1;
     bd_mutex_lock(&p->mutex);
 
-    if (p->object && !p->ig_object) {
-        _suspend_object(p, 1);
+    if (p->object || p->ig_object) {
+        BD_DEBUG(DBG_HDMV, "hdmv_vm_suspend_pl(): HDMV VM is still running\n");
+
+    } else if (!p->suspended_object) {
+        BD_DEBUG(DBG_HDMV, "hdmv_vm_suspend_pl(): No suspended object\n");
+
+    } else if (!p->suspended_object->resume_intention_flag) {
+        BD_DEBUG(DBG_HDMV, "hdmv_vm_suspend_pl(): no resume intention flag\n");
+
+        p->suspended_object = NULL;
+        result = 0;
+
+    } else {
+        bd_psr_save_state(p->regs);
         result = 0;
     }
 
