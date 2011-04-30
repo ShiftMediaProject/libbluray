@@ -1871,7 +1871,7 @@ int bd_play(BLURAY *bd)
 int bd_play_title(BLURAY *bd, unsigned title)
 {
     if (bd->title_type == title_undef && title != BLURAY_TITLE_FIRST_PLAY) {
-        // bd_play not called
+        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_play_title(): bd_play() not called\n");
         return 0;
     }
 
@@ -1892,7 +1892,7 @@ int bd_menu_call(BLURAY *bd, int64_t pts)
     }
 
     if (bd->title_type == title_undef) {
-        // bd_play not called
+        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_menu_call(): bd_play() not called\n");
         return 0;
     }
 
