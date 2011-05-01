@@ -278,6 +278,22 @@ void hdmv_vm_free(HDMV_VM **p)
  * suspend/resume ("function call")
  */
 
+static int _suspended_at_play_pl(HDMV_VM *p)
+{
+    int play_pl = 0;
+    if (p && p->suspended_object) {
+        MOBJ_CMD  *cmd  = &p->suspended_object->cmds[p->suspended_pc];
+        HDMV_INSN *insn = &cmd->insn;
+        play_pl = (insn->grp     == INSN_GROUP_BRANCH &&
+                   insn->sub_grp == BRANCH_PLAY  &&
+                   (  insn->branch_opt == INSN_PLAY_PL ||
+                      insn->branch_opt == INSN_PLAY_PL_PI ||
+                      insn->branch_opt == INSN_PLAY_PL_PM));
+    }
+
+    return play_pl;
+}
+
 static void _suspend_object(HDMV_VM *p, int psr_backup)
 {
     BD_DEBUG(DBG_HDMV, "_suspend_object()\n");
@@ -984,6 +1000,9 @@ int hdmv_vm_suspend_pl(HDMV_VM *p)
 
     } else if (!p->suspended_object) {
         BD_DEBUG(DBG_HDMV, "hdmv_vm_suspend_pl(): No suspended object\n");
+
+    } else if (!_suspended_at_play_pl(p)) {
+        BD_DEBUG(DBG_HDMV, "hdmv_vm_suspend_pl(): Object is not playing playlist\n");
 
     } else if (!p->suspended_object->resume_intention_flag) {
         BD_DEBUG(DBG_HDMV, "hdmv_vm_suspend_pl(): no resume intention flag\n");
