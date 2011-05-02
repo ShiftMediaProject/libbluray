@@ -320,6 +320,8 @@ static int _resume_object(HDMV_VM *p, int psr_restore)
         return -1;
     }
 
+    _free_ig_object(p);
+
     p->object = p->suspended_object;
     p->pc     = p->suspended_pc + 1;
 
