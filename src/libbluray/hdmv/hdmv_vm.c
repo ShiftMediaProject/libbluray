@@ -23,6 +23,7 @@
 #include "hdmv_insn.h"
 #include "../register.h"
 
+#include "../bdnav/index_parse.h"
 #include "util/macro.h"
 #include "util/strutl.h"
 #include "util/logging.h"
@@ -58,6 +59,9 @@ struct hdmv_vm_s {
     /* suspended object */
     MOBJ_OBJECT *suspended_object;
     int          suspended_pc;
+
+    /* disc index (used to verify CALL_TITLE/JUMP_TITLE) */
+    INDX_ROOT   *indx;
 };
 
 /*
@@ -231,7 +235,7 @@ static int _queue_event(HDMV_VM *p, uint32_t event, uint32_t param)
  * vm init
  */
 
-HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs)
+HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs, INDX_ROOT *indx)
 {
     HDMV_VM *p = calloc(1, sizeof(HDMV_VM));
     char *file;
@@ -246,6 +250,7 @@ HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs)
     }
 
     p->regs         = regs;
+    p->indx         = indx;
 
     bd_mutex_init(&p->mutex);
 
@@ -341,6 +346,21 @@ static int _resume_object(HDMV_VM *p, int psr_restore)
  * branching
  */
 
+static int _is_valid_title(HDMV_VM *p, int title)
+{
+    if (title == 0 || title == 0xffff) {
+        INDX_PLAY_ITEM *pi = (!title) ? &p->indx->top_menu : &p->indx->first_play;
+
+        if (pi->object_type == indx_object_type_hdmv &&  pi->hdmv.id_ref == 0xffff) {
+            /* no top menu or first play title (5.2.3.3) */
+            return 0;
+        }
+        return 1;
+    }
+
+    return title > 0 && title <= p->indx->num_titles;
+}
+
 static int _jump_object(HDMV_VM *p, int object)
 {
     if (object < 0 || object >= p->movie_objects->num_objects) {
@@ -362,7 +382,7 @@ static int _jump_object(HDMV_VM *p, int object)
 
 static int _jump_title(HDMV_VM *p, int title)
 {
-    if (title >= 0 && title <= 0xffff) {
+    if (_is_valid_title(p, title)) {
         BD_DEBUG(DBG_HDMV, "_jump_title(%d)\n", title);
 
         /* discard suspended object */
@@ -389,7 +409,7 @@ static int _call_object(HDMV_VM *p, int object)
 
 static int _call_title(HDMV_VM *p, int title)
 {
-    if (title >= 0 && title <= 0xffff) {
+    if (_is_valid_title(p, title)) {
         BD_DEBUG(DBG_HDMV, "_call_title(%d)\n", title);
 
         _suspend_object(p, 1);

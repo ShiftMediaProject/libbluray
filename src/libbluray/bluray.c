@@ -1807,7 +1807,7 @@ static int _play_hdmv(BLURAY *bd, unsigned id_ref)
 #endif
 
     if (!bd->hdmv_vm) {
-        bd->hdmv_vm = hdmv_vm_init(bd->device_path, bd->regs);
+        bd->hdmv_vm = hdmv_vm_init(bd->device_path, bd->regs, bd->index);
     }
 
     if (hdmv_vm_select_object(bd->hdmv_vm, id_ref)) {
