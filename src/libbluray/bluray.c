@@ -78,6 +78,8 @@ typedef struct {
     /* current aligned unit */
     uint16_t       int_buf_off;
 
+    BD_UO_MASK     uo_mask;
+
 } BD_STREAM;
 
 typedef struct {
@@ -295,6 +297,9 @@ static void _close_m2ts(BD_STREAM *st)
         file_close(st->fp);
         st->fp = NULL;
     }
+
+    /* reset UO mask */
+    memset(&st->uo_mask, 0, sizeof(st->uo_mask));
 }
 
 static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
@@ -328,6 +333,10 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
             }
 
             if (st == &bd->st0) {
+                MPLS_PL *pl = st->clip->title->pl;
+                st->uo_mask = bd_uo_mask_combine(pl->app_info.uo_mask,
+                                                 pl->play_item[st->clip->ref].uo_mask);
+
                 _update_clip_psrs(bd, st->clip);
             }
 
@@ -1912,6 +1921,11 @@ int bd_play_title(BLURAY *bd, unsigned title)
         return 0;
     }
 
+    if (bd->st0.uo_mask.title_search) {
+        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "title search masked by stream\n");
+        return 0;
+    }
+
     if (bd->title_type == title_hdmv) {
         if (hdmv_vm_get_uo_mask(bd->hdmv_vm) & HDMV_TITLE_SEARCH_MASK) {
             BD_DEBUG(DBG_BLURAY|DBG_CRIT, "title search masked by movie object\n");
@@ -1930,6 +1944,11 @@ int bd_menu_call(BLURAY *bd, int64_t pts)
 
     if (bd->title_type == title_undef) {
         BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_menu_call(): bd_play() not called\n");
+        return 0;
+    }
+
+    if (bd->st0.uo_mask.menu_call) {
+        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "menu call masked by stream\n");
         return 0;
     }
 
