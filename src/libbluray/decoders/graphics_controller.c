@@ -475,7 +475,7 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
 
             bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, selected_button_id);
 
-            if (button->auto_action_flag) {
+            if (button->auto_action_flag && cmds) {
                 cmds->num_nav_cmds = button->num_nav_cmds;
                 cmds->nav_cmds     = button->nav_cmds;
             }
@@ -596,7 +596,7 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *cm
     return 0;
 }
 
-static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMDS *cmds)
+static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param)
 {
     unsigned page_flag   = param & 0x80000000;
     unsigned effect_flag = param & 0x40000000;
@@ -672,7 +672,7 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param, GC_NAV_CMD
         bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, button_id);
     }
 
-    _render_page(gc, 0xffff, cmds);
+    _render_page(gc, 0xffff, NULL);
 }
 
 static void _enable_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id, unsigned enable)
@@ -839,7 +839,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
     switch (ctrl) {
 
         case GC_CTRL_SET_BUTTON_PAGE:
-            _set_button_page(gc, param, cmds);
+            _set_button_page(gc, param);
             break;
 
         case GC_CTRL_VK_KEY:
