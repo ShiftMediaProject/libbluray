@@ -2035,7 +2035,6 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             break;
 
         case HDMV_EVENT_IG_END:
-            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "HDMV_EVENT_IG_END\n");
             _run_gc(bd, GC_CTRL_IG_END, 0);
             break;
 
