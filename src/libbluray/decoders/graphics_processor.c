@@ -234,8 +234,8 @@ static int _decode_pds(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
         for (ii = 0; ii < s->num_palette; ii++) {
             if (s->palette[ii].id == id) {
                 int rr;
-                if ( (s->ics && s->ics->composition_descriptor.state == 0)/* ||
-                     (s->pcs && s->pcs->composition_descriptor.state == 2)*/) {
+                if ( (s->ics && s->ics->composition_descriptor.state == 0) ||
+                     (s->pcs && s->pcs->composition_descriptor.state == 0)) {
                     /* 8.8.3.1.1 */
                     rr = pg_decode_palette_update(bb, &s->palette[ii]);
                 } else {
@@ -266,7 +266,8 @@ static int _decode_pds(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 
 static void _check_epoch_start(PG_DISPLAY_SET *s)
 {
-    if (s->ics->composition_descriptor.state == 2) {
+    if ((s->pcs && s->pcs->composition_descriptor.state == 2) ||
+        (s->ics && s->ics->composition_descriptor.state == 2)) {
         /* epoch start, drop all cached data */
 
         unsigned ii;
@@ -287,12 +288,20 @@ static void _check_epoch_start(PG_DISPLAY_SET *s)
 
 static int _decode_pcs(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 {
-    (void)s;
-    (void)bb;
-    (void)p;
+    pg_free_composition(&s->pcs);
+    s->pcs = calloc(1, sizeof(*s->pcs));
 
-    BD_DEBUG(DBG_DECODE | DBG_CRIT, "unhandled segment type (PGS_PG_COMPOSITION)\n");
-    return 0;
+    if (!pg_decode_composition(bb, s->pcs)) {
+        pg_free_composition(&s->pcs);
+        return 0;
+    }
+
+    s->pcs->pts  = p->pts;
+    s->valid_pts = p->pts;
+
+    _check_epoch_start(s);
+
+    return 1;
 }
 
 static int _decode_ics(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
@@ -305,9 +314,8 @@ static int _decode_ics(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
         return 0;
     }
 
-    s->ics->pts = p->pts;
-
-    s->valid_pts   = s->ics->pts;
+    s->ics->pts  = p->pts;
+    s->valid_pts = p->pts;
 
     _check_epoch_start(s);
 
