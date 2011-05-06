@@ -264,6 +264,27 @@ static int _decode_pds(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
     return 0;
 }
 
+static void _check_epoch_start(PG_DISPLAY_SET *s)
+{
+    if (s->ics->composition_descriptor.state == 2) {
+        /* epoch start, drop all cached data */
+
+        unsigned ii;
+        for (ii = 0; ii < s->num_object; ii++) {
+            pg_clean_object(&s->object[ii]);
+        }
+
+        s->num_palette = 0;
+        s->num_window  = 0;
+        s->num_object  = 0;
+
+        s->epoch_start = 1;
+
+    } else {
+        s->epoch_start = 0;
+    }
+}
+
 static int _decode_pcs(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 {
     (void)s;
@@ -287,22 +308,8 @@ static int _decode_ics(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
     s->ics->pts = p->pts;
 
     s->valid_pts   = s->ics->pts;
-    s->epoch_start = 0;
 
-    if (s->ics->composition_descriptor.state == 2) {
-        /* epoch start, drop all cached data */
-
-        unsigned ii;
-        for (ii = 0; ii < s->num_object; ii++) {
-            pg_clean_object(&s->object[ii]);
-        }
-
-        s->num_palette = 0;
-        s->num_window = 0;
-        s->num_object = 0;
-
-        s->epoch_start = 1;
-    }
+    _check_epoch_start(s);
 
     return 1;
 }
