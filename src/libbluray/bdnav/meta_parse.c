@@ -31,8 +31,11 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 #include <errno.h>
+
+#if HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 #ifdef HAVE_LIBXML2
 #include <libxml/parser.h>
