@@ -21,6 +21,10 @@
 #ifndef BD_FILESYSTEM_H_
 #define BD_FILESYSTEM_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 /*
@@ -78,5 +82,8 @@ BD_FILE_OPEN bd_register_file(BD_FILE_OPEN p);
  */
 BD_DIR_OPEN bd_register_dir(BD_DIR_OPEN p);
 
+#ifdef __cplusplus
+};
+#endif
 
 #endif /* BD_FILESYSTEM_H_ */

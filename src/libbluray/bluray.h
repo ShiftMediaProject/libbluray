@@ -22,6 +22,10 @@
 #ifndef BLURAY_H_
 #define BLURAY_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @file libbluray/bluray.h
  * external API header
@@ -628,5 +632,9 @@ struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref);
  * @param cl  CLPI_CL objects
  */
 void bd_free_clpi(struct clpi_cl *cl);
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif /* BLURAY_H_ */
