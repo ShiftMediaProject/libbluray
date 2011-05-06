@@ -395,7 +395,9 @@ static jobject _parse_bdjo(JNIEnv* env, BITBUFFER* buf)
 
 jobject bdjo_read(JNIEnv* env, const char* file)
 {
+    jobject    result = NULL;
     BD_FILE_H *handle = file_open(file, "rb");
+
     if (handle == NULL) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to open bdjo file (%s)\n", file);
         return NULL;
@@ -404,26 +406,31 @@ jobject bdjo_read(JNIEnv* env, const char* file)
     file_seek(handle, 0, SEEK_END);
     int64_t length = file_tell(handle);
 
-    if (length > 0) {
+    if (length <= 0) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error reading %s\n", file);
+
+    } else {
         file_seek(handle, 0, SEEK_SET);
 
         uint8_t *data = malloc(length);
         int64_t size_read = file_read(handle, data, length);
+
         if (size_read < length) {
-            free(data);
-            return NULL;
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error reading %s\n", file);
+
+        } else {
+            BITBUFFER *buf = malloc(sizeof(BITBUFFER));
+            bb_init(buf, data, length);
+
+            result = _parse_bdjo(env, buf);
+
+            free(buf);
         }
 
-        BITBUFFER* buf = malloc(sizeof(BITBUFFER));
-        bb_init(buf, data, length);
-
-        jobject result = _parse_bdjo(env, buf);
-
-        free(buf);
-        file_close(handle);
-
-        return result;
-    } else {
-        return NULL;
+        free(data);
     }
+
+    file_close(handle);
+
+    return result;
 }
