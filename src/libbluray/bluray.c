@@ -747,7 +747,8 @@ static int _libbdplus_open(BLURAY *bd, const char *keyfile_path)
         return 0;
     }
 
-    bd->bdplus = bd->bdplus_init(bd->device_path, keyfile_path, _libaacs_get_vid(bd) ?: vid);
+    const uint8_t *aacs_vid = (const uint8_t *)_libaacs_get_vid(bd);
+    bd->bdplus = bd->bdplus_init(bd->device_path, keyfile_path, aacs_vid ? aacs_vid : vid);
 
     if (bd->bdplus) {
         BD_DEBUG(DBG_BLURAY,"libbdplus initialized\n");
