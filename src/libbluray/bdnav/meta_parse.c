@@ -33,7 +33,7 @@
 #include <string.h>
 #include <errno.h>
 
-#if HAVE_STRINGS_H
+#ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
 
