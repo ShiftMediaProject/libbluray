@@ -1309,11 +1309,11 @@ static void _close_playlist(BLURAY *bd)
     }
 }
 
-static int _open_playlist(BLURAY *bd, const char *f_name)
+static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
 {
     _close_playlist(bd);
 
-    bd->title = nav_title_open(bd->device_path, f_name);
+    bd->title = nav_title_open(bd->device_path, f_name, angle);
     if (bd->title == NULL) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n",
               f_name, bd);
@@ -1357,7 +1357,7 @@ int bd_select_playlist(BLURAY *bd, uint32_t playlist)
         }
     }
 
-    result = _open_playlist(bd, f_name);
+    result = _open_playlist(bd, f_name, 0);
 
     X_FREE(f_name);
     return result;
@@ -1383,7 +1383,7 @@ int bd_select_title(BLURAY *bd, uint32_t title_idx)
     bd->title_idx = title_idx;
     f_name = bd->title_list->title_info[title_idx].name;
 
-    return _open_playlist(bd, f_name);
+    return _open_playlist(bd, f_name, 0);
 }
 
 uint32_t bd_get_current_title(BLURAY *bd)
@@ -1533,7 +1533,7 @@ static BLURAY_TITLE_INFO *_get_title_info(BLURAY *bd, uint32_t title_idx, uint32
     NAV_TITLE *title;
     BLURAY_TITLE_INFO *title_info;
 
-    title = nav_title_open(bd->device_path, mpls_name);
+    title = nav_title_open(bd->device_path, mpls_name, 0);
     if (title == NULL) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n",
               mpls_name, bd);

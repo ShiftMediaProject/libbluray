@@ -440,7 +440,7 @@ static void _fill_clip(NAV_TITLE *title,
     *time += clip->out_time - clip->in_time;
 }
 
-NAV_TITLE* nav_title_open(const char *root, const char *playlist)
+NAV_TITLE* nav_title_open(const char *root, const char *playlist, unsigned angle)
 {
     NAV_TITLE *title = NULL;
     char *path;
@@ -459,7 +459,7 @@ NAV_TITLE* nav_title_open(const char *root, const char *playlist)
     path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST" DIR_SEP "%s",
                       root, playlist);
     title->angle_count = 0;
-    title->angle = 0;
+    title->angle = angle;
     title->pl = mpls_parse(path, 0);
     if (title->pl == NULL) {
         BD_DEBUG(DBG_NAV, "Fail: Playlist parse %s\n", path);
@@ -521,6 +521,11 @@ NAV_TITLE* nav_title_open(const char *root, const char *playlist)
     title->mark_list.mark = calloc(title->pl->mark_count, sizeof(NAV_MARK));
 
     _extrapolate_title(title);
+
+    if (title->angle >= title->angle_count) {
+        title->angle = 0;
+    }
+
     return title;
 }
 
