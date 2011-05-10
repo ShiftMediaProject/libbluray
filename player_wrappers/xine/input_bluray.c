@@ -231,9 +231,9 @@ static void update_title_info(bluray_input_plugin_t *this, int playlist_id)
     bd_free_title_info(this->title_info);
 
   if (playlist_id < 0)
-    this->title_info = bd_get_title_info(this->bdh, this->current_title_idx);
+    this->title_info = bd_get_title_info(this->bdh, this->current_title_idx, 0);
   else
-    this->title_info = bd_get_playlist_info(this->bdh, playlist_id);
+    this->title_info = bd_get_playlist_info(this->bdh, playlist_id, 0);
 
   pthread_mutex_unlock(&this->title_info_mutex);
 
@@ -1101,7 +1101,7 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
     uint64_t duration = 0;
     int i, playlist = 99999;
     for (i = 0; i < this->num_title_idx; i++) {
-      BLURAY_TITLE_INFO *info = bd_get_title_info(this->bdh, i);
+      BLURAY_TITLE_INFO *info = bd_get_title_info(this->bdh, i, 0);
       if (info->duration > duration) {
         title    = i;
         duration = info->duration;

@@ -162,7 +162,7 @@ main(int argc, char *argv[])
         out = stdout;
     }
 
-    ti = bd_get_title_info(bd, title_no);
+    ti = bd_get_title_info(bd, title_no, angle);
 
     if (angle >= (int)ti->angle_count) {
         fprintf(stderr, "Invalid angle %d > angle count %d. Using angle 1.\n", 
