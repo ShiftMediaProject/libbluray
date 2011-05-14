@@ -73,28 +73,14 @@ void pg_display_set_free(PG_DISPLAY_SET **s)
  * segment handling
  */
 
-static PES_BUFFER *_find_segment_by_type(PES_BUFFER *p, uint8_t seg_type)
-{
-    while (p) {
-        if (p->buf[0] == seg_type) {
-            return p;
-        }
-        p = p->next;
-    }
-    return NULL;
-}
-
 static PES_BUFFER *_find_segment_by_idv(PES_BUFFER *p,
                                         uint8_t seg_type, unsigned idv_pos,
                                         uint8_t *idv, unsigned idv_len)
 {
-    while (NULL != (_find_segment_by_type(p, seg_type))) {
-        if (!memcmp(p->buf + idv_pos, idv, idv_len)) {
-            return p;
-        }
+    while (p && (p->buf[0] != seg_type || memcmp(p->buf + idv_pos, idv, idv_len))) {
         p = p->next;
     }
-    return NULL;
+    return p;
 }
 
 static void _join_fragments(PES_BUFFER *p1, PES_BUFFER *p2, int data_pos)
