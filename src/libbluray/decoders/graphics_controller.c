@@ -31,6 +31,7 @@
 #include "../keys.h"
 
 #include <inttypes.h>
+#include <string.h>
 
 #define GC_ERROR(...) BD_DEBUG(DBG_GC | DBG_CRIT, __VA_ARGS__)
 #define GC_TRACE(...) BD_DEBUG(DBG_GC,            __VA_ARGS__)
