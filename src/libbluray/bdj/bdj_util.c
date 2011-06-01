@@ -1,9 +1,17 @@
+
+#include "util/logging.h"
+
 #include "bdj_util.h"
 
 jobject bdj_make_object(JNIEnv* env, const char* name, const char* sig, ...)
 {
     jclass obj_class = (*env)->FindClass(env, name);
     jmethodID obj_constructor = (*env)->GetMethodID(env, obj_class, "<init>", sig);
+
+    if (!obj_class) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Class %s not found\n", name);
+        return NULL;
+    }
 
     va_list ap;
     va_start(ap, sig);

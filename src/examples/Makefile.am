@@ -14,7 +14,6 @@ noinst_PROGRAMS=bdsplice mpls_dump clpi_dump index_dump mobj_dump sound_dump \
     libbluray_test bd_info list_titles hdmv_test
 
 BLURAY_LIB = $(top_builddir)/src/libbluray.la
-BLURAY_LIB_STATIC = $(top_builddir)/src/.libs/libbluray.a
 
 if USING_BDJAVA
   AM_CFLAGS += @BDJAVA_CFLAGS@
@@ -26,29 +25,39 @@ bdsplice_SOURCES = \
 bdsplice_LDADD = $(BLURAY_LIB)
 
 mpls_dump_SOURCES = \
-	mpls_dump.c util.c util.h ../util/strutl.c
-
-mpls_dump_LDADD = $(BLURAY_LIB_STATIC)
+	mpls_dump.c util.c util.h \
+	../util/strutl.c \
+	../util/logging.c \
+	../file/file_posix.c \
+	../file/dir_posix.c \
+	../libbluray/bdnav/mpls_parse.c \
+	../libbluray/bdnav/clpi_parse.c \
+	../libbluray/bdnav/navigation.c
 
 clpi_dump_SOURCES = \
-	clpi_dump.c util.c util.h
-
-clpi_dump_LDADD = $(BLURAY_LIB_STATIC)
+	clpi_dump.c util.c util.h \
+	../util/logging.c \
+	../file/file_posix.c \
+	../libbluray/bdnav/clpi_parse.c
 
 sound_dump_SOURCES = \
-	sound_dump.c
-
-sound_dump_LDADD = $(BLURAY_LIB_STATIC)
+	sound_dump.c \
+	../util/logging.c \
+	../file/file_posix.c \
+	../libbluray/bdnav/sound_parse.c
 
 index_dump_SOURCES = \
-	index_dump.c
-
-index_dump_LDADD = $(BLURAY_LIB_STATIC)
+	index_dump.c \
+	../util/logging.c \
+	../file/file_posix.c \
+	../libbluray/bdnav/index_parse.c
 
 mobj_dump_SOURCES = \
-	mobj_dump.c
-
-mobj_dump_LDADD = $(BLURAY_LIB_STATIC)
+	mobj_dump.c \
+	../util/logging.c \
+	../file/file_posix.c \
+	../libbluray/hdmv/mobj_parse.c \
+	../libbluray/hdmv/mobj_print.c
 
 libbluray_test_SOURCES = \
 	libbluray_test.c ../util/logging.c

@@ -36,23 +36,28 @@ void usage(void) {
     printf("Usage: [path to disc] [starting object]\n");
 }
 
-int main(int argc, char** argv) {
-    printf("%s %s\n", argv[1], argv[2]);
+int main(int argc, char** argv)
+{
     if (argc < 3) {
         usage();
         return 0;
     }
+
+    printf("%s %s\n", argv[1], argv[2]);
 
     BLURAY* bd = bd_open(argv[1], NULL);
 
     bd_get_titles(bd, TITLES_ALL);
     bd_select_title(bd, 1);
 
-    if (bd_start_bdj(bd, argv[2]))
+    if (!bd_start_bdj(bd, argv[2])) {
         printf("Failed to start BD-J application.\n");
-    else {
+    } else {
         while (1) { sleep(20); }
         bd_stop_bdj(bd);
     }
+
+    bd_close(bd);
+
     return 0;
 }

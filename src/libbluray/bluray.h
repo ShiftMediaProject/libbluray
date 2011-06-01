@@ -22,6 +22,10 @@
 #ifndef BLURAY_H_
 #define BLURAY_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @file libbluray/bluray.h
  * external API header
@@ -247,6 +251,15 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick);
  * @return size of data read, -1 if error
  */
 int bd_read(BLURAY *bd, unsigned char *buf, int len);
+
+/**
+ *
+ *  Continue reading after still mode clip
+ *
+ * @param bd  BLURAY object
+ * @return 0 on error
+ */
+int bd_read_skip_still(BLURAY *bd);
 
 /**
  *
@@ -608,5 +621,29 @@ struct meta_dl;
  * @return allocated META_DL (disclib) object, NULL on error
  */
 struct meta_dl *bd_get_meta(BLURAY *bd);
+
+
+struct clpi_cl;
+/**
+ *
+ *  Get copy of clip information for requested playitem.
+ *
+ * @param bd  BLURAY objects
+ * @param clip_ref  requested playitem number
+ * @return pointer to allocated CLPI_CL object on success, NULL on error
+ */
+struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref);
+
+/**
+ *
+ *  Free CLPI_CL object
+ *
+ * @param cl  CLPI_CL objects
+ */
+void bd_free_clpi(struct clpi_cl *cl);
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif /* BLURAY_H_ */
