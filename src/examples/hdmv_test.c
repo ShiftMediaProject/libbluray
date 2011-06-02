@@ -58,6 +58,18 @@ static void _print_event(BD_EVENT *ev)
             printf("EVENT_STILL:\t%d\n", ev->param);
             break;
 
+        case BD_EVENT_SEEK:
+            printf("EVENT_SEEK:\t%d\n", ev->param);
+            break;
+
+        case BD_EVENT_STILL_TIME:
+            if (ev->param) {
+                printf("EVENT_STILL_TIME:\t%d\n", ev->param);
+            } else {
+                printf("EVENT_STILL_TIME:\tinfinite\n");
+            }
+            break;
+
         /* stream selection */
 
         case BD_EVENT_AUDIO_STREAM:
@@ -89,10 +101,9 @@ static void _print_event(BD_EVENT *ev)
             printf("EVENT_SECONDARY_VIDEO_SIZE:\t%s\n", ev->param==0 ? "PIP" : "fullscreen");
             break;
 
-
         default:
-          printf("UNKNOWN EVENT %d:\t%d\n", ev->event, ev->param);
-          break;
+            printf("UNKNOWN EVENT %d:\t%d\n", ev->event, ev->param);
+            break;
       }
 
       fflush(stdout);
