@@ -215,6 +215,12 @@ _show_details(MPLS_PL *pl, int level)
                         pi->connection_condition);
         indent_printf(level+1, "In-Time: %d", pi->in_time);
         indent_printf(level+1, "Out-Time: %d", pi->out_time);
+        if (pi->still_mode == 1) {
+            indent_printf(level+1, "Still time: %ds\n", pi->still_time);
+        }
+        if (pi->still_mode == 2) {
+            indent_printf(level+1, "Still time: infinite\n");
+        }
         if (pi->angle_count > 1) {
             for (jj = 1; jj < pi->angle_count; jj++) {
                 indent_printf(level+1, "Angle %d:", jj);
