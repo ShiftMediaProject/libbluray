@@ -38,6 +38,7 @@
 #include <string.h>
 #include <errno.h>
 #include <dlfcn.h>
+#include <pthread.h>
 
 #include <libbluray/bluray.h>
 #include <libbluray/keys.h>
@@ -51,7 +52,7 @@
 
 #define LOGMSG(x...)  xine_log (this->stream->xine, XINE_LOG_MSG, "input_bluray: " x);
 
-#define XINE_ENGINE_INTERNAL
+#define XINE_ENGINE_INTERNAL  // stream->demux_plugin
 
 #ifdef HAVE_CONFIG_H
 # include "xine_internal.h"
@@ -117,7 +118,8 @@ typedef struct {
   int                num_titles;        /* navigation mode, number of titles in disc index */
   int                current_title;     /* navigation mode, title from disc index */
   BLURAY_TITLE_INFO *title_info;
-  int                current_clip;
+  pthread_mutex_t    title_info_mutex;  /* lock this when accessing title_info outside of input/demux thread */
+  unsigned int       current_clip;
   int                error;
   int                menu_open;
   int                pg_enable;
@@ -139,8 +141,6 @@ static void close_overlay(bluray_input_plugin_t *this)
 static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
 {
   bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
-  uint32_t color[256];
-  uint8_t  trans[256];
   unsigned i;
 
   if (!this) {
@@ -165,16 +165,19 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
     _x_select_spu_channel(this->stream, -1);
 
   /* convert and set palette */
-
+  if (ov->palette) {
+    uint32_t color[256];
+    uint8_t  trans[256];
   for(i = 0; i < 256; i++) {
     trans[i] = ov->palette[i].T;
     color[i] = (ov->palette[i].Y << 16) | (ov->palette[i].Cr << 8) | ov->palette[i].Cb;
   }
 
   xine_osd_set_palette(this->osd, color, trans);
+  }
 
   /* uncompress and draw bitmap */
-
+  if (ov->img) {
   const BD_PG_RLE_ELEM *rlep = ov->img;
   uint8_t *img = malloc(ov->w * ov->h);
   unsigned pixels = ov->w * ov->h;
@@ -186,6 +189,7 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
   xine_osd_draw_bitmap(this->osd, img, ov->x, ov->y, ov->w, ov->h, NULL);
 
   free(img);
+  }
 
   /* display */
 
@@ -197,17 +201,20 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
 
 static void update_stream_info(bluray_input_plugin_t *this)
 {
-  /* set stream info */
-
-  _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_ANGLE_COUNT,    this->title_info->angle_count);
-  _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_ANGLE_NUMBER,   bd_get_current_angle(this->bdh));
-  _x_stream_info_set(this->stream, XINE_STREAM_INFO_HAS_CHAPTERS,       this->title_info->chapter_count > 0);
-  _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_CHAPTER_COUNT,  this->title_info->chapter_count);
-  _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_CHAPTER_NUMBER, bd_get_current_chapter(this->bdh) + 1);
+  if (this->title_info) {
+    /* set stream info */
+    _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_ANGLE_COUNT,    this->title_info->angle_count);
+    _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_ANGLE_NUMBER,   bd_get_current_angle(this->bdh));
+    _x_stream_info_set(this->stream, XINE_STREAM_INFO_HAS_CHAPTERS,       this->title_info->chapter_count > 0);
+    _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_CHAPTER_COUNT,  this->title_info->chapter_count);
+    _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_CHAPTER_NUMBER, bd_get_current_chapter(this->bdh) + 1);
+  }
 }
 
 static void update_title_info(bluray_input_plugin_t *this, int playlist_id)
 {
+  pthread_mutex_lock(&this->title_info_mutex);
+
   if (this->title_info)
     bd_free_title_info(this->title_info);
 
@@ -215,6 +222,8 @@ static void update_title_info(bluray_input_plugin_t *this, int playlist_id)
     this->title_info = bd_get_title_info(this->bdh, this->current_title_idx);
   else
     this->title_info = bd_get_playlist_info(this->bdh, playlist_id);
+
+  pthread_mutex_unlock(&this->title_info_mutex);
 
   if (!this->title_info) {
     LOGMSG("bd_get_title_info(%d) failed\n", this->current_title_idx);
@@ -305,7 +314,7 @@ static void stream_reset(bluray_input_plugin_t *this)
 
   this->cap_seekable = 0;
 
-  xine_set_param(this->stream, XINE_PARAM_FINE_SPEED, XINE_FINE_SPEED_NORMAL);
+  _x_set_fine_speed(this->stream, XINE_FINE_SPEED_NORMAL);
   this->stream->demux_plugin->seek(this->stream->demux_plugin, 0, 0, 1);
   _x_demux_control_start(this->stream);
 
@@ -333,7 +342,7 @@ static void wait_secs(bluray_input_plugin_t *this, unsigned seconds)
 
   // wait until interrupted
   int loops = seconds * 25; /* N * 40 ms */
-  while (!this->stream->demux_action_pending && loops-- > 0) {
+  while (!_x_action_pending(this->stream) && loops-- > 0) {
     xine_usec_sleep(40*1000);
   }
 
@@ -427,10 +436,7 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
 
       case BD_EVENT_PLAYITEM:
         lprintf("BD_EVENT_PLAYITEM %d\n", ev.param);
-        if (ev.param < this->title_info->clip_count)
-          this->current_clip = ev.param;
-        else
-          this->current_clip = 0;
+        this->current_clip = ev.param;
         break;
 
       case BD_EVENT_CHAPTER:
@@ -663,7 +669,7 @@ static off_t bluray_plugin_read (input_plugin_t *this_gen, char *buf, off_t len)
       if (result == 0) {
         handle_events(this);
         if (ev.event == BD_EVENT_NONE) {
-          if (this->stream->demux_action_pending) {
+          if (_x_action_pending(this->stream)) {
             break;
           }
         }
@@ -737,7 +743,7 @@ static off_t bluray_plugin_seek_time (input_plugin_t *this_gen, int time_offset,
 {
   bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
 
-  if (!this || !this->bdh || !this->title_info)
+  if (!this || !this->bdh)
     return -1;
 
   /* convert relative seeks to absolute */
@@ -746,11 +752,21 @@ static off_t bluray_plugin_seek_time (input_plugin_t *this_gen, int time_offset,
     time_offset += this_gen->get_current_time(this_gen);
   }
   else if (origin == SEEK_END) {
+
+    pthread_mutex_lock(&this->title_info_mutex);
+
+    if (!this->title_info) {
+      pthread_mutex_unlock(&this->title_info_mutex);
+      return -1;
+    }
+
     int duration = this->title_info->duration / 90;
     if (time_offset < duration)
       time_offset = duration - time_offset;
     else
       time_offset = 0;
+
+    pthread_mutex_unlock(&this->title_info_mutex);
   }
 
   lprintf("bluray_plugin_seek_time() seeking to %d.%03ds\n", time_offset / 1000, time_offset % 1000);
@@ -793,12 +809,9 @@ static const char* bluray_plugin_get_mrl (input_plugin_t *this_gen)
   return this->mrl;
 }
 
-static int bluray_plugin_get_optional_data (input_plugin_t *this_gen, void *data, int data_type)
+static int get_optional_data_impl (bluray_input_plugin_t *this, void *data, int data_type)
 {
-  bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
-
-  if (!this || !this->stream || !data)
-    return INPUT_OPTIONAL_UNSUPPORTED;
+  unsigned int current_clip = this->current_clip;
 
   switch (data_type) {
     case INPUT_OPTIONAL_DATA_DEMUXER:
@@ -810,9 +823,9 @@ static int bluray_plugin_get_optional_data (input_plugin_t *this_gen, void *data
      * - channel number can be mpeg-ts PID (0x1100 ... 0x11ff)
      */
     case INPUT_OPTIONAL_DATA_AUDIOLANG:
-      if (this->title_info) {
+      if (this->title_info && this->title_info->clip_count < current_clip) {
         int               channel = *((int *)data);
-        BLURAY_CLIP_INFO *clip    = &this->title_info->clips[this->current_clip];
+        BLURAY_CLIP_INFO *clip    = &this->title_info->clips[current_clip];
 
         if (channel >= 0 && channel < clip->audio_stream_count) {
           memcpy(data, clip->audio_streams[channel].lang, 4);
@@ -840,9 +853,9 @@ static int bluray_plugin_get_optional_data (input_plugin_t *this_gen, void *data
      * - channel number can be mpeg-ts PID (0x1200 ... 0x12ff)
      */
     case INPUT_OPTIONAL_DATA_SPULANG:
-      if (this->title_info) {
+      if (this->title_info && this->title_info->clip_count < current_clip) {
         int               channel = *((int *)data);
-        BLURAY_CLIP_INFO *clip    = &this->title_info->clips[this->current_clip];
+        BLURAY_CLIP_INFO *clip    = &this->title_info->clips[current_clip];
 
         if (channel >= 0 && channel < clip->pg_stream_count) {
           memcpy(data, clip->pg_streams[channel].lang, 4);
@@ -872,6 +885,20 @@ static int bluray_plugin_get_optional_data (input_plugin_t *this_gen, void *data
   return INPUT_OPTIONAL_UNSUPPORTED;
 }
 
+static int bluray_plugin_get_optional_data (input_plugin_t *this_gen, void *data, int data_type)
+{
+  bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
+  int r = INPUT_OPTIONAL_UNSUPPORTED;
+
+  if (this && this->stream && data) {
+    pthread_mutex_lock(&this->title_info_mutex);
+    r = get_optional_data_impl(this, data, data_type);
+    pthread_mutex_unlock(&this->title_info_mutex);
+  }
+
+  return r;
+}
+
 static void bluray_plugin_dispose (input_plugin_t *this_gen)
 {
   bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
@@ -884,8 +911,13 @@ static void bluray_plugin_dispose (input_plugin_t *this_gen)
   if (this->event_queue)
     xine_event_dispose_queue(this->event_queue);
 
+  pthread_mutex_lock(&this->title_info_mutex);
   if (this->title_info)
     bd_free_title_info(this->title_info);
+  this->title_info = NULL;
+  pthread_mutex_unlock(&this->title_info_mutex);
+
+  pthread_mutex_destroy(&this->title_info_mutex);
 
   if (this->bdh)
     bd_close(this->bdh);
@@ -1165,6 +1197,8 @@ static input_plugin_t *bluray_class_get_instance (input_class_t *cls_gen, xine_s
   this->input_plugin.input_class        = cls_gen;
 
   this->event_queue = xine_event_new_queue (this->stream);
+
+  pthread_mutex_init(&this->title_info_mutex, NULL);
 
   this->pg_stream = -1;
 
