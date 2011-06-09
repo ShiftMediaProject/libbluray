@@ -150,7 +150,7 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
   if (!ov || ov->plane == 1)
     this->menu_open = 0;
 
-  if (!ov || !ov->img) {
+  if (!ov) {
     /* hide OSD */
     close_overlay(this);
     return;
@@ -161,8 +161,9 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
   if (!this->osd) {
     this->osd = xine_osd_new(this->stream, 0, 0, 1920, 1080);
   }
-  if (!this->pg_enable)
+  if (!this->pg_enable) {
     _x_select_spu_channel(this->stream, -1);
+  }
 
   /* convert and set palette */
   if (ov->palette) {
@@ -189,6 +190,17 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
     xine_osd_draw_bitmap(this->osd, img, ov->x, ov->y, ov->w, ov->h, NULL);
 
     free(img);
+
+  } else {
+
+    if (ov->x == 0 && ov->y == 0 && ov->w == 1920 && ov->h == 1080) {
+      /* Nothing to display, close OSD */
+      close_overlay(this);
+      return;
+    }
+
+    /* wipe rect */
+    xine_osd_draw_rect(this->osd, ov->x, ov->y, ov->x + ov->w - 1, ov->y + ov->h - 1, 0xff, 1);
   }
 
   /* display */
