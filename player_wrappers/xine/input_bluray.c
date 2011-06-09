@@ -168,27 +168,27 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
   if (ov->palette) {
     uint32_t color[256];
     uint8_t  trans[256];
-  for(i = 0; i < 256; i++) {
-    trans[i] = ov->palette[i].T;
-    color[i] = (ov->palette[i].Y << 16) | (ov->palette[i].Cr << 8) | ov->palette[i].Cb;
-  }
+    for(i = 0; i < 256; i++) {
+      trans[i] = ov->palette[i].T;
+      color[i] = (ov->palette[i].Y << 16) | (ov->palette[i].Cr << 8) | ov->palette[i].Cb;
+    }
 
-  xine_osd_set_palette(this->osd, color, trans);
+    xine_osd_set_palette(this->osd, color, trans);
   }
 
   /* uncompress and draw bitmap */
   if (ov->img) {
-  const BD_PG_RLE_ELEM *rlep = ov->img;
-  uint8_t *img = malloc(ov->w * ov->h);
-  unsigned pixels = ov->w * ov->h;
+    const BD_PG_RLE_ELEM *rlep = ov->img;
+    uint8_t *img = malloc(ov->w * ov->h);
+    unsigned pixels = ov->w * ov->h;
 
-  for (i = 0; i < pixels; i += rlep->len, rlep++) {
-    memset(img + i, rlep->color, rlep->len);
-  }
+    for (i = 0; i < pixels; i += rlep->len, rlep++) {
+      memset(img + i, rlep->color, rlep->len);
+    }
 
-  xine_osd_draw_bitmap(this->osd, img, ov->x, ov->y, ov->w, ov->h, NULL);
+    xine_osd_draw_bitmap(this->osd, img, ov->x, ov->y, ov->w, ov->h, NULL);
 
-  free(img);
+    free(img);
   }
 
   /* display */
