@@ -1823,6 +1823,8 @@ static int _play_bdj(BLURAY *bd, const char *name)
 
 static int _play_hdmv(BLURAY *bd, unsigned id_ref)
 {
+    int result = 1;
+
     bd->title_type = title_hdmv;
 
 #ifdef USING_BDJAVA
@@ -1834,12 +1836,12 @@ static int _play_hdmv(BLURAY *bd, unsigned id_ref)
     }
 
     if (hdmv_vm_select_object(bd->hdmv_vm, id_ref)) {
-        return 0;
+        result = 0;
     }
 
     bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
 
-    return 1;
+    return result;
 }
 
 static int _play_title(BLURAY *bd, unsigned title)
