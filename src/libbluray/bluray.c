@@ -1924,8 +1924,10 @@ int bd_play(BLURAY *bd)
 
     _init_event_queue(bd);
 
+    bd_psr_lock(bd->regs);
     bd_psr_register_cb(bd->regs, _process_psr_event, bd);
     _queue_initial_psr_events(bd);
+    bd_psr_unlock(bd->regs);
 
     return _play_title(bd, BLURAY_TITLE_FIRST_PLAY);
 }
