@@ -78,6 +78,18 @@ graphics_processor_decode_pes(PG_DISPLAY_SET **s,
                               struct pes_buffer_s **buf,
                               int64_t stc);
 
+/**
+ *
+ *  Decode data from MPEG-TS input stream
+ *
+ * @param p  GRAPHICS_PROCESSOR object
+ * @param s  display set
+ * @param pid  mpeg-ts PID to decode (HDMV IG/PG stream)
+ * @param unit  mpeg-ts data
+ * @param num_units  number of aligned units in data
+ * @param stc  current playback time
+ * @return 1 if display set was completed, 0 otherwise
+ */
 BD_PRIVATE int
 graphics_processor_decode_ts(GRAPHICS_PROCESSOR *p,
                              PG_DISPLAY_SET **s,

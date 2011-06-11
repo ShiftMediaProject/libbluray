@@ -442,5 +442,5 @@ int graphics_processor_decode_ts(GRAPHICS_PROCESSOR *p,
         return graphics_processor_decode_pes(s, &p->queue, stc);
     }
 
-    return *s && (*s)->complete;
+    return 0;
 }
