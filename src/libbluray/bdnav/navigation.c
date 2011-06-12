@@ -429,8 +429,12 @@ static void _fill_clip(NAV_TITLE *title,
             clip->connection = CONNECT_SEAMLESS;
             break;
         default:
-            clip->start_pkt = clpi_lookup_spn(clip->cl, in_time, 1,
+            if (ref) {
+                clip->start_pkt = clpi_lookup_spn(clip->cl, in_time, 1,
                                               mpls_clip[clip->angle].stc_id);
+            } else {
+                clip->start_pkt = 0;
+            }
             clip->connection = CONNECT_NON_SEAMLESS;
             break;
     }
