@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 
     BLURAY* bd = bd_open(argv[1], NULL);
 
-    bd_get_titles(bd, TITLES_ALL);
+    bd_get_titles(bd, TITLES_ALL, 0);
     bd_select_title(bd, 1);
 
     if (!bd_start_bdj(bd, argv[2])) {

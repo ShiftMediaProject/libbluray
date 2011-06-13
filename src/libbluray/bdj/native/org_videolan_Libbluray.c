@@ -81,7 +81,7 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
 {
     BDJAVA* bdj = (BDJAVA*)np;
 
-    BLURAY_TITLE_INFO* ti = bd_get_title_info(bdj->bd, title);
+    BLURAY_TITLE_INFO* ti = bd_get_title_info(bdj->bd, title, 0);
     if (!ti)
         return NULL;
 
@@ -96,7 +96,7 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
   (JNIEnv * env, jclass cls, jlong np, jint playlist)
 {
     BDJAVA* bdj = (BDJAVA*)np;
-    BLURAY_TITLE_INFO* ti = bd_get_playlist_info(bdj->bd, playlist);
+    BLURAY_TITLE_INFO* ti = bd_get_playlist_info(bdj->bd, playlist, 0);
     if (!ti)
         return NULL;
 
@@ -110,7 +110,7 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN(JNIEnv * env,
         jclass cls, jlong np, jchar flags) {
     BDJAVA* bdj = (BDJAVA*) np;
-    return bd_get_titles(bdj->bd, flags);
+    return bd_get_titles(bdj->bd, flags, 0);
 }
 
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN(JNIEnv * env,
