@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
     BD_DEBUG(DBG_BLURAY,"\nListing titles:\n");
 
-    count = bd_get_titles(bd, TITLES_RELEVANT);
+    count = bd_get_titles(bd, TITLES_RELEVANT, 0);
     for (ii = 0; ii < count; ii++)
     {
         BLURAY_TITLE_INFO* ti;

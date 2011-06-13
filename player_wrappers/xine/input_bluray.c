@@ -1088,7 +1088,7 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
 
   /* load title list */
 
-  this->num_title_idx = bd_get_titles(this->bdh, TITLES_RELEVANT);
+  this->num_title_idx = bd_get_titles(this->bdh, TITLES_RELEVANT, 180);
   LOGMSG("%d titles\n", this->num_title_idx);
 
   if (this->num_title_idx < 1)

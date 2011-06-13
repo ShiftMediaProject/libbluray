@@ -174,9 +174,10 @@ typedef struct bd_title_info {
  *
  * @param bd  BLURAY object
  * @param flags  title flags
+ * @param min_title_length  filter out titles shorter than min_title_length seconds
  * @return number of titles found
  */
-uint32_t bd_get_titles(BLURAY *bd, uint8_t flags);
+uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length);
 
 /**
  *

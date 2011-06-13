@@ -81,15 +81,11 @@ int main(int argc, char *argv[])
     }
     bd = bd_open(bd_dir, NULL);
 
-    count = bd_get_titles(bd, TITLES_RELEVANT);
+    count = bd_get_titles(bd, TITLES_RELEVANT, seconds);
     for (ii = 0; ii < count; ii++)
     {
         BLURAY_TITLE_INFO* ti;
         ti = bd_get_title_info(bd, ii, 0);
-        if (ti->duration / 90000 < seconds)
-        {
-            continue;
-        }
         printf(
        "index: %d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %d angles: %u clips %u\n",
               ii + 1,

@@ -141,7 +141,7 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    title_count = bd_get_titles(bd, TITLES_RELEVANT);
+    title_count = bd_get_titles(bd, TITLES_RELEVANT, 0);
     if (title_count <= 0) {
         fprintf(stderr, "No titles found: %s\n", bdpath);
         return 1;
