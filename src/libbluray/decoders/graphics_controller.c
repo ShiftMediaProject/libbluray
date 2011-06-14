@@ -821,7 +821,7 @@ static int _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_C
 
         /* is button already selected? */
         if (button->id == cur_btn_id) {
-            return 0;
+            return 1;
         }
 
         new_btn_id = button->id;
