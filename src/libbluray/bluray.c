@@ -2152,20 +2152,23 @@ int bd_get_event(BLURAY *bd, BD_EVENT *event)
  * user interaction
  */
 
-int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
+void bd_set_scr(BLURAY *bd, int64_t pts)
 {
     if (pts >= 0) {
         bd_psr_write(bd->regs, PSR_TIME, (uint32_t)(((uint64_t)pts) >> 1));
     }
+}
+
+int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
+{
+    bd_set_scr(bd, pts);
 
     return _run_gc(bd, GC_CTRL_MOUSE_MOVE, (x << 16) | y);
 }
 
 int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
 {
-    if (pts >= 0) {
-        bd_psr_write(bd->regs, PSR_TIME, (uint32_t)(((uint64_t)pts) >> 1));
-    }
+    bd_set_scr(bd, pts);
 
     return _run_gc(bd, GC_CTRL_VK_KEY, key);
 }
