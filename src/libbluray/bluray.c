@@ -1699,6 +1699,11 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
 {
     BLURAY *bd = (BLURAY*)handle;
 
+    if (ev->ev_type == BD_PSR_SAVE) {
+        BD_DEBUG(DBG_BLURAY, "PSR SAVE event (%p)\n", bd);
+        return;
+    }
+
     /* PSR restore events are handled internally */
 
     if (ev->ev_type == BD_PSR_RESTORE) {
