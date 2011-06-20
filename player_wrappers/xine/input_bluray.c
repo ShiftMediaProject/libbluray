@@ -122,6 +122,7 @@ typedef struct {
   BLURAY_TITLE_INFO *title_info;
   pthread_mutex_t    title_info_mutex;  /* lock this when accessing title_info outside of input/demux thread */
   unsigned int       current_clip;
+  time_t             still_end_time;
   int                error;
   int                menu_open;
   int                pg_enable;
@@ -253,8 +254,60 @@ static void update_stream_info(bluray_input_plugin_t *this)
   }
 }
 
+static void update_title_name(bluray_input_plugin_t *this)
+{
+  char           title_name[64] = "";
+  xine_ui_data_t udata;
+  xine_event_t   uevent = {
+    .type        = XINE_EVENT_UI_SET_TITLE,
+    .stream      = this->stream,
+    .data        = &udata,
+    .data_length = sizeof(udata)
+  };
+
+  /* check disc library metadata */
+  if (this->meta_dl) {
+    unsigned i;
+    for (i = 0; i < this->meta_dl->toc_count; i++)
+      if (this->meta_dl->toc_entries[i].title_number == (unsigned)this->current_title)
+        if (this->meta_dl->toc_entries[i].title_name)
+          if (strlen(this->meta_dl->toc_entries[i].title_name) > 2)
+            strncpy(title_name, this->meta_dl->toc_entries[i].title_name, sizeof(title_name));
+  }
+
+  /* title name */
+  if (title_name[0]) {
+  } else if (this->current_title == BLURAY_TITLE_TOP_MENU) {
+    strcpy(title_name, "Top Menu");
+  } else if (this->current_title == BLURAY_TITLE_FIRST_PLAY) {
+    strcpy(title_name, "First Play");
+  } else if (this->nav_mode) {
+    snprintf(title_name, sizeof(title_name), "Title %d/%d (PL %d/%d)",
+             this->current_title, this->num_titles,
+             this->current_title_idx + 1, this->num_title_idx);
+  } else {
+    snprintf(title_name, sizeof(title_name), "Title %d/%d",
+             this->current_title_idx + 1, this->num_title_idx);
+  }
+
+  /* disc name */
+  if (this->disc_name && this->disc_name[0]) {
+    udata.str_len = snprintf(udata.str, sizeof(udata.str), "%s, %s",
+                             this->disc_name, title_name);
+  } else {
+    udata.str_len = snprintf(udata.str, sizeof(udata.str), "%s",
+                             title_name);
+  }
+
+  _x_meta_info_set(this->stream, XINE_META_INFO_TITLE, udata.str);
+
+  xine_event_send(this->stream, &uevent);
+}
+
 static void update_title_info(bluray_input_plugin_t *this, int playlist_id)
 {
+  /* update title_info */
+
   pthread_mutex_lock(&this->title_info_mutex);
 
   if (this->title_info)
@@ -272,52 +325,6 @@ static void update_title_info(bluray_input_plugin_t *this, int playlist_id)
     return;
   }
 
-  /* set title */
-
-  xine_ui_data_t udata;
-  xine_event_t uevent = {
-    .type = XINE_EVENT_UI_SET_TITLE,
-    .stream = this->stream,
-    .data = &udata,
-    .data_length = sizeof(udata)
-  };
-
-  char title_name[64] = "";
-
-  if (this->meta_dl) {
-    unsigned i;
-    for (i = 0; i < this->meta_dl->toc_count; i++)
-      if (this->meta_dl->toc_entries[i].title_number == (unsigned)this->current_title)
-        if (this->meta_dl->toc_entries[i].title_name)
-          if (strlen(this->meta_dl->toc_entries[i].title_name) > 2)
-            strncpy(title_name, this->meta_dl->toc_entries[i].title_name, sizeof(title_name));
-  }
-
-  if (title_name[0]) {
-  } else if (this->current_title == BLURAY_TITLE_TOP_MENU) {
-    strcpy(title_name, "Top Menu");
-  } else if (this->current_title == BLURAY_TITLE_FIRST_PLAY) {
-    strcpy(title_name, "First Play");
-  } else if (this->nav_mode) {
-    snprintf(title_name, sizeof(title_name), "Title %d/%d (PL %d/%d)",
-             this->current_title, this->num_titles,
-             this->current_title_idx + 1, this->num_title_idx);
-  } else {
-    snprintf(title_name, sizeof(title_name), "Title %d/%d",
-             this->current_title_idx + 1, this->num_title_idx);
-  }
-
-  if (this->disc_name && this->disc_name[0]) {
-    udata.str_len = snprintf(udata.str, sizeof(udata.str), "%s, %s",
-                             this->disc_name, title_name);
-  } else {
-    udata.str_len = snprintf(udata.str, sizeof(udata.str), "%s",
-                             title_name);
-  }
-  xine_event_send(this->stream, &uevent);
-
-  _x_meta_info_set(this->stream, XINE_META_INFO_TITLE, udata.str);
-
   /* calculate and set stream rate */
 
   uint64_t rate = bd_get_title_size(this->bdh) * UINT64_C(8) // bits
@@ -327,10 +334,18 @@ static void update_title_info(bluray_input_plugin_t *this, int playlist_id)
 
   /* set stream info */
 
-  _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_COUNT,  this->num_title_idx);
-  _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_NUMBER, this->current_title_idx + 1);
+  if (this->nav_mode) {
+    _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_COUNT,  this->num_titles);
+    _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_NUMBER, this->current_title);
+  } else {
+    _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_COUNT,  this->num_title_idx);
+    _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_TITLE_NUMBER, this->current_title_idx + 1);
+  }
 
   update_stream_info(this);
+
+  /* set title */
+  update_title_name(this);
 }
 
 static int open_title (bluray_input_plugin_t *this, int title_idx)
@@ -365,34 +380,26 @@ static void stream_reset(bluray_input_plugin_t *this)
 
 static void wait_secs(bluray_input_plugin_t *this, unsigned seconds)
 {
-  // infinite still mode ?
-  if (!seconds) {
-    xine_usec_sleep(10*1000);
-    return;
+  if (this->still_end_time) {
+    if (time(NULL) >= this->still_end_time) {
+      lprintf("pause end\n");
+      this->still_end_time = 0;
+      bd_read_skip_still(this->bdh);
+      stream_reset(this);
+      return;
+    }
   }
 
-  // clip to allowed range
-  if (seconds > 300) {
-    seconds = 300;
+  else if (seconds) {
+    if (seconds > 300) {
+      seconds = 300;
+    }
+
+    lprintf("still image, pause for %d seconds\n", seconds);
+    this->still_end_time = time(NULL) + seconds;
   }
 
-  // pause the stream
-  int paused = _x_get_fine_speed(this->stream) == XINE_SPEED_PAUSE;
-  if (!paused) {
-    _x_set_fine_speed(this->stream, XINE_SPEED_PAUSE);
-  }
-
-  // wait until interrupted
-  int loops = seconds * 25; /* N * 40 ms */
-  while (!_x_action_pending(this->stream) && loops-- > 0) {
-    xine_usec_sleep(40*1000);
-  }
-
-  lprintf("paused for %d seconds (%d ms left)\n", seconds - loops/25, loops * 40);
-
-  if (!paused) {
-    _x_set_fine_speed(this->stream, XINE_FINE_SPEED_NORMAL);
-  }
+  xine_usec_sleep(40*1000);
 }
 
 static void update_spu_channel(bluray_input_plugin_t *this, int channel)
@@ -438,6 +445,7 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
 
       case BD_EVENT_SEEK:
         lprintf("BD_EVENT_SEEK\n");
+        this->still_end_time = 0;
         stream_reset(this);
         break;
 
@@ -518,6 +526,7 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
         break;
 
       default:
+        LOGMSG("unhandled libbluray event %d [param %d]\n", ev.event, ev.param);
         break;
     }
 }
@@ -792,7 +801,7 @@ static off_t bluray_plugin_seek (input_plugin_t *this_gen, off_t offset, int ori
 
   if (!this || !this->bdh)
     return -1;
-  if (this->current_title_idx < 0)
+  if (this->still_end_time)
     return offset;
 
   /* convert relative seeks to absolute */
@@ -818,6 +827,9 @@ static off_t bluray_plugin_seek_time (input_plugin_t *this_gen, int time_offset,
 
   if (!this || !this->bdh)
     return -1;
+
+  if (this->still_end_time)
+    return bd_tell(this->bdh);
 
   /* convert relative seeks to absolute */
 
