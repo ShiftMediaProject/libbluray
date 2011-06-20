@@ -124,6 +124,7 @@ typedef struct {
   int                menu_open;
   int                pg_enable;
   int                pg_stream;
+  int                mouse_inside_button;
 
   uint32_t           cap_seekable;
   uint8_t            nav_mode;
@@ -502,6 +503,25 @@ static void handle_libbluray_events(bluray_input_plugin_t *this)
   }
 }
 
+static void send_mouse_enter_leave_event(bluray_input_plugin_t *this, int direction)
+{
+  if (direction != this->mouse_inside_button) {
+    xine_event_t        event;
+    xine_spu_button_t   spu_event;
+
+    spu_event.direction = direction;
+    spu_event.button    = 1;
+
+    event.type        = XINE_EVENT_SPU_BUTTON;
+    event.stream      = this->stream;
+    event.data        = &spu_event;
+    event.data_length = sizeof(spu_event);
+    xine_event_send(this->stream, &event);
+
+    this->mouse_inside_button = direction;
+  }
+}
+
 static void handle_events(bluray_input_plugin_t *this)
 {
   if (!this->event_queue)
@@ -533,6 +553,7 @@ static void handle_events(bluray_input_plugin_t *this)
           } else {
             bd_play_title(this->bdh, MAX(1, this->current_title - 1));
           }
+          stream_reset(this);
           break;
 
         case XINE_EVENT_INPUT_RIGHT:
@@ -542,6 +563,7 @@ static void handle_events(bluray_input_plugin_t *this)
           } else {
             bd_play_title(this->bdh, MIN(this->num_titles, this->current_title + 1));
           }
+          stream_reset(this);
           break;
       }
     }
@@ -554,13 +576,18 @@ static void handle_events(bluray_input_plugin_t *this)
         if (input->button == 1) {
           bd_mouse_select(this->bdh, pts, input->x, input->y);
           bd_user_input(this->bdh, pts, BD_VK_MOUSE_ACTIVATE);
+          send_mouse_enter_leave_event(this, 0);
         }
         break;
       }
 
       case XINE_EVENT_INPUT_MOUSE_MOVE: {
         xine_input_data_t *input = event->data;
-        bd_mouse_select(this->bdh, pts, input->x, input->y);
+        if (bd_mouse_select(this->bdh, pts, input->x, input->y) > 0) {
+          send_mouse_enter_leave_event(this, 1);
+        } else {
+          send_mouse_enter_leave_event(this, 0);
+        }
         break;
       }
 
@@ -589,37 +616,42 @@ static void handle_events(bluray_input_plugin_t *this)
       case XINE_EVENT_INPUT_NUMBER_9:  bd_user_input(this->bdh, pts, BD_VK_9); break;
 
       case XINE_EVENT_INPUT_NEXT: {
-        unsigned chapter = bd_get_current_chapter(this->bdh) + 1;
-
-        lprintf("XINE_EVENT_INPUT_NEXT: next chapter\n");
-
-        if (chapter >= this->title_info->chapter_count) {
-          if (this->current_title_idx < this->num_title_idx - 1) {
-            open_title(this, this->current_title_idx + 1);
-            stream_reset(this);
-          }
-        } else {
-          bd_seek_chapter(this->bdh, chapter);
-          update_stream_info(this);
-          stream_reset(this);
+        cfg_entry_t* entry = this->class->xine->config->lookup_entry(this->class->xine->config,
+                                                                     "media.bluray.skip_behaviour");
+        switch (entry->num_value) {
+          case 0: /* skip by chapter */
+            bd_seek_chapter(this->bdh, bd_get_current_chapter(this->bdh) + 1);
+            update_stream_info(this);
+            break;
+          case 1: /* skip by title */
+            if (!this->nav_mode) {
+              open_title(this, MIN(this->num_title_idx - 1, this->current_title_idx + 1));
+            } else {
+              bd_play_title(this->bdh, MIN(this->num_titles, this->current_title + 1));
+            }
+            break;
         }
+        stream_reset(this);
         break;
       }
 
       case XINE_EVENT_INPUT_PREVIOUS: {
-        int chapter = bd_get_current_chapter(this->bdh) - 1;
-
-        lprintf("XINE_EVENT_INPUT_PREVIOUS: previous chapter\n");
-
-        if (chapter < 0 && this->current_title_idx > 0) {
-          open_title(this, this->current_title_idx - 1);
-          stream_reset(this);
-        } else {
-          chapter = MAX(0, chapter);
-          bd_seek_chapter(this->bdh, chapter);
-          update_stream_info(this);
-          stream_reset(this);
+        cfg_entry_t* entry = this->class->xine->config->lookup_entry(this->class->xine->config,
+                                                                     "media.bluray.skip_behaviour");
+        switch (entry->num_value) {
+          case 0: /* skip by chapter */
+            bd_seek_chapter(this->bdh, MAX(0, ((int)bd_get_current_chapter(this->bdh)) - 1));
+            update_stream_info(this);
+            break;
+          case 1: /* skip by title */
+            if (!this->nav_mode) {
+              open_title(this, MAX(0, this->current_title_idx - 1));
+            } else {
+              bd_play_title(this->bdh, MAX(1, this->current_title - 1));
+            }
+            break;
         }
+        stream_reset(this);
         break;
       }
 
@@ -1308,6 +1340,8 @@ static void *bluray_init_plugin (xine_t *xine, void *data)
 {
   (void)data;
 
+  static char *skip_modes[] = {"skip chapter", "skip title", NULL};
+
   config_values_t      *config = xine->config;
   bluray_input_class_t *this   = (bluray_input_class_t *) calloc(1, sizeof (bluray_input_class_t));
 
@@ -1363,6 +1397,14 @@ static void *bluray_init_plugin (xine_t *xine, void *data)
                          _("Prevents playback of BluRay titles where parental "
                            "control age limit is higher than this limit"),
                          0, parental_change_cb, this);
+
+  /* */
+  config->register_enum(config, "media.bluray.skip_behaviour", 0,
+                        skip_modes,
+                        _("unit for the skip action"),
+                        _("You can configure the behaviour when issuing a skip command (using the skip "
+                          "buttons for example)."),
+                        20, NULL, NULL);
 
   return this;
 }
