@@ -877,7 +877,7 @@ static int _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_C
     gc->valid_mouse_position = 0;
 
     if (!gc->ig_drawn) {
-        GC_ERROR("_mouse_move(): menu not visible\n");
+        GC_TRACE("_mouse_move(): menu not visible\n");
         return -1;
     }
 
