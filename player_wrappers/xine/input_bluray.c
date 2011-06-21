@@ -125,6 +125,7 @@ typedef struct {
   time_t             still_end_time;
   int                error;
   int                menu_open;
+  int                stream_flushed;
   int                pg_enable;
   int                pg_stream;
   int                mouse_inside_button;
@@ -362,6 +363,27 @@ static int open_title (bluray_input_plugin_t *this, int title_idx)
   return 1;
 }
 
+#ifndef DEMUX_OPTIONAL_DATA_FLUSH
+#  define DEMUX_OPTIONAL_DATA_FLUSH 0x10000
+#endif
+
+static void stream_flush(bluray_input_plugin_t *this)
+{
+  if (this->stream_flushed)
+    return;
+
+  lprintf("Stream flush\n");
+
+  this->stream_flushed = 1;
+
+  int tmp = 0;
+  if (DEMUX_OPTIONAL_SUCCESS !=
+      this->stream->demux_plugin->get_optional_data(this->stream->demux_plugin, &tmp, DEMUX_OPTIONAL_DATA_FLUSH)) {
+    LOGMSG("stream flush not supported by the demuxer !\n");
+    return;
+  }
+}
+
 static void stream_reset(bluray_input_plugin_t *this)
 {
   if (!this || !this->stream || !this->stream->demux_plugin)
@@ -380,6 +402,8 @@ static void stream_reset(bluray_input_plugin_t *this)
 
 static void wait_secs(bluray_input_plugin_t *this, unsigned seconds)
 {
+  stream_flush(this);
+
   if (this->still_end_time) {
     if (time(NULL) >= this->still_end_time) {
       lprintf("pause end\n");
@@ -472,6 +496,11 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
         _x_stream_info_set(this->stream, XINE_STREAM_INFO_DVD_ANGLE_NUMBER, ev.param);
         break;
 
+      case BD_EVENT_END_OF_TITLE:
+        lprintf("BD_EVENT_END_OF_TITLE\n");
+        stream_flush(this);
+        break;
+
       case BD_EVENT_TITLE:
         this->current_title = ev.param;
         break;
@@ -487,6 +516,7 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
       case BD_EVENT_PLAYITEM:
         lprintf("BD_EVENT_PLAYITEM %d\n", ev.param);
         this->current_clip = ev.param;
+        this->still_end_time = 0;
         break;
 
       case BD_EVENT_CHAPTER:
@@ -726,7 +756,8 @@ static uint32_t bluray_plugin_get_capabilities (input_plugin_t *this_gen)
   return this->cap_seekable  |
          INPUT_CAP_BLOCK     |
          INPUT_CAP_AUDIOLANG |
-         INPUT_CAP_SPULANG;
+         INPUT_CAP_SPULANG   |
+         INPUT_CAP_CHAPTERS;
 }
 
 #if XINE_VERSION_CODE >= 10190
@@ -764,6 +795,8 @@ static off_t bluray_plugin_read (input_plugin_t *this_gen, char *buf, off_t len)
 
   if (result < 0)
     LOGMSG("bd_read() failed: %s (%d of %d)\n", strerror(errno), (int)result, (int)len);
+
+  this->stream_flushed = 0;
 
   return result;
 }
