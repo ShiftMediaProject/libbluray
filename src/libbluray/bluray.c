@@ -2035,12 +2035,8 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             break;
 
         case HDMV_EVENT_PLAY_STOP:
-            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "HDMV_EVENT_PLAY_STOP: not tested !\n");
             // stop current playlist
-            bd_seek(bd, (uint64_t)bd->title->packets * 192 - 1);
-            bd->st0.clip = NULL;
-            // resume suspended movie object
-            hdmv_vm_resume(bd->hdmv_vm);
+            _close_playlist(bd);
             break;
 
         case HDMV_EVENT_STILL:
