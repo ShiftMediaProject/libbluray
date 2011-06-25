@@ -507,9 +507,14 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
 
         bd_mutex_lock(&gc->mutex);
 
-        graphics_processor_decode_ts(gc->igp, &gc->igs,
-                                     pid, block, num_blocks,
-                                     stc);
+        if (!graphics_processor_decode_ts(gc->igp, &gc->igs,
+                                          pid, block, num_blocks,
+                                          stc)) {
+            /* no new complete display set */
+            bd_mutex_unlock(&gc->mutex);
+            return 0;
+        }
+
         if (!gc->igs || !gc->igs->complete) {
             bd_mutex_unlock(&gc->mutex);
             return 0;
