@@ -28,6 +28,7 @@
 #include "util/macro.h"
 #include "util/logging.h"
 #include "util/strutl.h"
+#include "util/mutex.h"
 #include "bdnav/navigation.h"
 #include "bdnav/index_parse.h"
 #include "bdnav/meta_parse.h"
@@ -56,6 +57,7 @@ typedef void*   (*fptr_p_void)();
 
 #define MAX_EVENTS 31  /* 2^n - 1 */
 typedef struct bd_event_queue_s {
+    BD_MUTEX mutex;
     unsigned in;  /* next free slot */
     unsigned out; /* next event */
     BD_EVENT ev[MAX_EVENTS+1];
@@ -170,8 +172,21 @@ static void _init_event_queue(BLURAY *bd)
 {
     if (!bd->event_queue) {
         bd->event_queue = calloc(1, sizeof(struct bd_event_queue_s));
+        bd_mutex_init(&bd->event_queue->mutex);
     } else {
-        memset(bd->event_queue, 0, sizeof(struct bd_event_queue_s));
+        bd_mutex_lock(&bd->event_queue->mutex);
+        bd->event_queue->in  = 0;
+        bd->event_queue->out = 0;
+        memset(bd->event_queue->ev, 0, sizeof(bd->event_queue->ev));
+        bd_mutex_unlock(&bd->event_queue->mutex);
+    }
+}
+
+static void _free_event_queue(BLURAY *bd)
+{
+    if (bd->event_queue) {
+        bd_mutex_destroy(&bd->event_queue->mutex);
+        X_FREE(bd->event_queue);
     }
 }
 
@@ -180,11 +195,18 @@ static int _get_event(BLURAY *bd, BD_EVENT *ev)
     struct bd_event_queue_s *eq = bd->event_queue;
 
     if (eq) {
+        bd_mutex_lock(&eq->mutex);
+
         if (eq->in != eq->out) {
+
             *ev = eq->ev[eq->out];
             eq->out = (eq->out + 1) & MAX_EVENTS;
+
+            bd_mutex_unlock(&eq->mutex);
             return 1;
         }
+
+        bd_mutex_unlock(&eq->mutex);
     }
 
     ev->event = BD_EVENT_NONE;
@@ -197,13 +219,19 @@ static int _queue_event(BLURAY *bd, BD_EVENT ev)
     struct bd_event_queue_s *eq = bd->event_queue;
 
     if (eq) {
+        bd_mutex_lock(&eq->mutex);
+
         unsigned new_in = (eq->in + 1) & MAX_EVENTS;
 
         if (new_in != eq->out) {
             eq->ev[eq->in] = ev;
             eq->in = new_in;
+
+            bd_mutex_unlock(&eq->mutex);
             return 1;
         }
+
+        bd_mutex_unlock(&eq->mutex);
 
         BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_queue_event(%d, %d): queue overflow !\n", ev.event, ev.param);
     }
@@ -897,7 +925,7 @@ void bd_close(BLURAY *bd)
     indx_free(&bd->index);
     bd_registers_free(bd->regs);
 
-    X_FREE(bd->event_queue);
+    _free_event_queue(bd);
     X_FREE(bd->device_path);
 
     BD_DEBUG(DBG_BLURAY, "BLURAY destroyed! (%p)\n", bd);
