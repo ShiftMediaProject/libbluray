@@ -129,10 +129,14 @@ if [[ $use_dlopen_crypto_libs = "auto" ]]; then
          AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])
   fi
 elif [[ $use_dlopen_crypto_libs = "yes" ]]; then
-  AC_CHECK_LIB([dl], [dlopen],
-    [DLOPEN_LDFLAGS="-ldl"; AC_MSG_NOTICE($using_dlopen_crypto_libs)
-     AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])],
-    [AC_MSG_ERROR($library_not_found)])
+  if test "${SYS}" != "mingw32" ; then
+      AC_CHECK_LIB([dl], [dlopen],
+        [DLOPEN_LDFLAGS="-ldl"; AC_MSG_NOTICE($using_dlopen_crypto_libs)
+         AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])],
+        [AC_MSG_ERROR($library_not_found)])
+  else
+         AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])
+  fi
 else
   AC_CHECK_LIB([aacs], [aacs_open],,
     [AC_MSG_ERROR($library_not_found)])
