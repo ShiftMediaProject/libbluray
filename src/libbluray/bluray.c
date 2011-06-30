@@ -1757,11 +1757,11 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
 
         /* current playback position */
 
-        case PSR_ANGLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_ANGLE, ev->new_val}); break;
-        case PSR_TITLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_TITLE, ev->new_val}); break;
-        case PSR_PLAYLIST: _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYLIST, ev->new_val}); break;
-        case PSR_PLAYITEM: _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYITEM, ev->new_val}); break;
-        case PSR_CHAPTER:  _queue_event(bd, (BD_EVENT){BD_EVENT_CHAPTER,  ev->new_val}); break;
+        case PSR_ANGLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_ANGLE,    ev->new_val}); break;
+        case PSR_TITLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_TITLE,    ev->new_val}); break;
+        case PSR_PLAYLIST:     _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYLIST, ev->new_val}); break;
+        case PSR_PLAYITEM:     _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYITEM, ev->new_val}); break;
+        case PSR_CHAPTER:      _queue_event(bd, (BD_EVENT){BD_EVENT_CHAPTER,  ev->new_val}); break;
 
         /* stream selection */
 
@@ -2025,6 +2025,7 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
 
     switch (hev->event) {
         case HDMV_EVENT_TITLE:
+            _close_playlist(bd);
             _play_title(bd, hev->param);
             break;
 
