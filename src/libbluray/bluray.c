@@ -1737,21 +1737,11 @@ static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
  * notification events to APP
  */
 
-static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
+static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
 {
-    BLURAY *bd = (BLURAY*)handle;
-
-    switch (ev->ev_type) {
-        case BD_PSR_RESTORE:
-            _process_psr_restore_event(bd, ev);
-            return;
-
-        case BD_PSR_SAVE:
-        default:
-            return;
+    if (ev->ev_type == BD_PSR_WRITE) {
+        BD_DEBUG(DBG_BLURAY, "PSR write: psr%u = %u (%p)\n", ev->psr_idx, ev->new_val, bd);
     }
-
-    BD_DEBUG(DBG_BLURAY, "PSR event %d %d (%p)\n", ev->psr_idx, ev->new_val, bd);
 
     switch (ev->psr_idx) {
 
@@ -1762,6 +1752,18 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
         case PSR_PLAYLIST:     _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYLIST, ev->new_val}); break;
         case PSR_PLAYITEM:     _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYITEM, ev->new_val}); break;
         case PSR_CHAPTER:      _queue_event(bd, (BD_EVENT){BD_EVENT_CHAPTER,  ev->new_val}); break;
+
+        default:;
+    }
+}
+
+static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
+{
+    BD_DEBUG(DBG_BLURAY, "PSR change: psr%u = %u (%p)\n", ev->psr_idx, ev->new_val, bd);
+
+    _process_psr_write_event(bd, ev);
+
+    switch (ev->psr_idx) {
 
         /* stream selection */
 
@@ -1798,6 +1800,30 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
     }
 }
 
+static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
+{
+    BLURAY *bd = (BLURAY*)handle;
+
+    switch(ev->ev_type) {
+        case BD_PSR_WRITE:
+            _process_psr_write_event(bd, ev);
+            break;
+        case BD_PSR_CHANGE:
+            _process_psr_change_event(bd, ev);
+            break;
+        case BD_PSR_RESTORE:
+            _process_psr_restore_event(bd, ev);
+            break;
+
+        case BD_PSR_SAVE:
+            BD_DEBUG(DBG_BLURAY, "PSR save event (%p)\n", bd);
+            break;
+        default:
+            BD_DEBUG(DBG_BLURAY, "PSR event %d: psr%u = %u (%p)\n", ev->ev_type, ev->psr_idx, ev->new_val, bd);
+            break;
+    }
+}
+
 static void _queue_initial_psr_events(BLURAY *bd)
 {
     const uint32_t psrs[] = {
@@ -1815,13 +1841,13 @@ static void _queue_initial_psr_events(BLURAY *bd)
 
     for (ii = 0; ii < sizeof(psrs) / sizeof(psrs[0]); ii++) {
         BD_PSR_EVENT ev = {
-            .ev_type = 0,
+            .ev_type = BD_PSR_CHANGE,
             .psr_idx = psrs[ii],
             .old_val = 0,
             .new_val = bd_psr_read(bd->regs, psrs[ii]),
         };
 
-        _process_psr_event(bd, &ev);
+        _process_psr_change_event(bd, &ev);
     }
 }
 
