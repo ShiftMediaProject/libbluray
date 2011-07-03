@@ -575,8 +575,8 @@ clpi_free(CLPI_CL *cl)
     X_FREE(cl);
 }
 
-CLPI_CL*
-clpi_parse(const char *path, int verbose)
+static CLPI_CL*
+_clpi_parse(const char *path, int verbose)
 {
     BITSTREAM  bits;
     BD_FILE_H *fp;
@@ -623,6 +623,28 @@ clpi_parse(const char *path, int verbose)
         return NULL;
     }
     file_close(fp);
+    return cl;
+}
+
+CLPI_CL*
+clpi_parse(const char *path, int verbose)
+{
+    CLPI_CL *cl = _clpi_parse(path, verbose);
+
+    /* if failed, try backup file */
+    if (!cl) {
+        int   len    = strlen(path);
+        char *backup = malloc(len + 8);
+
+        strncpy(backup, path, len - 18);
+        strcpy(backup + len - 18, "BACKUP/");
+        strcpy(backup + len - 18 + 7, path + len - 18);
+
+        cl = _clpi_parse(backup, verbose);
+
+        X_FREE(backup);
+    }
+
     return cl;
 }
 

@@ -24,6 +24,7 @@
 #include "mobj_parse.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #define MOBJ_SIG1  ('M' << 24 | 'O' << 16 | 'B' << 8 | 'J')
 #define MOBJ_SIG2A ('0' << 24 | '2' << 16 | '0' << 8 | '0')
@@ -109,7 +110,7 @@ void mobj_free(MOBJ_OBJECTS **p)
     }
 }
 
-MOBJ_OBJECTS *mobj_parse(const char *file_name)
+static MOBJ_OBJECTS *_mobj_parse(const char *file_name)
 {
     BITSTREAM     bs;
     BD_FILE_H    *fp;
@@ -155,4 +156,24 @@ MOBJ_OBJECTS *mobj_parse(const char *file_name)
     mobj_free(&objects);
     file_close(fp);
     return NULL;
+}
+
+MOBJ_OBJECTS *mobj_parse(const char *file_name)
+{
+    MOBJ_OBJECTS *objects = _mobj_parse(file_name);
+
+    /* if failed, try backup file */
+    if (!objects) {
+        int   len    = strlen(file_name);
+        char *backup = malloc(len + 8);
+
+        strcpy(backup, file_name);
+        strcpy(backup + len - 16, "BACKUP/MovieObject.bdmv");
+
+        objects = _mobj_parse(backup);
+
+        X_FREE(backup);
+    }
+
+    return objects;
 }

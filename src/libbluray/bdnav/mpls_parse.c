@@ -726,8 +726,8 @@ mpls_free(MPLS_PL *pl)
     _clean_playlist(pl);
 }
 
-MPLS_PL*
-mpls_parse(char *path, int verbose)
+static MPLS_PL*
+_mpls_parse(const char *path, int verbose)
 {
     BITSTREAM  bits;
     BD_FILE_H *fp;
@@ -767,3 +767,24 @@ mpls_parse(char *path, int verbose)
     return pl;
 }
 
+MPLS_PL*
+mpls_parse(const char *path, int verbose)
+{
+    MPLS_PL *pl = _mpls_parse(path, verbose);
+
+    /* if failed, try backup file */
+    if (!pl) {
+        int   len    = strlen(path);
+        char *backup = malloc(len + 8);
+
+        strncpy(backup, path, len - 19);
+        strcpy(backup + len - 19, "BACKUP/");
+        strcpy(backup + len - 19 + 7, path + len - 19);
+
+        pl = _mpls_parse(backup, verbose);
+
+        X_FREE(backup);
+    }
+
+    return pl;
+}

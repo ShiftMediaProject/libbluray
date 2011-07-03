@@ -144,7 +144,7 @@ static int _parse_header(BITSTREAM *bs, int *index_start, int *extension_data_st
     return 1;
 }
 
-INDX_ROOT *indx_parse(const char *file_name)
+static INDX_ROOT *_indx_parse(const char *file_name)
 {
     BITSTREAM  bs;
     BD_FILE_H *fp;
@@ -186,6 +186,26 @@ INDX_ROOT *indx_parse(const char *file_name)
     X_FREE(index);
     file_close(fp);
     return NULL;
+}
+
+INDX_ROOT *indx_parse(const char *file_name)
+{
+    INDX_ROOT *indx = _indx_parse(file_name);
+
+    /* if failed, try backup file */
+    if (!indx) {
+        int   len    = strlen(file_name);
+        char *backup = malloc(len + 8);
+
+        strcpy(backup, file_name);
+        strcpy(backup + len - 10, "BACKUP/index.bdmv");
+
+        indx = _indx_parse(backup);
+
+        X_FREE(backup);
+    }
+
+    return indx;
 }
 
 void indx_free(INDX_ROOT **p)
