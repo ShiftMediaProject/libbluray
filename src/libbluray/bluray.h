@@ -466,8 +466,9 @@ void bd_stop_bdj(BLURAY *bd); // shutdown BD-J and clean up resources
 
 typedef enum {
     BD_EVENT_NONE = 0,
-    BD_EVENT_ERROR,
-    BD_EVENT_ENCRYPTED,
+    BD_EVENT_ERROR,       /* Fatal error. Playback can't be continued. */
+    BD_EVENT_READ_ERROR,  /* Reading of .m2ts aligned unit failed. Next call to read will try next block. */
+    BD_EVENT_ENCRYPTED,   /* .m2ts file is encrypted and can't be played */
 
     /* current playback position */
     BD_EVENT_ANGLE,     /* current angle, 1...N */

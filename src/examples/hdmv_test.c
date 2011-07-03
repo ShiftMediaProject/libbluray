@@ -33,6 +33,12 @@ static void _print_event(BD_EVENT *ev)
         case BD_EVENT_ERROR:
             printf("EVENT_ERROR:\t%d\n", ev->param);
             break;
+        case BD_EVENT_READ_ERROR:
+            printf("EVENT_READ_ERROR:\t%d\n", ev->param);
+            break;
+        case BD_EVENT_ENCRYPTED:
+            printf("EVENT_ENCRYPTED:\t%d\n", ev->param);
+            break;
 
         /* current playback position */
 

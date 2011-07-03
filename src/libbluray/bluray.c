@@ -434,6 +434,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 
             BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" failed ! (%p)\n", len, st->clip_block_pos, bd);
 
+            _queue_event(bd, (BD_EVENT){BD_EVENT_READ_ERROR, 0});
             return 0;
         }
 

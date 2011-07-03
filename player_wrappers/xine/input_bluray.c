@@ -458,6 +458,11 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
         this->error = 1;
         return;
 
+      case BD_EVENT_READ_ERROR:
+        LOGMG("m2ts file read error");
+        /*stream_flush(this); leave error detection and handling for upper layer */
+        return;
+
       case BD_EVENT_ENCRYPTED:
         lprintf("BD_EVENT_ENCRYPTED\n");
         _x_message (this->stream, XINE_MSG_ENCRYPTED_SOURCE,
