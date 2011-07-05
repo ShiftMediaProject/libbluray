@@ -323,7 +323,7 @@ _parse_cpi(BITSTREAM *bits, CLPI_CL *cl)
 }
 
 static uint32_t
-_find_stc_spn(CLPI_CL *cl, uint8_t stc_id)
+_find_stc_spn(const CLPI_CL *cl, uint8_t stc_id)
 {
     int ii;
     CLPI_ATC_SEQ *atc;
@@ -341,10 +341,10 @@ _find_stc_spn(CLPI_CL *cl, uint8_t stc_id)
 // Returns the spn for the entry that is closest to but
 // before the given timestamp
 uint32_t
-clpi_lookup_spn(CLPI_CL *cl, uint32_t timestamp, int before, uint8_t stc_id)
+clpi_lookup_spn(const CLPI_CL *cl, uint32_t timestamp, int before, uint8_t stc_id)
 {
-    CLPI_EP_MAP_ENTRY *entry;
-    CLPI_CPI *cpi = &cl->cpi;
+    const CLPI_EP_MAP_ENTRY *entry;
+    const CLPI_CPI *cpi = &cl->cpi;
     int ii, jj;
     uint32_t coarse_pts, pts; // 45khz timestamps
     uint32_t spn, coarse_spn, stc_spn;
@@ -447,10 +447,10 @@ done:
 // Returns the spn for the entry that is closest to but
 // before the given packet
 uint32_t
-clpi_access_point(CLPI_CL *cl, uint32_t pkt, int next, int angle_change, uint32_t *time)
+clpi_access_point(const CLPI_CL *cl, uint32_t pkt, int next, int angle_change, uint32_t *time)
 {
-    CLPI_EP_MAP_ENTRY *entry;
-    CLPI_CPI *cpi = &cl->cpi;
+    const CLPI_EP_MAP_ENTRY *entry;
+    const CLPI_CPI *cpi = &cl->cpi;
     int ii, jj;
     uint32_t coarse_spn, spn;
     int start, end;
@@ -576,7 +576,7 @@ clpi_free(CLPI_CL *cl)
 }
 
 CLPI_CL*
-clpi_parse(char *path, int verbose)
+clpi_parse(const char *path, int verbose)
 {
     BITSTREAM  bits;
     BD_FILE_H *fp;
@@ -627,7 +627,7 @@ clpi_parse(char *path, int verbose)
 }
 
 CLPI_CL*
-clpi_copy(CLPI_CL* src_cl)
+clpi_copy(const CLPI_CL* src_cl)
 {
     CLPI_CL* dest_cl = NULL;
     int ii, jj;
