@@ -627,10 +627,14 @@ clpi_parse(char *path, int verbose)
 }
 
 CLPI_CL*
-clpi_copy(CLPI_CL* dest_cl, CLPI_CL* src_cl)
+clpi_copy(CLPI_CL* src_cl)
 {
+    CLPI_CL* dest_cl = NULL;
     int ii, jj;
-    if (dest_cl && src_cl) {
+
+    if (src_cl) {
+        dest_cl = (CLPI_CL*) calloc(1, sizeof(CLPI_CL));
+
         dest_cl->clip.clip_stream_type = src_cl->clip.clip_stream_type;
         dest_cl->clip.application_type = src_cl->clip.application_type;
         dest_cl->clip.is_atc_delta = src_cl->clip.is_atc_delta;
@@ -703,8 +707,7 @@ clpi_copy(CLPI_CL* dest_cl, CLPI_CL* src_cl)
                 dest_cl->cpi.entry[ii].fine[jj].spn_ep = src_cl->cpi.entry[ii].fine[jj].spn_ep;
             }
         }
-        return dest_cl;
     }
-    clpi_free(dest_cl);
-    return NULL;
+
+    return dest_cl;
 }
