@@ -251,7 +251,7 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick);
  * @param bd  BLURAY object
  * @param buf buffer to read data into
  * @param len size of data to be read
- * @return size of data read, -1 if error
+ * @return size of data read, -1 if error, 0 if EOF
  */
 int bd_read(BLURAY *bd, unsigned char *buf, int len);
 
