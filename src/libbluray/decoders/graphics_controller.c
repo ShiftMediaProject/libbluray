@@ -366,7 +366,7 @@ static void _clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
 {
     _clear_osd_area(gc, plane, 0, 0, 1920, 1080);
 
-    if (plane) {
+    if (plane == BD_OVERLAY_IG) {
         gc->ig_drawn      = 0;
     } else {
         gc->pg_drawn      = 0;
@@ -377,7 +377,7 @@ static void _clear_bog_area(GRAPHICS_CONTROLLER *gc, BOG_DATA *bog_data)
 {
     if (gc->ig_drawn && bog_data->w && bog_data->h) {
 
-        _clear_osd_area(gc, 1, bog_data->x, bog_data->y, bog_data->w, bog_data->h);
+        _clear_osd_area(gc, BD_OVERLAY_IG, bog_data->x, bog_data->y, bog_data->w, bog_data->h);
 
         bog_data->x = bog_data->y = bog_data->w = bog_data->h = 0;
     }
@@ -386,7 +386,7 @@ static void _clear_bog_area(GRAPHICS_CONTROLLER *gc, BOG_DATA *bog_data)
 static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
 {
     bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, page_id);
-    _clear_osd(gc, 1);
+    _clear_osd(gc, BD_OVERLAY_IG);
     _reset_page_state(gc);
 
     uint16_t button_id = _find_selected_button_id(gc);
@@ -395,8 +395,8 @@ static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
 
 static void _gc_reset(GRAPHICS_CONTROLLER *gc)
 {
-    _clear_osd(gc, 0);
-    _clear_osd(gc, 1);
+    _clear_osd(gc, BD_OVERLAY_PG);
+    _clear_osd(gc, BD_OVERLAY_IG);
 
     gc->popup_visible = 0;
 
@@ -568,7 +568,7 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
     }
 
     ov.pts   = -1;
-    ov.plane = 1; /* IG */
+    ov.plane = BD_OVERLAY_IG;
 
     ov.x = bog_data->x = button->x_pos;
     ov.y = bog_data->y = button->y_pos;
@@ -598,7 +598,7 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
     if (s->ics->interactive_composition.ui_model == IG_UI_MODEL_POPUP && !gc->popup_visible) {
         GC_TRACE("_render_page(): popup menu not visible\n");
 
-        _clear_osd(gc, 1);
+        _clear_osd(gc, BD_OVERLAY_IG);
 
         return;
     }
