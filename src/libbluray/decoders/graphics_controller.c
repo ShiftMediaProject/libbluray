@@ -383,6 +383,11 @@ static void _clear_bog_area(GRAPHICS_CONTROLLER *gc, BOG_DATA *bog_data)
     }
 }
 
+static void _select_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id)
+{
+    bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, button_id);
+}
+
 static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
 {
     bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, page_id);
@@ -390,7 +395,7 @@ static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
     _reset_page_state(gc);
 
     uint16_t button_id = _find_selected_button_id(gc);
-    bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, button_id);
+    _select_button(gc, button_id);
 }
 
 static void _gc_reset(GRAPHICS_CONTROLLER *gc)
@@ -637,8 +642,6 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
 
             _render_button(gc, button, palette, BTN_SELECTED, &gc->bog_data[ii]);
 
-            bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, selected_button_id);
-
             if (button->auto_action_flag && cmds) {
                 cmds->num_nav_cmds = button->num_nav_cmds;
                 cmds->nav_cmds     = button->nav_cmds;
@@ -749,7 +752,7 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *cm
     /* render page ? */
     if (new_btn_id != cur_btn_id || activated_btn_id >= 0) {
 
-        bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, new_btn_id);
+        _select_button(gc, new_btn_id);
 
         _render_page(gc, activated_btn_id, cmds);
 
@@ -833,7 +836,7 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param)
 
     if (button) {
         gc->bog_data[bog_idx].enabled_button = button_id;
-        bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, button_id);
+        _select_button(gc, button_id);
     }
 
     _render_page(gc, 0xffff, NULL);
@@ -892,14 +895,14 @@ static void _update_selected_button(GRAPHICS_CONTROLLER *gc)
     /* special case: triggered only after enable button disables selected button */
     if (button_id & 0x10000) {
         button_id &= 0xffff;
-        bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, button_id);
+        _select_button(gc, button_id);
         GC_TRACE("_update_selected_button() -> #%d [last enabled]\n", button_id);
         return;
     }
 
     if (button_id == 0xffff) {
         button_id = _find_selected_button_id(gc);
-        bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, button_id);
+        _select_button(gc, button_id);
     }
 }
 
@@ -958,7 +961,7 @@ static int _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_C
     }
 
     if (new_btn_id != 0xffff) {
-        bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, new_btn_id);
+        _select_button(gc, new_btn_id);
 
         _render_page(gc, -1, cmds);
     }
