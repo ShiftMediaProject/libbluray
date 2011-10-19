@@ -615,10 +615,6 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
             return 0;
         }
 
-        gc->popup_visible = 0;
-
-        _select_page(gc, 0);
-
         bd_mutex_unlock(&gc->mutex);
 
         return 1;
