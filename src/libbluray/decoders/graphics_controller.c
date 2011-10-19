@@ -718,7 +718,12 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
         if (!button) {
             GC_TRACE("_render_page(): bog %d: button %d not found\n", ii, valid_id);
 
+            // render background
+            _clear_bog_area(gc, &gc->bog_data[ii]);
+
         } else if (button->id == activated_button_id) {
+            GC_TRACE("    button #%d activated\n", button->id);
+
             _render_button(gc, button, palette, BTN_ACTIVATED, &gc->bog_data[ii]);
 
         } else if (button->id == selected_button_id) {
