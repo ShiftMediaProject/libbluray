@@ -481,6 +481,8 @@ static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
 
     uint16_t button_id = _find_selected_button_id(gc);
     _select_button(gc, button_id);
+
+    gc->valid_mouse_position = 0;
 }
 
 static void _gc_reset(GRAPHICS_CONTROLLER *gc)
@@ -489,6 +491,7 @@ static void _gc_reset(GRAPHICS_CONTROLLER *gc)
     _close_osd(gc, BD_OVERLAY_IG);
 
     gc->popup_visible = 0;
+    gc->valid_mouse_position = 0;
 
     graphics_processor_free(&gc->igp);
     graphics_processor_free(&gc->pgp);
