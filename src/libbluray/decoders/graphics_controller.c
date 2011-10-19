@@ -58,7 +58,9 @@ struct graphics_controller_s {
 
     /* state */
     unsigned        ig_drawn;
+    unsigned        ig_dirty;
     unsigned        pg_drawn;
+    unsigned        pg_dirty;
     unsigned        popup_visible;
     unsigned        valid_mouse_position;
     BOG_DATA       *bog_data;
@@ -342,20 +344,65 @@ static void _reset_page_state(GRAPHICS_CONTROLLER *gc)
     }
 }
 
+/*
+ * overlay operations
+ */
+
+static void _open_osd(GRAPHICS_CONTROLLER *gc, int plane,
+                      unsigned width, unsigned height)
+{
+    if (gc->overlay_proc) {
+        const BD_OVERLAY ov = {
+            .cmd     = BD_OVERLAY_INIT,
+            .pts     = -1,
+            .plane   = plane,
+            .w       = width,
+            .h       = height,
+        };
+
+        gc->overlay_proc(gc->overlay_proc_handle, &ov);
+    }
+}
+
+static void _close_osd(GRAPHICS_CONTROLLER *gc, int plane)
+{
+    if (gc->overlay_proc) {
+        const BD_OVERLAY ov = {
+            .cmd     = BD_OVERLAY_CLOSE,
+            .pts     = -1,
+            .plane   = plane,
+        };
+
+        gc->overlay_proc(gc->overlay_proc_handle, &ov);
+    }
+}
+
+static void _flush_osd(GRAPHICS_CONTROLLER *gc, int plane, int64_t pts)
+{
+    if (gc->overlay_proc) {
+        const BD_OVERLAY ov = {
+            .cmd     = BD_OVERLAY_FLUSH,
+            .pts     = pts,
+            .plane   = plane,
+        };
+
+        gc->overlay_proc(gc->overlay_proc_handle, &ov);
+    }
+}
+
 static void _clear_osd_area(GRAPHICS_CONTROLLER *gc, int plane,
                             uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
     if (gc->overlay_proc) {
-        /* clear plane */
+        /* wipe area */
         const BD_OVERLAY ov = {
+            .cmd     = BD_OVERLAY_WIPE,
             .pts     = -1,
             .plane   = plane,
             .x       = x,
             .y       = y,
             .w       = w,
             .h       = h,
-            .palette = NULL,
-            .img     = NULL,
         };
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
@@ -364,7 +411,16 @@ static void _clear_osd_area(GRAPHICS_CONTROLLER *gc, int plane,
 
 static void _clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
 {
-    _clear_osd_area(gc, plane, 0, 0, 1920, 1080);
+    if (gc->overlay_proc) {
+        /* clear plane */
+        const BD_OVERLAY ov = {
+            .cmd     = BD_OVERLAY_CLEAR,
+            .pts     = -1,
+            .plane   = plane,
+        };
+
+        gc->overlay_proc(gc->overlay_proc_handle, &ov);
+    }
 
     if (plane == BD_OVERLAY_IG) {
         gc->ig_drawn      = 0;
@@ -380,8 +436,37 @@ static void _clear_bog_area(GRAPHICS_CONTROLLER *gc, BOG_DATA *bog_data)
         _clear_osd_area(gc, BD_OVERLAY_IG, bog_data->x, bog_data->y, bog_data->w, bog_data->h);
 
         bog_data->x = bog_data->y = bog_data->w = bog_data->h = 0;
+
+        gc->ig_dirty = 1;
     }
 }
+
+static void _render_object(GRAPHICS_CONTROLLER *gc,
+                           int64_t pts, unsigned plane,
+                           uint16_t x, uint16_t y,
+                           BD_PG_OBJECT *object,
+                           BD_PG_PALETTE *palette)
+{
+    if (gc->overlay_proc) {
+        BD_OVERLAY ov = {
+            .cmd     = BD_OVERLAY_DRAW,
+            .pts     = pts,
+            .plane   = plane,
+            .x       = x,
+            .y       = y,
+            .w       = object->width,
+            .h       = object->height,
+            .palette = palette->entry,
+            .img     = object->img,
+        };
+
+        gc->overlay_proc(gc->overlay_proc_handle, &ov);
+    }
+}
+
+/*
+ * page selection and IG effects
+ */
 
 static void _select_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id)
 {
@@ -400,8 +485,8 @@ static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
 
 static void _gc_reset(GRAPHICS_CONTROLLER *gc)
 {
-    _clear_osd(gc, BD_OVERLAY_PG);
-    _clear_osd(gc, BD_OVERLAY_IG);
+    _close_osd(gc, BD_OVERLAY_PG);
+    _close_osd(gc, BD_OVERLAY_IG);
 
     gc->popup_visible = 0;
 
@@ -560,10 +645,7 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
 static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_PALETTE *palette,
                            int state, BOG_DATA *bog_data)
 {
-    BD_PG_OBJECT *object    = NULL;
-    BD_OVERLAY    ov;
-
-    object = _find_object_for_button(gc->igs, button, state, bog_data);
+    BD_PG_OBJECT *object = _find_object_for_button(gc->igs, button, state, bog_data);
     if (!object) {
         GC_TRACE("_render_button(#%d): object (state %d) not found\n", button->id, state);
 
@@ -572,21 +654,17 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
         return;
     }
 
-    ov.pts   = -1;
-    ov.plane = BD_OVERLAY_IG;
+    _render_object(gc, -1, BD_OVERLAY_IG,
+                   button->x_pos, button->y_pos,
+                   object, palette);
 
-    ov.x = bog_data->x = button->x_pos;
-    ov.y = bog_data->y = button->y_pos;
-    ov.w = bog_data->w = object->width;
-    ov.h = bog_data->h = object->height;
+    bog_data->x = button->x_pos;
+    bog_data->y = button->y_pos;
+    bog_data->w = object->width;
+    bog_data->h = object->height;
 
-    ov.img     = object->img;
-    ov.palette = palette->entry;
-
-    if (gc->overlay_proc) {
-        gc->overlay_proc(gc->overlay_proc_handle, &ov);
-        gc->ig_drawn = 1;
-    }
+    gc->ig_drawn = 1;
+    gc->ig_dirty = 1;
 }
 
 static void _render_page(GRAPHICS_CONTROLLER *gc,
@@ -651,6 +729,11 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
             _render_button(gc, button, palette, BTN_NORMAL, &gc->bog_data[ii]);
 
         }
+    }
+
+    if (gc->ig_dirty) {
+        _flush_osd(gc, BD_OVERLAY_IG, -1);
+        gc->ig_dirty = 0;
     }
 }
 

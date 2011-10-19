@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2000-2005 the xine project
  *
- * Copyright (C) 2009 Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2009-2011 Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This file is part of xine, a free video player.
  *
@@ -148,6 +148,17 @@ static void send_num_buttons(bluray_input_plugin_t *this, int n)
   xine_event_send(this->stream, &event);
 }
 
+static xine_osd_t *get_overlay(bluray_input_plugin_t *this, int plane)
+{
+  if (!this->osd[plane]) {
+    this->osd[plane] = xine_osd_new(this->stream, 0, 0, 1920, 1080);
+  }
+  if (!this->pg_enable) {
+    _x_select_spu_channel(this->stream, -1);
+  }
+  return this->osd[plane];
+}
+
 static void close_overlay(bluray_input_plugin_t *this, int plane)
 {
   if (plane < 0) {
@@ -166,34 +177,16 @@ static void close_overlay(bluray_input_plugin_t *this, int plane)
   }
 }
 
-static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
+static void open_overlay(bluray_input_plugin_t *this, const BD_OVERLAY * const ov)
 {
-  bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
-  unsigned i;
-
-  if (!this) {
-    return;
-  }
-
-  if (!ov) {
-    /* hide OSD */
-    close_overlay(this, -1);
-    return;
-  }
-
-  if (ov->plane > 1) {
-    return;
-  }
-
-  /* open xine OSD */
-
   if (!this->osd[ov->plane]) {
-    this->osd[ov->plane] = xine_osd_new(this->stream, 0, 0, 1920, 1080);
+    this->osd[ov->plane] = xine_osd_new(this->stream, ov->x, ov->y, ov->w, ov->h);
   }
-  xine_osd_t *osd = this->osd[ov->plane];
-  if (!this->pg_enable) {
-    _x_select_spu_channel(this->stream, -1);
-  }
+}
+
+static void draw_bitmap(xine_osd_t *osd, const BD_OVERLAY * const ov)
+{
+  unsigned i;
 
   /* convert and set palette */
   if (ov->palette) {
@@ -220,6 +213,75 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
     xine_osd_draw_bitmap(osd, img, ov->x, ov->y, ov->w, ov->h, NULL);
 
     free(img);
+  }
+}
+
+static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
+{
+  bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
+
+  if (!this) {
+    return;
+  }
+
+  if (!ov) {
+    /* hide OSD */
+    close_overlay(this, -1);
+    return;
+  }
+
+  if (ov->plane > 1) {
+    return;
+  }
+
+#if defined(BD_OVERLAY_INTERFACE_VERSION) && BD_OVERLAY_INTERFACE_VERSION >= 2
+
+  switch (ov->cmd) {
+    case BD_OVERLAY_INIT:    /* init overlay plane. Size of full plane in x,y,w,h */
+      open_overlay(this, ov);
+      return;
+    case BD_OVERLAY_CLOSE:   /* close overlay */
+      close_overlay(this, ov->plane);
+      return;
+  }
+
+  xine_osd_t *osd = get_overlay(this, ov->plane);
+
+  switch (ov->cmd) {
+    case BD_OVERLAY_DRAW:    /* draw bitmap (x,y,w,h,img,palette) */
+      draw_bitmap(osd, ov);
+      return;
+
+    case BD_OVERLAY_WIPE:    /* clear area (x,y,w,h) */
+      xine_osd_draw_rect(osd, ov->x, ov->y, ov->x + ov->w - 1, ov->y + ov->h - 1, 0xff, 1);
+      return;
+
+    case BD_OVERLAY_CLEAR:   /* clear plane */
+      xine_osd_draw_rect(osd, 0, 0, osd->osd.width - 1, osd->osd.height - 1, 0xff, 1);
+      xine_osd_clear(osd);
+      xine_osd_hide(osd, 0);
+      return;
+
+    case BD_OVERLAY_FLUSH:   /* all changes have been done, flush overlay to display at given pts */
+      xine_osd_show(osd, 0);
+
+      if (ov->plane == 1) {
+        this->menu_open = 1;
+        send_num_buttons(this, 1);
+      }
+      return;
+
+    default:
+      LOGMSG("unknown overlay command %d", ov->cmd);
+      return;
+  }
+
+#else
+
+  xine_osd_t *osd = get_overlay(this, ov->plane);
+
+  if (ov->img) {
+    draw_bitmap(osd, ov);
 
   } else {
 
@@ -241,7 +303,12 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
     this->menu_open = 1;
     send_num_buttons(this, 1);
   }
+#endif
 }
+
+/*
+ * stream info
+ */
 
 static void update_stream_info(bluray_input_plugin_t *this)
 {
@@ -459,7 +526,7 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
         return;
 
       case BD_EVENT_READ_ERROR:
-        LOGMG("m2ts file read error");
+        LOGMSG("m2ts file read error");
         /*stream_flush(this); leave error detection and handling for upper layer */
         return;
 
