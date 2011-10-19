@@ -41,6 +41,7 @@ typedef void (*gc_overlay_proc_f)(void *, const struct bd_overlay_s * const);
 
 typedef enum {
     /* */
+    GC_CTRL_INIT_MENU,       /* */
     GC_CTRL_NOP,             /* No input. Render page / run timers / run animations */
     GC_CTRL_RESET,           /* reset graphics controller */
 
