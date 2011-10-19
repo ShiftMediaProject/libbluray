@@ -63,6 +63,7 @@ struct graphics_controller_s {
     unsigned        pg_dirty;
     unsigned        popup_visible;
     unsigned        valid_mouse_position;
+    unsigned        auto_action_triggered;
     BOG_DATA       *bog_data;
     BOG_DATA       *saved_bog_data;
 
@@ -471,6 +472,7 @@ static void _render_object(GRAPHICS_CONTROLLER *gc,
 static void _select_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id)
 {
     bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, button_id);
+    gc->auto_action_triggered = 0;
 }
 
 static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
@@ -721,11 +723,22 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
 
         } else if (button->id == selected_button_id) {
 
-            _render_button(gc, button, palette, BTN_SELECTED, &gc->bog_data[ii]);
+            if (button->auto_action_flag && !gc->auto_action_triggered) {
+                if (cmds) {
+                    GC_TRACE("   auto-activate #%d\n", button->id);
 
-            if (button->auto_action_flag && cmds) {
-                cmds->num_nav_cmds = button->num_nav_cmds;
-                cmds->nav_cmds     = button->nav_cmds;
+                    cmds->num_nav_cmds = button->num_nav_cmds;
+                    cmds->nav_cmds     = button->nav_cmds;
+
+                    gc->auto_action_triggered = 1;
+                } else {
+                    GC_ERROR("   auto-activate #%d not triggered (!cmds)\n", button->id);
+                }
+
+                _render_button(gc, button, palette, BTN_ACTIVATED, &gc->bog_data[ii]);
+
+            } else {
+                _render_button(gc, button, palette, BTN_SELECTED, &gc->bog_data[ii]);
             }
 
         } else {
@@ -925,7 +938,7 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param)
         _select_button(gc, button_id);
     }
 
-    _render_page(gc, 0xffff, NULL);
+    _render_page(gc, 0xffff, NULL); /* auto action not triggered yet */
 }
 
 static void _enable_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id, unsigned enable)
