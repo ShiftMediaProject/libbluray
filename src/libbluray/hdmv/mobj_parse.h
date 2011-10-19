@@ -25,20 +25,20 @@
 #include <stdint.h>
 
 typedef struct {
+  uint8_t sub_grp    : 3;  /* command sub-group */
   uint8_t op_cnt     : 3;  /* operand count */
   uint8_t grp        : 2;  /* command group */
-  uint8_t sub_grp    : 3;  /* command sub-group */
 
-  uint8_t imm_op1    : 1;  /* I-flag for operand 1 */
-  uint8_t imm_op2    : 1;  /* I-flag for operand 2 */
-  uint8_t reserved1  : 2;
   uint8_t branch_opt : 4;  /* branch option */
+  uint8_t reserved1  : 2;
+  uint8_t imm_op2    : 1;  /* I-flag for operand 2 */
+  uint8_t imm_op1    : 1;  /* I-flag for operand 1 */
 
-  uint8_t reserved2  : 4;
   uint8_t cmp_opt    : 4;  /* compare option */
+  uint8_t reserved2  : 4;
 
-  uint8_t reserved3  : 3;
   uint8_t set_opt    : 5;  /* set option */
+  uint8_t reserved3  : 3;
 } HDMV_INSN;
 
 typedef struct bd_mobj_cmd_s {
