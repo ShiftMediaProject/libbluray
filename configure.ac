@@ -119,24 +119,27 @@ if test "${SYS}" != "mingw32" ; then
 fi
 
 # dlopen check
+if test "${SYS}" != "mingw32" ; then
+  AC_CHECK_FUNCS(
+    [dlopen],
+    [DLOPEN_LDFLAGS=""; have_dlopen="yes"],
+    [AC_CHECK_LIB([dl], [dlopen],
+      [DLOPEN_LDFLAGS="-ldl"; have_dlopen="yes"],
+      [have_dlopen="no"])])
+else
+  have_dlopen="yes"
+fi
+
+# dlopen check
 if [[ $use_dlopen_crypto_libs = "auto" ]]; then
-  if test "${SYS}" != "mingw32" ; then
-      AC_CHECK_LIB([dl], [dlopen],
-        [DLOPEN_LDFLAGS="-ldl"; AC_MSG_NOTICE($using_dlopen_crypto_libs)
-         AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])],
-        [use_dlopen_crypto_libs="no"; AC_MSG_NOTICE($using_normal_linking)])
-  else
-         AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])
+  use_dlopen_crypto_libs=$have_dlopen
+fi
+if [[ $use_dlopen_crypto_libs = "yes" ]]; then
+  if [[ $have_dlopen = "no" ]]; then
+    AC_MSG_ERROR($library_not_found)
   fi
-elif [[ $use_dlopen_crypto_libs = "yes" ]]; then
-  if test "${SYS}" != "mingw32" ; then
-      AC_CHECK_LIB([dl], [dlopen],
-        [DLOPEN_LDFLAGS="-ldl"; AC_MSG_NOTICE($using_dlopen_crypto_libs)
-         AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])],
-        [AC_MSG_ERROR($library_not_found)])
-  else
-         AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])
-  fi
+  AC_MSG_NOTICE($using_dlopen_crypto_libs)
+  AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])
 else
   AC_CHECK_LIB([aacs], [aacs_open],,
     [AC_MSG_ERROR($library_not_found)])
