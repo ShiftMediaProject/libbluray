@@ -36,17 +36,11 @@
 #include "hdmv/hdmv_vm.h"
 #include "decoders/graphics_controller.h"
 #include "file/file.h"
-#ifdef DLOPEN_CRYPTO_LIBS
 #include "file/dl.h"
-#endif
 #ifdef USING_BDJAVA
 #include "bdj/bdj.h"
 #endif
 
-#ifndef DLOPEN_CRYPTO_LIBS
-#include <libaacs/aacs.h>
-#include <libbdplus/bdplus.h>
-#endif
 #include <stdlib.h>
 #include <inttypes.h>
 #include <string.h>
@@ -121,17 +115,13 @@ struct bluray {
     uint64_t       next_chapter_start;
 
     /* aacs */
-#ifdef DLOPEN_CRYPTO_LIBS
     void           *h_libaacs;   // library handle
-#endif
     void           *aacs;
     fptr_p_void    libaacs_open;
     fptr_int       libaacs_decrypt_unit;
 
     /* BD+ */
-#ifdef DLOPEN_CRYPTO_LIBS
     void           *h_libbdplus; // library handle
-#endif
     void           *bdplus;
     fptr_p_void    bdplus_init;
     fptr_int32     bdplus_seek;
@@ -151,18 +141,13 @@ struct bluray {
     GRAPHICS_CONTROLLER *graphics_controller;
 };
 
-#ifdef DLOPEN_CRYPTO_LIBS
-#    define DL_CALL(lib,func,param,...)             \
+#define DL_CALL(lib,func,param,...)             \
      do {                                           \
           fptr_p_void fptr = (fptr_p_void)dl_dlsym(lib, #func);  \
           if (fptr) {                               \
               fptr(param, ##__VA_ARGS__);           \
           }                                         \
       } while (0)
-#else
-#    define DL_CALL(lib,func,param,...)         \
-     func (param, ##__VA_ARGS__)
-#endif
 
 /*
  * Navigation mode event queue
@@ -540,12 +525,10 @@ static void _libaacs_unload(BLURAY *bd)
 {
     _libaacs_close(bd);
 
-#ifdef DLOPEN_CRYPTO_LIBS
     if (bd->h_libaacs) {
         dl_dlclose(bd->h_libaacs);
         bd->h_libaacs = NULL;
     }
-#endif
 
     bd->libaacs_open         = NULL;
     bd->libaacs_decrypt_unit = NULL;
@@ -575,7 +558,6 @@ static int _libaacs_required(BLURAY *bd)
 
 static int _libaacs_load(BLURAY *bd)
 {
-#ifdef DLOPEN_CRYPTO_LIBS
     if (bd->h_libaacs) {
         return 1;
     }
@@ -604,16 +586,6 @@ static int _libaacs_load(BLURAY *bd)
     _libaacs_unload(bd);
 
     return 0;
-
-#else
-    BD_DEBUG(DBG_BLURAY, "Using libaacs via normal linking\n");
-
-    bd->libaacs_open         = &aacs_open;
-    bd->libaacs_decrypt_unit = &aacs_decrypt_unit;
-    bd->disc_info.libaacs_detected = 1;
-
-    return 1;
-#endif
 }
 
 static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
@@ -648,16 +620,12 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
 static uint8_t *_libaacs_get_vid(BLURAY *bd)
 {
     if (bd->aacs) {
-#ifdef DLOPEN_CRYPTO_LIBS
         fptr_p_void fptr = (fptr_p_void)dl_dlsym(bd->h_libaacs, "aacs_get_vid");
         if (fptr) {
             return (uint8_t*)fptr(bd->aacs);
         }
         BD_DEBUG(DBG_BLURAY, "aacs_get_vid() dlsym failed! (%p)", bd);
         return NULL;
-#else
-        return aacs_get_vid(bd->aacs);
-#endif
     }
 
     BD_DEBUG(DBG_BLURAY, "_libaacs_get_vid(): libaacs not initialized! (%p)", bd);
@@ -676,12 +644,10 @@ static void _libbdplus_unload(BLURAY *bd)
 {
     _libbdplus_close(bd);
 
-#ifdef DLOPEN_CRYPTO_LIBS
     if (bd->h_libbdplus) {
         dl_dlclose(bd->h_libbdplus);
         bd->h_libbdplus = NULL;
     }
-#endif
 
     bd->bdplus_init  = NULL;
     bd->bdplus_seek  = NULL;
@@ -714,7 +680,6 @@ static int _libbdplus_load(BLURAY *bd)
 {
     BD_DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
 
-#ifdef DLOPEN_CRYPTO_LIBS
     if (bd->h_libbdplus) {
         return 1;
     }
@@ -743,17 +708,6 @@ static int _libbdplus_load(BLURAY *bd)
     _libbdplus_unload(bd);
 
     return 0;
-
-#else
-    BD_DEBUG(DBG_BLURAY,"Using libbdplus via normal linking\n");
-
-    bd->bdplus_init  = &bdplus_init;
-    bd->bdplus_seek  = &bdplus_seek;
-    bd->bdplus_fixup = &bdplus_fixup;
-    bd->disc_info.libbdplus_detected = 1;
-
-    return 1;
-#endif
 }
 
 static int _libbdplus_open(BLURAY *bd, const char *keyfile_path)

@@ -29,17 +29,10 @@ esac
 # messages
 library_not_found="Could not find required library!"
 function_not_found="Could not find required function!"
-using_dlopen_crypto_libs="Using libaacs and libbdplus via dlopen."
-using_normal_linking="Using libaacs and libbdplus via normal linking."
 libxml2_missing="Could not find libxml2 - disclib meta parser disabled."
 pkg_config_missing="Could not find pkg-config.  Assuming..."
 
 # configure options
-AC_ARG_WITH([dlopen-crypto-libs],
-  [AS_HELP_STRING([--with-dlopen-crypto-libs],
-  [use libaacs and libbdplus via dlopen (default is auto)])],
-  [use_dlopen_crypto_libs=$withval],
-  [use_dlopen_crypto_libs=auto])
 
 AC_ARG_WITH([jdk],
   AS_HELP_STRING([--with-jdk=DIR],
@@ -122,33 +115,11 @@ fi
 if test "${SYS}" != "mingw32" ; then
   AC_CHECK_FUNCS(
     [dlopen],
-    [DLOPEN_LDFLAGS=""; have_dlopen="yes"],
+    [DLOPEN_LDFLAGS=""],
     [AC_CHECK_LIB([dl], [dlopen],
-      [DLOPEN_LDFLAGS="-ldl"; have_dlopen="yes"],
-      [have_dlopen="no"])])
-else
-  have_dlopen="yes"
+      [DLOPEN_LDFLAGS="-ldl"],
+      [AC_MSG_ERROR($library_not_found)])])
 fi
-
-# dlopen check
-if [[ $use_dlopen_crypto_libs = "auto" ]]; then
-  use_dlopen_crypto_libs=$have_dlopen
-fi
-if [[ $use_dlopen_crypto_libs = "yes" ]]; then
-  if [[ $have_dlopen = "no" ]]; then
-    AC_MSG_ERROR($library_not_found)
-  fi
-  AC_MSG_NOTICE($using_dlopen_crypto_libs)
-  AC_DEFINE([DLOPEN_CRYPTO_LIBS], [1], ["Define to 1 if dlopening crypto libs"])
-else
-  AC_CHECK_LIB([aacs], [aacs_open],,
-    [AC_MSG_ERROR($library_not_found)])
-  AC_CHECK_LIB([bdplus], [bdplus_init],,
-    [AC_MSG_ERROR($library_not_found)])
-  AC_MSG_NOTICE($using_normal_linking)
-fi
-AM_CONDITIONAL([DLOPEN_CRYPTO_LIBS],
-  [test $use_dlopen_crypto_libs = "auto" || test $use_dlopen_crypto_libs = "yes"])
 
 # check for pkg-config itself so we don't try the m4 macro without pkg-config
 AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
