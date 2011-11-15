@@ -81,6 +81,11 @@ static inline off_t bs_pos( const BITSTREAM *bs )
     return bs->pos * 8 + bb_pos(&bs->bb);
 }
 
+static inline off_t bs_end( const BITSTREAM *bs )
+{
+    return bs->end * 8;
+}
+
 static inline int bb_eof( const BITBUFFER *bb )
 {
     return bb->p >= bb->p_end ? 1: 0 ;
