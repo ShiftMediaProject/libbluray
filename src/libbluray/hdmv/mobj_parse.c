@@ -135,6 +135,12 @@ static MOBJ_OBJECTS *_mobj_parse(const char *file_name)
     bs_seek_byte(&bs, 40);
 
     data_len = bs_read(&bs, 32);
+
+    if ((bs_end(&bs) - bs_pos(&bs))/8 < (off_t)data_len) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "%s: invalid data_len %d !\n", file_name, data_len);
+        goto error;
+    }
+
     bs_skip(&bs, 32); /* reserved */
     num_objects = bs_read(&bs, 16);
 
