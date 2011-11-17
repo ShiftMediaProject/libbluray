@@ -3,8 +3,8 @@
 *.lo
 *.la
 *.pc
-*.in
 *.tar.*
+Makefile.in
 Makefile
 aclocal.m4
 m4/libtool.m4
@@ -14,6 +14,7 @@ m4/ltversion.m4
 m4/lt~obsolete.m4
 autom4te.cache/
 build-aux/
+config.h.in
 config.h
 config.log
 config.status
