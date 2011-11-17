@@ -1,5 +1,11 @@
+# library version number
+m4_define([bluray_major], 0)
+m4_define([bluray_minor], 2)
+m4_define([bluray_micro], 0)
+m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
+
 # initilization
-AC_INIT([libbluray],[0.2], [http://bd.videolan.org/])
+AC_INIT([libbluray], bluray_version, [http://bd.videolan.org/])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_SYSTEM
