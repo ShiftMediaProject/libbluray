@@ -23,6 +23,7 @@
 #include "config.h"
 #endif
 
+#include "bluray-version.h"
 #include "bluray.h"
 #include "register.h"
 #include "util/macro.h"
@@ -148,6 +149,16 @@ struct bluray {
               fptr(param, ##__VA_ARGS__);           \
           }                                         \
       } while (0)
+
+/*
+ * Library version
+ */
+void bd_get_version(int *major, int *minor, int *micro)
+{
+    *major = BLURAY_VERSION_MAJOR;
+    *minor = BLURAY_VERSION_MINOR;
+    *micro = BLURAY_VERSION_MICRO;
+}
 
 /*
  * Navigation mode event queue
@@ -828,6 +839,8 @@ static void _fill_disc_info(BLURAY *bd)
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
     BLURAY *bd = calloc(1, sizeof(BLURAY));
+
+    BD_DEBUG(DBG_BLURAY, "libbluray version "BLURAY_VERSION_STRING"\n");
 
     if (device_path) {
 

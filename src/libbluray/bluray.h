@@ -169,6 +169,12 @@ typedef struct bd_title_info {
 } BLURAY_TITLE_INFO;
 
 /**
+ *  Get library version
+ *
+ */
+void bd_get_version(int *major, int *minor, int *micro);
+
+/**
  *
  *  This must be called after bd_open() and before bd_select_title().
  *  Populates the title list in BLURAY.

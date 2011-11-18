@@ -239,11 +239,20 @@ AM_CONDITIONAL([USING_BDJAVA], [ test $use_bdjava = "yes" ])
 # generate documentation
 DX_INIT_DOXYGEN(libbluray, doc/doxygen-config, [doc/doxygen])
 
+
+# export library version number
+BLURAY_VERSION_MAJOR=bluray_major()
+AC_SUBST(BLURAY_VERSION_MAJOR)
+BLURAY_VERSION_MINOR=bluray_minor()
+AC_SUBST(BLURAY_VERSION_MINOR)
+BLURAY_VERSION_MICRO=bluray_micro()
+AC_SUBST(BLURAY_VERSION_MICRO)
+
 # generate output files
 AC_SUBST(BDJAVA_CFLAGS)
 AC_SUBST(DLOPEN_LDFLAGS)
 AC_SUBST(SET_WARNINGS)
 AC_SUBST(SET_OPTIMIZATIONS)
 AC_SUBST(SET_DEBUG_OPTS)
-AC_CONFIG_FILES([Makefile src/Makefile src/examples/Makefile src/libbluray.pc])
+AC_CONFIG_FILES([Makefile src/Makefile src/examples/Makefile src/libbluray.pc src/libbluray/bluray-version.h])
 AC_OUTPUT
