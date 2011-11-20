@@ -1825,9 +1825,6 @@ static void _queue_initial_psr_events(BLURAY *bd)
     const uint32_t psrs[] = {
         PSR_ANGLE_NUMBER,
         PSR_TITLE_NUMBER,
-        PSR_CHAPTER,
-        PSR_PLAYLIST,
-        PSR_PLAYITEM,
         PSR_IG_STREAM_ID,
         PSR_PRIMARY_AUDIO_ID,
         PSR_PG_STREAM,
