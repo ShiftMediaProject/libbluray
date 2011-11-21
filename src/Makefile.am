@@ -1,9 +1,4 @@
-# library version info
-# NOTE: this is not the same as the library's release number
-LIB_CURRENT=0
-LIB_REVISION=0
-LIB_AGE=0
-LIB_VERSION_INFO="$(LIB_CURRENT):$(LIB_REVISION):$(LIB_AGE)"
+LIB_VERSION_INFO="@LT_VERSION_INFO@"
 
 SUBDIRS= . examples
 
