@@ -1292,6 +1292,8 @@ static int _preload_ig_subpath(BLURAY *bd)
 
 static int _preload_subpaths(BLURAY *bd)
 {
+    _close_preload(&bd->st_ig);
+
     if (bd->title->pl->sub_count <= 0) {
         return 0;
     }
