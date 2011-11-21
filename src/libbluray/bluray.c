@@ -1250,7 +1250,7 @@ static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx)
     unsigned  ig_stream = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
 
     if (ig_stream > 0 && ig_stream <= pi->stn.num_ig) {
-        ig_stream--;
+        ig_stream--; /* stream number to table index */
         if (pi->stn.ig[ig_stream].stream_type == 2) {
             *sub_path_idx = pi->stn.ig[ig_stream].subpath_id;
         }
@@ -1282,10 +1282,9 @@ static int _preload_ig_subpath(BLURAY *bd)
     bd->st_ig.clip = &bd->title->sub_path[ig_subpath].clip_list.clip[0];
 
     if (!_preload_m2ts(bd, &bd->st_ig)) {
+        _close_preload(&bd->st_ig);
         return 0;
     }
-
-    gc_decode_ts(bd->graphics_controller, ig_pid, bd->st_ig.buf, bd->st_ig.clip_size / 6144, -1);
 
     return 1;
 }
@@ -1299,6 +1298,26 @@ static int _preload_subpaths(BLURAY *bd)
     }
 
     return _preload_ig_subpath(bd);
+}
+
+static int _init_ig_stream(BLURAY *bd)
+{
+    int      ig_subpath = -1;
+    uint16_t ig_pid     = 0;
+
+    if (!bd->graphics_controller) {
+        return 0;
+    }
+
+    _find_ig_stream(bd, &ig_pid, &ig_subpath);
+
+    /* decode already preloaded IG sub-path */
+    if (bd->st_ig.clip) {
+        gc_decode_ts(bd->graphics_controller, ig_pid, bd->st_ig.buf, bd->st_ig.clip_size / 6144, -1);
+        return 1;
+    }
+
+    return 0;
 }
 
 /*
@@ -1718,6 +1737,7 @@ static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
             return;
         case PSR_TIME:
             bd_seek_time(bd, ((int64_t)ev->new_val) << 1);
+            _init_ig_stream(bd);
             return;
 
         case PSR_SELECTED_BUTTON_ID:
@@ -2053,6 +2073,7 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
         case HDMV_EVENT_PLAY_PL:
             bd_select_playlist(bd, hev->param);
             /* initialize menus */
+            _init_ig_stream(bd);
             _run_gc(bd, GC_CTRL_INIT_MENU, 0);
             break;
 
