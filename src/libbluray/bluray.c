@@ -426,16 +426,35 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 
                 BD_DEBUG(DBG_STREAM, "Read unit OK! (%p)\n", bd);
 
+#ifdef BLURAY_READ_ERROR_TEST
+                /* simulate broken blocks */
+                if (random() % 1000)
+#else
                 return 1;
+#endif
             }
 
             BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" failed ! (%p)\n", len, st->clip_block_pos, bd);
 
             _queue_event(bd, (BD_EVENT){BD_EVENT_READ_ERROR, 0});
+
+            /* skip broken unit */
+            st->clip_block_pos += len;
+            st->clip_pos += len;
+            file_seek(st->fp, st->clip_block_pos, SEEK_SET);
+
             return 0;
         }
 
         BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read past EOF ! (%p)\n", bd);
+
+        /* This is caused by truncated .m2ts file or invalid clip length.
+         *
+         * Increase position to avoid infinite loops.
+         * Next clip won't be selected until all packets of this clip have been read.
+         */
+        st->clip_block_pos += len;
+        st->clip_pos += len;
 
         return 0;
     }
@@ -1210,7 +1229,8 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                     }
                 }
 
-                if (_read_block(bd, st, bd->int_buf) > 0) {
+                int r = _read_block(bd, st, bd->int_buf);
+                if (r > 0) {
 
                     if (bd->ig_pid > 0) {
                         if (gc_decode_ts(bd->graphics_controller, bd->ig_pid, bd->int_buf, 1, -1) > 0) {
@@ -1221,8 +1241,12 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
 
                     st->int_buf_off = st->clip_pos % 6144;
 
-                } else {
+                } else if (r == 0) {
+                    /* recoverable error (EOF, broken block) */
                     return out_len;
+                } else {
+                    /* fatal error */
+                    return -1;
                 }
             }
             if (size > (unsigned int)6144 - st->int_buf_off) {
