@@ -522,6 +522,28 @@ static int64_t _seek_stream(BLURAY *bd, BD_STREAM *st,
 }
 
 /*
+ * Graphics controller interface
+ */
+
+static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
+{
+    int result = -1;
+
+    if (bd && bd->graphics_controller && bd->hdmv_vm) {
+        GC_NAV_CMDS cmds = {-1, NULL, -1};
+
+        result = gc_run(bd->graphics_controller, msg, param, &cmds);
+
+        if (cmds.num_nav_cmds > 0) {
+            hdmv_vm_set_object(bd->hdmv_vm, cmds.num_nav_cmds, cmds.nav_cmds);
+            bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
+        }
+    }
+
+    return result;
+}
+
+/*
  * libaacs and libbdplus open / close
  */
 
@@ -1189,6 +1211,13 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                 }
 
                 if (_read_block(bd, st, bd->int_buf) > 0) {
+
+                    if (bd->ig_pid > 0) {
+                        if (gc_decode_ts(bd->graphics_controller, bd->ig_pid, bd->int_buf, 1, -1) > 0) {
+                            /* initialize menus */
+                            _run_gc(bd, GC_CTRL_INIT_MENU, 0);
+                        }
+                    }
 
                     st->int_buf_off = st->clip_pos % 6144;
 
@@ -2049,24 +2078,6 @@ int bd_menu_call(BLURAY *bd, int64_t pts)
     }
 
     return _play_title(bd, BLURAY_TITLE_TOP_MENU);
-}
-
-static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
-{
-    int result = -1;
-
-    if (bd && bd->graphics_controller && bd->hdmv_vm) {
-        GC_NAV_CMDS cmds = {-1, NULL, -1};
-
-        result = gc_run(bd->graphics_controller, msg, param, &cmds);
-
-        if (cmds.num_nav_cmds > 0) {
-            hdmv_vm_set_object(bd->hdmv_vm, cmds.num_nav_cmds, cmds.nav_cmds);
-            bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
-        }
-    }
-
-    return result;
 }
 
 static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
