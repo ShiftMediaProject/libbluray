@@ -102,6 +102,7 @@ struct bluray {
     /* streams */
     BD_STREAM      st0; /* main path */
     BD_PRELOAD     st_ig; /* preloaded IG stream sub path */
+    int            ig_pid; /* pid of currently selected IG stream in main path */
 
     /* buffer for bd_read(): current aligned unit of main stream (st0) */
     uint8_t        int_buf[6144];
@@ -1305,6 +1306,8 @@ static int _init_ig_stream(BLURAY *bd)
     int      ig_subpath = -1;
     uint16_t ig_pid     = 0;
 
+    bd->ig_pid = 0;
+
     if (!bd->graphics_controller) {
         return 0;
     }
@@ -1314,6 +1317,12 @@ static int _init_ig_stream(BLURAY *bd)
     /* decode already preloaded IG sub-path */
     if (bd->st_ig.clip) {
         gc_decode_ts(bd->graphics_controller, ig_pid, bd->st_ig.buf, bd->st_ig.clip_size / 6144, -1);
+        return 1;
+    }
+
+    /* store PID of main path embedded IG stream */
+    if (ig_subpath < 0) {
+        bd->ig_pid = ig_pid;
         return 1;
     }
 
