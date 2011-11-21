@@ -397,7 +397,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
                     if (!bd->libaacs_decrypt_unit(bd->aacs, buf)) {
                         BD_DEBUG(DBG_AACS | DBG_CRIT, "Unable decrypt unit (AACS)! (%p)\n", bd);
 
-                        return 0;
+                        return -1;
                     } // decrypt
                 } // aacs
 
@@ -421,7 +421,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
                     BD_DEBUG(DBG_BLURAY | DBG_CRIT,
                           "TP header copy permission indicator != 0, unit is still encrypted? (%p)\n", bd);
                     _queue_event(bd, (BD_EVENT){BD_EVENT_ENCRYPTED, 0});
-                    return 0;
+                    return -1;
                 }
 
                 BD_DEBUG(DBG_STREAM, "Read unit OK! (%p)\n", bd);
@@ -442,7 +442,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 
     BD_DEBUG(DBG_BLURAY, "No valid title selected! (%p)\n", bd);
 
-    return 0;
+    return -1;
 }
 
 /*
@@ -478,7 +478,7 @@ static int _preload_m2ts(BLURAY *bd, BD_PRELOAD *p)
     uint8_t *end = p->buf + p->clip_size;
 
     for (; buf < end; buf += 6144) {
-        if (!_read_block(bd, &st, buf)) {
+        if (_read_block(bd, &st, buf) <= 0) {
             BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_preload_m2ts(): error loading %s at %"PRIu64"\n",
                   st.clip->name, (uint64_t)(buf - p->buf));
             _close_m2ts(&st);
@@ -1188,7 +1188,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                     }
                 }
 
-                if (_read_block(bd, st, bd->int_buf)) {
+                if (_read_block(bd, st, bd->int_buf) > 0) {
 
                     st->int_buf_off = st->clip_pos % 6144;
 
