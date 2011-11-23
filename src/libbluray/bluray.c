@@ -1006,9 +1006,13 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
 uint64_t bd_tell_time(BLURAY *bd)
 {
     uint32_t clip_pkt = 0, out_pkt = 0, out_time = 0;
+    NAV_CLIP *clip;
 
     if (bd && bd->title) {
-        nav_packet_search(bd->title, bd->s_pos / 192, &clip_pkt, &out_pkt, &out_time);
+        clip = nav_packet_search(bd->title, bd->s_pos / 192, &clip_pkt, &out_pkt, &out_time);
+        if (clip) {
+            out_time += clip->start_time;
+        }
     }
 
     return ((uint64_t)out_time) * 2;
