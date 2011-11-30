@@ -278,3 +278,15 @@ AC_SUBST(SET_OPTIMIZATIONS)
 AC_SUBST(SET_DEBUG_OPTS)
 AC_CONFIG_FILES([Makefile src/Makefile src/examples/Makefile src/libbluray.pc src/libbluray/bluray-version.h])
 AC_OUTPUT
+
+
+dnl ---------------------------------------------
+dnl Some infos:
+dnl ---------------------------------------------
+
+echo "  Summary:"
+echo "  --------"
+echo "  BD-J support:        $use_bdjava"
+echo "  Metadata support:    $use_libxml2"
+echo "  Build examples:      $use_examples"
+
