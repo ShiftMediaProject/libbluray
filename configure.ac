@@ -99,6 +99,12 @@ AC_ARG_ENABLE([bdjava],
   [use_bdjava=$enableval],
   [use_bdjava=no])
 
+AC_ARG_ENABLE([libxml2],
+  [AS_HELP_STRING([--enable-libxml2],
+  [enable libxml2 support (default is yes)])],
+  [use_libxml2=$enableval],
+  [use_libxml2=yes])
+
 # required programs
 AC_PROG_CC
 AC_PROG_LIBTOOL
@@ -143,14 +149,15 @@ fi
 AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
 
 # libxml2 for metadata parser
-if test "x$HAVE_PKG_CONFIG" = "xyes"
-then
+if test "x$use_libxml2" = "xyes"; then
+  if test "x$HAVE_PKG_CONFIG" = "xyes"; then
     PKG_CHECK_MODULES([LIBXML2], libxml-2.0 >= 2.6, 
         [AC_DEFINE([HAVE_LIBXML2], [1], 
             [Define to 1 if libxml2 is to be used for metadata parsing])],
         [AC_MSG_NOTICE($libxml2_missing)])
-else
+  else
     AC_MSG_NOTICE($pkg_config_missing $libxml2_missing)
+  fi
 fi
 
 # function testing for supported compiler options
