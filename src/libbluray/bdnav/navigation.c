@@ -202,6 +202,7 @@ NAV_TITLE_LIST* nav_get_title_list(const char *root, uint32_t flags, uint32_t mi
     for (ii = 0; ii < title_list->count; ii++) {
         mpls_free(pl_list[ii]);
     }
+    X_FREE(pl_list);
     return title_list;
 }
 
