@@ -21,7 +21,7 @@ AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libblur
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_SYSTEM
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign tar-ustar])
 AM_CONFIG_HEADER(config.h)
 
 case "${host_os}" in
