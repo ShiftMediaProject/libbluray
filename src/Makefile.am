@@ -23,6 +23,8 @@ SOURCES_bdj = libbluray/bdj/bdj.h \
 	libbluray/bdj/native/org_videolan_Libbluray.h \
 	libbluray/bdj/native/org_videolan_Libbluray.c
 
+EXTRA_DIST = libbluray/bdj/build.xml libbluray/bdj/java
+
 lib_LTLIBRARIES=libbluray.la
 libbluray_ladir= $(includedir)/libbluray
 libbluray_la_SOURCES=libbluray/bluray.h \
