@@ -25,8 +25,8 @@
 #include <stdint.h>
 
 typedef struct {
-  uint8_t    num_channels;
   uint32_t   sample_rate;
+  uint8_t    num_channels;
   uint8_t    bits_per_sample;
 
   uint32_t   num_frames;
