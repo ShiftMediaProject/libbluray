@@ -116,6 +116,11 @@ static int _decode_rle(BITBUFFER *bb, BD_PG_OBJECT *p)
         rle_size = 1;
 
     p->img = realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
+    if (!p->img) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "pg_decode_object(): relloc(%d) failed\n",
+                 rle_size * sizeof(BD_PG_RLE_ELEM));
+        return 0;
+    }
 
     while (!bb_eof(bb)) {
         uint32_t len   = 1;
@@ -145,8 +150,15 @@ static int _decode_rle(BITBUFFER *bb, BD_PG_OBJECT *p)
 
         num_rle++;
         if (num_rle >= rle_size) {
+            void *tmp = p->img;
             rle_size *= 2;
             p->img = realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
+            if (!p->img) {
+                BD_DEBUG(DBG_DECODE | DBG_CRIT, "pg_decode_object(): relloc(%d) failed\n",
+                         rle_size * sizeof(BD_PG_RLE_ELEM));
+                X_FREE(tmp);
+                return 0;
+            }
         }
     }
 
