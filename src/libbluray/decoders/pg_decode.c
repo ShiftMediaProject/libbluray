@@ -148,6 +148,11 @@ static int _decode_rle(BITBUFFER *bb, BD_PG_OBJECT *p)
 
         pixels_left -= len;
 
+        if (pixels_left < 0) {
+            BD_DEBUG(DBG_DECODE, "pg_decode_object(): too many pixels (%d)\n", -pixels_left);
+            return 0;
+        }
+
         num_rle++;
         if (num_rle >= rle_size) {
             void *tmp = p->img;
@@ -164,10 +169,6 @@ static int _decode_rle(BITBUFFER *bb, BD_PG_OBJECT *p)
 
     if (pixels_left > 0) {
         BD_DEBUG(DBG_DECODE, "pg_decode_object(): missing %d pixels\n", pixels_left);
-        return 0;
-    }
-    if (pixels_left < 0) {
-        BD_DEBUG(DBG_DECODE, "pg_decode_object(): too many pixels (%d)\n", -pixels_left);
         return 0;
     }
 
