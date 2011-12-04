@@ -112,6 +112,9 @@ static int _decode_rle(BITBUFFER *bb, BD_PG_OBJECT *p)
     int num_rle     = 0;
     int rle_size    = p->width * p->height / 4;
 
+    if (rle_size < 1)
+        rle_size = 1;
+
     p->img = realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
 
     while (!bb_eof(bb)) {
