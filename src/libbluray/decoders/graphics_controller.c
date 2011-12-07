@@ -1057,6 +1057,11 @@ static int _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_C
         }
 
         new_btn_id = button->id;
+
+        if (cmds) {
+            cmds->sound_id_ref = button->selected_sound_id_ref;
+        }
+
         break;
     }
 
