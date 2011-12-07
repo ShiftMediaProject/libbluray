@@ -34,6 +34,7 @@
 #include "bdnav/index_parse.h"
 #include "bdnav/meta_parse.h"
 #include "bdnav/clpi_parse.h"
+#include "bdnav/sound_parse.h"
 #include "hdmv/hdmv_vm.h"
 #include "decoders/graphics_controller.h"
 #include "file/file.h"
@@ -141,6 +142,7 @@ struct bluray {
 
     /* graphics */
     GRAPHICS_CONTROLLER *graphics_controller;
+    SOUND_DATA          *sound_effects;
 };
 
 #define DL_CALL(lib,func,param,...)             \
@@ -557,6 +559,9 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
             hdmv_vm_set_object(bd->hdmv_vm, cmds.num_nav_cmds, cmds.nav_cmds);
             bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
         }
+        if (cmds.sound_id_ref >= 0 && cmds.sound_id_ref < 0xff) {
+            _queue_event(bd, (BD_EVENT){BD_EVENT_SOUND_EFFECT, cmds.sound_id_ref});
+        }
     }
 
     return result;
@@ -933,6 +938,7 @@ void bd_close(BLURAY *bd)
 
     gc_free(&bd->graphics_controller);
     indx_free(&bd->index);
+    sound_free(&bd->sound_effects);
     bd_registers_free(bd->regs);
 
     _free_event_queue(bd);
@@ -2290,6 +2296,36 @@ void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func)
     if (func) {
         bd->graphics_controller = gc_init(bd->regs, handle, func);
     }
+}
+
+int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, BLURAY_SOUND_EFFECT *effect)
+{
+    if (!bd || !effect) {
+        return -1;
+    }
+
+    if (!bd->sound_effects) {
+
+        char *file = str_printf("%s/BDMV/AUXDATA/sound.bdmv", bd->device_path);
+        bd->sound_effects = sound_parse(file);
+        X_FREE(file);
+
+        if (!bd->sound_effects) {
+            return -1;
+        }
+    }
+
+    if (sound_id < bd->sound_effects->num_sounds) {
+        SOUND_OBJECT *o = &bd->sound_effects->sounds[sound_id];
+
+        effect->num_channels = o->num_channels;
+        effect->num_frames   = o->num_frames;
+        effect->samples      = (const int16_t *)o->samples;
+
+        return 1;
+    }
+
+    return 0;
 }
 
 /*
