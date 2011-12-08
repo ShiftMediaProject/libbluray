@@ -43,6 +43,7 @@
 typedef struct {
     uint16_t enabled_button;  /* enabled button id */
     uint16_t x, y, w, h;      /* button rect on overlay plane (if drawn) */
+    int      visible_object_id; /* id of currently visible object */
     int      animate_indx;    /* currently showing object index of animated button, < 0 for static buttons */
 } BOG_DATA;
 
@@ -342,6 +343,7 @@ static void _reset_page_state(GRAPHICS_CONTROLLER *gc)
     for (ii = 0; ii < page->num_bogs; ii++) {
         gc->bog_data[ii].enabled_button = page->bog[ii].default_valid_button_id_ref;
         gc->bog_data[ii].animate_indx   = 0;
+        gc->bog_data[ii].visible_object_id = -1;
     }
 }
 
@@ -437,6 +439,7 @@ static void _clear_bog_area(GRAPHICS_CONTROLLER *gc, BOG_DATA *bog_data)
         _clear_osd_area(gc, BD_OVERLAY_IG, bog_data->x, bog_data->y, bog_data->w, bog_data->h);
 
         bog_data->x = bog_data->y = bog_data->w = bog_data->h = 0;
+        bog_data->visible_object_id = -1;
 
         gc->ig_dirty = 1;
     }
@@ -655,6 +658,22 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
         return;
     }
 
+    /* object already rendered ? */
+    if (bog_data->visible_object_id == object->id &&
+        bog_data->x == button->x_pos && bog_data->y == button->y_pos &&
+        bog_data->w == object->width && bog_data->h == object->height) {
+
+        GC_TRACE("skipping already rendered button #%d (object #%d at %d,%d %dx%d)\n",
+                 button->id, object->id,
+                 button->x_pos, button->y_pos, object->width, object->height);
+
+        return;
+    }
+
+    GC_TRACE("render button #%d using object #%d at %d,%d %dx%d\n",
+             button->id, object->id,
+             button->x_pos, button->y_pos, object->width, object->height);
+
     _render_object(gc, -1, BD_OVERLAY_IG,
                    button->x_pos, button->y_pos,
                    object, palette);
@@ -663,6 +682,7 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
     bog_data->y = button->y_pos;
     bog_data->w = object->width;
     bog_data->h = object->height;
+    bog_data->visible_object_id = object->id;
 
     gc->ig_drawn = 1;
     gc->ig_dirty = 1;
