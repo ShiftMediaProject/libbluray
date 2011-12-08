@@ -45,15 +45,14 @@ indent_printf(int level, const char *fmt, ...)
 {
     va_list ap;
     int ii;
-    size_t wrote;
 
     for (ii = 0; ii < level; ii++)
     {
-        wrote = fwrite("    ", 1, 4, stdout);
+        printf("    ");
     }
     va_start(ap, fmt);
     vprintf(fmt, ap);
     va_end(ap);
-    wrote = fwrite("\n", 1, 1, stdout);
+    printf("\n");
 }
 
