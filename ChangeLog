@@ -1,4 +1,5 @@
 ????-??-??:
+ - Fixes to HDMV menu rendering
  - Optimized HDMV menu rendering
  - Support for sound effects in HDMV menus
  - Fixes to HDMV menu decoding

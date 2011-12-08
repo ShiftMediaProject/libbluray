@@ -209,6 +209,14 @@ static BD_PG_OBJECT *_find_object_for_button(PG_DISPLAY_SET *s,
  * util
  */
 
+static int _areas_overlap(BOG_DATA *a, BOG_DATA *b)
+{
+    return !(a->x + a->w <= b->x        ||
+             a->x        >= b->x + b->w ||
+             a->y + a->h <= b->y        ||
+             a->y        >= b->y + b->h);
+}
+
 static int _is_button_enabled(GRAPHICS_CONTROLLER *gc, BD_IG_PAGE *page, unsigned button_id)
 {
     unsigned ii;
@@ -668,6 +676,27 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
                  button->x_pos, button->y_pos, object->width, object->height);
 
         return;
+    }
+
+    /* new object is smaller than already drawn one ? -> need to render background */
+    if (bog_data->w > object->width ||
+        bog_data->h > object->height) {
+
+        /* make sure we won't wipe other buttons */
+        unsigned ii, skip = 0;
+        for (ii = 0; &gc->bog_data[ii] != bog_data; ii++) {
+            if (_areas_overlap(bog_data, &bog_data[ii]))
+                skip = 1;
+            /* FIXME: clean non-overlapping area */
+        }
+
+        GC_TRACE("object size changed, %sclearing background at %d,%d %dx%d\n",
+                 skip ? " ** NOT ** " : "",
+                 bog_data->x, bog_data->y, bog_data->w, bog_data->h);
+
+        if (!skip) {
+            _clear_bog_area(gc, bog_data);
+        }
     }
 
     GC_TRACE("render button #%d using object #%d at %d,%d %dx%d\n",
