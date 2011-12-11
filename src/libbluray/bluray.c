@@ -631,6 +631,12 @@ static int _libaacs_load(BLURAY *bd)
         if (bd->libaacs_open && bd->libaacs_decrypt_unit) {
             BD_DEBUG(DBG_BLURAY, "Loaded libaacs (%p)\n", bd->h_libaacs);
             bd->disc_info.libaacs_detected = 1;
+
+            if (file_open != file_open_default()) {
+                BD_DEBUG(DBG_BLURAY, "Registering libaacs filesystem handler %p (%p)\n", file_open, bd->h_libaacs);
+                DL_CALL(bd->h_libaacs, aacs_register_file, file_open);
+            }
+
             return 1;
 
         } else {

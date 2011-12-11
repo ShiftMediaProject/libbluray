@@ -44,6 +44,8 @@
 
 BD_PRIVATE extern BD_FILE_H* (*file_open)(const char* filename, const char *mode);
 
+BD_PRIVATE BD_FILE_OPEN file_open_default(void);
+
 /*
  * directory access
  */

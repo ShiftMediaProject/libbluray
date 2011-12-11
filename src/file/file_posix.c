@@ -110,3 +110,8 @@ static BD_FILE_H *file_open_linux(const char* filename, const char *mode)
 }
 
 BD_FILE_H* (*file_open)(const char* filename, const char *mode) = file_open_linux;
+
+BD_FILE_OPEN file_open_default(void)
+{
+    return file_open_linux;
+}

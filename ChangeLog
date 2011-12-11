@@ -1,4 +1,5 @@
 ????-??-??:
+ - Use user filesystem handler with libaacs
  - Fixes to HDMV menu rendering
  - Optimized HDMV menu rendering
  - Support for sound effects in HDMV menus
