@@ -503,7 +503,9 @@ static void _select_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id)
 static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
 {
     bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, page_id);
-    _clear_osd(gc, BD_OVERLAY_IG);
+    if (gc->ig_open) {
+        _clear_osd(gc, BD_OVERLAY_IG);
+    }
     _reset_page_state(gc);
 
     uint16_t button_id = _find_selected_button_id(gc);
