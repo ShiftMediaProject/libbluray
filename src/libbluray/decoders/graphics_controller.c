@@ -58,8 +58,10 @@ struct graphics_controller_s {
     void          (*overlay_proc)(void *, const struct bd_overlay_s * const);
 
     /* state */
+    unsigned        ig_open;
     unsigned        ig_drawn;
     unsigned        ig_dirty;
+    unsigned        pg_open;
     unsigned        pg_drawn;
     unsigned        pg_dirty;
     unsigned        popup_visible;
@@ -372,6 +374,12 @@ static void _open_osd(GRAPHICS_CONTROLLER *gc, int plane,
         };
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
+
+        if (plane == BD_OVERLAY_IG) {
+            gc->ig_open = 1;
+        } else {
+            gc->pg_open = 1;
+        }
     }
 }
 
@@ -385,6 +393,12 @@ static void _close_osd(GRAPHICS_CONTROLLER *gc, int plane)
         };
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
+    }
+
+    if (plane == BD_OVERLAY_IG) {
+        gc->ig_open = 0;
+    } else {
+        gc->pg_open = 0;
     }
 }
 
@@ -752,6 +766,13 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
 
     GC_TRACE("rendering page #%d using palette #%d. page has %d bogs\n",
           page->id, page->palette_id_ref, page->num_bogs);
+
+    if (!gc->ig_open) {
+        _open_osd(gc, BD_OVERLAY_IG,
+                  s->ics->video_descriptor.video_width,
+                  s->ics->video_descriptor.video_height);
+    }
+
 
     for (ii = 0; ii < page->num_bogs; ii++) {
         BD_IG_BOG    *bog      = &page->bog[ii];
