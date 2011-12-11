@@ -743,9 +743,11 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
     unsigned        selected_button_id = bd_psr_read(gc->regs, PSR_SELECTED_BUTTON_ID);
 
     if (s->ics->interactive_composition.ui_model == IG_UI_MODEL_POPUP && !gc->popup_visible) {
-        GC_TRACE("_render_page(): popup menu not visible\n");
 
-        _clear_osd(gc, BD_OVERLAY_IG);
+        if (gc->ig_open) {
+            GC_TRACE("_render_page(): popup menu not visible\n");
+            _close_osd(gc, BD_OVERLAY_IG);
+        }
 
         return;
     }
