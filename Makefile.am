@@ -11,3 +11,5 @@ MOSTLYCLEANFILES = $(DX_CLEANFILES)
 AUTOMAKE_OPTIONS = \
 	dist-bzip2 \
 	no-dist-gzip
+
+DISTCHECK_CONFIGURE_FLAGS = --enable-bdjava
