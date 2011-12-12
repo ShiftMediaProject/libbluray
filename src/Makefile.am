@@ -95,7 +95,7 @@ libbluray_la_SOURCES+=$(SOURCES_bdj)
 AM_CFLAGS+=@BDJAVA_CFLAGS@
 
 all-local:
-	ant -f libbluray/bdj/build.xml
+	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig
