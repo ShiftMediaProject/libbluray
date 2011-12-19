@@ -516,8 +516,12 @@ static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
 
 static void _gc_reset(GRAPHICS_CONTROLLER *gc)
 {
-    _close_osd(gc, BD_OVERLAY_PG);
-    _close_osd(gc, BD_OVERLAY_IG);
+    if (gc->pg_open) {
+        _close_osd(gc, BD_OVERLAY_PG);
+    }
+    if (gc->ig_open) {
+        _close_osd(gc, BD_OVERLAY_IG);
+    }
 
     gc->popup_visible = 0;
     gc->valid_mouse_position = 0;
