@@ -1816,6 +1816,7 @@ static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
         case PSR_TIME:
             bd_seek_time(bd, ((int64_t)ev->new_val) << 1);
             _init_ig_stream(bd);
+            _run_gc(bd, GC_CTRL_INIT_MENU, 0);
             return;
 
         case PSR_SELECTED_BUTTON_ID:
