@@ -551,7 +551,7 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
     int result = -1;
 
     if (bd && bd->graphics_controller && bd->hdmv_vm) {
-        GC_NAV_CMDS cmds = {-1, NULL, -1};
+        GC_NAV_CMDS cmds = {-1, NULL, -1, 0};
 
         result = gc_run(bd->graphics_controller, msg, param, &cmds);
 

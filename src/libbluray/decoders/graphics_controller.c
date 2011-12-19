@@ -397,8 +397,10 @@ static void _close_osd(GRAPHICS_CONTROLLER *gc, int plane)
 
     if (plane == BD_OVERLAY_IG) {
         gc->ig_open = 0;
+        gc->ig_drawn = 0;
     } else {
         gc->pg_open = 0;
+        gc->pg_drawn = 0;
     }
 }
 
@@ -1160,6 +1162,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         cmds->num_nav_cmds = 0;
         cmds->nav_cmds     = NULL;
         cmds->sound_id_ref = -1;
+        cmds->status       = GC_STATUS_NONE;
     }
 
     if (!gc) {
@@ -1244,6 +1247,15 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         case GC_CTRL_RESET:
             /* already handled */
             break;
+    }
+
+    if (cmds) {
+        if (gc->igs->ics->interactive_composition.ui_model == IG_UI_MODEL_POPUP) {
+            cmds->status |= GC_STATUS_POPUP;
+        }
+        if (gc->ig_drawn) {
+            cmds->status |= GC_STATUS_MENU_OPEN;
+        }
     }
 
     bd_mutex_unlock(&gc->mutex);

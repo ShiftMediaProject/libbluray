@@ -58,6 +58,11 @@ typedef enum {
 
 } gc_ctrl_e;
 
+
+#define GC_STATUS_NONE      0
+#define GC_STATUS_POPUP     1  /* popup menu loaded */
+#define GC_STATUS_MENU_OPEN 2  /* menu open */
+
 typedef struct {
     /* HDMV navigation command sequence */
     int   num_nav_cmds;
@@ -65,6 +70,9 @@ typedef struct {
 
     /* Sound idx */
     int   sound_id_ref;
+
+    /* graphics status (none, menu, popup) */
+    uint32_t status; /* bit mask */
 } GC_NAV_CMDS;
 
 /*
