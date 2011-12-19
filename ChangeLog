@@ -1,4 +1,5 @@
 ????-??-??:
+ - Added events for pop-up menu availability and IG menu status
  - Fixed resuming to interactive title
  - Use user filesystem handler with libaacs
  - Fixes to HDMV menu rendering

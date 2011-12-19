@@ -143,6 +143,7 @@ struct bluray {
     /* graphics */
     GRAPHICS_CONTROLLER *graphics_controller;
     SOUND_DATA          *sound_effects;
+    uint32_t             gc_status;
 };
 
 #define DL_CALL(lib,func,param,...)             \
@@ -559,9 +560,30 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
             hdmv_vm_set_object(bd->hdmv_vm, cmds.num_nav_cmds, cmds.nav_cmds);
             bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
         }
+
+        if (cmds.status != bd->gc_status) {
+            uint32_t changed_flags = cmds.status ^ bd->gc_status;
+            bd->gc_status = cmds.status;
+            if (changed_flags & GC_STATUS_MENU_OPEN) {
+                _queue_event(bd, (BD_EVENT){BD_EVENT_MENU, !!(bd->gc_status & GC_STATUS_MENU_OPEN)});
+            }
+            if (changed_flags & GC_STATUS_POPUP) {
+                _queue_event(bd, (BD_EVENT){BD_EVENT_POPUP, !!(bd->gc_status & GC_STATUS_POPUP)});
+            }
+        }
+
         if (cmds.sound_id_ref >= 0 && cmds.sound_id_ref < 0xff) {
             _queue_event(bd, (BD_EVENT){BD_EVENT_SOUND_EFFECT, cmds.sound_id_ref});
         }
+
+    } else {
+        if (bd->gc_status & GC_STATUS_MENU_OPEN) {
+            _queue_event(bd, (BD_EVENT){BD_EVENT_MENU, 0});
+        }
+        if (bd->gc_status & GC_STATUS_POPUP) {
+            _queue_event(bd, (BD_EVENT){BD_EVENT_POPUP, 0});
+        }
+        bd->gc_status = GC_STATUS_NONE;
     }
 
     return result;

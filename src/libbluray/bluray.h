@@ -513,7 +513,14 @@ typedef enum {
     /* Still playback for n seconds (reached end of still mode play item) */
     BD_EVENT_STILL_TIME,             /* 0 = infinite ; 1...300 = seconds */
 
+    /* Play sound effect */
     BD_EVENT_SOUND_EFFECT,           /* effect ID */
+
+    /* Pop-Up menu available */
+    BD_EVENT_POPUP,                  /* 0 - no, 1 - yes */
+
+    /* Interactive menu visible */
+    BD_EVENT_MENU,                   /* 0 - no, 1 - yes */
 } bd_event_e;
 
 typedef struct {
