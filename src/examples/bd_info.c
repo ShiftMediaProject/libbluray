@@ -61,7 +61,7 @@ static const char *_res2str(int x, int y)
     return "";
 }
 
-static void _print_meta(META_DL *meta)
+static void _print_meta(const META_DL *meta)
 {
     if (!meta) {
         printf("\nNo disc library metadata\n");
