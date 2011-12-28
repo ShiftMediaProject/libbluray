@@ -659,9 +659,9 @@ struct meta_dl;
  *  Get meta information about the bluray disc.
  *
  * @param bd  BLURAY object
- * @return allocated META_DL (disclib) object, NULL on error
+ * @return META_DL (disclib) object, NULL on error
  */
-struct meta_dl *bd_get_meta(BLURAY *bd);
+const struct meta_dl *bd_get_meta(BLURAY *bd);
 
 
 struct clpi_cl;

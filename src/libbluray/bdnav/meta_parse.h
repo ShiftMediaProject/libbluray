@@ -24,7 +24,7 @@
 
 BD_PRIVATE META_ROOT* meta_parse(const char *device_path);
 BD_PRIVATE void       meta_free(META_ROOT **index);
-BD_PRIVATE META_DL*   meta_get(META_ROOT *meta_root, const char *language_code);
+BD_PRIVATE const META_DL* meta_get(const META_ROOT *meta_root, const char *language_code);
 
 #endif // _META_PARSE_H_
 

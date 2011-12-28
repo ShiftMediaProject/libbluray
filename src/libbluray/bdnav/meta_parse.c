@@ -180,7 +180,7 @@ META_ROOT *meta_parse(const char *device_path)
 #endif
 }
 
-META_DL *meta_get(META_ROOT *meta_root, const char *language_code)
+const META_DL *meta_get(const META_ROOT *meta_root, const char *language_code)
 {
     unsigned i;
 

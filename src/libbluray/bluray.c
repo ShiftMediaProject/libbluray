@@ -855,8 +855,8 @@ static int _index_open(BLURAY *bd)
 
 static int _meta_open(BLURAY *bd)
 {
-    if (!bd->meta){
-      bd->meta = meta_parse(bd->device_path);
+    if (!bd->meta) {
+        bd->meta = meta_parse(bd->device_path);
     }
 
     return !!bd->meta;
@@ -2361,7 +2361,7 @@ int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, BLURAY_SOUND_EFFECT *effe
  *
  */
 
-struct meta_dl *bd_get_meta(BLURAY *bd)
+const struct meta_dl *bd_get_meta(BLURAY *bd)
 {
     if (!bd) {
         return NULL;
