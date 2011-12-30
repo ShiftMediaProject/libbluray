@@ -913,33 +913,31 @@ static void _fill_disc_info(BLURAY *bd)
 
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
+    if (!device_path) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No device path provided!\n");
+        return NULL;
+    }
+
     BLURAY *bd = calloc(1, sizeof(BLURAY));
 
     BD_DEBUG(DBG_BLURAY, "libbluray version "BLURAY_VERSION_STRING"\n");
 
-    if (device_path) {
+    bd->device_path = (char*)malloc(strlen(device_path) + 1);
+    strcpy(bd->device_path, device_path);
 
-        bd->device_path = (char*)malloc(strlen(device_path) + 1);
-        strcpy(bd->device_path, device_path);
+    _libaacs_open(bd, keyfile_path);
 
-        _libaacs_open(bd, keyfile_path);
+    _libbdplus_open(bd, keyfile_path);
 
-        _libbdplus_open(bd, keyfile_path);
+    _index_open(bd);
 
-        _index_open(bd);
+    bd->meta = NULL;
 
-        bd->meta = NULL;
+    bd->regs = bd_registers_init();
 
-        bd->regs = bd_registers_init();
+    _fill_disc_info(bd);
 
-        _fill_disc_info(bd);
-
-        BD_DEBUG(DBG_BLURAY, "BLURAY initialized! (%p)\n", bd);
-    } else {
-        X_FREE(bd);
-
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No device path provided!\n");
-    }
+    BD_DEBUG(DBG_BLURAY, "BLURAY initialized! (%p)\n", bd);
 
     return bd;
 }
