@@ -922,6 +922,11 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
     BLURAY *bd = calloc(1, sizeof(BLURAY));
 
+    if (!bd) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Can't allocate memory\n");
+        return NULL;
+    }
+
     bd->device_path = (char*)malloc(strlen(device_path) + 1);
     strcpy(bd->device_path, device_path);
 
