@@ -936,8 +936,6 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
     _index_open(bd);
 
-    bd->meta = NULL;
-
     bd->regs = bd_registers_init();
 
     _fill_disc_info(bd);
