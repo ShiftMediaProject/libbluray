@@ -47,6 +47,13 @@
 #include <inttypes.h>
 #include <string.h>
 
+#ifdef __linux__
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
+
 typedef int     (*fptr_int)();
 typedef int32_t (*fptr_int32)();
 typedef void*   (*fptr_p_void)();
@@ -907,6 +914,54 @@ static void _fill_disc_info(BLURAY *bd)
     }
 }
 
+#ifdef __linux__
+/*
+ * Replace device node (/dev/sr0) by mount point
+ * Implemented on Linux only at the moment, could be added for other OS
+ */
+static void get_mount_point(BLURAY *bd)
+{
+    struct stat st;
+    stat(bd->device_path, &st);
+
+    /* If it's a directory, all is good */
+    if (S_ISDIR(st.st_mode))
+        return;
+
+    char *line = NULL;
+    size_t len = 0;
+    size_t devlen = strlen(bd->device_path);
+
+    FILE *f = fopen("/proc/mounts", "r");
+    if (!f)
+        return;
+
+    while (getline(&line, &len, f) != -1) {
+        if (strncmp(line, bd->device_path, devlen))
+            continue;
+
+        /* if device is not followed immediately by a space it's not the one */
+        /* e.g. when looking for "/dev/sda1", "/dev/sda XXX" won't match */
+        char *space = strchr(line, ' ');
+        if (space != &line[devlen])
+            continue;
+
+        space = strchr(space + 1, ' '); /* space points just after the mount dir */
+        if (!space) /* corrupted line ? */
+            break;
+
+        *space = '\0';
+        /* FIXME : spaces (at least) are octal escaped */
+        free(bd->device_path);
+        bd->device_path = strdup(&line[devlen+1]);
+        break;
+    }
+
+    free(line);
+    fclose(f);
+}
+#endif
+
 /*
  * open / close
  */
@@ -928,6 +983,10 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
     }
 
     bd->device_path = strdup(device_path);
+
+#ifdef __linux__
+    get_mount_point(bd);
+#endif
 
     _libaacs_open(bd, keyfile_path);
 
