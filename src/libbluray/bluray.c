@@ -913,14 +913,14 @@ static void _fill_disc_info(BLURAY *bd)
 
 BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 {
+    BD_DEBUG(DBG_BLURAY, "libbluray version "BLURAY_VERSION_STRING"\n");
+
     if (!device_path) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No device path provided!\n");
         return NULL;
     }
 
     BLURAY *bd = calloc(1, sizeof(BLURAY));
-
-    BD_DEBUG(DBG_BLURAY, "libbluray version "BLURAY_VERSION_STRING"\n");
 
     bd->device_path = (char*)malloc(strlen(device_path) + 1);
     strcpy(bd->device_path, device_path);
