@@ -202,6 +202,10 @@ static BD_PG_OBJECT *_find_object_for_button(PG_DISPLAY_SET *s,
         }
     }
 
+    if (!repeat && object_id_end < 0xfffe) {
+        object_id = object_id_end;
+    }
+
     object = _find_object(s, object_id);
 
     return object;
