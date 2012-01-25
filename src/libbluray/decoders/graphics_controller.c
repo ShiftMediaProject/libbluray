@@ -743,7 +743,7 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
     gc->ig_dirty = 1;
 }
 
-static void _render_page(GRAPHICS_CONTROLLER *gc,
+static int _render_page(GRAPHICS_CONTROLLER *gc,
                          unsigned activated_button_id,
                          GC_NAV_CMDS *cmds)
 {
@@ -759,23 +759,24 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
         if (gc->ig_open) {
             GC_TRACE("_render_page(): popup menu not visible\n");
             _close_osd(gc, BD_OVERLAY_IG);
+            return 1;
         }
 
-        return;
+        return 0;
     }
 
     page = _find_page(&s->ics->interactive_composition, page_id);
     if (!page) {
         GC_ERROR("_render_page: unknown page id %d (have %d pages)\n",
               page_id, s->ics->interactive_composition.num_pages);
-        return;
+        return -1;
     }
 
     palette = _find_palette(s, page->palette_id_ref);
     if (!palette) {
         GC_ERROR("_render_page: unknown palette id %d (have %d palettes)\n",
               page->palette_id_ref, s->num_palette);
-        return;
+        return -1;
     }
 
     GC_TRACE("rendering page #%d using palette #%d. page has %d bogs\n",
@@ -835,7 +836,10 @@ static void _render_page(GRAPHICS_CONTROLLER *gc,
     if (gc->ig_dirty) {
         _flush_osd(gc, BD_OVERLAY_IG, -1);
         gc->ig_dirty = 0;
+        return 1;
     }
+
+    return 0;
 }
 
 /*
@@ -1223,7 +1227,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
             /* fall thru */
 
         case GC_CTRL_NOP:
-            _render_page(gc, 0xffff, cmds);
+            result = _render_page(gc, 0xffff, cmds);
             break;
 
         case GC_CTRL_INIT_MENU:
