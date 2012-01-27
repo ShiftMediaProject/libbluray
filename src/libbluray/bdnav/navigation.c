@@ -321,7 +321,7 @@ _fill_mark(NAV_TITLE *title, NAV_MARK *mark, int entry)
     mark->mark_type = plm->mark_type;
     mark->clip_ref = plm->play_item_ref;
     clip = &title->clip_list.clip[mark->clip_ref];
-    if (clip->cl != NULL) {
+    if (clip->cl != NULL && mark->clip_ref < title->pl->list_count) {
         mark->clip_pkt = clpi_lookup_spn(clip->cl, plm->time, 1,
             title->pl->play_item[mark->clip_ref].clip[title->angle].stc_id);
     } else {
