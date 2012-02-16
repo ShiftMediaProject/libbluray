@@ -48,10 +48,8 @@
 #include <string.h>
 
 #ifdef __linux__
-#include <stdio.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
+#include <mntent.h>
 #endif
 
 typedef int     (*fptr_int)();
@@ -922,43 +920,28 @@ static void _fill_disc_info(BLURAY *bd)
 static void get_mount_point(BLURAY *bd)
 {
     struct stat st;
-    stat(bd->device_path, &st);
+    if (stat (bd->device_path, &st) )
+        return;
 
     /* If it's a directory, all is good */
     if (S_ISDIR(st.st_mode))
         return;
 
-    char *line = NULL;
-    size_t len = 0;
-    size_t devlen = strlen(bd->device_path);
-
-    FILE *f = fopen("/proc/mounts", "r");
+    FILE *f = setmntent ("/proc/self/mounts", "r");
     if (!f)
         return;
 
-    while (getline(&line, &len, f) != -1) {
-        if (strncmp(line, bd->device_path, devlen))
-            continue;
-
-        /* if device is not followed immediately by a space it's not the one */
-        /* e.g. when looking for "/dev/sda1", "/dev/sda XXX" won't match */
-        char *space = strchr(line, ' ');
-        if (space != &line[devlen])
-            continue;
-
-        space = strchr(space + 1, ' '); /* space points just after the mount dir */
-        if (!space) /* corrupted line ? */
+    struct mntent* m;
+    struct mntent mbuf;
+    char buf [8192];
+    while ((m = getmntent_r (f, &mbuf, buf, sizeof(buf))) != NULL) {
+        if (!strcmp (m->mnt_fsname, bd->device_path)) {
+            free(bd->device_path);
+            bd->device_path = strdup (m->mnt_dir);
             break;
-
-        *space = '\0';
-        /* FIXME : spaces (at least) are octal escaped */
-        free(bd->device_path);
-        bd->device_path = strdup(&line[devlen+1]);
-        break;
+        }
     }
-
-    free(line);
-    fclose(f);
+    endmntent (f);
 }
 #endif
 
