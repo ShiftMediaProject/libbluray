@@ -932,9 +932,13 @@ static void get_mount_point(BLURAY *bd)
         return;
 
     struct mntent* m;
+#ifdef HAVE_GETMNTENT_R
     struct mntent mbuf;
     char buf [8192];
     while ((m = getmntent_r (f, &mbuf, buf, sizeof(buf))) != NULL) {
+#else
+    while ((m = getmntent (f)) != NULL) {
+#endif
         if (!strcmp (m->mnt_fsname, bd->device_path)) {
             free(bd->device_path);
             bd->device_path = strdup (m->mnt_dir);
