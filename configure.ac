@@ -115,7 +115,7 @@ AC_TYPE_SIGNAL
 # required headers
 AC_CHECK_HEADERS([stdarg.h sys/types.h dirent.h errno.h libgen.h malloc.h])
 AC_CHECK_HEADERS([stdlib.h mntent.h linux/cdrom.h inttypes.h strings.h])
-AC_CHECK_HEADERS([sys/time.h time.h])
+AC_CHECK_HEADERS([sys/time.h time.h mntent.h])
 if test "${SYS}" != "mingw32" ; then
     AC_CHECK_HEADERS(pthread.h,, [AC_MSG_ERROR([pthread.h required])])
 fi

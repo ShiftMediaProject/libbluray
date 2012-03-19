@@ -47,7 +47,7 @@
 #include <inttypes.h>
 #include <string.h>
 
-#ifdef __linux__
+#ifdef HAVE_MNTENT_H
 #include <sys/stat.h>
 #include <mntent.h>
 #endif
@@ -912,7 +912,7 @@ static void _fill_disc_info(BLURAY *bd)
     }
 }
 
-#ifdef __linux__
+#ifdef HAVE_MNTENT_H
 /*
  * Replace device node (/dev/sr0) by mount point
  * Implemented on Linux only at the moment, could be added for other OS
@@ -967,7 +967,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
     bd->device_path = strdup(device_path);
 
-#ifdef __linux__
+#ifdef HAVE_MNTENT_H
     get_mount_point(bd);
 #endif
 
