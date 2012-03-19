@@ -226,7 +226,7 @@ void bd_free_title_info(BLURAY_TITLE_INFO *title_info);
 /**
  *  Initializes libbluray objects
  *
- * @param device_path   path to mounted Blu-ray disc
+ * @param device_path   path to mounted Blu-ray disc or device
  * @param keyfile_path  path to KEYDB.cfg (may be NULL)
  * @return allocated BLURAY object, NULL if error
  */
