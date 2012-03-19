@@ -52,6 +52,14 @@
 #include <mntent.h>
 #endif
 
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE
+#include <sys/stat.h>
+#include <sys/param.h>
+#include <sys/ucred.h>
+#include <sys/mount.h>
+#endif
+
 typedef int     (*fptr_int)();
 typedef int32_t (*fptr_int32)();
 typedef void*   (*fptr_p_void)();
@@ -915,7 +923,7 @@ static void _fill_disc_info(BLURAY *bd)
 #ifdef HAVE_MNTENT_H
 /*
  * Replace device node (/dev/sr0) by mount point
- * Implemented on Linux only at the moment, could be added for other OS
+ * Implemented on Linux and MacOSX
  */
 static void get_mount_point(BLURAY *bd)
 {
@@ -948,6 +956,34 @@ static void get_mount_point(BLURAY *bd)
     endmntent (f);
 }
 #endif
+#ifdef __APPLE__
+static void get_mount_point(BLURAY *bd)
+{
+    struct stat st;
+    if (stat (bd->device_path, &st) )
+        return;
+
+    /* If it's a directory, all is good */
+    if (S_ISDIR(st.st_mode))
+        return;
+
+    struct statfs mbuf[128];
+    int fs_count;
+
+    if ( (fs_count = getfsstat (NULL, 0, MNT_NOWAIT)) == -1 ) {
+        return;
+    }
+
+    getfsstat (mbuf, fs_count * sizeof(mbuf[0]), MNT_NOWAIT);
+
+    for ( int i = 0; i < fs_count; ++i) {
+        if (!strcmp (mbuf[i].f_mntfromname, bd->device_path)) {
+            free(bd->device_path);
+            bd->device_path = strdup (mbuf[i].f_mntonname);
+        }
+    }
+}
+#endif
 
 /*
  * open / close
@@ -971,7 +1007,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
     bd->device_path = strdup(device_path);
 
-#ifdef HAVE_MNTENT_H
+#if (defined HAVE_MNTENT_H || defined __APPLE__)
     get_mount_point(bd);
 #endif
 
