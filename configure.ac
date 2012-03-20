@@ -139,9 +139,9 @@ fi
 if test "${SYS}" != "mingw32" ; then
   AC_CHECK_FUNCS(
     [dlopen],
-    [DLOPEN_LDFLAGS=""],
+    [DLOPEN_LIBS=""],
     [AC_CHECK_LIB([dl], [dlopen],
-      [DLOPEN_LDFLAGS="-ldl"],
+      [DLOPEN_LIBS="-ldl"],
       [AC_MSG_ERROR($library_not_found)])])
 fi
 
@@ -272,7 +272,7 @@ AC_SUBST(LT_VERSION_INFO)
 
 # generate output files
 AC_SUBST(BDJAVA_CFLAGS)
-AC_SUBST(DLOPEN_LDFLAGS)
+AC_SUBST(DLOPEN_LIBS)
 AC_SUBST(SET_WARNINGS)
 AC_SUBST(SET_OPTIMIZATIONS)
 AC_SUBST(SET_DEBUG_OPTS)
