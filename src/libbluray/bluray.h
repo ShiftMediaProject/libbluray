@@ -407,6 +407,14 @@ uint64_t bd_tell_time(BLURAY *bd);
  * Disc info
  */
 
+/* AACS error codes */
+#define BD_AACS_CORRUPTED_DISC  -1
+#define BD_AACS_NO_CONFIG       -2
+#define BD_AACS_NO_PK           -3
+#define BD_AACS_NO_CERT         -4
+#define BD_AACS_CERT_REVOKED    -5
+#define BD_AACS_MMC_FAILED      -6
+
 typedef struct {
     uint8_t  bluray_detected;
 
@@ -424,6 +432,9 @@ typedef struct {
     uint8_t  bdplus_detected;
     uint8_t  libbdplus_detected;
     uint8_t  bdplus_handled;
+
+    /* aacs error code */
+    int      aacs_error_code;
 
 } BLURAY_DISC_INFO;
 

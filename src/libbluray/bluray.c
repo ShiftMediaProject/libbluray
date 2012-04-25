@@ -701,7 +701,14 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
         return 0;
     }
 
-    bd->aacs = bd->libaacs_open(bd->device_path, keyfile_path);
+    int error_code = 0;
+    fptr_p_void aacs_open2 = (fptr_p_void)dl_dlsym(bd->h_libaacs, "aacs_open2");
+    if (!aacs_open2) {
+        BD_DEBUG(DBG_BLURAY, "Using old aacs_open(), no verbose error reporting available (%p)\n", bd->aacs);
+        bd->aacs = bd->libaacs_open(bd->device_path, keyfile_path);
+    } else {
+        bd->aacs = aacs_open2(bd->device_path, keyfile_path, &error_code);
+    }
 
     if (bd->aacs) {
         BD_DEBUG(DBG_BLURAY, "Opened libaacs (%p)\n", bd->aacs);
@@ -711,6 +718,29 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
 
     BD_DEBUG(DBG_BLURAY, "aacs_open() failed!\n");
     bd->disc_info.aacs_handled = 0;
+
+    switch (error_code) {
+        case 0: /* AACS_SUCCESS */
+            break;
+        case -1: /* AACS_ERROR_CORRUPTED_DISC */
+            bd->disc_info.aacs_error_code = BD_AACS_CORRUPTED_DISC;
+            break;
+        case -2: /* AACS_ERROR_NO_CONFIG */
+            bd->disc_info.aacs_error_code = BD_AACS_NO_CONFIG;
+            break;
+        case -3: /* AACS_ERROR_NO_PK */
+            bd->disc_info.aacs_error_code = BD_AACS_NO_PK;
+            break;
+        case -4: /* AACS_ERROR_NO_CERT */
+            bd->disc_info.aacs_error_code = BD_AACS_NO_CERT;
+            break;
+        case -5: /* AACS_ERROR_CERT_REVOKED */
+            bd->disc_info.aacs_error_code = BD_AACS_CERT_REVOKED;
+            break;
+        case -6: /* AACS_ERROR_MMC_OPEN */
+            bd->disc_info.aacs_error_code = BD_AACS_MMC_FAILED;
+            break;
+    }
 
     _libaacs_unload(bd);
     return 0;
