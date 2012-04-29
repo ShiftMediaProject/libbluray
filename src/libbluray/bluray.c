@@ -710,7 +710,7 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
         bd->aacs = aacs_open2(bd->device_path, keyfile_path, &error_code);
     }
 
-    if (bd->aacs) {
+    if (bd->aacs && !error_code) {
         BD_DEBUG(DBG_BLURAY, "Opened libaacs (%p)\n", bd->aacs);
         bd->disc_info.aacs_handled = 1;
         return 1;
@@ -738,6 +738,7 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
             bd->disc_info.aacs_error_code = BD_AACS_CERT_REVOKED;
             break;
         case -6: /* AACS_ERROR_MMC_OPEN */
+        case -7: /* AACS_ERROR_MMC_FAILURE */
             bd->disc_info.aacs_error_code = BD_AACS_MMC_FAILED;
             break;
     }
