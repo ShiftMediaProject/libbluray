@@ -435,6 +435,11 @@ typedef struct {
 
     /* aacs error code */
     int      aacs_error_code;
+    /* aacs MKB version */
+    int      aacs_mkbv;
+
+    /* Disc ID */
+    uint8_t  disc_id[20];
 
 } BLURAY_DISC_INFO;
 

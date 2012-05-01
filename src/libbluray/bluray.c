@@ -710,10 +710,21 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
         bd->aacs = aacs_open2(bd->device_path, keyfile_path, &error_code);
     }
 
-    if (bd->aacs && !error_code) {
-        BD_DEBUG(DBG_BLURAY, "Opened libaacs (%p)\n", bd->aacs);
-        bd->disc_info.aacs_handled = 1;
-        return 1;
+    if (bd->aacs) {
+        fptr_int    aacs_get_mkb_version = (fptr_int)    dl_dlsym(bd->h_libaacs, "aacs_get_mkb_version");
+        fptr_p_void aacs_get_disc_id     = (fptr_p_void) dl_dlsym(bd->h_libaacs, "aacs_get_disc_id");
+        if (aacs_get_mkb_version) {
+            bd->disc_info.aacs_mkbv = aacs_get_mkb_version(bd->aacs);
+        }
+        if (aacs_get_disc_id) {
+            memcpy(bd->disc_info.disc_id, aacs_get_disc_id(bd->aacs), 20);
+        }
+
+        if (!error_code) {
+            BD_DEBUG(DBG_BLURAY, "Opened libaacs (%p)\n", bd->aacs);
+            bd->disc_info.aacs_handled = 1;
+            return 1;
+        }
     }
 
     BD_DEBUG(DBG_BLURAY, "aacs_open() failed!\n");

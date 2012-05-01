@@ -50,6 +50,34 @@ static const char *_num2str(int i)
     return "<undefined>";
 }
 
+static const char *_hex2str(const uint8_t *data, size_t len)
+{
+    static char *str = NULL;
+    size_t i;
+
+    str = realloc(str, len + 1);
+    *str = 0;
+
+    for (i = 0; i < len; i++) {
+        sprintf(str+2*i, "%02X", data[i]);
+    }
+
+    return str;
+}
+
+static const char *_aacs_error2str(int error_code)
+{
+    switch (error_code) {
+        case BD_AACS_CORRUPTED_DISC: return "corrupted BluRay disc";
+        case BD_AACS_NO_CONFIG:      return "AACS configuration file missing";
+        case BD_AACS_NO_PK:          return "no matching processing key";
+        case BD_AACS_NO_CERT:        return "no valid AACS certificate";
+        case BD_AACS_CERT_REVOKED:   return "AACS certificate revoked";
+        case BD_AACS_MMC_FAILED:     return "MMC authentication failed";
+    }
+    return "unknown error";
+}
+
 static const char *_res2str(int x, int y)
 {
     if (x > 0 && y > 0 && x < 0xffff && y < 0xffff) {
@@ -130,7 +158,14 @@ int main(int argc, char *argv[])
     printf("\nAACS detected       : %s\n", _yes_no(info->aacs_detected));
     if (info->aacs_detected) {
         printf("libaacs detected    : %s\n", _yes_no(info->libaacs_detected));
-        printf("AACS handled        : %s\n", _yes_no(info->aacs_handled));
+        if (info->libaacs_detected) {
+          printf("Disc ID             : %s\n", _hex2str(info->disc_id, sizeof(info->disc_id)));
+          printf("AACS MKB version    : %d\n", info->aacs_mkbv);
+          printf("AACS handled        : %s\n", _yes_no(info->aacs_handled));
+          if (!info->aacs_handled) {
+            printf("                      (%s)\n", _aacs_error2str(info->aacs_error_code));
+          }
+        }
     }
 
     printf("\nBD+ detected        : %s\n", _yes_no(info->bdplus_detected));
