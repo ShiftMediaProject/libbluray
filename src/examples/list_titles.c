@@ -96,5 +96,6 @@ int main(int argc, char *argv[])
         );
         bd_free_title_info(ti);
     }
+    bd_close(bd);
     return 0;
 }
