@@ -711,7 +711,7 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
         /* make sure we won't wipe other buttons */
         unsigned ii, skip = 0;
         for (ii = 0; &gc->bog_data[ii] != bog_data; ii++) {
-            if (_areas_overlap(bog_data, &bog_data[ii]))
+            if (_areas_overlap(bog_data, &gc->bog_data[ii]))
                 skip = 1;
             /* FIXME: clean non-overlapping area */
         }
