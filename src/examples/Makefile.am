@@ -11,7 +11,8 @@ CFLAGS=$(shell test -z "$$CFLAGS" || echo "$$CFLAGS")
 if USING_EXAMPLES
 
 noinst_PROGRAMS=bdsplice mpls_dump clpi_dump index_dump mobj_dump sound_dump \
-    libbluray_test bd_info list_titles hdmv_test
+    libbluray_test list_titles hdmv_test
+bin_PROGRAMS=bd_info
 
 BLURAY_LIB = $(top_builddir)/src/libbluray.la
 
