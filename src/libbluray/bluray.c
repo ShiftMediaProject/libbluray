@@ -289,7 +289,7 @@ static void _update_stream_psr_by_lang(BD_REGISTERS *regs,
 
     /* update PSR */
 
-    BD_DEBUG(DBG_BLURAY, "Selected stream %d (language %s)\n", ii, streams[ii].lang);
+    BD_DEBUG(DBG_BLURAY, "Selected stream %d (language %s)\n", stream_idx, streams[stream_idx].lang);
 
     bd_psr_lock(regs);
 

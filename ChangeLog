@@ -1,3 +1,4 @@
+ - Fixed accessing outside of array bounds
  - Default to stream 0 when requested language not found
  - Install bd_info
  - Added extended AACS error codes
