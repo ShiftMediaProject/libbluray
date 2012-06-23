@@ -13,8 +13,8 @@ m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 # Library file name will be libbluray.so.(current-age).age.revision
 #
 m4_define([lt_current],  3)
-m4_define([lt_revision], 1)
-m4_define([lt_age],      0)
+m4_define([lt_revision], 0)
+m4_define([lt_age],      2)
 
 # initilization
 AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
