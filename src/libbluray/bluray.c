@@ -259,7 +259,8 @@ static int _queue_event(BLURAY *bd, BD_EVENT ev)
 static void _update_stream_psr_by_lang(BD_REGISTERS *regs,
                                        uint32_t psr_lang, uint32_t psr_stream,
                                        uint32_t enable_flag,
-                                       MPLS_STREAM *streams, unsigned num_streams)
+                                       MPLS_STREAM *streams, unsigned num_streams,
+                                       uint32_t *lang, uint32_t blacklist)
 {
     uint32_t psr_val;
     int      stream_idx = -1;
@@ -285,6 +286,14 @@ static void _update_stream_psr_by_lang(BD_REGISTERS *regs,
         /* requested language not found */
         stream_idx = 0;
         enable_flag = 0;
+
+    } else {
+        if (lang) {
+            *lang = psr_val;
+        }
+        if (blacklist == psr_val) {
+            enable_flag = 0;
+        }
     }
 
     /* update PSR */
@@ -310,13 +319,16 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
      */
     if (bd->title_type == title_undef) {
         MPLS_STN *stn = &clip->title->pl->play_item[clip->ref].stn;
+        uint32_t audio_lang = 0;
 
         _update_stream_psr_by_lang(bd->regs,
                                    PSR_AUDIO_LANG, PSR_PRIMARY_AUDIO_ID, 0,
-                                   stn->audio, stn->num_audio);
+                                   stn->audio, stn->num_audio,
+                                   &audio_lang, 0);
         _update_stream_psr_by_lang(bd->regs,
                                    PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
-                                   stn->pg, stn->num_pg);
+                                   stn->pg, stn->num_pg,
+                                   NULL, audio_lang);
     }
 }
 
