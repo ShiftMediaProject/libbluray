@@ -1361,15 +1361,15 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                     }
                 }
             }
+            if (st->clip == NULL) {
+                // We previously reached the last clip.  Nothing
+                // else to read.
+                _queue_event(bd, (BD_EVENT){BD_EVENT_END_OF_TITLE, 0});
+                return 0;
+            }
             if (st->int_buf_off == 6144 || clip_pkt >= st->clip->end_pkt) {
 
                 // Do we need to get the next clip?
-                if (st->clip == NULL) {
-                    // We previously reached the last clip.  Nothing
-                    // else to read.
-                    _queue_event(bd, (BD_EVENT){BD_EVENT_END_OF_TITLE, 0});
-                    return 0;
-                }
                 if (clip_pkt >= st->clip->end_pkt) {
 
                     // split read()'s at clip boundary
