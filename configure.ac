@@ -198,6 +198,10 @@ check_cc_options -Wtype-limits && \
 check_cc_options -Wundef && \
   SET_WARNINGS="$SET_WARNINGS -Wundef"
 
+# no implicit function declarations
+check_cc_options -Werror-implicit-function-declaration && \
+  SET_WARNINGS="$SET_WARNINGS -Werror-implicit-function-declaration"
+
 # use -Werror
 if [[ $use_werror = "yes" ]]; then
   check_cc_options -Werror && \
