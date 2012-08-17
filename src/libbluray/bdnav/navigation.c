@@ -277,7 +277,7 @@ char* nav_find_main_title(const char *root)
         mpls_free(pl_list[ii]);
     }
     if (count > 0) {
-        return strdup(longest);
+        return str_dup(longest);
     } else {
         return NULL;
     }
@@ -464,7 +464,7 @@ NAV_TITLE* nav_title_open(const char *root, const char *playlist, unsigned angle
     if (title == NULL) {
         return NULL;
     }
-    title->root = strdup(root);
+    title->root = str_dup(root);
     strncpy(title->name, playlist, 11);
     title->name[10] = '\0';
     path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST" DIR_SEP "%s",

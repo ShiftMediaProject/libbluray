@@ -644,7 +644,7 @@ main(int argc, char *argv[])
             int jj = 0;
             for (ent = readdir(dir); ent != NULL; ent = readdir(dir)) {
                 if (ent->d_name != NULL) {
-                    dirlist[jj++] = strdup(ent->d_name);
+                    dirlist[jj++] = str_dup(ent->d_name);
                 }
             }
             qsort(dirlist, jj, sizeof(char*), _qsort_str_cmp);

@@ -23,6 +23,12 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
+
+char * str_dup(const char *str)
+{
+  return str ? strcpy (malloc(strlen(str) + 1), str) : NULL;
+}
 
 char * str_printf(const char *fmt, ...)
 {

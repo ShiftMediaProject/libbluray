@@ -1003,7 +1003,7 @@ static void get_mount_point(BLURAY *bd)
 #endif
         if (!strcmp (m->mnt_fsname, bd->device_path)) {
             free(bd->device_path);
-            bd->device_path = strdup (m->mnt_dir);
+            bd->device_path = str_dup (m->mnt_dir);
             break;
         }
     }
@@ -1033,7 +1033,7 @@ static void get_mount_point(BLURAY *bd)
     for ( int i = 0; i < fs_count; ++i) {
         if (!strcmp (mbuf[i].f_mntfromname, bd->device_path)) {
             free(bd->device_path);
-            bd->device_path = strdup (mbuf[i].f_mntonname);
+            bd->device_path = str_dup (mbuf[i].f_mntonname);
         }
     }
 }
@@ -1059,7 +1059,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         return NULL;
     }
 
-    bd->device_path = strdup(device_path);
+    bd->device_path = str_dup(device_path);
 
 #if (defined HAVE_MNTENT_H || defined __APPLE__)
     get_mount_point(bd);
