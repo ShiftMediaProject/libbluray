@@ -217,18 +217,19 @@ void meta_free(META_ROOT **p)
         uint8_t i;
         for (i = 0; i < (*p)->dl_count; i++) {
             uint32_t t;
-            for (t=0; i < (*p)->dl_entries[i].toc_count; t++) {
+            for (t = 0; t < (*p)->dl_entries[i].toc_count; t++) {
                 X_FREE((*p)->dl_entries[i].toc_entries[t].title_name);
-                X_FREE((*p)->dl_entries[i].toc_entries);
             }
-            for (t = 0; i < (*p)->dl_entries[i].thumb_count; t++) {
+            for (t = 0; t < (*p)->dl_entries[i].thumb_count; t++) {
                 X_FREE((*p)->dl_entries[i].thumbnails[t].path);
-                X_FREE((*p)->dl_entries[i].thumbnails);
             }
+            X_FREE((*p)->dl_entries[i].toc_entries);
+            X_FREE((*p)->dl_entries[i].thumbnails);
             X_FREE((*p)->dl_entries[i].filename);
             X_FREE((*p)->dl_entries[i].di_name);
             X_FREE((*p)->dl_entries[i].di_alternative);
         }
+        X_FREE((*p)->dl_entries);
         X_FREE(*p);
     }
 }
