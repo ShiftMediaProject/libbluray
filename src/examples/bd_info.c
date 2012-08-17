@@ -176,5 +176,7 @@ int main(int argc, char *argv[])
 
     _print_meta(bd_get_meta(bd));
 
+    bd_close(bd);
+
     return 0;
 }
