@@ -50,40 +50,45 @@
 static void _parseManifestNode(xmlNode * a_node, META_DL *disclib)
 {
     xmlNode *cur_node = NULL;
+    xmlChar *tmp;
 
     for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
             if (xmlStrEqual(cur_node->parent->name, BAD_CAST_CONST "title")) {
                 if (xmlStrEqual(cur_node->name, BAD_CAST_CONST "name")) {
-                    disclib->di_name = (char*)xmlStrdup(xmlNodeGetContent(cur_node));
+                    disclib->di_name = (char*)xmlNodeGetContent(cur_node);
                 }
                 if (xmlStrEqual(cur_node->name, BAD_CAST_CONST "alternative")) {
-                    disclib->di_alternative = (char*)xmlStrdup(xmlNodeGetContent(cur_node));
+                    disclib->di_alternative = (char*)xmlNodeGetContent(cur_node);
                 }
                 if (xmlStrEqual(cur_node->name, BAD_CAST_CONST "numSets")) {
-                    disclib->di_num_sets = atoi((char*)xmlNodeGetContent(cur_node));
+                    disclib->di_num_sets = atoi((char*)(tmp = xmlNodeGetContent(cur_node)));
+                    xmlFree(tmp);
                 }
                 if (xmlStrEqual(cur_node->name, BAD_CAST_CONST "setNumber")) {
-                    disclib->di_set_number = atoi((char*)xmlNodeGetContent(cur_node));
+                    disclib->di_set_number = atoi((char*)(tmp = xmlNodeGetContent(cur_node)));
+                    xmlFree(tmp);
                 }
             }
             else if (xmlStrEqual(cur_node->parent->name, BAD_CAST_CONST "tableOfContents")) {
-                if (xmlStrEqual(cur_node->name, BAD_CAST_CONST "titleName") && xmlGetProp(cur_node, BAD_CAST_CONST "titleNumber")) {
+                if (xmlStrEqual(cur_node->name, BAD_CAST_CONST "titleName") && (tmp = xmlGetProp(cur_node, BAD_CAST_CONST "titleNumber"))) {
                     int i = disclib->toc_count;
                     disclib->toc_count++;
                     disclib->toc_entries = realloc(disclib->toc_entries, (disclib->toc_count*sizeof(META_TITLE)));
-                    disclib->toc_entries[i].title_number = atoi((const char*)xmlGetProp(cur_node, BAD_CAST_CONST "titleNumber"));
-                    disclib->toc_entries[i].title_name = (char*)xmlStrdup(xmlNodeGetContent(cur_node));
+                    disclib->toc_entries[i].title_number = atoi((const char*)tmp);
+                    disclib->toc_entries[i].title_name = (char*)xmlNodeGetContent(cur_node);
+                    X_FREE(tmp);
                 }
             }
             else if (xmlStrEqual(cur_node->parent->name, BAD_CAST_CONST "description")) {
-                if (xmlStrEqual(cur_node->name, BAD_CAST_CONST "thumbnail") && xmlGetProp(cur_node, BAD_CAST_CONST "href")) {
+                if (xmlStrEqual(cur_node->name, BAD_CAST_CONST "thumbnail") && (tmp = xmlGetProp(cur_node, BAD_CAST_CONST "href"))) {
                     uint8_t i = disclib->thumb_count;
                     disclib->thumb_count++;
                     disclib->thumbnails = realloc(disclib->thumbnails, (disclib->thumb_count*sizeof(META_THUMBNAIL)));
-                    disclib->thumbnails[i].path = strdup((const char*)xmlGetProp(cur_node, BAD_CAST_CONST "href"));
-                    if (xmlGetProp(cur_node, BAD_CAST_CONST "size")) {
-                        sscanf((const char*)xmlGetProp(cur_node, BAD_CAST_CONST "size"), "%ix%i", &disclib->thumbnails[i].xres, &disclib->thumbnails[i].yres);
+                    disclib->thumbnails[i].path = (char *)tmp;
+                    if ((tmp = xmlGetProp(cur_node, BAD_CAST_CONST "size"))) {
+                        sscanf((const char*)tmp, "%ix%i", &disclib->thumbnails[i].xres, &disclib->thumbnails[i].yres);
+                        X_FREE(tmp);
                     }
                     else {
                         disclib->thumbnails[i].xres = disclib->thumbnails[i].yres = -1;
