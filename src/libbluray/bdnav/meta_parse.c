@@ -145,6 +145,8 @@ META_ROOT *meta_parse(const char *device_path)
         BD_FILE_H *handle = file_open(path, "rb");
         if (handle == NULL) {
             BD_DEBUG(DBG_DIR, "Failed to open meta file (%s)\n", path);
+            X_FREE(path);
+            X_FREE(base);
             continue;
         }
 
@@ -158,6 +160,8 @@ META_ROOT *meta_parse(const char *device_path)
             doc = xmlReadMemory((char*)data, size_read, base, NULL, 0);
             if (doc == NULL) {
                 BD_DEBUG(DBG_DIR, "Failed to parse %s\n", path);
+                X_FREE(path);
+                X_FREE(base);
                 continue;
             }
             xmlNode *root_element = NULL;
@@ -172,6 +176,8 @@ META_ROOT *meta_parse(const char *device_path)
             X_FREE(data);
         }
         file_close(handle);
+        X_FREE(path);
+        X_FREE(base);
     }
     xmlCleanupParser();
     return root;
