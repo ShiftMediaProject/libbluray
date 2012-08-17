@@ -1,8 +1,10 @@
+2012-08-17: Version 0.2.3
  - Fixed memory leaks
  - Automatic language selection: disable subtitles when audio is in the same language
  - Fixed accessing outside of array bounds
  - Default to stream 0 when requested language not found
  - Install bd_info
+ - Added disc ID and AACS MKB version to BD_DISC_INFO
  - Added extended AACS error codes
 
 2012-03-19: Version 0.2.2
