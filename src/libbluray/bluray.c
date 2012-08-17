@@ -1102,6 +1102,7 @@ void bd_close(BLURAY *bd)
 
     gc_free(&bd->graphics_controller);
     indx_free(&bd->index);
+    meta_free(&bd->meta);
     sound_free(&bd->sound_effects);
     bd_registers_free(bd->regs);
 
