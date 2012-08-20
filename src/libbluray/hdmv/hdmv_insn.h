@@ -121,6 +121,8 @@ typedef enum {
     INSN_POPUP_OFF       = 0x07,
     INSN_STILL_ON        = 0x08,
     INSN_STILL_OFF       = 0x09,
+    INSN_SET_OUTPUT_MODE = 0x0a,
+    INSN_SET_STREAM_SS   = 0x0b,
 } hdmv_insn_setsystem;
 
 #endif // _HDMV_INSN_H_

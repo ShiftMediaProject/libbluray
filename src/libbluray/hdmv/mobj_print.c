@@ -136,6 +136,8 @@ static const char * const insn_opt_setsys[32] = {
     "POPUP_OFF",
     "STILL_ON",
     "STILL_OFF",
+    "SET_OUTPUT_MODE",
+    "SET_STREAM_SS",
 };
 
 static const char * const insn_opt_cmp[16] = {
