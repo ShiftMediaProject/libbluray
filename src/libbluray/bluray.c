@@ -1874,6 +1874,9 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
         { BLURAY_PLAYER_SETTING_MENU_LANG,      PSR_MENU_LANG },
         { BLURAY_PLAYER_SETTING_COUNTRY_CODE,   PSR_COUNTRY },
         { BLURAY_PLAYER_SETTING_REGION_CODE,    PSR_REGION },
+        { BLURAY_PLAYER_SETTING_OUTPUT_PREFER,  PSR_OUTPUT_PREFER },
+        { BLURAY_PLAYER_SETTING_DISPLAY_CAP,    PSR_DISPLAY_CAP },
+        { BLURAY_PLAYER_SETTING_3D_CAP,         PSR_3D_CAP },
         { BLURAY_PLAYER_SETTING_VIDEO_CAP,      PSR_VIDEO_CAP },
         { BLURAY_PLAYER_SETTING_TEXT_CAP,       PSR_TEXT_CAP },
         { BLURAY_PLAYER_SETTING_PLAYER_PROFILE, PSR_PROFILE_VERSION },
@@ -2050,6 +2053,11 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
                 _queue_event(bd, (BD_EVENT){BD_EVENT_SECONDARY_AUDIO, !!(ev->new_val & 0x40000000)});
                 _queue_event(bd, (BD_EVENT){BD_EVENT_SECONDARY_AUDIO_STREAM, ev->new_val & 0xff});
             }
+            break;
+
+        /* 3D status */
+        case PSR_3D_STATUS:
+            _queue_event(bd, (BD_EVENT){BD_EVENT_STEREOSCOPIC_STATUS, ev->new_val & 1});
             break;
 
         default:;

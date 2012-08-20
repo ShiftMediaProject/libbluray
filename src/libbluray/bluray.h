@@ -464,6 +464,9 @@ typedef enum {
     BLURAY_PLAYER_SETTING_MENU_LANG      = 18,  /* Initial menu language: ISO 639-2 string, ex. "eng" */
     BLURAY_PLAYER_SETTING_COUNTRY_CODE   = 19,  /* Player country code: ISO 3166-1 string, ex. "de" */
     BLURAY_PLAYER_SETTING_REGION_CODE    = 20,  /* Player region code: 1 - region A, 2 - B, 4 - C */
+    BLURAY_PLAYER_SETTING_OUTPUT_PREFER  = 21,  /* output mode preference: 0 - 2D, 1 - 3D */
+    BLURAY_PLAYER_SETTING_DISPLAY_CAP    = 23,  /* Display capability (bit mask) */
+    BLURAY_PLAYER_SETTING_3D_CAP         = 24,  /* 3D capability (bit mask) */
     BLURAY_PLAYER_SETTING_VIDEO_CAP      = 29,  /* Player capability for video (bit mask) */
     BLURAY_PLAYER_SETTING_TEXT_CAP       = 30,  /* Player capability for text subtitle (bit mask) */
     BLURAY_PLAYER_SETTING_PLAYER_PROFILE = 31,  /* Profile1: 0, Profile1+: 1, Profile2: 3, Profile3: 8 */
@@ -537,6 +540,10 @@ typedef enum {
 
     /* Interactive menu visible */
     BD_EVENT_MENU,                   /* 0 - no, 1 - yes */
+
+    /* 3D */
+    BD_EVENT_STEREOSCOPIC_STATUS,    /* 0 - 2D, 1 - 3D */
+
 } bd_event_e;
 
 typedef struct {

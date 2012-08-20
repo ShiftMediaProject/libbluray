@@ -57,10 +57,10 @@ static const uint32_t bd_psr_init[BD_PSR_COUNT] = {
     0xffffff,    /* PS: PSR18: Menu description language code */
     0xffff,      /* PS: PSR19: Country code */
     0x07,        /* PS: PSR20: Region code */ /* 1 - A, 2 - B, 4 - C */
-    0,           /*     PSR21 */
-    0,           /*     PSR22 */
-    0,           /*     PSR23 */
-    0,           /*     PSR24 */
+    0,           /* PS: PSR21: Output mode preference */
+    0,           /*     PSR22: Stereoscopic status */
+    0,           /* PS: PSR23: Display capability */
+    0,           /* PS: PSR24: 3D capability */
     0,           /*     PSR25 */
     0,           /*     PSR26 */
     0,           /*     PSR27 */
@@ -125,10 +125,14 @@ static const char * const bd_psr_name[BD_PSR_COUNT] = {
     "AUDIO_CAP",
     "AUDIO_LANG",
     "PG_AND_SUB_LANG",
-    "PSR_MENU_LANG",
-    "PSR_COUNTRY",
-    "PSR_REGION",
-    "PSR_VIDEO_CAP",
+    "MENU_LANG",
+    "COUNTRY",
+    "REGION",
+    "OUTPUT_PREFER",
+    "3D_STATUS",
+    "DISPLAY_CAP",
+    "3D_CAP",
+    //"PSR_VIDEO_CAP",
 };
 
 /*
@@ -421,7 +425,8 @@ int bd_psr_setting_write(BD_REGISTERS *p, int reg, uint32_t val)
 int bd_psr_write(BD_REGISTERS *p, int reg, uint32_t val)
 {
     if ((reg == 13) ||
-        (reg >= 15 && reg <= 20) ||
+        (reg >= 15 && reg <= 21) ||
+        (reg >= 23 && reg <= 24) ||
         (reg >= 29 && reg <= 31) ||
         (reg >= 48 && reg <= 61)) {
       BD_DEBUG(DBG_BLURAY, "bd_psr_write(%d, %d): read-only register !\n", reg, val);
