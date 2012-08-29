@@ -40,7 +40,7 @@ static const char *dlerror(char *buf, int buf_size)
 {
     DWORD error_code = GetLastError();
     wchar_t wbuf[256];
-  
+
     if (FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
                        FORMAT_MESSAGE_MAX_WIDTH_MASK,
                        NULL, error_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -49,7 +49,7 @@ static const char *dlerror(char *buf, int buf_size)
     } else {
         snprintf(buf, buf_size, "error %d", (int)error_code);
     }
-    
+
     return buf;
 }
 #endif
