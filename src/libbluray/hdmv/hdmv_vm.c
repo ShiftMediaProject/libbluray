@@ -651,6 +651,18 @@ static void _set_sec_stream(HDMV_VM *p, uint32_t dst, uint32_t src)
     bd_psr_unlock(p->regs);
 }
 
+static void _set_stream_ss(HDMV_VM *p, uint32_t dst, uint32_t src)
+{
+    BD_DEBUG(DBG_HDMV, "_set_stream_ss(0x%x, 0x%x)\n", dst, src);
+
+    if (!(bd_psr_read(p->regs, PSR_3D_STATUS) & 1)) {
+        BD_DEBUG(DBG_HDMV, "_set_stream_ss ignored (PSR22 indicates 2D mode)\n");
+        return;
+    }
+
+    BD_DEBUG(DBG_HDMV, "_set_stream_ss(0x%x, 0x%x) unimplemented\n", dst, src);
+}
+
 /*
  * SET/SYSTEM navigation control
  */
@@ -709,6 +721,33 @@ static void _popup_off(HDMV_VM *p)
     if (p->ig_object) {
         _queue_event(p, HDMV_EVENT_POPUP_OFF, 1);
     }
+}
+
+/*
+ * SET/SYSTEM 3D mode
+ */
+
+static void _set_output_mode(HDMV_VM *p, uint32_t dst)
+{
+    if ((bd_psr_read(p->regs, PSR_PROFILE_VERSION) & 0x130240) != 0x130240) {
+        BD_DEBUG(DBG_HDMV, "_set_output_mode ignored (not running as profile 5 player)\n");
+        return;
+    }
+
+    bd_psr_lock(p->regs);
+
+    uint32_t psr22 = bd_psr_read(p->regs, PSR_3D_STATUS);
+
+    /* update output mode (bit 0). PSR22 bits 1 and 2 are subtitle alignment (_set_stream_ss()) */
+    if (dst & 1) {
+      psr22 |= 1;
+    } else {
+      psr22 &= ~1;
+    }
+
+    bd_psr_write(p->regs, PSR_3D_STATUS, psr22);
+
+    bd_psr_unlock(p->regs);
 }
 
 /*
@@ -978,6 +1017,8 @@ static int _hdmv_step(HDMV_VM *p)
                         case INSN_POPUP_OFF:       _popup_off      (p);           break;
                         case INSN_STILL_ON:        _set_still_mode (p,   1);      break;
                         case INSN_STILL_OFF:       _set_still_mode (p,   0);      break;
+                        case INSN_SET_OUTPUT_MODE: _set_output_mode(p, dst);      break;
+                        case INSN_SET_STREAM_SS:   _set_stream_ss  (p, dst, src); break;
                         default:
                             BD_DEBUG(DBG_HDMV|DBG_CRIT, "[unknown SETSYSTEM option in opcode 0x%08x] ", *(uint32_t*)insn);
                             break;
