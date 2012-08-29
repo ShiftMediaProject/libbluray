@@ -67,7 +67,8 @@ static const uint32_t bd_psr_init[BD_PSR_COUNT] = {
     0,           /*     PSR28 */
     0x03,        /* PS: PSR29: player capability for video */
     0x1ffff,     /* PS: PSR30: player capability for text subtitle */
-    0x080200,    /* PS: PSR31: Player profile and version */
+    0x030200,    /* PS: PSR31: Player profile and version */
+                 /*            BD-RO Profile 2 version 2.0 */
     0,           /*     PSR32 */
     0,           /*     PSR33 */
     0,           /*     PSR34 */
