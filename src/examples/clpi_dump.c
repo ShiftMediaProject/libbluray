@@ -35,7 +35,7 @@ typedef struct {
 } VALUE_MAP;
 
 static inline const char*
-_lookup_str(VALUE_MAP *map, int val)
+_lookup_str(const VALUE_MAP *map, int val)
 {
     int ii;
 
@@ -47,7 +47,7 @@ _lookup_str(VALUE_MAP *map, int val)
     return "?";
 }
 
-VALUE_MAP codec_map[] = {
+const VALUE_MAP codec_map[] = {
     {0x01, "MPEG-1 Video"},
     {0x02, "MPEG-2 Video"},
     {0x03, "MPEG-1 Audio"},
@@ -69,7 +69,7 @@ VALUE_MAP codec_map[] = {
     {0, NULL}
 };
 
-VALUE_MAP video_format_map[] = {
+const VALUE_MAP video_format_map[] = {
     {0, "Reserved"},
     {1, "480i"},
     {2, "576i"},
@@ -81,7 +81,7 @@ VALUE_MAP video_format_map[] = {
     {0, NULL}
 };
 
-VALUE_MAP video_rate_map[] = {
+const VALUE_MAP video_rate_map[] = {
     {0, "Reserved1"},
     {1, "23.976"},
     {2, "24"},
@@ -93,7 +93,7 @@ VALUE_MAP video_rate_map[] = {
     {0, NULL}
 };
 
-VALUE_MAP video_aspect_map[] = {
+const VALUE_MAP video_aspect_map[] = {
     {0, "Reserved1"},
     {1, "Reserved2"},
     {2, "4:3"},
@@ -101,7 +101,7 @@ VALUE_MAP video_aspect_map[] = {
     {0, NULL}
 };
 
-VALUE_MAP audio_format_map[] = {
+const VALUE_MAP audio_format_map[] = {
     {0, "Reserved1"},
     {1, "Mono"},
     {2, "Reserved2"},
@@ -113,7 +113,7 @@ VALUE_MAP audio_format_map[] = {
     {0, NULL}
 };
 
-VALUE_MAP audio_rate_map[] = {
+const VALUE_MAP audio_rate_map[] = {
     {0, "Reserved1"},
     {1, "48 Khz"},
     {2, "Reserved2"},
