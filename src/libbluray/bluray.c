@@ -1884,10 +1884,6 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
 
     unsigned i;
 
-    if (idx == BLURAY_PLAYER_SETTING_PLAYER_PROFILE) {
-        value = ((value & 0xf) << 16) | 0x0200;  /* version fixed to BD-RO Part 3, version 2.0 */
-    }
-
     for (i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
         if (idx == map[i].idx) {
             return !bd_psr_setting_write(bd->regs, idx, value);
