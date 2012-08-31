@@ -31,6 +31,7 @@ mpls_dump_SOURCES = \
 	../util/logging.c \
 	../file/file_posix.c \
 	../file/dir_posix.c \
+	../libbluray/bdnav/extdata_parse.c \
 	../libbluray/bdnav/mpls_parse.c \
 	../libbluray/bdnav/clpi_parse.c \
 	../libbluray/bdnav/navigation.c
@@ -39,6 +40,7 @@ clpi_dump_SOURCES = \
 	clpi_dump.c util.c util.h \
 	../util/logging.c \
 	../file/file_posix.c \
+	../libbluray/bdnav/extdata_parse.c \
 	../libbluray/bdnav/clpi_parse.c
 
 sound_dump_SOURCES = \

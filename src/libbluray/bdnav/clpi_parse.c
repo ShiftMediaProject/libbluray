@@ -20,6 +20,7 @@
 #include "util/macro.h"
 #include "file/file.h"
 #include "util/bits.h"
+#include "extdata_parse.h"
 #include "clpi_parse.h"
 
 #include <stdlib.h>
@@ -532,6 +533,37 @@ clpi_access_point(const CLPI_CL *cl, uint32_t pkt, int next, int angle_change, u
     return coarse_spn + entry->fine[jj].spn_ep;
 }
 
+static int
+_parse_extent_start_points(BITSTREAM *bits, CLPI_EXTENT_START *es)
+{
+    unsigned int ii;
+
+    bs_skip(bits, 32); // length
+    es->num_point = bs_read(bits, 32);
+
+    es->point = malloc(es->num_point * sizeof(uint32_t));
+
+    for (ii = 0; ii < es->num_point; ii++) {
+        es->point[ii] = bs_read(bits, 32);
+    }
+
+    return 1;
+}
+
+static int _parse_clpi_extension(BITSTREAM *bits, int id1, int id2, void *handle)
+{
+    CLPI_CL *cl = handle;
+
+    if (id1 == 2) {
+        if (id2 == 4) {
+            // Extent start point
+            return _parse_extent_start_points(bits, &cl->extent_start);
+        }
+    }
+
+    return 0;
+}
+
 void
 clpi_free(CLPI_CL *cl)
 {
@@ -572,6 +604,9 @@ clpi_free(CLPI_CL *cl)
     if (cl->cpi.entry != NULL) {
         X_FREE(cl->cpi.entry);
     }
+
+    X_FREE(cl->extent_start.point);
+
     X_FREE(cl);
 }
 
@@ -602,6 +637,14 @@ _clpi_parse(const char *path, int verbose)
         clpi_free(cl);
         return NULL;
     }
+
+    if (cl->ext_data_start_addr > 0) {
+        bdmv_parse_extension_data(&bits,
+                                   cl->ext_data_start_addr,
+                                   _parse_clpi_extension,
+                                   cl);
+    }
+
     if (!_parse_clipinfo(&bits, cl)) {
         file_close(fp);
         clpi_free(cl);

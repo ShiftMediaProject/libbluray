@@ -259,6 +259,27 @@ _show_prog_info(CLPI_PROG_INFO *pi, int level)
 }
 
 static void
+_show_extent_start(CLPI_EXTENT_START *es, int level)
+{
+    unsigned int ii;
+
+    indent_printf(level, "Extension data: Extent Start Point");
+
+    if (!es->num_point) {
+        indent_printf(level+1, "(no data)");
+
+    } else {
+        indent_printf(level+1, "Number of Start Points: %d", es->num_point);
+
+        if (verbose) {
+            for (ii = 0; ii < es->num_point; ii++) {
+                indent_printf(level+1, "Extent %5d: SPN 0x%08X", ii, es->point[ii]);
+            }
+        }
+    }
+}
+
+static void
 _show_cpi_info(CLPI_CPI *cpi, int level)
 {
     CLPI_EP_MAP_ENTRY *entry;
@@ -336,12 +357,13 @@ _usage(char *cmd)
 "    s - Shows the Sequence Info structure\n"
 "    p - Shows the Program Info structure\n"
 "    i - Shows the CPI. PTS to SPN map\n"
+"    e - Shows Extent Start Table\n"
 , cmd);
 
     exit(EXIT_FAILURE);
 }
 
-#define OPTS "vcspi"
+#define OPTS "vcspie"
 
 int
 main(int argc, char *argv[])
@@ -349,7 +371,7 @@ main(int argc, char *argv[])
     CLPI_CL *cl;
     int opt;
     int opt_clip_info = 0, opt_seq_info = 0, opt_prog_info = 0;
-    int opt_cpi_info = 0;
+    int opt_cpi_info = 0, opt_extent_start = 0;
     int ii;
 
     do {
@@ -375,6 +397,10 @@ main(int argc, char *argv[])
 
             case 'p':
                 opt_prog_info = 1;
+                break;
+
+            case 'e':
+                opt_extent_start = 1;
                 break;
 
             default:
@@ -409,6 +435,13 @@ main(int argc, char *argv[])
             // Show cpi
             _show_cpi_info(&cl->cpi, 1);
         }
+        if (opt_extent_start) {
+            // Show extent start point
+            if (cl->extent_start.num_point > 0) {
+                _show_extent_start(&cl->extent_start, 1);
+            }
+        }
+
         clpi_free(cl);
     }
     return 0;
