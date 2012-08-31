@@ -48,6 +48,8 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	libbluray/bdnav/meta_data.h \
 	libbluray/bdnav/meta_parse.c \
 	libbluray/bdnav/meta_parse.h \
+	libbluray/bdnav/extdata_parse.h \
+	libbluray/bdnav/extdata_parse.c \
 	libbluray/bdnav/bdid_parse.h \
 	libbluray/bdnav/bdid_parse.c \
 	libbluray/decoders \
