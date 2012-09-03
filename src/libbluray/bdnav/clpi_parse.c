@@ -222,20 +222,19 @@ _parse_sequence(BITSTREAM *bits, CLPI_CL *cl)
 }
 
 static int
-_parse_program(BITSTREAM *bits, CLPI_CL *cl)
+_parse_program(BITSTREAM *bits, CLPI_PROG_INFO *program)
 {
     int ii, jj;
 
-    bs_seek_byte(bits, cl->program_info_start_addr);
     // Skip the length field, and a reserved byte
     bs_skip(bits, 5 * 8);
     // Then get the number of sequences
-    cl->program.num_prog = bs_read(bits, 8);
+    program->num_prog = bs_read(bits, 8);
 
     CLPI_PROG *progs;
-    progs = malloc(cl->program.num_prog * sizeof(CLPI_PROG));
-    cl->program.progs = progs;
-    for (ii = 0; ii < cl->program.num_prog; ii++) {
+    progs = malloc(program->num_prog * sizeof(CLPI_PROG));
+    program->progs = progs;
+    for (ii = 0; ii < program->num_prog; ii++) {
         progs[ii].spn_program_sequence_start = bs_read(bits, 32);
         progs[ii].program_map_pid            = bs_read(bits, 16);
         progs[ii].num_streams                = bs_read(bits, 8);
@@ -252,6 +251,14 @@ _parse_program(BITSTREAM *bits, CLPI_CL *cl)
         }
     }
     return 1;
+}
+
+static int
+_parse_program_info(BITSTREAM *bits, CLPI_CL *cl)
+{
+    bs_seek_byte(bits, cl->program_info_start_addr);
+
+    return _parse_program(bits, &cl->program);
 }
 
 static int
@@ -287,29 +294,28 @@ _parse_ep_map_stream(BITSTREAM *bits, CLPI_EP_MAP_ENTRY *ee)
 }
 
 static int
-_parse_cpi(BITSTREAM *bits, CLPI_CL *cl)
+_parse_cpi(BITSTREAM *bits, CLPI_CPI *cpi)
 {
     int ii;
     uint32_t ep_map_pos, len;
 
-    bs_seek_byte(bits, cl->cpi_start_addr);
     len = bs_read(bits, 32);
     if (len == 0) {
         return 1;
     }
 
     bs_skip(bits, 12);
-    cl->cpi.type = bs_read(bits, 4);
+    cpi->type = bs_read(bits, 4);
     ep_map_pos = bs_pos(bits) >> 3;
 
     // EP Map starts here
     bs_skip(bits, 8);
-    cl->cpi.num_stream_pid = bs_read(bits, 8);
+    cpi->num_stream_pid = bs_read(bits, 8);
 
     CLPI_EP_MAP_ENTRY *entry;
-    entry = malloc(cl->cpi.num_stream_pid * sizeof(CLPI_EP_MAP_ENTRY));
-    cl->cpi.entry = entry;
-    for (ii = 0; ii < cl->cpi.num_stream_pid; ii++) {
+    entry = malloc(cpi->num_stream_pid * sizeof(CLPI_EP_MAP_ENTRY));
+    cpi->entry = entry;
+    for (ii = 0; ii < cpi->num_stream_pid; ii++) {
         entry[ii].pid                      = bs_read(bits, 16);
         bs_skip(bits, 10);
         entry[ii].ep_stream_type           = bs_read(bits, 4);
@@ -317,10 +323,18 @@ _parse_cpi(BITSTREAM *bits, CLPI_CL *cl)
         entry[ii].num_ep_fine              = bs_read(bits, 18);
         entry[ii].ep_map_stream_start_addr = bs_read(bits, 32) + ep_map_pos;
     }
-    for (ii = 0; ii < cl->cpi.num_stream_pid; ii++) {
-        _parse_ep_map_stream(bits, &cl->cpi.entry[ii]);
+    for (ii = 0; ii < cpi->num_stream_pid; ii++) {
+        _parse_ep_map_stream(bits, &cpi->entry[ii]);
     }
     return 1;
+}
+
+static int
+_parse_cpi_info(BITSTREAM *bits, CLPI_CL *cl)
+{
+    bs_seek_byte(bits, cl->cpi_start_addr);
+
+    return _parse_cpi(bits, &cl->cpi);
 }
 
 static uint32_t
@@ -655,12 +669,12 @@ _clpi_parse(const char *path, int verbose)
         clpi_free(cl);
         return NULL;
     }
-    if (!_parse_program(&bits, cl)) {
+    if (!_parse_program_info(&bits, cl)) {
         file_close(fp);
         clpi_free(cl);
         return NULL;
     }
-    if (!_parse_cpi(&bits, cl)) {
+    if (!_parse_cpi_info(&bits, cl)) {
         file_close(fp);
         clpi_free(cl);
         return NULL;
