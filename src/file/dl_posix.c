@@ -108,7 +108,7 @@ void   *dl_dlopen  ( const char* path, const char *version )
     static const char *search_paths[] = {"", NULL};
 #endif
 
-    for (i = 1 ; search_paths[i] ; ++i) {
+    for (i = 0 ; search_paths[i] ; ++i) {
         if (version) {
             name = str_printf("%s%s%s.%s", search_paths[i], path, ext, version);
         } else {
