@@ -153,6 +153,8 @@ typedef struct clpi_cl {
     // extensions for 3D
 
     CLPI_EXTENT_START extent_start; /* extent start points (.ssif interleaving) */
+    CLPI_PROG_INFO    program_ss;
+    CLPI_CPI          cpi_ss;
 
 } CLPI_CL;
 

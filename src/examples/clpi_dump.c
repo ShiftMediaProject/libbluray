@@ -63,6 +63,7 @@ const VALUE_MAP codec_map[] = {
     {0xa2, "DTS-HD for secondary audio"},
     {0xea, "VC-1"},
     {0x1b, "H.264"},
+    {0x20, "H.264 MVC dep."},
     {0x90, "Presentation Graphics"},
     {0x91, "Presentation Graphics"},
     {0x92, "Interactive Graphics"},
@@ -136,6 +137,7 @@ _show_stream(CLPI_PROG_STREAM *ss, int level)
         case 0x02:
         case 0xea:
         case 0x1b:
+        case 0x20:
             indent_printf(level, "Format %02x: %s", ss->format,
                         _lookup_str(video_format_map, ss->format));
             indent_printf(level, "Rate %02x: %s", ss->rate,
@@ -434,6 +436,21 @@ main(int argc, char *argv[])
         if (opt_cpi_info) {
             // Show cpi
             _show_cpi_info(&cl->cpi, 1);
+        }
+
+        if (opt_prog_info) {
+            if (cl->program_ss.num_prog) {
+                printf("\n");
+                indent_printf(1, "Extension: Program Info SS");
+                _show_prog_info(&cl->program_ss, 1);
+            }
+        }
+        if (opt_cpi_info) {
+            if (cl->program_ss.num_prog) {
+                printf("\n");
+                indent_printf(1, "Extension: CPI SS");
+                _show_cpi_info(&cl->cpi_ss, 1);
+            }
         }
         if (opt_extent_start) {
             // Show extent start point

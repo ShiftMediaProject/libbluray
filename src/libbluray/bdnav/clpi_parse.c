@@ -65,6 +65,7 @@ _parse_stream_attr(BITSTREAM *bits, CLPI_PROG_STREAM *ss)
         case 0x02:
         case 0xea:
         case 0x1b:
+        case 0x20:
             ss->format = bs_read(bits, 4);
             ss->rate   = bs_read(bits, 4);
             ss->aspect = bs_read(bits, 4);
@@ -572,6 +573,14 @@ static int _parse_clpi_extension(BITSTREAM *bits, int id1, int id2, void *handle
         if (id2 == 4) {
             // Extent start point
             return _parse_extent_start_points(bits, &cl->extent_start);
+        }
+        if (id2 == 5) {
+            // ProgramInfo SS
+            return _parse_program(bits, &cl->program_ss);
+        }
+        if (id2 == 6) {
+            // CPI SS
+            return _parse_cpi(bits, &cl->cpi_ss);
         }
     }
 
