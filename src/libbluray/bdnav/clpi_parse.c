@@ -587,6 +587,35 @@ static int _parse_clpi_extension(BITSTREAM *bits, int id1, int id2, void *handle
     return 0;
 }
 
+static void
+_clean_program(CLPI_PROG_INFO *p)
+{
+    int ii;
+
+    for (ii = 0; ii < p->num_prog; ii++) {
+        if (p->progs[ii].streams != NULL) {
+            X_FREE(p->progs[ii].streams);
+        }
+    }
+    X_FREE(p->progs);
+}
+
+static void
+_clean_cpi(CLPI_CPI *cpi)
+{
+    int ii;
+
+    for (ii = 0; ii < cpi->num_stream_pid; ii++) {
+        if (cpi->entry[ii].coarse != NULL) {
+            X_FREE(cpi->entry[ii].coarse);
+        }
+        if (cpi->entry[ii].fine != NULL) {
+            X_FREE(cpi->entry[ii].fine);
+        }
+    }
+    X_FREE(cpi->entry);
+}
+
 void
 clpi_free(CLPI_CL *cl)
 {
@@ -607,28 +636,13 @@ clpi_free(CLPI_CL *cl)
         X_FREE(cl->sequence.atc_seq);
     }
 
-    for (ii = 0; ii < cl->program.num_prog; ii++) {
-        if (cl->program.progs[ii].streams != NULL) {
-            X_FREE(cl->program.progs[ii].streams);
-        }
-    }
-    if (cl->program.progs != NULL) {
-        X_FREE(cl->program.progs);
-    }
-
-    for (ii = 0; ii < cl->cpi.num_stream_pid; ii++) {
-        if (cl->cpi.entry[ii].coarse != NULL) {
-            X_FREE(cl->cpi.entry[ii].coarse);
-        }
-        if (cl->cpi.entry[ii].fine != NULL) {
-            X_FREE(cl->cpi.entry[ii].fine);
-        }
-    }
-    if (cl->cpi.entry != NULL) {
-        X_FREE(cl->cpi.entry);
-    }
+    _clean_program(&cl->program);
+    _clean_cpi(&cl->cpi);
 
     X_FREE(cl->extent_start.point);
+
+    _clean_program(&cl->program_ss);
+    _clean_cpi(&cl->cpi_ss);
 
     X_FREE(cl);
 }
