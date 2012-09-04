@@ -328,39 +328,47 @@ _show_clip_list(MPLS_PL *pl, int level)
 }
 
 static void
+_show_sub_path(MPLS_SUB *sub, int level)
+{
+    int ii;
+
+    indent_printf(level+1, "Type: %d (%s)", sub->type, _lookup_str(subpath_type_map, sub->type));
+    indent_printf(level+1, "Repeat: %d", sub->is_repeat);
+    indent_printf(level+1, "Sub playitem count: %d", sub->sub_playitem_count);
+
+    for (ii = 0; ii < sub->sub_playitem_count; ii++) {
+        MPLS_SUB_PI *pi;
+
+        pi = &sub->sub_play_item[ii];
+
+        if (verbose) {
+            indent_printf(level+1, "Sub playitem %d", ii);
+            indent_printf(level+2, "Clip Id %s", pi->clip[0].clip_id);
+            indent_printf(level+2, "Multi clip: %d", pi->is_multi_clip);
+            indent_printf(level+2, "Clip count: %d", pi->clip_count);
+            indent_printf(level+2, "Connection Condition: %02x", pi->connection_condition);
+            indent_printf(level+2, "In-Time: %d", pi->in_time);
+            indent_printf(level+2, "Out-Time: %d", pi->out_time);
+            indent_printf(level+2, "Sync playitem Id: %d", pi->sync_play_item_id);
+            indent_printf(level+2, "Sync PTS: %d", pi->sync_pts);
+        } else {
+            indent_printf(level+1, "%s.m2ts", pi->clip[0].clip_id);
+        }
+    }
+}
+
+static void
 _show_sub_paths(MPLS_PL *pl, int level)
 {
-    int ss, ii;
+    int ss;
 
     for (ss = 0; ss < pl->sub_count; ss++) {
         MPLS_SUB *sub;
 
         sub = &pl->sub_path[ss];
 
-        indent_printf(level,   "Sub Path %d:", ss);
-        indent_printf(level+1, "Type: %d (%s)", sub->type, _lookup_str(subpath_type_map, sub->type));
-        indent_printf(level+1, "Repeat: %d", sub->is_repeat);
-        indent_printf(level+1, "Sub playitem count: %d", sub->sub_playitem_count);
-
-        for (ii = 0; ii < sub->sub_playitem_count; ii++) {
-            MPLS_SUB_PI *pi;
-
-            pi = &sub->sub_play_item[ii];
-
-            if (verbose) {
-                indent_printf(level+1, "Sub playitem %d", ii);
-                indent_printf(level+2, "Clip Id %s", pi->clip[0].clip_id);
-                indent_printf(level+2, "Multi clip: %d", pi->is_multi_clip);
-                indent_printf(level+2, "Clip count: %d", pi->clip_count);
-                indent_printf(level+2, "Connection Condition: %02x", pi->connection_condition);
-                indent_printf(level+2, "In-Time: %d", pi->in_time);
-                indent_printf(level+2, "Out-Time: %d", pi->out_time);
-                indent_printf(level+2, "Sync playitem Id: %d", pi->sync_play_item_id);
-                indent_printf(level+2, "Sync PTS: %d", pi->sync_pts);
-            } else {
-                indent_printf(level+1, "%s.m2ts", pi->clip[0].clip_id);
-            }
-        }
+        indent_printf(level, "Sub Path %d:", ss);
+        _show_sub_path(sub, level+1);
     }
 }
 
