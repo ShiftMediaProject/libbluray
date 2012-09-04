@@ -145,6 +145,10 @@ typedef struct
     MPLS_PI        *play_item;
     MPLS_SUB       *sub_path;
     MPLS_PLM       *play_mark;
+
+    // extension data (profile 5, version 2.4)
+    uint16_t        ext_sub_count;
+    MPLS_SUB       *ext_sub_path;  // sub path entries extension
 } MPLS_PL;
 
 

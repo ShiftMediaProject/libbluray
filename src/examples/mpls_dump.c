@@ -112,6 +112,7 @@ const VALUE_MAP audio_rate_map[] = {
 const VALUE_MAP subpath_type_map[] = {
   {3, "Interactive Graphics presentation menu"},
   {4, "Text Subtitle"},
+  {8, "SS Video"},
   {0,NULL}
 };
 
@@ -372,6 +373,21 @@ _show_sub_paths(MPLS_PL *pl, int level)
     }
 }
 
+static void
+_show_sub_paths_ss(MPLS_PL *pl, int level)
+{
+    int ss;
+
+    for (ss = 0; ss < pl->ext_sub_count; ss++) {
+        MPLS_SUB *sub;
+
+        sub = &pl->ext_sub_path[ss];
+
+        indent_printf(level, "Extension Sub Path %d:", ss);
+        _show_sub_path(sub, level+1);
+    }
+}
+
 static uint32_t
 _pl_duration(MPLS_PL *pl)
 {
@@ -515,6 +531,7 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
     }
     if (sub_paths) {
         _show_sub_paths(pl, 1);
+        _show_sub_paths_ss(pl, 1);
     }
     return pl;
 }
