@@ -27,8 +27,9 @@ import javax.tv.service.SIRequestorImpl;
 
 public final class SIElementFilter extends ServiceFilter
 {
-    public SIElementFilter(SIElement element) throws FilterNotSupportedException
-    { this.element = element;}
+    public SIElementFilter(SIElement element) throws FilterNotSupportedException {
+        this.element = element;
+    }
 
     public SIElement getFilterValue() {
         return element;
@@ -59,8 +60,9 @@ public final class SIElementFilter extends ServiceFilter
         if (requestor.getResult() == null)
             return false;
         
-        for (SIRetrievable ret : requestor.getResult()) {
-            if (ret.equals(element))
+        SIRetrievable[] rets = requestor.getResult();
+        for (int i = 0; i < rets.length; i++) {
+            if (rets[i].equals(element))
                 return true;
         }
         

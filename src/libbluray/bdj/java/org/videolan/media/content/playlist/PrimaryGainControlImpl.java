@@ -26,48 +26,39 @@ import javax.media.GainChangeListener;
 import org.bluray.media.PrimaryGainControl;
 
 public class PrimaryGainControlImpl implements PrimaryGainControl {
-    public void setMute(boolean mute)
-    {
+    public void setMute(boolean mute) {
         // TODO Not implemented
     }
 
-    public boolean getMute()
-    {
+    public boolean getMute() {
         return false; // TODO Not implemented
     }
 
-    public float setDB(float gain)
-    {
+    public float setDB(float gain) {
         return 0;  // TODO Not implemented
     }
 
-    public float getDB()
-    {
+    public float getDB() {
         return 0;  // TODO Not implemented
     }
 
-    public float setLevel(float level)
-    {
+    public float setLevel(float level) {
         return 0;
     }
 
-    public float getLevel()
-    {
+    public float getLevel() {
         return 0;  // TODO Not implemented
     }
 
-    public void addGainChangeListener(GainChangeListener listener)
-    {
+    public void addGainChangeListener(GainChangeListener listener) {
         // TODO Not implemented
     }
 
-    public void removeGainChangeListener(GainChangeListener listener)
-    {
+    public void removeGainChangeListener(GainChangeListener listener) {
         // TODO Not implemented
     }
 
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         return null;
     }
 }

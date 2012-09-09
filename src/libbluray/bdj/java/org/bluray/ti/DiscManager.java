@@ -20,33 +20,27 @@
 package org.bluray.ti;
 
 public class DiscManager {
-    public static synchronized DiscManager getDiscManager()
-    {
+    public static synchronized DiscManager getDiscManager() {
         throw new Error("Not implemented");
     }
 
-    public static void notifyDiscChange(int num)
-    {
+    public void expectNextDisc(String[] discIds) {
         throw new Error("Not implemented");
     }
 
-    public void addDiscStatusEventListener(DiscStatusListener listener)
-    {
+    public Disc getCurrentDisc() {
         throw new Error("Not implemented");
     }
 
-    public void expectNextDisc(String[] discIds)
-    {
+    public static void notifyDiscChange(int num) {
         throw new Error("Not implemented");
     }
 
-    public Disc getCurrentDisc()
-    {
+    public void addDiscStatusEventListener(DiscStatusListener listener) {
         throw new Error("Not implemented");
     }
 
-    public void removeDiscStatusEventListener(DiscStatusListener listener)
-    {
+    public void removeDiscStatusEventListener(DiscStatusListener listener) {
         throw new Error("Not implemented");
     }
 }

@@ -24,23 +24,20 @@ import javax.tv.locator.InvalidLocatorException;
 import javax.tv.service.Service;
 
 public final class LocatorFilter extends ServiceFilter {
-    public LocatorFilter(Locator[] locators) throws InvalidLocatorException
-    {
+    public LocatorFilter(Locator[] locators) throws InvalidLocatorException {
         this.locators = locators;
     }
 
-    public Locator[] getFilterValue()
-    {
+    public Locator[] getFilterValue() {
         return locators;
     }
 
-    public boolean accept(Service service)
-    {
+    public boolean accept(Service service) {
         if (service == null)
             throw new NullPointerException();
 
-        for (Locator locator : locators) {
-            if (locator.equals(service.getLocator()))
+        for (int i = 0; i < locators.length; i++) {
+            if (locators[i].equals(service.getLocator()))
                 return true;
         }
 

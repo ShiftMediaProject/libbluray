@@ -23,47 +23,40 @@ package org.videolan;
  * This class allows BDJ to call various libbluray functions.
  */
 public class Libbluray {
-    public static int getTitles(char flags)
-    {
+    public static int getTitles(char flags) {
         return getTitlesN(nativePointer, flags);
     }
-    
-    public static TitleInfo getTitleInfo(int titleNum)
-    {
+
+    public static TitleInfo getTitleInfo(int titleNum) {
         if (titleNum < 0)
             throw new IllegalArgumentException();
-        
+
         return getTitleInfoN(nativePointer, titleNum);
     }
-    
-    public static TitleInfo getPlaylistInfo(int playlist)
-    {
+
+    public static TitleInfo getPlaylistInfo(int playlist) {
         return getPlaylistInfoN(nativePointer, playlist);
     }
 
-    public static long seek(long pos)
-    {
+    public static long seek(long pos) {
         return seekN(nativePointer, pos);
     }
 
-    public static long seekTime(long tick)
-    {
+    public static long seekTime(long tick) {
         return seekTimeN(nativePointer, tick);
     }
 
-    public static long seekChapter(int chapter)
-    {
+    public static long seekChapter(int chapter) {
         if (chapter < 0)
             throw new IllegalArgumentException("Chapter cannot be negative");
-        
+
         return seekChapterN(nativePointer, chapter);
     }
 
-    public static long chapterPos(int chapter)
-    {
+    public static long chapterPos(int chapter) {
         if (chapter < 0)
             throw new IllegalArgumentException("Chapter cannot be negative");
-        
+
         return chapterPosN(nativePointer, chapter);
     }
 
@@ -71,110 +64,96 @@ public class Libbluray {
         return getCurrentChapterN(nativePointer);
     }
 
-    public static long seekMark(int mark)
-    {
+    public static long seekMark(int mark) {
         if (mark < 0)
             throw new IllegalArgumentException("Mark cannot be negative");
-        
+
         long result = seekMarkN(nativePointer, mark);
         if (result == -1)
             throw new IllegalArgumentException("Seek error");
         return result;
     }
 
-    public static boolean selectPlaylist(int playlist)
-    {
+    public static boolean selectPlaylist(int playlist) {
         if (playlist < 0)
             throw new IllegalArgumentException("Playlist cannot be negative");
-        
+
         return selectPlaylistN(nativePointer, playlist) == 1 ? true : false;
     }
 
-    public static boolean selectTitle(int title)
-    {
+    public static boolean selectTitle(int title) {
         if (title < 0)
             throw new IllegalArgumentException("Title cannot be negative");
-        
+
         return selectTitleN(nativePointer, title) == 1 ? true : false;
     }
 
-    public static boolean selectAngle(int angle)
-    {
+    public static boolean selectAngle(int angle) {
         if (angle < 0)
             throw new IllegalArgumentException("Angle cannot be negative");
-        
+
         return selectAngleN(nativePointer, angle) == 1 ? true : false;
     }
 
-    public static void seamlessAngleChange(int angle)
-    {
+    public static void seamlessAngleChange(int angle) {
         if (angle < 0)
             throw new IllegalArgumentException("Angle cannot be negative");
-        
+
         seamlessAngleChangeN(nativePointer, angle);
     }
 
-    public static long getTitleSize()
-    {
+    public static long getTitleSize() {
         return getTitleSizeN(nativePointer);
     }
 
-    public static int getCurrentTitle()
-    {
+    public static int getCurrentTitle() {
         return getCurrentTitleN(nativePointer);
     }
 
-    public static int getCurrentAngle()
-    {
+    public static int getCurrentAngle() {
         return getCurrentAngleN(nativePointer);
     }
 
-    public static long tell()
-    {
+    public static long tell() {
         return tellN(nativePointer);
     }
-    
-    public static long tellTime()
-    {
+
+    public static long tellTime() {
         return tellTimeN(nativePointer);
     }
-    
-    public static void writeGPR(int num, int value)
-    {
+
+    public static void writeGPR(int num, int value) {
         int ret = writeGPRN(nativePointer, num, value);
-        
+
         if (ret == -1)
             throw new IllegalArgumentException("Invalid GPR");
     }
-    
-    public static void writePSR(int num, int value)
-    {
+
+    public static void writePSR(int num, int value) {
         int ret = writePSRN(nativePointer, num, value);
-        
+
         if (ret == -1)
             throw new IllegalArgumentException("Invalid GPR");
     }
-    
-    public static int readGPR(int num)
-    {
+
+    public static int readGPR(int num) {
         int value = readGPRN(nativePointer, num);
-        
+
         if (value == -1)
             throw new IllegalArgumentException("Invalid GPR");
-        
+
         return value;
     }
-    
-    public static int readPSR(int num)
-    {
+
+    public static int readPSR(int num) {
         int value = readPSRN(nativePointer, num);
 
         if (value == -1)
             throw new IllegalArgumentException("Invalid PSR");
-        
+
         return value;
     }
-    
+
     public static final int PSR_IG_STREAM_ID     = 0;
     public static final int PSR_PRIMARY_AUDIO_ID = 1;
     public static final int PSR_PG_STREAM        = 2;
@@ -207,9 +186,9 @@ public class Libbluray {
     public static final int PSR_BACKUP_PSR10     = 42;
     public static final int PSR_BACKUP_PSR11     = 43;
     public static final int PSR_BACKUP_PSR12     = 44;
-    
-    protected static long nativePointer = 0; 
-    
+
+    protected static long nativePointer = 0;
+
     private static native TitleInfo getTitleInfoN(long np, int title);
     private static native TitleInfo getPlaylistInfoN(long np, int playlist);
     private static native int getTitlesN(long np, char flags);
