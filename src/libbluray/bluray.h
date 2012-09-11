@@ -130,6 +130,7 @@ typedef struct bd_stream_info {
     uint8_t     lang[4];
     uint16_t    pid;
     uint8_t     aspect;
+    uint8_t     subpath_id;
 } BLURAY_STREAM_INFO;
 
 typedef struct bd_clip {
@@ -148,6 +149,10 @@ typedef struct bd_clip {
     BLURAY_STREAM_INFO *ig_streams;
     BLURAY_STREAM_INFO *sec_audio_streams;
     BLURAY_STREAM_INFO *sec_video_streams;
+
+    uint64_t           start_time;
+    uint64_t           in_time;
+    uint64_t           out_time;
 } BLURAY_CLIP_INFO;
 
 typedef struct bd_chapter {
@@ -155,7 +160,17 @@ typedef struct bd_chapter {
     uint64_t    start;
     uint64_t    duration;
     uint64_t    offset;
+    unsigned    clip_ref;
 } BLURAY_TITLE_CHAPTER;
+
+typedef struct bd_mark {
+    uint32_t    idx;
+    int         type;
+    uint64_t    start;
+    uint64_t    duration;
+    uint64_t    offset;
+    unsigned    clip_ref;
+} BLURAY_TITLE_MARK;
 
 typedef struct bd_title_info {
     uint32_t             idx;
@@ -166,6 +181,9 @@ typedef struct bd_title_info {
     uint32_t             chapter_count;
     BLURAY_CLIP_INFO     *clips;
     BLURAY_TITLE_CHAPTER *chapters;
+
+    uint32_t             mark_count;
+    BLURAY_TITLE_MARK    *marks;
 } BLURAY_TITLE_INFO;
 
 typedef struct bd_sound_effect {

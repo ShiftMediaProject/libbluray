@@ -1741,6 +1741,10 @@ static void _copy_streams(NAV_CLIP *clip, BLURAY_STREAM_INFO *streams, MPLS_STRE
         memcpy(streams[ii].lang, si[ii].lang, 4);
         streams[ii].pid = si[ii].pid;
         streams[ii].aspect = nav_lookup_aspect(clip, si[ii].pid);
+        if ((si->stream_type == 2) || (si->stream_type == 3))
+            streams[ii].subpath_id = si->subpath_id;
+        else
+            streams[ii].subpath_id = -1;
     }
 }
 
@@ -1761,6 +1765,17 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
         title_info->chapters[ii].start = (uint64_t)title->chap_list.mark[ii].title_time * 2;
         title_info->chapters[ii].duration = (uint64_t)title->chap_list.mark[ii].duration * 2;
         title_info->chapters[ii].offset = (uint64_t)title->chap_list.mark[ii].title_pkt * 192L;
+        title_info->chapters[ii].clip_ref = title->chap_list.mark[ii].clip_ref;
+    }
+    title_info->mark_count = title->mark_list.count;
+    title_info->marks = calloc(title_info->mark_count, sizeof(BLURAY_TITLE_MARK));
+    for (ii = 0; ii < title_info->mark_count; ii++) {
+        title_info->marks[ii].idx = ii;
+		title_info->marks[ii].type = title->mark_list.mark[ii].mark_type;
+        title_info->marks[ii].start = (uint64_t)title->mark_list.mark[ii].title_time * 2;
+        title_info->marks[ii].duration = (uint64_t)title->mark_list.mark[ii].duration * 2;
+        title_info->marks[ii].offset = (uint64_t)title->mark_list.mark[ii].title_pkt * 192L;
+		title_info->marks[ii].clip_ref = title->mark_list.mark[ii].clip_ref;
     }
     title_info->clip_count = title->clip_list.count;
     title_info->clips = calloc(title_info->clip_count, sizeof(BLURAY_CLIP_INFO));
@@ -1770,6 +1785,9 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
         NAV_CLIP *nc = &title->clip_list.clip[ii];
 
         ci->pkt_count = nc->end_pkt - nc->start_pkt;
+        ci->start_time = (uint64_t)nc->start_time * 2;
+        ci->in_time = (uint64_t)pi->in_time * 2;
+        ci->out_time = (uint64_t)pi->out_time * 2;
         ci->still_mode = pi->still_mode;
         ci->still_time = pi->still_time;
         ci->video_stream_count = pi->stn.num_video;
@@ -1848,6 +1866,7 @@ void bd_free_title_info(BLURAY_TITLE_INFO *title_info)
     unsigned int ii;
 
     X_FREE(title_info->chapters);
+    X_FREE(title_info->marks);
     for (ii = 0; ii < title_info->clip_count; ii++) {
         X_FREE(title_info->clips[ii].video_streams);
         X_FREE(title_info->clips[ii].audio_streams);
