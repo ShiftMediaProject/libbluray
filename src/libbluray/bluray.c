@@ -335,9 +335,9 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
 
 static void _update_chapter_psr(BLURAY *bd)
 {
-  uint32_t current_chapter = bd_get_current_chapter(bd);
-  bd->next_chapter_start = bd_chapter_pos(bd, current_chapter + 1);
-  bd_psr_write(bd->regs, PSR_CHAPTER,  current_chapter + 1);
+    uint32_t current_chapter = bd_get_current_chapter(bd);
+    bd->next_chapter_start = bd_chapter_pos(bd, current_chapter + 1);
+    bd_psr_write(bd->regs, PSR_CHAPTER,  current_chapter + 1);
 }
 
 /*
@@ -2526,8 +2526,8 @@ const struct meta_dl *bd_get_meta(BLURAY *bd)
 struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref)
 {
     if (bd->title && clip_ref < bd->title->clip_list.count) {
-      NAV_CLIP *clip = &bd->title->clip_list.clip[clip_ref];
-      return clpi_copy(clip->cl);
+        NAV_CLIP *clip = &bd->title->clip_list.clip[clip_ref];
+        return clpi_copy(clip->cl);
     }
     return NULL;
 }

@@ -240,7 +240,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path);
 void bd_close(BLURAY *bd);
 
 /**
- *  Seek to pos in corrently selected title
+ *  Seek to pos in currently selected title
  *
  * @param bd  BLURAY object
  * @param pos position to seek to
