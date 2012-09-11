@@ -227,7 +227,7 @@ static int _get_event(BLURAY *bd, BD_EVENT *ev)
     return 0;
 }
 
-static int _queue_event(BLURAY *bd, BD_EVENT ev)
+static int _queue_event(BLURAY *bd, uint32_t event, uint32_t param)
 {
     struct bd_event_queue_s *eq = bd->event_queue;
 
@@ -237,7 +237,8 @@ static int _queue_event(BLURAY *bd, BD_EVENT ev)
         unsigned new_in = (eq->in + 1) & MAX_EVENTS;
 
         if (new_in != eq->out) {
-            eq->ev[eq->in] = ev;
+            eq->ev[eq->in].event = event;
+            eq->ev[eq->in].param = param;
             eq->in = new_in;
 
             bd_mutex_unlock(&eq->mutex);
@@ -246,7 +247,7 @@ static int _queue_event(BLURAY *bd, BD_EVENT ev)
 
         bd_mutex_unlock(&eq->mutex);
 
-        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_queue_event(%d, %d): queue overflow !\n", ev.event, ev.param);
+        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_queue_event(%d, %d): queue overflow !\n", event, param);
     }
 
     return 0;
@@ -448,7 +449,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
                 if (buf[0] & 0xc0) {
                     BD_DEBUG(DBG_BLURAY | DBG_CRIT,
                           "TP header copy permission indicator != 0, unit is still encrypted? (%p)\n", bd);
-                    _queue_event(bd, (BD_EVENT){BD_EVENT_ENCRYPTED, 0});
+                    _queue_event(bd, BD_EVENT_ENCRYPTED, 0);
                     return -1;
                 }
 
@@ -464,7 +465,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 
             BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" failed ! (%p)\n", len, st->clip_block_pos, bd);
 
-            _queue_event(bd, (BD_EVENT){BD_EVENT_READ_ERROR, 0});
+            _queue_event(bd, BD_EVENT_READ_ERROR, 0);
 
             /* skip broken unit */
             st->clip_block_pos += len;
@@ -590,23 +591,23 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
             uint32_t changed_flags = cmds.status ^ bd->gc_status;
             bd->gc_status = cmds.status;
             if (changed_flags & GC_STATUS_MENU_OPEN) {
-                _queue_event(bd, (BD_EVENT){BD_EVENT_MENU, !!(bd->gc_status & GC_STATUS_MENU_OPEN)});
+                _queue_event(bd, BD_EVENT_MENU, !!(bd->gc_status & GC_STATUS_MENU_OPEN));
             }
             if (changed_flags & GC_STATUS_POPUP) {
-                _queue_event(bd, (BD_EVENT){BD_EVENT_POPUP, !!(bd->gc_status & GC_STATUS_POPUP)});
+                _queue_event(bd, BD_EVENT_POPUP, !!(bd->gc_status & GC_STATUS_POPUP));
             }
         }
 
         if (cmds.sound_id_ref >= 0 && cmds.sound_id_ref < 0xff) {
-            _queue_event(bd, (BD_EVENT){BD_EVENT_SOUND_EFFECT, cmds.sound_id_ref});
+            _queue_event(bd, BD_EVENT_SOUND_EFFECT, cmds.sound_id_ref);
         }
 
     } else {
         if (bd->gc_status & GC_STATUS_MENU_OPEN) {
-            _queue_event(bd, (BD_EVENT){BD_EVENT_MENU, 0});
+            _queue_event(bd, BD_EVENT_MENU, 0);
         }
         if (bd->gc_status & GC_STATUS_POPUP) {
-            _queue_event(bd, (BD_EVENT){BD_EVENT_POPUP, 0});
+            _queue_event(bd, BD_EVENT_POPUP, 0);
         }
         bd->gc_status = GC_STATUS_NONE;
     }
@@ -1365,7 +1366,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
             if (st->clip == NULL) {
                 // We previously reached the last clip.  Nothing
                 // else to read.
-                _queue_event(bd, (BD_EVENT){BD_EVENT_END_OF_TITLE, 0});
+                _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
                 return 0;
             }
             if (st->int_buf_off == 6144 || clip_pkt >= st->clip->end_pkt) {
@@ -1382,12 +1383,12 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
 
                     // handle still mode clips
                     if (pi->still_mode == BLURAY_STILL_INFINITE) {
-                        _queue_event(bd, (BD_EVENT){BD_EVENT_STILL_TIME, 0});
+                        _queue_event(bd, BD_EVENT_STILL_TIME, 0);
                         return 0;
                     }
                     if (pi->still_mode == BLURAY_STILL_TIME) {
                         if (bd->event_queue) {
-                            _queue_event(bd, (BD_EVENT){BD_EVENT_STILL_TIME, pi->still_time});
+                            _queue_event(bd, BD_EVENT_STILL_TIME, pi->still_time);
                             return 0;
                         }
                     }
@@ -1396,7 +1397,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                     st->clip = nav_next_clip(bd->title, st->clip);
                     if (st->clip == NULL) {
                         BD_DEBUG(DBG_BLURAY|DBG_STREAM, "End of title (%p)\n", bd);
-                        _queue_event(bd, (BD_EVENT){BD_EVENT_END_OF_TITLE, 0});
+                        _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
                         return 0;
                     }
                     if (!_open_m2ts(bd, st)) {
@@ -1978,7 +1979,7 @@ static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
             return;
         case PSR_TITLE_NUMBER:
             /* pass to the application */
-            _queue_event(bd, (BD_EVENT){BD_EVENT_TITLE, ev->new_val});
+            _queue_event(bd, BD_EVENT_TITLE, ev->new_val);
             return;
         case PSR_CHAPTER:
             /* will be selected automatically */
@@ -2021,11 +2022,11 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
 
         /* current playback position */
 
-        case PSR_ANGLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_ANGLE,    ev->new_val}); break;
-        case PSR_TITLE_NUMBER: _queue_event(bd, (BD_EVENT){BD_EVENT_TITLE,    ev->new_val}); break;
-        case PSR_PLAYLIST:     _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYLIST, ev->new_val}); break;
-        case PSR_PLAYITEM:     _queue_event(bd, (BD_EVENT){BD_EVENT_PLAYITEM, ev->new_val}); break;
-        case PSR_CHAPTER:      _queue_event(bd, (BD_EVENT){BD_EVENT_CHAPTER,  ev->new_val}); break;
+        case PSR_ANGLE_NUMBER: _queue_event(bd, BD_EVENT_ANGLE,    ev->new_val); break;
+        case PSR_TITLE_NUMBER: _queue_event(bd, BD_EVENT_TITLE,    ev->new_val); break;
+        case PSR_PLAYLIST:     _queue_event(bd, BD_EVENT_PLAYLIST, ev->new_val); break;
+        case PSR_PLAYITEM:     _queue_event(bd, BD_EVENT_PLAYITEM, ev->new_val); break;
+        case PSR_CHAPTER:      _queue_event(bd, BD_EVENT_CHAPTER,  ev->new_val); break;
 
         default:;
     }
@@ -2042,37 +2043,37 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
         /* stream selection */
 
         case PSR_IG_STREAM_ID:
-            _queue_event(bd, (BD_EVENT){BD_EVENT_IG_STREAM, ev->new_val});
+            _queue_event(bd, BD_EVENT_IG_STREAM, ev->new_val);
             break;
 
         case PSR_PRIMARY_AUDIO_ID:
-            _queue_event(bd, (BD_EVENT){BD_EVENT_AUDIO_STREAM, ev->new_val});
+            _queue_event(bd, BD_EVENT_AUDIO_STREAM, ev->new_val);
             break;
 
         case PSR_PG_STREAM:
             if ((ev->new_val & 0x80000fff) != (ev->old_val & 0x80000fff)) {
-                _queue_event(bd, (BD_EVENT){BD_EVENT_PG_TEXTST,        !!(ev->new_val & 0x80000000)});
-                _queue_event(bd, (BD_EVENT){BD_EVENT_PG_TEXTST_STREAM,    ev->new_val & 0xfff});
+                _queue_event(bd, BD_EVENT_PG_TEXTST,        !!(ev->new_val & 0x80000000));
+                _queue_event(bd, BD_EVENT_PG_TEXTST_STREAM,    ev->new_val & 0xfff);
             }
             break;
 
         case PSR_SECONDARY_AUDIO_VIDEO:
             /* secondary video */
             if ((ev->new_val & 0x8f00ff00) != (ev->old_val & 0x8f00ff00)) {
-                _queue_event(bd, (BD_EVENT){BD_EVENT_SECONDARY_VIDEO, !!(ev->new_val & 0x80000000)});
-                _queue_event(bd, (BD_EVENT){BD_EVENT_SECONDARY_VIDEO_SIZE, (ev->new_val >> 24) & 0xf});
-                _queue_event(bd, (BD_EVENT){BD_EVENT_SECONDARY_VIDEO_STREAM, (ev->new_val & 0xff00) >> 8});
+                _queue_event(bd, BD_EVENT_SECONDARY_VIDEO, !!(ev->new_val & 0x80000000));
+                _queue_event(bd, BD_EVENT_SECONDARY_VIDEO_SIZE, (ev->new_val >> 24) & 0xf);
+                _queue_event(bd, BD_EVENT_SECONDARY_VIDEO_STREAM, (ev->new_val & 0xff00) >> 8);
             }
             /* secondary audio */
             if ((ev->new_val & 0x400000ff) != (ev->old_val & 0x400000ff)) {
-                _queue_event(bd, (BD_EVENT){BD_EVENT_SECONDARY_AUDIO, !!(ev->new_val & 0x40000000)});
-                _queue_event(bd, (BD_EVENT){BD_EVENT_SECONDARY_AUDIO_STREAM, ev->new_val & 0xff});
+                _queue_event(bd, BD_EVENT_SECONDARY_AUDIO, !!(ev->new_val & 0x40000000));
+                _queue_event(bd, BD_EVENT_SECONDARY_AUDIO_STREAM, ev->new_val & 0xff);
             }
             break;
 
         /* 3D status */
         case PSR_3D_STATUS:
-            _queue_event(bd, (BD_EVENT){BD_EVENT_STEREOSCOPIC_STATUS, ev->new_val & 1});
+            _queue_event(bd, BD_EVENT_STEREOSCOPIC_STATUS, ev->new_val & 1);
             break;
 
         default:;
@@ -2321,12 +2322,12 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             break;
 
         case HDMV_EVENT_PLAY_PI:
-            _queue_event(bd, (BD_EVENT){BD_EVENT_SEEK, 0});
+            _queue_event(bd, BD_EVENT_SEEK, 0);
             bd_seek_playitem(bd, hev->param);
             break;
 
         case HDMV_EVENT_PLAY_PM:
-            _queue_event(bd, (BD_EVENT){BD_EVENT_SEEK, 0});
+            _queue_event(bd, BD_EVENT_SEEK, 0);
             bd_seek_mark(bd, hev->param);
             break;
 
@@ -2336,7 +2337,7 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             break;
 
         case HDMV_EVENT_STILL:
-            _queue_event(bd, (BD_EVENT){BD_EVENT_STILL, hev->param});
+            _queue_event(bd, BD_EVENT_STILL, hev->param);
             break;
 
         case HDMV_EVENT_ENABLE_BUTTON:
@@ -2372,7 +2373,7 @@ static int _run_hdmv(BLURAY *bd)
 
     /* run VM */
     if (hdmv_vm_run(bd->hdmv_vm, &hdmv_ev) < 0) {
-        _queue_event(bd, (BD_EVENT){BD_EVENT_ERROR, 0});
+        _queue_event(bd, BD_EVENT_ERROR, 0);
         bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
         return -1;
     }
