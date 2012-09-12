@@ -39,7 +39,8 @@ int start_xlet(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava);
 void* load_jvm();
 
 BDJAVA* bdj_open(const char *path, const char *start,
-                 struct bluray *bd, struct bd_registers_s *registers)
+                 struct bluray *bd, struct bd_registers_s *registers,
+                 struct indx_root_s *index)
 {
     // first load the jvm using dlopen
     void* jvm_lib = load_jvm();
@@ -52,6 +53,8 @@ BDJAVA* bdj_open(const char *path, const char *start,
     BDJAVA* bdjava = malloc(sizeof(BDJAVA));
     bdjava->bd = bd;
     bdjava->reg = registers;
+    bdjava->index = index;
+    bdjava->path = path;
 
     JavaVMInitArgs args;
 

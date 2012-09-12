@@ -3,15 +3,19 @@
 
 #include "libbluray/register.h"
 #include "libbluray/bluray.h"
+#include "libbluray/bdnav/index_parse.h"
 #include <jni.h>
 
 struct bdjava_s {
-    BD_REGISTERS* reg;
-    BLURAY* bd;
+    BLURAY       *bd;
+    BD_REGISTERS *reg;
+    INDX_ROOT    *index;
 
     // JNI
     JavaVM* jvm;
     JNIEnv* env;
+
+    const char *path;
 };
 
 #endif

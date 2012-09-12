@@ -26,9 +26,10 @@ typedef struct bdjava_s BDJAVA;
 
 struct bluray;
 struct bd_registers_s;
+struct indx_root_s;
 
 BDJAVA* bdj_open(const char *path, const char *start,
-                 struct bluray *bd, struct bd_registers_s *registers);
+                 struct bluray *bd, struct bd_registers_s *registers, struct indx_root_s *index);
 void bdj_close(BDJAVA *bdjava);
 
 void bdj_send_event(BDJAVA *bdjava, int type, int keyCode);
