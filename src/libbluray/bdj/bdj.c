@@ -38,7 +38,8 @@ typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *
 int start_xlet(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava);
 void* load_jvm();
 
-BDJAVA* bdj_open(const char *path, const char* start, void* bd, void* registers)
+BDJAVA* bdj_open(const char *path, const char *start,
+                 struct bluray *bd, struct bd_registers_s *registers)
 {
     // first load the jvm using dlopen
     void* jvm_lib = load_jvm();
