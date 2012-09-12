@@ -2022,11 +2022,21 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
 
         /* current playback position */
 
-        case PSR_ANGLE_NUMBER: _queue_event(bd, BD_EVENT_ANGLE,    ev->new_val); break;
-        case PSR_TITLE_NUMBER: _queue_event(bd, BD_EVENT_TITLE,    ev->new_val); break;
-        case PSR_PLAYLIST:     _queue_event(bd, BD_EVENT_PLAYLIST, ev->new_val); break;
-        case PSR_PLAYITEM:     _queue_event(bd, BD_EVENT_PLAYITEM, ev->new_val); break;
-        case PSR_CHAPTER:      _queue_event(bd, BD_EVENT_CHAPTER,  ev->new_val); break;
+        case PSR_ANGLE_NUMBER:
+            _queue_event(bd, BD_EVENT_ANGLE,    ev->new_val);
+            break;
+        case PSR_TITLE_NUMBER:
+            _queue_event(bd, BD_EVENT_TITLE,    ev->new_val);
+            break;
+        case PSR_PLAYLIST:
+            _queue_event(bd, BD_EVENT_PLAYLIST, ev->new_val);
+            break;
+        case PSR_PLAYITEM:
+            _queue_event(bd, BD_EVENT_PLAYITEM, ev->new_val);
+            break;
+        case PSR_CHAPTER:
+            _queue_event(bd, BD_EVENT_CHAPTER,  ev->new_val);
+            break;
 
         default:;
     }
