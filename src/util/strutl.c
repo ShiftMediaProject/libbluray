@@ -19,6 +19,8 @@
 
 #include "strutl.h"
 
+#include "macro.h"
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
