@@ -1499,11 +1499,11 @@ static int _preload_ig_subpath(BLURAY *bd)
     int      ig_subpath = -1;
     uint16_t ig_pid     = 0;
 
-    _find_ig_stream(bd, &ig_pid, &ig_subpath);
-
     if (!bd->graphics_controller) {
         return 0;
     }
+
+    _find_ig_stream(bd, &ig_pid, &ig_subpath);
 
     if (ig_subpath < 0) {
         return 0;
