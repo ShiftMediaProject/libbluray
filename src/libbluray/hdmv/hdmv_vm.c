@@ -220,7 +220,7 @@ static int _get_event(HDMV_VM *p, HDMV_EVENT *ev)
     return -1;
 }
 
-static int _queue_event(HDMV_VM *p, uint32_t event, uint32_t param)
+static int _queue_event(HDMV_VM *p, hdmv_event_e event, uint32_t param)
 {
     unsigned i;
     for (i = 0; i < sizeof(p->event) / sizeof(p->event[0]) - 1; i++) {
