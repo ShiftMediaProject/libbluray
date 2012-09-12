@@ -107,6 +107,8 @@ typedef struct {
 
 struct bluray {
 
+    BD_MUTEX          mutex;  /* protect API function access to internal data */
+
     /* current disc */
     char             *device_path;
     BLURAY_DISC_INFO  disc_info;
@@ -1083,6 +1085,8 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
     _fill_disc_info(bd);
 
+    bd_mutex_init(&bd->mutex);
+
     BD_DEBUG(DBG_BLURAY, "BLURAY initialized! (%p)\n", bd);
 
     return bd;
@@ -1116,6 +1120,8 @@ void bd_close(BLURAY *bd)
 
     _free_event_queue(bd);
     X_FREE(bd->device_path);
+
+    bd_mutex_destroy(&bd->mutex);
 
     BD_DEBUG(DBG_BLURAY, "BLURAY destroyed! (%p)\n", bd);
 
@@ -1168,6 +1174,8 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
 
     tick /= 2;
 
+    bd_mutex_lock(&bd->mutex);
+
     if (bd->title &&
         tick < bd->title->duration) {
 
@@ -1176,8 +1184,10 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
         // Find the closest access unit to the requested position
         clip = nav_time_search(bd->title, tick, &clip_pkt, &out_pkt);
 
-        return _seek_internal(bd, clip, out_pkt, clip_pkt);
+        _seek_internal(bd, clip, out_pkt, clip_pkt);
     }
+
+    bd_mutex_unlock(&bd->mutex);
 
     return bd->s_pos;
 }
@@ -1187,12 +1197,16 @@ uint64_t bd_tell_time(BLURAY *bd)
     uint32_t clip_pkt = 0, out_pkt = 0, out_time = 0;
     NAV_CLIP *clip;
 
+    bd_mutex_lock(&bd->mutex);
+
     if (bd && bd->title) {
         clip = nav_packet_search(bd->title, bd->s_pos / 192, &clip_pkt, &out_pkt, &out_time);
         if (clip) {
             out_time += clip->start_time;
         }
     }
+
+    bd_mutex_unlock(&bd->mutex);
 
     return ((uint64_t)out_time) * 2;
 }
@@ -1202,6 +1216,8 @@ int64_t bd_seek_chapter(BLURAY *bd, unsigned chapter)
     uint32_t clip_pkt, out_pkt;
     NAV_CLIP *clip;
 
+    bd_mutex_lock(&bd->mutex);
+
     if (bd->title &&
         chapter < bd->title->chap_list.count) {
 
@@ -1210,8 +1226,10 @@ int64_t bd_seek_chapter(BLURAY *bd, unsigned chapter)
         // Find the closest access unit to the requested position
         clip = nav_chapter_search(bd->title, chapter, &clip_pkt, &out_pkt);
 
-        return _seek_internal(bd, clip, out_pkt, clip_pkt);
+        _seek_internal(bd, clip, out_pkt, clip_pkt);
     }
+
+    bd_mutex_unlock(&bd->mutex);
 
     return bd->s_pos;
 }
@@ -1219,31 +1237,44 @@ int64_t bd_seek_chapter(BLURAY *bd, unsigned chapter)
 int64_t bd_chapter_pos(BLURAY *bd, unsigned chapter)
 {
     uint32_t clip_pkt, out_pkt;
+    int64_t ret = -1;
+
+    bd_mutex_lock(&bd->mutex);
 
     if (bd->title &&
         chapter < bd->title->chap_list.count) {
 
         // Find the closest access unit to the requested position
         nav_chapter_search(bd->title, chapter, &clip_pkt, &out_pkt);
-        return (int64_t)out_pkt * 192;
+        ret = (int64_t)out_pkt * 192;
     }
 
-    return -1;
+    bd_mutex_unlock(&bd->mutex);
+
+    return ret;
 }
 
 uint32_t bd_get_current_chapter(BLURAY *bd)
 {
+    uint32_t ret = 0;
+
+    bd_mutex_lock(&bd->mutex);
+
     if (bd->title) {
-        return nav_chapter_get_current(bd->st0.clip, bd->st0.clip_pos / 192);
+        ret = nav_chapter_get_current(bd->st0.clip, bd->st0.clip_pos / 192);
     }
 
-    return 0;
+    bd_mutex_unlock(&bd->mutex);
+
+    return ret;
 }
 
 int64_t bd_seek_playitem(BLURAY *bd, unsigned clip_ref)
 {
     uint32_t clip_pkt, out_pkt;
     NAV_CLIP *clip;
+
+    bd_mutex_lock(&bd->mutex);
 
     if (bd->title &&
         clip_ref < bd->title->clip_list.count) {
@@ -1254,8 +1285,10 @@ int64_t bd_seek_playitem(BLURAY *bd, unsigned clip_ref)
       clip_pkt = clip->start_pkt;
       out_pkt  = clip->pos;
 
-      return _seek_internal(bd, clip, out_pkt, clip_pkt);
+      _seek_internal(bd, clip, out_pkt, clip_pkt);
     }
+
+    bd_mutex_unlock(&bd->mutex);
 
     return bd->s_pos;
 }
@@ -1265,6 +1298,8 @@ int64_t bd_seek_mark(BLURAY *bd, unsigned mark)
     uint32_t clip_pkt, out_pkt;
     NAV_CLIP *clip;
 
+    bd_mutex_lock(&bd->mutex);
+
     if (bd->title &&
         mark < bd->title->mark_list.count) {
 
@@ -1273,8 +1308,10 @@ int64_t bd_seek_mark(BLURAY *bd, unsigned mark)
         // Find the closest access unit to the requested position
         clip = nav_mark_search(bd->title, mark, &clip_pkt, &out_pkt);
 
-        return _seek_internal(bd, clip, out_pkt, clip_pkt);
+        _seek_internal(bd, clip, out_pkt, clip_pkt);
     }
+
+    bd_mutex_unlock(&bd->mutex);
 
     return bd->s_pos;
 }
@@ -1283,6 +1320,8 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos)
 {
     uint32_t pkt, clip_pkt, out_pkt, out_time;
     NAV_CLIP *clip;
+
+    bd_mutex_lock(&bd->mutex);
 
     if (bd->title &&
         pos < (uint64_t)bd->title->packets * 192) {
@@ -1294,23 +1333,42 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos)
         // Find the closest access unit to the requested position
         clip = nav_packet_search(bd->title, pkt, &clip_pkt, &out_pkt, &out_time);
 
-        return _seek_internal(bd, clip, out_pkt, clip_pkt);
+        _seek_internal(bd, clip, out_pkt, clip_pkt);
     }
+
+    bd_mutex_unlock(&bd->mutex);
 
     return bd->s_pos;
 }
 
 uint64_t bd_get_title_size(BLURAY *bd)
 {
+    uint64_t ret = 0;
+
+    bd_mutex_lock(&bd->mutex);
+
     if (bd && bd->title) {
-        return (uint64_t)bd->title->packets * 192;
+        ret = (uint64_t)bd->title->packets * 192;
     }
-    return UINT64_C(0);
+
+    bd_mutex_unlock(&bd->mutex);
+
+    return ret;
 }
 
 uint64_t bd_tell(BLURAY *bd)
 {
-    return bd ? bd->s_pos : INT64_C(0);
+    uint64_t ret = 0;
+
+    bd_mutex_lock(&bd->mutex);
+
+    if (bd) {
+        ret = bd->s_pos;
+    }
+
+    bd_mutex_unlock(&bd->mutex);
+
+    return ret;
 }
 
 /*
@@ -1462,6 +1520,9 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
 int bd_read_skip_still(BLURAY *bd)
 {
     BD_STREAM *st = &bd->st0;
+    int ret = 0;
+
+    bd_mutex_lock(&bd->mutex);
 
     if (st->clip) {
         MPLS_PI *pi = &st->clip->title->pl->play_item[st->clip->ref];
@@ -1474,7 +1535,9 @@ int bd_read_skip_still(BLURAY *bd)
         }
     }
 
-    return 0;
+    bd_mutex_unlock(&bd->mutex);
+
+    return ret;
 }
 
 /*
@@ -1621,6 +1684,8 @@ int bd_select_playlist(BLURAY *bd, uint32_t playlist)
     char *f_name = str_printf("%05d.mpls", playlist);
     int result;
 
+    bd_mutex_lock(&bd->mutex);
+
     if (bd->title_list) {
         /* update current title */
         unsigned i;
@@ -1633,6 +1698,8 @@ int bd_select_playlist(BLURAY *bd, uint32_t playlist)
     }
 
     result = _open_playlist(bd, f_name, 0);
+
+    bd_mutex_unlock(&bd->mutex);
 
     X_FREE(f_name);
     return result;
@@ -1706,11 +1773,15 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle)
 {
     uint32_t clip_pkt;
 
+    bd_mutex_lock(&bd->mutex);
+
     clip_pkt = (bd->st0.clip_pos + 191) / 192;
     bd->angle_change_pkt = nav_angle_change_search(bd->st0.clip, clip_pkt,
                                                    &bd->angle_change_time);
     bd->request_angle = angle;
     bd->seamless_angle_change = 1;
+
+    bd_mutex_unlock(&bd->mutex);
 }
 
 /*
@@ -2260,7 +2331,7 @@ int bd_play(BLURAY *bd)
     return _play_title(bd, BLURAY_TITLE_FIRST_PLAY);
 }
 
-int bd_play_title(BLURAY *bd, unsigned title)
+int _try_play_title(BLURAY *bd, unsigned title)
 {
     if (bd->title_type == title_undef && title != BLURAY_TITLE_FIRST_PLAY) {
         BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_play_title(): bd_play() not called\n");
@@ -2282,7 +2353,16 @@ int bd_play_title(BLURAY *bd, unsigned title)
     return _play_title(bd, title);
 }
 
-int bd_menu_call(BLURAY *bd, int64_t pts)
+int bd_play_title(BLURAY *bd, unsigned title)
+{
+    int ret;
+    bd_mutex_lock(&bd->mutex);
+    ret = _try_play_title(bd, title);
+    bd_mutex_unlock(&bd->mutex);
+    return ret;
+}
+
+static int _try_menu_call(BLURAY *bd, int64_t pts)
 {
     if (pts >= 0) {
         bd_psr_write(bd->regs, PSR_TIME, (uint32_t)(((uint64_t)pts) >> 1));
@@ -2310,6 +2390,15 @@ int bd_menu_call(BLURAY *bd, int64_t pts)
     }
 
     return _play_title(bd, BLURAY_TITLE_TOP_MENU);
+}
+
+int bd_menu_call(BLURAY *bd, int64_t pts)
+{
+    int ret;
+    bd_mutex_lock(&bd->mutex);
+    ret = _try_menu_call(bd, pts);
+    bd_mutex_unlock(&bd->mutex);
+    return ret;
 }
 
 static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
@@ -2398,7 +2487,7 @@ static int _run_hdmv(BLURAY *bd)
     return 0;
 }
 
-int bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
+static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
 {
     if (_get_event(bd, event)) {
         return 0;
@@ -2440,6 +2529,15 @@ int bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
     _get_event(bd, event);
 
     return bytes;
+}
+
+int bd_read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
+{
+    int ret;
+    bd_mutex_lock(&bd->mutex);
+    ret = _read_ext(bd, buf, len, event);
+    bd_mutex_unlock(&bd->mutex);
+    return ret;
 }
 
 int bd_get_event(BLURAY *bd, BD_EVENT *event)
