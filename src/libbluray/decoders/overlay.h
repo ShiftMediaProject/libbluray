@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010       hpi1
+ * Copyright (C) 2010-2012  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,7 +32,7 @@ typedef enum {
 typedef enum {
     BD_OVERLAY_INIT,    /* init overlay plane. Size of full plane in x,y,w,h */
     BD_OVERLAY_CLEAR,   /* clear plane */
-    BD_OVERLAY_DRAW,    /* draw bitmap (x,y,w,h,img,palette) */
+    BD_OVERLAY_DRAW,    /* draw bitmap (x,y,w,h,img,palette,crop) */
     BD_OVERLAY_WIPE,    /* clear area (x,y,w,h) */
     BD_OVERLAY_FLUSH,   /* all changes have been done, flush overlay to display at given pts */
     BD_OVERLAY_CLOSE,   /* close overlay */
@@ -62,6 +62,11 @@ typedef struct bd_overlay_s {
 
     const BD_PG_PALETTE_ENTRY * palette;
     const BD_PG_RLE_ELEM      * img;
+
+    uint16_t crop_x;
+    uint16_t crop_y;
+    uint16_t crop_w;
+    uint16_t crop_h;
 
 } BD_OVERLAY;
 
