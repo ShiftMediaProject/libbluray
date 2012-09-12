@@ -337,6 +337,16 @@ int64_t bd_seek_mark(BLURAY *bd, unsigned mark);
 
 /**
  *
+ *  Seek to a playitem.
+ *
+ * @param bd  BLURAY object
+ * @param playitem to seek to
+ * @return current seek position
+ */
+int64_t bd_seek_playitem(BLURAY *bd, unsigned clip_ref);
+
+/**
+ *
  *  Select a playlist
  *
  * @param bd  BLURAY object
@@ -653,6 +663,15 @@ typedef void (*bd_overlay_proc_f)(void *, const struct bd_overlay_s * const);
  * @return 1 on success, 0 if error
  */
 void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func);
+
+/**
+ *
+ *  Update current pts.
+ *
+ * @param bd  BLURAY object
+ * @param pts current playback position (1/90000s) or -1
+ */
+void bd_set_scr(BLURAY *bd, int64_t pts);
 
 /**
  *
