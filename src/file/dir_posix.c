@@ -33,12 +33,13 @@
 #endif
 #if defined(_WIN32)
 #   include <io.h>
+#   include <windows.h>
 #endif
 
 #if defined(_WIN32)
 typedef struct {
-    long               handle;
-    struct _finddata_t info;
+    long                handle;
+    struct _wfinddata_t info;
 } dir_data_t;
 #endif
 
@@ -67,10 +68,10 @@ static int dir_read_posix(BD_DIR_H *dir, BD_DIRENT *entry)
     if (!priv->info.name[0]) {
         return 1;
     }
-    strncpy(entry->d_name, priv->info.name, sizeof(entry->d_name));
+    WideCharToMultiByte(CP_UTF8, 0, priv->info.name, -1, entry->d_name, sizeof(entry->d_name), NULL, NULL);
 
     priv->info.name[0] = 0;
-    _findnext(priv->handle, &priv->info);
+    _wfindnext(priv->handle, &priv->info);
 
 #else
     struct dirent e, *p_e;
@@ -102,7 +103,11 @@ static BD_DIR_H *dir_open_posix(const char* dirname)
 
     dir->internal = priv;
 
-    priv->handle = _findfirst(filespec, &priv->info);
+    wchar_t wfilespec[MAX_PATH];
+    if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, filespec, -1, wfilespec, MAX_PATH))
+        priv->handle = _wfindfirst(wfilespec, &priv->info);
+    else
+        priv->handle = -1;
 
     X_FREE(filespec);
 
