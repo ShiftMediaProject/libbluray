@@ -150,8 +150,9 @@ struct bluray {
 
     HDMV_VM        *hdmv_vm;
     uint8_t        hdmv_suspended;
-
-    void           *bdjava;
+#ifdef USING_BDJAVA
+    BDJAVA         *bdjava;
+#endif
 
     /* graphics */
     GRAPHICS_CONTROLLER *graphics_controller;
@@ -1951,14 +1952,12 @@ int bd_start_bdj(BLURAY *bd, const char *start_object)
 
 void bd_stop_bdj(BLURAY *bd)
 {
-    if (bd->bdjava != NULL) {
 #ifdef USING_BDJAVA
+    if (bd->bdjava != NULL) {
         bdj_close((BDJAVA*)bd->bdjava);
-#else
-        BD_DEBUG(DBG_BLURAY, "BD-J not compiled in (%p)\n", bd);
-#endif
         bd->bdjava = NULL;
     }
+#endif
 }
 
 /*
@@ -2142,22 +2141,15 @@ static int _play_bdj(BLURAY *bd, const char *name)
 {
     bd->title_type = title_bdj;
 
-#ifdef USING_BDJAVA
     bd_stop_bdj(bd);
     return bd_start_bdj(bd, name);
-#else
-    BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_bdj_play(BDMV/BDJ/%s.jar) not implemented (%p)\n", name, bd);
-    return 0;
-#endif
 }
 
 static int _play_hdmv(BLURAY *bd, unsigned id_ref)
 {
     int result = 1;
 
-#ifdef USING_BDJAVA
     bd_stop_bdj(bd);
-#endif
 
     bd->title_type = title_hdmv;
 
