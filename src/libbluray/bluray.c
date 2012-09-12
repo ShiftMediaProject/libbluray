@@ -2155,11 +2155,11 @@ static int _play_hdmv(BLURAY *bd, unsigned id_ref)
 {
     int result = 1;
 
-    bd->title_type = title_hdmv;
-
 #ifdef USING_BDJAVA
     bd_stop_bdj(bd);
 #endif
+
+    bd->title_type = title_hdmv;
 
     if (!bd->hdmv_vm) {
         bd->hdmv_vm = hdmv_vm_init(bd->device_path, bd->regs, bd->index);
