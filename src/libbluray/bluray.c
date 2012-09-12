@@ -60,9 +60,15 @@
 #include <sys/mount.h>
 #endif
 
+#ifdef __cplusplus
+typedef int     (*fptr_int)(...);
+typedef int32_t (*fptr_int32)(...);
+typedef void*   (*fptr_p_void)(...);
+#else
 typedef int     (*fptr_int)();
 typedef int32_t (*fptr_int32)();
 typedef void*   (*fptr_p_void)();
+#endif
 
 #define MAX_EVENTS 31  /* 2^n - 1 */
 typedef struct bd_event_queue_s {
