@@ -47,12 +47,16 @@ static const char *dlerror(char *buf, int buf_size)
                        wbuf, sizeof(wbuf)/sizeof(wbuf[0]), NULL)) {
         WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, buf, buf_size, NULL, NULL);
     } else {
+#ifdef _MSC_VER
+        _snprintf(buf, buf_size, "error %d", (int)error_code);
+#else
         snprintf(buf, buf_size, "error %d", (int)error_code);
+#endif
     }
 
     return buf;
 }
-#endif
+#endif /* _WIN32 */
 
 static void   *_dl_dlopen  ( const char* path )
 {
