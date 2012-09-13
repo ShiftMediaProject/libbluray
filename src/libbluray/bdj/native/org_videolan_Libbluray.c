@@ -19,8 +19,8 @@ jobjectArray _make_stream_array(JNIEnv* env, int count, BLURAY_STREAM_INFO* stre
         BLURAY_STREAM_INFO s = streams[i];
         jstring lang = (*env)->NewStringUTF(env, (char*)s.lang);
         jobject streamObj = bdj_make_object(env, "org/videolan/StreamInfo",
-                "(BBBCLjava/lang/String;S)V", s.coding_type, s.format,
-                s.rate, s.char_code, lang, s.pid);
+                "(BBBCLjava/lang/String;BB)V", s.coding_type, s.format,
+                s.rate, s.char_code, lang, s.aspect, s.subpath_id);
         (*env)->SetObjectArrayElement(env, streamArr, i, streamObj);
     }
 
@@ -64,8 +64,8 @@ jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
                 info.sec_audio_streams);
 
         jobject clip = bdj_make_object(env, "org/videolan/TIClip",
-                "([Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;)V",
-                videoStreams, audioStreams, pgStreams, igStreams, secVideoStreams, secAudioStreams);
+                "(I[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;)V",
+                i, videoStreams, audioStreams, pgStreams, igStreams, secVideoStreams, secAudioStreams);
 
         (*env)->SetObjectArrayElement(env, clips, i, clip);
     }

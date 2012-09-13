@@ -20,8 +20,9 @@
 package org.videolan;
 
 public class TIClip {
-    public TIClip(StreamInfo[] videoStreams, StreamInfo[] audioStreams, StreamInfo[] pgStreams,
+    public TIClip(int index, StreamInfo[] videoStreams, StreamInfo[] audioStreams, StreamInfo[] pgStreams,
             StreamInfo[] igStreams, StreamInfo[] secVideoStreams, StreamInfo[] secAudioStreams) {
+        this.index = index;
         this.videoStreams = videoStreams;
         this.audioStreams = audioStreams;
         this.pgStreams = pgStreams;
@@ -30,30 +31,59 @@ public class TIClip {
         this.secAudioStreams = secAudioStreams;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
+    public int getVideoStreamCount() {
+        return videoStreams.length;
+    }
+
     public StreamInfo[] getVideoStreams() {
         return videoStreams;
+    }
+
+    public int getAudioStreamCount() {
+        return audioStreams.length;
     }
 
     public StreamInfo[] getAudioStreams() {
         return audioStreams;
     }
 
+    public int getPgStreamCount() {
+        return pgStreams.length;
+    }
+
     public StreamInfo[] getPgStreams() {
         return pgStreams;
+    }
+
+    public int getIgStreamCount() {
+        return igStreams.length;
     }
 
     public StreamInfo[] getIgStreams() {
         return igStreams;
     }
 
+    public int getSecVideoStreamCount() {
+        return secVideoStreams.length;
+    }
+
     public StreamInfo[] getSecVideoStreams() {
         return secVideoStreams;
+    }
+
+    public int getSecAudioStreamCount() {
+        return secAudioStreams.length;
     }
 
     public StreamInfo[] getSecAudioStreams() {
         return secAudioStreams;
     }
 
+    private int index;
     private StreamInfo[] videoStreams = null;
     private StreamInfo[] audioStreams = null;
     private StreamInfo[] pgStreams = null;

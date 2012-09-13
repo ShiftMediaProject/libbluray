@@ -12,7 +12,9 @@ import org.davic.net.InvalidLocatorException;
 import org.videolan.StreamInfo;
 
 public class TitleComponentImpl implements TitleComponent {
-    protected TitleComponentImpl(StreamInfo stream, StreamType type, boolean primary, int playlistId, int playitemId, Title service) {
+    protected TitleComponentImpl(int stn, StreamInfo stream, StreamType type, boolean primary, int playlistId, int playitemId, Title service)
+    {
+        this.stn = stn;
         this.stream = stream;
         this.type = type;
         this.primary = primary;
@@ -41,29 +43,27 @@ public class TitleComponentImpl implements TitleComponent {
     }
 
     public Locator getLocator() {
-        StringBuilder str = new StringBuilder();
-        str.append("bd://");
-        str.append(((TitleImpl)service).getTitleNum());
-        str.append(".PLAYLIST:");
-        str.append(playlistId);
-        str.append(".ITEM:");
-        str.append(playitemId);
+        String str;
+
+        str = "bd://" + ((TitleImpl)service).getTitleNum() +
+                  ".PLAYLIST:" + playlistId +
+                  ".ITEM:" + playitemId;
 
         if (type.equals(StreamType.AUDIO) && primary)
-            str.append(".A1:" + stream.getPid());
+            str += ".A1:" + stn;
         else if (type.equals(StreamType.VIDEO) && primary)
-            str.append(".V1:" + stream.getPid());
+            str += ".V1:" + stn;
         else if (type.equals(StreamType.AUDIO) && !primary)
-            str.append(".A2:" + stream.getPid());
+            str += ".A2:" + stn;
         else if (type.equals(StreamType.VIDEO) && !primary)
-            str.append(".V2:" + stream.getPid());
+            str += ".V2:" + stn;
         else if (type.equals(StreamType.SUBTITLES) && primary)
-            str.append(".P:" + stream.getPid());
+            str += ".P:" + stn;
         else
             return null;
 
         try {
-            return new BDLocator(str.toString());
+            return new BDLocator(str);
         } catch (InvalidLocatorException e) {
             return null;
         }
@@ -78,49 +78,18 @@ public class TitleComponentImpl implements TitleComponent {
     }
 
     public CodingType getCodingType() {
-        switch (stream.getCoding_type()) {
-        case (byte)0x02:
-            return CodingType.MPEG2_VIDEO;
-        case (byte)0x1b:
-            return CodingType.MPEG4_AVC_VIDEO;
-        case (byte)0xea:
-            return CodingType.SMPTE_VC1_VIDEO;
-        case (byte)0x80:
-            return CodingType.LPCM_AUDIO;
-        case (byte)0x81:
-            return CodingType.DOLBY_AC3_AUDIO;
-        case (byte)0x82:
-            return CodingType.DTS_AUDIO;
-        case (byte)0x83:
-            return CodingType.DOLBY_LOSSLESS_AUDIO;
-        case (byte)0x84:
-        case (byte)0xA1:
-            return CodingType.DOLBY_DIGITAL_PLUS_AUDIO;
-        case (byte)0x85:
-            return CodingType.DTS_HD_AUDIO_EXCEPT_XLL;
-        case (byte)0x86:
-            return CodingType.DTS_HD_AUDIO_XLL;
-        case (byte)0xA2:
-            return CodingType.DTS_HD_AUDIO;
-        case (byte)0x90:
-            return CodingType.PRESENTATION_GRAPHICS;
-        case (byte)0x91:
-            return CodingType.INTERACTIVE_GRAPHICS;
-        case (byte)0x92:
-            return CodingType.TEXT_SUBTITLE;
-        default:
-            return null;
-        }
+        return stream.getCodingType();
     }
 
     public int getStreamNumber() {
-        return stream.getPid();
+        return stn;
     }
 
     public int getSubPathId() {
-        throw new Error("Not implemented"); // TODO implement
+        return stream.getSubPathId();
     }
 
+    int stn;
     StreamInfo stream;
     StreamType type;
     boolean primary;

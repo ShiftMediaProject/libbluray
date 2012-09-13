@@ -57,17 +57,17 @@ public class PlayItemImpl implements PlayItem {
         
         int i = 0;
         for (int j = 0; j < video.length; i++, j++)
-            components[i] = new TitleComponentImpl(video[j], StreamType.VIDEO, true, playlistId, playitemId, service);
+            components[i] = new TitleComponentImpl(j + 1, video[j], StreamType.VIDEO, true, playlistId, playitemId, service);
         for (int j = 0; j < audio.length; i++, j++)
-            components[i] = new TitleComponentImpl(audio[j], StreamType.AUDIO, true, playlistId, playitemId, service);
+            components[i] = new TitleComponentImpl(j + 1, audio[j], StreamType.AUDIO, true, playlistId, playitemId, service);
         for (int j = 0; j < pg.length; i++, j++)
-            components[i] = new TitleComponentImpl(pg[j], StreamType.SUBTITLES, true, playlistId, playitemId, service);
+            components[i] = new TitleComponentImpl(j + 1, pg[j], StreamType.SUBTITLES, true, playlistId, playitemId, service);
         for (int j = 0; j < ig.length; i++, j++)
-            components[i] = new TitleComponentImpl(ig[j], StreamType.DATA, true, playlistId, playitemId, service);
+            components[i] = new TitleComponentImpl(j + 1, ig[j], StreamType.DATA, true, playlistId, playitemId, service);
         for (int j = 0; j < secVideo.length; i++, j++)
-            components[i] = new TitleComponentImpl(secVideo[j], StreamType.VIDEO, false, playlistId, playitemId, service);
+            components[i] = new TitleComponentImpl(j + 1, secVideo[j], StreamType.VIDEO, false, playlistId, playitemId, service);
         for (int j = 0; j < secAudio.length; i++, j++)
-            components[i] = new TitleComponentImpl(secAudio[j], StreamType.AUDIO, false, playlistId, playitemId, service);
+            components[i] = new TitleComponentImpl(j + 1, secAudio[j], StreamType.AUDIO, false, playlistId, playitemId, service);
         
         return components;
     }
