@@ -1132,8 +1132,8 @@ void bd_close(BLURAY *bd)
  * seeking and current position
  */
 
-static int64_t _seek_internal(BLURAY *bd,
-                              NAV_CLIP *clip, uint32_t title_pkt, uint32_t clip_pkt)
+static void _seek_internal(BLURAY *bd,
+                           NAV_CLIP *clip, uint32_t title_pkt, uint32_t clip_pkt)
 {
     if (_seek_stream(bd, &bd->st0, clip, clip_pkt) >= 0) {
 
@@ -1150,8 +1150,6 @@ static int64_t _seek_internal(BLURAY *bd,
             bd->bdplus_seek(bd->bdplus, bd->st0.clip_block_pos);
         }
     }
-
-    return bd->s_pos;
 }
 
 /* _change_angle() should be used only before call to _seek_internal() ! */
@@ -1384,7 +1382,7 @@ static int64_t _clip_seek_time(BLURAY *bd, uint64_t tick)
         // Find the closest access unit to the requested position
         nav_clip_time_search(bd->st0.clip, tick, &clip_pkt, &out_pkt);
 
-        return _seek_internal(bd, bd->st0.clip, out_pkt, clip_pkt);
+        _seek_internal(bd, bd->st0.clip, out_pkt, clip_pkt);
     }
 
     return bd->s_pos;
