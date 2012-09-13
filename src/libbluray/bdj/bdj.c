@@ -28,6 +28,7 @@
 #include "libbluray/register.h"
 #include "file/dl.h"
 #include "util/strutl.h"
+#include "util/macro.h"
 
 #include <jni.h>
 #include <stdlib.h>

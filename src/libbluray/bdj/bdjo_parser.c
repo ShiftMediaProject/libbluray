@@ -26,6 +26,7 @@
 
 #include "file/file.h"
 #include "util/bits.h"
+#include "util/macro.h"
 #include "bdj_util.h"
 
 /* Documentation: HD Cookbook

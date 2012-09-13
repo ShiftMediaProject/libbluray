@@ -771,7 +771,7 @@ _parse_subpath_extension(BITSTREAM *bits, MPLS_PL *pl)
 static int
 _parse_mpls_extension(BITSTREAM *bits, int id1, int id2, void *handle)
 {
-    MPLS_PL *pl = handle;
+    MPLS_PL *pl = (MPLS_PL*)handle;
 
     if (id1 == 2) {
         if (id2 == 2) {

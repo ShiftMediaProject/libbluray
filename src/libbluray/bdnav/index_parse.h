@@ -64,23 +64,23 @@ typedef enum {
 typedef struct {
     uint8_t           initial_output_mode_preference : 1; /* 0 - 2D, 1 - 3D */
     uint8_t           content_exist_flag : 1;
-    indx_video_format video_format;
-    indx_frame_rate   frame_rate;
+    uint8_t           video_format : 4;
+    uint8_t           frame_rate : 4;
     uint8_t           user_data[32];
 } INDX_APP_INFO;
 
 typedef struct {
-    indx_bdj_playback_type playback_type;
+    uint8_t                playback_type : 2;
     char                   name[6];
 } INDX_BDJ_OBJ;
 
 typedef struct {
-    indx_hdmv_playback_type playback_type;
+    uint8_t                 playback_type : 2;
     uint16_t                id_ref;
 } INDX_HDMV_OBJ;
 
 typedef struct {
-    indx_object_type   object_type;
+    uint8_t            object_type : 2;
     /*union {*/
         INDX_BDJ_OBJ   bdj;
         INDX_HDMV_OBJ  hdmv;
@@ -88,7 +88,7 @@ typedef struct {
 } INDX_PLAY_ITEM;
 
 typedef struct {
-    indx_object_type   object_type;
+    uint8_t            object_type : 2;
     uint8_t            access_type : 2;
     /*union {*/
         INDX_BDJ_OBJ   bdj;

@@ -134,7 +134,7 @@ void   *dl_dlopen  ( const char* path, const char *version )
 void   *dl_dlsym   ( void* handle, const char* symbol )
 {
 #if defined(_WIN32)
-    void *result = (void *)GetProcAddress(handle, symbol);
+    void *result = (void *)GetProcAddress((HMODULE)handle, symbol);
 
     if (!result) {
         char buf[128];
@@ -154,7 +154,7 @@ void   *dl_dlsym   ( void* handle, const char* symbol )
 int     dl_dlclose ( void* handle )
 {
 #if defined(_WIN32)
-    FreeLibrary(handle);
+    FreeLibrary((HMODULE)handle);
     return 0;
 #else
     return dlclose(handle);

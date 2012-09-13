@@ -850,7 +850,7 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
 #define VK_IS_CURSOR(vk)  (vk >= BD_VK_UP && vk <= BD_VK_RIGHT)
 #define VK_TO_NUMBER(vk)  ((vk) - BD_VK_0)
 
-static int _user_input(GRAPHICS_CONTROLLER *gc, bd_vk_key_e key, GC_NAV_CMDS *cmds)
+static int _user_input(GRAPHICS_CONTROLLER *gc, uint32_t key, GC_NAV_CMDS *cmds)
 {
     PG_DISPLAY_SET *s          = gc->igs;
     BD_IG_PAGE     *page       = NULL;

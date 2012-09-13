@@ -47,7 +47,7 @@ static void dir_close_posix(BD_DIR_H *dir)
 {
     if (dir) {
 #if defined(_WIN32)
-        dir_data_t *priv = dir->internal;
+        dir_data_t *priv = (dir_data_t*)dir->internal;
         _findclose(priv->handle);
         X_FREE(dir->internal);
 #else
@@ -63,7 +63,7 @@ static void dir_close_posix(BD_DIR_H *dir)
 static int dir_read_posix(BD_DIR_H *dir, BD_DIRENT *entry)
 {
 #if defined(_WIN32)
-    dir_data_t *priv = dir->internal;
+    dir_data_t *priv = (dir_data_t*)dir->internal;
 
     if (!priv->info.name[0]) {
         return 1;

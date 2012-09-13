@@ -567,7 +567,7 @@ _parse_extent_start_points(BITSTREAM *bits, CLPI_EXTENT_START *es)
 
 static int _parse_clpi_extension(BITSTREAM *bits, int id1, int id2, void *handle)
 {
-    CLPI_CL *cl = handle;
+    CLPI_CL *cl = (CLPI_CL*)handle;
 
     if (id1 == 2) {
         if (id2 == 4) {
