@@ -35,7 +35,7 @@ jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
     for (uint32_t i = 0; i < ti->mark_count; i++) {
         BLURAY_TITLE_MARK m = ti->marks[i];
         jobject mark = bdj_make_object(env, "org/videolan/TIMark",
-                "(IJJJ)V", m.idx, m.start, m.duration, m.offset);
+                "(IIJJJI)V", m.idx, m.type, m.start, m.duration, m.offset, m.clip_ref);
         (*env)->SetObjectArrayElement(env, marks, i, mark);
     }
 
