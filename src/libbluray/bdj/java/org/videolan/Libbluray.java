@@ -27,14 +27,14 @@ public class Libbluray {
         return getTitlesN(nativePointer, flags);
     }
 
-    public static TitleInfo getTitleInfo(int titleNum) {
+    public static PlaylistInfo getTitleInfo(int titleNum) {
         if (titleNum < 0)
             throw new IllegalArgumentException();
 
         return getTitleInfoN(nativePointer, titleNum);
     }
 
-    public static TitleInfo getPlaylistInfo(int playlist) {
+    public static PlaylistInfo getPlaylistInfo(int playlist) {
         return getPlaylistInfoN(nativePointer, playlist);
     }
 
@@ -189,8 +189,8 @@ public class Libbluray {
 
     protected static long nativePointer = 0;
 
-    private static native TitleInfo getTitleInfoN(long np, int title);
-    private static native TitleInfo getPlaylistInfoN(long np, int playlist);
+    private static native PlaylistInfo getTitleInfoN(long np, int title);
+    private static native PlaylistInfo getPlaylistInfoN(long np, int playlist);
     private static native int getTitlesN(long np, char flags);
     private static native long seekN(long np, long pos);
     private static native long seekTimeN(long np, long tick);

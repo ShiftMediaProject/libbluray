@@ -27,7 +27,7 @@ jobjectArray _make_stream_array(JNIEnv* env, int count, BLURAY_STREAM_INFO* stre
     return streamArr;
 }
 
-jobject _make_title_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
+jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
 {
     jobjectArray marks = bdj_make_array(env, "org/videolan/TIMark",
             ti->mark_count);
@@ -85,7 +85,7 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
     if (!ti)
         return NULL;
 
-    jobject titleInfo = _make_title_info(env, ti);
+    jobject titleInfo = _make_playlist_info(env, ti);
 
     bd_free_title_info(ti);
 
@@ -100,7 +100,7 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
     if (!ti)
         return NULL;
 
-    jobject titleInfo = _make_title_info(env, ti);
+    jobject titleInfo = _make_playlist_info(env, ti);
 
     bd_free_title_info(ti);
 

@@ -19,9 +19,8 @@
 
 package org.videolan;
 
-public class TitleInfo {
-    public TitleInfo(int index, int playlist, long duration, int angles, TIMark[] marks, TIClip[] clips)
-    {
+public class PlaylistInfo {
+    public PlaylistInfo(int index, int playlist, long duration, int angles, TIMark[] marks, TIClip[] clips) {
         this.index = index;
         this.playlist = playlist;
         this.duration = duration;
@@ -29,34 +28,28 @@ public class TitleInfo {
         this.marks = marks;
         this.clips = clips;
     }
-    
-    public int getIndex()
-    {
+
+    public int getIndex() {
         return index;
     }
 
-    public int getPlaylist()
-    {
+    public int getPlaylist() {
         return playlist;
     }
 
-    public long getDuration()
-    {
+    public long getDuration() {
         return duration;
     }
 
-    public TIMark[] getMarks()
-    {
+    public TIMark[] getMarks() {
         return marks;
     }
-    
-    public TIClip[] getClips()
-    {
+
+    public TIClip[] getClips() {
         return clips;
     }
-    
-    public int getAngleCount()
-    {
+
+    public int getAngleCount() {
         return angles;
     }
 
@@ -66,5 +59,4 @@ public class TitleInfo {
     private int angles;
     private TIMark[] marks;
     private TIClip[] clips;
-    
 }

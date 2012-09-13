@@ -49,7 +49,7 @@ import javax.media.protocol.DataSource;
 
 import org.bluray.media.OverallGainControl;
 import org.videolan.Libbluray;
-import org.videolan.TitleInfo;
+import org.videolan.PlaylistInfo;
 
 public class Handler implements Player {
     public Handler()
@@ -87,7 +87,7 @@ public class Handler implements Player {
             org.videolan.media.protocol.bd.DataSource playlistSrc = 
                 (org.videolan.media.protocol.bd.DataSource)source;
             
-            ti = Libbluray.getPlaylistInfo(playlistSrc.getPlaylist());
+            pi = Libbluray.getPlaylistInfo(playlistSrc.getPlaylist());
         } else {
             throw new IncompatibleSourceException();
         }
@@ -260,7 +260,7 @@ public class Handler implements Player {
 
     public Time getDuration()
     {
-        long duration = ti.getDuration() ;
+        long duration = pi.getDuration() ;
         return new Time(duration * TO_SECONDS);
     }
 
@@ -315,7 +315,7 @@ public class Handler implements Player {
     
     protected static final double TO_SECONDS = 1 / 90000.0;
     protected static final double FROM_SECONDS = 90000.0;
-    protected TitleInfo ti;
+    protected PlaylistInfo pi;
 
     private Control[] controls;
     private Time stopTime = Clock.RESET;
