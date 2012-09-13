@@ -29,14 +29,14 @@ jobjectArray _make_stream_array(JNIEnv* env, int count, BLURAY_STREAM_INFO* stre
 
 jobject _make_title_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
 {
-    jobjectArray chapters = bdj_make_array(env, "org/videolan/TIChapter",
-            ti->chapter_count);
+    jobjectArray marks = bdj_make_array(env, "org/videolan/TIMark",
+            ti->mark_count);
 
-    for (uint32_t i = 0; i < ti->chapter_count; i++) {
-        BLURAY_TITLE_CHAPTER c = ti->chapters[i];
-        jobject chapter = bdj_make_object(env, "org/videolan/TIChapter",
-                "(IJJJ)V", c.idx, c.start, c.duration, c.offset);
-        (*env)->SetObjectArrayElement(env, chapters, i, chapter);
+    for (uint32_t i = 0; i < ti->mark_count; i++) {
+        BLURAY_TITLE_MARK m = ti->marks[i];
+        jobject mark = bdj_make_object(env, "org/videolan/TIMark",
+                "(IJJJ)V", m.idx, m.start, m.duration, m.offset);
+        (*env)->SetObjectArrayElement(env, marks, i, mark);
     }
 
     jobjectArray clips = bdj_make_array(env, "org/videolan/TIClip",
@@ -71,8 +71,8 @@ jobject _make_title_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
     }
 
     return bdj_make_object(env, "org/videolan/TitleInfo",
-            "(IIJI[Lorg/videolan/TIChapter;[Lorg/videolan/TIClip;)V", ti->idx,
-            ti->playlist, ti->duration, ti->angle_count, chapters, clips);
+            "(IIJI[Lorg/videolan/TIMark;[Lorg/videolan/TIClip;)V", ti->idx,
+            ti->playlist, ti->duration, ti->angle_count, marks, clips);
 }
 
 
