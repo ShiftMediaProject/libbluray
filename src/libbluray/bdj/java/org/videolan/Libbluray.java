@@ -135,25 +135,21 @@ public class Libbluray {
         int ret = writePSRN(nativePointer, num, value);
 
         if (ret == -1)
-            throw new IllegalArgumentException("Invalid GPR");
+            throw new IllegalArgumentException("Invalid PSR");
     }
 
     public static int readGPR(int num) {
-        int value = readGPRN(nativePointer, num);
-
-        if (value == -1)
+        if (num < 0 || (num >= 4096))
             throw new IllegalArgumentException("Invalid GPR");
 
-        return value;
+        return readGPRN(nativePointer, num);
     }
 
     public static int readPSR(int num) {
-        int value = readPSRN(nativePointer, num);
-
-        if (value == -1)
+        if (num < 0 || (num >= 128))
             throw new IllegalArgumentException("Invalid PSR");
 
-        return value;
+        return readPSRN(nativePointer, num);
     }
 
     public static Bdjo getBdjo(String name) {
