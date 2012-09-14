@@ -159,7 +159,7 @@ int start_xlet(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava)
     }
 
     jstring param_base_dir = (*env)->NewStringUTF(env, path);
-    jlong param_bdjava_ptr = (jlong) bdjava;
+    jlong param_bdjava_ptr = (jlong)(intptr_t)bdjava;
 
     (*env)->CallStaticVoidMethod(env, init_class, load_id, param_base_dir, bdjo,
             param_bdjava_ptr);
