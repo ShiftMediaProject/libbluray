@@ -29,6 +29,7 @@
 #include "file/dl.h"
 #include "util/strutl.h"
 #include "util/macro.h"
+#include "libbluray/bdnav/bdid_parse.h"
 
 #include <jni.h>
 #include <stdlib.h>
@@ -73,23 +74,55 @@ BDJAVA* bdj_open(const char *path,
     // determine classpath
     char* classpath_opt = str_printf("-Djava.class.path=%s", classpath);
 
-    JavaVMOption* option = malloc(sizeof(JavaVMOption) * 1);
-    option[0].optionString = classpath_opt;
+    // determine bluray.vfs.root
+    char* vfs_opt;
+    vfs_opt = str_printf("-Dbluray.vfs.root=%s", path);
+
+    JavaVMOption* option = malloc(sizeof(JavaVMOption) * 9);
+    int n = 0;
+    option[n++].optionString = classpath_opt;
+    option[n++].optionString = vfs_opt;
 
     args.version = JNI_VERSION_1_6;
-    args.nOptions = 1;
+    args.nOptions = n;
     args.options = option;
     args.ignoreUnrecognized = JNI_FALSE; // don't ignore unrecognized options
 
     int result = JNI_CreateJavaVM_fp(&bdjava->jvm, (void**) &bdjava->env, &args);
     free(option);
     free(classpath_opt);
+    free(vfs_opt);
 
     if (result != JNI_OK || !bdjava->env) {
         free(bdjava);
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM.\n");
         return NULL;
     }
+
+
+    // initialize class org.videolan.Libbluray
+    jclass init_class = (*bdjava->env)->FindClass(bdjava->env, "org/videolan/Libbluray");
+    if (!init_class) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate org.videolan.Libbluray class\n");
+        bdj_close(bdjava);
+        return NULL;
+    }
+
+    char* id_path = str_printf("%s/CERTIFICATE/id.bdmv", path);
+    BDID_DATA *id  = bdid_parse(id_path);
+    free(id_path);
+
+    jmethodID init_id = (*bdjava->env)->GetStaticMethodID(bdjava->env, init_class,
+                                                          "init", "(JLjava/lang/String;)V");
+    jlong param_bdjava_ptr = (jlong)(intptr_t) bdjava;
+    jstring param_disc_id = (*bdjava->env)->NewStringUTF(bdjava->env,
+                                                         id ? id->disc_id : "00000000000000000000000000000000");
+    (*bdjava->env)->CallStaticVoidMethod(bdjava->env, init_class, init_id,
+                                         param_bdjava_ptr, param_disc_id);
+    (*bdjava->env)->DeleteLocalRef(bdjava->env, init_class);
+    (*bdjava->env)->DeleteLocalRef(bdjava->env, param_disc_id);
+
+    bdid_free(&id);
 
     return bdjava;
 }
@@ -98,18 +131,20 @@ int bdj_start(BDJAVA *bdjava, const char *start)
 {
     JNIEnv* env = bdjava->env;
 
-    jclass init_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
+    jclass loader_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
 
-    if (init_class == NULL) {
+    if (!loader_class) {
         (*env)->ExceptionDescribe(env);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate org.videolan.BDJLoader class\n");
         return BDJ_ERROR;
     }
 
-    jmethodID load_id = (*env)->GetStaticMethodID(env, init_class, "Load",
-            "(Ljava/lang/String;Lorg/videolan/bdjo/Bdjo;J)V");
+    jmethodID load_id = (*env)->GetStaticMethodID(env, loader_class, "load",
+            "(Lorg/videolan/bdjo/Bdjo;)V");
 
-    if (load_id == NULL) {
+    if (!load_id) {
         (*env)->ExceptionDescribe(env);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate org.videolan.BDJLoader class \"load\" method\n");
         return BDJ_ERROR;
     }
 
@@ -119,36 +154,56 @@ int bdj_start(BDJAVA *bdjava, const char *start)
     free(bdjo_path);
 
     if (!bdjo) {
-        free(bdjava);
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to load BDJO file.\n");
         return BDJ_ERROR;
     }
 
-    jstring param_base_dir = (*env)->NewStringUTF(env, bdjava->path);
-    jlong param_bdjava_ptr = (jlong)(intptr_t)bdjava;
-
-    (*env)->CallStaticVoidMethod(env, init_class, load_id, param_base_dir, bdjo,
-            param_bdjava_ptr);
+    (*env)->CallStaticVoidMethod(env, loader_class, load_id, bdjo);
 
     return BDJ_SUCCESS;
 }
 
 void bdj_stop(BDJAVA *bdjava)
 {
+    if (!bdjava) {
+        return;
+    }
+
     JNIEnv* env = bdjava->env;
 
-    jclass init_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
-    jmethodID shutdown_id = (*env)->GetStaticMethodID(env, init_class,
-            "Shutdown", "()V");
-    (*env)->CallStaticVoidMethod(env, init_class, shutdown_id);
+    jclass loader_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
+    if (!loader_class) {
+        (*env)->ExceptionDescribe(env);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate org.videolan.BDJLoader class\n");
+        return;
+    }
+
+    jmethodID unload_id = (*env)->GetStaticMethodID(env, loader_class,
+            "shutdown", "()V");
+    (*env)->CallStaticVoidMethod(env, loader_class, unload_id);
 
 }
 
 void bdj_close(BDJAVA *bdjava)
 {
-    JavaVM* jvm = bdjava->jvm;
+    if (!bdjava) {
+        return;
+    }
 
-    (*jvm)->DestroyJavaVM(jvm);
+    JNIEnv* env = bdjava->env;
+
+    jclass shutdown_class = (*bdjava->env)->FindClass(bdjava->env, "org/videolan/Libbluray");
+    if (!shutdown_class) {
+        (*env)->ExceptionDescribe(env);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate org.videolan.Libbluray class\n");
+
+    } else {
+      jmethodID shutdown_id = (*bdjava->env)->GetStaticMethodID(bdjava->env, shutdown_class,
+                                                                "shutdown", "()V");
+      (*env)->CallStaticVoidMethod(env, shutdown_class, shutdown_id);
+    }
+
+    (*bdjava->jvm)->DestroyJavaVM(bdjava->jvm);
 
     free(bdjava);
 }

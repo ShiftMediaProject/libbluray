@@ -35,16 +35,11 @@ import org.videolan.bdjo.ControlCode;
 import org.videolan.bdjo.GraphicsResolution;
 
 public class BDJLoader {
-    public static void Load(String baseDir, Bdjo bdjo, long nativePointer)
+    public static void load(Bdjo bdjo)
     {
-        try { 
-            System.loadLibrary("bluray"); // load libbluray.so
-            
-            Libbluray.nativePointer = nativePointer;
-            BDJLoader.baseDir = baseDir;
+        try {
+            BDJLoader.baseDir = System.getProperty("bluray.vfs.root");
             BDJLoader.bdjo = bdjo;
-            
-            System.setProperty("bluray.vfs.root", baseDir);
             
             BDJClassLoader classLoader = new BDJClassLoader(baseDir);
             
@@ -93,7 +88,7 @@ public class BDJLoader {
         }
     }
 
-    public static void Shutdown()
+    public static void shutdown()
     {
         try {
             if (xlet != null) {
@@ -102,8 +97,6 @@ public class BDJLoader {
                     xlet[i] = null;
                 }
             }
-            
-            MountManager.unmountAll();
         } catch (Exception e) {
             e.printStackTrace();
         }
