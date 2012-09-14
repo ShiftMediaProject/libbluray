@@ -190,6 +190,12 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekMarkN(JNIEnv * env,
     return bd_seek_mark(bdj->bd, mark);
 }
 
+JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekPlayItemN(JNIEnv * env,
+        jclass cls, jlong np, jint clip) {
+    BDJAVA* bdj = (BDJAVA*) np;
+    return bd_seek_playitem(bdj->bd, clip);
+}
+
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectPlaylistN(
         JNIEnv * env, jclass cls, jlong np, jint playlist) {
     BDJAVA* bdj = (BDJAVA*) np;
@@ -244,6 +250,12 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellTimeN(JNIEnv * env,
     return bd_tell_time(bdj->bd);
 }
 
+JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectRateN(JNIEnv * env,
+        jclass cls, jlong np, jfloat rate) {
+    BDJAVA* bdj = (BDJAVA*) np;
+    return 1;
+}
+
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writeGPRN(JNIEnv * env,
         jclass cls, jlong np, jint num, jint value) {
     BDJAVA* bdj = (BDJAVA*) np;
@@ -254,6 +266,12 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readGPRN(JNIEnv * env,
         jclass cls, jlong np, jint num) {
     BDJAVA* bdj = (BDJAVA*) np;
     return bd_gpr_read(bdj->reg, num);
+}
+
+JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writePSRN(JNIEnv * env,
+        jclass cls, jlong np, jint num, jint value) {
+    BDJAVA* bdj = (BDJAVA*) np;
+    return bd_psr_write(bdj->reg, num, value);
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN(JNIEnv * env,
@@ -273,4 +291,10 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
   X_FREE(bdjo_path);
 
   return bdjo;
+}
+
+JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
+        jclass cls, jlong np, jint width, jint height, jintArray rgbArray) {
+
+    BDJAVA* bdj = (BDJAVA*) np;
 }

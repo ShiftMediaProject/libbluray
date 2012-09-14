@@ -76,6 +76,16 @@ public class Libbluray {
         return result;
     }
 
+    public static long seekPlayItem(int clip) {
+        if (clip < 0)
+            throw new IllegalArgumentException("Mark cannot be negative");
+
+        long result = seekPlayItemN(nativePointer, clip);
+        if (result == -1)
+            throw new IllegalArgumentException("Seek error");
+        return result;
+    }
+
     public static boolean selectPlaylist(int playlist) {
         if (playlist < 0)
             throw new IllegalArgumentException("Playlist cannot be negative");
@@ -124,6 +134,10 @@ public class Libbluray {
         return tellTimeN(nativePointer);
     }
 
+    public static boolean selectRate(float rate) {
+        return selectRateN(nativePointer, rate) == 1 ? true : false;
+    }
+
     public static void writeGPR(int num, int value) {
         int ret = writeGPRN(nativePointer, num, value);
 
@@ -154,6 +168,10 @@ public class Libbluray {
 
     public static Bdjo getBdjo(String name) {
         return getBdjoN(nativePointer, name);
+    }
+
+    public static void updateGraphic(int width, int height, int[] rgbArray) {
+        updateGraphicN(nativePointer, width, height, rgbArray);
     }
 
     public static final int PSR_IG_STREAM_ID     = 0;
@@ -189,8 +207,6 @@ public class Libbluray {
     public static final int PSR_BACKUP_PSR11     = 43;
     public static final int PSR_BACKUP_PSR12     = 44;
 
-    protected static long nativePointer = 0;
-
     private static native TitleInfo getTitleInfoN(long np, int title);
     private static native PlaylistInfo getPlaylistInfoN(long np, int playlist);
     private static native int getTitlesN(long np);
@@ -200,6 +216,7 @@ public class Libbluray {
     private static native long chapterPosN(long np, int chapter);
     private static native int getCurrentChapterN(long np);
     private static native long seekMarkN(long np, int mark);
+    private static native long seekPlayItemN(long np, int clip);
     private static native int selectPlaylistN(long np, int playlist);
     private static native int selectTitleN(long np, int title);
     private static native int selectAngleN(long np, int angle);
@@ -209,9 +226,13 @@ public class Libbluray {
     private static native int getCurrentAngleN(long np);
     private static native long tellN(long np);
     private static native long tellTimeN(long np);
+    private static native int selectRateN(long np, float rate);
     private static native int writeGPRN(long np, int num, int value);
     private static native int writePSRN(long np, int num, int value);
     private static native int readGPRN(long np, int num);
     private static native int readPSRN(long np, int num);
     private static native Bdjo getBdjoN(long np, String name);
+    private static native void updateGraphicN(long np, int width, int height, int[] rgbArray);
+
+    protected static long nativePointer = 0;
 }
