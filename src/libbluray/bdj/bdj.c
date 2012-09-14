@@ -36,7 +36,7 @@
 
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
 
-int start_xlet(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava);
+int bdj_start(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava);
 void* load_jvm();
 
 BDJAVA* bdj_open(const char *path, const char *start,
@@ -107,13 +107,39 @@ BDJAVA* bdj_open(const char *path, const char *start,
         return NULL;
     }
 
-    if (start_xlet(bdjava->env, path, bdjo, bdjava) == BDJ_ERROR) {
+    if (bdj_start(bdjava->env, path, bdjo, bdjava) == BDJ_ERROR) {
         free(bdjava);
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to start BDJ program.\n");
         return NULL;
     }
 
     return bdjava;
+}
+
+int bdj_start(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava)
+{
+    jclass init_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
+
+    if (init_class == NULL) {
+        (*env)->ExceptionDescribe(env);
+        return BDJ_ERROR;
+    }
+
+    jmethodID load_id = (*env)->GetStaticMethodID(env, init_class, "Load",
+            "(Ljava/lang/String;Lorg/videolan/bdjo/Bdjo;J)V");
+
+    if (load_id == NULL) {
+        (*env)->ExceptionDescribe(env);
+        return BDJ_ERROR;
+    }
+
+    jstring param_base_dir = (*env)->NewStringUTF(env, path);
+    jlong param_bdjava_ptr = (jlong)(intptr_t)bdjava;
+
+    (*env)->CallStaticVoidMethod(env, init_class, load_id, param_base_dir, bdjo,
+            param_bdjava_ptr);
+
+    return BDJ_SUCCESS;
 }
 
 void bdj_close(BDJAVA *bdjava)
@@ -139,32 +165,6 @@ void bdj_send_event(BDJAVA *bdjava, int type, int keyCode)
 	jmethodID send_key_event_id = (*env)->GetStaticMethodID(env, init_class,
 	            "SendKeyEvent", "(II)V");
 	(*env)->CallStaticVoidMethod(env, init_class, send_key_event_id, type, keyCode);
-}
-
-int start_xlet(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava)
-{
-    jclass init_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
-
-    if (init_class == NULL) {
-        (*env)->ExceptionDescribe(env);
-        return BDJ_ERROR;
-    }
-
-    jmethodID load_id = (*env)->GetStaticMethodID(env, init_class, "Load",
-            "(Ljava/lang/String;Lorg/videolan/bdjo/Bdjo;J)V");
-
-    if (load_id == NULL) {
-        (*env)->ExceptionDescribe(env);
-        return BDJ_ERROR;
-    }
-
-    jstring param_base_dir = (*env)->NewStringUTF(env, path);
-    jlong param_bdjava_ptr = (jlong)(intptr_t)bdjava;
-
-    (*env)->CallStaticVoidMethod(env, init_class, load_id, param_base_dir, bdjo,
-            param_bdjava_ptr);
-
-    return BDJ_SUCCESS;
 }
 
 void* load_jvm()
