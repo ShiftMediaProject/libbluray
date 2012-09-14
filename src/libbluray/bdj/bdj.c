@@ -51,6 +51,13 @@ BDJAVA* bdj_open(const char *path, const char *start,
         return NULL;
     }
 
+    fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = (fptr_JNI_CreateJavaVM)dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
+
+    if (JNI_CreateJavaVM_fp == NULL) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't find symbol JNI_CreateJavaVM.\n");
+        return NULL;
+    }
+
     BDJAVA* bdjava = malloc(sizeof(BDJAVA));
     bdjava->bd = bd;
     bdjava->reg = registers;
@@ -74,17 +81,6 @@ BDJAVA* bdj_open(const char *path, const char *start,
     args.nOptions = 1;
     args.options = option;
     args.ignoreUnrecognized = JNI_FALSE; // don't ignore unrecognized options
-
-    fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = (fptr_JNI_CreateJavaVM)dl_dlsym(jvm_lib,
-            "JNI_CreateJavaVM");
-
-    if (JNI_CreateJavaVM_fp == NULL) {
-        free(bdjava);
-        free(option);
-        free(classpath_opt);
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't find symbol JNI_CreateJavaVM.\n");
-        return NULL;
-    }
 
     int result = JNI_CreateJavaVM_fp(&bdjava->jvm, (void**) &bdjava->env, &args);
     free(option);
