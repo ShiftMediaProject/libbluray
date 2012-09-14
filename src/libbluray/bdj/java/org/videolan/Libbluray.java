@@ -19,15 +19,17 @@
 
 package org.videolan;
 
+import org.videolan.bdjo.Bdjo;
+
 /**
  * This class allows BDJ to call various libbluray functions.
  */
 public class Libbluray {
-    public static int getTitles(char flags) {
-        return getTitlesN(nativePointer, flags);
+    public static int getTitles() {
+        return getTitlesN(nativePointer);
     }
 
-    public static PlaylistInfo getTitleInfo(int titleNum) {
+    public static TitleInfo getTitleInfo(int titleNum) {
         if (titleNum < 0)
             throw new IllegalArgumentException();
 
@@ -154,6 +156,10 @@ public class Libbluray {
         return value;
     }
 
+    public static Bdjo getBdjo(String name) {
+        return getBdjoN(nativePointer, name);
+    }
+
     public static final int PSR_IG_STREAM_ID     = 0;
     public static final int PSR_PRIMARY_AUDIO_ID = 1;
     public static final int PSR_PG_STREAM        = 2;
@@ -189,9 +195,9 @@ public class Libbluray {
 
     protected static long nativePointer = 0;
 
-    private static native PlaylistInfo getTitleInfoN(long np, int title);
+    private static native TitleInfo getTitleInfoN(long np, int title);
     private static native PlaylistInfo getPlaylistInfoN(long np, int playlist);
-    private static native int getTitlesN(long np, char flags);
+    private static native int getTitlesN(long np);
     private static native long seekN(long np, long pos);
     private static native long seekTimeN(long np, long tick);
     private static native long seekChapterN(long np, int chapter);
@@ -211,4 +217,5 @@ public class Libbluray {
     private static native int writePSRN(long np, int num, int value);
     private static native int readGPRN(long np, int num);
     private static native int readPSRN(long np, int num);
+    private static native Bdjo getBdjoN(long np, String name);
 }

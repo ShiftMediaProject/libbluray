@@ -3,13 +3,28 @@
 #include "libbluray/bdj/bdj.h"
 #include "libbluray/bdj/bdj_private.h"
 #include "libbluray/bdj/bdj_util.h"
+#include "libbluray/bdj/bdjo_parser.h"
 #include "libbluray/register.h"
 #include "libbluray/bluray.h"
+
+#include "util/strutl.h"
+#include "util/macro.h"
 
 /* Disable some warnings */
 #if defined __GNUC__
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
+
+jobject _make_title_info(JNIEnv* env, int title, int objType, int playbackType, const char* bdjoName, int hdmvOID)
+{
+    jstring name = bdjoName ? (*env)->NewStringUTF(env, bdjoName) : NULL;
+    jobject ti = bdj_make_object(env, "org/videolan/TitleInfo",
+                                 "(IIILjava/lang/String;I)V",
+                                 title, objType, playbackType, name, hdmvOID);
+    if (name)
+        (*env)->DeleteLocalRef(env, name);
+    return ti;
+}
 
 jobjectArray _make_stream_array(JNIEnv* env, int count, BLURAY_STREAM_INFO* streams)
 {
@@ -81,15 +96,41 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
 {
     BDJAVA* bdj = (BDJAVA*)np;
 
-    BLURAY_TITLE_INFO* ti = bd_get_title_info(bdj->bd, title, 0);
-    if (!ti)
+    if (title == 65535) {
+        if (bdj->index->first_play.object_type == indx_object_type_hdmv)
+            return _make_title_info(env, 65535, indx_object_type_hdmv,
+                                    bdj->index->first_play.hdmv.playback_type,
+                                    NULL,
+                                    bdj->index->first_play.hdmv.id_ref);
+        else
+            return _make_title_info(env, 65535, indx_object_type_bdj,
+                                    bdj->index->first_play.bdj.playback_type,
+                                    bdj->index->first_play.bdj.name,
+                                    -1);
+    } else if (title == 0) {
+        if (bdj->index->top_menu.object_type == indx_object_type_hdmv)
+            return _make_title_info(env, 0, indx_object_type_hdmv,
+                                    bdj->index->top_menu.hdmv.playback_type,
+                                    NULL,
+                                    bdj->index->top_menu.hdmv.id_ref);
+        else
+            return _make_title_info(env, 0, indx_object_type_bdj,
+                                    bdj->index->top_menu.bdj.playback_type,
+                                    bdj->index->top_menu.bdj.name,
+                                    -1);
+    } else if ((title > 0) && (title <= bdj->index->num_titles)) {
+        if (bdj->index->titles[title - 1].object_type == indx_object_type_hdmv)
+            return _make_title_info(env, title, indx_object_type_hdmv,
+                                    bdj->index->titles[title - 1].hdmv.playback_type,
+                                    NULL,
+                                    bdj->index->titles[title - 1].hdmv.id_ref);
+        else
+            return _make_title_info(env, title, indx_object_type_bdj,
+                                    bdj->index->titles[title - 1].bdj.playback_type,
+                                    bdj->index->titles[title - 1].bdj.name,
+                                    -1);
+    }
         return NULL;
-
-    jobject titleInfo = _make_playlist_info(env, ti);
-
-    bd_free_title_info(ti);
-
-    return titleInfo;
 }
 
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
@@ -108,9 +149,9 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN(JNIEnv * env,
-        jclass cls, jlong np, jchar flags) {
+                                                              jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*) np;
-    return bd_get_titles(bdj->bd, flags, 0);
+    return bdj->index->num_titles;
 }
 
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN(JNIEnv * env,
@@ -182,7 +223,7 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getTitleSizeN(JNIEnv * env,
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentTitleN(
         JNIEnv * env, jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*) np;
-    return bd_get_current_title(bdj->bd);
+    return bd_psr_read(bdj->reg, PSR_TITLE_NUMBER);
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentAngleN(
@@ -219,4 +260,17 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN(JNIEnv * env,
         jclass cls, jlong np, jint num) {
     BDJAVA* bdj = (BDJAVA*) np;
     return bd_psr_read(bdj->reg, num);
+}
+
+JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
+                                                               jclass cls, jlong np, jstring name) {
+
+  BDJAVA* bdj = (BDJAVA*) np;
+  const char *bdjo_name = (*env)->GetStringUTFChars(env, name, NULL);;
+  char* bdjo_path = str_printf("%s%s/%s.bdjo", bdj->path, BDJ_BDJO_PATH, bdjo_name);
+  (*env)->ReleaseStringUTFChars(env, name, bdjo_name);
+  jobject bdjo = bdjo_read(env, bdjo_path);
+  X_FREE(bdjo_path);
+
+  return bdjo;
 }

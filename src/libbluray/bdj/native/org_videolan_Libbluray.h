@@ -26,10 +26,10 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
 /*
  * Class:     org_videolan_Libbluray
  * Method:    getTitlesN
- * Signature: (JC)I
+ * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN
-  (JNIEnv *, jclass, jlong, jchar);
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     org_videolan_Libbluray
@@ -174,6 +174,13 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readGPRN
  */
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN
   (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     org_videolan_Libbluray
+ * Method:    readPSRN
+ * Signature: (JLjava/lang/String;)Lorg/videolan/bdjo/Bdjo
+ */
+JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv *, jclass, jlong, jstring);
 
 #ifdef __cplusplus
 }

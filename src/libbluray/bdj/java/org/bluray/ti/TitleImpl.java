@@ -1,8 +1,5 @@
 package org.bluray.ti;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.tv.locator.Locator;
 import javax.tv.service.SIRequest;
 import javax.tv.service.SIRequestor;
@@ -10,39 +7,45 @@ import javax.tv.service.ServiceType;
 
 import org.bluray.net.BDLocator;
 import org.davic.net.InvalidLocatorException;
-import org.videolan.BDJLoader;
 import org.videolan.Libbluray;
 import org.videolan.TitleInfo;
+import org.videolan.bdjo.Bdjo;
 
 public class TitleImpl implements Title {
     public TitleImpl(int titleNum) {
         this.titleNum = titleNum;
-        this.titleInfo = Libbluray.getTitleInfo(titleNum);
-        if (titleInfo == null)
+        this.ti = Libbluray.getTitleInfo(titleNum);
+        if (ti == null)
             throw new Error("Invalid title " + titleNum);
+        if (ti.isBdj()) {
+            bdjo = Libbluray.getBdjo(ti.getBdjoName());
+            if (bdjo == null)
+                throw new Error("Invalid title " + titleNum);
+        }
     }
 
     public PlayList[] getPlayLists() {
-        String[] playlistNames = BDJLoader.getBdjo().getAccessiblePlaylists().getPlayLists();
+        if (bdjo == null)
+            return new PlayList[0];
+        String[] playlistNames = bdjo.getAccessiblePlaylists().getPlayLists();
         PlayList[] playlists = new PlayList[playlistNames.length];
-
-        for (int i = 0; i < playlistNames.length; i++) {
+        for (int i = 0; i < playlistNames.length; i++)
             playlists[i] = new PlayListImpl(playlistNames[i], this);
-        }
 
         return playlists;
     }
 
     public boolean hasAutoPlayList() {
-        return BDJLoader.getBdjo().getAccessiblePlaylists().isAutostartFirst();
+        if (bdjo == null)
+            return false;
+        return bdjo.getAccessiblePlaylists().isAutostartFirst();
     }
 
     public Locator getLocator() {
-        String url = "bd://" + titleNum;
+        String url = "bd://" + Integer.toString(titleNum, 16);
         try {
             return new BDLocator(url);
         } catch (InvalidLocatorException ex) {
-            logger.log(Level.WARNING, "Invalid locator: " + url);
             return null;
         }
     }
@@ -51,26 +54,38 @@ public class TitleImpl implements Title {
         return "Title " + titleNum;
     }
 
-    @Override
     public ServiceType getServiceType() {
-        throw new Error("Not implemented");
+        switch (ti.getPlaybackType()) {
+        case TitleInfo.HDMV_PLAYBACK_TYPE_MOVIE:
+            return TitleType.HDMV_MOVIE;
+        case TitleInfo.HDMV_PLAYBACK_TYPE_INTERACTIVE:
+            return TitleType.HDMV_INTERACTIVE;
+        case TitleInfo.BDJ_PLAYBACK_TYPE_MOVIE:
+            return TitleType.BDJ_MOVIE;
+        case TitleInfo.BDJ_PLAYBACK_TYPE_INTERACTIVE:
+            return TitleType.BDJ_INTERACTIVE;
+        }
+        return null;
     }
 
-    @Override
     public boolean hasMultipleInstances() {
         return false;
     }
 
-    @Override
     public SIRequest retrieveDetails(SIRequestor requestor) {
+        //TODO
         throw new Error("Not implemented");
     }
 
-    protected int getTitleNum() {
+    public int getTitleNum() {
         return titleNum;
     }
 
+    public TitleInfo getTitleInfo() {
+        return ti;
+    }
+
     private int titleNum;
-    private TitleInfo titleInfo;
-    private static final Logger logger = Logger.getLogger(TitleImpl.class.getName());
+    private TitleInfo ti;
+    private Bdjo bdjo = null;
 }
