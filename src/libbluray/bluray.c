@@ -984,6 +984,45 @@ static void _fill_disc_info(BLURAY *bd)
     }
 }
 
+/*
+ * bdj
+ */
+
+static int _start_bdj(BLURAY *bd, const char *start)
+{
+#ifdef USING_BDJAVA
+    if (bd->bdjava == NULL) {
+        bd->bdjava = bdj_open(bd->device_path, bd, bd->regs, bd->index);
+        if (!bd->bdjava) {
+            return 0;
+        }
+    }
+    return bdj_start(bd->bdjava, start);
+#else
+    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title %s.bdjo: BD-J not compiled in (%p)\n", start, bd);
+    return 0;
+#endif
+}
+
+static void _stop_bdj(BLURAY *bd)
+{
+#ifdef USING_BDJAVA
+    if (bd->bdjava != NULL) {
+        bdj_stop(bd->bdjava);
+    }
+#endif
+}
+
+static void _close_bdj(BLURAY *bd)
+{
+#ifdef USING_BDJAVA
+    if (bd->bdjava != NULL) {
+        bdj_close(bd->bdjava);
+        bd->bdjava = NULL;
+    }
+#endif
+}
+
 #ifdef HAVE_MNTENT_H
 /*
  * Replace device node (/dev/sr0) by mount point
@@ -1094,7 +1133,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
 void bd_close(BLURAY *bd)
 {
-    bd_stop_bdj(bd);
+    _close_bdj(bd);
 
     _libaacs_unload(bd);
 
@@ -2006,33 +2045,17 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
 }
 
 /*
- * bdj
+ * BD-J testing
  */
 
 int bd_start_bdj(BLURAY *bd, const char *start_object)
 {
-#ifdef USING_BDJAVA
-    if (bd->bdjava == NULL) {
-        bd->bdjava = bdj_open(bd->device_path, start_object, bd, bd->regs, bd->index);
-        return !!bd->bdjava;
-    } else {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "BD-J is already running (%p)\n", bd);
-        return 1;
-    }
-#else
-    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "%s.bdjo: BD-J not compiled in (%p)\n", start_object, bd);
-#endif
-    return 0;
+    return _start_bdj(bd, start_object);
 }
 
 void bd_stop_bdj(BLURAY *bd)
 {
-#ifdef USING_BDJAVA
-    if (bd->bdjava != NULL) {
-        bdj_close((BDJAVA*)bd->bdjava);
-        bd->bdjava = NULL;
-    }
-#endif
+    _close_bdj(bd);
 }
 
 /*

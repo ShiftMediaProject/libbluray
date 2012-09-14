@@ -36,10 +36,9 @@
 
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
 
-int bdj_start(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava);
 void* load_jvm();
 
-BDJAVA* bdj_open(const char *path, const char *start,
+BDJAVA* bdj_open(const char *path,
                  struct bluray *bd, struct bd_registers_s *registers,
                  struct indx_root_s *index)
 {
@@ -92,28 +91,13 @@ BDJAVA* bdj_open(const char *path, const char *start,
         return NULL;
     }
 
-    // determine path of bdjo file to load
-    char* bdjo_path = str_printf("%s%s/%s.bdjo", path, BDJ_BDJO_PATH, start);
-    jobject bdjo = bdjo_read(bdjava->env, bdjo_path);
-    free(bdjo_path);
-
-    if (!bdjo) {
-        free(bdjava);
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to load BDJO file.\n");
-        return NULL;
-    }
-
-    if (bdj_start(bdjava->env, path, bdjo, bdjava) == BDJ_ERROR) {
-        free(bdjava);
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to start BDJ program.\n");
-        return NULL;
-    }
-
     return bdjava;
 }
 
-int bdj_start(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava)
+int bdj_start(BDJAVA *bdjava, const char *start)
 {
+    JNIEnv* env = bdjava->env;
+
     jclass init_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
 
     if (init_class == NULL) {
@@ -129,7 +113,18 @@ int bdj_start(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava)
         return BDJ_ERROR;
     }
 
-    jstring param_base_dir = (*env)->NewStringUTF(env, path);
+    // determine path of bdjo file to load
+    char* bdjo_path = str_printf("%s%s/%s.bdjo", bdjava->path, BDJ_BDJO_PATH, start);
+    jobject bdjo = bdjo_read(bdjava->env, bdjo_path);
+    free(bdjo_path);
+
+    if (!bdjo) {
+        free(bdjava);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to load BDJO file.\n");
+        return BDJ_ERROR;
+    }
+
+    jstring param_base_dir = (*env)->NewStringUTF(env, bdjava->path);
     jlong param_bdjava_ptr = (jlong)(intptr_t)bdjava;
 
     (*env)->CallStaticVoidMethod(env, init_class, load_id, param_base_dir, bdjo,
@@ -138,15 +133,20 @@ int bdj_start(JNIEnv* env, const char* path, jobject bdjo, BDJAVA* bdjava)
     return BDJ_SUCCESS;
 }
 
-void bdj_close(BDJAVA *bdjava)
+void bdj_stop(BDJAVA *bdjava)
 {
     JNIEnv* env = bdjava->env;
-    JavaVM* jvm = bdjava->jvm;
 
     jclass init_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
     jmethodID shutdown_id = (*env)->GetStaticMethodID(env, init_class,
             "Shutdown", "()V");
     (*env)->CallStaticVoidMethod(env, init_class, shutdown_id);
+
+}
+
+void bdj_close(BDJAVA *bdjava)
+{
+    JavaVM* jvm = bdjava->jvm;
 
     (*jvm)->DestroyJavaVM(jvm);
 
