@@ -199,7 +199,7 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectPlaylistN(
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectTitleN(JNIEnv * env,
         jclass cls, jlong np, jint title) {
     BDJAVA* bdj = (BDJAVA*) np;
-    return bd_select_title(bdj->bd, title);
+    return bd_play_title(bdj->bd, title);
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectAngleN(JNIEnv * env,
