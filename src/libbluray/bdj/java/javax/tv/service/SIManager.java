@@ -28,7 +28,7 @@ public abstract class SIManager {
     }
 
     public static SIManager createInstance() {
-        return instance;
+        return SIManagerImpl.createInstance();
     }
 
     public abstract void setPreferredLanguage(String language);
@@ -61,6 +61,4 @@ public abstract class SIManager {
             SecurityException;
 
     public abstract ServiceList filterServices(ServiceFilter filter);
-    
-    private static final SIManager instance = new SIManagerImpl();
 }

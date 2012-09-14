@@ -19,43 +19,71 @@
 
 package javax.tv.service;
 
+import java.util.LinkedList;
+
 import javax.tv.locator.InvalidLocatorException;
 import javax.tv.locator.Locator;
 import javax.tv.service.navigation.ServiceFilter;
 import javax.tv.service.navigation.ServiceList;
+import javax.tv.service.navigation.ServiceListImpl;
 import javax.tv.service.transport.Transport;
+import javax.tv.service.transport.TransportImpl;
+
+import org.bluray.ti.TitleImpl;
+import org.videolan.Libbluray;
 
 public class SIManagerImpl extends SIManager {
+    public static SIManager createInstance() {
+        synchronized (SIManagerImpl.class) {
+            if (instance == null)
+                instance = new SIManagerImpl();
+            return instance;
+        }
+    }
+
+    protected SIManagerImpl() {
+        int ntitles = Libbluray.getTitles();
+        LinkedList list = new LinkedList();
+        for (int i = 0; i <= ntitles; i++)
+            list.add(new TitleImpl(i));
+        list.add(new TitleImpl(65535));
+        titles = new ServiceListImpl(list);
+    }
 
     @Override
     public ServiceList filterServices(ServiceFilter filter) {
-        throw new Error("Not implemented");
+        return titles.filterServices(filter);
     }
 
     @Override
     public String getPreferredLanguage() {
-        throw new Error("Not implemented");
+        return language;
     }
 
     @Override
     public RatingDimension getRatingDimension(String name) throws SIException {
-        throw new Error("Not implemented");
+        if (!name.equals(RatingDimensionImpl.dimensionName))
+            throw new SIException();
+        return new RatingDimensionImpl();
     }
 
     @Override
-    public Service getService(Locator locator) throws InvalidLocatorException,
-            SecurityException {
-        throw new Error("Not implemented");
+    public Service getService(Locator locator) throws InvalidLocatorException, SecurityException {
+        return titles.findService(locator);
     }
 
     @Override
     public String[] getSupportedDimensions() {
-        throw new Error("Not implemented");
+         String[] dimensions = new String[1];
+         dimensions[0] = RatingDimensionImpl.dimensionName;
+         return dimensions;
     }
 
     @Override
     public Transport[] getTransports() {
-        throw new Error("Not implemented");
+        Transport[] transports = new Transport[1];
+        transports[0] = new TransportImpl();
+        return transports;
     }
 
     @Override
@@ -77,15 +105,18 @@ public class SIManagerImpl extends SIManager {
     }
 
     @Override
-    public SIRequest retrieveServiceDetails(Locator locator,
-            SIRequestor requestor) throws InvalidLocatorException,
-            SecurityException {
+    public SIRequest retrieveServiceDetails(Locator locator, SIRequestor requestor)
+                throws InvalidLocatorException, SecurityException {
         throw new Error("Not implemented");
     }
 
     @Override
     public void setPreferredLanguage(String language) {
-        throw new Error("Not implemented");
+        this.language = language;
     }
 
+    private ServiceListImpl titles;
+    private String language = null;
+
+    private static SIManagerImpl instance = null;
 }
