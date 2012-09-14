@@ -70,8 +70,8 @@ jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
         (*env)->SetObjectArrayElement(env, clips, i, clip);
     }
 
-    return bdj_make_object(env, "org/videolan/TitleInfo",
-            "(IIJI[Lorg/videolan/TIMark;[Lorg/videolan/TIClip;)V", ti->idx,
+    return bdj_make_object(env, "org/videolan/PlaylistInfo",
+            "(IJI[Lorg/videolan/TIMark;[Lorg/videolan/TIClip;)V",
             ti->playlist, ti->duration, ti->angle_count, marks, clips);
 }
 

@@ -9,7 +9,7 @@ import org.bluray.net.BDLocator;
 import org.davic.net.InvalidLocatorException;
 import org.videolan.Libbluray;
 import org.videolan.TIClip;
-import org.videolan.TitleInfo;
+import org.videolan.PlaylistInfo;
 
 public class PlayListImpl implements PlayList {
     protected PlayListImpl(String filename, Title service)
@@ -64,7 +64,7 @@ public class PlayListImpl implements PlayList {
     }
 
     String filename;
-    TitleInfo playlist;
+    PlaylistInfo playlist;
     int id;
     Title service;
 }
