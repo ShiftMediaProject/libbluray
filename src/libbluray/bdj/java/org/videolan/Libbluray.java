@@ -19,6 +19,10 @@
 
 package org.videolan;
 
+import javax.tv.service.selection.ServiceContextFactory;
+
+import org.bluray.ti.TitleImpl;
+import org.bluray.ti.selection.TitleContext;
 import org.videolan.bdjo.Bdjo;
 
 /**
@@ -93,11 +97,19 @@ public class Libbluray {
         return selectPlaylistN(nativePointer, playlist) == 1 ? true : false;
     }
 
-    public static boolean selectTitle(int title) {
-        if (title < 0)
-            throw new IllegalArgumentException("Title cannot be negative");
+    public static boolean selectTitle(TitleImpl title) {
+        TitleInfo ti = title.getTitleInfo();
+        if (ti.isBdj()) {
+                try {
+                        ((TitleContext)ServiceContextFactory.getInstance().getServiceContext(null)).select(title);
+                        return true;
+                } catch (Exception e) {
+                        e.printStackTrace();
+                        return false;
+                }
+        }
 
-        return selectTitleN(nativePointer, title) == 1 ? true : false;
+        return selectTitleN(nativePointer, title.getTitleNum()) == 1 ? true : false;
     }
 
     public static boolean selectAngle(int angle) {
