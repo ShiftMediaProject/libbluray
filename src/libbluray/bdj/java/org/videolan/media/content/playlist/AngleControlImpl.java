@@ -46,7 +46,7 @@ public class AngleControlImpl implements AngleControl {
 
     public int getAvailableAngles()
     {
-        return player.ti.getAngleCount();
+        return player.pi.getAngleCount();
     }
 
     public void selectDefaultAngle()

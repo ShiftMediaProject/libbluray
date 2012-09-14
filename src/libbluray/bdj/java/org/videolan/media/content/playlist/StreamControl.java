@@ -51,7 +51,7 @@ public abstract class StreamControl {
     
     protected TIClip getCurrentClip()
     {
-        TIClip[] clips = player.ti.getClips();
+        TIClip[] clips = player.pi.getClips();
         int playitem = RegisterAccess.getInstance().getPSR(RegisterAccess.PSR_PLAYITEM_ID) - 1;
         
         if (clips.length >= playitem)

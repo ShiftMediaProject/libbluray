@@ -67,13 +67,13 @@ public class PlayListChangeControlImpl implements PlayListChangeControl {
         if (!Libbluray.selectPlaylist(locator.getPlayListId()))
             throw new InvalidPlayListException();
         
-        player.ti = Libbluray.getPlaylistInfo(locator.getPlayListId());
+        player.pi = Libbluray.getPlaylistInfo(locator.getPlayListId());
     }
 
     public BDLocator getCurrentPlayList()
     {
         try {
-            return new BDLocator(null, player.ti.getIndex(), player.ti.getPlaylist());
+            return new BDLocator(null, Libbluray.getCurrentTitle(), player.pi.getPlaylist());
         } catch (org.davic.net.InvalidLocatorException e) {
             return null;
         }
