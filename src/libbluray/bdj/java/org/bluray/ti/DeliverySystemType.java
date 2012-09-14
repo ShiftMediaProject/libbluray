@@ -21,8 +21,7 @@ package org.bluray.ti;
 
 public class DeliverySystemType extends
         javax.tv.service.navigation.DeliverySystemType {
-    protected DeliverySystemType(String name)
-    {
+    protected DeliverySystemType(String name) {
         super(name);
     }
 

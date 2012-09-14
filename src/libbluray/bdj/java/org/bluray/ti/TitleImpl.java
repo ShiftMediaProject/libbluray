@@ -22,25 +22,22 @@ public class TitleImpl implements Title {
             throw new Error("Invalid title " + titleNum);
     }
 
-    public PlayList[] getPlayLists()
-    {
+    public PlayList[] getPlayLists() {
         String[] playlistNames = BDJLoader.getBdjo().getAccessiblePlaylists().getPlayLists();
         PlayList[] playlists = new PlayList[playlistNames.length];
-        
+
         for (int i = 0; i < playlistNames.length; i++) {
             playlists[i] = new PlayListImpl(playlistNames[i], this);
         }
-        
+
         return playlists;
     }
 
-    public boolean hasAutoPlayList()
-    {
+    public boolean hasAutoPlayList() {
         return BDJLoader.getBdjo().getAccessiblePlaylists().isAutostartFirst();
     }
 
-    public Locator getLocator()
-    {
+    public Locator getLocator() {
         String url = "bd://" + titleNum;
         try {
             return new BDLocator(url);
@@ -50,34 +47,29 @@ public class TitleImpl implements Title {
         }
     }
 
-    public String getName()
-    {
+    public String getName() {
         return "Title " + titleNum;
     }
 
     @Override
-    public ServiceType getServiceType()
-    {
+    public ServiceType getServiceType() {
         throw new Error("Not implemented");
     }
 
     @Override
-    public boolean hasMultipleInstances()
-    {
+    public boolean hasMultipleInstances() {
         return false;
     }
 
     @Override
-    public SIRequest retrieveDetails(SIRequestor requestor)
-    {
+    public SIRequest retrieveDetails(SIRequestor requestor) {
         throw new Error("Not implemented");
     }
-    
-    protected int getTitleNum()
-    {
+
+    protected int getTitleNum() {
         return titleNum;
     }
-    
+
     private int titleNum;
     private TitleInfo titleInfo;
     private static final Logger logger = Logger.getLogger(TitleImpl.class.getName());

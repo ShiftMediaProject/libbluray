@@ -22,8 +22,7 @@ package org.bluray.ti;
 import javax.tv.service.ServiceInformationType;
 
 public class TitleInformationType extends ServiceInformationType {
-    protected TitleInformationType(String name)
-    {
+    protected TitleInformationType(String name) {
         super(name);
     }
 

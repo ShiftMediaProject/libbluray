@@ -12,8 +12,7 @@ import org.davic.net.InvalidLocatorException;
 import org.videolan.StreamInfo;
 
 public class TitleComponentImpl implements TitleComponent {
-    protected TitleComponentImpl(StreamInfo stream, StreamType type, boolean primary, int playlistId, int playitemId, Title service)
-    {
+    protected TitleComponentImpl(StreamInfo stream, StreamType type, boolean primary, int playlistId, int playitemId, Title service) {
         this.stream = stream;
         this.type = type;
         this.primary = primary;
@@ -21,32 +20,27 @@ public class TitleComponentImpl implements TitleComponent {
         this.playitemId = playitemId;
         this.service = service;
     }
-    
-    public String getName()
-    {
+
+    public String getName() {
         BDLocator l = (BDLocator) getLocator();
         if (l == null)
             return null;
         return l.toString();
     }
 
-    public String getAssociatedLanguage()
-    {
+    public String getAssociatedLanguage() {
         return stream.getLang();
     }
 
-    public StreamType getStreamType()
-    {
+    public StreamType getStreamType() {
         return type;
     }
 
-    public Service getService()
-    {
+    public Service getService() {
         return service;
     }
 
-    public Locator getLocator()
-    {
+    public Locator getLocator() {
         StringBuilder str = new StringBuilder();
         str.append("bd://");
         str.append(((TitleImpl)service).getTitleNum());
@@ -54,7 +48,7 @@ public class TitleComponentImpl implements TitleComponent {
         str.append(playlistId);
         str.append(".ITEM:");
         str.append(playitemId);
-        
+
         if (type.equals(StreamType.AUDIO) && primary)
             str.append(".A1:" + stream.getPid());
         else if (type.equals(StreamType.VIDEO) && primary)
@@ -67,7 +61,7 @@ public class TitleComponentImpl implements TitleComponent {
             str.append(".P:" + stream.getPid());
         else
             return null;
-        
+
         try {
             return new BDLocator(str.toString());
         } catch (InvalidLocatorException e) {
@@ -75,18 +69,15 @@ public class TitleComponentImpl implements TitleComponent {
         }
     }
 
-    public ServiceInformationType getServiceInformationType()
-    {
+    public ServiceInformationType getServiceInformationType() {
         return TitleInformationType.BD_ROM;
     }
 
-    public Date getUpdateTime()
-    {
+    public Date getUpdateTime() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public CodingType getCodingType()
-    {
+    public CodingType getCodingType() {
         switch (stream.getCoding_type()) {
         case (byte)0x02:
             return CodingType.MPEG2_VIDEO;
@@ -122,13 +113,11 @@ public class TitleComponentImpl implements TitleComponent {
         }
     }
 
-    public int getStreamNumber()
-    {
+    public int getStreamNumber() {
         return stream.getPid();
     }
 
-    public int getSubPathId()
-    {
+    public int getSubPathId() {
         throw new Error("Not implemented"); // TODO implement
     }
 
