@@ -29,123 +29,99 @@ import org.bluray.media.StreamNotAvailableException;
 import org.havi.ui.HScreenRectangle;
 
 public class PiPControlImpl implements PiPControl {
-    public Dimension getInputVideoSize()
-    {
+    public Dimension getInputVideoSize() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public Dimension getVideoSize()
-    {
+    public Dimension getVideoSize() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public HScreenRectangle getActiveVideoArea()
-    {
+    public HScreenRectangle getActiveVideoArea() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public HScreenRectangle getActiveVideoAreaOnScreen()
-    {
+    public HScreenRectangle getActiveVideoAreaOnScreen() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public HScreenRectangle getTotalVideoArea()
-    {
+    public HScreenRectangle getTotalVideoArea() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public HScreenRectangle getTotalVideoAreaOnScreen()
-    {
+    public HScreenRectangle getTotalVideoAreaOnScreen() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public boolean supportsClipping()
-    {
+    public boolean supportsClipping() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public Rectangle setClipRegion(Rectangle clipRect)
-    {
+    public Rectangle setClipRegion(Rectangle clipRect) {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public Rectangle getClipRegion()
-    {
+    public Rectangle getClipRegion() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public float[] supportsArbitraryHorizontalScaling()
-    {
+    public float[] supportsArbitraryHorizontalScaling() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public float[] supportsArbitraryVerticalScaling()
-    {
+    public float[] supportsArbitraryVerticalScaling() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public float[] getHorizontalScalingFactors()
-    {
+    public float[] getHorizontalScalingFactors() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public float[] getVerticalScalingFactors()
-    {
+    public float[] getVerticalScalingFactors() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public byte getPositioningCapability()
-    {
+    public byte getPositioningCapability() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public void addPiPStatusListener(PiPStatusListener paramPiPStatusListener)
-    {
+    public void addPiPStatusListener(PiPStatusListener paramPiPStatusListener) {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public void removePiPStatusListener(PiPStatusListener paramPiPStatusListener)
-    {
+    public void removePiPStatusListener(PiPStatusListener paramPiPStatusListener) {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public int getCurrentStreamNumber()
-    {
+    public int getCurrentStreamNumber() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public void selectStreamNumber(int num) throws StreamNotAvailableException
-    {
+    public void selectStreamNumber(int num) throws StreamNotAvailableException {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public void setDisplay(boolean value)
-    {
+    public void setDisplay(boolean value) {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public boolean getDisplay()
-    {
+    public boolean getDisplay() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public void setFullScreen(boolean value)
-    {
+    public void setFullScreen(boolean value) {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public boolean getFullScreen()
-    {
+    public boolean getFullScreen() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public boolean getIsSyncedDuringTrickPlay()
-    {
+    public boolean getIsSyncedDuringTrickPlay() {
         throw new Error("Not implemented"); // TODO implement
     }
 

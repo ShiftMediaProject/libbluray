@@ -26,19 +26,16 @@ import org.davic.media.MediaTimeEventListener;
 
 public class MediaTimeEventControlImpl implements MediaTimeEventControl {
 
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         return null;
     }
 
     public void notifyWhen(MediaTimeEventListener listener, long mediaTime,
-            int id)
-    {
+            int id) {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public void notifyWhen(MediaTimeEventListener listener, long mediaTime)
-    {
+    public void notifyWhen(MediaTimeEventListener listener, long mediaTime) {
         throw new Error("Not implemented"); // TODO implement
     }
 

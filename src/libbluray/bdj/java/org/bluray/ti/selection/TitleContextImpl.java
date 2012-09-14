@@ -33,52 +33,40 @@ import org.videolan.Libbluray;
 
 public class TitleContextImpl implements TitleContext {
 
-    public void start(Title title, boolean doSomething)
-            throws SecurityException
-    {
-        throw new Error("Not implemented"); // TODO implement
-    }
-
-    public void addListener(ServiceContextListener listener)
-    {
-        serviceContextListeners.add(listener);
-    }
-
-    public void destroy() throws SecurityException
-    {
-        
-    }
-
-    public Service getService()
-    {
+    public Service getService() {
         return new TitleImpl(Libbluray.getCurrentTitle());
     }
 
-    public ServiceContentHandler[] getServiceContentHandlers()
-            throws SecurityException
-    {
+    public ServiceContentHandler[] getServiceContentHandlers() throws SecurityException {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public void removeListener(ServiceContextListener listener)
-    {
-        serviceContextListeners.remove(listener);
+    public void start(Title title, boolean restart) throws SecurityException {
+        throw new Error("Not implemented"); // TODO implement
     }
 
-    public void select(Service service) throws SecurityException
-    {
+    public void select(Service service) throws SecurityException {
         throw new Error("Not implemented"); // TODO implement
     }
 
     public void select(Locator[] locators) throws InvalidLocatorException,
-            InvalidServiceComponentException, SecurityException
-    {
+            InvalidServiceComponentException, SecurityException {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public void stop() throws SecurityException
-    {
+    public void stop() throws SecurityException {
         throw new Error("Not implemented"); // TODO implement
+    }
+
+    public void destroy() throws SecurityException {
+    }
+
+    public void addListener(ServiceContextListener listener) {
+        serviceContextListeners.add(listener);
+    }
+
+    public void removeListener(ServiceContextListener listener) {
+        serviceContextListeners.remove(listener);
     }
 
     private ArrayList<ServiceContextListener> serviceContextListeners = new ArrayList<ServiceContextListener>();

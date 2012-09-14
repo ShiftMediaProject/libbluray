@@ -33,62 +33,52 @@ public class DVBMediaSelectControlImpl implements DVBMediaSelectControl{
 
     public void select(Locator component) throws InvalidLocatorException,
             InvalidServiceComponentException, InsufficientResourcesException,
-            SecurityException
-    {
+            SecurityException {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 
     public void select(Locator[] components) throws InvalidLocatorException,
             InvalidServiceComponentException, InsufficientResourcesException,
-            SecurityException
-    {
+            SecurityException {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 
     public void add(Locator component) throws InvalidLocatorException,
             InvalidServiceComponentException, InsufficientResourcesException,
-            SecurityException
-    {
+            SecurityException {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 
     public void remove(Locator component) throws InvalidLocatorException,
-            InvalidServiceComponentException, SecurityException
-    {
+            InvalidServiceComponentException, SecurityException {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 
     public void replace(Locator fromComponent, Locator toComponent)
             throws InvalidLocatorException, InvalidServiceComponentException,
-            InsufficientResourcesException, SecurityException
-    {
+            InsufficientResourcesException, SecurityException {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 
-    public void addMediaSelectListener(MediaSelectListener listener)
-    {
+    public void addMediaSelectListener(MediaSelectListener listener) {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 
-    public void removeMediaSelectListener(MediaSelectListener listener)
-    {
+    public void removeMediaSelectListener(MediaSelectListener listener) {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 
-    public Locator[] getCurrentSelection()
-    {
+    public Locator[] getCurrentSelection() {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 
     public void selectServiceMediaComponents(Locator locator)
             throws InvalidLocatorException, InvalidServiceComponentException,
-            InsufficientResourcesException
-    {
+            InsufficientResourcesException {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 

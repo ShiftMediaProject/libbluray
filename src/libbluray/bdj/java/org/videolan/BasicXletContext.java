@@ -25,26 +25,22 @@ import javax.tv.xlet.XletContext;
 import org.videolan.bdjo.AppEntry;
 
 public class BasicXletContext implements XletContext {
-    
-    protected BasicXletContext(AppEntry info)
-    {
+
+    protected BasicXletContext(AppEntry info) {
         this.info = info;
     }
-    
-    public void notifyDestroyed()
-    {
+
+    public void notifyDestroyed() {
         logger.info("Xlet " + info.getOrgId() + "/" + info.getAppId() + " has entered destroyed state.");
         state = XletState.DESTROYED;
     }
 
-    public void notifyPaused()
-    {
+    public void notifyPaused() {
         logger.info("Xlet " + info.getOrgId() + "/" + info.getAppId() + " has entered paused state.");
         state = XletState.PAUSED;
     }
 
-    public Object getXletProperty(String key)
-    {
+    public Object getXletProperty(String key) {
         if (key.equals(ARGS))
             return info.getParams();
         else if (key.equals("dvb.org.id"))
@@ -57,16 +53,14 @@ public class BasicXletContext implements XletContext {
         }
     }
 
-    public void resumeRequest()
-    {
+    public void resumeRequest() {
         logger.info("Xlet " + info.getOrgId() + "/" + info.getAppId() + " has requested to be resumed.");
     }
-    
-    public XletState getState()
-    {
+
+    public XletState getState() {
         return state;
     }
-    
+
     private AppEntry info;
     private XletState state = XletState.ACTIVE;
     private static Logger logger = Logger.getLogger(BasicXletContext.class.getName());

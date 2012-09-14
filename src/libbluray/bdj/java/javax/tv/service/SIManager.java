@@ -24,12 +24,10 @@ import javax.tv.service.navigation.*;
 import javax.tv.service.transport.Transport;
 
 public abstract class SIManager {
-    protected SIManager()
-    {
+    protected SIManager() {
     }
 
-    public static SIManager createInstance()
-    {
+    public static SIManager createInstance() {
         return instance;
     }
 

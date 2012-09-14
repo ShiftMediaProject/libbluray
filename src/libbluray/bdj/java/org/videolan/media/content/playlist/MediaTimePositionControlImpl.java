@@ -28,19 +28,16 @@ import org.videolan.Libbluray;
 
 public class MediaTimePositionControlImpl implements MediaTimePositionControl {
 
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         return null;
     }
 
-    public Time setMediaTimePosition(Time mediaTime)
-    {
+    public Time setMediaTimePosition(Time mediaTime) {
          long tick = Libbluray.seekTime((long)(mediaTime.getSeconds() * Handler.FROM_SECONDS));
          return new Time(tick * Handler.TO_SECONDS);
     }
 
-    public Time getMediaTimePosition()
-    {
+    public Time getMediaTimePosition() {
         return new Time(Libbluray.tellTime() * Handler.TO_SECONDS);
     }
 }

@@ -29,35 +29,29 @@ import org.videolan.bdjo.GraphicsResolution;
 
 public class VideoFormatControlImpl implements VideoFormatControl {
 
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         return null;
     }
 
-    public int getAspectRatio()
-    {
+    public int getAspectRatio() {
         return ASPECT_RATIO_UNKNOWN; // FIXME: get actual aspect ratio from video
     }
 
-    public int getActiveFormatDefinition()
-    {
+    public int getActiveFormatDefinition() {
         return AFD_NOT_PRESENT; // FIXME: get actual AFD
     }
 
-    public int getDecoderFormatConversion()
-    {
+    public int getDecoderFormatConversion() {
         return DFC_PROCESSING_NONE; // FIXME: get actual DFC
     }
 
-    public VideoTransformation getVideoTransformation(int dfc)
-    {
+    public VideoTransformation getVideoTransformation(int dfc) {
         return null; // FIXME: implement
     }
 
-    public int getDisplayAspectRatio()
-    {
+    public int getDisplayAspectRatio() {
         GraphicsResolution res = BDJLoader.getBdjo().getTerminalInfo().getResolution();
-        
+
         switch (res) {
         case HD_1920_1080:
         case HD_1280_720:
@@ -71,18 +65,15 @@ public class VideoFormatControlImpl implements VideoFormatControl {
         }
     }
 
-    public boolean isPlatform()
-    {
+    public boolean isPlatform() {
         return false; // FIXME: ???
     }
 
-    public void addVideoFormatListener(VideoFormatListener listener)
-    {
+    public void addVideoFormatListener(VideoFormatListener listener) {
         // FIXME: implement
     }
 
-    public void removeVideoFormatListener(VideoFormatListener listener)
-    {
+    public void removeVideoFormatListener(VideoFormatListener listener) {
         // FIXME: implement
     }
 

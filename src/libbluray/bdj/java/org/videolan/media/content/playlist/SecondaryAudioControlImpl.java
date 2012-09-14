@@ -30,46 +30,39 @@ import org.videolan.StreamInfo;
 import org.videolan.TIClip;
 
 public class SecondaryAudioControlImpl extends StreamControl implements SecondaryAudioControl {
-    protected SecondaryAudioControlImpl(Handler player)
-    {
+    protected SecondaryAudioControlImpl(Handler player) {
         super(player);
     }
-    
-    public int[] listAvailableStreamNumbers()
-    {
+
+    public int[] listAvailableStreamNumbers() {
         TIClip clip = getCurrentClip();
         return listAvailableStreamNumbers(clip.getSecAudioStreams());
     }
 
-    public int getCurrentStreamNumber()
-    {
+    public int getCurrentStreamNumber() {
         return Libbluray.readPSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO) & 0xff;
     }
 
-    public void selectStreamNumber(int num) throws StreamNotAvailableException
-    {
+    public void selectStreamNumber(int num) throws StreamNotAvailableException {
         if (num < 0 || num > 0xff)
             throw new IllegalArgumentException();
-        
+
         int old = Libbluray.readPSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO) & 0xffffff00;
         Libbluray.writePSR(old | num, Libbluray.PSR_SECONDARY_AUDIO_VIDEO);
     }
 
-    public String[] listAvailableLanguages()
-    {
-        TIClip clip = getCurrentClip();       
+    public String[] listAvailableLanguages() {
+        TIClip clip = getCurrentClip();
         return listAvailableLanguages(clip.getSecAudioStreams());
     }
 
-    public String getCurrentLanguage()
-    {
+    public String getCurrentLanguage() {
         TIClip clip = getCurrentClip();
         StreamInfo[] streams = clip.getSecAudioStreams();
         return streams[getCurrentStreamNumber() - 1].getLang();
     }
-    
-    public String selectDefaultLanguage() throws NotAuthorizedException
-    {
+
+    public String selectDefaultLanguage() throws NotAuthorizedException {
         // FIXME: should add ability to select the default language
         try {
             selectLanguage("eng");
@@ -81,8 +74,7 @@ public class SecondaryAudioControlImpl extends StreamControl implements Secondar
     }
 
     public void selectLanguage(String language)
-            throws LanguageNotAvailableException, NotAuthorizedException
-    {
+            throws LanguageNotAvailableException, NotAuthorizedException {
         TIClip clip = getCurrentClip();
         StreamInfo[] streams = clip.getSecAudioStreams();
         try {
@@ -92,8 +84,7 @@ public class SecondaryAudioControlImpl extends StreamControl implements Secondar
         }
     }
 
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         return null;
     }
 }

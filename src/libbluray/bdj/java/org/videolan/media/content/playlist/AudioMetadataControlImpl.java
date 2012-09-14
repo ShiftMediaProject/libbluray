@@ -25,18 +25,15 @@ import org.bluray.media.AudioMetadataControl;
 
 // TODO: Figure out what the hell this is for
 public class AudioMetadataControlImpl implements AudioMetadataControl {
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         return null;
     }
 
-    public boolean isMetaDataProcessingOn()
-    {
+    public boolean isMetaDataProcessingOn() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public void setMetaDataProcessingOn(boolean value)
-    {
+    public void setMetaDataProcessingOn(boolean value) {
         throw new Error("Not implemented"); // TODO implement
     }
 

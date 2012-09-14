@@ -31,22 +31,19 @@ import org.bluray.ti.PlayList;
 import org.videolan.Libbluray;
 
 public class PlayListChangeControlImpl implements PlayListChangeControl {
-    protected PlayListChangeControlImpl(Handler player)
-    {
+    protected PlayListChangeControlImpl(Handler player) {
         this.player = player;
     }
-    
-    public Component getControlComponent()
-    {
+
+    public Component getControlComponent() {
         return null;
     }
 
     public void selectPlayList(PlayList pl) throws InvalidPlayListException,
-            ClockStartedError
-    {
+            ClockStartedError {
         if (pl == null)
             throw new NullPointerException();
-        
+
         try {
             selectPlayList((BDLocator)pl.getLocator());
         } catch (InvalidLocatorException e) {
@@ -56,22 +53,20 @@ public class PlayListChangeControlImpl implements PlayListChangeControl {
 
     public void selectPlayList(BDLocator locator)
             throws InvalidPlayListException, InvalidLocatorException,
-            ClockStartedError
-    {
+            ClockStartedError {
         if (locator == null)
             throw new NullPointerException();
-        
+
         if (player.getState() == Handler.Started)
             throw new ClockStartedError();
-        
+
         if (!Libbluray.selectPlaylist(locator.getPlayListId()))
             throw new InvalidPlayListException();
-        
+
         player.pi = Libbluray.getPlaylistInfo(locator.getPlayListId());
     }
 
-    public BDLocator getCurrentPlayList()
-    {
+    public BDLocator getCurrentPlayList() {
         try {
             return new BDLocator(null, Libbluray.getCurrentTitle(), player.pi.getPlaylist());
         } catch (org.davic.net.InvalidLocatorException e) {

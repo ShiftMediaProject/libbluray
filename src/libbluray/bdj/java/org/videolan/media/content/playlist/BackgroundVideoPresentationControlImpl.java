@@ -31,95 +31,77 @@ import org.videolan.bdjo.GraphicsResolution;
 
 public class BackgroundVideoPresentationControlImpl implements BackgroundVideoPresentationControl {
 
-    public Dimension getInputVideoSize()
-    {
+    public Dimension getInputVideoSize() {
         GraphicsResolution res = BDJLoader.getBdjo().getTerminalInfo().getResolution();
         return new Dimension(res.getWidth(), res.getHeight()); // FIXME: return actual input video size
     }
 
-    public Dimension getVideoSize()
-    {
+    public Dimension getVideoSize() {
         return getInputVideoSize();
     }
 
-    public HScreenRectangle getActiveVideoArea()
-    {
+    public HScreenRectangle getActiveVideoArea() {
         return new HScreenRectangle(0.0f, 0.0f, 1.0f, 1.0f); // FIXME: return actual active video area
     }
 
-    public HScreenRectangle getActiveVideoAreaOnScreen()
-    {
+    public HScreenRectangle getActiveVideoAreaOnScreen() {
         return getActiveVideoArea(); // FIXME: return actual active video area on screen
     }
 
-    public HScreenRectangle getTotalVideoArea()
-    {
+    public HScreenRectangle getTotalVideoArea() {
         return getActiveVideoArea(); // FIXME: return actual total video area
     }
 
-    public HScreenRectangle getTotalVideoAreaOnScreen()
-    {
+    public HScreenRectangle getTotalVideoAreaOnScreen() {
         return getActiveVideoArea(); // FIXME: return actual total video area on screen
     }
 
-    public boolean supportsClipping()
-    {
+    public boolean supportsClipping() {
         return false; // FIXME: change when clipping support added
     }
 
-    public Rectangle setClipRegion(Rectangle clipRect)
-    {
+    public Rectangle setClipRegion(Rectangle clipRect) {
         return getClipRegion(); // FIXME: implement clipping support
     }
 
-    public Rectangle getClipRegion()
-    {
+    public Rectangle getClipRegion() {
         GraphicsResolution res = BDJLoader.getBdjo().getTerminalInfo().getResolution();
         return new Rectangle(res.getWidth(), res.getHeight()); // FIXME: implement clipping support
     }
 
-    public float[] supportsArbitraryHorizontalScaling()
-    {
+    public float[] supportsArbitraryHorizontalScaling() {
         return null; // FIXME: implement scaling support
     }
 
-    public float[] supportsArbitraryVerticalScaling()
-    {
+    public float[] supportsArbitraryVerticalScaling() {
         return null; // FIXME: implement scaling support
     }
 
-    public float[] getHorizontalScalingFactors()
-    {
+    public float[] getHorizontalScalingFactors() {
         return null;  // FIXME: implement scaling support
     }
 
-    public float[] getVerticalScalingFactors()
-    {
+    public float[] getVerticalScalingFactors() {
         return null;  // FIXME: implement scaling support
     }
 
-    public byte getPositioningCapability()
-    {
+    public byte getPositioningCapability() {
         return 0; // FIXME: set to real positioning capability
     }
 
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         return null;
     }
 
-    public boolean setVideoTransformation(VideoTransformation transform)
-    {
+    public boolean setVideoTransformation(VideoTransformation transform) {
         return false; // FIXME: implement actually setting transform
     }
 
-    public VideoTransformation getVideoTransformation()
-    {
+    public VideoTransformation getVideoTransformation() {
         return new VideoTransformation();
     }
 
-    public VideoTransformation getClosestMatch(VideoTransformation transform)
-    {
+    public VideoTransformation getClosestMatch(VideoTransformation transform) {
         return new VideoTransformation(); // FIXME: actually try to find closest match
     }
 

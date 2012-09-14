@@ -28,75 +28,63 @@ import javax.tv.service.transport.Transport;
 public class SIManagerImpl extends SIManager {
 
     @Override
-    public ServiceList filterServices(ServiceFilter filter)
-    {
+    public ServiceList filterServices(ServiceFilter filter) {
         throw new Error("Not implemented");
     }
 
     @Override
-    public String getPreferredLanguage()
-    {
+    public String getPreferredLanguage() {
         throw new Error("Not implemented");
     }
 
     @Override
-    public RatingDimension getRatingDimension(String name) throws SIException
-    {
+    public RatingDimension getRatingDimension(String name) throws SIException {
         throw new Error("Not implemented");
     }
 
     @Override
     public Service getService(Locator locator) throws InvalidLocatorException,
-            SecurityException
-    {
+            SecurityException {
         throw new Error("Not implemented");
     }
 
     @Override
-    public String[] getSupportedDimensions()
-    {
+    public String[] getSupportedDimensions() {
         throw new Error("Not implemented");
     }
 
     @Override
-    public Transport[] getTransports()
-    {
+    public Transport[] getTransports() {
         throw new Error("Not implemented");
     }
 
     @Override
     public void registerInterest(Locator locator, boolean active)
-            throws InvalidLocatorException, SecurityException
-    {
+            throws InvalidLocatorException, SecurityException {
         throw new Error("Not implemented");
-        
     }
 
     @Override
     public SIRequest retrieveProgramEvent(Locator locator, SIRequestor requestor)
-            throws InvalidLocatorException, SecurityException
-    {
+            throws InvalidLocatorException, SecurityException {
         throw new Error("Not implemented");
     }
 
     @Override
     public SIRequest retrieveSIElement(Locator locator, SIRequestor requestor)
-            throws InvalidLocatorException, SecurityException
-    {
+            throws InvalidLocatorException, SecurityException {
         throw new Error("Not implemented");
     }
 
     @Override
     public SIRequest retrieveServiceDetails(Locator locator,
             SIRequestor requestor) throws InvalidLocatorException,
-            SecurityException
-    {
+            SecurityException {
         throw new Error("Not implemented");
     }
 
     @Override
-    public void setPreferredLanguage(String language)
-    {
+    public void setPreferredLanguage(String language) {
         throw new Error("Not implemented");
     }
 

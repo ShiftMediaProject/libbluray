@@ -26,43 +26,35 @@ import org.bluray.media.PanningControl;
 
 // TODO Figure out why the hell this is needed
 public class PanningControlImpl implements PanningControl {
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         return null;
     }
 
-    public void addPanningChangeListener(PanningChangeListener listener)
-    {
+    public void addPanningChangeListener(PanningChangeListener listener) {
         // TODO Not implemented
     }
 
-    public void removePanningChangeListener(PanningChangeListener listener)
-    {
+    public void removePanningChangeListener(PanningChangeListener listener) {
         // TODO Not implemented
     }
 
-    public float getLeftRight()
-    {
+    public float getLeftRight() {
         return 0;  // TODO Not implemented
     }
 
-    public float getFrontRear()
-    {
+    public float getFrontRear() {
         return 0;  // TODO Not implemented
     }
 
-    public void setLeftRight(float balance)
-    {
+    public void setLeftRight(float balance) {
         // TODO Not implemented
     }
 
-    public void setFrontRear(float fade)
-    {
+    public void setFrontRear(float fade) {
         // TODO Not implemented
     }
 
-    public void setPosition(float x, float y)
-    {
+    public void setPosition(float x, float y) {
         // TODO Not implemented
     }
 

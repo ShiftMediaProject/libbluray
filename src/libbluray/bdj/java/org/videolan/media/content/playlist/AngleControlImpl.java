@@ -29,55 +29,46 @@ import org.bluray.media.InvalidAngleException;
 import org.videolan.Libbluray;
 
 public class AngleControlImpl implements AngleControl {
-    protected AngleControlImpl(Handler player)
-    {
+    protected AngleControlImpl(Handler player) {
         this.player = player;
     }
-    
-    public Component getControlComponent()
-    {
+
+    public Component getControlComponent() {
         return null;
     }
 
-    public int getCurrentAngle()
-    {
+    public int getCurrentAngle() {
         return Libbluray.getCurrentAngle();
     }
 
-    public int getAvailableAngles()
-    {
+    public int getAvailableAngles() {
         return player.pi.getAngleCount();
     }
 
-    public void selectDefaultAngle()
-    {
+    public void selectDefaultAngle() {
         Libbluray.selectAngle(0);
         sendEvent(new AngleChangeEvent(this, 0));
     }
 
-    public void selectAngle(int angle) throws InvalidAngleException
-    {
+    public void selectAngle(int angle) throws InvalidAngleException {
         if(!Libbluray.selectAngle(angle))
             throw new InvalidAngleException();
         sendEvent(new AngleChangeEvent(this, angle));
     }
 
-    public void addAngleChangeListener(AngleChangeListener listener)
-    {
+    public void addAngleChangeListener(AngleChangeListener listener) {
         listeners.add(listener);
     }
 
-    public void removeAngleChangeListener(AngleChangeListener listener)
-    {
+    public void removeAngleChangeListener(AngleChangeListener listener) {
         listeners.remove(listener);
     }
-    
-    private void sendEvent(AngleChangeEvent event)
-    {
+
+    private void sendEvent(AngleChangeEvent event) {
         for (AngleChangeListener listener : listeners)
             listener.angleChange(event);
     }
-    
+
     private LinkedList<AngleChangeListener> listeners = new LinkedList<AngleChangeListener>();
     private Handler player;
 }

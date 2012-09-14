@@ -29,42 +29,35 @@ import org.videolan.StreamInfo;
 import org.videolan.TIClip;
 
 public class PrimaryAudioControlImpl extends StreamControl implements PrimaryAudioControl {
-    protected PrimaryAudioControlImpl(Handler player)
-    {
+    protected PrimaryAudioControlImpl(Handler player) {
         super(player);
     }
-    
-    public int[] listAvailableStreamNumbers()
-    {
+
+    public int[] listAvailableStreamNumbers() {
         TIClip clip = getCurrentClip();
         return listAvailableStreamNumbers(clip.getAudioStreams());
     }
 
-    public int getCurrentStreamNumber()
-    {
+    public int getCurrentStreamNumber() {
         return Libbluray.readPSR(Libbluray.PSR_PRIMARY_AUDIO_ID);
     }
 
-    public void selectStreamNumber(int num) throws StreamNotAvailableException
-    {
+    public void selectStreamNumber(int num) throws StreamNotAvailableException {
         Libbluray.writePSR(num, Libbluray.PSR_PRIMARY_AUDIO_ID);
     }
 
-    public String[] listAvailableLanguages()
-    {
-        TIClip clip = getCurrentClip();       
+    public String[] listAvailableLanguages() {
+        TIClip clip = getCurrentClip();
         return listAvailableLanguages(clip.getAudioStreams());
     }
 
-    public String getCurrentLanguage()
-    {
+    public String getCurrentLanguage() {
         TIClip clip = getCurrentClip();
         StreamInfo[] streams = clip.getAudioStreams();
         return streams[getCurrentStreamNumber() - 1].getLang();
     }
-    
-    public String selectDefaultLanguage() throws NotAuthorizedException
-    {
+
+    public String selectDefaultLanguage() throws NotAuthorizedException {
         // FIXME: should add ability to select the default language
         try {
             selectLanguage("eng");
@@ -76,8 +69,7 @@ public class PrimaryAudioControlImpl extends StreamControl implements PrimaryAud
     }
 
     public void selectLanguage(String language)
-            throws LanguageNotAvailableException, NotAuthorizedException
-    {
+            throws LanguageNotAvailableException, NotAuthorizedException {
         TIClip clip = getCurrentClip();
         StreamInfo[] streams = clip.getAudioStreams();
         try {
@@ -87,8 +79,7 @@ public class PrimaryAudioControlImpl extends StreamControl implements PrimaryAud
         }
     }
 
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         return null;
     }
 }
