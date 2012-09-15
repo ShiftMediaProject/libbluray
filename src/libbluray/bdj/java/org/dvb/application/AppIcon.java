@@ -23,18 +23,19 @@ import org.davic.net.Locator;
 import java.util.BitSet;
 
 public class AppIcon {
-    protected AppIcon()
-    {
-
+    public AppIcon(Locator locator, BitSet flags) {
+        this.locator = locator;
+        this.flags = flags;
     }
 
-    public Locator getLocator()
-    {
-        throw new Error("Not implemented");
+    public Locator getLocator() {
+        return locator;
     }
 
-    public BitSet getIconFlags()
-    {
-        throw new Error("Not implemented");
+    public BitSet getIconFlags() {
+        return flags;
     }
+
+    private Locator locator;
+    private BitSet flags;
 }
