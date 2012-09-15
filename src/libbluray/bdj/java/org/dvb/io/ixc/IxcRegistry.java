@@ -34,80 +34,73 @@ import org.videolan.BasicXletContext;
 import org.videolan.XletState;
 
 public class IxcRegistry {
-    public static Remote lookup(XletContext xc, String path)
-            throws NotBoundException, RemoteException
-    {
+    public static Remote lookup(XletContext xc, String path) throws NotBoundException, RemoteException {
         String[] parts = path.split("/", 3);
-        
+
         if (parts.length != 3)
             throw new IllegalArgumentException("Malformed path");
-        
+
         int orgId = Integer.parseInt(parts[0], 16);
         short appId = Short.parseShort(parts[1], 16);
         String name = parts[2];
-        
+
         for (IxcObject obj : ixcList) {
             if (obj.orgId == orgId && obj.appId == appId && obj.name.equals(name)) {
                 logger.info("Looked up " + path);
                 return obj.obj;
             }
         }
-        
+
         logger.warning("Failed to look up " + path);
         throw new NotBoundException();
     }
 
-    public static void bind(XletContext xc, String name, Remote obj)
-            throws AlreadyBoundException
-    {   
+    public static void bind(XletContext xc, String name, Remote obj) throws AlreadyBoundException {
         if (xc == null || name == null || obj == null)
             throw new NullPointerException();
-        
+
         // make sure the xlet is not currently in the destroyed state
         if (((BasicXletContext)xc).getState().equals(XletState.DESTROYED))
             return;
-        
+
         int orgId = (Integer)xc.getXletProperty("dvb.org.id");
         short appId = (Short)xc.getXletProperty("dvb.app.id");
-        
+
         IxcObject ixcObj = new IxcObject(orgId, appId, name, obj);
-        
+
         if (ixcList.contains(ixcObj))
             throw new AlreadyBoundException();
-        
+
         ixcList.add(ixcObj);
-        
+
         logger.info("Bound /" + Integer.toString(orgId, 16) + "/" + Integer.toString(appId, 16) + "/" + name);
     }
 
-    public static void unbind(XletContext xc, String name)
-            throws NotBoundException
-    {
+    public static void unbind(XletContext xc, String name) throws NotBoundException {
         if (xc == null || name == null)
             throw new NullPointerException();
-        
+
         int orgId = (Integer)xc.getXletProperty("dvb.org.id");
         short appId = (Short)xc.getXletProperty("dvb.app.id");
-        
+
         IxcObject ixcObj = new IxcObject(orgId, appId, name, null);
-        
+
         if (!ixcList.contains(ixcObj))
             throw new NotBoundException();
-        
+
         ixcList.remove(ixcObj);
-        
+
         logger.info("Unbound /" + Integer.toString(orgId, 16) + "/" + Integer.toString(appId, 16) + "/" + name);
     }
 
-    public static void rebind(XletContext xc, String name, Remote obj)
-    {
-        
+    public static void rebind(XletContext xc, String name, Remote obj) {
+
         try {
             unbind(xc, name);
         } catch (NotBoundException e) {
             // ignore
         }
-        
+
         try {
             bind(xc, name, obj);
         } catch (AlreadyBoundException e) {
@@ -116,19 +109,18 @@ public class IxcRegistry {
         }
     }
 
-    public static String[] list(XletContext xc)
-    {
+    public static String[] list(XletContext xc) {
         String[] out = new String[ixcList.size()];
-        
+
         for (int i = 0; i < ixcList.size(); i++) {
             IxcObject obj = ixcList.get(i);
-            
+
             out[i] = "/" + Integer.toString(obj.orgId, 16) + "/" + Integer.toString(obj.appId, 16) + "/" + obj.name;
         }
-        
+
         return out;
     }
-    
+
     private static class IxcObject {
         public IxcObject(int orgId, short appId, String name, Remote obj) {
             this.orgId = orgId;
@@ -137,8 +129,7 @@ public class IxcRegistry {
             this.obj = obj;
         }
 
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -163,7 +154,7 @@ public class IxcRegistry {
         public String name;
         public Remote obj;
     }
-    
+
     private static List<IxcObject> ixcList = Collections.synchronizedList(new ArrayList<IxcObject>());
     private static Logger logger = Logger.getLogger(IxcRegistry.class.getName());
 }

@@ -29,83 +29,67 @@ public class AppEntry {
         this.params = params;
     }
 
-    public ControlCode getControlCode()
-    {
+    public ControlCode getControlCode() {
         return controlCode;
     }
-    
-    public AppType getType()
-    {
+
+    public AppType getType() {
         return type;
     }
-    
-    public int getOrgId()
-    {
+
+    public int getOrgId() {
         return orgId;
     }
-    
-    public short getAppId()
-    {
+
+    public short getAppId() {
         return appId;
     }
-    
-    public AppProfile[] getProfiles()
-    {
+
+    public AppProfile[] getProfiles() {
         return profiles;
     }
-    
-    public short getPriority()
-    {
+
+    public short getPriority() {
         return priority;
     }
-    
-    public AppBinding getBinding()
-    {
+
+    public AppBinding getBinding() {
         return binding;
     }
-    
-    public AppVisibility getVisibility()
-    {
+
+    public AppVisibility getVisibility() {
         return visibility;
     }
-    
-    public AppName[] getNames()
-    {
+
+    public AppName[] getNames() {
         return names;
     }
-    
-    public Locator getIconLocator()
-    {
+
+    public Locator getIconLocator() {
         return iconLocator;
     }
-    
-    public short getIconFlags()
-    {
+
+    public short getIconFlags() {
         return iconFlags;
     }
-    
-    public String getBasePath()
-    {
+
+    public String getBasePath() {
         return basePath;
     }
-    
-    public String getClasspathExt()
-    {
+
+    public String getClasspathExt() {
         return classpathExt;
     }
-    
-    public String getInitialClass()
-    {
+
+    public String getInitialClass() {
         return initialClass;
     }
-    
-    public String[] getParams()
-    {
+
+    public String[] getParams() {
         return params;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "AppEntry [appId=" + appId + ", basePath=" + basePath
                 + ", binding=" + binding + ", classpathExt=" + classpathExt
                 + ", controlCode=" + controlCode + ", iconFlags=" + iconFlags
