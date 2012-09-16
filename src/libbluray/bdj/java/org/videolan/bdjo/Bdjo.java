@@ -1,6 +1,6 @@
 package org.videolan.bdjo;
 
-import java.util.Arrays;
+import org.videolan.Arrays;
 
 public class Bdjo {
     public Bdjo(TerminalInfo terminalInfo, AppCache[] appCaches,

@@ -31,12 +31,10 @@ public class BasicXletContext implements XletContext {
     }
 
     public void notifyDestroyed() {
-        logger.info("Xlet " + info.getOrgId() + "/" + info.getAppId() + " has entered destroyed state.");
         state = XletState.DESTROYED;
     }
 
     public void notifyPaused() {
-        logger.info("Xlet " + info.getOrgId() + "/" + info.getAppId() + " has entered paused state.");
         state = XletState.PAUSED;
     }
 
@@ -44,9 +42,9 @@ public class BasicXletContext implements XletContext {
         if (key.equals(ARGS))
             return info.getParams();
         else if (key.equals("dvb.org.id"))
-            return info.getOrgId();
+            return info.getIdentifier().getOID();
         else if (key.equals("dvb.app.id"))
-            return info.getAppId();
+            return info.getIdentifier().getAID();
         else {
             logger.warning("Unknown property requested: " + key);
             return null;
@@ -54,7 +52,6 @@ public class BasicXletContext implements XletContext {
     }
 
     public void resumeRequest() {
-        logger.info("Xlet " + info.getOrgId() + "/" + info.getAppId() + " has requested to be resumed.");
     }
 
     public XletState getState() {

@@ -49,9 +49,9 @@ public class BDJClassLoader extends URLClassLoader {
         String url = "file:";
         url += baseDir + "/BDMV/JAR/";
         url += cache.getRefToName();
-        if (cache.getType().equals(AppCacheType.JAR_FILE))
+        if (cache.getType() == AppCache.JAR_FILE)
             url += ".jar";
-        else if (cache.getType().equals(AppCacheType.DIRECTORY))
+        else if (cache.getType() == AppCache.DIRECTORY)
             url += "/";
         
         System.out.println(url);

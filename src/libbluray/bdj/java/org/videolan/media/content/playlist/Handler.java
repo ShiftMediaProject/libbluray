@@ -47,9 +47,11 @@ import javax.media.TimeBase;
 import javax.media.TransitionEvent;
 import javax.media.protocol.DataSource;
 
+import org.bluray.system.RegisterAccess;
 import org.bluray.media.OverallGainControl;
 import org.videolan.Libbluray;
 import org.videolan.PlaylistInfo;
+import org.videolan.TIClip;
 
 public class Handler implements Player {
     public Handler()
@@ -75,7 +77,7 @@ public class Handler implements Player {
         controls[16] = new SecondaryGainControlImpl();
         controls[17] = new SubtitlingControlImpl(this);
         controls[18] = new UOMaskTableControlImpl();
-        controls[19] = new VideoFormatControlImpl();
+        controls[19] = new VideoFormatControlImpl(this);
     }
     
     public void setSource(DataSource source) throws IOException,
@@ -141,6 +143,20 @@ public class Handler implements Player {
     public Control[] getControls()
     {
         return controls;
+    }
+
+    protected TIClip getCurrentClipInfo() {
+        synchronized (this) {
+            int state = getState();
+            if ((state != Prefetched) && (state != Started))
+                return null;
+
+            int playitem = RegisterAccess.getInstance().getPSR(RegisterAccess.PSR_PLAYITEM_ID);
+            TIClip[] clips = pi.getClips();
+            if (playitem >= clips.length)
+                return null;
+            return clips[playitem];
+        }
     }
 
     public Control getControl(String forName)

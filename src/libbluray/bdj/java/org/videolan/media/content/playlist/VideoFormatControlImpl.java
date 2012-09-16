@@ -20,25 +20,38 @@
 package org.videolan.media.content.playlist;
 
 import java.awt.Component;
+import java.awt.Dimension;
 
 import org.dvb.media.VideoFormatControl;
 import org.dvb.media.VideoFormatListener;
 import org.dvb.media.VideoTransformation;
-import org.videolan.BDJLoader;
-import org.videolan.bdjo.GraphicsResolution;
+import org.havi.ui.HScreen;
+import org.havi.ui.HVideoConfiguration;
+import org.videolan.TIClip;
 
 public class VideoFormatControlImpl implements VideoFormatControl {
+    protected VideoFormatControlImpl(Handler player) {
+        this.player = player;
+    }
 
     public Component getControlComponent() {
         return null;
     }
 
     public int getAspectRatio() {
-        return ASPECT_RATIO_UNKNOWN; // FIXME: get actual aspect ratio from video
+        TIClip ci = player.getCurrentClipInfo();
+        if ((ci == null) ||(ci.getVideoStreamCount() <= 0))
+            return ASPECT_RATIO_UNKNOWN;
+        Dimension aspect = ci.getVideoStreams()[0].getVideoAspectRatio();
+        if ((aspect.width == 4) && (aspect.height == 3))
+            return ASPECT_RATIO_4_3;
+        if ((aspect.width == 16) && (aspect.height == 9))
+            return ASPECT_RATIO_16_9;
+        return ASPECT_RATIO_UNKNOWN;
     }
 
     public int getActiveFormatDefinition() {
-        return AFD_NOT_PRESENT; // FIXME: get actual AFD
+        return AFD_NOT_PRESENT;
     }
 
     public int getDecoderFormatConversion() {
@@ -46,35 +59,29 @@ public class VideoFormatControlImpl implements VideoFormatControl {
     }
 
     public VideoTransformation getVideoTransformation(int dfc) {
-        return null; // FIXME: implement
+        return null; // TODO: implement
     }
 
     public int getDisplayAspectRatio() {
-        GraphicsResolution res = BDJLoader.getBdjo().getTerminalInfo().getResolution();
-
-        switch (res) {
-        case HD_1920_1080:
-        case HD_1280_720:
-            return ASPECT_RATIO_16_9;
-        case SD:
-        case SD_50HZ_720_576:
-        case SD_60HZ_720_480:
-        case QHD_960_540:
-        default:
-            return ASPECT_RATIO_UNKNOWN;
-        }
+        HVideoConfiguration hvc = HScreen.getDefaultHScreen().getDefaultHVideoDevice().getCurrentConfiguration();
+        Dimension resolution = hvc.getPixelResolution();
+        if (resolution.width == 720)
+            return DAR_4_3;
+        return DAR_16_9;
     }
 
     public boolean isPlatform() {
-        return false; // FIXME: ???
+        return dfc == DFC_PLATFORM;
     }
 
     public void addVideoFormatListener(VideoFormatListener listener) {
-        // FIXME: implement
+        // TODO: implement
     }
 
     public void removeVideoFormatListener(VideoFormatListener listener) {
-        // FIXME: implement
+        // TODO: implement
     }
 
+    private Handler player;
+    private int dfc = DFC_PROCESSING_NONE;
 }

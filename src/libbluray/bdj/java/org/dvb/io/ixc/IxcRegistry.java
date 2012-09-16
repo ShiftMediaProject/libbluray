@@ -64,7 +64,8 @@ public class IxcRegistry {
             return;
 
         int orgId = (Integer)xc.getXletProperty("dvb.org.id");
-        short appId = (Short)xc.getXletProperty("dvb.app.id");
+        int iappId = (Integer)xc.getXletProperty("dvb.app.id");
+        short appId = (short)iappId;
 
         IxcObject ixcObj = new IxcObject(orgId, appId, name, obj);
 
@@ -81,7 +82,8 @@ public class IxcRegistry {
             throw new NullPointerException();
 
         int orgId = (Integer)xc.getXletProperty("dvb.org.id");
-        short appId = (Short)xc.getXletProperty("dvb.app.id");
+        int iappId = (Integer)xc.getXletProperty("dvb.app.id");
+        short appId = (short)iappId;
 
         IxcObject ixcObj = new IxcObject(orgId, appId, name, null);
 

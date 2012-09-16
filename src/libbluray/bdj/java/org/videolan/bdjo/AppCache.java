@@ -4,12 +4,12 @@ package org.videolan.bdjo;
 public class AppCache {
     public AppCache(int type, String refToName, String language)
     {
-        this.type = AppCacheType.fromId(type);
+        this.type = type;
         this.refToName = refToName;
         this.language = language;
     }
 
-    public AppCacheType getType()
+    public int getType()
     {
         return type;
     }
@@ -26,11 +26,13 @@ public class AppCache {
     
     public String toString()
     {
-        return "AppCache [language=" + language + ", refToName=" + refToName
-                + ", type=" + type + "]";
+        return "AppCache [language=" + language + ", refToName=" + refToName + ", type=" + type + "]";
     }
     
-    private AppCacheType type;
+    public static final int JAR_FILE = 1;
+    public static final int DIRECTORY = 2;
+
+    private int type;
     private String refToName;
     private String language;
 }

@@ -1,6 +1,6 @@
 package org.videolan.bdjo;
 
-import java.util.Arrays;
+import org.videolan.Arrays;
 
 public class PlayListTable {
     public PlayListTable(boolean accessToAll, boolean autostartFirst, String[] playLists)

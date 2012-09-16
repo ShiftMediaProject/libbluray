@@ -236,7 +236,7 @@ static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
             // seek back to beginning of names
             bb_seek(buf, -name_data_length*8, SEEK_CUR);
 
-            app_names = bdj_make_array(env, "org/videolan/bdjo/AppName", app_name_count);
+            app_names = bdj_make_array(env, "[Ljava/lang/String;", app_name_count);
             JNICHK(app_names);
 
             for (int j = 0; j < app_name_count; j++) {
@@ -249,11 +249,15 @@ static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
                 jstring jname = _read_jstring(env, buf, name_length);
                 JNICHK(jname);
 
-                jobject app_name = bdj_make_object(env, "org/videolan/bdjo/AppName",
-                        "(Ljava/lang/String;Ljava/lang/String;)V", jlanguage, jname);
+                jobjectArray app_name = bdj_make_array(env, "java/lang/String", 2);
                 JNICHK(app_name);
 
-                (*env)->SetObjectArrayElement(env, app_names, i, app_name);
+                (*env)->SetObjectArrayElement(env, app_name, 0, jlanguage);
+                JNICHK(1);
+                (*env)->SetObjectArrayElement(env, app_name, 1, jname);
+                JNICHK(1);
+
+                (*env)->SetObjectArrayElement(env, app_names, j, app_name);
                 JNICHK(1);
             }
         }
@@ -325,7 +329,7 @@ static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
                 jstring param = _read_jstring(env, buf, param_length);
                 JNICHK(param);
 
-                (*env)->SetObjectArrayElement(env, params, i, param);
+                (*env)->SetObjectArrayElement(env, params, j, param);
                 JNICHK(1);
             }
         }
@@ -336,7 +340,7 @@ static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
         }
 
         jobject entry = bdj_make_object(env, "org/videolan/bdjo/AppEntry",
-                "(IIIS[Lorg/videolan/bdjo/AppProfile;SII[Lorg/videolan/bdjo/AppName;Ljava/lang/String;SLjava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V",
+                "(IIIS[Lorg/videolan/bdjo/AppProfile;SII[[Ljava/lang/String;Ljava/lang/String;SLjava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V",
                 control_code, type, organization_id, application_id, profiles,
                 priority, binding, visibility, app_names, icon_locator,
                 icon_flags, base_dir, classpath_extension, initial_class, params);

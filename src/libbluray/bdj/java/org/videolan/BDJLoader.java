@@ -75,7 +75,7 @@ public class BDJLoader {
                 BasicXletContext context = new BasicXletContext(entry);
                 
                 Thread thread = new Thread(new BDJThreadGroup("", context), 
-                        new XletStarter(xlet[i], entry.getControlCode().equals(ControlCode.AUTOSTART)));
+                        new XletStarter(xlet[i], entry.getControlCode() == AppEntry.AUTOSTART));
                 thread.start();
                 thread.join();
             }
