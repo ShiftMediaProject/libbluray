@@ -1549,7 +1549,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
         return out_len;
     }
 
-
+    BD_DEBUG(DBG_STREAM | DBG_CRIT, "bd_read(): no valid title selected! (%p)\n
 
     return -1;
 }
