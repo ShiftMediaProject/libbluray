@@ -20,23 +20,18 @@
 package org.bluray.storage;
 
 public class StorageManager {
-    public static StorageManager getInstance()
-    {
+    public static StorageManager getInstance() {
         throw new Error("Not implemented");
     }
 
-    protected StorageManager()
-    {
-
+    protected StorageManager() {
     }
 
-    public DataAreaInfo getBindingunitDataAreaInfo()
-    {
+    public DataAreaInfo getBindingunitDataAreaInfo() {
         throw new Error("Not implemented");
     }
 
-    public DataAreaInfo getPersistentDataAreaInfo()
-    {
+    public DataAreaInfo getPersistentDataAreaInfo() {
         throw new Error("Not implemented");
     }
 }
