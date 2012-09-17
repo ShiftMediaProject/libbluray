@@ -72,7 +72,7 @@ public class BDJLoader {
                 xlet[i] = (Xlet)xlet_class.newInstance();
                 
                 // make context for xlet
-                BasicXletContext context = new BasicXletContext(entry);
+                BDJXletContext context = new BDJXletContext(entry);
                 
                 Thread thread = new Thread(new BDJThreadGroup("", context), 
                         new XletStarter(xlet[i], entry.getControlCode() == AppEntry.AUTOSTART));

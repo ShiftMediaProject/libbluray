@@ -28,7 +28,7 @@ import java.util.LinkedList;
 import javax.tv.xlet.Xlet;
 
 public class BDJAppProxy implements DVBJProxy, Runnable {
-    public BDJAppProxy(BasicXletContext context) {
+    public BDJAppProxy(BDJXletContext context) {
         this.context = context;
         state = NOT_LOADED;
         threadGroup = new BDJThreadGroup((String)context.getXletProperty("dvb.org.id") + "." +
@@ -163,7 +163,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
             ((AppStateChangeEventListener)listeners.get(i)).stateChange(event);
     }
 
-    protected BasicXletContext getXletContext() {
+    protected BDJXletContext getXletContext() {
         return context;
     }
 
@@ -339,7 +339,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
         }
     }
 
-    private BasicXletContext context;
+    private BDJXletContext context;
     private Xlet xlet;
     private int state;
     private LinkedList listeners = new LinkedList();

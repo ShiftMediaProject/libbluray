@@ -24,9 +24,9 @@ import javax.tv.xlet.XletContext;
 
 import org.videolan.bdjo.AppEntry;
 
-public class BasicXletContext implements XletContext {
+public class BDJXletContext implements XletContext {
 
-    protected BasicXletContext(AppEntry info) {
+    protected BDJXletContext(AppEntry info) {
         this.info = info;
     }
 
@@ -64,5 +64,5 @@ public class BasicXletContext implements XletContext {
 
     private AppEntry info;
     private XletState state = XletState.ACTIVE;
-    private static Logger logger = Logger.getLogger(BasicXletContext.class.getName());
+    private static Logger logger = Logger.getLogger(BDJXletContext.class.getName());
 }

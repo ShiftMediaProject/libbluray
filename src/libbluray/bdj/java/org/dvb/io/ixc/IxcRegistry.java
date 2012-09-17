@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 
 import javax.tv.xlet.XletContext;
 
-import org.videolan.BasicXletContext;
+import org.videolan.BDJXletContext;
 import org.videolan.XletState;
 
 public class IxcRegistry {
@@ -60,7 +60,7 @@ public class IxcRegistry {
             throw new NullPointerException();
 
         // make sure the xlet is not currently in the destroyed state
-        if (((BasicXletContext)xc).getState().equals(XletState.DESTROYED))
+        if (((BDJXletContext)xc).getState().equals(XletState.DESTROYED))
             return;
 
         int orgId = (Integer)xc.getXletProperty("dvb.org.id");
