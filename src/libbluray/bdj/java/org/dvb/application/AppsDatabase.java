@@ -22,43 +22,35 @@ package org.dvb.application;
 import java.util.Enumeration;
 
 public class AppsDatabase {
-    static public AppsDatabase getAppsDatabase()
-    {
+    static public AppsDatabase getAppsDatabase() {
         throw new Error("Not implemented");
     }
 
-    public int size()
-    {
+    public int size() {
         throw new Error("Not implemented");
     }
 
-    public Enumeration<?> getAppIDs(AppsDatabaseFilter filter)
-    {
+    public Enumeration<?> getAppIDs(AppsDatabaseFilter filter) {
         throw new Error("Not implemented");
     }
 
-    public Enumeration<?> getAppAttributes(AppsDatabaseFilter filter)
-    {
+    public Enumeration<?> getAppAttributes(AppsDatabaseFilter filter) {
         throw new Error("Not implemented");
     }
 
-    public AppAttributes getAppAttributes(AppID key)
-    {
+    public AppAttributes getAppAttributes(AppID key) {
         throw new Error("Not implemented");
     }
 
-    public AppProxy getAppProxy(AppID key)
-    {
+    public AppProxy getAppProxy(AppID key) {
         throw new Error("Not implemented");
     }
 
-    public void addListener(AppsDatabaseEventListener listener)
-    {
+    public void addListener(AppsDatabaseEventListener listener) {
         throw new Error("Not implemented");
     }
 
-    public void removeListener(AppsDatabaseEventListener listener)
-    {
+    public void removeListener(AppsDatabaseEventListener listener) {
         throw new Error("Not implemented");
     }
 }
