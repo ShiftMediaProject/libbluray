@@ -58,6 +58,10 @@ public class BasicXletContext implements XletContext {
         return state;
     }
 
+    protected void setArgs(String[] args) {
+        throw new Error("Not implemented");
+    }
+
     private AppEntry info;
     private XletState state = XletState.ACTIVE;
     private static Logger logger = Logger.getLogger(BasicXletContext.class.getName());

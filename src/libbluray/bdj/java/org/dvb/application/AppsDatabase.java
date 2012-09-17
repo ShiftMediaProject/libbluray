@@ -19,6 +19,7 @@
 
 package org.dvb.application;
 
+import java.util.LinkedList;
 import java.util.Enumeration;
 
 public class AppsDatabase {
@@ -47,10 +48,40 @@ public class AppsDatabase {
     }
 
     public void addListener(AppsDatabaseEventListener listener) {
-        throw new Error("Not implemented");
+        synchronized(listeners) {
+            listeners.add(listener);
+        }
     }
 
     public void removeListener(AppsDatabaseEventListener listener) {
-        throw new Error("Not implemented");
+        synchronized(listeners) {
+            listeners.remove(listener);
+        }
     }
+
+    protected void notifyListeners(int id, AppID appid) {
+        LinkedList<AppsDatabaseEventListener> list;
+        synchronized(listeners) {
+            list = (LinkedList<AppsDatabaseEventListener>)listeners.clone();
+        }
+        AppsDatabaseEvent event = new AppsDatabaseEvent(id, appid, this);
+        for (int i = 0; i < list.size(); i++) {
+            switch (id) {
+            case AppsDatabaseEvent.APP_ADDED:
+                ((AppsDatabaseEventListener)list.get(i)).entryAdded(event);
+                break;
+            case AppsDatabaseEvent.APP_CHANGED:
+                ((AppsDatabaseEventListener)list.get(i)).entryChanged(event);
+                break;
+            case AppsDatabaseEvent.APP_DELETED:
+                ((AppsDatabaseEventListener)list.get(i)).entryRemoved(event);
+                break;
+            case AppsDatabaseEvent.NEW_DATABASE:
+                ((AppsDatabaseEventListener)list.get(i)).newDatabase(event);
+                break;
+            }
+        }
+    }
+
+    private LinkedList<AppsDatabaseEventListener> listeners = new LinkedList<AppsDatabaseEventListener>();
 }
