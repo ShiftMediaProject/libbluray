@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2012  Petri Hintukainen
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,25 +19,12 @@
 
 package org.bluray.storage;
 
-public class StorageManager {
-    public static StorageManager getInstance() {
-        synchronized (StorageManager.class) {
-            if (instance == null)
-                instance = new StorageManager();
-        }
-        return instance;
+public class PersistentDataAreaInfo implements DataAreaInfo {
+    public long getFreeSpace() {
+           return 1024000;
     }
 
-    protected StorageManager() {
+    public long getTotalSpace() {
+           return 1024000;
     }
-
-    public DataAreaInfo getBindingunitDataAreaInfo() {
-        return new BindingunitDataAreaInfo();
-    }
-
-    public DataAreaInfo getPersistentDataAreaInfo() {
-        return new PersistentDataAreaInfo();
-    }
-
-    private static StorageManager instance = null;
 }
