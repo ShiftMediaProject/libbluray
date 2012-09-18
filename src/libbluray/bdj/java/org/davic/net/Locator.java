@@ -19,23 +19,19 @@
 package org.davic.net;
 
 public class Locator implements javax.tv.locator.Locator {
-    public Locator(String url)
-    {
+    public Locator(String url) {
         this.url = url;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return url;
     }
 
-    public boolean hasMultipleTransformations()
-    {
+    public boolean hasMultipleTransformations() {
         return false;
     }
 
-    public String toExternalForm()
-    {
+    public String toExternalForm() {
         return url;
     }
 

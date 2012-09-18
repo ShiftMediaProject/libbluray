@@ -54,10 +54,9 @@ import org.videolan.PlaylistInfo;
 import org.videolan.TIClip;
 
 public class Handler implements Player {
-    public Handler()
-    {
+    public Handler() {
         controls = new Control[20];
-        
+
         controls[0] = new AngleControlImpl(this);
         controls[1] = new AsynchronousPiPControlImpl();
         controls[2] = new AudioMetadataControlImpl();
@@ -79,69 +78,59 @@ public class Handler implements Player {
         controls[18] = new UOMaskTableControlImpl();
         controls[19] = new VideoFormatControlImpl(this);
     }
-    
-    public void setSource(DataSource source) throws IOException,
-            IncompatibleSourceException
-    {
+
+    public void setSource(DataSource source) throws IOException, IncompatibleSourceException {
         if (source instanceof org.videolan.media.protocol.bd.DataSource &&
-                source.getContentType().equals("playlist")) 
+                source.getContentType().equals("playlist"))
         {
-            org.videolan.media.protocol.bd.DataSource playlistSrc = 
+            org.videolan.media.protocol.bd.DataSource playlistSrc =
                 (org.videolan.media.protocol.bd.DataSource)source;
-            
+
             pi = Libbluray.getPlaylistInfo(playlistSrc.getPlaylist());
         } else {
             throw new IncompatibleSourceException();
         }
     }
 
-    public int getState()
-    {
+    public int getState() {
         return state;
     }
 
-    public int getTargetState()
-    {
+    public int getTargetState() {
         return state;
     }
 
-    public void realize()
-    {
+    public void realize() {
         sendControllerEvent(new TransitionEvent(this, Unrealized, Realizing, Realized));
         sendControllerEvent(new RealizeCompleteEvent(this, Realizing, Realized, Realized));
     }
 
-    public void prefetch()
-    {
+    public void prefetch() {
         if (state == Unrealized)
             realize();
-        
+
         sendControllerEvent(new TransitionEvent(this, Realized, Prefetching, Prefetched));
         sendControllerEvent(new PrefetchCompleteEvent(this, Prefetching, Prefetched, Prefetched));
     }
 
-    public void deallocate()
-    {
+    public void deallocate() {
         if (state == Started)
             throw new ClockStartedError();
-        
+
         if (state != Unrealized || state != Realized) {
             sendControllerEvent(new DeallocateEvent(this, state, Realized, Realized, currentTime));
         }
     }
 
-    public void close()
-    {
+    public void close() {
         sendControllerEvent(new ControllerClosedEvent(this, "closed"));
     }
 
-    public Time getStartLatency()
-    {
+    public Time getStartLatency() {
         return new Time(Time.ONE_SECOND); // this is arbitrary since the start latency can't be determined
     }
 
-    public Control[] getControls()
-    {
+    public Control[] getControls() {
         return controls;
     }
 
@@ -159,74 +148,64 @@ public class Handler implements Player {
         }
     }
 
-    public Control getControl(String forName)
-    {
+    public Control getControl(String forName) {
         try {
             Class<?> cls = Class.forName(forName);
-            
+
             for (Control c : controls) {
                 if (cls.isInstance(c))
                     return c;
             }
-            
+
             return null;
         } catch (ClassNotFoundException e) {
             return null;
         }
-        
+
     }
 
-    public void addControllerListener(ControllerListener listener)
-    {
+    public void addControllerListener(ControllerListener listener) {
         listeners.add(listener);
     }
-    
-    public void removeControllerListener(ControllerListener listener)
-    {
+
+    public void removeControllerListener(ControllerListener listener) {
         listeners.remove(listener);
     }
 
-    public void setTimeBase(TimeBase master)
-            throws IncompatibleTimeBaseException
-    {
+    public void setTimeBase(TimeBase master) throws IncompatibleTimeBaseException {
         // this probably isn't useful due to the actual clock being outside of bdj
         // so just ignore this
     }
 
-    public void syncStart(Time at)
-    {
+    public void syncStart(Time at) {
         // TODO signal player to actually start playing
         if (state == Started)
             throw new ClockStartedError();
-        
+
         if (state != Prefetched)
             throw new NotPrefetchedError("syncStart");
-        
+
         currentTime = at;
         sendControllerEvent(new StartEvent(this, Prefetched, Started, Started, at, at));
     }
 
-    public void stop()
-    {
+    public void stop() {
         // TODO signal player to actually stop playing
         if (state == Started) {
             sendControllerEvent(new StopByRequestEvent(this, Started, Prefetched, Prefetched, currentTime));
         }
     }
 
-    public void setStopTime(Time stopTime)
-    {
+    public void setStopTime(Time stopTime) {
         // TODO: actually stopping when stop time is hit needs to be implemented
-        this.stopTime = stopTime; 
+        this.stopTime = stopTime;
     }
 
-    public Time getStopTime()
-    {
+    public Time getStopTime() {
         return stopTime;
     }
 
-    public void setMediaTime(Time now)
-    {
+    public void setMediaTime(Time now) {
         // TODO: again this doesn't really do much right now
         if (state != Started)
             currentTime = now;
@@ -234,101 +213,85 @@ public class Handler implements Player {
             throw new ClockStartedError();
     }
 
-    public Time getMediaTime()
-    {
+    public Time getMediaTime() {
         return currentTime;
     }
 
-    public long getMediaNanoseconds()
-    {
+    public long getMediaNanoseconds() {
         return currentTime.getNanoseconds();
     }
 
-    public Time getSyncTime()
-    {
+    public Time getSyncTime() {
         return getMediaTime();
     }
 
-    public TimeBase getTimeBase()
-    {
+    public TimeBase getTimeBase() {
         return Manager.getSystemTimeBase();
     }
 
-    public Time mapToTimeBase(Time t) throws ClockStoppedException
-    {
+    public Time mapToTimeBase(Time t) throws ClockStoppedException {
         if (state != Started)
             throw new ClockStoppedException();
         return getMediaTime();
     }
 
-    public float getRate()
-    {
+    public float getRate() {
         return rate;
     }
 
-    public float setRate(float factor)
-    {
+    public float setRate(float factor) {
         if (state == Started)
             throw new ClockStartedError();
-        
+
         return 1.0f; // TODO: maybe allow changing rate?
     }
 
-    public Time getDuration()
-    {
+    public Time getDuration() {
         long duration = pi.getDuration() ;
         return new Time(duration * TO_SECONDS);
     }
 
-    public Component getVisualComponent()
-    {
+    public Component getVisualComponent() {
         return null;
     }
 
-    public GainControl getGainControl()
-    {
+    public GainControl getGainControl() {
         for (Control c : controls) {
             if (c instanceof OverallGainControl)
                 return (GainControl)c;
         }
-        
+
         return null;
     }
 
-    public Component getControlPanelComponent()
-    {
+    public Component getControlPanelComponent() {
         return null;
     }
 
-    public void start()
-    {
+    public void start() {
         if (state != Prefetched)
             throw new NotPrefetchedError("start");
-        
+
         sendControllerEvent(new StartEvent(this, Prefetched, Started, Started, currentTime, currentTime));
     }
 
-    public void addController(Controller newController)
-            throws IncompatibleTimeBaseException
-    {
+    public void addController(Controller newController) throws IncompatibleTimeBaseException {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public void removeController(Controller oldController)
-    {
+    public void removeController(Controller oldController) {
         throw new Error("Not implemented"); // TODO implement
     }
-    
-    private void sendControllerEvent(ControllerEvent event) 
-    {
+
+    private void sendControllerEvent(ControllerEvent event) {
         if (event instanceof TransitionEvent)
             state = ((TransitionEvent)event).getCurrentState();
-        
+
         for (ControllerListener listener : listeners) {
             listener.controllerUpdate(event);
         }
     }
-    
+
     protected static final double TO_SECONDS = 1 / 90000.0;
     protected static final double FROM_SECONDS = 90000.0;
     protected PlaylistInfo pi;
@@ -337,8 +300,8 @@ public class Handler implements Player {
     private Time stopTime = Clock.RESET;
     private Time currentTime = new Time(0);
     private float rate = 1.0f;
-    
+
     private LinkedList<ControllerListener> listeners = new LinkedList<ControllerListener>();
-    
+
     private int state = Unrealized;
 }

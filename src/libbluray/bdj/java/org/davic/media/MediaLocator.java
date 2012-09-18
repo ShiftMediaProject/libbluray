@@ -22,10 +22,9 @@ package org.davic.media;
 import org.davic.net.Locator;
 
 public class MediaLocator extends javax.media.MediaLocator {
-    public MediaLocator(Locator locator)
-    {
+    public MediaLocator(Locator locator) {
         super(locator.toExternalForm());
     }
-    
+
     private static final long serialVersionUID = -6708701150306364540L;
 }

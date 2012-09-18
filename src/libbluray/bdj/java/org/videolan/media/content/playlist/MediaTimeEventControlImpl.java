@@ -30,8 +30,7 @@ public class MediaTimeEventControlImpl implements MediaTimeEventControl {
         return null;
     }
 
-    public void notifyWhen(MediaTimeEventListener listener, long mediaTime,
-            int id) {
+    public void notifyWhen(MediaTimeEventListener listener, long mediaTime, int id) {
         throw new Error("Not implemented"); // TODO implement
     }
 

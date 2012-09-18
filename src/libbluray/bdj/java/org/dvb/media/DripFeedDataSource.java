@@ -24,53 +24,43 @@ import java.io.IOException;
 import javax.media.protocol.DataSource;
 
 public class DripFeedDataSource extends DataSource {
-    public DripFeedDataSource()
-    {
+    public DripFeedDataSource() {
         throw new Error("Not implemented");
     }
 
-    public void feed(byte[] clip_part)
-    {
+    public void feed(byte[] clip_part) {
         throw new Error("Not implemented");
     }
 
-    public String getContentType()
-    {
+    public String getContentType() {
         throw new Error("Not implemented");
     }
 
-    public void connect() throws IOException
-    {
+    public void connect() throws IOException {
         throw new Error("Not implemented");
     }
 
-    public void disconnect()
-    {
+    public void disconnect() {
         throw new Error("Not implemented");
     }
 
-    public void start() throws IOException
-    {
+    public void start() throws IOException {
         throw new Error("Not implemented");
     }
 
-    public void stop() throws IOException
-    {
+    public void stop() throws IOException {
         throw new Error("Not implemented");
     }
 
-    public Time getDuration()
-    {
+    public Time getDuration() {
         throw new Error("Not implemented");
     }
 
-    public Object[] getControls()
-    {
+    public Object[] getControls() {
         throw new Error("Not implemented");
     }
 
-    public Object getControl(String controlType)
-    {
+    public Object getControl(String controlType) {
         throw new Error("Not implemented");
     }
 

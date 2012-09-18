@@ -26,23 +26,19 @@ import org.bluray.media.UOMaskTableListener;
 
 // TODO: don't know what this is for
 public class UOMaskTableControlImpl implements UOMaskTableControl {
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         return null;
     }
 
-    public void addUOMaskTableEventListener(UOMaskTableListener listener)
-    {
+    public void addUOMaskTableEventListener(UOMaskTableListener listener) {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 
-    public void removeUOMaskTableEventListener(UOMaskTableListener listener)
-    {
+    public void removeUOMaskTableEventListener(UOMaskTableListener listener) {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 
-    public boolean[] getMaskedUOTable()
-    {
+    public boolean[] getMaskedUOTable() {
         throw new Error("Not implemented"); // TODO: Not implemented
     }
 

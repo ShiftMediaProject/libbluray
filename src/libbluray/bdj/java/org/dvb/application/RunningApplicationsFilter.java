@@ -21,14 +21,12 @@
 package org.dvb.application;
 
 public class RunningApplicationsFilter extends AppsDatabaseFilter {
-    public RunningApplicationsFilter()
-    {
+    public RunningApplicationsFilter() {
         super();
         throw new Error("Not implemented");
     }
 
-    public boolean accept(AppID appid)
-    {
+    public boolean accept(AppID appid) {
         throw new Error("Not implemented");
     }
 }

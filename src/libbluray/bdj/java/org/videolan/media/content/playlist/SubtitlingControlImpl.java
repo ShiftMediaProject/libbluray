@@ -35,38 +35,31 @@ import org.videolan.TIClip;
 
 public class SubtitlingControlImpl extends StreamControl implements SubtitlingControl {
 
-    protected SubtitlingControlImpl(Handler player)
-    {
+    protected SubtitlingControlImpl(Handler player) {
         super(player);
     }
 
-    public void addSubtitleListener(SubtitleListener listener)
-    {
+    public void addSubtitleListener(SubtitleListener listener) {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public void removeSubtitleListener(SubtitleListener listener)
-    {
+    public void removeSubtitleListener(SubtitleListener listener) {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public boolean isSubtitlingOn()
-    {
+    public boolean isSubtitlingOn() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public boolean setSubtitling(boolean value)
-    {
+    public boolean setSubtitling(boolean value) {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public Component getControlComponent()
-    {
+    public Component getControlComponent() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public String selectDefaultLanguage() throws NotAuthorizedException
-    {
+    public String selectDefaultLanguage() throws NotAuthorizedException {
         // FIXME: should add ability to select the default language
         try {
             selectLanguage("eng");
@@ -77,9 +70,7 @@ public class SubtitlingControlImpl extends StreamControl implements SubtitlingCo
         return "eng";
     }
 
-    public void selectLanguage(String language)
-            throws LanguageNotAvailableException, NotAuthorizedException
-    {
+    public void selectLanguage(String language) throws LanguageNotAvailableException, NotAuthorizedException {
         TIClip clip = getCurrentClip();
         StreamInfo[] streams = clip.getAudioStreams();
         try {
@@ -89,50 +80,40 @@ public class SubtitlingControlImpl extends StreamControl implements SubtitlingCo
         }
     }
 
-    public void selectStreamNumber(int num) throws StreamNotAvailableException
-    {
+    public void selectStreamNumber(int num) throws StreamNotAvailableException {
         Libbluray.writePSR(num, Libbluray.PSR_PG_STREAM);
     }
 
-    public void selectSubtitle(int subtitle) throws StreamNotAvailableException
-    {
+    public void selectSubtitle(int subtitle) throws StreamNotAvailableException {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public boolean setPipSubtitleMode(boolean mode)
-    {
+    public boolean setPipSubtitleMode(boolean mode) {
         throw new Error("Not implemented"); // TODO implement
     }
 
     public void setSubtitleStyle(int style)
-            throws TextSubtitleNotAvailableException,
-            SubtitleStyleNotAvailableException
-    {
+            throws TextSubtitleNotAvailableException, SubtitleStyleNotAvailableException {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public String getCurrentLanguage()
-    {
+    public String getCurrentLanguage() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public String[] listAvailableLanguages()
-    {
+    public String[] listAvailableLanguages() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public int getCurrentStreamNumber()
-    {
+    public int getCurrentStreamNumber() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public int[] listAvailableStreamNumbers()
-    {
+    public int[] listAvailableStreamNumbers() {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public CodingType getCurrentSubtitleType()
-    {
+    public CodingType getCurrentSubtitleType() {
         throw new Error("Not implemented"); // TODO implement
     }
 
@@ -142,8 +123,7 @@ public class SubtitlingControlImpl extends StreamControl implements SubtitlingCo
         throw new Error("Not implemented"); // TODO implement
     }
 
-    public boolean isPipSubtitleMode()
-    {
+    public boolean isPipSubtitleMode() {
         throw new Error("Not implemented"); // TODO implement
     }
 

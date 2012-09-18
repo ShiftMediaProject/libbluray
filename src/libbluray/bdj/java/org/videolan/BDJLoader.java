@@ -35,12 +35,11 @@ import org.videolan.bdjo.ControlCode;
 import org.videolan.bdjo.GraphicsResolution;
 
 public class BDJLoader {
-    public static void load(Bdjo bdjo)
-    {
+    public static void load(Bdjo bdjo) {
         try {
             BDJLoader.baseDir = System.getProperty("bluray.vfs.root");
             BDJLoader.bdjo = bdjo;
-            
+
             // setup JMF prefixes
             Vector<String> prefix = new Vector<String>();
             prefix.add("org.videolan");
@@ -48,13 +47,13 @@ public class BDJLoader {
             PackageManager.setProtocolPrefixList(prefix);
             PackageManager.commitContentPrefixList();
             PackageManager.commitProtocolPrefixList();
-            
+
             // start test window
             GUIManager gui = GUIManager.getInstance();
             GraphicsResolution res = bdjo.getTerminalInfo().getResolution();
             gui.setSize(res.getWidth(), res.getHeight());
             gui.setVisible(true);
-            
+
             // now load and initialize all the xlets
             AppEntry[] appTable = bdjo.getAppTable();
             xlet = new Xlet[appTable.length];
@@ -63,17 +62,17 @@ public class BDJLoader {
                 BDJClassLoader classLoader = BDJClassLoader.newInstance(bdjo.getAppCaches(), entry.getBasePath(), entry.getClassPathExt(), entry.getInitialClass());
                 Class<?> xlet_class = classLoader.loadClass(entry.getInitialClass());
                 logger.log(Level.INFO, "Loaded class: " + entry.getInitialClass());
-                
+
                 xlet[i] = (Xlet)xlet_class.newInstance();
-                
+
                 // make context for xlet
                 BDJXletContext context = new BDJXletContext(entry, bdjo.getAppCaches(), gui);
-                Thread thread = new Thread(new BDJThreadGroup("", context), 
+                Thread thread = new Thread(new BDJThreadGroup("", context),
                         new XletStarter(xlet[i], entry.getControlCode() == AppEntry.AUTOSTART));
                 thread.start();
                 thread.join();
             }
-            
+
             logger.log(Level.INFO, "Finished initializing and starting xlets.");
 
         } catch (Throwable e) {
@@ -82,8 +81,7 @@ public class BDJLoader {
         }
     }
 
-    public static void shutdown()
-    {
+    public static void shutdown() {
         try {
             if (xlet != null) {
                 for (int i = 0; i < xlet.length; i++){
@@ -95,54 +93,48 @@ public class BDJLoader {
             e.printStackTrace();
         }
     }
-    
-    protected static String getBaseDir()
-    {
+
+    protected static String getBaseDir() {
         return baseDir;
     }
-    
-    public static void SendKeyEvent(int type, int keyCode)
-    {
+
+    public static void SendKeyEvent(int type, int keyCode) {
         if (inputListener != null) {
             inputListener.receiveKeyEvent(type, keyCode);
         } else {
             logger.warning("Tried to send key event before listener set.");
         }
     }
-    
-    public static XletContext getContext()
-    {
+
+    public static XletContext getContext() {
         BDJThreadGroup grp = (BDJThreadGroup)Thread.currentThread().getThreadGroup();
         return grp.getContext();
     }
-    
-    public static Bdjo getBdjo()
-    {
+
+    public static Bdjo getBdjo() {
         return bdjo;
     }
-    
+
     public static BDJInputListener inputListener = null;
-    
+
     private static Xlet[] xlet = null;
     private static Bdjo bdjo = null;
     private static String baseDir = "";
     private static final Logger logger = Logger.getLogger(BDJLoader.class.getName());
 
     private static class XletStarter implements Runnable {
-        public XletStarter(Xlet xlet, boolean autostart)
-        {
+        public XletStarter(Xlet xlet, boolean autostart) {
             this.xlet = xlet;
             this.autostart = autostart;
         }
-        
-        public void run()
-        {
+
+        public void run() {
             try {
                 XletContext context = getContext();
                 logger.log(Level.INFO, "Attempting to init a xlet");
-                
+
                 xlet.initXlet(context);
-                
+
                 if (autostart) {
                     logger.log(Level.INFO, "Autostart requested, now starting xlet.");
                     xlet.startXlet();
@@ -152,7 +144,7 @@ public class BDJLoader {
                 e.printStackTrace();
             }
         }
-        
+
         private Xlet xlet;
         private boolean autostart;
     }
