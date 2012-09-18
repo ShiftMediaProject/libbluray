@@ -1,6 +1,5 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  William Hahne
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,22 +16,22 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package org.videolan;
+package javax.microedition.xlet;
 
-public class BDJThreadGroup extends ThreadGroup {
+import java.awt.Container;
 
-    public BDJThreadGroup(String name, BDJXletContext context) {
-        super(name);
-        this.context = context;
-    }
+public interface XletContext {
+    public static final String ARGS = "javax.microedition.xlet.args";
 
-    public BDJXletContext getContext() {
-        return context;
-    }
+    public void notifyDestroyed();
 
-    public void setContext(BDJXletContext context) {
-        this.context = context;
-    }
+    public void notifyPaused();
 
-    private BDJXletContext context;
+    public Object getXletProperty(String key);
+
+    public void resumeRequest();
+
+    public Container getContainer() throws UnavailableContainerException;
+
+    public java.lang.ClassLoader getClassLoader();
 }

@@ -22,46 +22,94 @@ package org.videolan;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+
+import javax.tv.xlet.Xlet;
 
 import org.videolan.bdjo.AppCache;
 import org.videolan.bdjo.AppCacheType;
 
 public class BDJClassLoader extends URLClassLoader {
-    public BDJClassLoader(String baseDir)
-    {
-        super(new URL[0]);
-        
-        this.baseDir = baseDir;
-    }
-    
-    public void setBaseDir(String baseDir)
-    {
-        this.baseDir = baseDir;
-    }
-    
-    public String getBaseDir()
-    {
-        return baseDir;
+    public static BDJClassLoader newInstance(AppCache[] appCaches, String basePath, String classPathExt, String xletClass) {
+        ArrayList classPath = new ArrayList();
+        URL url = translateClassPath(appCaches, basePath, null);
+        if (url != null)
+            classPath.add(url);
+        String[] classPaths = StrUtil.split(classPathExt, ';');
+        for (int i = 0; i < classPaths.length; i++) {
+            url = translateClassPath(appCaches, basePath, classPaths[i]);
+            if ((url != null) && (classPath.indexOf(url) < 0))
+                classPath.add(url);
+        }
+        return new BDJClassLoader((URL[])classPath.toArray(new URL[classPath.size()]) , xletClass);
     }
 
-    public void addAppCache(AppCache cache)
-    {
-        String url = "file:";
-        url += baseDir + "/BDMV/JAR/";
-        url += cache.getRefToName();
-        if (cache.getType() == AppCache.JAR_FILE)
-            url += ".jar";
-        else if (cache.getType() == AppCache.DIRECTORY)
-            url += "/";
-        
-        System.out.println(url);
-
+    private static URL translateClassPath(AppCache[] appCaches, String basePath, String classPath) {
+        String path;
+        if ((classPath == null) || (classPath.length() <= 0))
+            path = basePath;
+        else if (classPath.charAt(0) == '/')
+            path = classPath.substring(1);
+        else
+            path = basePath + "/" + classPath;
+        if (path.length() < 5)
+            return null;
+        String protocol = null;
+        String url = path.substring(0, 5);
+        for (int i = 0; i < appCaches.length; i++) {
+            if (appCaches[i].getRefToName().equals(url)) {
+                if (appCaches[i].getType() == AppCache.JAR_FILE) {
+                    protocol = "file:";
+                    url = url + ".jar";
+                } else if (appCaches[i].getType() == AppCache.DIRECTORY) {
+                    protocol = "file:/";
+                }
+                break;
+            }
+        }
+        if (protocol == null)
+            return null;
+        url = protocol +
+            System.getProperty("bluray.vfs.root") +
+            "/BDMV/JAR/" + url + path.substring(5);
+        //if (!url.endsWith("/"))
+        //    url += "/";
         try {
-            addURL(new URL(url));
+            return new URL(url);
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            return null;
         }
     }
 
-    private String baseDir = "";
+    private BDJClassLoader(URL[] urls, String xletClass) {
+        super(urls);
+        this.xletClass = xletClass;
+    }
+
+    protected Xlet loadXlet() throws ClassNotFoundException,
+            IllegalAccessException, InstantiationException {
+        return (Xlet)loadClass(xletClass).newInstance();
+    }
+
+    protected void update(AppCache[] appCaches, String basePath, String classPathExt, String xletClass) {
+        ArrayList classPath = new ArrayList();
+        URL[] urls = getURLs();
+        for (int i = 0; i < urls.length; i++)
+            classPath.add(urls[i]);
+        URL url = translateClassPath(appCaches, basePath, null);
+        if (url != null)
+            classPath.add(url);
+        String[] classPaths = StrUtil.split(classPathExt, ';');
+        for (int i = 0; i < classPaths.length; i++) {
+            url = translateClassPath(appCaches, basePath, classPaths[i]);
+            if ((url != null) && (classPath.indexOf(url) < 0))
+                classPath.add(url);
+        }
+        for (int i = 0; i < classPath.size(); i++)
+            addURL((URL)classPath.get(i));
+        this.xletClass = xletClass;
+    }
+
+    private String xletClass;
 }

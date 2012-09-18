@@ -21,10 +21,11 @@ package org.dvb.application;
 
 import java.util.LinkedList;
 import java.util.Enumeration;
+import org.videolan.BDJAppsDatabase;
 
 public class AppsDatabase {
     static public AppsDatabase getAppsDatabase() {
-        throw new Error("Not implemented");
+        return BDJAppsDatabase.getAppsDatabase();
     }
 
     public int size() {

@@ -1,6 +1,5 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  William Hahne
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,11 +16,14 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package org.videolan;
+package javax.microedition.xlet;
 
-public enum XletState
-{
-    ACTIVE, // this is just the state the xlet is in if it is not paused or destroyed
-    PAUSED,
-    DESTROYED;
+public class UnavailableContainerException extends Exception {
+    public UnavailableContainerException() {
+        super();
+    }
+
+    public UnavailableContainerException(String s) {
+        super(s);
+    }
 }

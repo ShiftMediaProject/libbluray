@@ -41,8 +41,6 @@ public class BDJLoader {
             BDJLoader.baseDir = System.getProperty("bluray.vfs.root");
             BDJLoader.bdjo = bdjo;
             
-            BDJClassLoader classLoader = new BDJClassLoader(baseDir);
-            
             // setup JMF prefixes
             Vector<String> prefix = new Vector<String>();
             prefix.add("org.videolan");
@@ -50,10 +48,6 @@ public class BDJLoader {
             PackageManager.setProtocolPrefixList(prefix);
             PackageManager.commitContentPrefixList();
             PackageManager.commitProtocolPrefixList();
-            
-            // add app caches (the locations where classes are stored)
-            for (AppCache cache : bdjo.getAppCaches())
-                classLoader.addAppCache(cache);
             
             // start test window
             GUIManager gui = GUIManager.getInstance();
@@ -66,14 +60,14 @@ public class BDJLoader {
             xlet = new Xlet[appTable.length];
             for (int i = 0; i < appTable.length; i++) {
                 AppEntry entry = appTable[i];
+                BDJClassLoader classLoader = BDJClassLoader.newInstance(bdjo.getAppCaches(), entry.getBasePath(), entry.getClassPathExt(), entry.getInitialClass());
                 Class<?> xlet_class = classLoader.loadClass(entry.getInitialClass());
                 logger.log(Level.INFO, "Loaded class: " + entry.getInitialClass());
                 
                 xlet[i] = (Xlet)xlet_class.newInstance();
                 
                 // make context for xlet
-                BDJXletContext context = new BDJXletContext(entry);
-                
+                BDJXletContext context = new BDJXletContext(entry, bdjo.getAppCaches(), gui);
                 Thread thread = new Thread(new BDJThreadGroup("", context), 
                         new XletStarter(xlet[i], entry.getControlCode() == AppEntry.AUTOSTART));
                 thread.start();

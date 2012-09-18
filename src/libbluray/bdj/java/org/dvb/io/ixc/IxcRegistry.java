@@ -30,8 +30,11 @@ import java.util.logging.Logger;
 
 import javax.tv.xlet.XletContext;
 
+import org.dvb.application.AppID;
+import org.dvb.application.AppProxy;
+import org.dvb.application.AppsDatabase;
+
 import org.videolan.BDJXletContext;
-import org.videolan.XletState;
 
 public class IxcRegistry {
     public static Remote lookup(XletContext xc, String path) throws NotBoundException, RemoteException {
@@ -60,11 +63,14 @@ public class IxcRegistry {
             throw new NullPointerException();
 
         // make sure the xlet is not currently in the destroyed state
-        if (((BDJXletContext)xc).getState().equals(XletState.DESTROYED))
+        String orgid = (String)xc.getXletProperty("dvb.org.id");
+        String appid = (String)xc.getXletProperty("dvb.app.id");
+        AppID id = new AppID(Integer.parseInt(orgid, 16), Integer.parseInt(appid, 16));
+        if (AppsDatabase.getAppsDatabase().getAppProxy(id).getState() == AppProxy.DESTROYED)
             return;
 
-        int orgId = (Integer)xc.getXletProperty("dvb.org.id");
-        int iappId = (Integer)xc.getXletProperty("dvb.app.id");
+        int orgId = id.getOID();
+        int iappId = id.getAID();
         short appId = (short)iappId;
 
         IxcObject ixcObj = new IxcObject(orgId, appId, name, obj);
@@ -74,7 +80,7 @@ public class IxcRegistry {
 
         ixcList.add(ixcObj);
 
-        logger.info("Bound /" + Integer.toString(orgId, 16) + "/" + Integer.toString(appId, 16) + "/" + name);
+        logger.info("Bound /" + orgid + "/" + appid + "/" + name);
     }
 
     public static void unbind(XletContext xc, String name) throws NotBoundException {
