@@ -365,17 +365,18 @@ static void _reset_page_state(GRAPHICS_CONTROLLER *gc)
  * overlay operations
  */
 
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+
 static void _open_osd(GRAPHICS_CONTROLLER *gc, int plane,
                       unsigned width, unsigned height)
 {
     if (gc->overlay_proc) {
-        const BD_OVERLAY ov = {
-            .cmd     = BD_OVERLAY_INIT,
-            .pts     = -1,
-            .plane   = plane,
-            .w       = width,
-            .h       = height,
-        };
+        BD_OVERLAY ov = {0};
+        ov.cmd          = BD_OVERLAY_INIT;
+        ov.pts          = -1;
+        ov.plane        = plane;
+        ov.w            = width;
+        ov.h            = height;
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
 
@@ -390,11 +391,10 @@ static void _open_osd(GRAPHICS_CONTROLLER *gc, int plane,
 static void _close_osd(GRAPHICS_CONTROLLER *gc, int plane)
 {
     if (gc->overlay_proc) {
-        const BD_OVERLAY ov = {
-            .cmd     = BD_OVERLAY_CLOSE,
-            .pts     = -1,
-            .plane   = plane,
-        };
+        BD_OVERLAY ov = {0};
+        ov.cmd     = BD_OVERLAY_CLOSE;
+        ov.pts     = -1;
+        ov.plane   = plane;
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
     }
@@ -411,11 +411,10 @@ static void _close_osd(GRAPHICS_CONTROLLER *gc, int plane)
 static void _flush_osd(GRAPHICS_CONTROLLER *gc, int plane, int64_t pts)
 {
     if (gc->overlay_proc) {
-        const BD_OVERLAY ov = {
-            .cmd     = BD_OVERLAY_FLUSH,
-            .pts     = pts,
-            .plane   = plane,
-        };
+        BD_OVERLAY ov = {0};
+        ov.cmd     = BD_OVERLAY_FLUSH;
+        ov.pts     = pts;
+        ov.plane   = plane;
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
     }
@@ -426,15 +425,14 @@ static void _clear_osd_area(GRAPHICS_CONTROLLER *gc, int plane,
 {
     if (gc->overlay_proc) {
         /* wipe area */
-        const BD_OVERLAY ov = {
-            .cmd     = BD_OVERLAY_WIPE,
-            .pts     = -1,
-            .plane   = plane,
-            .x       = x,
-            .y       = y,
-            .w       = w,
-            .h       = h,
-        };
+        BD_OVERLAY ov = {0};
+        ov.cmd     = BD_OVERLAY_WIPE;
+        ov.pts     = -1;
+        ov.plane   = plane;
+        ov.x       = x;
+        ov.y       = y;
+        ov.w       = w;
+        ov.h       = h;
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
     }
@@ -444,11 +442,10 @@ static void _clear_osd(GRAPHICS_CONTROLLER *gc, int plane)
 {
     if (gc->overlay_proc) {
         /* clear plane */
-        const BD_OVERLAY ov = {
-            .cmd     = BD_OVERLAY_CLEAR,
-            .pts     = -1,
-            .plane   = plane,
-        };
+        BD_OVERLAY ov = {0};
+        ov.cmd     = BD_OVERLAY_CLEAR;
+        ov.pts     = -1;
+        ov.plane   = plane;
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
     }
@@ -480,17 +477,16 @@ static void _render_object(GRAPHICS_CONTROLLER *gc,
                            BD_PG_PALETTE *palette)
 {
     if (gc->overlay_proc) {
-        BD_OVERLAY ov = {
-            .cmd     = BD_OVERLAY_DRAW,
-            .pts     = pts,
-            .plane   = plane,
-            .x       = x,
-            .y       = y,
-            .w       = object->width,
-            .h       = object->height,
-            .palette = palette->entry,
-            .img     = object->img,
-        };
+        BD_OVERLAY ov = {0};
+        ov.cmd     = BD_OVERLAY_DRAW;
+        ov.pts     = pts;
+        ov.plane   = plane;
+        ov.x       = x;
+        ov.y       = y;
+        ov.w       = object->width;
+        ov.h       = object->height;
+        ov.palette = palette->entry;
+        ov.img     = object->img;
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
     }

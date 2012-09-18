@@ -260,12 +260,11 @@ void bd_psr_save_state(BD_REGISTERS *p)
     /* generate save event */
 
     if (p->num_cb) {
-        BD_PSR_EVENT ev = {
-            .ev_type = BD_PSR_SAVE,
-            .psr_idx = -1,
-            .old_val = 0,
-            .new_val = 0,
-        };
+        BD_PSR_EVENT ev;
+        ev.ev_type = BD_PSR_SAVE;
+        ev.psr_idx = -1;
+        ev.old_val = 0;
+        ev.new_val = 0;
 
         unsigned j;
         for (j = 0; j < p->num_cb; j++) {
