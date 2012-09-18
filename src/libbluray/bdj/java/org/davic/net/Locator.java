@@ -35,5 +35,5 @@ public class Locator implements javax.tv.locator.Locator {
         return url;
     }
 
-    private String url;
+    protected String url;
 }
