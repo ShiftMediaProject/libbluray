@@ -46,7 +46,6 @@ public class BDJLoader {
     }
 
     public static boolean load(int title, boolean restart, BDJLoaderCallback callback) {
-        logger.info("load " + title);
         try {
             BDLocator locator = new BDLocator(null, title, -1);
             return load((TitleImpl)(SIManager.createInstance().getService(locator)), restart, callback);
@@ -57,7 +56,6 @@ public class BDJLoader {
     }
 
     public static boolean load(Locator locator, boolean restart, BDJLoaderCallback callback) {
-        logger.info("load");
         try {
             return load((TitleImpl)(SIManager.createInstance().getService(locator)), restart, callback);
         } catch (Throwable e) {
@@ -67,7 +65,6 @@ public class BDJLoader {
     }
 
     public static boolean load(TitleImpl title, boolean restart, BDJLoaderCallback callback) {
-        logger.info("load");
         if (title == null)
             return false;
         synchronized (BDJLoader.class) {
@@ -79,12 +76,10 @@ public class BDJLoader {
     }
 
     public static boolean unload() {
-        logger.info("unload");
         return unload(null);
     }
 
     public static boolean unload(BDJLoaderCallback callback) {
-        logger.info("unload");
         synchronized (BDJLoader.class) {
             if (queue == null)
                 queue = new BDJActionQueue();
@@ -94,7 +89,6 @@ public class BDJLoader {
     }
 
     public static void shutdown() {
-        logger.info("shutdown");
         unload();
         try {
             queue.finalize();
@@ -216,14 +210,12 @@ public class BDJLoader {
 
     private static class BDJLoaderAction extends BDJAction {
         public BDJLoaderAction(TitleImpl title, boolean restart, BDJLoaderCallback callback) {
-            logger.info("createAction");
             this.title = title;
             this.restart = restart;
             this.callback = callback;
         }
 
         protected void doAction() {
-            logger.info("doAction");
             boolean succeed;
             if (title != null)
                 succeed = loadN(title, restart);

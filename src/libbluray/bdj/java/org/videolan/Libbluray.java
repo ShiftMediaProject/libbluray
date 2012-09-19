@@ -19,6 +19,7 @@
 
 package org.videolan;
 
+import java.awt.event.KeyEvent;
 import java.util.Vector;
 
 import javax.media.PackageManager;
@@ -27,8 +28,10 @@ import javax.tv.service.selection.ServiceContextFactory;
 import org.bluray.ti.DiscManager;
 import org.bluray.ti.TitleImpl;
 import org.bluray.ti.selection.TitleContext;
+import org.bluray.ui.event.HRcEvent;
 import org.dvb.event.EventManager;
 import org.videolan.bdjo.Bdjo;
+import org.videolan.media.content.BDHandler;
 
 /**
  * This class allows BDJ to call various libbluray functions.
@@ -94,9 +97,9 @@ public class Libbluray {
 
             System.setProperty("bluray.jmf.subtitlestyle", "YES");
 
-            System.setProperty("bluray.rccapability.release", "YES");
-            System.setProperty("bluray.rccapability.holdandrelease", "YES");
-            System.setProperty("bluray.rccapability.repeatonhold", "YES");
+            System.setProperty("bluray.rccapability.release", "No");
+            System.setProperty("bluray.rccapability.holdandrelease", "NO");
+            System.setProperty("bluray.rccapability.repeatonhold", "NO");
 
             System.setProperty("bluray.localstorage.level", "5");
             System.setProperty("bluray.localstorage.maxlevel", "5");
@@ -117,6 +120,7 @@ public class Libbluray {
     public static void shutdown() {
         try {
             BDJLoader.shutdown();
+            BDJActionManager.getInstance().finalize();
             MountManager.unmountAll();
         } catch (Throwable e) {
             e.printStackTrace();
@@ -280,6 +284,69 @@ public class Libbluray {
     public static void updateGraphic(int width, int height, int[] rgbArray) {
         updateGraphicN(nativePointer, width, height, rgbArray);
     }
+
+    public static void processEvent(int event, int param) {
+        int key = 0;
+        switch (event) {
+        case BDJ_EVENT_CHAPTER:
+            BDHandler.onChapterReach(param);
+            break;
+        case BDJ_EVENT_PLAYITEM:
+            BDHandler.onPlayItemReach(param);
+            break;
+        case BDJ_EVENT_ANGLE:
+            BDHandler.onAngleChange(param);
+            break;
+        case BDJ_EVENT_SUBTITLE:
+            BDHandler.onSubtitleChange(param);
+            break;
+        case BDJ_EVENT_PIP:
+            BDHandler.onPiPChange(param);
+            break;
+        case BDJ_EVENT_END_OF_PLAYLIST:
+            BDHandler.activePlayerEndOfMedia();
+            break;
+        case BDJ_EVENT_PTS:
+            BDHandler.activePlayerUpdateTime(param);
+            break;
+        case BDJ_EVENT_VK_KEY:
+            //case KeyEvent.KEY_TYPED:
+            //case KeyEvent.KEY_PRESSED:
+            //case KeyEvent.KEY_RELEASED:
+            switch (param) {
+            case  0: key = KeyEvent.VK_0; break;
+            case  1: key = KeyEvent.VK_1; break;
+            case  2: key = KeyEvent.VK_2; break;
+            case  3: key = KeyEvent.VK_3; break;
+            case  4: key = KeyEvent.VK_4; break;
+            case  5: key = KeyEvent.VK_5; break;
+            case  6: key = KeyEvent.VK_6; break;
+            case  7: key = KeyEvent.VK_7; break;
+            case  8: key = KeyEvent.VK_8; break;
+            case  9: key = KeyEvent.VK_9; break;
+            case 11: key = HRcEvent.VK_POPUP_MENU; break;
+            case 12: key = KeyEvent.VK_UP; break;
+            case 13: key = KeyEvent.VK_DOWN; break;
+            case 14: key = KeyEvent.VK_LEFT; break;
+            case 15: key = KeyEvent.VK_RIGHT; break;
+            case 16: key = KeyEvent.VK_ENTER; break;
+            default: key = -1; break;
+            }
+            if (key > 0) {
+                EventManager.getInstance().receiveKeyEvent(KeyEvent.KEY_TYPED, 0, key);
+            }
+            break;
+        }
+    }
+
+    private static final int BDJ_EVENT_CHAPTER                  = 1;
+    private static final int BDJ_EVENT_PLAYITEM                 = 2;
+    private static final int BDJ_EVENT_ANGLE                    = 3;
+    private static final int BDJ_EVENT_SUBTITLE                 = 4;
+    private static final int BDJ_EVENT_PIP                      = 5;
+    private static final int BDJ_EVENT_END_OF_PLAYLIST          = 6;
+    private static final int BDJ_EVENT_PTS                      = 7;
+    private static final int BDJ_EVENT_VK_KEY                   = 8;
 
     public static final int PSR_IG_STREAM_ID     = 0;
     public static final int PSR_PRIMARY_AUDIO_ID = 1;

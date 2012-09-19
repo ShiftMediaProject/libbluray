@@ -22,6 +22,18 @@
 
 #include "common.h"
 
+typedef enum {
+    BDJ_EVENT_NONE = 0,
+    BDJ_EVENT_CHAPTER,
+    BDJ_EVENT_PLAYITEM,
+    BDJ_EVENT_ANGLE,
+    BDJ_EVENT_SUBTITLE,
+    BDJ_EVENT_PIP,
+    BDJ_EVENT_END_OF_PLAYLIST,
+    BDJ_EVENT_PTS,
+    BDJ_EVENT_VK_KEY,
+} BDJ_EVENT;
+
 typedef struct bdjava_s BDJAVA;
 
 struct bluray;
@@ -34,6 +46,6 @@ int bdj_start(BDJAVA *bdjava, unsigned title);
 void bdj_stop(BDJAVA *bdjava);
 void bdj_close(BDJAVA *bdjava);
 
-void bdj_send_event(BDJAVA *bdjava, int type, int keyCode);
+void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
 
 #endif

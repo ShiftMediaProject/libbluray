@@ -28,205 +28,232 @@ import org.davic.resources.ResourceClient;
 import org.davic.resources.ResourceServer;
 import org.davic.resources.ResourceStatusEvent;
 import org.davic.resources.ResourceStatusListener;
-import org.videolan.BDJInputListener;
-import org.videolan.BDJLoader;
+import org.havi.ui.HScene;
+import org.videolan.BDJAction;
+import org.videolan.BDJActionManager;
+import org.videolan.BDJXletContext;
+import org.videolan.GUIManager;
 
-public class EventManager implements ResourceServer, BDJInputListener {
-    protected EventManager()
-    {
-        BDJLoader.inputListener = this;
-    }
-
-    public static EventManager getInstance()
-    {
+public class EventManager implements ResourceServer {
+    public static EventManager getInstance() {
         synchronized (EventManager.class) {
-            if (instance == null) {
+            if (instance == null)
                 instance = new EventManager();
-            }
         }
-        
         return instance;
     }
 
-    public boolean addUserEventListener(UserEventListener listener,
-            ResourceClient client, UserEventRepository userEvents)
-    {
-        if (listener == null || client == null || userEvents == null)
-            throw new NullPointerException();
-        
-        // first remove exclusive events
-        UserEventItem newItem = new UserEventItem(BDJLoader.getContext(), listener, client, userEvents);
-        cleanupReservedEvents(newItem);
-        
-        exclusiveEvents.add(newItem);
-        
-        sendEvent(new UserEventUnavailableEvent(userEvents));
-        
-        return true;
+    public boolean addUserEventListener(UserEventListener listener, ResourceClient client, UserEventRepository userEvents)
+        throws IllegalArgumentException {
+        if (client == null)
+            throw new IllegalArgumentException();
+        synchronized (this) {
+            if (!cleanupReservedEvents(userEvents))
+                return false;
+            exclusiveUserEventListener.add(new UserEventItem(BDJXletContext.getCurrentContext(), listener, client, userEvents));
+            sendResourceStatusEvent(new UserEventUnavailableEvent(userEvents));
+            return true;
+        }
     }
 
-    public void addUserEventListener(UserEventListener listener,
-            UserEventRepository userEvents)
-    {
+    public void addUserEventListener(UserEventListener listener, UserEventRepository userEvents) {
         if (listener == null || userEvents == null)
             throw new NullPointerException();
-        
-        UserEventItem newItem = new UserEventItem(BDJLoader.getContext(), listener, null, userEvents);
-        if (checkAlreadyReserved(newItem) != null)
-            return;
-        
-        events.add(newItem);
-    }
-
-    public boolean addExclusiveAccessToAWTEvent(ResourceClient client,
-            UserEventRepository userEvents)
-    {
-        if (client == null || userEvents == null)
-            throw new NullPointerException();
-
-        // first remove exclusive events
-        UserEventItem newItem = new UserEventItem(BDJLoader.getContext(), null, client, userEvents);
-        cleanupReservedEvents(newItem);
-        
-        exclusiveEvents.add(newItem);
-        
-        sendEvent(new UserEventUnavailableEvent(userEvents));
-        
-        return true;
-    }
-
-    public void removeUserEventListener(UserEventListener listener)
-    {
-        
-        for (Iterator<UserEventItem> it = events.iterator(); it.hasNext(); ) {
-            UserEventItem item = it.next();
-            
-            if (item.listener == listener)
-                it.remove();
-                
+        synchronized (this) {
+            sharedUserEventListener.add(new UserEventItem(BDJXletContext.getCurrentContext(), listener, null, userEvents));
         }
-        for (Iterator<UserEventItem> it = exclusiveEvents.iterator(); it.hasNext(); ) {
-            UserEventItem item = it.next();
-            
-            if (item.listener == listener) {
-                sendEvent(new UserEventAvailableEvent(item.userEvents));
-                it.remove();
+    }
+
+    public void removeUserEventListener(UserEventListener listener) {
+        XletContext context = BDJXletContext.getCurrentContext();
+        synchronized (this) {
+            for (Iterator it = sharedUserEventListener.iterator(); it.hasNext(); ) {
+                UserEventItem item = (UserEventItem)it.next();
+                if ((item.context == context) && (item.listener == listener))
+                    it.remove();
+            }
+            for (Iterator it = exclusiveUserEventListener.iterator(); it.hasNext(); ) {
+                UserEventItem item = (UserEventItem)it.next();
+                if ((item.context == context) && (item.listener == listener)) {
+                    sendResourceStatusEvent(new UserEventAvailableEvent(item.userEvents));
+                    it.remove();
+                }
             }
         }
     }
 
-    public void removeExclusiveAccessToAWTEvent(ResourceClient client)
-    {
-        for (Iterator<UserEventItem> it = exclusiveEvents.iterator(); it.hasNext(); ) {
-            UserEventItem item = it.next();
-            
-            if (item.client == client) {
-                sendEvent(new UserEventAvailableEvent(item.userEvents));
-                it.remove();
+    public boolean addExclusiveAccessToAWTEvent(ResourceClient client, UserEventRepository userEvents)
+            throws IllegalArgumentException {
+        if (client == null)
+            throw new IllegalArgumentException();
+        synchronized (this) {
+            if (!cleanupReservedEvents(userEvents))
+                return false;
+            exclusiveAWTEventListener.add(new UserEventItem(BDJXletContext.getCurrentContext(), null, client, userEvents));
+            sendResourceStatusEvent(new UserEventUnavailableEvent(userEvents));
+            return true;
+        }
+    }
+
+    public void removeExclusiveAccessToAWTEvent(ResourceClient client) {
+        XletContext context = BDJXletContext.getCurrentContext();
+        synchronized (this) {
+            for (Iterator it = exclusiveAWTEventListener.iterator(); it.hasNext(); ) {
+                UserEventItem item = (UserEventItem)it.next();
+                if ((item.context == context) && (item.client == client)) {
+                    sendResourceStatusEvent(new UserEventAvailableEvent(item.userEvents));
+                    it.remove();
+                }
             }
         }
     }
 
-    public void addResourceStatusEventListener(ResourceStatusListener listener)
-    {
-        listeners.add(listener);
+    public void addResourceStatusEventListener(ResourceStatusListener listener) {
+        synchronized (this) {
+            resourceStatusEventListeners.add(listener);
+        }
     }
 
-    public void removeResourceStatusEventListener(
-            ResourceStatusListener listener)
-    {
-        listeners.remove(listener);
+    public void removeResourceStatusEventListener(ResourceStatusListener listener) {
+        synchronized (this) {
+            resourceStatusEventListeners.remove(listener);
+        }
     }
-    
-    public void receiveKeyEvent(int type, int keyCode)
-    {
-        // first go through exclusive events and return if one is found
-        for (UserEventItem item : exclusiveEvents) {
-            for (UserEvent evt : item.userEvents.getUserEvent()) {
-                if (evt.getCode() == keyCode && evt.getType() == type) {
-                    item.listener.userEventReceived(evt);
+
+    private void sendResourceStatusEvent(ResourceStatusEvent event) {
+        for (Iterator it = resourceStatusEventListeners.iterator(); it.hasNext(); )
+            ((ResourceStatusListener)it.next()).statusChanged(event);
+    }
+
+    public void receiveKeyEvent(int type, int modifiers, int keyCode) {
+        HScene focusHScene = GUIManager.getInstance().getFocusHScene();
+        if (focusHScene != null) {
+            XletContext context = focusHScene.getXletContext();
+            for (Iterator it = exclusiveAWTEventListener.iterator(); it.hasNext(); ) {
+                UserEventItem item = (UserEventItem)it.next();
+                if (item.context == context) {
+                    UserEvent[] evts = item.userEvents.getUserEvent();
+                    for (int i = 0; i < evts.length; i++) {
+                        UserEvent evt = evts[i];
+                        if ((evt.getFamily() == UserEvent.UEF_KEY_EVENT) &&
+                            (evt.getFamily() == UserEvent.UEF_KEY_EVENT) &&
+                            (evt.getCode() == keyCode) &&
+                            (evt.getType() == type)) {
+
+                            GUIManager.getInstance().postKeyEvent(type, modifiers, keyCode);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (Iterator it = exclusiveUserEventListener.iterator(); it.hasNext(); ) {
+            UserEventItem item = (UserEventItem)it.next();
+            UserEvent[] evts = item.userEvents.getUserEvent();
+            for (int i = 0; i < evts.length; i++) {
+                UserEvent evt = evts[i];
+                if ((evt.getFamily() == UserEvent.UEF_KEY_EVENT) &&
+                    (evt.getCode() == keyCode) &&
+                    (evt.getType() == type)) {
+
+                    BDJActionManager.getInstance().putCallback(new UserEventAction(item, i));
                     return;
                 }
             }
         }
-        
-        // if there are no exclusive events go through shared events
-        for (UserEventItem item : events) {
-            for (UserEvent evt : item.userEvents.getUserEvent()) {
-                if (evt.getCode() == keyCode && evt.getType() == type) {
-                    item.listener.userEventReceived(evt);
+
+        GUIManager.getInstance().postKeyEvent(type, modifiers, keyCode);
+
+        for (Iterator it = sharedUserEventListener.iterator(); it.hasNext(); ) {
+            UserEventItem item = (UserEventItem)it.next();
+            UserEvent[] evts = item.userEvents.getUserEvent();
+            for (int i = 0; i < evts.length; i++) {
+                UserEvent evt = evts[i];
+                if ((evt.getFamily() == UserEvent.UEF_KEY_EVENT) &&
+                    (evt.getCode() == keyCode) &&
+                    (evt.getType() == type)) {
+                    BDJActionManager.getInstance().putCallback(new UserEventAction(item, i));
                 }
             }
         }
     }
-    
-    private UserEventItem checkAlreadyReserved(UserEventItem newItem) {
-        for (UserEventItem item : exclusiveEvents) {
-            if (newItem.context == item.context)
-                continue;
-            
-            if (newItem.client == item.client)
-                continue;
-            
-            if (hasOverlap(item, newItem))
-                return item;
-        }
-        
-        return null;
-    }
-    
-    private void cleanupReservedEvents(UserEventItem newItem) 
-    {
-        UserEventItem oldItem = checkAlreadyReserved(newItem);
-        if (oldItem != null){
-            oldItem.client.release(oldItem.userEvents);
-            exclusiveEvents.remove(oldItem);
-        }
-    }
-    
-    private boolean hasOverlap(UserEventItem item1, UserEventItem item2)
-    {
-        for (UserEvent ue1 : item1.userEvents.getUserEvent()) {
-            for (UserEvent ue2 : item2.userEvents.getUserEvent()) {
-                if (ue1.getFamily() != ue2.getFamily() || ue1.getCode() != ue2.getCode())
+
+    private boolean cleanupReservedEvents(UserEventRepository userEvents) {
+        XletContext context = BDJXletContext.getCurrentContext();
+        for (Iterator it = exclusiveUserEventListener.iterator(); it.hasNext(); ) {
+            UserEventItem item = (UserEventItem)it.next();
+                if (item.context == context)
                     continue;
-                else
+                if (hasOverlap(userEvents, item.userEvents)) {
+                    if (!item.client.requestRelease(item.userEvents, null))
+                        return false;
+                    sendResourceStatusEvent(new UserEventAvailableEvent(item.userEvents));
+                    it.remove();
+                }
+        }
+        for (Iterator it = exclusiveAWTEventListener.iterator(); it.hasNext(); ) {
+            UserEventItem item = (UserEventItem)it.next();
+            if (item.context == context)
+                continue;
+            if (hasOverlap(userEvents, item.userEvents)) {
+                if (!item.client.requestRelease(item.userEvents, null))
+                    return false;
+                sendResourceStatusEvent(new UserEventAvailableEvent(item.userEvents));
+                it.remove();
+            }
+        }
+        return true;
+    }
+
+    private boolean hasOverlap(UserEventRepository userEvents1, UserEventRepository userEvents2) {
+        UserEvent[] evts1 = userEvents1.getUserEvent();
+        UserEvent[] evts2 = userEvents2.getUserEvent();
+        for (int i = 0; i < evts1.length; i++) {
+            UserEvent evt1 = evts1[i];
+            for (int j = 0; j < evts2.length; j++) {
+                UserEvent evt2 = evts2[j];
+                if ((evt1.getFamily() == evt2.getFamily()) && (evt1.getCode() != evt2.getCode()))
                     return true;
             }
         }
-        
         return false;
     }
-    
-    private void sendEvent(ResourceStatusEvent event)
-    {
-        for (ResourceStatusListener listener : listeners) {
-            listener.statusChanged(event);
-        }
-    }
-    
-    private class UserEventItem
-    {
+
+    private class UserEventItem {
         public UserEventItem(XletContext context, UserEventListener listener,
-            ResourceClient client, UserEventRepository userEvents)
-        {
+                             ResourceClient client, UserEventRepository userEvents) {
             this.context = context;
             this.listener = listener;
             this.client = client;
             this.userEvents = userEvents;
         }
-        
+
         public XletContext context;
         public UserEventListener listener;
         public ResourceClient client;
         public UserEventRepository userEvents;
     }
-    
 
-    private LinkedList<UserEventItem> exclusiveEvents = new LinkedList<UserEventItem>();
-    private LinkedList<UserEventItem> events = new LinkedList<UserEventItem>();
-    private LinkedList<ResourceStatusListener> listeners = new LinkedList<ResourceStatusListener>();
-    
+    private class UserEventAction extends BDJAction {
+        public UserEventAction(UserEventItem item, int event) {
+            super((BDJXletContext)item.context);
+            this.item = item;
+            this.event = event;
+        }
+
+        protected void doAction() {
+            item.listener.userEventReceived(item.userEvents.getUserEvent()[event]);
+        }
+
+        private UserEventItem item;
+        private int event;
+    }
+
+    private LinkedList exclusiveUserEventListener = new LinkedList();
+    private LinkedList sharedUserEventListener = new LinkedList();
+    private LinkedList exclusiveAWTEventListener = new LinkedList();
+    private LinkedList resourceStatusEventListeners = new LinkedList();
+
     private static EventManager instance = null;
-    
 }

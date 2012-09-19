@@ -1004,6 +1004,15 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 #endif
 }
 
+static void _bdj_event(BLURAY *bd, unsigned ev, unsigned param)
+{
+#ifdef USING_BDJAVA
+    if (bd->bdjava != NULL) {
+        bdj_process_event(bd->bdjava, ev, param);
+    }
+#endif
+}
+
 static void _stop_bdj(BLURAY *bd)
 {
 #ifdef USING_BDJAVA
@@ -1469,6 +1478,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                 // We previously reached the last clip.  Nothing
                 // else to read.
                 _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
+                _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, 0);
                 return 0;
             }
             if (st->int_buf_off == 6144 || clip_pkt >= st->clip->end_pkt) {
@@ -1500,6 +1510,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                     if (st->clip == NULL) {
                         BD_DEBUG(DBG_BLURAY|DBG_STREAM, "End of title (%p)\n", bd);
                         _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
+                        _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, 0);
                         return 0;
                     }
                     if (!_open_m2ts(bd, st)) {
@@ -2149,6 +2160,7 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
         /* current playback position */
 
         case PSR_ANGLE_NUMBER:
+            _bdj_event  (bd, BDJ_EVENT_ANGLE,   ev->new_val);
             _queue_event(bd, BD_EVENT_ANGLE,    ev->new_val);
             break;
         case PSR_TITLE_NUMBER:
@@ -2158,10 +2170,15 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
             _queue_event(bd, BD_EVENT_PLAYLIST, ev->new_val);
             break;
         case PSR_PLAYITEM:
+            _bdj_event  (bd, BDJ_EVENT_PLAYITEM,ev->new_val);
             _queue_event(bd, BD_EVENT_PLAYITEM, ev->new_val);
             break;
         case PSR_CHAPTER:
+            _bdj_event  (bd, BDJ_EVENT_CHAPTER, ev->new_val);
             _queue_event(bd, BD_EVENT_CHAPTER,  ev->new_val);
+            break;
+        case PSR_TIME:
+            _bdj_event  (bd, BDJ_EVENT_PTS,     ev->new_val);
             break;
 
         default:;
@@ -2187,6 +2204,7 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
             break;
 
         case PSR_PG_STREAM:
+            _bdj_event(bd, BDJ_EVENT_SUBTITLE, ev->new_val);
             if ((ev->new_val & 0x80000fff) != (ev->old_val & 0x80000fff)) {
                 _queue_event(bd, BD_EVENT_PG_TEXTST,        !!(ev->new_val & 0x80000000));
                 _queue_event(bd, BD_EVENT_PG_TEXTST_STREAM,    ev->new_val & 0xfff);
@@ -2627,7 +2645,13 @@ int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
 {
     bd_set_scr(bd, pts);
 
-    return _run_gc(bd, GC_CTRL_VK_KEY, key);
+    if (bd->title_type == title_hdmv) {
+        return _run_gc(bd, GC_CTRL_VK_KEY, key);
+    } else if (bd->title_type == title_bdj) {
+        _bdj_event(bd, BDJ_EVENT_VK_KEY, key);
+        return 0;
+    }
+    return -1;
 }
 
 void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func)

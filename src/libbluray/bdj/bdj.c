@@ -197,14 +197,20 @@ void bdj_close(BDJAVA *bdjava)
     free(bdjava);
 }
 
-void bdj_send_event(BDJAVA *bdjava, int type, int keyCode)
+void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
 {
-	JNIEnv* env = bdjava->env;
+    JNIEnv* env = bdjava->env;
 
-	jclass init_class = (*env)->FindClass(env, "org/videolan/BDJLoader");
-	jmethodID send_key_event_id = (*env)->GetStaticMethodID(env, init_class,
-	            "SendKeyEvent", "(II)V");
-	(*env)->CallStaticVoidMethod(env, init_class, send_key_event_id, type, keyCode);
+    jclass event_class = (*env)->FindClass(env, "org/videolan/Libbluray");
+    if (event_class) {
+        jmethodID event_id = (*env)->GetStaticMethodID(env, event_class,
+                                                       "processEvent", "(II)V");
+        if (event_id) {
+            (*env)->CallStaticVoidMethod(env, event_class, event_id, ev, param);
+        } else {
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate org.videolan.Libbluray \"processEvent\" method\n");
+        }
+    }
 }
 
 void* load_jvm()

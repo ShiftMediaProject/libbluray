@@ -19,27 +19,21 @@
 
 package org.videolan;
 
+import java.awt.BDRootWindow;
 import java.awt.AWTException;
 import java.awt.Component;
-import java.awt.Frame;
 import java.awt.image.BufferedImage;
 
-public class GUIManager extends Frame {
+import org.havi.ui.HScene;
+
+public class GUIManager extends BDRootWindow {
     private GUIManager() {
     }
 
-    public static GUIManager getInstance() {
+    public static synchronized GUIManager getInstance() {
+        if (instance == null)
+            instance = new GUIManager();
         return instance;
-    }
-
-    public boolean popToFront(Component component) {
-        if (super.getComponentZOrder(component) == -1)
-            return false;
-
-        super.setComponentZOrder(component, 0);
-
-        return true;
-
     }
 
     public BufferedImage createBufferedImage(int width, int height)
@@ -52,6 +46,16 @@ public class GUIManager extends Frame {
         return img;
     }
 
-    private static final GUIManager instance = new GUIManager();
+    public HScene getFocusHScene() {
+        Component component = getFocusOwner();
+        while (component != null) {
+            if (component instanceof HScene)
+                return (HScene)component;
+            component = component.getParent();
+        }
+        return null;
+    }
+
+    private static GUIManager instance = null;
     private static final long serialVersionUID = 8670041014494973439L;
 }
