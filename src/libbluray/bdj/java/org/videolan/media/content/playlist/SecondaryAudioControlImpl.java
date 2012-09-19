@@ -19,12 +19,7 @@
 
 package org.videolan.media.content.playlist;
 
-import java.awt.Component;
-
 import org.bluray.media.SecondaryAudioControl;
-import org.bluray.media.StreamNotAvailableException;
-import org.davic.media.LanguageNotAvailableException;
-import org.davic.media.NotAuthorizedException;
 import org.videolan.Libbluray;
 import org.videolan.StreamInfo;
 import org.videolan.TIClip;
@@ -34,57 +29,23 @@ public class SecondaryAudioControlImpl extends StreamControl implements Secondar
         super(player);
     }
 
-    public int[] listAvailableStreamNumbers() {
-        TIClip clip = getCurrentClip();
-        return listAvailableStreamNumbers(clip.getSecAudioStreams());
+    protected StreamInfo[] getStreams() {
+        TIClip ci = player.getCurrentClipInfo();
+        if (ci == null)
+            return null;
+        return ci.getSecAudioStreams();
+    }
+
+    protected String getDefaultLanguage() {
+        return languageFromInteger(Libbluray.readPSR(Libbluray.PSR_AUDIO_LANG));
     }
 
     public int getCurrentStreamNumber() {
-        return Libbluray.readPSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO) & 0xff;
+        return Libbluray.readPSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO) & 0x000000FF;
     }
 
-    public void selectStreamNumber(int num) throws StreamNotAvailableException {
-        if (num < 0 || num > 0xff)
-            throw new IllegalArgumentException();
-
-        int old = Libbluray.readPSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO) & 0xffffff00;
-        Libbluray.writePSR(old | num, Libbluray.PSR_SECONDARY_AUDIO_VIDEO);
-    }
-
-    public String[] listAvailableLanguages() {
-        TIClip clip = getCurrentClip();
-        return listAvailableLanguages(clip.getSecAudioStreams());
-    }
-
-    public String getCurrentLanguage() {
-        TIClip clip = getCurrentClip();
-        StreamInfo[] streams = clip.getSecAudioStreams();
-        return streams[getCurrentStreamNumber() - 1].getLang();
-    }
-
-    public String selectDefaultLanguage() throws NotAuthorizedException {
-        // FIXME: should add ability to select the default language
-        try {
-            selectLanguage("eng");
-        } catch (LanguageNotAvailableException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return "eng";
-    }
-
-    public void selectLanguage(String language)
-            throws LanguageNotAvailableException, NotAuthorizedException {
-        TIClip clip = getCurrentClip();
-        StreamInfo[] streams = clip.getSecAudioStreams();
-        try {
-            selectStreamNumber(selectLanguage(language, streams));
-        } catch (StreamNotAvailableException e) {
-            throw new LanguageNotAvailableException();
-        }
-    }
-
-    public Component getControlComponent() {
-        return null;
+    protected void setStreamNumber(int num) {
+        int psr = Libbluray.readPSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO);
+        Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, (psr & 0xFFFFFF00) | num);
     }
 }

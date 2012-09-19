@@ -23,9 +23,14 @@ import java.awt.Component;
 
 import org.bluray.media.UOMaskTableControl;
 import org.bluray.media.UOMaskTableListener;
+import org.videolan.PlaylistInfo;
 
 // TODO: don't know what this is for
 public class UOMaskTableControlImpl implements UOMaskTableControl {
+    protected UOMaskTableControlImpl(Handler player) {
+        this.player = player;
+    }
+
     public Component getControlComponent() {
         return null;
     }
@@ -39,7 +44,14 @@ public class UOMaskTableControlImpl implements UOMaskTableControl {
     }
 
     public boolean[] getMaskedUOTable() {
-        throw new Error("Not implemented"); // TODO: Not implemented
+        PlaylistInfo pi = player.getPlaylistInfo();
+        if (pi == null)
+                return new boolean[0];
+        boolean[] table = new boolean[64];
+        for (int i = 0; i < 64; i++)
+                table[i] = false;
+        return table;
     }
 
+    private Handler player;
 }

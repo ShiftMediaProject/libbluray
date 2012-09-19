@@ -19,112 +19,148 @@
 
 package org.videolan.media.content.playlist;
 
-import java.awt.Component;
+import java.util.EventObject;
+import java.util.LinkedList;
 
 import org.bluray.media.StreamNotAvailableException;
 import org.bluray.media.SubtitleStyleNotAvailableException;
 import org.bluray.media.SubtitlingControl;
 import org.bluray.media.TextSubtitleNotAvailableException;
 import org.bluray.ti.CodingType;
-import org.davic.media.LanguageNotAvailableException;
-import org.davic.media.NotAuthorizedException;
 import org.dvb.media.SubtitleListener;
+import org.videolan.BDJAction;
+import org.videolan.BDJActionManager;
 import org.videolan.Libbluray;
 import org.videolan.StreamInfo;
 import org.videolan.TIClip;
 
 public class SubtitlingControlImpl extends StreamControl implements SubtitlingControl {
-
     protected SubtitlingControlImpl(Handler player) {
         super(player);
     }
 
-    public void addSubtitleListener(SubtitleListener listener) {
-        throw new Error("Not implemented"); // TODO implement
+    protected StreamInfo[] getStreams() {
+        TIClip ci = player.getCurrentClipInfo();
+        if (ci == null)
+            return null;
+        return ci.getPgStreams();
     }
 
-    public void removeSubtitleListener(SubtitleListener listener) {
-        throw new Error("Not implemented"); // TODO implement
-    }
-
-    public boolean isSubtitlingOn() {
-        throw new Error("Not implemented"); // TODO implement
-    }
-
-    public boolean setSubtitling(boolean value) {
-        throw new Error("Not implemented"); // TODO implement
-    }
-
-    public Component getControlComponent() {
-        throw new Error("Not implemented"); // TODO implement
-    }
-
-    public String selectDefaultLanguage() throws NotAuthorizedException {
-        // FIXME: should add ability to select the default language
-        try {
-            selectLanguage("eng");
-        } catch (LanguageNotAvailableException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return "eng";
-    }
-
-    public void selectLanguage(String language) throws LanguageNotAvailableException, NotAuthorizedException {
-        TIClip clip = getCurrentClip();
-        StreamInfo[] streams = clip.getAudioStreams();
-        try {
-            selectStreamNumber(selectLanguage(language, streams));
-        } catch (StreamNotAvailableException e) {
-            throw new LanguageNotAvailableException();
-        }
-    }
-
-    public void selectStreamNumber(int num) throws StreamNotAvailableException {
-        Libbluray.writePSR(num, Libbluray.PSR_PG_STREAM);
-    }
-
-    public void selectSubtitle(int subtitle) throws StreamNotAvailableException {
-        throw new Error("Not implemented"); // TODO implement
-    }
-
-    public boolean setPipSubtitleMode(boolean mode) {
-        throw new Error("Not implemented"); // TODO implement
-    }
-
-    public void setSubtitleStyle(int style)
-            throws TextSubtitleNotAvailableException, SubtitleStyleNotAvailableException {
-        throw new Error("Not implemented"); // TODO implement
-    }
-
-    public String getCurrentLanguage() {
-        throw new Error("Not implemented"); // TODO implement
-    }
-
-    public String[] listAvailableLanguages() {
-        throw new Error("Not implemented"); // TODO implement
+    protected String getDefaultLanguage() {
+        return languageFromInteger(Libbluray.readPSR(Libbluray.PSR_PG_AND_SUB_LANG));
     }
 
     public int getCurrentStreamNumber() {
-        throw new Error("Not implemented"); // TODO implement
+        return Libbluray.readPSR(Libbluray.PSR_PG_STREAM) & 0x00000FFF;
     }
 
-    public int[] listAvailableStreamNumbers() {
-        throw new Error("Not implemented"); // TODO implement
+    protected void setStreamNumber(int num) {
+        int psr = Libbluray.readPSR(Libbluray.PSR_PG_STREAM);
+        Libbluray.writePSR(Libbluray.PSR_PG_STREAM, (psr & 0xFFFFF000) | num);
     }
 
-    public CodingType getCurrentSubtitleType() {
-        throw new Error("Not implemented"); // TODO implement
+    public boolean isSubtitlingOn() {
+        return (Libbluray.readPSR(Libbluray.PSR_PG_STREAM) & 0x80000000) != 0;
     }
 
-    public int getSubtitleStyle() throws TextSubtitleNotAvailableException,
-            SubtitleStyleNotAvailableException
-    {
-        throw new Error("Not implemented"); // TODO implement
+    public boolean setSubtitling(boolean mode) {
+        int psr = Libbluray.readPSR(Libbluray.PSR_PG_STREAM);
+        boolean oldMode = (psr & 0x80000000) != 0;
+        if (mode != oldMode) {
+            if (mode)
+                Libbluray.writePSR(Libbluray.PSR_PG_STREAM, psr | 0x80000000);
+            else
+                Libbluray.writePSR(Libbluray.PSR_PG_STREAM, psr & ~0x80000000);
+        }
+        return oldMode;
+    }
+
+    public void selectSubtitle(int subtitle) throws StreamNotAvailableException {
+        selectStreamNumber(subtitle);
     }
 
     public boolean isPipSubtitleMode() {
-        throw new Error("Not implemented"); // TODO implement
+        return (Libbluray.readPSR(Libbluray.PSR_PG_STREAM) & 0x40000000) != 0;
     }
 
+    public boolean setPipSubtitleMode(boolean mode) {
+        int psr = Libbluray.readPSR(Libbluray.PSR_PG_STREAM);
+        boolean oldMode = (psr & 0x40000000) != 0;
+        if (mode != oldMode) {
+            if (mode)
+                Libbluray.writePSR(Libbluray.PSR_PG_STREAM, psr | 0x40000000);
+            else
+                Libbluray.writePSR(Libbluray.PSR_PG_STREAM, psr & ~0x40000000);
+        }
+        return oldMode;
+    }
+
+    public void setSubtitleStyle(int style)
+        throws TextSubtitleNotAvailableException, SubtitleStyleNotAvailableException {
+        if ((style <= 0) || ((style > 25) && (style != 255)))
+            throw new SubtitleStyleNotAvailableException();
+        if (getCurrentSubtitleType() != CodingType.TEXT_SUBTITLE)
+            throw new TextSubtitleNotAvailableException();
+        Libbluray.writePSR(Libbluray.PSR_STYLE, style);
+    }
+
+    public CodingType getCurrentSubtitleType() {
+        StreamInfo[] streamInfo = getStreams();
+        if (streamInfo == null)
+            return null;
+        int stream = getCurrentStreamNumber();
+        if ((stream <= 0) || (stream > streamInfo.length))
+            return null;
+        return streamInfo[stream - 1].getCodingType();
+    }
+
+    public int getSubtitleStyle()
+        throws TextSubtitleNotAvailableException, SubtitleStyleNotAvailableException {
+        if (getCurrentSubtitleType() != CodingType.TEXT_SUBTITLE)
+            throw new TextSubtitleNotAvailableException();
+        int style = Libbluray.readPSR(Libbluray.PSR_STYLE);
+        if ((style <= 0) || ((style > 25) && (style != 255)))
+            throw new SubtitleStyleNotAvailableException();
+        return style;
+    }
+
+    public void addSubtitleListener(SubtitleListener listener) {
+        synchronized(listeners) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeSubtitleListener(SubtitleListener listener) {
+        synchronized(listeners) {
+            listeners.remove(listener);
+        }
+    }
+
+    protected void onSubtitleChange(int param) {
+        synchronized (listeners) {
+            if (!listeners.isEmpty())
+                BDJActionManager.getInstance().putCallback(
+                        new SubtitleCallback(this));
+        }
+    }
+
+    private class SubtitleCallback extends BDJAction {
+        private SubtitleCallback(SubtitlingControlImpl control) {
+            this.control = control;
+        }
+
+        protected void doAction() {
+            LinkedList list;
+            synchronized (control.listeners) {
+                list = (LinkedList)control.listeners.clone();
+            }
+            EventObject event = new EventObject(control);
+            for (int i = 0; i < list.size(); i++)
+                ((SubtitleListener)list.get(i)).subtitleStatusChanged(event);
+        }
+
+        private SubtitlingControlImpl control;
+    }
+
+    private LinkedList<SubtitleListener> listeners = new LinkedList<SubtitleListener>();
 }

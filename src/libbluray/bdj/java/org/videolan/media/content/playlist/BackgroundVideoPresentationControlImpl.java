@@ -19,90 +19,120 @@
 
 package org.videolan.media.content.playlist;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 
+import javax.tv.media.AWTVideoSize;
+import javax.tv.media.AWTVideoSizeControl;
+
 import org.dvb.media.BackgroundVideoPresentationControl;
 import org.dvb.media.VideoTransformation;
+import org.havi.ui.HScreenPoint;
 import org.havi.ui.HScreenRectangle;
-import org.videolan.BDJLoader;
-import org.videolan.bdjo.GraphicsResolution;
+import org.videolan.StreamInfo;
+import org.videolan.TIClip;
 
-public class BackgroundVideoPresentationControlImpl implements BackgroundVideoPresentationControl {
-
-    public Dimension getInputVideoSize() {
-        GraphicsResolution res = BDJLoader.getBdjo().getTerminalInfo().getResolution();
-        return new Dimension(res.getWidth(), res.getHeight()); // FIXME: return actual input video size
+public class BackgroundVideoPresentationControlImpl extends VideoControl
+                implements BackgroundVideoPresentationControl, AWTVideoSizeControl {
+    protected BackgroundVideoPresentationControlImpl(Handler player) {
+        super(player, 0);
     }
 
-    public Dimension getVideoSize() {
-        return getInputVideoSize();
+    protected StreamInfo[] getStreams() {
+        TIClip ci = player.getCurrentClipInfo();
+        if (ci == null)
+            return null;
+        return ci.getVideoStreams();
     }
 
-    public HScreenRectangle getActiveVideoArea() {
-        return new HScreenRectangle(0.0f, 0.0f, 1.0f, 1.0f); // FIXME: return actual active video area
+    protected void setStreamNumber(int num) {
     }
 
-    public HScreenRectangle getActiveVideoAreaOnScreen() {
-        return getActiveVideoArea(); // FIXME: return actual active video area on screen
-    }
-
-    public HScreenRectangle getTotalVideoArea() {
-        return getActiveVideoArea(); // FIXME: return actual total video area
-    }
-
-    public HScreenRectangle getTotalVideoAreaOnScreen() {
-        return getActiveVideoArea(); // FIXME: return actual total video area on screen
-    }
-
-    public boolean supportsClipping() {
-        return false; // FIXME: change when clipping support added
-    }
-
-    public Rectangle setClipRegion(Rectangle clipRect) {
-        return getClipRegion(); // FIXME: implement clipping support
-    }
-
-    public Rectangle getClipRegion() {
-        GraphicsResolution res = BDJLoader.getBdjo().getTerminalInfo().getResolution();
-        return new Rectangle(res.getWidth(), res.getHeight()); // FIXME: implement clipping support
-    }
-
-    public float[] supportsArbitraryHorizontalScaling() {
-        return null; // FIXME: implement scaling support
-    }
-
-    public float[] supportsArbitraryVerticalScaling() {
-        return null; // FIXME: implement scaling support
-    }
-
-    public float[] getHorizontalScalingFactors() {
-        return null;  // FIXME: implement scaling support
-    }
-
-    public float[] getVerticalScalingFactors() {
-        return null;  // FIXME: implement scaling support
-    }
-
-    public byte getPositioningCapability() {
-        return 0; // FIXME: set to real positioning capability
-    }
-
-    public Component getControlComponent() {
-        return null;
+    public int getCurrentStreamNumber() {
+        return 1;
     }
 
     public boolean setVideoTransformation(VideoTransformation transform) {
-        return false; // FIXME: implement actually setting transform
+        setClipRegion(transform.getClipRegion());
+        HScreenPoint pos = transform.getVideoPosition();
+        float[] scales = transform.getScalingFactors();
+        Dimension vd = getInputVideoSize();
+        Dimension sd = getScreenSize();
+        setVideoArea(new HScreenRectangle(
+                                          pos.x, pos.y,
+                                          vd.width * scales[0] / sd.width,
+                                          vd.height * scales[0] / sd.height));
+        return true;
     }
 
     public VideoTransformation getVideoTransformation() {
-        return new VideoTransformation();
+        Dimension vd = getInputVideoSize();
+        HScreenRectangle rect = getActiveVideoArea();
+        float xscale, yscale;
+        if ((vd.width == 0) || (vd.height == 0)) {
+            xscale = 0.0f;
+            yscale = 0.0f;
+        } else {
+            Dimension sd = getScreenSize();
+            xscale = rect.width * sd.width / vd.width;
+            yscale = rect.height * sd.height / vd.height;
+        }
+        return new VideoTransformation(
+                                       getClipRegion(),
+                                       xscale, yscale,
+                                       new HScreenPoint(rect.x, rect.y));
     }
 
     public VideoTransformation getClosestMatch(VideoTransformation transform) {
-        return new VideoTransformation(); // FIXME: actually try to find closest match
+        return transform;
     }
 
+    public AWTVideoSize getSize() {
+        return new AWTVideoSize(
+                                getClipRegion(),
+                                getRectangle(getScreenSize(), getActiveVideoArea()));
+    }
+
+    public AWTVideoSize getDefaultSize() {
+        Dimension vd = getInputVideoSize();
+        Dimension sd = getScreenSize();
+        return new AWTVideoSize(
+                                new Rectangle(vd.width, vd.height),
+                                new Rectangle(sd.width, sd.height));
+        }
+
+        public Dimension getSourceVideoSize() {
+            return getVideoSize();
+        }
+
+        public boolean setSize(AWTVideoSize size) {
+            setClipRegion(size.getSource());
+            setVideoArea(getNormalizedRectangle(getScreenSize(), size.getDestination()));
+            return true;
+        }
+
+        public AWTVideoSize checkSize(AWTVideoSize size) {
+            Dimension vd = getInputVideoSize();
+            Rectangle sr = size.getSource();
+            if (sr.x < 0)
+                sr.x = 0;
+            if ((sr.x + sr.width) > vd.width) {
+                sr.width = vd.width - sr.x;
+                if (sr.width <= 0) {
+                    sr.x = 0;
+                    sr.width = 0;
+                }
+                }
+            if (sr.y < 0)
+                sr.y = 0;
+            if ((sr.y + sr.height) > vd.height) {
+                sr.height = vd.height - sr.y;
+                if (sr.height <= 0) {
+                    sr.y = 0;
+                    sr.height = 0;
+                }
+            }
+            Rectangle dr = size.getDestination();
+            return new AWTVideoSize(sr, dr);
+        }
 }

@@ -19,13 +19,23 @@
 
 package org.dvb.media;
 
+import javax.media.MediaLocator;
 import javax.media.Time;
 import java.io.IOException;
 import javax.media.protocol.DataSource;
 
 public class DripFeedDataSource extends DataSource {
     public DripFeedDataSource() {
-        throw new Error("Not implemented");
+        SecurityManager security = System.getSecurityManager();
+        if (security != null)
+            security.checkPermission(new DripFeedPermission("*"));
+    }
+
+    public DripFeedDataSource(MediaLocator source) {
+        SecurityManager security = System.getSecurityManager();
+        if (security != null)
+            security.checkPermission(new DripFeedPermission("*"));
+        setLocator(source);
     }
 
     public void feed(byte[] clip_part) {
@@ -33,7 +43,7 @@ public class DripFeedDataSource extends DataSource {
     }
 
     public String getContentType() {
-        throw new Error("Not implemented");
+        return "video/dvb.mpeg.drip";
     }
 
     public void connect() throws IOException {
@@ -64,4 +74,8 @@ public class DripFeedDataSource extends DataSource {
         throw new Error("Not implemented");
     }
 
+    public void setLocator(MediaLocator source) {
+        if ((source != null) && ("dripfeed://".equalsIgnoreCase(source.toExternalForm())))
+            super.setLocator(source);
+    }
 }

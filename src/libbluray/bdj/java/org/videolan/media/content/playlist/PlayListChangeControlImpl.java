@@ -23,12 +23,12 @@ import java.awt.Component;
 
 import javax.media.ClockStartedError;
 import javax.tv.locator.InvalidLocatorException;
+import javax.tv.locator.Locator;
 
 import org.bluray.media.InvalidPlayListException;
 import org.bluray.media.PlayListChangeControl;
 import org.bluray.net.BDLocator;
 import org.bluray.ti.PlayList;
-import org.videolan.Libbluray;
 
 public class PlayListChangeControlImpl implements PlayListChangeControl {
     protected PlayListChangeControlImpl(Handler player) {
@@ -39,39 +39,24 @@ public class PlayListChangeControlImpl implements PlayListChangeControl {
         return null;
     }
 
-    public void selectPlayList(PlayList pl) throws InvalidPlayListException,
-            ClockStartedError {
-        if (pl == null)
-            throw new NullPointerException();
-
+    public void selectPlayList(PlayList pl) throws InvalidPlayListException, ClockStartedError {
         try {
-            selectPlayList((BDLocator)pl.getLocator());
+                player.selectPlayList((BDLocator)pl.getLocator());
         } catch (InvalidLocatorException e) {
             throw new InvalidPlayListException();
         }
     }
 
     public void selectPlayList(BDLocator locator)
-            throws InvalidPlayListException, InvalidLocatorException,
-            ClockStartedError {
-        if (locator == null)
-            throw new NullPointerException();
-
-        if (player.getState() == Handler.Started)
-            throw new ClockStartedError();
-
-        if (!Libbluray.selectPlaylist(locator.getPlayListId()))
-            throw new InvalidPlayListException();
-
-        player.pi = Libbluray.getPlaylistInfo(locator.getPlayListId());
+            throws InvalidPlayListException, InvalidLocatorException, ClockStartedError {
+        player.selectPlayList(locator);
     }
 
     public BDLocator getCurrentPlayList() {
-        try {
-            return new BDLocator(null, Libbluray.getCurrentTitle(), player.pi.getPlaylist());
-        } catch (org.davic.net.InvalidLocatorException e) {
+        Locator[] locators = player.getServiceContentLocators();
+        if ((locators == null) || (locators.length <= 0))
             return null;
-        }
+        return (BDLocator)locators[0];
     }
 
     private Handler player;

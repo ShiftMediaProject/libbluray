@@ -19,56 +19,112 @@
 
 package org.videolan.media.content.playlist;
 
-import org.bluray.system.RegisterAccess;
+import java.awt.Component;
+
+import javax.media.Control;
+
+import org.bluray.media.StreamNotAvailableException;
 import org.davic.media.LanguageNotAvailableException;
 import org.davic.media.NotAuthorizedException;
 import org.videolan.StreamInfo;
-import org.videolan.TIClip;
 
-public abstract class StreamControl {
-    protected StreamControl(Handler player)
-    {
+public abstract class StreamControl implements Control {
+    protected StreamControl(Handler player) {
         this.player = player;
     }
-    
-    protected int[] listAvailableStreamNumbers(StreamInfo[] streams)
-    {
+
+    protected abstract StreamInfo[] getStreams();
+
+    protected abstract void setStreamNumber(int num);
+
+    protected String getDefaultLanguage() {
+        return "";
+    }
+
+    protected StreamInfo getCurrentStream() {
+        StreamInfo[] streams = getStreams();
+        int stream = getCurrentStreamNumber();
+        if ((streams == null) || (stream <= 0) || (stream > streams.length))
+            return null;
+        return streams[stream - 1];
+    }
+
+    protected String languageFromInteger(int value) {
+        char[] language = new char[3];
+        language[0] = (char)(value >> 16);
+        language[1] = (char)(value >> 8);
+        language[2] = (char)value;
+        return String.valueOf(language);
+    }
+
+    public Component getControlComponent() {
+        return null;
+    }
+
+    public abstract int getCurrentStreamNumber();
+
+    public int[] listAvailableStreamNumbers() {
+        StreamInfo[] streams = getStreams();
+        if (streams == null)
+            return new int[0];
         int[] ret = new int[streams.length];
         for (int i = 0; i < streams.length; i++)
             ret[i] = i + 1;
-        
         return ret;
     }
-    
-    protected String[] listAvailableLanguages(StreamInfo[] streams)
-    {
+
+    public void selectStreamNumber(int num) throws StreamNotAvailableException {
+        if (num < 1)
+            throw new StreamNotAvailableException();
+        StreamInfo[] streams = getStreams();
+        if ((streams == null) || (num > streams.length))
+            throw new StreamNotAvailableException();
+        setStreamNumber(num);
+    }
+
+    public String[] listAvailableLanguages() {
+        StreamInfo[] streams = getStreams();
+        if (streams == null)
+            return new String[0];
         String[] ret = new String[streams.length];
         for (int i = 0; i < streams.length; i++)
             ret[i] = streams[i].getLang();
-        
         return ret;
     }
-    
-    protected TIClip getCurrentClip()
-    {
-        TIClip[] clips = player.pi.getClips();
-        int playitem = RegisterAccess.getInstance().getPSR(RegisterAccess.PSR_PLAYITEM_ID) - 1;
-        
-        if (clips.length >= playitem)
-            return null;
-        
-        return clips[playitem];
+
+    public String getCurrentLanguage() {
+        StreamInfo stream = getCurrentStream();
+        if (stream == null)
+            return "";
+        return stream.getLang();
     }
-    
-    public int selectLanguage(String language, StreamInfo[] streams) throws LanguageNotAvailableException, NotAuthorizedException
-    {
-        for (int i = 0; i < streams.length; i++) {
-            if (streams[i].getLang().equals(language))
-                return i + 1;
+
+    public String selectDefaultLanguage() throws NotAuthorizedException {
+        String language = getDefaultLanguage();
+        try {
+            selectLanguage(language);
+        } catch (LanguageNotAvailableException e) {
+            throw new NotAuthorizedException();
         }
-        
+        return language;
+    }
+
+    public void selectLanguage(String language)
+            throws LanguageNotAvailableException, NotAuthorizedException {
+        StreamInfo[] streams = getStreams();
+        if (streams == null)
+            throw new NotAuthorizedException();
+        for (int i = 0; i < streams.length; i++) {
+            if (streams[i].getLang().equals(language)) {
+                try {
+                    selectStreamNumber(i + 1);
+                } catch (StreamNotAvailableException e) {
+                    throw new NotAuthorizedException();
+                }
+            }
+        }
         throw new LanguageNotAvailableException();
     }
-    
+
     protected Handler player;
 }

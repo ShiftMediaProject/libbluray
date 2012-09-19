@@ -26,7 +26,10 @@ import org.bluray.media.AngleChangeEvent;
 import org.bluray.media.AngleChangeListener;
 import org.bluray.media.AngleControl;
 import org.bluray.media.InvalidAngleException;
+import org.videolan.BDJAction;
+import org.videolan.BDJActionManager;
 import org.videolan.Libbluray;
+import org.videolan.PlaylistInfo;
 
 public class AngleControlImpl implements AngleControl {
     protected AngleControlImpl(Handler player) {
@@ -42,18 +45,19 @@ public class AngleControlImpl implements AngleControl {
     }
 
     public int getAvailableAngles() {
-        return player.pi.getAngleCount();
+        PlaylistInfo pi = player.getPlaylistInfo();
+        if (pi == null)
+            return -1;
+        return pi.getAngleCount();
     }
 
     public void selectDefaultAngle() {
         Libbluray.selectAngle(0);
-        sendEvent(new AngleChangeEvent(this, 0));
     }
 
     public void selectAngle(int angle) throws InvalidAngleException {
-        if(!Libbluray.selectAngle(angle))
+        if (!Libbluray.selectAngle(angle))
             throw new InvalidAngleException();
-        sendEvent(new AngleChangeEvent(this, angle));
     }
 
     public void addAngleChangeListener(AngleChangeListener listener) {
@@ -64,11 +68,34 @@ public class AngleControlImpl implements AngleControl {
         listeners.remove(listener);
     }
 
-    private void sendEvent(AngleChangeEvent event) {
-        for (AngleChangeListener listener : listeners)
-            listener.angleChange(event);
+    protected void onAngleChange(int angle) {
+        synchronized (listeners) {
+            if (!listeners.isEmpty())
+                BDJActionManager.getInstance().putCallback(
+                        new AngleCallback(this, angle));
+        }
     }
 
-    private LinkedList<AngleChangeListener> listeners = new LinkedList<AngleChangeListener>();
+    private class AngleCallback extends BDJAction {
+        private AngleCallback(AngleControlImpl control, int angle) {
+            this.control = control;
+            this.angle = angle;
+        }
+
+        protected void doAction() {
+            LinkedList list;
+            synchronized (control.listeners) {
+                list = (LinkedList)control.listeners.clone();
+            }
+            AngleChangeEvent event = new AngleChangeEvent(control, angle);
+            for (int i = 0; i < list.size(); i++)
+                ((AngleChangeListener)list.get(i)).angleChange(event);
+        }
+
+        private AngleControlImpl control;
+        private int angle;
+    }
+
+    private LinkedList listeners = new LinkedList();
     private Handler player;
 }

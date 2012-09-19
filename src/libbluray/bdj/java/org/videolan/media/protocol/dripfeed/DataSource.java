@@ -1,6 +1,5 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  William Hahne
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,31 +16,22 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package org.videolan.media.content.playlist;
+package org.videolan.media.protocol.dripfeed;
 
-import java.awt.Component;
+import javax.media.MediaLocator;
 
-import javax.media.Time;
+import org.dvb.media.DripFeedDataSource;
 
-import org.davic.media.MediaTimePositionControl;
-
-public class MediaTimePositionControlImpl implements MediaTimePositionControl {
-    protected MediaTimePositionControlImpl(Handler player) {
-        this.player = player;
+public class DataSource extends DripFeedDataSource {
+    public DataSource() {
+    	super();
     }
 
-    public Component getControlComponent() {
-        return null;
+    public DataSource(MediaLocator source) {
+    	super(source);
     }
 
-    public Time setMediaTimePosition(Time mediaTime) {
-        player.setMediaTime(mediaTime);
-        return player.getMediaTime();
+    public void feed(byte[] clip_part) {
+        throw new Error("Not implemented");
     }
-
-    public Time getMediaTimePosition() {
-        return player.getMediaTime();
-    }
-
-    private Handler player;
 }

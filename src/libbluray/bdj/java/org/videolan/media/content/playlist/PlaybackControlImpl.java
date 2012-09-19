@@ -22,14 +22,14 @@ package org.videolan.media.content.playlist;
 import java.awt.Component;
 import java.util.LinkedList;
 
-import org.bluray.media.AngleChangeEvent;
-import org.bluray.media.AngleChangeListener;
 import org.bluray.media.PlaybackControl;
 import org.bluray.media.PlaybackListener;
 import org.bluray.media.PlaybackMarkEvent;
 import org.bluray.media.PlaybackPlayItemEvent;
-import org.videolan.Libbluray;
-import org.videolan.TIClip;
+import org.videolan.BDJAction;
+import org.videolan.BDJActionManager;
+import org.videolan.PlaylistInfo;
+import org.videolan.TIMark;
 
 public class PlaybackControlImpl implements PlaybackControl {
     protected PlaybackControlImpl(Handler player) {
@@ -41,41 +41,122 @@ public class PlaybackControlImpl implements PlaybackControl {
     }
 
     public void addPlaybackControlListener(PlaybackListener listener) {
-        listeners.add(listener);
+        synchronized(listeners) {
+            listeners.add(listener);
+        }
     }
 
     public void removePlaybackControlListener(PlaybackListener listener) {
-        listeners.remove(listener);
+        synchronized(listeners) {
+            listeners.remove(listener);
+        }
     }
 
     public void skipToMark(int mark) throws IllegalArgumentException {
-        Libbluray.seekMark(mark);
-        sendEvent(new PlaybackMarkEvent(this, mark));
+        player.seekMark(mark);
     }
 
     public boolean skipToNextMark(int type) throws IllegalArgumentException {
-        throw new Error("Not implemented");
+        if ((type != TIMark.MARK_TYPE_ENTRY) && (type != TIMark.MARK_TYPE_LINK))
+            throw new IllegalArgumentException();
+        PlaylistInfo pi = player.getPlaylistInfo();
+        if (pi == null)
+            return false;
+        TIMark[] marks = pi.getMarks();
+        if (marks == null)
+            return false;
+        long time = player.getMediaNanoseconds();
+        for (int i = 0; i < marks.length; i++) {
+            if ((marks[i].getType() == type) &&
+                (marks[i].getStartNanoseconds() > time)) {
+                player.seekMark(i);
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean skipToPreviousMark(int type) throws IllegalArgumentException {
-        throw new Error("Not implemented");
+        if ((type != TIMark.MARK_TYPE_ENTRY) && (type != TIMark.MARK_TYPE_LINK))
+            throw new IllegalArgumentException();
+        PlaylistInfo pi = player.getPlaylistInfo();
+        if (pi == null)
+            return false;
+        TIMark[] marks = pi.getMarks();
+        if (marks == null)
+            return false;
+        long time = player.getMediaNanoseconds();
+        for (int i = marks.length - 1; i >= 0; i--) {
+            if ((marks[i].getType() == type) &&
+                (marks[i].getStartNanoseconds() < time)) {
+                player.seekMark(i);
+                return true;
+            }
+        }
+        return false;
     }
 
     public void skipToPlayItem(int item) throws IllegalArgumentException {
-        throw new Error("Not implemented");
+        player.seekPlayItem(item);
     }
 
-    private void sendEvent(PlaybackMarkEvent event) {
-        for (PlaybackListener listener : listeners)
-            listener.markReached(event);
+    protected void onChapterReach(int chapter) {
+        if (chapter <= 0)
+            return;
+        chapter--;
+        PlaylistInfo pi = player.getPlaylistInfo();
+        if (pi == null)
+            return;
+        TIMark[] marks = pi.getMarks();
+        if (marks == null)
+            return;
+        for (int i = 0, j = 0; i < marks.length; i++) {
+            if (marks[i].getType() == TIMark.MARK_TYPE_ENTRY) {
+                if (j == chapter) {
+                    notifyListeners(new PlaybackMarkEvent(this, i));
+                    return;
+                }
+                j++;
+            }
+        }
     }
 
-    // DON'T REMOVE: this will be used when skipToPlayItem is implemented
-    private void sendEvent(PlaybackPlayItemEvent event) {
-        for (PlaybackListener listener : listeners)
-            listener.playItemReached(event);
+    protected void onPlayItemReach(int param) {
+        notifyListeners(new PlaybackPlayItemEvent(this, param));
     }
 
-    private LinkedList<PlaybackListener> listeners = new LinkedList<PlaybackListener>();
+    private void notifyListeners(Object event) {
+        synchronized (listeners) {
+            if (!listeners.isEmpty())
+                BDJActionManager.getInstance().putCallback(
+                        new PlayeBackCallback(this, event));
+        }
+    }
+
+    private class PlayeBackCallback extends BDJAction {
+        private PlayeBackCallback(PlaybackControlImpl control, Object event) {
+            this.control = control;
+            this.event = event;
+        }
+
+        protected void doAction() {
+            LinkedList list;
+            synchronized (control.listeners) {
+                list = (LinkedList)control.listeners.clone();
+            }
+            if (event instanceof PlaybackMarkEvent) {
+                for (int i = 0; i < list.size(); i++)
+                    ((PlaybackListener)list.get(i)).markReached((PlaybackMarkEvent)event);
+            } else if (event instanceof PlaybackPlayItemEvent) {
+                for (int i = 0; i < list.size(); i++)
+                    ((PlaybackListener)list.get(i)).playItemReached((PlaybackPlayItemEvent)event);
+            }
+        }
+
+        private PlaybackControlImpl control;
+        private Object event;
+    }
+
+    private LinkedList listeners = new LinkedList();
     private Handler player;
 }
