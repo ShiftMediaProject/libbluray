@@ -127,7 +127,7 @@ BDJAVA* bdj_open(const char *path,
     return bdjava;
 }
 
-int bdj_start(BDJAVA *bdjava, const char *start)
+int bdj_start(BDJAVA *bdjava, unsigned title)
 {
     JNIEnv* env = bdjava->env;
 
@@ -139,8 +139,8 @@ int bdj_start(BDJAVA *bdjava, const char *start)
         return BDJ_ERROR;
     }
 
-    jmethodID load_id = (*env)->GetStaticMethodID(env, loader_class, "load",
-            "(Lorg/videolan/bdjo/Bdjo;)V");
+    jmethodID load_id = (*env)->GetStaticMethodID(env, loader_class,
+                                                  "load", "(I)Z");
 
     if (!load_id) {
         (*env)->ExceptionDescribe(env);
@@ -148,19 +148,9 @@ int bdj_start(BDJAVA *bdjava, const char *start)
         return BDJ_ERROR;
     }
 
-    // determine path of bdjo file to load
-    char* bdjo_path = str_printf("%s%s/%s.bdjo", bdjava->path, BDJ_BDJO_PATH, start);
-    jobject bdjo = bdjo_read(bdjava->env, bdjo_path);
-    free(bdjo_path);
+    jboolean status = (*env)->CallStaticBooleanMethod(env, loader_class, load_id, (jint)title);
 
-    if (!bdjo) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to load BDJO file.\n");
-        return BDJ_ERROR;
-    }
-
-    (*env)->CallStaticVoidMethod(env, loader_class, load_id, bdjo);
-
-    return BDJ_SUCCESS;
+    return (status == JNI_TRUE) ? BDJ_SUCCESS : BDJ_ERROR;
 }
 
 void bdj_stop(BDJAVA *bdjava)
@@ -179,9 +169,8 @@ void bdj_stop(BDJAVA *bdjava)
     }
 
     jmethodID unload_id = (*env)->GetStaticMethodID(env, loader_class,
-            "shutdown", "()V");
-    (*env)->CallStaticVoidMethod(env, loader_class, unload_id);
-
+            "unload", "()Z");
+    /*jboolean status =*/ (*env)->CallStaticBooleanMethod(env, loader_class, unload_id);
 }
 
 void bdj_close(BDJAVA *bdjava)

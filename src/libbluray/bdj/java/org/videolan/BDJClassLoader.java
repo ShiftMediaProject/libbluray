@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import javax.tv.xlet.Xlet;
 
 import org.videolan.bdjo.AppCache;
-import org.videolan.bdjo.AppCacheType;
 
 public class BDJClassLoader extends URLClassLoader {
     public static BDJClassLoader newInstance(AppCache[] appCaches, String basePath, String classPathExt, String xletClass) {

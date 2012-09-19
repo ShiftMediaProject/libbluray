@@ -170,10 +170,9 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
     private boolean doLoad() {
         if (state == NOT_LOADED) {
             try {
-                throw new Error("Not implemented");
-                //xlet = ((BDJClassLoader)context.getClassLoader()).loadXlet();
-                //state = LOADED;
-                //return true;
+                xlet = ((BDJClassLoader)context.getClassLoader()).loadXlet();
+                state = LOADED;
+                return true;
             } catch (Throwable e) {
                 e.printStackTrace();
                 state = INVALID;

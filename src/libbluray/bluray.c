@@ -988,7 +988,7 @@ static void _fill_disc_info(BLURAY *bd)
  * bdj
  */
 
-static int _start_bdj(BLURAY *bd, const char *start)
+static int _start_bdj(BLURAY *bd, unsigned title)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
@@ -997,9 +997,9 @@ static int _start_bdj(BLURAY *bd, const char *start)
             return 0;
         }
     }
-    return bdj_start(bd->bdjava, start);
+    return bdj_start(bd->bdjava, title);
 #else
-    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title %s.bdjo: BD-J not compiled in (%p)\n", start, bd);
+    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title %d: BD-J not compiled in (%p)\n", title, bd);
     return 0;
 #endif
 }
@@ -2050,8 +2050,37 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
 
 int bd_start_bdj(BLURAY *bd, const char *start_object)
 {
-    return _start_bdj(bd, start_object);
-}
+    unsigned ii;
+
+    if (!bd || !bd->index) {
+        return 0;
+    }
+
+    /* first play object ? */
+    if (bd->index->first_play.object_type == indx_object_type_bdj &&
+        !strcmp(start_object, bd->index->first_play.bdj.name)) {
+        return _start_bdj(bd, BLURAY_TITLE_FIRST_PLAY);
+    }
+
+    /* top menu ? */
+    if (bd->index->first_play.object_type == indx_object_type_bdj &&
+        !strcmp(start_object, bd->index->top_menu.bdj.name)) {
+        return _start_bdj(bd, BLURAY_TITLE_TOP_MENU);
+    }
+
+    /* valid BD-J title from disc index ? */
+    for (ii = 0; ii < bd->index->num_titles; ii++) {
+        INDX_TITLE *t = &bd->index->titles[ii];
+
+        if (t->object_type == indx_object_type_bdj &&
+            !strcmp(start_object, t->bdj.name)) {
+            return _start_bdj(bd, ii + 1);
+        }
+    }
+
+    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No %s.bdjo in disc index\n", start_object);
+    return 0;
+ }
 
 void bd_stop_bdj(BLURAY *bd)
 {
@@ -2235,19 +2264,18 @@ static void _queue_initial_psr_events(BLURAY *bd)
     }
 }
 
-static int _play_bdj(BLURAY *bd, const char *name)
+static int _play_bdj(BLURAY *bd, unsigned title)
 {
     bd->title_type = title_bdj;
 
-    bd_stop_bdj(bd);
-    return bd_start_bdj(bd, name);
+    return _start_bdj(bd, title);
 }
 
 static int _play_hdmv(BLURAY *bd, unsigned id_ref)
 {
     int result = 1;
 
-    bd_stop_bdj(bd);
+    _stop_bdj(bd);
 
     bd->title_type = title_hdmv;
 
@@ -2282,7 +2310,7 @@ static int _play_title(BLURAY *bd, unsigned title)
         }
 
         if (p->object_type == indx_object_type_bdj) {
-            return _play_bdj(bd, p->bdj.name);
+            return _play_bdj(bd, title);
         }
 
         return 0;
@@ -2310,7 +2338,7 @@ static int _play_title(BLURAY *bd, unsigned title)
         }
 
         if (p->object_type == indx_object_type_bdj) {
-            return _play_bdj(bd, p->bdj.name);
+            return _play_bdj(bd, title);
         }
 
         return 0;
@@ -2325,7 +2353,7 @@ static int _play_title(BLURAY *bd, unsigned title)
         if (t->object_type == indx_object_type_hdmv) {
             return _play_hdmv(bd, t->hdmv.id_ref);
         } else {
-            return _play_bdj(bd, t->bdj.name);
+            return _play_bdj(bd, title);
         }
     }
 

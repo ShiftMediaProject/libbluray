@@ -22,10 +22,9 @@ package org.dvb.application;
 public class CurrentServiceFilter extends AppsDatabaseFilter {
     public CurrentServiceFilter() {
         super();
-        throw new Error("Not implemented");
     }
 
     public boolean accept(AppID appid) {
-        throw new Error("Not implemented");
+        return true;
     }
 }

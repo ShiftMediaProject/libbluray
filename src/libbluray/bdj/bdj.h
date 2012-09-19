@@ -30,7 +30,7 @@ struct indx_root_s;
 
 BDJAVA* bdj_open(const char *path, struct bluray *bd,
                  struct bd_registers_s *registers, struct indx_root_s *index);
-int bdj_start(BDJAVA *bdjava, const char *start);
+int bdj_start(BDJAVA *bdjava, unsigned title);
 void bdj_stop(BDJAVA *bdjava);
 void bdj_close(BDJAVA *bdjava);
 

@@ -23,10 +23,12 @@ package org.dvb.application;
 public class RunningApplicationsFilter extends AppsDatabaseFilter {
     public RunningApplicationsFilter() {
         super();
-        throw new Error("Not implemented");
     }
 
     public boolean accept(AppID appid) {
-        throw new Error("Not implemented");
+    	AppProxy proxy = AppsDatabase.getAppsDatabase().getAppProxy(appid);
+    	if (proxy == null)
+    	    return false;
+        return proxy.getState() == AppProxy.STARTED;
     }
 }

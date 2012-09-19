@@ -47,6 +47,6 @@ public class BDJUtil {
      */
     public static String discRootToFilesystem(String path)
     {
-        return BDJLoader.getBaseDir() + path;
+        return System.getProperty("bluray.vfs.root") + path;
     }
 }

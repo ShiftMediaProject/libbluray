@@ -47,7 +47,7 @@ public class MountManager {
         if (jarStr == null)
             throw new IllegalArgumentException();
 
-        String path = BDJLoader.getBaseDir() + "/BDMV/JAR/" + jarStr + ".jar";
+        String path = System.getProperty("bluray.vfs.root") + "/BDMV/JAR/" + jarStr + ".jar";
 
         JarFile jar = null;
         File tmpDir = null;

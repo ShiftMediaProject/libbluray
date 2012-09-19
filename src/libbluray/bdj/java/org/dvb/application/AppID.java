@@ -38,7 +38,7 @@ public class AppID {
     
     public String toString()
     {
-        return Integer.toString((oid << 16) + aid, 16);
+        return Long.toString(((long)oid << 16) + aid, 16);
     }
 
     public int hashCode()
