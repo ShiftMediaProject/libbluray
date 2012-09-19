@@ -22,22 +22,18 @@ package org.havi.ui.event;
 import java.util.LinkedList;
 
 public class HEventGroup {
-    public HEventGroup()
-    {
+    public HEventGroup() {
     }
 
-    public void addKey(int keycode)
-    {
+    public void addKey(int keycode) {
         keys.add(new Integer(keycode));
     }
 
-    public void removeKey(int keycode)
-    {
+    public void removeKey(int keycode) {
         keys.remove(new Integer(keycode));
     }
 
-    public void addAllNumericKeys()
-    {
+    public void addAllNumericKeys() {
         addKey(HRcEvent.VK_0);
         addKey(HRcEvent.VK_1);
         addKey(HRcEvent.VK_2);
@@ -50,24 +46,21 @@ public class HEventGroup {
         addKey(HRcEvent.VK_9);
     }
 
-    public void addAllColourKeys()
-    {
+    public void addAllColourKeys() {
         addKey(HRcEvent.VK_COLORED_KEY_0);
         addKey(HRcEvent.VK_COLORED_KEY_1);
         addKey(HRcEvent.VK_COLORED_KEY_2);
         addKey(HRcEvent.VK_COLORED_KEY_3);
     }
 
-    public void addAllArrowKeys()
-    {
+    public void addAllArrowKeys() {
         addKey(HRcEvent.VK_LEFT);
         addKey(HRcEvent.VK_RIGHT);
         addKey(HRcEvent.VK_UP);
         addKey(HRcEvent.VK_DOWN);
     }
 
-    public void removeAllNumericKeys()
-    {
+    public void removeAllNumericKeys() {
         removeKey(HRcEvent.VK_0);
         removeKey(HRcEvent.VK_1);
         removeKey(HRcEvent.VK_2);
@@ -80,24 +73,21 @@ public class HEventGroup {
         removeKey(HRcEvent.VK_9);
     }
 
-    public void removeAllColourKeys()
-    {
+    public void removeAllColourKeys() {
         removeKey(HRcEvent.VK_COLORED_KEY_0);
         removeKey(HRcEvent.VK_COLORED_KEY_1);
         removeKey(HRcEvent.VK_COLORED_KEY_2);
         removeKey(HRcEvent.VK_COLORED_KEY_3);
     }
 
-    public void removeAllArrowKeys()
-    {
+    public void removeAllArrowKeys() {
         removeKey(HRcEvent.VK_LEFT);
         removeKey(HRcEvent.VK_RIGHT);
         removeKey(HRcEvent.VK_UP);
         removeKey(HRcEvent.VK_DOWN);
     }
 
-    public int[] getKeyEvents()
-    {
+    public int[] getKeyEvents() {
         int[] arr = new int[keys.size()];
 
         for (int i = 0; i < keys.size(); i++)

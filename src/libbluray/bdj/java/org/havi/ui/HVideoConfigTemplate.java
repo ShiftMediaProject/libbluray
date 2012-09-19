@@ -20,28 +20,23 @@
 package org.havi.ui;
 
 public class HVideoConfigTemplate extends HScreenConfigTemplate {
-    public HVideoConfigTemplate()
-    {
+    public HVideoConfigTemplate() {
         throw new Error("Not implemented");
     }
 
-    public boolean isConfigSupported(HVideoConfiguration hvc)
-    {
+    public boolean isConfigSupported(HVideoConfiguration hvc) {
         throw new Error("Not implemented");
     }
 
-    public int getPreferencePriority(int preference)
-    {
+    public int getPreferencePriority(int preference) {
         throw new Error("Not implemented");
     }
 
-    public void setPreference(int preference, Object object, int priority)
-    {
+    public void setPreference(int preference, Object object, int priority) {
         throw new Error("Not implemented");
     }
 
-    public Object getPreferenceObject(int preference)
-    {
+    public Object getPreferenceObject(int preference) {
         throw new Error("Not implemented");
     }
 

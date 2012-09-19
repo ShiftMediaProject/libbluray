@@ -22,23 +22,18 @@ package org.havi.ui;
 import org.videolan.GUIManager;
 
 public class HSceneFactory extends Object {
-    private HSceneFactory()
-    {
-
+    private HSceneFactory() {
     }
 
-    public static HSceneFactory getInstance()
-    {
+    public static HSceneFactory getInstance() {
         return instance;
     }
 
-    public HSceneTemplate getBestSceneTemplate(HSceneTemplate template)
-    {
+    public HSceneTemplate getBestSceneTemplate(HSceneTemplate template) {
         throw new Error("Not implemented");
     }
 
-    public HScene getBestScene(HSceneTemplate template)
-    {
+    public HScene getBestScene(HSceneTemplate template) {
         throw new Error("Not implemented");
     }
 
@@ -48,37 +43,33 @@ public class HSceneFactory extends Object {
         throw new Error("Not implemented");
     }
 
-    public HScene getDefaultHScene(HScreen screen)
-    {
+    public HScene getDefaultHScene(HScreen screen) {
         synchronized(defaultHSceneLock) {
             if (defaultHScene == null) {
                 defaultHScene = new HScene();
                 GUIManager.getInstance().add(defaultHScene);
             }
         }
-        
+
         return defaultHScene;
     }
 
-    public HScene getDefaultHScene()
-    {
+    public HScene getDefaultHScene() {
         synchronized(defaultHSceneLock) {
             if (defaultHScene == null) {
                 defaultHScene = new HScene();
                 GUIManager.getInstance().add(defaultHScene);
             }
         }
-        
+
         return defaultHScene;
     }
 
-    public HScene getFullScreenScene(HGraphicsDevice device)
-    {
+    public HScene getFullScreenScene(HGraphicsDevice device) {
         throw new Error("Not implemented");
     }
 
-    public void dispose(HScene scene)
-    {
+    public void dispose(HScene scene) {
         throw new Error("Not implemented");
     }
 

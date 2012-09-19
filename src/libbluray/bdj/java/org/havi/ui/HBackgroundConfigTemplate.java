@@ -20,23 +20,19 @@
 package org.havi.ui;
 
 public class HBackgroundConfigTemplate extends HScreenConfigTemplate {
-    public HBackgroundConfigTemplate()
-    {
+    public HBackgroundConfigTemplate() {
         throw new Error("Not implemented");
     }
 
-    public boolean isConfigSupported(HBackgroundConfiguration hbc)
-    {
+    public boolean isConfigSupported(HBackgroundConfiguration hbc) {
         throw new Error("Not implemented");
     }
 
-    public void setPreference(int preference, int priority)
-    {
+    public void setPreference(int preference, int priority) {
         throw new Error("Not implemented");
     }
 
-    public int getPreferencePriority(int preference)
-    {
+    public int getPreferencePriority(int preference) {
         throw new Error("Not implemented");
     }
 

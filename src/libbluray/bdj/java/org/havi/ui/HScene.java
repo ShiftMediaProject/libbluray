@@ -36,13 +36,11 @@ import org.havi.ui.event.HEventGroup;
 import org.videolan.GUIManager;
 
 public class HScene extends Container implements HComponentOrdering {
-    protected HScene()
-    {
+    protected HScene() {
 
     }
 
-    public void paint(Graphics g)
-    {
+    public void paint(Graphics g) {
         if (backgroundMode == BACKGROUND_FILL) {
             g.setColor(getBackground());
             g.fillRect(super.getX(), super.getY(), super.getWidth(), super
@@ -65,22 +63,19 @@ public class HScene extends Container implements HComponentOrdering {
                 break;
             }
         }
-        
+
         super.paint(g);
     }
 
-    public boolean isDoubleBuffered()
-    {
+    public boolean isDoubleBuffered() {
         return true;// not implemented
     }
 
-    public boolean isOpaque()
-    {
+    public boolean isOpaque() {
         return false;// not implemented
     }
 
-    public Component addBefore(Component component, Component behind)
-    {
+    public Component addBefore(Component component, Component behind) {
         int index = super.getComponentZOrder(behind);
 
         // the behind component must already be in the Container
@@ -90,8 +85,7 @@ public class HScene extends Container implements HComponentOrdering {
         return super.add(component, index);
     }
 
-    public Component addAfter(Component component, Component front)
-    {
+    public Component addAfter(Component component, Component front) {
         int index = super.getComponentZOrder(front);
 
         // the front component must already be in the Container
@@ -101,8 +95,7 @@ public class HScene extends Container implements HComponentOrdering {
         return super.add(component, index + 1);
     }
 
-    public boolean popToFront(Component component)
-    {
+    public boolean popToFront(Component component) {
         if (super.getComponentZOrder(component) == -1)
             return false;
 
@@ -111,8 +104,7 @@ public class HScene extends Container implements HComponentOrdering {
         return true;
     }
 
-    public boolean pushToBack(Component component)
-    {
+    public boolean pushToBack(Component component) {
         if (super.getComponentZOrder(component) == -1)
             return false;
 
@@ -121,8 +113,7 @@ public class HScene extends Container implements HComponentOrdering {
         return true;
     }
 
-    public boolean pop(Component component)
-    {
+    public boolean pop(Component component) {
         int index = super.getComponentZOrder(component);
         if (index == -1)
             return false;
@@ -133,8 +124,7 @@ public class HScene extends Container implements HComponentOrdering {
         return true;
     }
 
-    public boolean push(Component component)
-    {
+    public boolean push(Component component) {
         int index = super.getComponentZOrder(component);
         if (index == -1)
             return false;
@@ -145,8 +135,7 @@ public class HScene extends Container implements HComponentOrdering {
         return true;
     }
 
-    public boolean popInFrontOf(Component move, Component behind)
-    {
+    public boolean popInFrontOf(Component move, Component behind) {
         int index = super.getComponentZOrder(behind);
 
         // the behind component must already be in the Container
@@ -157,8 +146,7 @@ public class HScene extends Container implements HComponentOrdering {
         return true;
     }
 
-    public boolean pushBehind(Component move, Component front)
-    {
+    public boolean pushBehind(Component move, Component front) {
         int index = super.getComponentZOrder(front);
 
         // the behind component must already be in the Container
@@ -169,22 +157,19 @@ public class HScene extends Container implements HComponentOrdering {
         return true;
     }
 
-    public void addWindowListener(WindowListener listener)
-    {
+    public void addWindowListener(WindowListener listener) {
         synchronized (windowListener) {
             windowListener = HEventMulticaster.add(windowListener, listener);
         }
     }
 
-    public void removeWindowListener(WindowListener listener)
-    {
+    public void removeWindowListener(WindowListener listener) {
         synchronized (windowListener) {
             windowListener = HEventMulticaster.remove(windowListener, listener);
         }
     }
 
-    protected void processWindowEvent(WindowEvent event)
-    {
+    protected void processWindowEvent(WindowEvent event) {
         if (windowListener != null) {
             switch (event.getID()) {
             case WindowEvent.WINDOW_OPENED:
@@ -221,8 +206,7 @@ public class HScene extends Container implements HComponentOrdering {
         }
     }
 
-    public Component getFocusOwner()
-    {
+    public Component getFocusOwner() {
         if (!active)
             return null;
 
@@ -234,19 +218,16 @@ public class HScene extends Container implements HComponentOrdering {
         return null;
     }
 
-    public void show()
-    {
+    public void show() {
         setVisible(true);
         GUIManager.getInstance().popToFront(this);
     }
 
-    public void dispose()
-    {
+    public void dispose() {
         // not implemented
     }
 
-    public boolean addShortcut(int keyCode, HActionable act)
-    {
+    public boolean addShortcut(int keyCode, HActionable act) {
         // make sure component is in HScene
         boolean hasComp = false;
         for (Component comp : getComponents()) {
@@ -262,28 +243,23 @@ public class HScene extends Container implements HComponentOrdering {
         return true;
     }
 
-    public void removeShortcut(int keyCode)
-    {
+    public void removeShortcut(int keyCode) {
         shortcuts.remove(keyCode);
     }
 
-    public HActionable getShortcutComponent(int keyCode)
-    {
+    public HActionable getShortcutComponent(int keyCode) {
         return shortcuts.get(keyCode);
     }
 
-    public void enableShortcuts(boolean enable)
-    {
+    public void enableShortcuts(boolean enable) {
         this.shortcutsEnabled = enable;
     }
 
-    public boolean isEnableShortcuts()
-    {
+    public boolean isEnableShortcuts() {
         return shortcutsEnabled;
     }
 
-    public int getShortcutKeycode(HActionable comp)
-    {
+    public int getShortcutKeycode(HActionable comp) {
         for (Integer key : shortcuts.keySet()) {
             HActionable action = shortcuts.get(key);
 
@@ -294,8 +270,7 @@ public class HScene extends Container implements HComponentOrdering {
         return KeyEvent.VK_UNDEFINED;
     }
 
-    public int[] getAllShortcutKeycodes()
-    {
+    public int[] getAllShortcutKeycodes() {
         Integer[] src = (Integer[]) shortcuts.keySet().toArray();
         int[] dest = new int[src.length];
 
@@ -305,16 +280,14 @@ public class HScene extends Container implements HComponentOrdering {
         return dest;
     }
 
-    public HScreenRectangle getPixelCoordinatesHScreenRectangle(Rectangle rect)
-    {
+    public HScreenRectangle getPixelCoordinatesHScreenRectangle(Rectangle rect) {
         Dimension size = GUIManager.getInstance().getSize();
         return new HScreenRectangle(rect.x / (float) size.width, rect.y
                 / (float) size.height, rect.width / (float) size.width,
                 rect.height / (float) size.height);
     }
 
-    public HSceneTemplate getSceneTemplate()
-    {
+    public HSceneTemplate getSceneTemplate() {
         HSceneTemplate template = new HSceneTemplate();
 
         HGraphicsConfiguration config = HScreen.getDefaultHScreen()
@@ -338,8 +311,7 @@ public class HScene extends Container implements HComponentOrdering {
         return template;
     }
 
-    public void setActive(boolean focus)
-    {
+    public void setActive(boolean focus) {
         if (active == true && focus == false)
             dispatchEvent(new WindowEvent(GUIManager.getInstance(),
                     WindowEvent.WINDOW_DEACTIVATED));
@@ -347,54 +319,44 @@ public class HScene extends Container implements HComponentOrdering {
         active = focus;
     }
 
-    public void setKeyEvents(HEventGroup eventGroup)
-    {
+    public void setKeyEvents(HEventGroup eventGroup) {
         this.eventGroup = eventGroup;
     }
 
-    public HEventGroup getKeyEvents()
-    {
+    public HEventGroup getKeyEvents() {
         return eventGroup;
     }
 
-    public void setVisible(boolean visible)
-    {
+    public void setVisible(boolean visible) {
         this.visible = visible;
     }
 
-    public boolean isVisible()
-    {
+    public boolean isVisible() {
         return visible;
     }
 
-    public int getBackgroundMode()
-    {
+    public int getBackgroundMode() {
         return backgroundMode;
     }
 
-    public void setBackgroundMode(int mode)
-    {
+    public void setBackgroundMode(int mode) {
         this.backgroundMode = mode;
     }
 
-    public void setBackgroundImage(Image image)
-    {
+    public void setBackgroundImage(Image image) {
         this.image = image;
     }
 
-    public Image getBackgroundImage()
-    {
+    public Image getBackgroundImage() {
         return image;
     }
 
-    public boolean setRenderMode(int mode)
-    {
+    public boolean setRenderMode(int mode) {
         this.imageMode = mode;
         return true;
     }
 
-    public int getRenderMode()
-    {
+    public int getRenderMode() {
         return imageMode;
     }
 

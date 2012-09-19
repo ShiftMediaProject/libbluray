@@ -28,11 +28,10 @@ public class VideoTransformation {
     protected VideoTransformation(boolean panAndScan) {
         this.panAndScan = panAndScan;
     }
-    
-    public VideoTransformation()
-    {
+
+    public VideoTransformation() {
         GraphicsResolution res = BDJLoader.getBdjo().getTerminalInfo().getResolution();
-        
+
         this.clip = new Rectangle(res.getWidth(), res.getHeight());
         this.scaling[0] = 1.0f;
         this.scaling[1] = 1.0f;
@@ -41,51 +40,42 @@ public class VideoTransformation {
 
     public VideoTransformation(Rectangle clipRect,
             float horizontalScalingFactor, float verticalScalingFactor,
-            HScreenPoint location)
-    {
+            HScreenPoint location) {
         this.clip = clipRect;
         this.scaling[0] = horizontalScalingFactor;
         this.scaling[1] = verticalScalingFactor;
         this.position = location;
     }
 
-    public void setClipRegion(Rectangle clipRect)
-    {
+    public void setClipRegion(Rectangle clipRect) {
         this.clip = clipRect;
     }
 
-    public Rectangle getClipRegion()
-    {
+    public Rectangle getClipRegion() {
         return clip;
     }
 
-    public void setScalingFactors(float horizontalScalingFactor,
-            float verticalScalingFactor)
-    {
+    public void setScalingFactors(float horizontalScalingFactor, float verticalScalingFactor) {
         this.scaling[0] = horizontalScalingFactor;
         this.scaling[1] = verticalScalingFactor;
     }
 
-    public float[] getScalingFactors()
-    {
+    public float[] getScalingFactors() {
         return scaling;
     }
 
-    public void setVideoPosition(HScreenPoint location)
-    {
+    public void setVideoPosition(HScreenPoint location) {
         this.position = location;
     }
 
-    public HScreenPoint getVideoPosition()
-    {
+    public HScreenPoint getVideoPosition() {
         return position;
     }
 
-    public boolean isPanAndScan()
-    {
+    public boolean isPanAndScan() {
         return panAndScan;
     }
-    
+
     private float[] scaling = new float[2];
     private HScreenPoint position = null;
     private Rectangle clip = null;

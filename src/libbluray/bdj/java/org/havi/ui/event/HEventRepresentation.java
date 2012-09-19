@@ -28,53 +28,43 @@ public class HEventRepresentation extends Object {
     public static final int ER_TYPE_COLOR = 2;
     public static final int ER_TYPE_SYMBOL = 4;
 
-    protected HEventRepresentation(int support, String text, Color color, Image symbol)
-    {
+    protected HEventRepresentation(int support, String text, Color color, Image symbol) {
         throw new Error("Not implemented");
     }
 
-    public boolean isSupported()
-    {
+    public boolean isSupported() {
         throw new Error("Not implemented");
     }
 
-    protected void setType(int aType)
-    {
+    protected void setType(int aType) {
         throw new Error("Not implemented");
     }
 
-    public int getType()
-    {
+    public int getType() {
         throw new Error("Not implemented");
     }
 
-    protected void setColor(Color aColor)
-    {
+    protected void setColor(Color aColor) {
         throw new Error("Not implemented");
     }
 
-    public Color getColor()
-    {
+    public Color getColor() {
         throw new Error("Not implemented");
     }
 
-    protected void setString(String aText)
-    {
+    protected void setString(String aText) {
         throw new Error("Not implemented");
     }
 
-    public String getString()
-    {
+    public String getString() {
         throw new Error("Not implemented");
     }
 
-    protected void setSymbol(Image aSymbol)
-    {
+    protected void setSymbol(Image aSymbol) {
         throw new Error("Not implemented");
     }
 
-    public Image getSymbol()
-    {
+    public Image getSymbol() {
         throw new Error("Not implemented");
     }
 

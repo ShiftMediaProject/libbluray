@@ -27,66 +27,50 @@ import java.awt.Font;
 import java.awt.Color;
 
 public class HGraphicsConfiguration extends HScreenConfiguration {
-    protected HGraphicsConfiguration()
-    {
-
+    protected HGraphicsConfiguration() {
     }
 
-    public HGraphicsDevice getDevice()
-    {
+    public HGraphicsDevice getDevice() {
         throw new Error("Not implemented");
     }
 
-    public HGraphicsConfigTemplate getConfigTemplate()
-    {
+    public HGraphicsConfigTemplate getConfigTemplate() {
         throw new Error("Not implemented");
     }
 
-    public HScreenRectangle getComponentHScreenRectangle(Component component)
-    {
+    public HScreenRectangle getComponentHScreenRectangle(Component component) {
         throw new Error("Not implemented");
     }
 
-    public Rectangle getPixelCoordinatesHScreenRectangle(HScreenRectangle sr,
-            Container cont)
-    {
+    public Rectangle getPixelCoordinatesHScreenRectangle(HScreenRectangle sr, Container cont) {
         throw new Error("Not implemented");
     }
 
-    public Image getCompatibleImage(Image input, HImageHints ih)
-    {
+    public Image getCompatibleImage(Image input, HImageHints ih) {
         throw new Error("Not implemented");
     }
 
-    public Font[] getAllFonts()
-    {
+    public Font[] getAllFonts() {
         throw new Error("Not implemented");
     }
 
-    public Color getPunchThroughToBackgroundColor(int percentage)
-    {
+    public Color getPunchThroughToBackgroundColor(int percentage) {
         throw new Error("Not implemented");
     }
 
-    public Color getPunchThroughToBackgroundColor(int percentage,
-            HVideoDevice hvd)
-    {
+    public Color getPunchThroughToBackgroundColor(int percentage, HVideoDevice hvd) {
         throw new Error("Not implemented");
     }
 
-    public Color getPunchThroughToBackgroundColor(Color color, int percentage)
-    {
+    public Color getPunchThroughToBackgroundColor(Color color, int percentage) {
         throw new Error("Not implemented");
     }
 
-    public Color getPunchThroughToBackgroundColor(Color color, int percentage,
-            HVideoDevice v)
-    {
+    public Color getPunchThroughToBackgroundColor(Color color, int percentage, HVideoDevice v) {
         throw new Error("Not implemented");
     }
 
-    public void dispose(Color c)
-    {
+    public void dispose(Color c) {
         throw new Error("Not implemented");
     }
 }

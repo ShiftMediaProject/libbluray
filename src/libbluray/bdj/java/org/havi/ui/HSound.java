@@ -23,43 +23,35 @@ import java.io.IOException;
 import java.net.URL;
 
 public class HSound {
-    public HSound()
-    {
+    public HSound() {
         throw new Error("Not implemented");
     }
 
-    public void load(String location) throws IOException, SecurityException
-    {
+    public void load(String location) throws IOException, SecurityException {
         throw new Error("Not implemented");
     }
 
-    public void load(URL contents) throws IOException, SecurityException
-    {
+    public void load(URL contents) throws IOException, SecurityException {
         throw new Error("Not implemented");
     }
 
-    public void set(byte data[])
-    {
+    public void set(byte data[]) {
         throw new Error("Not implemented");
     }
 
-    public void play()
-    {
+    public void play() {
         throw new Error("Not implemented");
     }
 
-    public void stop()
-    {
+    public void stop() {
         throw new Error("Not implemented");
     }
 
-    public void loop()
-    {
+    public void loop() {
         throw new Error("Not implemented");
     }
 
-    public void dispose()
-    {
+    public void dispose() {
         throw new Error("Not implemented");
     }
 }

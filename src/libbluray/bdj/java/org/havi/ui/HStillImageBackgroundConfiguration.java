@@ -23,27 +23,23 @@ import java.io.IOException;
 
 public class HStillImageBackgroundConfiguration extends
         HBackgroundConfiguration {
-    protected HStillImageBackgroundConfiguration()
-    {
+    protected HStillImageBackgroundConfiguration() {
         throw new Error("Not implemented");
     }
 
     public void displayImage(HBackgroundImage image) throws IOException,
-            HPermissionDeniedException, HConfigurationException
-    {
+            HPermissionDeniedException, HConfigurationException {
         throw new Error("Not implemented");
     }
 
     public void displayImage(HBackgroundImage image, HScreenRectangle r)
             throws IOException, HPermissionDeniedException,
-            HConfigurationException
-    {
+            HConfigurationException {
         throw new Error("Not implemented");
     }
 
     public void setColor(java.awt.Color color)
-            throws HPermissionDeniedException, HConfigurationException
-    {
+            throws HPermissionDeniedException, HConfigurationException {
         throw new Error("Not implemented");
     }
 

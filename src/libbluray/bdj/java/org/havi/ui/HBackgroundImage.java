@@ -22,38 +22,31 @@ package org.havi.ui;
 import org.havi.ui.event.HBackgroundImageListener;
 
 public class HBackgroundImage {
-    public HBackgroundImage(String filename)
-    {
+    public HBackgroundImage(String filename) {
         throw new Error("Not implemented");
     }
 
-    public HBackgroundImage(byte pixels[])
-    {
+    public HBackgroundImage(byte pixels[]) {
         throw new Error("Not implemented");
     }
 
-    public HBackgroundImage(java.net.URL contents)
-    {
+    public HBackgroundImage(java.net.URL contents) {
         throw new Error("Not implemented");
     }
 
-    public void load(HBackgroundImageListener listener)
-    {
+   public void load(HBackgroundImageListener listener) {
         throw new Error("Not implemented");
     }
 
-    public int getHeight()
-    {
+    public int getHeight() {
         throw new Error("Not implemented");
     }
 
-    public int getWidth()
-    {
+    public int getWidth() {
         throw new Error("Not implemented");
     }
 
-    public void flush()
-    {
+    public void flush() {
         throw new Error("Not implemented");
     }
 }

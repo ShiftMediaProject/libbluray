@@ -25,24 +25,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HSceneTemplate extends Object {
-    public HSceneTemplate()
-    {
-
+    public HSceneTemplate() {
     }
 
-    public void setPreference(int preference, Object object, int priority)
-    {
+    public void setPreference(int preference, Object object, int priority) {
         preferenceMap.put(preference, object);
         priorityMap.put(preference, priority);
     }
 
-    public Object getPreferenceObject(int preference)
-    {
+    public Object getPreferenceObject(int preference) {
         return preferenceMap.get(preference);
     }
 
-    public int getPreferencePriority(int preference)
-    {
+    public int getPreferencePriority(int preference) {
         Integer priority = priorityMap.get(preference);
         if (priority == null || priority < 0 || priority > 3)
             return UNNECESSARY;

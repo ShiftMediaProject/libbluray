@@ -20,33 +20,27 @@
 package org.havi.ui;
 
 public class HGraphicsConfigTemplate extends HScreenConfigTemplate {
-    public HGraphicsConfigTemplate()
-    {
+    public HGraphicsConfigTemplate() {
         throw new Error("Not implemented");
     }
 
-    public boolean isConfigSupported(HGraphicsConfiguration hgc)
-    {
+    public boolean isConfigSupported(HGraphicsConfiguration hgc) {
         throw new Error("Not implemented");
     }
 
-    public void setPreference(int preference, int priority)
-    {
+    public void setPreference(int preference, int priority) {
         throw new Error("Not implemented");
     }
 
-    public int getPreferencePriority(int preference)
-    {
+    public int getPreferencePriority(int preference) {
         throw new Error("Not implemented");
     }
 
-    public void setPreference(int preference, Object object, int priority)
-    {
+    public void setPreference(int preference, Object object, int priority) {
         throw new Error("Not implemented");
     }
 
-    public Object getPreferenceObject(int preference)
-    {
+    public Object getPreferenceObject(int preference) {
         throw new Error("Not implemented");
     }
 

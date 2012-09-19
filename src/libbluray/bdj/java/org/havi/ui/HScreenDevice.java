@@ -28,61 +28,46 @@ import org.davic.resources.ResourceStatusListener;
 import org.havi.ui.event.HScreenConfigurationListener;
 
 public class HScreenDevice implements ResourceProxy, ResourceServer {
-    HScreenDevice()
-    {
-
+    HScreenDevice() {
     }
 
-    public String getIDstring()
-    {
+    public String getIDstring() {
         throw new Error("Not implemented");
     }
 
-    public void addScreenConfigurationListener(HScreenConfigurationListener hscl)
-    {
+    public void addScreenConfigurationListener(HScreenConfigurationListener hscl) {
         throw new Error("Not implemented");
     }
 
-    public void addScreenConfigurationListener(
-            HScreenConfigurationListener hscl, HScreenConfigTemplate hsct)
-    {
+    public void addScreenConfigurationListener(HScreenConfigurationListener hscl, HScreenConfigTemplate hsct) {
         throw new Error("Not implemented");
     }
 
-    public void removeScreenConfigurationListener(
-            HScreenConfigurationListener hscl)
-    {
+    public void removeScreenConfigurationListener(HScreenConfigurationListener hscl) {
         throw new Error("Not implemented");
     }
 
-    public Dimension getScreenAspectRatio()
-    {
+    public Dimension getScreenAspectRatio() {
         throw new Error("Not implemented");
     }
 
-    public boolean reserveDevice(ResourceClient client)
-    {
+    public boolean reserveDevice(ResourceClient client) {
         throw new Error("Not implemented");
     }
 
-    public void releaseDevice()
-    {
+    public void releaseDevice() {
         throw new Error("Not implemented");
     }
 
-    public ResourceClient getClient()
-    {
+    public ResourceClient getClient() {
         throw new Error("Not implemented");
     }
 
-    public void addResourceStatusEventListener(ResourceStatusListener listener)
-    {
+    public void addResourceStatusEventListener(ResourceStatusListener listener) {
         throw new Error("Not implemented");
     }
 
-    public void removeResourceStatusEventListener(
-            ResourceStatusListener listener)
-    {
+    public void removeResourceStatusEventListener(ResourceStatusListener listener) {
         throw new Error("Not implemented");
     }
 }

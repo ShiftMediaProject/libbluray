@@ -20,53 +20,40 @@
 package org.havi.ui;
 
 public class HVideoDevice extends HScreenDevice {
-    protected HVideoDevice()
-    {
-
+    protected HVideoDevice() {
     }
 
-    public HVideoConfiguration[] getConfigurations()
-    {
+    public HVideoConfiguration[] getConfigurations() {
         throw new Error("Not implemented");
     }
 
-    public HVideoConfiguration getDefaultConfiguration()
-    {
+    public HVideoConfiguration getDefaultConfiguration() {
         throw new Error("Not implemented");
     }
 
-    public HVideoConfiguration getBestConfiguration(HVideoConfigTemplate hvct)
-    {
+    public HVideoConfiguration getBestConfiguration(HVideoConfigTemplate hvct) {
         throw new Error("Not implemented");
     }
 
-    public HVideoConfiguration getBestConfiguration(
-            HVideoConfigTemplate hvcta[])
-    {
+    public HVideoConfiguration getBestConfiguration(HVideoConfigTemplate hvcta[]) {
         throw new Error("Not implemented");
     }
 
-    public HVideoConfiguration getCurrentConfiguration()
-    {
+    public HVideoConfiguration getCurrentConfiguration() {
         throw new Error("Not implemented");
     }
 
     public boolean setVideoConfiguration(HVideoConfiguration hvc)
             throws SecurityException, HPermissionDeniedException,
-            HConfigurationException
-    {
+            HConfigurationException {
         throw new Error("Not implemented");
     }
 
-    public Object getVideoSource() throws SecurityException,
-            HPermissionDeniedException
-    {
+    public Object getVideoSource() throws SecurityException, HPermissionDeniedException {
         throw new Error("Not implemented");
     }
 
-    public Object getVideoController() throws SecurityException,
-            HPermissionDeniedException
-    {
+    public Object getVideoController() throws SecurityException, HPermissionDeniedException {
         throw new Error("Not implemented");
     }
 

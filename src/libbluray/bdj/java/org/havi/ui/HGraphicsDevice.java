@@ -20,42 +20,32 @@
 package org.havi.ui;
 
 public class HGraphicsDevice extends HScreenDevice {
-    protected HGraphicsDevice()
-    {
-
+    protected HGraphicsDevice() {
     }
 
-    public HGraphicsConfiguration[] getConfigurations()
-    {
+    public HGraphicsConfiguration[] getConfigurations() {
         throw new Error("Not implemented");
     }
 
-    public HGraphicsConfiguration getDefaultConfiguration()
-    {
+    public HGraphicsConfiguration getDefaultConfiguration() {
         throw new Error("Not implemented");
     }
 
-    public HGraphicsConfiguration getBestConfiguration(
-            HGraphicsConfigTemplate hgct)
-    {
+    public HGraphicsConfiguration getBestConfiguration(HGraphicsConfigTemplate hgct) {
         throw new Error("Not implemented");
     }
 
-    public HGraphicsConfiguration getBestConfiguration(
-            HGraphicsConfigTemplate hgcta[])
-    {
+    public HGraphicsConfiguration getBestConfiguration(HGraphicsConfigTemplate hgcta[]) {
         throw new Error("Not implemented");
     }
 
-    public HGraphicsConfiguration getCurrentConfiguration()
-    {
+    public HGraphicsConfiguration getCurrentConfiguration() {
         throw new Error("Not implemented");
     }
 
     public boolean setGraphicsConfiguration(HGraphicsConfiguration hgc)
             throws SecurityException, HPermissionDeniedException,
-            HConfigurationException
-    {
+            HConfigurationException {
         throw new Error("Not implemented");
     }
 }

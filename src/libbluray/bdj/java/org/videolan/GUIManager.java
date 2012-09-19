@@ -25,18 +25,14 @@ import java.awt.Frame;
 import java.awt.image.BufferedImage;
 
 public class GUIManager extends Frame {
-    private GUIManager()
-    {
-
+    private GUIManager() {
     }
 
-    public static GUIManager getInstance()
-    {
+    public static GUIManager getInstance() {
         return instance;
     }
 
-    public boolean popToFront(Component component)
-    {
+    public boolean popToFront(Component component) {
         if (super.getComponentZOrder(component) == -1)
             return false;
 
@@ -47,8 +43,7 @@ public class GUIManager extends Frame {
     }
 
     public BufferedImage createBufferedImage(int width, int height)
-            throws AWTException
-    {
+            throws AWTException {
         BufferedImage img = getGraphicsConfiguration().createCompatibleImage(width, height);
 
         if (img == null)

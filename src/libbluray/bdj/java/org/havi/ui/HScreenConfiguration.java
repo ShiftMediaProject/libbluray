@@ -23,43 +23,34 @@ import java.awt.Point;
 import java.awt.Dimension;
 
 public abstract class HScreenConfiguration extends Object {
-    HScreenConfiguration()
-    {
-
+    HScreenConfiguration() {
     }
 
-    public Point convertTo(HScreenConfiguration destination, Point source)
-    {
+    public Point convertTo(HScreenConfiguration destination, Point source) {
         throw new Error("Not implemented");
     }
 
-    public boolean getFlickerFilter()
-    {
+    public boolean getFlickerFilter() {
         throw new Error("Not implemented");
     }
 
-    public boolean getInterlaced()
-    {
+    public boolean getInterlaced() {
         throw new Error("Not implemented");
     }
 
-    public Dimension getPixelAspectRatio()
-    {
+    public Dimension getPixelAspectRatio() {
         throw new Error("Not implemented");
     }
 
-    public Dimension getPixelResolution()
-    {
+    public Dimension getPixelResolution() {
         throw new Error("Not implemented");
     }
 
-    public HScreenRectangle getScreenArea()
-    {
+    public HScreenRectangle getScreenArea() {
         throw new Error("Not implemented");
     }
 
-    public Dimension getOffset(HScreenConfiguration hsc)
-    {
+    public Dimension getOffset(HScreenConfiguration hsc) {
         throw new Error("Not implemented");
     }
 }

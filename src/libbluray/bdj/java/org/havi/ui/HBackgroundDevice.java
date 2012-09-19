@@ -20,42 +20,33 @@
 package org.havi.ui;
 
 public class HBackgroundDevice extends HScreenDevice {
-    protected HBackgroundDevice()
-    {
+    protected HBackgroundDevice() {
         throw new Error("Not implemented");
     }
 
-    public HBackgroundConfiguration[] getConfigurations()
-    {
+    public HBackgroundConfiguration[] getConfigurations() {
         throw new Error("Not implemented");
     }
 
-    public HBackgroundConfiguration getDefaultConfiguration()
-    {
+    public HBackgroundConfiguration getDefaultConfiguration() {
         throw new Error("Not implemented");
     }
 
-    public HBackgroundConfiguration getBestConfiguration(
-            HBackgroundConfigTemplate hbc)
-    {
+    public HBackgroundConfiguration getBestConfiguration(HBackgroundConfigTemplate hbc) {
         throw new Error("Not implemented");
     }
 
-    public HBackgroundConfiguration getBestConfiguration(
-            HBackgroundConfigTemplate hbcta[])
-    {
+    public HBackgroundConfiguration getBestConfiguration(HBackgroundConfigTemplate hbcta[]) {
         throw new Error("Not implemented");
     }
 
-    public HBackgroundConfiguration getCurrentConfiguration()
-    {
+    public HBackgroundConfiguration getCurrentConfiguration() {
         throw new Error("Not implemented");
     }
 
     public boolean setBackgroundConfiguration(HBackgroundConfiguration hbc)
             throws SecurityException, HPermissionDeniedException,
-            HConfigurationException
-    {
+            HConfigurationException {
         throw new Error("Not implemented");
     }
 }
