@@ -19,6 +19,10 @@
 
 package org.havi.ui.event;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class HKeyCapabilities {
     protected HKeyCapabilities() {
     }
@@ -28,6 +32,28 @@ public class HKeyCapabilities {
     }
 
     public static boolean isSupported(int keycode) {
-        return true; // of course we support everything
+        return Arrays.binarySearch(supportedKeyCode, keycode) >= 0;
+    }
+
+    private static final int[] supportedKeyCode;
+
+    static {
+        ArrayList list = new ArrayList();
+        Field[] fields = org.bluray.ui.event.HRcEvent.class.getFields();
+        for (int i = 0; i < fields.length; i++) {
+            String name = fields[i].getName();
+            if ((name.startsWith("VK_")) && !(name.equals("VK_UNDEFINED"))) {
+                try {
+                    Integer keyCode = new Integer(fields[i].getInt(null));
+                    list.add(keyCode);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        supportedKeyCode = new int[list.size()];
+        for (int i = 0; i < list.size(); i++)
+            supportedKeyCode[i] = ((Integer)list.get(i)).intValue();
+        Arrays.sort(supportedKeyCode);
     }
 }

@@ -21,32 +21,51 @@ package org.havi.ui;
 
 public class HVideoDevice extends HScreenDevice {
     protected HVideoDevice() {
+        int length = HScreenConfigTemplate.defaultConfig.length;
+        hvcArray = new HVideoConfiguration[length];
+        for (int i = 0; i < length; i++) {
+            HVideoConfigTemplate hvct = new HVideoConfigTemplate();
+            HScreenConfigTemplate.initDefaultConfigTemplate(hvct, i);
+            hvcArray[i] = new HVideoConfiguration(hvct);
+        }
+        hvc = hvcArray[0];
     }
 
     public HVideoConfiguration[] getConfigurations() {
-        throw new Error("Not implemented");
+        return hvcArray;
     }
 
     public HVideoConfiguration getDefaultConfiguration() {
-        throw new Error("Not implemented");
+        return hvcArray[0];
     }
 
     public HVideoConfiguration getBestConfiguration(HVideoConfigTemplate hvct) {
-        throw new Error("Not implemented");
+        int score = -1;
+        HVideoConfiguration hvc = null;
+        for (int i = 0; i < hvcArray.length; i++)
+            if (hvct.match(hvcArray[i]) > score)
+                hvc = hvcArray[i];
+        return hvc;
     }
 
     public HVideoConfiguration getBestConfiguration(HVideoConfigTemplate hvcta[]) {
-        throw new Error("Not implemented");
+        int score = -1;
+        HVideoConfiguration hvc = null;
+        for (int i = 0; i < hvcArray.length; i++) 
+            for (int j = 0; j < hvcta.length; j++)
+                if (hvcta[j].match(hvcArray[i]) > score)
+                    hvc = hvcArray[i];
+        return hvc;
     }
 
     public HVideoConfiguration getCurrentConfiguration() {
-        throw new Error("Not implemented");
+        return hvc;
     }
 
     public boolean setVideoConfiguration(HVideoConfiguration hvc)
-            throws SecurityException, HPermissionDeniedException,
-            HConfigurationException {
-        throw new Error("Not implemented");
+            throws SecurityException, HPermissionDeniedException, HConfigurationException {
+        this.hvc = hvc;
+        return true;
     }
 
     public Object getVideoSource() throws SecurityException, HPermissionDeniedException {
@@ -57,5 +76,7 @@ public class HVideoDevice extends HScreenDevice {
         throw new Error("Not implemented");
     }
 
-    public static final HVideoConfiguration NOT_CONTRIBUTING = new HVideoConfiguration();
+    public static final HVideoConfiguration NOT_CONTRIBUTING = null;
+    private HVideoConfiguration[] hvcArray;
+    private HVideoConfiguration hvc;
 }

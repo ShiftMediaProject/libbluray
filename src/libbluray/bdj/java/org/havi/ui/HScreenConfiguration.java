@@ -24,33 +24,56 @@ import java.awt.Dimension;
 
 public abstract class HScreenConfiguration extends Object {
     HScreenConfiguration() {
+
+    }
+
+    HScreenConfiguration(HScreenConfigTemplate hsct) {
+        FlickerFilter = hsct.getPreferencePriority(HScreenConfigTemplate.INTERLACED_DISPLAY) == HScreenConfigTemplate.REQUIRED;
+        Interlaced = hsct.getPreferencePriority(HScreenConfigTemplate.FLICKER_FILTERING) == HScreenConfigTemplate.REQUIRED;
+        AspectRatio = (Dimension)hsct.getPreferenceObject(HScreenConfigTemplate.PIXEL_ASPECT_RATIO);
+        Resolution = (Dimension)hsct.getPreferenceObject(HScreenConfigTemplate.PIXEL_RESOLUTION);
+        ScreenArea = (HScreenRectangle)hsct.getPreferenceObject(HScreenConfigTemplate.SCREEN_RECTANGLE);
     }
 
     public Point convertTo(HScreenConfiguration destination, Point source) {
-        throw new Error("Not implemented");
+        try {
+            Dimension dstResolution = destination.getPixelResolution();
+            HScreenRectangle dstScreenArea = destination.getScreenArea();
+            return new Point(Math.round((float)source.x + ScreenArea.x * Resolution.width - dstScreenArea.x * dstResolution.width),
+                             Math.round((float)source.y + ScreenArea.y * Resolution.height - dstScreenArea.y * dstResolution.height));
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public boolean getFlickerFilter() {
-        throw new Error("Not implemented");
+        return FlickerFilter;
     }
 
     public boolean getInterlaced() {
-        throw new Error("Not implemented");
+        return Interlaced;
     }
 
     public Dimension getPixelAspectRatio() {
-        throw new Error("Not implemented");
+        return AspectRatio;
     }
 
     public Dimension getPixelResolution() {
-        throw new Error("Not implemented");
+        return Resolution;
     }
 
     public HScreenRectangle getScreenArea() {
-        throw new Error("Not implemented");
+        return ScreenArea;
     }
 
     public Dimension getOffset(HScreenConfiguration hsc) {
-        throw new Error("Not implemented");
+        Point origin = hsc.convertTo(this, new Point(0, 0));
+        return (origin == null) ? null : (new Dimension(origin.x, origin.y));
     }
+
+    private boolean FlickerFilter;
+    private boolean Interlaced;
+    private Dimension AspectRatio;
+    private Dimension Resolution;
+    private HScreenRectangle ScreenArea;
 }

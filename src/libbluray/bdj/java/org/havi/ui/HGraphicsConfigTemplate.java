@@ -20,28 +20,32 @@
 package org.havi.ui;
 
 public class HGraphicsConfigTemplate extends HScreenConfigTemplate {
-    public HGraphicsConfigTemplate() {
-        throw new Error("Not implemented");
-    }
-
     public boolean isConfigSupported(HGraphicsConfiguration hgc) {
-        throw new Error("Not implemented");
+        return match(hgc) >= 0;
     }
 
-    public void setPreference(int preference, int priority) {
-        throw new Error("Not implemented");
+    protected int getPreferenceCount() {
+        return super.getPreferenceCount() + 3;
     }
 
-    public int getPreferencePriority(int preference) {
-        throw new Error("Not implemented");
+    protected int getPreferenceObjectCount() {
+        return super.getPreferenceObjectCount() + 1;
     }
 
-    public void setPreference(int preference, Object object, int priority) {
-        throw new Error("Not implemented");
+    protected int getPreferenceIndex(int preference) {
+        if (preference == VIDEO_MIXING)
+            return super.getPreferenceCount();
+        else if (preference == MATTE_SUPPORT)
+            return super.getPreferenceCount() + 1;
+        else if (preference == IMAGE_SCALING_SUPPORT)
+            return super.getPreferenceCount() + 2;
+        return super.getPreferenceIndex(preference);
     }
 
-    public Object getPreferenceObject(int preference) {
-        throw new Error("Not implemented");
+    protected int getPreferenceObjectIndex(int preference) {
+        if (preference == VIDEO_MIXING)
+            return super.getPreferenceObjectCount();
+        return super.getPreferenceObjectIndex(preference);
     }
 
     public static final int VIDEO_MIXING = 0x0C;

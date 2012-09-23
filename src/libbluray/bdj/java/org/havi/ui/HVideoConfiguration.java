@@ -21,14 +21,21 @@ package org.havi.ui;
 
 public class HVideoConfiguration extends HScreenConfiguration {
     protected HVideoConfiguration() {
-        throw new Error("Not implemented");
+
+    }
+
+    HVideoConfiguration(HVideoConfigTemplate hvct) {
+        super(hvct);
+        this.hvct = hvct;
     }
 
     public HVideoDevice getDevice() {
-        throw new Error("Not implemented");
+        return HScreen.getDefaultHScreen().getDefaultHVideoDevice();
     }
 
     public HVideoConfigTemplate getConfigTemplate() {
-        throw new Error("Not implemented");
+        return hvct;
     }
+
+    private HVideoConfigTemplate hvct;
 }

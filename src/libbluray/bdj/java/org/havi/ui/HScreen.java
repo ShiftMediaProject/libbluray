@@ -22,75 +22,126 @@ package org.havi.ui;
 public class HScreen {
     private HScreen()
     {
+        hVideoDevice = new HVideoDevice();
+        hGraphicsDevice = new HGraphicsDevice();
+        hBackgroundDevice = new HBackgroundDevice();
     }
 
     public static HScreen[] getHScreens()
     {
-        throw new Error("Not implemented");
+         HScreen[] screens = new HScreen[1];
+         screens[0] = DEFAULT_HSCREEN;
+         return screens;
     }
 
     public static HScreen getDefaultHScreen()
     {
-        throw new Error("Not implemented");
+        return DEFAULT_HSCREEN;
     }
 
     public HVideoDevice[] getHVideoDevices()
     {
-        throw new Error("Not implemented");
+        HVideoDevice[] devices = new HVideoDevice[1];
+        devices[0] = hVideoDevice;
+        return devices;
     }
 
     public HVideoDevice getDefaultHVideoDevice()
     {
-        throw new Error("Not implemented");
+        return hVideoDevice;
     }
 
     public HVideoConfiguration getBestConfiguration(HVideoConfigTemplate[] hvcta)
     {
-        throw new Error("Not implemented");
+        return hVideoDevice.getBestConfiguration(hvcta);
     }
 
     public HGraphicsDevice[] getHGraphicsDevices()
     {
-        throw new Error("Not implemented");
+        HGraphicsDevice[] devices = new HGraphicsDevice[1];
+        devices[0] = hGraphicsDevice;
+        return devices;
     }
 
     public HGraphicsDevice getDefaultHGraphicsDevice()
     {
-        throw new Error("Not implemented");
+        return hGraphicsDevice;
     }
 
     public HGraphicsConfiguration getBestConfiguration(
             HGraphicsConfigTemplate[] hgcta)
     {
-        throw new Error("Not implemented");
+        return hGraphicsDevice.getBestConfiguration(hgcta);
     }
 
     public HBackgroundDevice[] getHBackgroundDevices()
     {
-        throw new Error("Not implemented");
+        HBackgroundDevice[] devices = new HBackgroundDevice[1];
+        devices[0] = hBackgroundDevice;
+        return devices;
     }
 
     public HBackgroundDevice getDefaultHBackgroundDevice()
     {
-        throw new Error("Not implemented");
+        return hBackgroundDevice;
     }
 
     public HBackgroundConfiguration getBestConfiguration(
             HBackgroundConfigTemplate[] hbcta)
     {
-        throw new Error("Not implemented");
+        return hBackgroundDevice.getBestConfiguration(hbcta);
     }
 
     public HScreenConfiguration[] getCoherentScreenConfigurations(
             HScreenConfigTemplate[] hscta)
     {
-        throw new Error("Not implemented");
+        if ((hscta == null) || (hscta.length == 0))
+            throw new IllegalArgumentException("HScreenConfigTemplate[] hscta cannot be null");
+
+        HScreenConfiguration[] hsc = new HScreenConfiguration[hscta.length];
+
+        for (int i = 0; i < hscta.length; i++)
+        {
+            if ((hscta[i] instanceof HVideoConfigTemplate))
+                hsc[i] = hVideoDevice.getBestConfiguration((HVideoConfigTemplate)hscta[i]);
+            else if ((hscta[i] instanceof HGraphicsConfigTemplate))
+                hsc[i] = hGraphicsDevice.getBestConfiguration((HGraphicsConfigTemplate)hscta[i]);
+            else if ((hscta[i] instanceof HBackgroundConfigTemplate))
+                hsc[i] = hBackgroundDevice.getBestConfiguration((HBackgroundConfigTemplate)hscta[i]);
+            else
+              return null;
+        }
+
+        return hsc;
     }
 
     public boolean setCoherentScreenConfigurations(HScreenConfiguration[] hsca)
             throws java.lang.SecurityException, HPermissionDeniedException,
             HConfigurationException
     {
-        throw new Error("Not implemented");
+        if ((hsca == null) || (hsca.length == 0))
+            throw new IllegalArgumentException("HScreenConfiguration[] hsca cannot be null");
+
+        for (int i = 0; i < hsca.length; i++) {
+            if (hsca[i] instanceof HVideoConfiguration) {
+                if (!((HVideoConfiguration)hsca[i]).getDevice().setVideoConfiguration((HVideoConfiguration)hsca[i]))
+                    return false;
+            }
+            else if (hsca[i] instanceof HGraphicsConfiguration) {
+                if (!((HGraphicsConfiguration)hsca[i]).getDevice().setGraphicsConfiguration((HGraphicsConfiguration)hsca[i]))
+                    return false;
+            }
+            else if (hsca[i] instanceof HBackgroundConfiguration) {
+                if (!((HBackgroundConfiguration)hsca[i]).getDevice().setBackgroundConfiguration((HBackgroundConfiguration)hsca[i]))
+                    return false;
+            }
+        }
+
+        return true;
     }
+
+    private static final HScreen DEFAULT_HSCREEN = new HScreen();
+    private HVideoDevice hVideoDevice;
+    private HGraphicsDevice hGraphicsDevice;
+    private HBackgroundDevice hBackgroundDevice;
 }

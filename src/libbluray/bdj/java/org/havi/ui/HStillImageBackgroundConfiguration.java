@@ -19,28 +19,40 @@
 
 package org.havi.ui;
 
+import java.awt.Color;
 import java.io.IOException;
 
 public class HStillImageBackgroundConfiguration extends
         HBackgroundConfiguration {
     protected HStillImageBackgroundConfiguration() {
-        throw new Error("Not implemented");
+
+    }
+
+    protected HStillImageBackgroundConfiguration(HBackgroundConfigTemplate hbct, Color color) {
+        super(hbct, color);
     }
 
     public void displayImage(HBackgroundImage image) throws IOException,
             HPermissionDeniedException, HConfigurationException {
-        throw new Error("Not implemented");
+        displayImage(image, new HScreenRectangle(0.0f, 0.0f, 1.0f, 1.0f));
     }
 
     public void displayImage(HBackgroundImage image, HScreenRectangle r)
             throws IOException, HPermissionDeniedException,
-            HConfigurationException {
-        throw new Error("Not implemented");
+            HConfigurationException
+    {
+        this.image = image;
+        this.rect = r;
     }
 
-    public void setColor(java.awt.Color color)
-            throws HPermissionDeniedException, HConfigurationException {
-        throw new Error("Not implemented");
+    protected HBackgroundImage getImage() {
+        return image;
     }
 
+    protected HScreenRectangle getRectangle() {
+        return rect;
+    }
+
+    private HBackgroundImage image = null;
+    private HScreenRectangle rect = new HScreenRectangle(0.0f, 0.0f, 1.0f, 1.0f);
 }

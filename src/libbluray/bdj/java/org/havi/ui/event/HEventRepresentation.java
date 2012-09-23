@@ -23,49 +23,77 @@ import java.awt.Color;
 import java.awt.Image;
 
 public class HEventRepresentation extends Object {
+    protected HEventRepresentation(boolean supported, String text, Color color, Image symbol) {
+        this.supported = supported;
+        this.text = text;
+        this.color = color;
+        this.symbol = symbol;
+
+        type = ER_TYPE_NOT_SUPPORTED;
+        if (text != null)
+            type |= ER_TYPE_STRING;
+        if (color != null)
+            type |= ER_TYPE_COLOR;
+        if (symbol != null)
+            type |= ER_TYPE_SYMBOL;
+    }
+
+    public boolean isSupported() {
+        return supported;
+    }
+
+    protected void setType(int aType) {
+        type = aType;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    protected void setColor(Color aColor) {
+        color = aColor;
+        if (color != null)
+            type |= ER_TYPE_COLOR;
+        else
+            type &= ~ER_TYPE_COLOR;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    protected void setString(String aText) {
+        text = aText;
+        if (text != null)
+            type |= ER_TYPE_STRING;
+        else
+            type &= ~ER_TYPE_STRING;
+    }
+
+    public String getString() {
+        return text;
+    }
+
+    protected void setSymbol(Image aSymbol) {
+        symbol = aSymbol;
+        if (symbol != null)
+            type |= ER_TYPE_SYMBOL;
+        else
+            type &= ~ER_TYPE_SYMBOL;
+    }
+
+    public Image getSymbol() {
+        return symbol;
+    }
+
     public static final int ER_TYPE_NOT_SUPPORTED = 0;
     public static final int ER_TYPE_STRING = 1;
     public static final int ER_TYPE_COLOR = 2;
     public static final int ER_TYPE_SYMBOL = 4;
 
-    protected HEventRepresentation(int support, String text, Color color, Image symbol) {
-        throw new Error("Not implemented");
-    }
-
-    public boolean isSupported() {
-        throw new Error("Not implemented");
-    }
-
-    protected void setType(int aType) {
-        throw new Error("Not implemented");
-    }
-
-    public int getType() {
-        throw new Error("Not implemented");
-    }
-
-    protected void setColor(Color aColor) {
-        throw new Error("Not implemented");
-    }
-
-    public Color getColor() {
-        throw new Error("Not implemented");
-    }
-
-    protected void setString(String aText) {
-        throw new Error("Not implemented");
-    }
-
-    public String getString() {
-        throw new Error("Not implemented");
-    }
-
-    protected void setSymbol(Image aSymbol) {
-        throw new Error("Not implemented");
-    }
-
-    public Image getSymbol() {
-        throw new Error("Not implemented");
-    }
-
+    private boolean supported;
+    private String text;
+    private Color color;
+    private Image symbol;
+    private int type;
 }

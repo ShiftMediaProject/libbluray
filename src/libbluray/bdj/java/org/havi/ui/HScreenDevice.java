@@ -21,30 +21,37 @@ package org.havi.ui;
 
 import java.awt.Dimension;
 
+import javax.tv.xlet.XletContext;
+
 import org.davic.resources.ResourceClient;
 import org.davic.resources.ResourceProxy;
 import org.davic.resources.ResourceServer;
 import org.davic.resources.ResourceStatusListener;
+import org.havi.ui.event.HScreenConfigurationEvent;
 import org.havi.ui.event.HScreenConfigurationListener;
+import org.havi.ui.event.HScreenDeviceReleasedEvent;
+import org.havi.ui.event.HScreenDeviceReservedEvent;
+
+import org.videolan.BDJXletContext;
 
 public class HScreenDevice implements ResourceProxy, ResourceServer {
     HScreenDevice() {
     }
 
     public String getIDstring() {
-        throw new Error("Not implemented");
+        return "HAVi Screen Device";
     }
 
     public void addScreenConfigurationListener(HScreenConfigurationListener hscl) {
-        throw new Error("Not implemented");
+        this.hscl = HEventMulticaster.add(this.hscl, hscl);
     }
 
     public void addScreenConfigurationListener(HScreenConfigurationListener hscl, HScreenConfigTemplate hsct) {
-        throw new Error("Not implemented");
+        this.hscl = HEventMulticaster.add(this.hscl, hscl, hsct);
     }
 
     public void removeScreenConfigurationListener(HScreenConfigurationListener hscl) {
-        throw new Error("Not implemented");
+        this.hscl = HEventMulticaster.remove(this.hscl, hscl);
     }
 
     public Dimension getScreenAspectRatio() {
@@ -52,22 +59,52 @@ public class HScreenDevice implements ResourceProxy, ResourceServer {
     }
 
     public boolean reserveDevice(ResourceClient client) {
-        throw new Error("Not implemented");
+        if (this.client == client)
+            return true;
+        if (this.client != null) {
+            if (!this.client.requestRelease(this, null))
+                return false;
+        }
+        context = BDJXletContext.getCurrentContext();
+        this.client = client;
+        if (listener != null)
+            listener.statusChanged(new HScreenDeviceReservedEvent(client));
+        return true;
     }
 
     public void releaseDevice() {
-        throw new Error("Not implemented");
+        if (context != BDJXletContext.getCurrentContext())
+            return;
+        if (listener != null)
+            listener.statusChanged(new HScreenDeviceReleasedEvent(client));
+        context = null;
+        client = null;
     }
 
     public ResourceClient getClient() {
-        throw new Error("Not implemented");
+        return client;
     }
 
     public void addResourceStatusEventListener(ResourceStatusListener listener) {
-        throw new Error("Not implemented");
+        this.listener = HEventMulticaster.add(this.listener, listener);
     }
 
     public void removeResourceStatusEventListener(ResourceStatusListener listener) {
-        throw new Error("Not implemented");
+        this.listener = HEventMulticaster.remove(this.listener, listener);
     }
+
+    protected void reportScreenConfigurationEvent(HScreenConfigurationEvent evt) {
+        if (hscl != null)
+            hscl.report(evt);
+    }
+
+    protected void testRight() throws HPermissionDeniedException {
+        if (context != BDJXletContext.getCurrentContext())
+            throw new HPermissionDeniedException();
+    }
+
+    private HScreenConfigurationListener hscl = null;
+    private ResourceStatusListener listener = null;
+    private XletContext context = null;
+    private ResourceClient client = null;
 }

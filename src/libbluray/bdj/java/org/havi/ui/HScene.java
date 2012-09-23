@@ -33,11 +33,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.havi.ui.event.HEventGroup;
+import org.videolan.BDJXletContext;
 import org.videolan.GUIManager;
 
 public class HScene extends Container implements HComponentOrdering {
     protected HScene() {
+        context = BDJXletContext.getCurrentContext();
+    }
 
+    public BDJXletContext getXletContext() {
+        return context;
     }
 
     public void paint(Graphics g) {
@@ -220,7 +225,6 @@ public class HScene extends Container implements HComponentOrdering {
 
     public void show() {
         setVisible(true);
-        GUIManager.getInstance().popToFront(this);
     }
 
     public void dispose() {
@@ -378,6 +382,7 @@ public class HScene extends Container implements HComponentOrdering {
     private Map<Integer, HActionable> shortcuts = Collections
             .synchronizedMap(new HashMap<Integer, HActionable>());
     private boolean shortcutsEnabled = true;
+    private BDJXletContext context;
 
     private static final long serialVersionUID = 422730746877212409L;
 }

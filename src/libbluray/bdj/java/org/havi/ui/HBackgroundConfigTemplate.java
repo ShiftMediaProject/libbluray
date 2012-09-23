@@ -20,20 +20,30 @@
 package org.havi.ui;
 
 public class HBackgroundConfigTemplate extends HScreenConfigTemplate {
-    public HBackgroundConfigTemplate() {
-        throw new Error("Not implemented");
-    }
-
     public boolean isConfigSupported(HBackgroundConfiguration hbc) {
-        throw new Error("Not implemented");
+        return match(hbc) >= 0;
     }
 
-    public void setPreference(int preference, int priority) {
-        throw new Error("Not implemented");
+    protected int getPreferenceCount() {
+        return super.getPreferenceCount() + 2;
     }
 
-    public int getPreferencePriority(int preference) {
-        throw new Error("Not implemented");
+    protected int getPreferenceIndex(int preference) {
+        if (preference == CHANGEABLE_SINGLE_COLOR)
+            return super.getPreferenceCount();
+        else if (preference == STILL_IMAGE)
+            return super.getPreferenceCount() + 1;
+        return super.getPreferenceIndex(preference);
+    }
+
+    protected int matchPreference(int preference, HScreenConfiguration hsc) {
+        if (preference == CHANGEABLE_SINGLE_COLOR)
+            return matchPreference(CHANGEABLE_SINGLE_COLOR,
+                                   ((HBackgroundConfiguration)hsc).getColor() != null);
+        else if (preference == STILL_IMAGE)
+            return matchPreference(STILL_IMAGE,
+                                   (hsc != null) && (hsc instanceof HStillImageBackgroundConfiguration));
+        return super.matchPreference(preference, hsc);
     }
 
     public static final int CHANGEABLE_SINGLE_COLOR = 0x0A;

@@ -19,6 +19,9 @@
 
 package org.havi.ui;
 
+import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Component;
 import java.awt.Container;
@@ -28,30 +31,49 @@ import java.awt.Color;
 
 public class HGraphicsConfiguration extends HScreenConfiguration {
     protected HGraphicsConfiguration() {
+
+    }
+
+    HGraphicsConfiguration(HGraphicsConfigTemplate hgct) {
+        super(hgct);
+        this.hgct = hgct;
     }
 
     public HGraphicsDevice getDevice() {
-        throw new Error("Not implemented");
+        return HScreen.getDefaultHScreen().getDefaultHGraphicsDevice();
     }
 
     public HGraphicsConfigTemplate getConfigTemplate() {
-        throw new Error("Not implemented");
+        return hgct;
     }
 
     public HScreenRectangle getComponentHScreenRectangle(Component component) {
-        throw new Error("Not implemented");
+        Point p = component.getLocationOnScreen();
+        Dimension r = getPixelResolution();
+        HScreenRectangle sa = getScreenArea();
+        return new HScreenRectangle((float)p.x / r.width + sa.x,
+                (float)p.y / r.height + sa.y,
+                (float)component.getWidth() / r.width,
+                (float)component.getHeight() / r.height);
     }
 
     public Rectangle getPixelCoordinatesHScreenRectangle(HScreenRectangle sr, Container cont) {
-        throw new Error("Not implemented");
+        return new Rectangle((int)(sr.x * cont.getWidth()),
+                (int)(sr.y * cont.getHeight()),
+                (int)(sr.width * cont.getWidth()),
+                (int)(sr.height * cont.getHeight()));
     }
 
     public Image getCompatibleImage(Image input, HImageHints ih) {
-        throw new Error("Not implemented");
+        return input;
     }
 
     public Font[] getAllFonts() {
-        throw new Error("Not implemented");
+        String[] names = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+        Font[] fontArray = new Font[names.length];
+        for (int i = 0; i < names.length; i++)
+            fontArray[i] = new Font(names[i], Font.PLAIN, 12);
+        return fontArray;
     }
 
     public Color getPunchThroughToBackgroundColor(int percentage) {
@@ -71,6 +93,8 @@ public class HGraphicsConfiguration extends HScreenConfiguration {
     }
 
     public void dispose(Color c) {
-        throw new Error("Not implemented");
+
     }
+
+    private HGraphicsConfigTemplate hgct;
 }

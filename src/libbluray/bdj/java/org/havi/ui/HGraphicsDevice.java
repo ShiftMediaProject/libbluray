@@ -21,31 +21,54 @@ package org.havi.ui;
 
 public class HGraphicsDevice extends HScreenDevice {
     protected HGraphicsDevice() {
+        int length = HScreenConfigTemplate.defaultConfig.length;
+        hgcArray = new HGraphicsConfiguration[length];
+        for (int i = 0; i < length; i++) {
+            HGraphicsConfigTemplate hgct = new HGraphicsConfigTemplate();
+            HScreenConfigTemplate.initDefaultConfigTemplate(hgct, i);
+            hgcArray[i] = new HGraphicsConfiguration(hgct);
+        }
+        hgc = hgcArray[0];
     }
 
     public HGraphicsConfiguration[] getConfigurations() {
-        throw new Error("Not implemented");
+        return hgcArray;
     }
 
     public HGraphicsConfiguration getDefaultConfiguration() {
-        throw new Error("Not implemented");
+        return hgcArray[0];
     }
 
     public HGraphicsConfiguration getBestConfiguration(HGraphicsConfigTemplate hgct) {
-        throw new Error("Not implemented");
+        int score = -1;
+        HGraphicsConfiguration hgc = null;
+        for (int i = 0; i < hgcArray.length; i++)
+            if (hgct.match(hgcArray[i]) > score)
+                hgc = hgcArray[i];
+        return hgc;
     }
 
     public HGraphicsConfiguration getBestConfiguration(HGraphicsConfigTemplate hgcta[]) {
-        throw new Error("Not implemented");
+        int score = -1;
+        HGraphicsConfiguration hgc = null;
+        for (int i = 0; i < hgcArray.length; i++)
+            for (int j = 0; j < hgcta.length; j++)
+                if (hgcta[j].match(hgcArray[i]) > score)
+                    hgc = hgcArray[i];
+        return hgc;
     }
 
     public HGraphicsConfiguration getCurrentConfiguration() {
-        throw new Error("Not implemented");
+        return hgc;
     }
 
     public boolean setGraphicsConfiguration(HGraphicsConfiguration hgc)
             throws SecurityException, HPermissionDeniedException,
             HConfigurationException {
-        throw new Error("Not implemented");
+        this.hgc = hgc;
+        return true;
     }
+
+    private HGraphicsConfiguration[] hgcArray;
+    private HGraphicsConfiguration hgc;
 }

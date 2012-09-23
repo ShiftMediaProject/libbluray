@@ -19,34 +19,58 @@
 
 package org.havi.ui;
 
+import java.awt.Color;
+
 public class HBackgroundDevice extends HScreenDevice {
     protected HBackgroundDevice() {
-        throw new Error("Not implemented");
+        int length = HScreenConfigTemplate.defaultConfig.length;
+        hbcArray = new HBackgroundConfiguration[length];
+        for (int i = 0; i < length; i++) {
+            HBackgroundConfigTemplate hbct = new HBackgroundConfigTemplate();
+            HScreenConfigTemplate.initDefaultConfigTemplate(hbct, i);
+            hbcArray[i] = new HStillImageBackgroundConfiguration(hbct, new Color(0, 0, 0, 0));
+        }
+        hbc = hbcArray[0];
     }
 
     public HBackgroundConfiguration[] getConfigurations() {
-        throw new Error("Not implemented");
+        return hbcArray;
     }
 
     public HBackgroundConfiguration getDefaultConfiguration() {
-        throw new Error("Not implemented");
+        return hbcArray[0];
     }
 
-    public HBackgroundConfiguration getBestConfiguration(HBackgroundConfigTemplate hbc) {
-        throw new Error("Not implemented");
+    public HBackgroundConfiguration getBestConfiguration(HBackgroundConfigTemplate hbct) {
+        int score = -1;
+        HBackgroundConfiguration hbc = null;
+        for (int i = 0; i < hbcArray.length; i++)
+            if (hbct.match(hbcArray[i]) > score)
+                hbc = hbcArray[i];
+        return hbc;
     }
 
     public HBackgroundConfiguration getBestConfiguration(HBackgroundConfigTemplate hbcta[]) {
-        throw new Error("Not implemented");
+        int score = -1;
+        HBackgroundConfiguration hbc = null;
+        for (int i = 0; i < hbcArray.length; i++) 
+            for (int j = 0; j < hbcta.length; j++)
+                if (hbcta[j].match(hbcArray[i]) > score)
+                    hbc = hbcArray[i];
+        return hbc;
     }
 
     public HBackgroundConfiguration getCurrentConfiguration() {
-        throw new Error("Not implemented");
+        return hbc;
     }
 
     public boolean setBackgroundConfiguration(HBackgroundConfiguration hbc)
             throws SecurityException, HPermissionDeniedException,
             HConfigurationException {
-        throw new Error("Not implemented");
+        this.hbc = hbc;
+        return true;
     }
+
+    private HBackgroundConfiguration[] hbcArray;
+    private HBackgroundConfiguration hbc;
 }

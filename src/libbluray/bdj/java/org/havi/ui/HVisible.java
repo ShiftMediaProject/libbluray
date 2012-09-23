@@ -26,19 +26,18 @@ import java.awt.Dimension;
 public class HVisible extends HComponent implements HState {
     public HVisible()
     {
-        throw new Error("Not implemented");
+        this(null);
     }
 
     public HVisible(HLook hlook)
     {
-        super();
-        throw new Error("Not implemented");
+        this(hlook, 0, 0, 0, 0);
     }
 
     public HVisible(HLook hlook, int x, int y, int width, int height)
     {
         super(x, y, width, height);
-        throw new Error("Not implemented");
+        hLook = hlook;
     }
 
     public boolean isFocusTraversable()
@@ -208,17 +207,17 @@ public class HVisible extends HComponent implements HState {
 
     public void setEnabled(boolean b)
     {
-        throw new Error("Not implemented");
+        super.setEnabled(b);
     }
 
     public void setBordersEnabled(boolean enable)
     {
-        throw new Error("Not implemented");
+        BordersEnabled = enable;
     }
 
     public boolean getBordersEnabled()
     {
-        throw new Error("Not implemented");
+        return BordersEnabled;
     }
 
     public static final int HALIGN_LEFT = 0;
@@ -251,7 +250,6 @@ public class HVisible extends HComponent implements HState {
     public static final int MIN_MAX_CHANGE = 8;
     public static final int THUMB_OFFSETS_CHANGE = 9;
     public static final int ORIENTATION_CHANGE = 10;
-    @Deprecated
     public static final int TEXT_VALUE_CHANGE = 11;
     public static final int ITEM_VALUE_CHANGE = 12;
     public static final int ADJUSTMENT_VALUE_CHANGE = 13;
@@ -274,4 +272,9 @@ public class HVisible extends HComponent implements HState {
             NO_DEFAULT_WIDTH, NO_DEFAULT_HEIGHT);
 
     private static final long serialVersionUID = -2076075723286676347L;
+
+    private HLook hLook;
+    private int BackgroundMode = NO_BACKGROUND_FILL;
+    private boolean BordersEnabled = true;
+    private int InteractionState = 0;
 }

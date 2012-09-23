@@ -34,7 +34,8 @@ public class HSceneFactory extends Object {
     }
 
     public HScene getBestScene(HSceneTemplate template) {
-        throw new Error("Not implemented");
+        return getDefaultHScene();
+        // TODO
     }
 
     public HSceneTemplate resizeScene(HScene scene, HSceneTemplate template)
@@ -43,10 +44,13 @@ public class HSceneFactory extends Object {
         throw new Error("Not implemented");
     }
 
-    public HScene getDefaultHScene(HScreen screen) {
-        synchronized(defaultHSceneLock) {
+    public HScene getDefaultHScene(HScreen screen)
+    {
+        synchronized(HSceneFactory.class) {
             if (defaultHScene == null) {
                 defaultHScene = new HScene();
+                defaultHScene.setLocation(0, 0);
+                defaultHScene.setSize(GUIManager.getInstance().getWidth(), GUIManager.getInstance().getHeight());
                 GUIManager.getInstance().add(defaultHScene);
             }
         }
@@ -54,10 +58,13 @@ public class HSceneFactory extends Object {
         return defaultHScene;
     }
 
-    public HScene getDefaultHScene() {
-        synchronized(defaultHSceneLock) {
+    public HScene getDefaultHScene()
+    {
+        synchronized(HSceneFactory.class) {
             if (defaultHScene == null) {
                 defaultHScene = new HScene();
+                defaultHScene.setLocation(0, 0);
+                defaultHScene.setSize(GUIManager.getInstance().getWidth(), GUIManager.getInstance().getHeight());
                 GUIManager.getInstance().add(defaultHScene);
             }
         }
@@ -66,14 +73,20 @@ public class HSceneFactory extends Object {
     }
 
     public HScene getFullScreenScene(HGraphicsDevice device) {
-        throw new Error("Not implemented");
+        return getDefaultHScene();
+/*
+        HScene FullScreenScene = new HScene();
+        FullScreenScene.setLocation(0, 0);
+        FullScreenScene.setSize(GUIManager.getInstance().getWidth(), GUIManager.getInstance().getHeight());
+        GUIManager.getInstance().add(FullScreenScene);
+        return FullScreenScene;
+*/
     }
 
     public void dispose(HScene scene) {
-        throw new Error("Not implemented");
+        GUIManager.getInstance().remove(scene);
     }
 
     private HScene defaultHScene = null;
-    private Object defaultHSceneLock = new Object();
     private static final HSceneFactory instance = new HSceneFactory();
 }

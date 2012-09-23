@@ -23,23 +23,34 @@ import java.awt.Color;
 
 public class HBackgroundConfiguration extends HScreenConfiguration {
     protected HBackgroundConfiguration() {
-        throw new Error("Not implemented");
+
+    }
+
+    protected HBackgroundConfiguration(HBackgroundConfigTemplate hbct, Color color) {
+        super(hbct);
+        this.hbct = hbct;
+        this.color = color;
     }
 
     public HBackgroundDevice getDevice() {
-        throw new Error("Not implemented");
+        return HScreen.getDefaultHScreen().getDefaultHBackgroundDevice();
     }
 
     public HBackgroundConfigTemplate getConfigTemplate() {
-        throw new Error("Not implemented");
+        return hbct;
     }
 
     public Color getColor() {
-        throw new Error("Not implemented");
+        return color;
     }
 
-    public void setColor(Color color) throws HPermissionDeniedException, HConfigurationException {
-        throw new Error("Not implemented");
+    public void setColor(Color color)
+            throws HPermissionDeniedException, HConfigurationException {
+        if (color.getAlpha() < 255)
+            throw new HConfigurationException();
+        this.color = color;
     }
 
+    private HBackgroundConfigTemplate hbct;
+    private Color color;
 }
