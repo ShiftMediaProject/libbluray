@@ -24,8 +24,8 @@
 #define BDJ_BDJO_PATH "/BDMV/BDJO"
 #define BDJ_JAR_PATH "/BDMV/JAR"
 
-#define BDJ_ERROR -1
-#define BDJ_SUCCESS 0
+#define BDJ_ERROR 0
+#define BDJ_SUCCESS 1
 
 #include "util/logging.h"
 
