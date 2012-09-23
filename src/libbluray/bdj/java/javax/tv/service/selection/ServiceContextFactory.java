@@ -20,12 +20,10 @@
 package javax.tv.service.selection;
 
 public abstract class ServiceContextFactory {
-    protected ServiceContextFactory()
-    {
+    protected ServiceContextFactory() {
     }
 
-    public static ServiceContextFactory getInstance()
-    {
+    public static ServiceContextFactory getInstance() {
         return instance;
     }
 

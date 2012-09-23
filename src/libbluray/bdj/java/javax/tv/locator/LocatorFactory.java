@@ -19,21 +19,18 @@
 
 package javax.tv.locator;
 
-public abstract class LocatorFactory extends Object
-{
-	protected LocatorFactory()
-	{
+public abstract class LocatorFactory extends Object {
+    protected LocatorFactory() {
 
-	}
+    }
 
-	public static LocatorFactory getInstance()
-	{	
-		return instance;
-	}
+    public static LocatorFactory getInstance() {
+        return instance;
+    }
 
-	public abstract Locator createLocator(String locatorString) throws MalformedLocatorException;
+    public abstract Locator createLocator(String locatorString) throws MalformedLocatorException;
 
-	public abstract Locator[] transformLocator( Locator source) throws InvalidLocatorException;
+    public abstract Locator[] transformLocator( Locator source) throws InvalidLocatorException;
 
     private static final LocatorFactory instance = new LocatorFactoryImpl();
 }

@@ -26,17 +26,17 @@ import java.io.Serializable;
 public final class MediaSelectPermission extends Permission
     implements Serializable
 {
-    public MediaSelectPermission(Locator locator) { 
+    public MediaSelectPermission(Locator locator) {
         super(locator.toExternalForm());
-        
+
         this.locator = locator.toExternalForm();
     }
 
-    public MediaSelectPermission(String locator, String actions) { 
+    public MediaSelectPermission(String locator, String actions) {
         super(locator);
-        
+
         this.locator = locator;
-        
+
         if (actions != null)
             assert false; // should never happen
     }
@@ -46,8 +46,7 @@ public final class MediaSelectPermission extends Permission
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (getClass() != obj.getClass())
@@ -62,8 +61,7 @@ public final class MediaSelectPermission extends Permission
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         final int prime = 31;
         int result = prime + ((locator == null) ? 0 : locator.hashCode());
         return result;
@@ -72,7 +70,7 @@ public final class MediaSelectPermission extends Permission
     public String getActions() {
         return "";
     }
-    
+
     private String locator;
     private static final long serialVersionUID = 128534275081685853L;
 }
