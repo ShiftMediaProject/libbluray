@@ -24,7 +24,7 @@ public abstract class ServiceContextFactory {
     }
 
     public static ServiceContextFactory getInstance() {
-        return instance;
+        return ServiceContextFactoryImpl.getInstance();
     }
 
     public abstract ServiceContext createServiceContext()
@@ -35,6 +35,4 @@ public abstract class ServiceContextFactory {
     public abstract ServiceContext getServiceContext(
             javax.tv.xlet.XletContext context) throws SecurityException,
             ServiceContextException;
-
-    private static final ServiceContextFactory instance = new ServiceContextFactoryImpl();
 }

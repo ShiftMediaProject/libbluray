@@ -28,7 +28,7 @@ public class ServiceContextEvent extends EventObject
     }
 
     public ServiceContext getServiceContext() {
-        return null;
+        return (ServiceContext)source;
     }
     
     private static final long serialVersionUID = -1865592897966055645L;

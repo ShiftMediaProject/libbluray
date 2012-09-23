@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import javax.media.Time;
+import javax.media.Duration;
+import javax.media.MediaLocator;
 
 public class URLDataSource extends PullDataSource {
     protected URLDataSource()
@@ -31,55 +33,77 @@ public class URLDataSource extends PullDataSource {
 
     public URLDataSource(URL url) throws IOException
     {
-        throw new Error("Not implemented");
+        setLocator(new MediaLocator(url));
+        this.connected = false;
     }
 
     public PullSourceStream[] getStreams()
     {
-        throw new Error("Not implemented");
+        if (!this.connected)
+            throw new Error("Unconnected source.");
+        return this.sources;
     }
 
     public void connect() throws IOException
     {
-        throw new Error("Not implemented");
+        this.conn = getLocator().getURL().openConnection();
+        this.conn.connect();
+        this.connected = true;
+        String str = this.conn.getContentType();
+        if (str == null)
+            str = "UnknownContent";
+        this.contentType = new ContentDescriptor(ContentDescriptor.mimeTypeToPackageName(str));
+        this.sources = new URLSourceStream[1];
+        this.sources[0] = new URLSourceStream(this.conn, this.contentType);
     }
 
     public String getContentType()
     {
-        throw new Error("Not implemented");
+        if (!this.connected)
+            throw new Error("Source is unconnected.");
+        return this.contentType.getContentType();
     }
 
     public void disconnect()
     {
-        throw new Error("Not implemented");
+        if (this.connected)
+        {
+            try
+            {
+                this.sources[0].close();
+            }
+            catch (IOException localIOException)
+            {
+            }
+            this.connected = false;
+        }
     }
 
     public void start() throws IOException
     {
-        throw new Error("Not implemented");
     }
 
     public void stop() throws IOException
     {
-        throw new Error("Not implemented");
     }
 
     public Time getDuration()
     {
-        throw new Error("Not implemented");
+        return Duration.DURATION_UNKNOWN;
     }
 
     public Object[] getControls()
     {
-        throw new Error("Not implemented");
+        return new Object[0];
     }
 
     public Object getControl(String controlName)
     {
-        throw new Error("Not implemented");
+        return null;
     }
 
     protected URLConnection conn;
     protected ContentDescriptor contentType;
     protected boolean connected;
+    private URLSourceStream[] sources;
 }

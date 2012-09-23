@@ -20,10 +20,17 @@ package javax.tv.graphics;
 
 import java.awt.Container;
 import javax.tv.xlet.XletContext;
+import org.havi.ui.HScene;
+import org.havi.ui.HSceneFactory;
 
 public class TVContainer {
     public static Container getRootContainer(XletContext context)
     {
-        throw new Error("Not implemented");
+        if (context == null) {
+            throw new NullPointerException();
+        }
+
+        HScene scene = HSceneFactory.getInstance().getDefaultHScene();
+        return scene;
     }
 }

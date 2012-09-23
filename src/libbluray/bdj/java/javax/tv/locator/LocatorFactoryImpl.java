@@ -23,10 +23,9 @@ package javax.tv.locator;
 import org.bluray.net.BDLocator;
 
 public class LocatorFactoryImpl extends LocatorFactory {
-    public Locator createLocator(String url) throws MalformedLocatorException
-    {
+    public Locator createLocator(String url) throws MalformedLocatorException {
         // check if it is a bluray locator
-        if (url.startsWith("bd")) {
+        if (url.startsWith("bd:/")) {
             try {
                 return new BDLocator(url);
             } catch (org.davic.net.InvalidLocatorException ex) {

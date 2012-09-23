@@ -19,6 +19,8 @@
 
 package javax.media.protocol;
 
+import java.lang.Character;
+
 public class ContentDescriptor {
     public ContentDescriptor(String cdName)
     {
@@ -32,10 +34,16 @@ public class ContentDescriptor {
 
     public static final String mimeTypeToPackageName(String mimeType)
     {
-        String name = mimeType.replace('/', '.');
-        name = name.toLowerCase();
-        name = name.replaceAll("[^\\w\\.]", "_");
-        return name;
+        char[] name = mimeType.toLowerCase().toCharArray();
+        for (int i = 0; i < name.length; i++) {
+            char c = name[i];
+            if (c == '/')
+                name[i] = '.';
+            else if (!Character.isLetterOrDigit(c))
+                name[i] = '_';
+        }
+
+        return new String(name);
     }
 
     public static final String CONTENT_UNKNOWN = "UnknownContent";

@@ -29,11 +29,11 @@ public class MediaLocator
     }
 
     public MediaLocator(String locatorString) { 
-        String[] urlStr = locatorString.split(":", 2);
-        if (urlStr.length != 2)
+        int index = locatorString.indexOf(":");
+        if (index <= 0)
             throw new IllegalArgumentException("Bad locator string.");
-        protocol = urlStr[0];
-        remainder = urlStr[1];
+        protocol = locatorString.substring(0, index);
+        remainder = locatorString.substring(index + 1);
     }
 
     public URL getURL() throws MalformedURLException {

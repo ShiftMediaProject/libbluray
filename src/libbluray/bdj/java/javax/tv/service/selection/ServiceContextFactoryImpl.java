@@ -21,36 +21,48 @@ package javax.tv.service.selection;
 
 import javax.tv.xlet.XletContext;
 
-import org.bluray.ti.selection.TitleContext;
 import org.bluray.ti.selection.TitleContextImpl;
 
 public class ServiceContextFactoryImpl extends ServiceContextFactory {
+    protected ServiceContextFactoryImpl() {
+        serviceContexts = new ServiceContext[1];
+        serviceContexts[0] = new TitleContextImpl();
+    }
+
+    public static ServiceContextFactory getInstance() {
+        synchronized (ServiceContextFactoryImpl.class) {
+            if (instance == null)
+                instance = new ServiceContextFactoryImpl();
+        }
+        return instance;
+    }
+
     public ServiceContext createServiceContext()
             throws InsufficientResourcesException, SecurityException
     {
-        throw new Error("Not implemented");
+        SecurityManager sec = System.getSecurityManager();
+        if (sec != null)
+            sec.checkPermission(new ServiceContextPermission("create", "own"));
+        throw new InsufficientResourcesException("Only one ServiceContext allowed");
     }
-    
+
     public ServiceContext getServiceContext(XletContext context)
             throws SecurityException, ServiceContextException
     {
         SecurityManager sec = System.getSecurityManager();
         if (sec != null)
             sec.checkPermission(new ServiceContextPermission("access", "own"));
-        
-        return serviceContext;
+        return serviceContexts[0];
     }
 
-    public ServiceContext[] getServiceContexts()
-    {
+    public ServiceContext[] getServiceContexts() {
         SecurityManager sec = System.getSecurityManager();
         if (sec != null)
             sec.checkPermission(new ServiceContextPermission("access", "own"));
-        
-        ServiceContext[] contexts = new ServiceContext[1];
-        contexts[0] = serviceContext;
-        return contexts;
+        return serviceContexts;
     }
 
-    private TitleContext serviceContext = new TitleContextImpl();
+    private ServiceContext[] serviceContexts;
+
+    private static ServiceContextFactoryImpl instance = null;
 }

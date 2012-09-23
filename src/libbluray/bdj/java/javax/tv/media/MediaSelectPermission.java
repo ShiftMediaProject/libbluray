@@ -27,25 +27,24 @@ public final class MediaSelectPermission extends Permission
     implements Serializable
 {
     public MediaSelectPermission(Locator locator) {
-        super(locator.toExternalForm());
+        super("javax.tv.media.MediaSelectPermission");
 
+        if (locator == null)
+            this.locator = "*";
+        else
         this.locator = locator.toExternalForm();
     }
 
     public MediaSelectPermission(String locator, String actions) {
-        super(locator);
+        super("javax.tv.media.MediaSelectPermission");
 
         this.locator = locator;
-
-        if (actions != null)
-            assert false; // should never happen
     }
 
     public boolean implies(Permission perm) {
-        return (perm instanceof MediaSelectPermission) && (this.equals(perm) || this.equals("*"));
+        return (perm instanceof MediaSelectPermission) && (this.equals(perm) || this.locator.equals("*"));
     }
 
-    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -60,7 +59,6 @@ public final class MediaSelectPermission extends Permission
         return true;
     }
 
-    @Override
     public int hashCode() {
         final int prime = 31;
         int result = prime + ((locator == null) ? 0 : locator.hashCode());
