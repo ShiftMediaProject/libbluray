@@ -21,63 +21,54 @@ package org.dvb.media;
 
 import java.awt.Rectangle;
 import org.havi.ui.HScreenPoint;
-import org.videolan.BDJLoader;
-import org.videolan.bdjo.GraphicsResolution;
 
 public class VideoTransformation {
-    protected VideoTransformation(boolean panAndScan) {
-        this.panAndScan = panAndScan;
-    }
-
     public VideoTransformation() {
-        GraphicsResolution res = BDJLoader.getBdjo().getTerminalInfo().getResolution();
-
-        this.clip = new Rectangle(res.getWidth(), res.getHeight());
-        this.scaling[0] = 1.0f;
-        this.scaling[1] = 1.0f;
-        this.position = new HScreenPoint(0.0f, 0.0f);
+        hscaling = 1.0f;
+        vscaling = 1.0f;
+        position = new HScreenPoint(0.0f, 0.0f);
     }
 
     public VideoTransformation(Rectangle clipRect,
             float horizontalScalingFactor, float verticalScalingFactor,
             HScreenPoint location) {
-        this.clip = clipRect;
-        this.scaling[0] = horizontalScalingFactor;
-        this.scaling[1] = verticalScalingFactor;
-        this.position = location;
+        if (clipRect != null)
+                clip = new Rectangle(clipRect);
+        hscaling = horizontalScalingFactor;
+        vscaling = verticalScalingFactor;
+        position = new HScreenPoint(location.x, location.y);
     }
 
     public void setClipRegion(Rectangle clipRect) {
-        this.clip = clipRect;
+        clip = (clipRect != null) ? new Rectangle(clipRect) : null;
     }
 
     public Rectangle getClipRegion() {
-        return clip;
+        return (!isPanAndScan() && (clip != null)) ? new Rectangle(clip) : null;
     }
 
     public void setScalingFactors(float horizontalScalingFactor, float verticalScalingFactor) {
-        this.scaling[0] = horizontalScalingFactor;
-        this.scaling[1] = verticalScalingFactor;
+        hscaling = horizontalScalingFactor;
+        vscaling = verticalScalingFactor;
     }
 
     public float[] getScalingFactors() {
-        return scaling;
+        return new float[] { hscaling, vscaling };
     }
 
     public void setVideoPosition(HScreenPoint location) {
-        this.position = location;
+        position = new HScreenPoint(location.x, location.y);
     }
 
     public HScreenPoint getVideoPosition() {
-        return position;
+        return new HScreenPoint(position.x, position.y);
     }
 
     public boolean isPanAndScan() {
-        return panAndScan;
+        return false;
     }
 
-    private float[] scaling = new float[2];
-    private HScreenPoint position = null;
     private Rectangle clip = null;
-    private boolean panAndScan = false;
+    private float hscaling, vscaling;
+    private HScreenPoint position;
 }
