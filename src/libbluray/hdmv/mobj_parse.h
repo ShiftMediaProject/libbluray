@@ -58,7 +58,7 @@ typedef struct {
 
 typedef struct {
     uint16_t    num_objects;
-    MOBJ_OBJECT objects[];
+    MOBJ_OBJECT *objects;
 } MOBJ_OBJECTS;
 
 

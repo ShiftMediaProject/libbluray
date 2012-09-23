@@ -35,7 +35,7 @@ typedef struct {
 
 typedef struct {
     uint16_t     num_sounds;
-    SOUND_OBJECT sounds[];
+    SOUND_OBJECT *sounds;
 } SOUND_DATA;
 
 

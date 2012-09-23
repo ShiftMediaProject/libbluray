@@ -106,6 +106,8 @@ void mobj_free(MOBJ_OBJECTS **p)
             X_FREE((*p)->objects[i].cmds);
         }
 
+        X_FREE((*p)->objects);
+
         X_FREE(*p);
     }
 }
@@ -144,8 +146,9 @@ static MOBJ_OBJECTS *_mobj_parse(const char *file_name)
     bs_skip(&bs, 32); /* reserved */
     num_objects = bs_read(&bs, 16);
 
-    objects = calloc(1, sizeof(MOBJ_OBJECTS) + num_objects * sizeof(MOBJ_OBJECT));
+    objects = calloc(1, sizeof(MOBJ_OBJECTS));
     objects->num_objects = num_objects;
+    objects->objects = calloc(num_objects, sizeof(MOBJ_OBJECT));
 
     for (i = 0; i < objects->num_objects; i++) {
         if (!_mobj_parse_object(&bs, &objects->objects[i])) {
