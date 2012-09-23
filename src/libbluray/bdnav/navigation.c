@@ -339,8 +339,8 @@ _fill_mark(NAV_TITLE *title, NAV_MARK *mark, int entry)
 static void
 _extrapolate_title(NAV_TITLE *title)
 {
-    uint64_t duration = 0;
-    uint64_t pkt = 0;
+    uint32_t duration = 0;
+    uint32_t pkt = 0;
     unsigned ii, jj;
     MPLS_PL *pl = title->pl;
     MPLS_PI *pi;

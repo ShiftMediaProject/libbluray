@@ -49,7 +49,7 @@ typedef struct {
     BITBUFFER  bb;
     off_t      pos;
     off_t      end;
-    int        size;
+    size_t     size;
 } BITSTREAM;
 
 static inline void bb_init( BITBUFFER *bb, uint8_t *p_data, size_t i_data )

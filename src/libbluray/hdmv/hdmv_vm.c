@@ -869,14 +869,14 @@ static inline uint32_t ADD_u32(uint32_t a, uint32_t b)
 {
   /* overflow -> saturate */
   uint64_t result = (uint64_t)a + b;
-  return result < 0xffffffff ? result : 0xffffffff;
+  return result < 0xffffffff ? (uint32_t)result : 0xffffffff;
 }
 
 static inline uint32_t MUL_u32(uint32_t a, uint32_t b)
 {
   /* overflow -> saturate */
   uint64_t result = (uint64_t)a * b;
-  return result < 0xffffffff ? result : 0xffffffff;
+  return result < 0xffffffff ? (uint32_t)result : 0xffffffff;
 }
 
 /*
