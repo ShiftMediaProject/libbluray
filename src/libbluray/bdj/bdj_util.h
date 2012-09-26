@@ -20,13 +20,15 @@
 #ifndef JNIUTIL_H_
 #define JNIUTIL_H_
 
+#include <util/attributes.h>
+
 #include <jni.h>
 #include <stdarg.h>
 
 // makes an object from the specified class name and constructor signature
-jobject bdj_make_object(JNIEnv* env, const char* name, const char* sig, ...);
+BD_PRIVATE jobject bdj_make_object(JNIEnv* env, const char* name, const char* sig, ...);
 
 // makes an array for the specified class name, all elements are initialized to null
-jobjectArray bdj_make_array(JNIEnv* env, const char* name, int count);
+BD_PRIVATE jobjectArray bdj_make_array(JNIEnv* env, const char* name, int count);
 
 #endif

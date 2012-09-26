@@ -22,6 +22,8 @@
 
 #include "common.h"
 
+#include <util/attributes.h>
+
 typedef enum {
     BDJ_EVENT_NONE = 0,
     BDJ_EVENT_CHAPTER,
@@ -40,12 +42,11 @@ struct bluray;
 struct bd_registers_s;
 struct indx_root_s;
 
-BDJAVA* bdj_open(const char *path, struct bluray *bd,
-                 struct bd_registers_s *registers, struct indx_root_s *index);
-int bdj_start(BDJAVA *bdjava, unsigned title);
-void bdj_stop(BDJAVA *bdjava);
-void bdj_close(BDJAVA *bdjava);
-
-void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
+BD_PRIVATE BDJAVA* bdj_open(const char *path, struct bluray *bd,
+                            struct bd_registers_s *registers, struct indx_root_s *index);
+BD_PRIVATE int  bdj_start(BDJAVA *bdjava, unsigned title);
+BD_PRIVATE int  bdj_stop(BDJAVA *bdjava);
+BD_PRIVATE void bdj_close(BDJAVA *bdjava);
+BD_PRIVATE void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
 
 #endif

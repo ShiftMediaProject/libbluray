@@ -37,14 +37,14 @@
 
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
 
-void* load_jvm();
+static void* _load_jvm();
 
 BDJAVA* bdj_open(const char *path,
                  struct bluray *bd, struct bd_registers_s *registers,
                  struct indx_root_s *index)
 {
     // first load the jvm using dlopen
-    void* jvm_lib = load_jvm();
+    void* jvm_lib = _load_jvm();
 
     if (!jvm_lib) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Wasn't able to load libjvm.so\n");
@@ -153,10 +153,10 @@ int bdj_start(BDJAVA *bdjava, unsigned title)
     return (status == JNI_TRUE) ? BDJ_SUCCESS : BDJ_ERROR;
 }
 
-void bdj_stop(BDJAVA *bdjava)
+int bdj_stop(BDJAVA *bdjava)
 {
     if (!bdjava) {
-        return;
+        return BDJ_ERROR;
     }
 
     JNIEnv* env = bdjava->env;
@@ -165,7 +165,7 @@ void bdj_stop(BDJAVA *bdjava)
     if (!loader_class) {
         (*env)->ExceptionDescribe(env);
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate org.videolan.BDJLoader class\n");
-        return;
+        return BDJ_ERROR;
     }
 
     jmethodID unload_id = (*env)->GetStaticMethodID(env, loader_class,
@@ -213,7 +213,7 @@ void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
     }
 }
 
-void* load_jvm()
+static void* _load_jvm()
 {
     const char* java_home = getenv("JAVA_HOME"); // FIXME: should probably search multiple directories
     if (java_home == NULL) {

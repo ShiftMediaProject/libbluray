@@ -15,7 +15,7 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-jobject _make_title_info(JNIEnv* env, int title, int objType, int playbackType, const char* bdjoName, int hdmvOID)
+static jobject _make_title_info(JNIEnv* env, int title, int objType, int playbackType, const char* bdjoName, int hdmvOID)
 {
     jstring name = bdjoName ? (*env)->NewStringUTF(env, bdjoName) : NULL;
     jobject ti = bdj_make_object(env, "org/videolan/TitleInfo",
@@ -26,7 +26,7 @@ jobject _make_title_info(JNIEnv* env, int title, int objType, int playbackType, 
     return ti;
 }
 
-jobjectArray _make_stream_array(JNIEnv* env, int count, BLURAY_STREAM_INFO* streams)
+static jobjectArray _make_stream_array(JNIEnv* env, int count, BLURAY_STREAM_INFO* streams)
 {
     jobjectArray streamArr = bdj_make_array(env,
                     "org/videolan/StreamInfo", count);
@@ -42,7 +42,7 @@ jobjectArray _make_stream_array(JNIEnv* env, int count, BLURAY_STREAM_INFO* stre
     return streamArr;
 }
 
-jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
+static jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
 {
     jobjectArray marks = bdj_make_array(env, "org/videolan/TIMark",
             ti->mark_count);
