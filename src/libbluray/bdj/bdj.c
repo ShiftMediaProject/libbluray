@@ -149,14 +149,24 @@ BDJAVA* bdj_open(const char *path,
 
 int bdj_start(BDJAVA *bdjava, unsigned title)
 {
-    JNIEnv* env = bdjava->env;
+    JNIEnv* env;
+    int attach = 0;
     jboolean status = JNI_FALSE;
     jclass loader_class;
     jmethodID load_id;
 
+    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
+        (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
+        attach = 1;
+    }
+
     if (bdj_get_method(env, &loader_class, &load_id,
                        "org/videolan/BDJLoader", "load", "(I)Z")) {
         status = (*env)->CallStaticBooleanMethod(env, loader_class, load_id, (jint)title);
+    }
+
+    if (attach) {
+        (*bdjava->jvm)->DetachCurrentThread(bdjava->jvm);
     }
 
     return (status == JNI_TRUE) ? BDJ_SUCCESS : BDJ_ERROR;
@@ -164,7 +174,8 @@ int bdj_start(BDJAVA *bdjava, unsigned title)
 
 int bdj_stop(BDJAVA *bdjava)
 {
-    JNIEnv* env = bdjava->env;
+    JNIEnv *env;
+    int attach;
     jboolean status = JNI_FALSE;
     jclass loader_class;
     jmethodID unload_id;
@@ -173,9 +184,18 @@ int bdj_stop(BDJAVA *bdjava)
         return BDJ_ERROR;
     }
 
+    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
+        (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
+        attach = 1;
+    }
+
     if (bdj_get_method(env, &loader_class, &unload_id,
                        "org/videolan/BDJLoader", "unload", "()Z")) {
         status = (*env)->CallStaticBooleanMethod(env, loader_class, unload_id);
+    }
+
+    if (attach) {
+        (*bdjava->jvm)->DetachCurrentThread(bdjava->jvm);
     }
 
     return (status == JNI_TRUE) ? BDJ_SUCCESS : BDJ_ERROR;
@@ -183,7 +203,8 @@ int bdj_stop(BDJAVA *bdjava)
 
 void bdj_close(BDJAVA *bdjava)
 {
-    JNIEnv* env = bdjava->env;
+    JNIEnv *env;
+    int attach;
     jclass shutdown_class;
     jmethodID shutdown_id;
 
@@ -191,9 +212,18 @@ void bdj_close(BDJAVA *bdjava)
         return;
     }
 
+    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
+        (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
+        attach = 1;
+    }
+
     if (bdj_get_method(env, &shutdown_class, &shutdown_id,
                        "org/videolan/Libbluray", "shutdown", "()V")) {
         (*env)->CallStaticVoidMethod(env, shutdown_class, shutdown_id);
+    }
+
+    if (attach) {
+        (*bdjava->jvm)->DetachCurrentThread(bdjava->jvm);
     }
 
     (*bdjava->jvm)->DestroyJavaVM(bdjava->jvm);
@@ -203,12 +233,22 @@ void bdj_close(BDJAVA *bdjava)
 
 void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
 {
-    JNIEnv* env = bdjava->env;
+    JNIEnv* env;
+    int attach = 0;
     jclass event_class;
     jmethodID event_id;
+
+    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
+        (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
+        attach = 1;
+    }
 
     if (bdj_get_method(env, &event_class, &event_id,
                        "org/videolan/Libbluray", "processEvent", "(II)V")) {
         (*env)->CallStaticVoidMethod(env, event_class, event_id, ev, param);
+    }
+
+    if (attach) {
+        (*bdjava->jvm)->DetachCurrentThread(bdjava->jvm);
     }
 }
