@@ -55,6 +55,33 @@ static void *_load_jvm(void)
     return dl_dlopen(path, NULL);
 }
 
+static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
+{
+    // initialize class org.videolan.Libbluray
+    jclass init_class = (*env)->FindClass(env, "org/videolan/Libbluray");
+    if (!init_class) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate org.videolan.Libbluray class\n");
+        return 0;
+    }
+
+    char* id_path = str_printf("%s/CERTIFICATE/id.bdmv", bdjava->path);
+    BDID_DATA *id  = bdid_parse(id_path);
+    free(id_path);
+
+    jmethodID init_id = (*env)->GetStaticMethodID(env, init_class,
+                                                  "init", "(JLjava/lang/String;)V");
+    jlong param_bdjava_ptr = (jlong)(intptr_t) bdjava;
+    jstring param_disc_id = (*env)->NewStringUTF(env, id ? id->disc_id : "00000000000000000000000000000000");
+    (*env)->CallStaticVoidMethod(env, init_class, init_id,
+                                 param_bdjava_ptr, param_disc_id);
+    (*env)->DeleteLocalRef(env, init_class);
+    (*env)->DeleteLocalRef(env, param_disc_id);
+
+    bdid_free(&id);
+
+    return 1;
+}
+
 BDJAVA* bdj_open(const char *path,
                  struct bluray *bd, struct bd_registers_s *registers,
                  struct indx_root_s *index)
@@ -115,30 +142,7 @@ BDJAVA* bdj_open(const char *path,
         return NULL;
     }
 
-
-    // initialize class org.videolan.Libbluray
-    jclass init_class = (*bdjava->env)->FindClass(bdjava->env, "org/videolan/Libbluray");
-    if (!init_class) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate org.videolan.Libbluray class\n");
-        bdj_close(bdjava);
-        return NULL;
-    }
-
-    char* id_path = str_printf("%s/CERTIFICATE/id.bdmv", path);
-    BDID_DATA *id  = bdid_parse(id_path);
-    free(id_path);
-
-    jmethodID init_id = (*bdjava->env)->GetStaticMethodID(bdjava->env, init_class,
-                                                          "init", "(JLjava/lang/String;)V");
-    jlong param_bdjava_ptr = (jlong)(intptr_t) bdjava;
-    jstring param_disc_id = (*bdjava->env)->NewStringUTF(bdjava->env,
-                                                         id ? id->disc_id : "00000000000000000000000000000000");
-    (*bdjava->env)->CallStaticVoidMethod(bdjava->env, init_class, init_id,
-                                         param_bdjava_ptr, param_disc_id);
-    (*bdjava->env)->DeleteLocalRef(bdjava->env, init_class);
-    (*bdjava->env)->DeleteLocalRef(bdjava->env, param_disc_id);
-
-    bdid_free(&id);
+    _bdj_init(bdjava, bdjava->env);
 
     return bdjava;
 }
