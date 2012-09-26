@@ -1421,7 +1421,7 @@ uint64_t bd_tell(BLURAY *bd)
  * read
  */
 
-static int64_t _clip_seek_time(BLURAY *bd, uint64_t tick)
+static int64_t _clip_seek_time(BLURAY *bd, uint32_t tick)
 {
     uint32_t clip_pkt, out_pkt;
 
