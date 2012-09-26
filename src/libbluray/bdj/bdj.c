@@ -97,15 +97,17 @@ BDJAVA* bdj_open(const char *path,
     fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = (fptr_JNI_CreateJavaVM)dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
 
     if (JNI_CreateJavaVM_fp == NULL) {
+        dl_dlclose(jvm_lib);
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't find symbol JNI_CreateJavaVM.\n");
         return NULL;
     }
 
-    BDJAVA* bdjava = malloc(sizeof(BDJAVA));
+    BDJAVA* bdjava = calloc(1, sizeof(BDJAVA));
     bdjava->bd = bd;
     bdjava->reg = registers;
     bdjava->index = index;
     bdjava->path = path;
+    bdjava->h_libjvm = jvm_lib;
 
     JavaVMInitArgs args;
 
@@ -121,7 +123,7 @@ BDJAVA* bdj_open(const char *path,
     char* vfs_opt;
     vfs_opt = str_printf("-Dbluray.vfs.root=%s", path);
 
-    JavaVMOption* option = malloc(sizeof(JavaVMOption) * 9);
+    JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 9);
     int n = 0;
     option[n++].optionString = classpath_opt;
     option[n++].optionString = vfs_opt;
@@ -131,18 +133,22 @@ BDJAVA* bdj_open(const char *path,
     args.options = option;
     args.ignoreUnrecognized = JNI_FALSE; // don't ignore unrecognized options
 
-    int result = JNI_CreateJavaVM_fp(&bdjava->jvm, (void**) &bdjava->env, &args);
+    JNIEnv* env = NULL;
+    int result = JNI_CreateJavaVM_fp(&bdjava->jvm, (void**) &env, &args);
     free(option);
     free(classpath_opt);
     free(vfs_opt);
 
-    if (result != JNI_OK || !bdjava->env) {
-        free(bdjava);
+    if (result != JNI_OK || !env) {
+        bdj_close(bdjava);
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM.\n");
         return NULL;
     }
 
-    _bdj_init(bdjava, bdjava->env);
+    if (!_bdj_init(bdjava, env)) {
+        bdj_close(bdjava);
+        return NULL;
+    }
 
     return bdjava;
 }
@@ -155,6 +161,10 @@ int bdj_start(BDJAVA *bdjava, unsigned title)
     jclass loader_class;
     jmethodID load_id;
 
+    if (!bdjava) {
+        return BDJ_ERROR;
+    }
+
     if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
         (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
         attach = 1;
@@ -163,6 +173,7 @@ int bdj_start(BDJAVA *bdjava, unsigned title)
     if (bdj_get_method(env, &loader_class, &load_id,
                        "org/videolan/BDJLoader", "load", "(I)Z")) {
         status = (*env)->CallStaticBooleanMethod(env, loader_class, load_id, (jint)title);
+        (*env)->DeleteLocalRef(env, loader_class);
     }
 
     if (attach) {
@@ -192,6 +203,7 @@ int bdj_stop(BDJAVA *bdjava)
     if (bdj_get_method(env, &loader_class, &unload_id,
                        "org/videolan/BDJLoader", "unload", "()Z")) {
         status = (*env)->CallStaticBooleanMethod(env, loader_class, unload_id);
+        (*env)->DeleteLocalRef(env, loader_class);
     }
 
     if (attach) {
@@ -220,6 +232,7 @@ void bdj_close(BDJAVA *bdjava)
     if (bdj_get_method(env, &shutdown_class, &shutdown_id,
                        "org/videolan/Libbluray", "shutdown", "()V")) {
         (*env)->CallStaticVoidMethod(env, shutdown_class, shutdown_id);
+        (*env)->DeleteLocalRef(env, shutdown_class);
     }
 
     if (attach) {
@@ -228,7 +241,9 @@ void bdj_close(BDJAVA *bdjava)
 
     (*bdjava->jvm)->DestroyJavaVM(bdjava->jvm);
 
-    free(bdjava);
+    dl_dlclose(bdjava->h_libjvm);
+
+    X_FREE(bdjava);
 }
 
 void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
@@ -238,6 +253,10 @@ void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
     jclass event_class;
     jmethodID event_id;
 
+    if (!bdjava) {
+        return;
+    }
+
     if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
         (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
         attach = 1;
@@ -246,6 +265,7 @@ void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
     if (bdj_get_method(env, &event_class, &event_id,
                        "org/videolan/Libbluray", "processEvent", "(II)V")) {
         (*env)->CallStaticVoidMethod(env, event_class, event_id, ev, param);
+        (*env)->DeleteLocalRef(env, event_class);
     }
 
     if (attach) {

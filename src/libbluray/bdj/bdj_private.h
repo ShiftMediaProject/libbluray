@@ -35,7 +35,6 @@ struct bdjava_s {
 
     // JNI
     JavaVM* jvm;
-    JNIEnv* env;
 
     const char *path;
 };
