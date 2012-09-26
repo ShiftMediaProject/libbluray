@@ -32,14 +32,14 @@
 
 #include "libbluray/bluray.h"
 
-void usage(void) {
+static void _usage(void) {
     printf("Usage: [path to disc] [starting object]\n");
 }
 
 int main(int argc, char** argv)
 {
     if (argc < 3) {
-        usage();
+        _usage();
         return 0;
     }
 

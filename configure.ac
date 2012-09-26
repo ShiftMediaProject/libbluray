@@ -197,6 +197,8 @@ check_cc_options -Wtype-limits && \
   SET_WARNINGS="$SET_WARNINGS -Wtype-limits"
 check_cc_options -Wundef && \
   SET_WARNINGS="$SET_WARNINGS -Wundef"
+check_cc_options -Wmissing-prototypes && \
+  SET_WARNINGS="$SET_WARNINGS -Wmissing-prototypes"
 
 # no implicit function declarations
 check_cc_options -Werror-implicit-function-declaration && \

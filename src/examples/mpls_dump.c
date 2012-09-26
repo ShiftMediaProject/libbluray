@@ -116,7 +116,7 @@ const VALUE_MAP subpath_type_map[] = {
   {0,NULL}
 };
 
-const char*
+static const char*
 _lookup_str(const VALUE_MAP *map, int val)
 {
     int ii;

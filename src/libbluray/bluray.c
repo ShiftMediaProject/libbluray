@@ -2398,7 +2398,7 @@ int bd_play(BLURAY *bd)
     return _play_title(bd, BLURAY_TITLE_FIRST_PLAY);
 }
 
-int _try_play_title(BLURAY *bd, unsigned title)
+static int _try_play_title(BLURAY *bd, unsigned title)
 {
     if (bd->title_type == title_undef && title != BLURAY_TITLE_FIRST_PLAY) {
         BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_play_title(): bd_play() not called\n");
