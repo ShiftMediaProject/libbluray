@@ -925,9 +925,9 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, uint32_t key, GC_NAV_CMDS *cmds)
             }
 
             if (new_btn_id != cur_btn_id) {
-                BD_IG_BUTTON *button = _find_button_page(page, new_btn_id, NULL);
-                if (button) {
-                    cmds->sound_id_ref = button->selected_sound_id_ref;
+                BD_IG_BUTTON *new_button = _find_button_page(page, new_btn_id, NULL);
+                if (new_button) {
+                    cmds->sound_id_ref = new_button->selected_sound_id_ref;
                 }
             }
         }

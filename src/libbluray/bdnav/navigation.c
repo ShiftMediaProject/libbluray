@@ -791,13 +791,13 @@ NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, unsigned angle)
     title->packets = 0;
     for (ii = 0; ii < title->pl->list_count; ii++) {
         MPLS_PI *pi;
-        NAV_CLIP *clip;
+        NAV_CLIP *cl;
 
         pi = &title->pl->play_item[ii];
-        clip = &title->clip_list.clip[ii];
+        cl = &title->clip_list.clip[ii];
 
         _fill_clip(title, pi->clip, pi->connection_condition, pi->in_time, pi->out_time, pi->angle_count,
-                   clip, ii, &pos, &time);
+                   cl, ii, &pos, &time);
     }
     _extrapolate_title(title);
     return clip;

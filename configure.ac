@@ -199,6 +199,8 @@ check_cc_options -Wundef && \
   SET_WARNINGS="$SET_WARNINGS -Wundef"
 check_cc_options -Wmissing-prototypes && \
   SET_WARNINGS="$SET_WARNINGS -Wmissing-prototypes"
+check_cc_options -Wshadow && \
+  SET_WARNINGS="$SET_WARNINGS -Wshadow"
 
 # no implicit function declarations
 check_cc_options -Werror-implicit-function-declaration && \
