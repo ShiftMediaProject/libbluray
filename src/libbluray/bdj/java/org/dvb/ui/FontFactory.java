@@ -35,54 +35,51 @@ import org.videolan.FontIndex;
 import org.videolan.FontIndexData;
 
 public class FontFactory {
-    public FontFactory() throws FontFormatException, IOException
-    {
+    public FontFactory() throws FontFormatException, IOException {
         String path = BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/dvb.fontindex");
-        
+
         try {
             fontIndex.parse(path);
         } catch (BDJException e) {
             throw new IOException();
         }
-        
+
         LinkedList<FontIndexData> fontIndexData = fontIndex.getFontIndexData();
-        
+
         fonts = new HashMap<String, Font>(fontIndexData.size());
         for (FontIndexData data : fontIndexData) {
             FileInputStream inStream = new FileInputStream(BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/" + data.getFileName()));
-            
+
             Font font = Font.createFont(Font.TRUETYPE_FONT, inStream);
             font = font.deriveFont(data.getStyle(), data.getMaxSize());
-            
+
             fonts.put(data.getName(), font);
         }
     }
 
-    public FontFactory(URL u) throws IOException, FontFormatException
-    {
-        FileInputStream inStream = new FileInputStream(u.getPath()); 
-        
+    public FontFactory(URL u) throws IOException, FontFormatException {
+        FileInputStream inStream = new FileInputStream(u.getPath());
+
         urlFont = Font.createFont(Font.TRUETYPE_FONT, inStream);
     }
 
     public Font createFont(String name, int style, int size)
-            throws FontNotAvailableException, FontFormatException, IOException
-    {
+            throws FontNotAvailableException, FontFormatException, IOException {
         logger.info("Creating font: " + name + " " + style + " " + size);
-        
+
         if (urlFont != null && name.equals(urlFont.getName()))
         {
             return urlFont.deriveFont(style, size);
         }
-        
+
         Font font = fonts.get(name);
-        
+
         if (font == null)
             throw new FontNotAvailableException();
-        
+
         return font.deriveFont(style, size);
     }
-    
+
     private FontIndex fontIndex = new FontIndex();
     private Font urlFont = null;
     private Map<String, Font> fonts = null;

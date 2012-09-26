@@ -32,16 +32,13 @@ public class DVBBufferedImage extends BufferedImage {
         super(width, height, type == TYPE_BASE ? TYPE_INT_RGB : TYPE_INT_ARGB);
     }
 
-    public DVBGraphics createGraphics()
-    {
+    public DVBGraphics createGraphics() {
         DVBGraphics gfx = new DVBGraphicsImpl(super.createGraphics());
         gfx.type = type;
         return gfx;
     }
-    
-    public void dispose()
-    {
-    
+
+    public void dispose() {
     }
 
     public String toString()

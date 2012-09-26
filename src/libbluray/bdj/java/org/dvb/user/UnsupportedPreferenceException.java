@@ -20,13 +20,11 @@
 package org.dvb.user;
 
 public class UnsupportedPreferenceException extends java.lang.Exception {
-    public UnsupportedPreferenceException()
-    {
+    public UnsupportedPreferenceException() {
         super();
     }
 
-    public UnsupportedPreferenceException(String reason)
-    {
+    public UnsupportedPreferenceException(String reason) {
         super(reason);
     }
 

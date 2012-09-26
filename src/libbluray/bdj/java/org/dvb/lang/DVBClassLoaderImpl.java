@@ -22,14 +22,12 @@ package org.dvb.lang;
 import java.net.URL;
 
 public class DVBClassLoaderImpl extends DVBClassLoader {
-    public DVBClassLoaderImpl(URL[] urls)
-    {
+    public DVBClassLoaderImpl(URL[] urls) {
         super(urls);
         throw new Error("Not implemented");
     }
 
-    public DVBClassLoaderImpl(URL[] urls, ClassLoader parent)
-    {
+    public DVBClassLoaderImpl(URL[] urls, ClassLoader parent) {
         super(urls, parent);
         throw new Error("Not implemented");
     }

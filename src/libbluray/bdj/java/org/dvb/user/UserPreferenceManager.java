@@ -22,40 +22,32 @@ package org.dvb.user;
 import java.io.IOException;
 
 public class UserPreferenceManager {
-    private UserPreferenceManager()
-    {
+    private UserPreferenceManager() {
         throw new Error("Not implemented");
     }
 
-    public static UserPreferenceManager getInstance()
-    {
+    public static UserPreferenceManager getInstance() {
         throw new Error("Not implemented");
     }
 
-    public void read(Preference p)
-    {
+    public void read(Preference p) {
         throw new Error("Not implemented");
     }
 
-    public void read(Preference p, Facility facility)
-    {
+    public void read(Preference p, Facility facility) {
         throw new Error("Not implemented");
     }
 
     public void write(Preference p) throws UnsupportedPreferenceException,
-            IOException
-    {
+            IOException {
         throw new Error("Not implemented");
     }
 
-    public void addUserPreferenceChangeListener(UserPreferenceChangeListener l)
-    {
+    public void addUserPreferenceChangeListener(UserPreferenceChangeListener l) {
         throw new Error("Not implemented");
     }
 
-    public void removeUserPreferenceChangeListener(
-            UserPreferenceChangeListener l)
-    {
+    public void removeUserPreferenceChangeListener(UserPreferenceChangeListener l) {
         throw new Error("Not implemented");
     }
 }

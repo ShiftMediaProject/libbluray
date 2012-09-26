@@ -22,13 +22,11 @@ package org.dvb.user;
 import java.security.BasicPermission;
 
 public class UserPreferencePermission extends BasicPermission {
-    public UserPreferencePermission(String name)
-    {
+    public UserPreferencePermission(String name) {
         super(name);
     }
 
-    public UserPreferencePermission(String name, String actions)
-    {
+    public UserPreferencePermission(String name, String actions) {
         super(name, actions);
     }
 

@@ -20,8 +20,7 @@
 package org.dvb.user;
 
 public final class GeneralPreference extends Preference {
-    public GeneralPreference(String name) throws IllegalArgumentException
-    {
+    public GeneralPreference(String name) throws IllegalArgumentException {
         throw new Error("Not implemented");
     }
 }

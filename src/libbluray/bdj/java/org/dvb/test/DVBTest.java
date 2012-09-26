@@ -22,23 +22,19 @@ package org.dvb.test;
 import java.io.IOException;
 
 public class DVBTest {
-    private DVBTest()
-    {
+    private DVBTest() {
     }
 
-    public static void log(String id, String message) throws IOException
-    {
+    public static void log(String id, String message) throws IOException {
         throw new Error("Not implemented");
     }
 
-    public static void log(String id, int no) throws IOException
-    {
+    public static void log(String id, int no) throws IOException {
         throw new Error("Not implemented");
     }
 
     public static void terminate(String id, int terminationCondition)
-            throws IOException
-    {
+            throws IOException {
         System.out.print(id + ": ");
         switch (terminationCondition) {
         case PASS:
@@ -54,8 +50,7 @@ public class DVBTest {
     }
 
     public static void prompt(String id, int controlCode, String message)
-            throws IOException
-    {
+            throws IOException {
         throw new Error("Not implemented");
     }
 

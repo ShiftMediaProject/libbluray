@@ -22,8 +22,7 @@ package org.bluray.ui;
 import java.util.Arrays;
 
 public class AnimationParameters {
-    public String toString()
-    {
+    public String toString() {
         return "AnimationParameters [faaTimer=" + faaTimer + ", lockedToVideo="
                 + lockedToVideo + ", repeatCount="
                 + Arrays.toString(repeatCount) + ", scaleFactor=" + scaleFactor

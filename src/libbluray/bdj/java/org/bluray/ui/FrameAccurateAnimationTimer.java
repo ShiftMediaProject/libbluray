@@ -23,29 +23,24 @@ import javax.media.Time;
 
 public class FrameAccurateAnimationTimer {
     public static FrameAccurateAnimationTimer getInstance(Time start, Time stop)
-            throws IllegalArgumentException
-    {
+            throws IllegalArgumentException {
         throw new Error("Not implemented");
     }
 
     private FrameAccurateAnimationTimer(Time start, Time stop)
-            throws IllegalArgumentException
-    {
+            throws IllegalArgumentException {
 
     }
 
-    public Time getStartTime()
-    {
+    public Time getStartTime() {
         throw new Error("Not implemented");
     }
 
-    public Time getStopTime()
-    {
+    public Time getStopTime() {
         throw new Error("Not implemented");
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "FrameAccurateAnimationTimer";
     }
 }

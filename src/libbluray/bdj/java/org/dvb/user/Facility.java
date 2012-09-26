@@ -20,13 +20,11 @@
 package org.dvb.user;
 
 public class Facility {
-    public Facility(String preference, String value)
-    {
+    public Facility(String preference, String value) {
         throw new Error("Not implemented");
     }
 
-    public Facility(String preference, String values[])
-    {
+    public Facility(String preference, String values[]) {
         throw new Error("Not implemented");
     }
 }

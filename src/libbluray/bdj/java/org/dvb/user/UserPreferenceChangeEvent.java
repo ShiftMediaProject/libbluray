@@ -22,13 +22,11 @@ package org.dvb.user;
 import java.util.EventObject;
 
 public class UserPreferenceChangeEvent extends EventObject {
-    public UserPreferenceChangeEvent(String preferenceName)
-    {
+    public UserPreferenceChangeEvent(String preferenceName) {
         super(preferenceName);
     }
 
-    public String getName()
-    {
+    public String getName() {
         return (String) getSource();
     }
 

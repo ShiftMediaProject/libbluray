@@ -48,31 +48,26 @@ package org.dvb.lang;
 import java.net.URL;
 
 public abstract class DVBClassLoader extends java.security.SecureClassLoader {
-    public DVBClassLoader(URL[] urls)
-    {
+    public static DVBClassLoader newInstance(URL[] urls) {
+        return new DVBClassLoaderImpl(urls);
+    }
+
+    public static DVBClassLoader newInstance(URL[] urls, ClassLoader parent) {
+        return new DVBClassLoaderImpl(urls, parent);
+    }
+
+    public DVBClassLoader(URL[] urls) {
         this.urls = urls;
         this.parent = null;
     }
 
-    public DVBClassLoader(URL[] urls, ClassLoader parent)
-    {
+    public DVBClassLoader(URL[] urls, ClassLoader parent) {
         this.urls = urls;
         this.parent = parent;
     }
 
-    protected Class<?> findClass(String name) throws ClassNotFoundException
-    {
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
         throw new Error("Not implemented");
-    }
-
-    public static DVBClassLoader newInstance(URL[] urls)
-    {
-        return new DVBClassLoaderImpl(urls);
-    }
-
-    public static DVBClassLoader newInstance(URL[] urls, ClassLoader parent)
-    {
-        return new DVBClassLoaderImpl(urls, parent);
     }
 
     private URL[] urls;

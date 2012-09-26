@@ -20,78 +20,63 @@
 package org.dvb.user;
 
 public abstract class Preference {
-    protected Preference()
-    {
+    protected Preference() {
         throw new Error("Not implemented");
     }
 
-    public Preference(String name, String value)
-    {
+    public Preference(String name, String value) {
         throw new Error("Not implemented");
     }
 
-    public Preference(String name, String value[])
-    {
+    public Preference(String name, String value[]) {
         throw new Error("Not implemented");
     }
 
-    public void add(String value)
-    {
+    public void add(String value) {
         throw new Error("Not implemented");
     }
 
-    public void add(String values[])
-    {
+    public void add(String values[]) {
         throw new Error("Not implemented");
     }
 
-    public void add(int position, String value)
-    {
+    public void add(int position, String value) {
         throw new Error("Not implemented");
     }
 
-    public String[] getFavourites()
-    {
+    public String[] getFavourites() {
         throw new Error("Not implemented");
     }
 
-    public String getMostFavourite()
-    {
+    public String getMostFavourite() {
         throw new Error("Not implemented");
     }
 
-    public String getName()
-    {
+    public String getName() {
         throw new Error("Not implemented");
     }
 
-    public int getPosition(String value)
-    {
+    public int getPosition(String value) {
         throw new Error("Not implemented");
     }
 
-    public boolean hasValue()
-    {
+    public boolean hasValue() {
         throw new Error("Not implemented");
     }
 
-    public void remove(String value)
-    {
+    public void remove(String value) {
         throw new Error("Not implemented");
     }
 
-    public void removeAll()
-    {
+    public void removeAll() {
         throw new Error("Not implemented");
     }
 
-    public void setMostFavourite(String value)
-    {
+    public void setMostFavourite(String value) {
         throw new Error("Not implemented");
     }
 
-    public String toString()
-    {
+    public String toString() {
         throw new Error("Not implemented");
     }
 }
