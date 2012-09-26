@@ -13,17 +13,17 @@ public class TerminalInfo {
     {
         return defaultFont;
     }
-    
+
     public GraphicsResolution getResolution()
     {
         return resolution;
     }
-    
+
     public boolean getMenuCallMask()
     {
         return menuCallMask;
     }
-    
+
     public boolean getTitleSearchMask()
     {
         return titleSearchMask;

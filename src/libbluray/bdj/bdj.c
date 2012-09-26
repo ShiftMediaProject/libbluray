@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2012  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,7 +38,22 @@
 
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
 
-static void* _load_jvm();
+static void *_load_jvm(void)
+{
+    const char* java_home = getenv("JAVA_HOME"); // FIXME: should probably search multiple directories
+    if (java_home == NULL) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "JAVA_HOME not set, can't find Java VM.\n");
+        return NULL;
+    }
+
+#ifdef WIN32
+    char* path = str_printf("%s/jre/bin/server/jvm", java_home);
+#else	//	#ifdef WIN32
+    char* path = str_printf("%s/jre/lib/%s/server/libjvm", java_home, JAVA_ARCH);
+#endif	//	#ifdef WIN32
+
+    return dl_dlopen(path, NULL);
+}
 
 BDJAVA* bdj_open(const char *path,
                  struct bluray *bd, struct bd_registers_s *registers,
@@ -211,21 +227,4 @@ void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
             BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate org.videolan.Libbluray \"processEvent\" method\n");
         }
     }
-}
-
-static void* _load_jvm()
-{
-    const char* java_home = getenv("JAVA_HOME"); // FIXME: should probably search multiple directories
-    if (java_home == NULL) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "JAVA_HOME not set, can't find Java VM.\n");
-        return NULL;
-    }
-
-#ifdef WIN32
-    char* path = str_printf("%s/jre/bin/server/jvm", java_home);
-#else	//	#ifdef WIN32
-    char* path = str_printf("%s/jre/lib/%s/server/libjvm", java_home, JAVA_ARCH);
-#endif	//	#ifdef WIN32
-
-    return dl_dlopen(path, NULL);
 }
