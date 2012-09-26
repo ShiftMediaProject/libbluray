@@ -31,4 +31,8 @@ BD_PRIVATE jobject bdj_make_object(JNIEnv* env, const char* name, const char* si
 // makes an array for the specified class name, all elements are initialized to null
 BD_PRIVATE jobjectArray bdj_make_array(JNIEnv* env, const char* name, int count);
 
+// get java method
+BD_PRIVATE int bdj_get_method(JNIEnv *env, jclass *cls, jmethodID *method_id,
+                              const char *class_name, const char *method_name, const char *method_sig);
+
 #endif
