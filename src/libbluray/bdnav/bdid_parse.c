@@ -99,7 +99,7 @@ BDID_DATA *bdid_parse(const char *file_name)
 
     /* if failed, try backup file */
     if (!bdid) {
-        int   len    = strlen(file_name);
+        size_t len   = strlen(file_name);
         char *backup = malloc(len + 8);
 
         strcpy(backup, file_name);

@@ -838,7 +838,7 @@ mpls_parse(const char *path, int verbose)
 
     /* if failed, try backup file */
     if (!pl) {
-        int   len    = strlen(path);
+        size_t len   = strlen(path);
         char *backup = malloc(len + 8);
 
         strncpy(backup, path, len - 19);
