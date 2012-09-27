@@ -27,6 +27,7 @@ bdsplice_LDADD = $(BLURAY_LIB)
 
 mpls_dump_SOURCES = \
 	mpls_dump.c util.c util.h \
+	../util/bits.c \
 	../util/strutl.c \
 	../util/logging.c \
 	../file/file_posix.c \
@@ -38,6 +39,7 @@ mpls_dump_SOURCES = \
 
 clpi_dump_SOURCES = \
 	clpi_dump.c util.c util.h \
+	../util/bits.c \
 	../util/logging.c \
 	../file/file_posix.c \
 	../libbluray/bdnav/extdata_parse.c \
@@ -45,18 +47,21 @@ clpi_dump_SOURCES = \
 
 sound_dump_SOURCES = \
 	sound_dump.c \
+	../util/bits.c \
 	../util/logging.c \
 	../file/file_posix.c \
 	../libbluray/bdnav/sound_parse.c
 
 index_dump_SOURCES = \
 	index_dump.c \
+	../util/bits.c \
 	../util/logging.c \
 	../file/file_posix.c \
 	../libbluray/bdnav/index_parse.c
 
 mobj_dump_SOURCES = \
 	mobj_dump.c \
+	../util/bits.c \
 	../util/logging.c \
 	../file/file_posix.c \
 	../libbluray/hdmv/mobj_parse.c \

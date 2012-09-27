@@ -90,6 +90,7 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	util/logging.c \
 	util/log_control.h \
 	util/bits.h \
+	util/bits.c \
 	util/logging.h
 libbluray_la_HEADERS= libbluray/bluray.h file/filesystem.h util/log_control.h libbluray/keys.h libbluray/decoders/overlay.h libbluray/bdnav/meta_data.h libbluray/bdnav/clpi_data.h libbluray/bluray-version.h
 libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO)
