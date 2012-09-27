@@ -176,6 +176,10 @@ struct bluray {
           }                                         \
       } while (0)
 
+/* Stream Packet Number = byte offset / 192. Avoid 64-bit division. */
+#define SPN(pos) (((uint32_t)((pos) >> 6)) / 3)
+
+
 /*
  * Library version
  */
@@ -1248,7 +1252,7 @@ uint64_t bd_tell_time(BLURAY *bd)
     bd_mutex_lock(&bd->mutex);
 
     if (bd && bd->title) {
-        clip = nav_packet_search(bd->title, bd->s_pos / 192, &clip_pkt, &out_pkt, &out_time);
+        clip = nav_packet_search(bd->title, SPN(bd->s_pos), &clip_pkt, &out_pkt, &out_time);
         if (clip) {
             out_time += clip->start_time;
         }
@@ -1309,7 +1313,7 @@ uint32_t bd_get_current_chapter(BLURAY *bd)
     bd_mutex_lock(&bd->mutex);
 
     if (bd->title) {
-        ret = nav_chapter_get_current(bd->st0.clip, bd->st0.clip_pos / 192);
+        ret = nav_chapter_get_current(bd->st0.clip, SPN(bd->st0.clip_pos));
     }
 
     bd_mutex_unlock(&bd->mutex);
@@ -1374,7 +1378,7 @@ int64_t bd_seek(BLURAY *bd, uint64_t pos)
     if (bd->title &&
         pos < (uint64_t)bd->title->packets * 192) {
 
-        pkt = pos / 192;
+        pkt = SPN(pos);
 
         _change_angle(bd);
 
@@ -1452,7 +1456,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
 
             unsigned int size = len;
             // Do we need to read more data?
-            clip_pkt = st->clip_pos / 192;
+            clip_pkt = SPN(st->clip_pos);
             if (bd->seamless_angle_change) {
                 if (clip_pkt >= bd->angle_change_pkt) {
                     if (clip_pkt >= st->clip->end_pkt) {
@@ -1665,7 +1669,7 @@ static int _init_ig_stream(BLURAY *bd)
 
     /* decode already preloaded IG sub-path */
     if (bd->st_ig.clip) {
-        gc_decode_ts(bd->graphics_controller, ig_pid, bd->st_ig.buf, bd->st_ig.clip_size / 6144, -1);
+        gc_decode_ts(bd->graphics_controller, ig_pid, bd->st_ig.buf, SPN(bd->st_ig.clip_size) / 32, -1);
         return 1;
     }
 
@@ -1825,7 +1829,7 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle)
 
     bd_mutex_lock(&bd->mutex);
 
-    clip_pkt = (bd->st0.clip_pos + 191) / 192;
+    clip_pkt = SPN(bd->st0.clip_pos + 191);
     bd->angle_change_pkt = nav_angle_change_search(bd->st0.clip, clip_pkt,
                                                    &bd->angle_change_time);
     bd->request_angle = angle;
