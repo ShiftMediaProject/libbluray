@@ -1004,14 +1004,16 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 #endif
 }
 
+#ifdef USING_BDJAVA
 static void _bdj_event(BLURAY *bd, unsigned ev, unsigned param)
 {
-#ifdef USING_BDJAVA
     if (bd->bdjava != NULL) {
         bdj_process_event(bd->bdjava, ev, param);
     }
-#endif
 }
+#else
+#define _bdj_event(bd, ev, param) do{}while(0)
+#endif
 
 static void _stop_bdj(BLURAY *bd)
 {
