@@ -21,6 +21,17 @@ package org.dvb.user;
 
 public final class GeneralPreference extends Preference {
     public GeneralPreference(String name) throws IllegalArgumentException {
-        throw new Error("Not implemented");
+        super(name, (String)null);
+        if (!isGeneralPreference(name))
+            throw new IllegalArgumentException();
     }
+
+    protected static boolean isGeneralPreference(String name) {
+        for (int i = 0; i < GENERAL_PREFERENCES.length; i++)
+            if (name.equals(GENERAL_PREFERENCES[i]))
+                return true;
+        return false;
+    }
+
+    private static final String[] GENERAL_PREFERENCES = { "User Language", "Parental Rating", "User Name", "User Address", "User @", "Country Code", "Default Font Size" };
 }

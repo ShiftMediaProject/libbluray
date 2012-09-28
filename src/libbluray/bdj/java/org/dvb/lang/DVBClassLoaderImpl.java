@@ -24,11 +24,26 @@ import java.net.URL;
 public class DVBClassLoaderImpl extends DVBClassLoader {
     public DVBClassLoaderImpl(URL[] urls) {
         super(urls);
-        throw new Error("Not implemented");
     }
 
     public DVBClassLoaderImpl(URL[] urls, ClassLoader parent) {
         super(urls, parent);
-        throw new Error("Not implemented");
+    }
+
+    protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            String cname = name.replace('/', '.');
+            if (cname.startsWith("[")) {
+                int b = cname.lastIndexOf('[') + 2;
+                if ((b > 1) && (b < cname.length())) {
+                    cname = cname.substring(b);
+                }
+            }
+            int i = cname.lastIndexOf('.');
+            if (i != -1)
+                sm.checkPackageAccess(name.substring(0, i));
+        }
+        return super.loadClass(name, resolve);
     }
 }

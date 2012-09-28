@@ -21,10 +21,24 @@ package org.dvb.user;
 
 public class Facility {
     public Facility(String preference, String value) {
-        throw new Error("Not implemented");
+        this.preference = preference;
+        this.values = new String[1];
+        values[0] = value;
     }
 
     public Facility(String preference, String values[]) {
-        throw new Error("Not implemented");
+        this.preference = preference;
+        this.values = values;
     }
+
+    protected String getPreference() {
+        return preference;
+    }
+
+    protected String[] getValues() {
+        return values;
+    }
+
+    private String preference;
+    private String[] values;
 }

@@ -39,14 +39,10 @@ public class UserEventRepository extends RepositoryDescriptor {
 
     public UserEvent[] getUserEvent()
     {
-        UserEvent[] userEvents = new UserEvent[events.size()];
-        
-        int i = 0;
-        for (UserEvent e : userEvents) {
-            userEvents[i] = e;
-            i++;
-        }
-        
+        int size = events.size();
+        UserEvent[] userEvents = new UserEvent[size];
+        for (int i = 0; i < size; i++)
+            userEvents[i] = events.get(i);
         return userEvents;
     }
 
@@ -58,16 +54,16 @@ public class UserEventRepository extends RepositoryDescriptor {
     public void addKey(int keycode)
     {
         events.add(new UserEvent(this, UserEvent.UEF_KEY_EVENT,
-                KeyEvent.KEY_PRESSED, keycode, 0, 0));
+                                 KeyEvent.KEY_PRESSED, keycode, 0, 0));
         events.add(new UserEvent(this, UserEvent.UEF_KEY_EVENT,
-                KeyEvent.KEY_RELEASED, keycode, 0, 0));
+                                 KeyEvent.KEY_RELEASED, keycode, 0, 0));
     }
 
     public void removeKey(int keycode)
     {
         for(Iterator<UserEvent> it = events.iterator(); it.hasNext() == true; ) {
             UserEvent event = it.next();
-            
+
             if (event.getCode() == keycode)
                 it.remove();
         }

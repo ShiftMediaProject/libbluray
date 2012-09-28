@@ -20,27 +20,26 @@
 package org.bluray.ui;
 
 import org.havi.ui.HVideoConfigTemplate;
-import org.havi.ui.HVideoConfiguration;
 
 public class BDVideoConfigTemplate extends HVideoConfigTemplate {
-    public BDVideoConfigTemplate() {
-        throw new Error("Not implemented");
+    protected int getPreferenceCount() {
+        return super.getPreferenceCount() + 1;
     }
 
-    public Object getPreferenceObject(int preference) {
-        throw new Error("Not implemented");
+    protected int getPreferenceObjectCount() {
+        return super.getPreferenceObjectCount() + 1;
     }
 
-    public int getPreferencePriority(int preference) {
-        throw new Error("Not implemented");
+    protected int getPreferenceIndex(int preference) {
+        if (preference == KEEP_RESOLUTION)
+            return super.getPreferenceCount();
+        return super.getPreferenceIndex(preference);
     }
 
-    public boolean isConfigSupported(HVideoConfiguration hvc) {
-        throw new Error("Not implemented");
-    }
-
-    public void setPreference(int preference, Object object, int priority) {
-        throw new Error("Not implemented");
+    protected int getPreferenceObjectIndex(int preference) {
+        if (preference == KEEP_RESOLUTION)
+            return super.getPreferenceObjectCount();
+        return super.getPreferenceObjectIndex(preference);
     }
 
     public static final int KEEP_RESOLUTION = 16;

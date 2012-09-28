@@ -19,64 +19,94 @@
 
 package org.dvb.user;
 
-public abstract class Preference {
+import java.util.Iterator;
+import java.util.LinkedList;
+
+public class Preference {
     protected Preference() {
-        throw new Error("Not implemented");
+
     }
 
     public Preference(String name, String value) {
-        throw new Error("Not implemented");
+        this.name = name;
+        if (value != null)
+            values.add(value);
     }
 
     public Preference(String name, String value[]) {
-        throw new Error("Not implemented");
+        this.name = name;
+        for (int i = 0; i < value.length; i++)
+            values.add(value[i]);
     }
 
     public void add(String value) {
-        throw new Error("Not implemented");
+        values.remove(value);
+        values.add(value);
     }
 
-    public void add(String values[]) {
-        throw new Error("Not implemented");
+    public void add(String value[]) {
+        for (int i = 0; i < value.length; i++)
+            add(value[i]);
     }
 
     public void add(int position, String value) {
-        throw new Error("Not implemented");
+        values.remove(value);
+        if (position < 0)
+            position = 0;
+        else if (position > values.size())
+            position = values.size();
+        values.add(position, value);
     }
 
     public String[] getFavourites() {
-        throw new Error("Not implemented");
+        if (values.isEmpty())
+            return new String[0];
+        return (String[])values.toArray();
     }
 
     public String getMostFavourite() {
-        throw new Error("Not implemented");
+        if (values.isEmpty())
+            return null;
+        return (String)values.get(0);
     }
 
     public String getName() {
-        throw new Error("Not implemented");
+        return name;
     }
 
     public int getPosition(String value) {
-        throw new Error("Not implemented");
+        return values.indexOf(value);
     }
 
     public boolean hasValue() {
-        throw new Error("Not implemented");
+        return !values.isEmpty();
     }
 
     public void remove(String value) {
-        throw new Error("Not implemented");
+        values.remove(value);
     }
 
     public void removeAll() {
-        throw new Error("Not implemented");
+        values.clear();
     }
 
     public void setMostFavourite(String value) {
-        throw new Error("Not implemented");
+        values.remove(value);
+        values.addFirst(value);
     }
 
     public String toString() {
-        throw new Error("Not implemented");
+        String result = "Preference:" + name + "[";
+        String comma = "";
+        Iterator it = values.iterator();
+        while (it.hasNext()) {
+            result += comma + (String)it.next();
+            comma = ",";
+        }
+        result += ']';
+        return result;
     }
+
+    private String name;
+    private LinkedList values = new LinkedList();
 }

@@ -26,16 +26,15 @@ public class DVBTest {
     }
 
     public static void log(String id, String message) throws IOException {
-        throw new Error("Not implemented");
+        System.out.println("log: " + id + ": " + message);
     }
 
     public static void log(String id, int no) throws IOException {
-        throw new Error("Not implemented");
+        System.out.println("log: " + id + ": " + no);
     }
 
-    public static void terminate(String id, int terminationCondition)
-            throws IOException {
-        System.out.print(id + ": ");
+    public static void terminate(String id, int terminationCondition) throws IOException {
+        System.out.print("terminate: " + id + ": ");
         switch (terminationCondition) {
         case PASS:
             System.out.println("PASS");
@@ -49,9 +48,8 @@ public class DVBTest {
         }
     }
 
-    public static void prompt(String id, int controlCode, String message)
-            throws IOException {
-        throw new Error("Not implemented");
+    public static void prompt(String id, int controlCode, String message) throws IOException {
+        System.out.println("prompt: " + id + ": " + controlCode + ": " + message);
     }
 
     public final static int PASS = 0x00;

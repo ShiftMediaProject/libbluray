@@ -19,14 +19,15 @@
 
 package org.bluray.ui;
 
-import java.util.Arrays;
+import org.videolan.Arrays;
 
 public class AnimationParameters {
     public String toString() {
-        return "AnimationParameters [faaTimer=" + faaTimer + ", lockedToVideo="
-                + lockedToVideo + ", repeatCount="
-                + Arrays.toString(repeatCount) + ", scaleFactor=" + scaleFactor
-                + ", threadPriority=" + threadPriority + "]";
+        return "AnimationParameters [faaTimer=" + faaTimer +
+               ", lockedToVideo=" + lockedToVideo +
+               ", repeatCount=" + Arrays.toString(repeatCount) +
+               ", scaleFactor=" + scaleFactor +
+               ", threadPriority=" + threadPriority + "]";
     }
 
     public FrameAccurateAnimationTimer faaTimer = null;

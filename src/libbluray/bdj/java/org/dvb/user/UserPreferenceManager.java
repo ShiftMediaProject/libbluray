@@ -20,34 +20,98 @@
 package org.dvb.user;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class UserPreferenceManager {
     private UserPreferenceManager() {
-        throw new Error("Not implemented");
     }
 
     public static UserPreferenceManager getInstance() {
-        throw new Error("Not implemented");
+        synchronized (UserPreferenceManager.class) {
+            if (instance == null)
+                instance = new UserPreferenceManager();
+        }
+        return instance;
     }
 
     public void read(Preference p) {
-        throw new Error("Not implemented");
+        SecurityManager sm = System.getSecurityManager();
+        sm.checkPermission(new UserPreferencePermission("read"));
+        p.removeAll();
+        String name = p.getName();
+        Iterator it = preferences.iterator();
+        while (it.hasNext()) {
+            Preference preference = (Preference)it.next();
+            if (name.equals(preference.getName())) {
+                p.add(preference.getFavourites());
+                break;
+            }
+        }
     }
 
     public void read(Preference p, Facility facility) {
-        throw new Error("Not implemented");
+        SecurityManager sm = System.getSecurityManager();
+        sm.checkPermission(new UserPreferencePermission("read"));
+        p.removeAll();
+        String name = p.getName();
+        if (name.equals(facility.getPreference())) {
+            Iterator it = preferences.iterator();
+            while (it.hasNext()) {
+                Preference preference = (Preference)it.next();
+                if (name.equals(preference.getName())) {
+                    String[] values = preference.getFavourites();
+                    String[] valuesFacility = facility.getValues();
+                    for (int i = 0; i < values.length; i++)
+                        for (int j = 0; j < valuesFacility.length; j++)
+                            if (values[i].equals(valuesFacility[j])) {
+                                p.add(values[i]);
+                                break;
+                            }
+                    break;
+                }
+            }
+        }
     }
 
-    public void write(Preference p) throws UnsupportedPreferenceException,
-            IOException {
-        throw new Error("Not implemented");
+    public void write(Preference p) throws UnsupportedPreferenceException, IOException {
+        String name = p.getName();
+        if (!GeneralPreference.isGeneralPreference(name))
+            throw new UnsupportedPreferenceException();
+        SecurityManager sm = System.getSecurityManager();
+        sm.checkPermission(new UserPreferencePermission("write"));
+        Iterator it = preferences.iterator();
+        while (it.hasNext()) {
+            Preference preference = (Preference)it.next();
+            if (name.equals(preference.getName())) {
+                it.remove();
+                break;
+            }
+        }
+        preferences.add(p);
+        synchronized (listeners) {
+            int size = listeners.size();
+            if (size > 0) {
+                UserPreferenceChangeEvent event = new UserPreferenceChangeEvent(name);
+                for (int i  = 0; i < size; i++)
+                    ((UserPreferenceChangeListener)listeners.get(i)).receiveUserPreferenceChangeEvent(event);
+            }
+        }
     }
 
     public void addUserPreferenceChangeListener(UserPreferenceChangeListener l) {
-        throw new Error("Not implemented");
+        synchronized (listeners) {
+            listeners.add(l);
+        }
     }
 
     public void removeUserPreferenceChangeListener(UserPreferenceChangeListener l) {
-        throw new Error("Not implemented");
+        synchronized (listeners) {
+            listeners.remove(l);
+        }
     }
+
+    private static UserPreferenceManager instance;
+    private LinkedList preferences = new LinkedList();
+    private LinkedList listeners = new LinkedList();
 }
