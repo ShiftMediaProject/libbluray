@@ -30,6 +30,7 @@ import org.bluray.ti.TitleImpl;
 import org.bluray.ti.selection.TitleContext;
 import org.bluray.ui.event.HRcEvent;
 import org.dvb.event.EventManager;
+import org.dvb.ui.FontFactory;
 import org.videolan.bdjo.Bdjo;
 import org.videolan.media.content.BDHandler;
 
@@ -49,6 +50,8 @@ public class Libbluray {
             PackageManager.setProtocolPrefixList(prefix);
             PackageManager.commitContentPrefixList();
             PackageManager.commitProtocolPrefixList();
+
+            FontFactory.loadDiscFonts();
 
             System.setProperty("mhp.profile.enhanced_broadcast", "YES");
             System.setProperty("mhp.profile.interactive_broadcast", "YES");

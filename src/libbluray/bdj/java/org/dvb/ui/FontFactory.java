@@ -35,18 +35,19 @@ import org.videolan.FontIndex;
 import org.videolan.FontIndexData;
 
 public class FontFactory {
+    public static void loadDiscFonts() {
+        unloadDiscFonts();
+    }
+
+    public static void unloadDiscFonts() {
+    }
+
     public FontFactory() throws FontFormatException, IOException {
         String path = BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/dvb.fontindex");
 
-        try {
-            fontIndex.parse(path);
-        } catch (BDJException e) {
-            throw new IOException();
-        }
+        FontIndexData fontIndexData[] = FontIndex.parseIndex(path);
 
-        LinkedList<FontIndexData> fontIndexData = fontIndex.getFontIndexData();
-
-        fonts = new HashMap<String, Font>(fontIndexData.size());
+        fonts = new HashMap<String, Font>(fontIndexData.length);
         for (FontIndexData data : fontIndexData) {
             FileInputStream inStream = new FileInputStream(BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/" + data.getFileName()));
 
@@ -80,7 +81,6 @@ public class FontFactory {
         return font.deriveFont(style, size);
     }
 
-    private FontIndex fontIndex = new FontIndex();
     private Font urlFont = null;
     private Map<String, Font> fonts = null;
     
