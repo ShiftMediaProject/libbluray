@@ -43,8 +43,14 @@ static void *_load_jvm(void)
 {
     const char* java_home = getenv("JAVA_HOME"); // FIXME: should probably search multiple directories
     if (java_home == NULL) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "JAVA_HOME not set, can't find Java VM.\n");
-        return NULL;
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "JAVA_HOME not set, trying default locations\n");
+
+        void *h = dl_dlopen("libjvm", NULL);
+        if (h) {
+            return h;
+        }
+
+        java_home = "/usr/lib/jvm/default-java/";
     }
 
 #ifdef WIN32
