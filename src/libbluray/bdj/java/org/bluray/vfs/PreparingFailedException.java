@@ -20,12 +20,10 @@
 package org.bluray.vfs;
 
 public class PreparingFailedException extends Exception {
-    public PreparingFailedException()
-    {
+    public PreparingFailedException() {
     }
 
-    public PreparingFailedException(String reason)
-    {
+    public PreparingFailedException(String reason) {
         super(reason);
     }
 

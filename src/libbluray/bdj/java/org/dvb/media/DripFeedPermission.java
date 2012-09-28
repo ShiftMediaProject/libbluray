@@ -23,18 +23,15 @@ import java.security.BasicPermission;
 import java.security.Permission;
 
 public class DripFeedPermission extends BasicPermission {
-    public DripFeedPermission(String name)
-    {
+    public DripFeedPermission(String name) {
         super(name);
     }
 
-    public DripFeedPermission(String name, String actions)
-    {
+    public DripFeedPermission(String name, String actions) {
         super(name, actions);
     }
 
-    public boolean implies(Permission perm)
-    {
+    public boolean implies(Permission perm) {
         return perm instanceof DripFeedPermission;
     }
 

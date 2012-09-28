@@ -23,18 +23,15 @@ import java.security.BasicPermission;
 import java.security.Permission;
 
 public class VFSPermission extends BasicPermission {
-    public VFSPermission(String name)
-    {
+    public VFSPermission(String name) {
         super("*");
     }
 
-    public VFSPermission(String name, String actions)
-    {
+    public VFSPermission(String name, String actions) {
         super("*", actions);
     }
 
-    public boolean implies(Permission perm)
-    {
+    public boolean implies(Permission perm) {
         return perm instanceof VFSPermission;
     }
 
