@@ -47,8 +47,10 @@ public class DataSource extends javax.media.protocol.DataSource {
 
             if (locator.isPlayListItem()) {
                 contentType = "playlist";
-                playlist = locator.getPlayListId();
+            } else if (locator.isSoundItem()) {
+                contentType = "sound";
             }
+
         } catch (InvalidLocatorException e) {
             // ignore
         }
@@ -66,10 +68,5 @@ public class DataSource extends javax.media.protocol.DataSource {
     public void stop() throws IOException {
     }
 
-    public int getPlaylist() {
-        return playlist;
-    }
-
     private String contentType = "unknown";
-    private int playlist = -1;
 }
