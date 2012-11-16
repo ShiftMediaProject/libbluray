@@ -230,6 +230,7 @@ void bdj_close(BDJAVA *bdjava)
         return;
     }
 
+    if (bdjava->jvm) {
     if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
         (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
         attach = 1;
@@ -246,8 +247,11 @@ void bdj_close(BDJAVA *bdjava)
     }
 
     (*bdjava->jvm)->DestroyJavaVM(bdjava->jvm);
+    }
 
+    if (bdjava->h_libjvm) {
     dl_dlclose(bdjava->h_libjvm);
+    }
 
     X_FREE(bdjava);
 }
