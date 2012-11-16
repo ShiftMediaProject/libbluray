@@ -231,26 +231,26 @@ void bdj_close(BDJAVA *bdjava)
     }
 
     if (bdjava->jvm) {
-    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
-        (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
-        attach = 1;
-    }
+        if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
+            (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
+            attach = 1;
+        }
 
-    if (bdj_get_method(env, &shutdown_class, &shutdown_id,
-                       "org/videolan/Libbluray", "shutdown", "()V")) {
-        (*env)->CallStaticVoidMethod(env, shutdown_class, shutdown_id);
-        (*env)->DeleteLocalRef(env, shutdown_class);
-    }
+        if (bdj_get_method(env, &shutdown_class, &shutdown_id,
+                           "org/videolan/Libbluray", "shutdown", "()V")) {
+            (*env)->CallStaticVoidMethod(env, shutdown_class, shutdown_id);
+            (*env)->DeleteLocalRef(env, shutdown_class);
+        }
 
-    if (attach) {
-        (*bdjava->jvm)->DetachCurrentThread(bdjava->jvm);
-    }
+        if (attach) {
+            (*bdjava->jvm)->DetachCurrentThread(bdjava->jvm);
+        }
 
-    (*bdjava->jvm)->DestroyJavaVM(bdjava->jvm);
+        (*bdjava->jvm)->DestroyJavaVM(bdjava->jvm);
     }
 
     if (bdjava->h_libjvm) {
-    dl_dlclose(bdjava->h_libjvm);
+        dl_dlclose(bdjava->h_libjvm);
     }
 
     X_FREE(bdjava);
