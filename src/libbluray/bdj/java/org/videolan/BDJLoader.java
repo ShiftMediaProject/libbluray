@@ -21,8 +21,7 @@ package org.videolan;
 
 import java.io.InvalidObjectException;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.videolan.Logger;
 
 import org.bluray.net.BDLocator;
 import org.bluray.ti.TitleImpl;
@@ -100,7 +99,7 @@ public class BDJLoader {
     private static boolean loadN(TitleImpl title, boolean restart) {
         TitleInfo ti = title.getTitleInfo();
         if (!ti.isBdj()) {
-            logger.log(Level.INFO, "Not BD-J title - requesting HDMV title start");
+            logger.info("Not BD-J title - requesting HDMV title start");
             unloadN();
             return Libbluray.selectTitle(title);
         }
@@ -150,7 +149,7 @@ public class BDJLoader {
                                                                    bdjo.getAppCaches(),
                                                                    gui));
                 }
-                logger.log(Level.INFO, "Loaded class: " + appTable[i].getInitialClass());
+                logger.info("Loaded class: " + appTable[i].getInitialClass());
             }
 
             // change psr
@@ -171,12 +170,12 @@ public class BDJLoader {
                 }
             }
 
-            logger.log(Level.INFO, "Finished initializing and starting xlets.");
+            logger.info("Finished initializing and starting xlets.");
 
             // auto start playlist
             PlayListTable plt = bdjo.getAccessiblePlaylists();
             if ((plt != null) && (plt.isAutostartFirst())) {
-                logger.log(Level.INFO, "Auto-starting playlist");
+                logger.info("Auto-starting playlist");
                 String[] pl = plt.getPlayLists();
                 if (pl.length > 0)
                     Manager.createPlayer(new MediaLocator(new BDLocator("bd://PLAYLIST:" + pl[0]))).start();

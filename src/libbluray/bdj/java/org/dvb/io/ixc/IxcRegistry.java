@@ -26,7 +26,6 @@ import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.tv.xlet.XletContext;
 
@@ -35,6 +34,7 @@ import org.dvb.application.AppProxy;
 import org.dvb.application.AppsDatabase;
 
 import org.videolan.BDJXletContext;
+import org.videolan.Logger;
 
 public class IxcRegistry {
     public static Remote lookup(XletContext xc, String path) throws NotBoundException, RemoteException {

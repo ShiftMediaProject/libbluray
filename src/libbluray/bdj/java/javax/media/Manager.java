@@ -3,11 +3,11 @@ package javax.media;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.media.protocol.DataSource;
 import javax.media.protocol.URLDataSource;
+
+import org.videolan.Logger;
 
 /**
  * This file is a stripped down version of the Manager class from FMJ (fmj-sf.net)
@@ -49,22 +49,22 @@ public final class Manager {
             }
             catch (ClassNotFoundException e)
             {
-                logger.warning("createPlayer: "  + e);    // no need for call stack
+                logger.warning("createPlayer: " + e);    // no need for call stack
                 continue;
             }           
             catch (IOException e)
             {
-                logger.log(Level.WARNING, ""  + e, e);
+                logger.warning(""  + e);
                 continue;
             }
             catch (NoClassDefFoundError e)
             {
-                logger.log(Level.WARNING, ""  + e, e);
+                logger.warning(""  + e);
                 continue;
             }
             catch (Exception e)
             {
-                logger.log(Level.WARNING, ""  + e, e);
+                logger.warning(""  + e);
                 continue;
             }
 
@@ -78,7 +78,8 @@ public final class Manager {
             url = sourceLocator.getURL();
         }
         catch (Exception e)
-        {   logger.log(Level.WARNING, ""  + e, e);
+        {
+            logger.warning("" + e);
             throw new NoPlayerException();
         }
         final URLDataSource dataSource = new URLDataSource(url);
@@ -128,17 +129,17 @@ public final class Manager {
             }
             catch (IOException e)
             {
-                logger.log(Level.WARNING, ""  + e, e);
+                logger.warning("" + e);
                 continue;
             }
             catch (NoClassDefFoundError e)
             {
-                logger.log(Level.WARNING, ""  + e, e);
+                logger.warning("" + e);
                 continue;
             }
             catch (Exception e)
             {
-                logger.log(Level.WARNING, ""  + e, e);
+                logger.warning("" + e);
                 continue;
             }
 
@@ -152,7 +153,8 @@ public final class Manager {
             url = sourceLocator.getURL();
         }
         catch (Exception e)
-        {   logger.log(Level.WARNING, ""  + e, e);
+        {
+            logger.warning("" + e);
             throw new NoDataSourceException();
         }
         final URLDataSource dataSource = new URLDataSource(url);
@@ -213,7 +215,7 @@ public final class Manager {
             }
             catch (IOException e)
             {
-                logger.log(Level.WARNING, ""  + e, e);
+                logger.warning("" + e);
                 continue;
             }
             catch (NoPlayerException e)
@@ -222,12 +224,12 @@ public final class Manager {
             }
             catch (NoClassDefFoundError e)
             {
-                logger.log(Level.WARNING, ""  + e, e);
+                logger.warning("" + e);
                 continue;
             }
             catch (Exception e)
             {
-                logger.log(Level.WARNING, ""  + e, e);
+                logger.warning("" + e);
                 continue;
             }
         }

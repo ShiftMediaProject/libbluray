@@ -24,7 +24,8 @@ import java.io.InterruptedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.X509Certificate;
-import java.util.logging.Logger;
+
+import org.videolan.Logger;
 
 public class DSMCCObject extends File {
     public DSMCCObject(String path)

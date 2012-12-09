@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Logger;
+import org.videolan.Logger;
 
 /**
  * This class handle mounting jar files so that their contents can be accessed.

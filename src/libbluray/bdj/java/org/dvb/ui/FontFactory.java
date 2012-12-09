@@ -27,12 +27,12 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.videolan.BDJException;
 import org.videolan.BDJUtil;
 import org.videolan.FontIndex;
 import org.videolan.FontIndexData;
+import org.videolan.Logger;
 
 public class FontFactory {
     public static void loadDiscFonts() {
@@ -83,6 +83,6 @@ public class FontFactory {
 
     private Font urlFont = null;
     private Map<String, Font> fonts = null;
-    
+
     private static final Logger logger = Logger.getLogger(FontFactory.class.getName());
 }
