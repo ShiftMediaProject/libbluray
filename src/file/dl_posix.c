@@ -119,7 +119,7 @@ void   *dl_dlopen  ( const char* path, const char *version )
             name = str_printf("%s%s%s", search_paths[i], path, ext);
         }
 
-        fprintf (stderr, "Attempting to open %s\n", name);
+        BD_DEBUG(DBG_FILE, "Attempting to open %s\n", name);
 
         dll = _dl_dlopen (name);
         X_FREE(name);
