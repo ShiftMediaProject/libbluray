@@ -17,24 +17,15 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.aacsla.bluray.online;
+#if !defined(_BLURAY_INTERNAL_H_)
+#define _BLURAY_INTERNAL_H_
 
-import org.videolan.Libbluray;
-import org.videolan.Logger;
+#include <util/attributes.h>
 
-public class MediaAttribute {
-    public MediaAttribute() {
-    }
+#include "bluray.h"
 
-    public byte[] getPMSN() {
-        // TODO
-        logger.unimplemented("getPMSN");
-        return null;
-    }
+#include <stdint.h>
 
-    public byte[] getVolumeID() {
-        return Libbluray.getVolumeID();
-    }
+BD_PRIVATE const uint8_t *bd_get_vid(BLURAY *bd);
 
-    private static final Logger logger = Logger.getLogger(MediaAttribute.class.getName());
-}
+#endif  /* _BLURAY_INTERNAL_H_ */

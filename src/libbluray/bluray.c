@@ -25,6 +25,7 @@
 
 #include "bluray-version.h"
 #include "bluray.h"
+#include "bluray_internal.h"
 #include "register.h"
 #include "util/macro.h"
 #include "util/logging.h"
@@ -790,8 +791,9 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
     return 0;
 }
 
-static const uint8_t *_libaacs_get_vid(BLURAY *bd)
+const uint8_t *bd_get_vid(BLURAY *bd)
 {
+    /* internal function. Used by BD-J and libbdplus loader. */
     if (bd->aacs) {
         fptr_p_void fptr;
         *(void **)(&fptr) = dl_dlsym(bd->h_libaacs, "aacs_get_vid");
@@ -904,7 +906,7 @@ static int _libbdplus_open(BLURAY *bd, const char *keyfile_path)
         return 0;
     }
 
-    const uint8_t *aacs_vid = _libaacs_get_vid(bd);
+    const uint8_t *aacs_vid = bd_get_vid(bd);
     bd->bdplus = bd->bdplus_init(bd->device_path, keyfile_path, aacs_vid ? aacs_vid : vid);
 
     if (bd->bdplus) {

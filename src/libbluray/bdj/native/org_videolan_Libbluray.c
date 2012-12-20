@@ -26,11 +26,14 @@
 #include "libbluray/bdj/bdjo_parser.h"
 #include "libbluray/register.h"
 #include "libbluray/bluray.h"
+#include "libbluray/bluray_internal.h"
 
 #include "util/strutl.h"
 #include "util/macro.h"
 
 #include "org_videolan_Libbluray.h"
+
+#include <string.h>
 
 /* Disable some warnings */
 #if defined __GNUC__
@@ -170,6 +173,22 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
     bd_free_title_info(ti);
 
     return titleInfo;
+}
+
+static
+JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getVolumeIDN
+  (JNIEnv * env, jclass cls, jlong np)
+{
+    BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
+    const uint8_t *vid = bd_get_vid(bdj->bd);
+
+    static const uint8_t empty[16] = {0};
+    if (!vid || !memcmp(vid, empty, sizeof(empty))) {
+        return NULL;
+    }
+    jbyteArray array = (*env)->NewByteArray(env, 16);
+    (*env)->SetByteArrayRegion(env, array, 0, 16, (const jbyte *)vid);
+    return array;
 }
 
 static
@@ -349,6 +368,11 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
 BD_PRIVATE const JNINativeMethod
 Java_org_videolan_Libbluray_methods[] =
 { /* AUTOMATICALLY GENERATED */
+    {
+        CC("getVolumeIDN"),
+        CC("(J)[B"),
+        Java_org_videolan_Libbluray_getVolumeIDN,
+    },
     {
         CC("getTitleInfoN"),
         CC("(JI)Lorg/videolan/TitleInfo;"),

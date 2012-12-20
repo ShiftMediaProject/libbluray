@@ -31,6 +31,7 @@ lib_LTLIBRARIES=libbluray.la
 libbluray_ladir= $(includedir)/libbluray
 libbluray_la_SOURCES=libbluray/bluray.h \
 	libbluray/bluray.c \
+	libbluray/bluray_internal.h \
 	libbluray/register.h \
 	libbluray/register.c \
 	libbluray/keys.h \
