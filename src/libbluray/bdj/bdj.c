@@ -134,7 +134,7 @@ BDJAVA* bdj_open(const char *path,
     option[n++].optionString = classpath_opt;
     option[n++].optionString = vfs_opt;
 
-    args.version = JNI_VERSION_1_6;
+    args.version = JNI_VERSION_1_4;
     args.nOptions = n;
     args.options = option;
     args.ignoreUnrecognized = JNI_FALSE; // don't ignore unrecognized options
@@ -171,7 +171,7 @@ int bdj_start(BDJAVA *bdjava, unsigned title)
         return BDJ_ERROR;
     }
 
-    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
+    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
         (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
         attach = 1;
     }
@@ -201,7 +201,7 @@ int bdj_stop(BDJAVA *bdjava)
         return BDJ_ERROR;
     }
 
-    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
+    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
         (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
         attach = 1;
     }
@@ -231,7 +231,7 @@ void bdj_close(BDJAVA *bdjava)
     }
 
     if (bdjava->jvm) {
-        if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
+        if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
             (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
             attach = 1;
         }
@@ -267,7 +267,7 @@ void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         return;
     }
 
-    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
+    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
         (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
         attach = 1;
     }
