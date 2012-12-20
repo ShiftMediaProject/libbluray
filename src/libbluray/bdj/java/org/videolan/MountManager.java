@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -64,9 +65,9 @@ public class MountManager {
         tmpDir.mkdir();
 
         try {
-            Enumeration<JarEntry> entries = jar.entries();
+            Enumeration entries = jar.entries();
             while (entries.hasMoreElements()) {
-                JarEntry entry = entries.nextElement();
+                JarEntry entry = (JarEntry)entries.nextElement();
                 File out = new File(tmpDir + File.separator + entry.getName());
 
                 if (entry.isDirectory()) {
@@ -89,29 +90,30 @@ public class MountManager {
             throw new MountException();
         }
 
-        mountPoints.put(jarId, tmpDir);
+        mountPoints.put(new Integer(jarId), tmpDir);
         return tmpDir.getAbsolutePath();
     }
 
     public static void unmount(int jarId) {
         logger.info("Unmounting JAR: " + jarId);
-
-        File mountPoint = mountPoints.get(jarId);
+        Integer id = new Integer(jarId);
+        File mountPoint = (File)mountPoints.get(id);
         if (mountPoint != null) {
             recursiveDelete(mountPoint);
-            mountPoints.remove(jarId);
+            mountPoints.remove(id);
         }
     }
 
     public static void unmountAll() {
-        for (int key : mountPoints.keySet()) {
-            unmount(key);
-        }
+        Iterator iterator = mountPoints.keySet().iterator();
+        while (iterator.hasNext())
+            unmount(((Integer)iterator.next()).intValue());
     }
 
     public static String getMount(int jarId) {
-        if (mountPoints.containsKey(jarId)) {
-            return mountPoints.get(jarId).getAbsolutePath();
+        Integer id = new Integer(jarId);
+        if (mountPoints.containsKey(id)) {
+            return ((File)mountPoints.get(id)).getAbsolutePath();
         } else {
             return null;
         }
@@ -124,7 +126,9 @@ public class MountManager {
     }
 
     private static void recursiveDelete(File dir) {
-        for (File file : dir.listFiles()) {
+        File[] files = dir.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File file = files[i];
             if (file.isDirectory()) {
                 recursiveDelete(file);
             } else {
@@ -135,6 +139,6 @@ public class MountManager {
         dir.delete();
     }
 
-    private static Map<Integer, File> mountPoints = Collections.synchronizedMap(new HashMap<Integer, File>());
+    private static Map mountPoints = Collections.synchronizedMap(new HashMap());
     private static final Logger logger = Logger.getLogger(MountManager.class.getName());
 }

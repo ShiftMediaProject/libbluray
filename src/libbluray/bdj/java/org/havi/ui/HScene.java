@@ -30,6 +30,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.havi.ui.event.HEventGroup;
@@ -215,9 +216,10 @@ public class HScene extends Container implements HComponentOrdering {
         if (!active)
             return null;
 
-        for (Component comp : super.getComponents()) {
-            if (comp.hasFocus())
-                return comp;
+        Component[] comps = getComponents();
+        for (int i = 0; i < comps.length; i++) {
+            if (comps[i].hasFocus())
+                return comps[i];
         }
 
         return null;
@@ -234,25 +236,29 @@ public class HScene extends Container implements HComponentOrdering {
     public boolean addShortcut(int keyCode, HActionable act) {
         // make sure component is in HScene
         boolean hasComp = false;
-        for (Component comp : getComponents()) {
-            if (comp == act)
+
+        Component[] comps = getComponents();
+        for (int i = 0; i < comps.length; i++) {
+            if (comps[i] == act) {
                 hasComp = true;
+                break;
+            }
         }
 
         if (!hasComp)
             return false;
 
-        shortcuts.put(keyCode, act);
+        shortcuts.put(new Integer(keyCode), act);
 
         return true;
     }
 
     public void removeShortcut(int keyCode) {
-        shortcuts.remove(keyCode);
+        shortcuts.remove(new Integer(keyCode));
     }
 
     public HActionable getShortcutComponent(int keyCode) {
-        return shortcuts.get(keyCode);
+        return (HActionable)shortcuts.get(new Integer(keyCode));
     }
 
     public void enableShortcuts(boolean enable) {
@@ -264,11 +270,12 @@ public class HScene extends Container implements HComponentOrdering {
     }
 
     public int getShortcutKeycode(HActionable comp) {
-        for (Integer key : shortcuts.keySet()) {
-            HActionable action = shortcuts.get(key);
-
+        Iterator iterator = shortcuts.keySet().iterator();
+        Integer key;
+        while ((key = (Integer)iterator.next()) != null) {
+            HActionable action = (HActionable)shortcuts.get(key);
             if (action == comp)
-                return key;
+                return key.intValue();
         }
 
         return KeyEvent.VK_UNDEFINED;
@@ -279,7 +286,7 @@ public class HScene extends Container implements HComponentOrdering {
         int[] dest = new int[src.length];
 
         for (int i = 0; i < src.length; i++)
-            dest[i] = src[i];
+            dest[i] = src[i].intValue();
 
         return dest;
     }
@@ -379,8 +386,7 @@ public class HScene extends Container implements HComponentOrdering {
     private int imageMode = IMAGE_NONE;
     private WindowListener windowListener = null;
     private HEventGroup eventGroup = null;
-    private Map<Integer, HActionable> shortcuts = Collections
-            .synchronizedMap(new HashMap<Integer, HActionable>());
+    private Map shortcuts = Collections.synchronizedMap(new HashMap());
     private boolean shortcutsEnabled = true;
     private BDJXletContext context;
 

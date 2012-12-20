@@ -32,11 +32,11 @@ public class AppsDatabase {
         throw new Error("Not implemented");
     }
 
-    public Enumeration<?> getAppIDs(AppsDatabaseFilter filter) {
+    public Enumeration getAppIDs(AppsDatabaseFilter filter) {
         throw new Error("Not implemented");
     }
 
-    public Enumeration<?> getAppAttributes(AppsDatabaseFilter filter) {
+    public Enumeration getAppAttributes(AppsDatabaseFilter filter) {
         throw new Error("Not implemented");
     }
 
@@ -61,9 +61,9 @@ public class AppsDatabase {
     }
 
     protected void notifyListeners(int id, AppID appid) {
-        LinkedList<AppsDatabaseEventListener> list;
+        LinkedList list;
         synchronized(listeners) {
-            list = (LinkedList<AppsDatabaseEventListener>)listeners.clone();
+            list = (LinkedList)listeners.clone();
         }
         AppsDatabaseEvent event = new AppsDatabaseEvent(id, appid, this);
         for (int i = 0; i < list.size(); i++) {
@@ -84,5 +84,5 @@ public class AppsDatabase {
         }
     }
 
-    private LinkedList<AppsDatabaseEventListener> listeners = new LinkedList<AppsDatabaseEventListener>();
+    private LinkedList listeners = new LinkedList();
 }

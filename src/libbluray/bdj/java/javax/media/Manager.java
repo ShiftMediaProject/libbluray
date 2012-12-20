@@ -25,13 +25,11 @@ public final class Manager {
             throws IOException, NoPlayerException
     {
         final String protocol = sourceLocator.getProtocol();
-        final Vector<?> dataSourceList = getDataSourceList(protocol);
-        for (int i = 0; i < dataSourceList.size(); ++i)
-        {
+        final Vector dataSourceList = getDataSourceList(protocol);
+        for (int i = 0; i < dataSourceList.size(); ++i) {
             String dataSourceClassName = (String) dataSourceList.get(i);
-            try
-            {
-                final Class<?> dataSourceClass = Class.forName(dataSourceClassName);
+            try {
+                final Class dataSourceClass = Class.forName(dataSourceClassName);
                 final DataSource dataSource = (DataSource) dataSourceClass.newInstance();
                 dataSource.setLocator(sourceLocator);
                 dataSource.connect();
@@ -108,13 +106,13 @@ public final class Manager {
             throws IOException, NoDataSourceException
     {
         final String protocol = sourceLocator.getProtocol();
-        final Vector<?> dataSourceList = getDataSourceList(protocol);
+        final Vector dataSourceList = getDataSourceList(protocol);
         for (int i = 0; i < dataSourceList.size(); ++i)
         {
             String dataSourceClassName = (String) dataSourceList.get(i);
             try
             {
-                final Class<?> dataSourceClass = Class.forName(dataSourceClassName);
+                final Class dataSourceClass = Class.forName(dataSourceClassName);
                 final DataSource dataSource = (DataSource) dataSourceClass.newInstance();
                 dataSource.setLocator(sourceLocator);
                 dataSource.connect();
@@ -167,12 +165,12 @@ public final class Manager {
         return systemTimeBase;
     }
 
-    public static Vector<?> getDataSourceList(String protocolName)
+    public static Vector getDataSourceList(String protocolName)
     {
         return getClassList(protocolName, PackageManager.getProtocolPrefixList(), "protocol", "DataSource");
     }
 
-    public static Vector<?> getHandlerClassList(String contentName)
+    public static Vector getHandlerClassList(String contentName)
     {
         return getClassList(toPackageFriendly(contentName), PackageManager.getContentPrefixList(), "content", "Handler");
     }
@@ -180,7 +178,7 @@ public final class Manager {
     private static Player createPlayer(DataSource source, String contentType)
         throws IOException, NoPlayerException
     {
-        final Vector<?> handlerClassList = getHandlerClassList(contentType);
+        final Vector handlerClassList = getHandlerClassList(contentType);
         for (int i = 0; i < handlerClassList.size(); ++i)
         {
             final String handlerClassName = (String) handlerClassList.get(i);
@@ -188,7 +186,7 @@ public final class Manager {
             try
             {
                 System.out.println(handlerClassName);
-                final Class<?> handlerClass = Class.forName(handlerClassName);
+                final Class handlerClass = Class.forName(handlerClassName);
                 if (!Player.class.isAssignableFrom(handlerClass) && 
                     !MediaProxy.class.isAssignableFrom(handlerClass))
                         continue;   // skip any classes that will not be matched below.
@@ -262,10 +260,9 @@ public final class Manager {
         return b.toString();
     }
     
-    public static Vector<String> getClassList(String contentName, Vector<?> packages, String component2, String className)
+    public static Vector getClassList(String contentName, Vector packages, String component2, String className)
     {
-        
-        final Vector<String> result = new Vector<String>();
+        final Vector result = new Vector();
         //result.add("media." + component2 + "." + contentName + "." + className);
         
         for (int i = 0; i < packages.size(); ++i)

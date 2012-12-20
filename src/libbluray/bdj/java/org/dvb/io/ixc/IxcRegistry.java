@@ -47,7 +47,8 @@ public class IxcRegistry {
         short appId = Short.parseShort(parts[1], 16);
         String name = parts[2];
 
-        for (IxcObject obj : ixcList) {
+        for (int i = 0; i < ixcList.size(); i++) {
+            IxcObject obj = (IxcObject)ixcList.get(i);
             if (obj.orgId == orgId && obj.appId == appId && obj.name.equals(name)) {
                 logger.info("Looked up " + path);
                 return obj.obj;
@@ -87,8 +88,10 @@ public class IxcRegistry {
         if (xc == null || name == null)
             throw new NullPointerException();
 
-        int orgId = (Integer)xc.getXletProperty("dvb.org.id");
-        int iappId = (Integer)xc.getXletProperty("dvb.app.id");
+        String orgid = (String)xc.getXletProperty("dvb.org.id");
+        String appid = (String)xc.getXletProperty("dvb.app.id");
+        int orgId = Integer.parseInt(orgid);
+        int iappId = Integer.parseInt(appid);
         short appId = (short)iappId;
 
         IxcObject ixcObj = new IxcObject(orgId, appId, name, null);
@@ -121,7 +124,7 @@ public class IxcRegistry {
         String[] out = new String[ixcList.size()];
 
         for (int i = 0; i < ixcList.size(); i++) {
-            IxcObject obj = ixcList.get(i);
+            IxcObject obj = (IxcObject)ixcList.get(i);
 
             out[i] = "/" + Integer.toString(obj.orgId, 16) + "/" + Integer.toString(obj.appId, 16) + "/" + obj.name;
         }
@@ -163,6 +166,6 @@ public class IxcRegistry {
         public Remote obj;
     }
 
-    private static List<IxcObject> ixcList = Collections.synchronizedList(new ArrayList<IxcObject>());
+    private static List ixcList = Collections.synchronizedList(new ArrayList());
     private static Logger logger = Logger.getLogger(IxcRegistry.class.getName());
 }

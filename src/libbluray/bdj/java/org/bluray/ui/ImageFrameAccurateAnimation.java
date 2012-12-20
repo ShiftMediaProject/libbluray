@@ -36,7 +36,6 @@ public class ImageFrameAccurateAnimation extends FrameAccurateAnimation {
 
     }
 
-    @Deprecated
     public AnimationParameters getAnimationParameters()
     {
         throw new Error("Not implemented");

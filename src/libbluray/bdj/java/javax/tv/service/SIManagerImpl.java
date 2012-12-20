@@ -50,67 +50,56 @@ public class SIManagerImpl extends SIManager {
         titles = new ServiceListImpl(list);
     }
 
-    @Override
     public ServiceList filterServices(ServiceFilter filter) {
         return titles.filterServices(filter);
     }
 
-    @Override
     public String getPreferredLanguage() {
         return language;
     }
 
-    @Override
     public RatingDimension getRatingDimension(String name) throws SIException {
         if (!name.equals(RatingDimensionImpl.dimensionName))
             throw new SIException();
         return new RatingDimensionImpl();
     }
 
-    @Override
     public Service getService(Locator locator) throws InvalidLocatorException, SecurityException {
         return titles.findService(locator);
     }
 
-    @Override
     public String[] getSupportedDimensions() {
          String[] dimensions = new String[1];
          dimensions[0] = RatingDimensionImpl.dimensionName;
          return dimensions;
     }
 
-    @Override
     public Transport[] getTransports() {
         Transport[] transports = new Transport[1];
         transports[0] = new TransportImpl();
         return transports;
     }
 
-    @Override
     public void registerInterest(Locator locator, boolean active)
             throws InvalidLocatorException, SecurityException {
         throw new Error("Not implemented");
     }
 
-    @Override
     public SIRequest retrieveProgramEvent(Locator locator, SIRequestor requestor)
             throws InvalidLocatorException, SecurityException {
         throw new Error("Not implemented");
     }
 
-    @Override
     public SIRequest retrieveSIElement(Locator locator, SIRequestor requestor)
             throws InvalidLocatorException, SecurityException {
         throw new Error("Not implemented");
     }
 
-    @Override
     public SIRequest retrieveServiceDetails(Locator locator, SIRequestor requestor)
                 throws InvalidLocatorException, SecurityException {
         throw new Error("Not implemented");
     }
 
-    @Override
     public void setPreferredLanguage(String language) {
         this.language = language;
     }

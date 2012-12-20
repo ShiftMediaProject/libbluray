@@ -42,7 +42,7 @@ public class UserEventRepository extends RepositoryDescriptor {
         int size = events.size();
         UserEvent[] userEvents = new UserEvent[size];
         for (int i = 0; i < size; i++)
-            userEvents[i] = events.get(i);
+            userEvents[i] = (UserEvent)events.get(i);
         return userEvents;
     }
 
@@ -61,8 +61,8 @@ public class UserEventRepository extends RepositoryDescriptor {
 
     public void removeKey(int keycode)
     {
-        for(Iterator<UserEvent> it = events.iterator(); it.hasNext() == true; ) {
-            UserEvent event = it.next();
+        for(Iterator it = events.iterator(); it.hasNext() == true; ) {
+            UserEvent event = (UserEvent)it.next();
 
             if (event.getCode() == keycode)
                 it.remove();
@@ -129,5 +129,5 @@ public class UserEventRepository extends RepositoryDescriptor {
         removeKey(HRcEvent.VK_DOWN);
     }
 
-    private LinkedList<UserEvent> events = new LinkedList<UserEvent>();
+    private LinkedList events = new LinkedList();
 }

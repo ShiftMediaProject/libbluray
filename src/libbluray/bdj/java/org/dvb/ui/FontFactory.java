@@ -47,8 +47,9 @@ public class FontFactory {
 
         FontIndexData fontIndexData[] = FontIndex.parseIndex(path);
 
-        fonts = new HashMap<String, Font>(fontIndexData.length);
-        for (FontIndexData data : fontIndexData) {
+        fonts = new HashMap(fontIndexData.length);
+        for (int i = 0; i < fontIndexData.length; i++) {
+            FontIndexData data = fontIndexData[i];
             FileInputStream inStream = new FileInputStream(BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/" + data.getFileName()));
 
             Font font = Font.createFont(Font.TRUETYPE_FONT, inStream);
@@ -73,7 +74,7 @@ public class FontFactory {
             return urlFont.deriveFont(style, size);
         }
 
-        Font font = fonts.get(name);
+        Font font = (Font)fonts.get(name);
 
         if (font == null)
             throw new FontNotAvailableException();
@@ -82,7 +83,7 @@ public class FontFactory {
     }
 
     private Font urlFont = null;
-    private Map<String, Font> fonts = null;
+    private Map fonts = null;
 
     private static final Logger logger = Logger.getLogger(FontFactory.class.getName());
 }

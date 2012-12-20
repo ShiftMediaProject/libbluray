@@ -226,7 +226,6 @@ public class DVBGraphicsImpl extends DVBGraphics {
         return gfx.getClipBounds(r);
     }
 
-    @Deprecated
     public Rectangle getClipRect()
     {
         return gfx.getClipRect();
@@ -319,7 +318,7 @@ public class DVBGraphicsImpl extends DVBGraphics {
     /*
      * Graphics2D methods
      */
-    public void addRenderingHints(Map<?, ?> hints)
+    public void addRenderingHints(Map hints)
     {
         gfx.addRenderingHints(hints);
     }
@@ -460,7 +459,7 @@ public class DVBGraphicsImpl extends DVBGraphics {
         gfx.setRenderingHint(hintKey, hintValue);
     }
 
-    public void setRenderingHints(Map<?, ?> hints)
+    public void setRenderingHints(Map hints)
     {
         gfx.setRenderingHints(hints);
     }

@@ -162,5 +162,5 @@ public class SubtitlingControlImpl extends StreamControl implements SubtitlingCo
         private SubtitlingControlImpl control;
     }
 
-    private LinkedList<SubtitleListener> listeners = new LinkedList<SubtitleListener>();
+    private LinkedList listeners = new LinkedList();
 }

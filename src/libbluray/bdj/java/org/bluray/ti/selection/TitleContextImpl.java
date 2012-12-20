@@ -174,8 +174,8 @@ public class TitleContextImpl implements TitleContext {
     private static final int STATE_STOPPED = 0;
     private static final int STATE_STARTED = 1;
     private static final int STATE_DESTROYED = 2;
-    private LinkedList<ServiceContextListener> listeners = new LinkedList<ServiceContextListener>();
-    private LinkedList<ServiceContentHandler> handlers = new LinkedList<ServiceContentHandler>();
+    private LinkedList listeners = new LinkedList();
+    private LinkedList handlers = new LinkedList();
     private TitleImpl title = null;
     private int state = STATE_STOPPED;
 }

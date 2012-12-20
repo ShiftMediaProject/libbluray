@@ -83,7 +83,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
     public static BDJXletContext getCurrentContext() {
         Object obj = AccessController.doPrivileged(
-                new PrivilegedAction<Object>() {
+                new PrivilegedAction() {
                     public Object run() {
                         ThreadGroup group = Thread.currentThread().getThreadGroup();
                         while ((group != null) && !(group instanceof BDJThreadGroup))
