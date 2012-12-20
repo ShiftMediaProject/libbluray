@@ -54,6 +54,7 @@ int bdj_get_method(JNIEnv *env, jclass *cls, jmethodID *method_id,
     if (!*cls) {
         (*env)->ExceptionDescribe(env);
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate class %s\n", class_name);
+        (*env)->ExceptionClear(env);
         return 0;
     }
 
@@ -64,6 +65,7 @@ int bdj_get_method(JNIEnv *env, jclass *cls, jmethodID *method_id,
                  class_name, method_name, method_sig);
         (*env)->DeleteLocalRef(env, *cls);
         *cls = NULL;
+        (*env)->ExceptionClear(env);
         return 0;
     }
 
@@ -100,5 +102,5 @@ int bdj_register_methods(JNIEnv *env, const char *class_name,
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to register native methods for class %s\n", class_name);
     }
 
-    return error;
+    return !error;
 }
