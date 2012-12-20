@@ -170,7 +170,8 @@ struct bluray {
 
 #define DL_CALL(lib,func,param,...)             \
      do {                                           \
-          fptr_p_void fptr = (fptr_p_void)dl_dlsym(lib, #func);  \
+          fptr_p_void fptr;                         \
+          *(void **)(&fptr) = dl_dlsym(lib, #func); \
           if (fptr) {                               \
               fptr(param, ##__VA_ARGS__);           \
           }                                         \
@@ -686,8 +687,8 @@ static int _libaacs_load(BLURAY *bd)
 
         BD_DEBUG(DBG_BLURAY, "Loading libaacs (%p)\n", bd->h_libaacs);
 
-        bd->libaacs_open         = (fptr_p_void)dl_dlsym(bd->h_libaacs, "aacs_open");
-        bd->libaacs_decrypt_unit = (fptr_int)dl_dlsym(bd->h_libaacs, "aacs_decrypt_unit");
+        *(void **)(&bd->libaacs_open)         = dl_dlsym(bd->h_libaacs, "aacs_open");
+        *(void **)(&bd->libaacs_decrypt_unit) = dl_dlsym(bd->h_libaacs, "aacs_decrypt_unit");
 
         if (bd->libaacs_open && bd->libaacs_decrypt_unit) {
             BD_DEBUG(DBG_BLURAY, "Loaded libaacs (%p)\n", bd->h_libaacs);
@@ -728,7 +729,8 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
     }
 
     int error_code = 0;
-    fptr_p_void aacs_open2 = (fptr_p_void)dl_dlsym(bd->h_libaacs, "aacs_open2");
+    fptr_p_void aacs_open2;
+    *(void **)(&aacs_open2) = dl_dlsym(bd->h_libaacs, "aacs_open2");
     if (!aacs_open2) {
         BD_DEBUG(DBG_BLURAY, "Using old aacs_open(), no verbose error reporting available (%p)\n", bd->aacs);
         bd->aacs = bd->libaacs_open(bd->device_path, keyfile_path);
@@ -737,8 +739,12 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
     }
 
     if (bd->aacs) {
-        fptr_int    aacs_get_mkb_version = (fptr_int)    dl_dlsym(bd->h_libaacs, "aacs_get_mkb_version");
-        fptr_p_void aacs_get_disc_id     = (fptr_p_void) dl_dlsym(bd->h_libaacs, "aacs_get_disc_id");
+        fptr_int    aacs_get_mkb_version;
+        fptr_p_void aacs_get_disc_id;
+
+        *(void **)(&aacs_get_mkb_version) = dl_dlsym(bd->h_libaacs, "aacs_get_mkb_version");
+        *(void **)(&aacs_get_disc_id)     = dl_dlsym(bd->h_libaacs, "aacs_get_disc_id");
+
         if (aacs_get_mkb_version) {
             bd->disc_info.aacs_mkbv = aacs_get_mkb_version(bd->aacs);
         }
@@ -784,12 +790,13 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
     return 0;
 }
 
-static uint8_t *_libaacs_get_vid(BLURAY *bd)
+static const uint8_t *_libaacs_get_vid(BLURAY *bd)
 {
     if (bd->aacs) {
-        fptr_p_void fptr = (fptr_p_void)dl_dlsym(bd->h_libaacs, "aacs_get_vid");
+        fptr_p_void fptr;
+        *(void **)(&fptr) = dl_dlsym(bd->h_libaacs, "aacs_get_vid");
         if (fptr) {
-            return (uint8_t*)fptr(bd->aacs);
+            return (const uint8_t*)fptr(bd->aacs);
         }
         BD_DEBUG(DBG_BLURAY, "aacs_get_vid() dlsym failed! (%p)", bd);
         return NULL;
@@ -856,9 +863,9 @@ static int _libbdplus_load(BLURAY *bd)
 
         BD_DEBUG(DBG_BLURAY, "Loading libbdplus (%p)\n", bd->h_libbdplus);
 
-        bd->bdplus_init  = (fptr_p_void)dl_dlsym(bd->h_libbdplus, "bdplus_init");
-        bd->bdplus_seek  = (fptr_int32)dl_dlsym(bd->h_libbdplus, "bdplus_seek");
-        bd->bdplus_fixup = (fptr_int32)dl_dlsym(bd->h_libbdplus, "bdplus_fixup");
+        *(void **)(&bd->bdplus_init)  = dl_dlsym(bd->h_libbdplus, "bdplus_init");
+        *(void **)(&bd->bdplus_seek)  = dl_dlsym(bd->h_libbdplus, "bdplus_seek");
+        *(void **)(&bd->bdplus_fixup) = dl_dlsym(bd->h_libbdplus, "bdplus_fixup");
 
         if (bd->bdplus_init && bd->bdplus_seek && bd->bdplus_fixup) {
             BD_DEBUG(DBG_BLURAY, "Loaded libbdplus (%p)\n", bd->h_libbdplus);
@@ -897,7 +904,7 @@ static int _libbdplus_open(BLURAY *bd, const char *keyfile_path)
         return 0;
     }
 
-    const uint8_t *aacs_vid = (const uint8_t *)_libaacs_get_vid(bd);
+    const uint8_t *aacs_vid = _libaacs_get_vid(bd);
     bd->bdplus = bd->bdplus_init(bd->device_path, keyfile_path, aacs_vid ? aacs_vid : vid);
 
     if (bd->bdplus) {
