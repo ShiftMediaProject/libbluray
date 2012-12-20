@@ -128,7 +128,8 @@ BDJAVA* bdj_open(const char *path,
         classpath = BDJ_CLASSPATH;
 
     // determine classpath
-    char* classpath_opt = str_printf("-Djava.class.path=%s", classpath);
+    //char* classpath_opt = str_printf("-Djava.class.path=%s", classpath);
+    char* classpath_opt = str_printf("-Xbootclasspath/a:%s", classpath);
 
     // determine bluray.vfs.root
     char* vfs_opt;
