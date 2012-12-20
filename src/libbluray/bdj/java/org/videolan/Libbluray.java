@@ -39,7 +39,6 @@ import org.videolan.media.content.BDHandler;
  */
 public class Libbluray {
         protected static void init(long nativePointer, String discID) {
-            System.loadLibrary("bluray");
 
             Libbluray.nativePointer = nativePointer;
             DiscManager.getDiscManager().setCurrentDisc(discID);

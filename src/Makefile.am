@@ -21,7 +21,9 @@ SOURCES_bdj = libbluray/bdj/bdj.h \
 	libbluray/bdj/bdjo_parser.c \
 	libbluray/bdj/common.h \
 	libbluray/bdj/native/org_videolan_Libbluray.h \
-	libbluray/bdj/native/org_videolan_Libbluray.c
+	libbluray/bdj/native/org_videolan_Libbluray.c \
+	libbluray/bdj/native/register_native.h \
+	libbluray/bdj/native/register_native.c
 
 EXTRA_DIST = libbluray/bdj/build.xml libbluray/bdj/java
 

@@ -32,6 +32,7 @@
 #include "util/strutl.h"
 #include "util/macro.h"
 #include "libbluray/bdnav/bdid_parse.h"
+#include "libbluray/bdj/native/register_native.h"
 
 #include <jni.h>
 #include <stdlib.h>
@@ -64,6 +65,10 @@ static void *_load_jvm(void)
 
 static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
 {
+    if (!bdj_register_native_methods(env)) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't register native methods.\n");
+    }
+
     // initialize class org.videolan.Libbluray
     jclass init_class;
     jmethodID init_id;

@@ -70,3 +70,35 @@ int bdj_get_method(JNIEnv *env, jclass *cls, jmethodID *method_id,
     return 1;
 }
 
+int bdj_register_methods(JNIEnv *env, const char *class_name,
+                         const JNINativeMethod *methods, int methods_count)
+{
+    jclass cls;
+    int error;
+
+    (*env)->ExceptionClear(env);
+
+    cls = (*env)->FindClass(env, class_name);
+
+    if (!cls) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate class %s\n", class_name);
+        (*env)->ExceptionDescribe(env);
+        (*env)->ExceptionClear(env);
+        return 0;
+    }
+
+    error =  (*env)->RegisterNatives(env, cls, methods, methods_count);
+
+    if ((*env)->ExceptionOccurred(env)) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to register native methods for class %s\n", class_name);
+        (*env)->ExceptionDescribe(env);
+        (*env)->ExceptionClear(env);
+        return 0;
+    }
+
+    if (error) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to register native methods for class %s\n", class_name);
+    }
+
+    return error;
+}
