@@ -105,6 +105,18 @@ AC_ARG_ENABLE([libxml2],
   [use_libxml2=$enableval],
   [use_libxml2=yes])
 
+AC_ARG_ENABLE([freetype],
+  [AS_HELP_STRING([--enable-freetype],
+  [enable FreeType support for BD-J (default is yes)])],
+  [use_freetype=$enableval],
+  [use_freetype=yes])
+
+AC_ARG_WITH([bdj-type],
+  [AS_HELP_STRING([--with-bdj-type=TYPE],
+  [Specify the type of BD-J implementation (j2se, j2me). Default is j2se.])],
+  [BDJ_TYPE=$withval],
+  [BDJ_TYPE=j2se])
+
 # required programs
 AC_PROG_CC
 AC_PROG_LIBTOOL
@@ -157,6 +169,18 @@ if test "x$use_libxml2" = "xyes"; then
         [AC_MSG_NOTICE($libxml2_missing)])
   else
     AC_MSG_NOTICE($pkg_config_missing $libxml2_missing)
+  fi
+fi
+
+dnl FreeType2
+if test x"$use_bdjava" != x"no"; then
+  if test x"$use_freetype" != x"no"; then
+    PKG_CHECK_MODULES([FT2], [freetype2], [use_freetype=yes], [use_freetype=no])
+    if test x"$use_freetype" = x"no"; then
+        AC_MSG_ERROR([FreeType2 support requested but FreeType2 library not found])
+    elif test x"$use_freetype" = x"yes"; then
+        AC_DEFINE([HAVE_FT2], 1, [Define this if you have FreeType2 library])
+    fi
   fi
 fi
 
@@ -263,6 +287,14 @@ if [[ $use_bdjava = "yes" ]]; then
 fi
 AM_CONDITIONAL([USING_BDJAVA], [ test $use_bdjava = "yes" ])
 
+# BD-J type
+if test "$BDJ_TYPE" = "j2me"; then
+  AC_DEFINE([HAVE_BDJ_J2ME], [1], [Define to 1 if using libbluray J2ME stack])
+else
+  BDJ_TYPE=j2se
+fi
+AC_SUBST(BDJ_TYPE)
+
 # generate documentation
 DX_INIT_DOXYGEN(libbluray, doc/doxygen-config, [doc/doxygen])
 
@@ -294,7 +326,11 @@ dnl ---------------------------------------------
 
 echo "  Summary:"
 echo "  --------"
-echo "  BD-J support:        $use_bdjava"
-echo "  Metadata support:    $use_libxml2"
-echo "  Build examples:      $use_examples"
+echo "  BD-J support:                  $use_bdjava"
+if [[ $use_bdjava = "yes" ]]; then
+echo "  BD-J font support (freetype2): $use_freetype"
+echo "  BD-J type:                     $BDJ_TYPE"
+fi
+echo "  Metadata support (libxml):     $use_libxml2"
+echo "  Build examples:                $use_examples"
 

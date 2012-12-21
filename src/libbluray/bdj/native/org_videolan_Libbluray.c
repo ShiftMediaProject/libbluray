@@ -358,6 +358,7 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
 
     if (!rgbArray) {
         bdj->osd_cb(bdj->bd, NULL, (int)width, (int)height, 0, 0, 0, 0);
+        return;
     }
 
     if (bdj->buf && bdj->buf->buf[BD_OVERLAY_IG]) {
@@ -369,10 +370,11 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
         }
 
         if (bdj->buf->width != width || bdj->buf->height != height) {
-            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Incorrect ARGB frame buffer size\n");
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Incorrect ARGB frame buffer size (is: %dx%d expect: %dx%d)\n",
+                     bdj->buf->width, bdj->buf->height, width, height);
         }
 
-        jsize len = bdj->buf->width * bdj->buf->height * sizeof(uint32_t);
+        jsize len = bdj->buf->width * bdj->buf->height;
         (*env)->GetByteArrayRegion(env, rgbArray, 0, len, (jbyte*)bdj->buf->buf[BD_OVERLAY_IG]);
 
         if (bdj->buf->unlock) {

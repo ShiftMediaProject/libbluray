@@ -9,7 +9,7 @@ SET_DEBUG_OPTS = @SET_DEBUG_OPTS@
 SET_INCLUDES = -I$(top_srcdir) -Ifile -Ilibbluray/bdnav
 
 AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_WARNINGS) $(SET_OPTIMIZATIONS) \
-        $(SET_DEBUG_OPTS) $(SET_INCLUDES) $(LIBXML2_CFLAGS)
+        $(SET_DEBUG_OPTS) $(SET_INCLUDES) $(LIBXML2_CFLAGS) $(FT2_CFLAGS)
 CFLAGS=$(shell test -z "$$CFLAGS" || echo "$$CFLAGS")
 
 SOURCES_bdj = libbluray/bdj/bdj.h \
@@ -20,6 +20,10 @@ SOURCES_bdj = libbluray/bdj/bdj.h \
 	libbluray/bdj/bdjo_parser.h \
 	libbluray/bdj/bdjo_parser.c \
 	libbluray/bdj/common.h \
+	libbluray/bdj/native/java_awt_BDGraphics.h \
+	libbluray/bdj/native/java_awt_BDGraphics.c \
+	libbluray/bdj/native/java_awt_BDFontMetrics.h \
+	libbluray/bdj/native/java_awt_BDFontMetrics.c \
 	libbluray/bdj/native/org_videolan_Libbluray.h \
 	libbluray/bdj/native/org_videolan_Libbluray.c \
 	libbluray/bdj/native/register_native.h \
@@ -97,7 +101,7 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	util/logging.h
 libbluray_la_HEADERS= libbluray/bluray.h file/filesystem.h util/log_control.h libbluray/keys.h libbluray/decoders/overlay.h libbluray/bdnav/meta_data.h libbluray/bdnav/clpi_data.h libbluray/bluray-version.h
 libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO)
-libbluray_la_LIBADD= $(LIBXML2_LIBS) $(DLOPEN_LIBS)
+libbluray_la_LIBADD= $(LIBXML2_LIBS) $(DLOPEN_LIBS) $(FT2_LIBS)
 
 if USING_BDJAVA
 
@@ -110,7 +114,7 @@ libbluray_la_SOURCES+=$(SOURCES_bdj)
 AM_CFLAGS+=@BDJAVA_CFLAGS@
 
 all-local:
-	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml
+	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml -Dsrc_awt=:java-$(BDJ_TYPE)
 
 clean-local:
 	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml clean

@@ -6,6 +6,7 @@
     <property name="src" location="java"/>
     <property name="build" location="build"/>
     <property name="dist"  location="../../.libs"/>
+    <property name="src_awt" value=""/>
 
     <target name="init">
         <tstamp/>
@@ -15,7 +16,7 @@
 
     <target name="compile" depends="init"
             description="compile the source " >
-        <javac srcdir="${src}" destdir="${build}" debug="yes"
+        <javac srcdir="${src}${src_awt}" destdir="${build}" debug="yes"
                source="1.4" target="1.4" />
     </target>
 

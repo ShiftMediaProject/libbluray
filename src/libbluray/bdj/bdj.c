@@ -195,6 +195,9 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     int n = 0;
     option[n++].optionString = classpath_opt;
     option[n++].optionString = vfs_opt;
+#ifdef HAVE_BDJ_AWT
+    option[n++].optionString = str_dup("-Dawt.toolkit=java.awt.BDToolkit");
+#endif
 
     args.version = JNI_VERSION_1_4;
     args.nOptions = n;
