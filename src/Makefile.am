@@ -105,6 +105,10 @@ AM_CFLAGS+=@BDJAVA_CFLAGS@
 
 all-local:
 	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml
+
+clean-local:
+	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml clean
+
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig
