@@ -100,6 +100,12 @@ libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO)
 libbluray_la_LIBADD= $(LIBXML2_LIBS) $(DLOPEN_LIBS)
 
 if USING_BDJAVA
+
+jardir=$(libdir)/libbluray/
+jar_DATA=$(top_builddir)/src/.libs/libbluray.jar
+
+$(top_builddir)/src/.libs/libbluray.jar: all-local
+
 libbluray_la_SOURCES+=$(SOURCES_bdj)
 AM_CFLAGS+=@BDJAVA_CFLAGS@
 
