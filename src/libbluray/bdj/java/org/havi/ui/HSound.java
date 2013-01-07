@@ -22,36 +22,42 @@ package org.havi.ui;
 import java.io.IOException;
 import java.net.URL;
 
+import org.videolan.Logger;
+
 public class HSound {
     public HSound() {
-        throw new Error("Not implemented");
+        logger.unimplemented("HSound");
     }
 
     public void load(String location) throws IOException, SecurityException {
-        throw new Error("Not implemented");
+        logger.unimplemented("load");
+        logger.info("load("+location+")");
     }
 
     public void load(URL contents) throws IOException, SecurityException {
-        throw new Error("Not implemented");
+        logger.unimplemented("load");
+        logger.info("load("+contents+")");
     }
 
     public void set(byte data[]) {
-        throw new Error("Not implemented");
+        logger.unimplemented("set");
     }
 
     public void play() {
-        throw new Error("Not implemented");
+        logger.unimplemented("play");
     }
 
     public void stop() {
-        throw new Error("Not implemented");
+        logger.unimplemented("stop");
     }
 
     public void loop() {
-        throw new Error("Not implemented");
+        //logger.unimplemented("loop");
     }
 
     public void dispose() {
-        throw new Error("Not implemented");
+        //logger.unimplemented("dispose");
     }
+
+    private static final Logger logger = Logger.getLogger(HSound.class.getName());
 }

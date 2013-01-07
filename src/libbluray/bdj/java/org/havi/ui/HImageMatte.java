@@ -25,12 +25,12 @@ import java.awt.Point;
 public class HImageMatte implements HMatte {
     public HImageMatte()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HImageMatte.class.getName(), "");
     }
 
     public HImageMatte(Image data)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HImageMatte.class.getName(), "");
     }
 
     public void setMatteData(Image data)

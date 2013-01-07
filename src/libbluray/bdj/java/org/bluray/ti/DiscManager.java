@@ -27,7 +27,7 @@ public class DiscManager {
     }
 
     public void expectNextDisc(String[] discIds) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(DiscManager.class.getName(), "expectNextDisc");
     }
 
     public Disc getCurrentDisc() {
@@ -35,11 +35,11 @@ public class DiscManager {
     }
 
     public void addDiscStatusEventListener(DiscStatusListener listener) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(DiscManager.class.getName(), "addDiscStatusEventListener");
     }
 
     public void removeDiscStatusEventListener(DiscStatusListener listener) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(DiscManager.class.getName(), "removeDiscStatusEventListener");
     }
 
     public void setCurrentDisc(String id) {

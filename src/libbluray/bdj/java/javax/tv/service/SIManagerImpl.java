@@ -82,21 +82,24 @@ public class SIManagerImpl extends SIManager {
 
     public void registerInterest(Locator locator, boolean active)
             throws InvalidLocatorException, SecurityException {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(SIManagerImpl.class.getName(), "registerInterest");
     }
 
     public SIRequest retrieveProgramEvent(Locator locator, SIRequestor requestor)
             throws InvalidLocatorException, SecurityException {
+        org.videolan.Logger.unimplemented(SIManagerImpl.class.getName(), "retrieveProgramEvent");
         throw new Error("Not implemented");
     }
 
     public SIRequest retrieveSIElement(Locator locator, SIRequestor requestor)
             throws InvalidLocatorException, SecurityException {
+        org.videolan.Logger.unimplemented(SIManagerImpl.class.getName(), "retrieveSIElement");
         throw new Error("Not implemented");
     }
 
     public SIRequest retrieveServiceDetails(Locator locator, SIRequestor requestor)
                 throws InvalidLocatorException, SecurityException {
+        org.videolan.Logger.unimplemented(SIManagerImpl.class.getName(), "retrieveServiceDetails");
         throw new Error("Not implemented");
     }
 

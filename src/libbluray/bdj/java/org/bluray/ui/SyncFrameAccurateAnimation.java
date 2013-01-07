@@ -25,47 +25,62 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import javax.media.Time;
 
+import org.videolan.Logger;
+
 public class SyncFrameAccurateAnimation extends FrameAccurateAnimation {
     public static SyncFrameAccurateAnimation getInstance(Dimension size,
             int numFrames, AnimationParameters params)
             throws NullPointerException, IllegalArgumentException
     {
-        throw new Error("Not implemented");
+        // TODO: validate params
+        return new SyncFrameAccurateAnimation(size, numFrames, params);
+    }
+
+    private SyncFrameAccurateAnimation(Dimension size,
+            int numFrames, AnimationParameters params)
+    {
+        logger.unimplemented("SyncFrameAccurateAnimation");
     }
 
     public boolean finishDrawing(long frameNumber)
             throws IllegalArgumentException
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("finishDrawing");
+        return true;
     }
 
     public boolean finishDrawing(long frameNumber, Rectangle[] updateArea)
             throws IllegalArgumentException
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("finishDrawing");
+        return true;
     }
 
     public Time getAnimationFrameTime(long animationFrame)
             throws IllegalStateException
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("getAnimationFrameTime");
+        return new Time(40000000);
     }
 
     public void paint(Graphics graphics)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("paint");
     }
 
     public void setBounds(int x, int y, int width, int height)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("setBounds");
     }
 
     public Graphics2D startDrawing(long frameNumber)
             throws IllegalArgumentException
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("startDrawing");
+        return null;
     }
 
     private static final long serialVersionUID = -1340138671201204543L;
+
+    private static final Logger logger = Logger.getLogger(SyncFrameAccurateAnimation.class.getName());
 }

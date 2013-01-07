@@ -23,72 +23,88 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 
+import org.videolan.Logger;
+
 public class ImageFrameAccurateAnimation extends FrameAccurateAnimation {
     public static ImageFrameAccurateAnimation getInstance(Image[] images,
             Dimension size, AnimationParameters params, int playmode)
             throws NullPointerException, IllegalArgumentException
     {
-        throw new Error("Not implemented");
+        // TODO: validate params
+        logger.unimplemented("getInstance");
+        return new ImageFrameAccurateAnimation(images, size, params, playmode);
     }
 
-    private ImageFrameAccurateAnimation()
+    private ImageFrameAccurateAnimation(Image[] images,
+            Dimension size, AnimationParameters params, int playmode)
     {
-
+        this.images = images;
+        this.playmode = playmode;
+        logger.unimplemented("ImageFrameAccurateAnimation");
     }
 
     public AnimationParameters getAnimationParameters()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("getAnimationParameters");
+        return new AnimationParameters();
     }
 
     public Image[] getImages()
     {
-        throw new Error("Not implemented");
+        return images;
     }
 
     public int getPlayMode()
     {
-        throw new Error("Not implemented");
+        return playmode;
     }
 
     public int getPosition()
     {
-        throw new Error("Not implemented");
+        return position;
     }
 
     public void prepareImages()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("prepareImages");
     }
 
     public void setPlayMode(int mode) throws IllegalArgumentException
     {
-        throw new Error("Not implemented");
+        if (mode < PLAY_REPEATING  || mode > PLAY_ONCE)
+            throw new IllegalArgumentException();
+        this.playmode = mode;
     }
 
     public void setPosition(int position)
     {
-        throw new Error("Not implemented");
+        this.position = position;
     }
 
     protected void destroyImp()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("destroyImp");
     }
 
     protected void startImp()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("startImp");
     }
 
     public void paint(Graphics g)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("paint");
     }
 
     public static final int PLAY_REPEATING = 1;
     public static final int PLAY_ALTERNATING = 2;
     public static final int PLAY_ONCE = 3;
 
+    private int playmode;
+    private int position = 0;
+    private Image[] images = null;
+
     private static final long serialVersionUID = 2691302238670178111L;
+
+    private static final Logger logger = Logger.getLogger(FrameAccurateAnimation.class.getName());
 }

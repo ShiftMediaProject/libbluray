@@ -27,12 +27,12 @@ public class HContainer extends Container implements HMatteLayer,
         HComponentOrdering, TestOpacity {
     public HContainer()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HContainer.class.getName(), "");
     }
 
     public HContainer(int x, int y, int width, int height)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HContainer.class.getName(), "");
     }
 
     public void setMatte(HMatte m) throws HMatteException

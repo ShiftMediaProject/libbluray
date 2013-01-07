@@ -74,7 +74,8 @@ public class TitleComponentImpl implements TitleComponent {
     }
 
     public Date getUpdateTime() {
-        throw new Error("Not implemented"); // TODO implement
+        org.videolan.Logger.unimplemented(TitleComponentImpl.class.getName(), "getUpdateTime");
+        return null;
     }
 
     public CodingType getCodingType() {

@@ -26,7 +26,7 @@ import java.awt.Insets;
 public class HTextLook implements HExtendedLook {
     public HTextLook()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HTextLook.class.getName(), "");
     }
 
     public void fillBackground(Graphics g, HVisible visible, int state)

@@ -22,91 +22,113 @@ package org.bluray.ui;
 import java.awt.Component;
 import java.awt.Graphics;
 
+import org.videolan.Logger;
+
 public abstract class FrameAccurateAnimation extends Component {
+
     public static final float getDefaultFrameRate()
     {
-        throw new Error("Not implemented");
+        return defaultRate;
     }
 
     public static boolean setDefaultFrameRate(float framerate)
     {
-        throw new Error("Not implemented");
+        if (framerate != FRAME_RATE_23_976 &&
+            framerate != FRAME_RATE_24 &&
+            framerate != FRAME_RATE_25 &&
+            framerate != FRAME_RATE_29_97 &&
+            framerate != FRAME_RATE_50 &&
+            framerate != FRAME_RATE_59_94) {
+
+            return false;
+        }
+
+        defaultRate = framerate;
+        return true;
     }
 
     public FrameAccurateAnimation()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("FrameAccurateAnimation");
     }
 
     public synchronized void destroy()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("destroy");
     }
 
     public long getCompletedFrameCount()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("getCompletedFrameCount");
+        return 0;
     }
 
     public float getFrameRate()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("getFrameRate");
+        // TODO: rate of background video. if none, defaultRate.
+        return getDefaultFrameRate();
     }
 
     public Graphics getGraphics()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("getGraphics");
+        return super.getGraphics();
     }
 
     public int[] getRepeatCounts()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("getRepeatCounts");
+        int[] repeatCount = null;
+        return repeatCount;
     }
 
     public int getThreadPriority()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("getThreadPriority");
+        return 5;
     }
 
     public synchronized boolean isAnimated()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("isAnimated");
+        return false;
     }
 
     public void paint(Graphics g)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("paint");
     }
 
     public synchronized void resetStartStopTime(
             FrameAccurateAnimationTimer newTimer)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("resetStartStopTime");
     }
 
     public void setBounds(int x, int y, int width, int height)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("setBounds");
     }
 
     public void setLocation(int x, int y)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("setLocation");
     }
 
     public void setThreadPriority(int p)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("setThreadPriority");
     }
 
     public synchronized void start()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("start");
     }
 
     public synchronized void stop()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("stop");
     }
 
     public String toString()
@@ -122,4 +144,8 @@ public abstract class FrameAccurateAnimation extends Component {
     public static final float FRAME_RATE_59_94 = 59.939999F;
 
     private static final long serialVersionUID = 76982966057159330L;
+
+    private static float defaultRate = FRAME_RATE_25;
+
+    private static final Logger logger = Logger.getLogger(FrameAccurateAnimation.class.getName());
 }

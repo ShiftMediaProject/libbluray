@@ -83,6 +83,17 @@ public class Logger {
         }
     }
 
+    public static void unimplemented(String cls, String func) {
+        String location = cls + "." + func + "()";
+        log("BD-J: Not implemented: " + location);
+
+        Thread.dumpStack();
+
+        if (use_throw) {
+            throw new Error("Not implemented: " + location);
+        }
+    }
+
     private String name;
     private static boolean use_trace;
     private static boolean use_throw;

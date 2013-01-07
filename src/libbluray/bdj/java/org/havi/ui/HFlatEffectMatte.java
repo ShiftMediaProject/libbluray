@@ -22,12 +22,12 @@ package org.havi.ui;
 public class HFlatEffectMatte implements HMatte, HAnimateEffect {
     public HFlatEffectMatte()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HFlatEffectMatte.class.getName(), "");
     }
 
     public HFlatEffectMatte(float[] data)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HFlatEffectMatte.class.getName(), "");
     }
 
     public void setMatteData(float[] data)

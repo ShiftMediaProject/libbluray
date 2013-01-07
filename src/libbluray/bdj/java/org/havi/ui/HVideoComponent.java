@@ -24,11 +24,12 @@ import org.havi.ui.event.HScreenLocationModifiedListener;
 public class HVideoComponent extends HComponent {
     protected HVideoComponent()
     {
-
+        org.videolan.Logger.unimplemented(HVideoComponent.class.getName(), "");
     }
 
     public HVideoDevice getVideoDevice()
     {
+        org.videolan.Logger.unimplemented(HVideoComponent.class.getName(), "getVideoDevice");
         throw new Error("Not implemented");
     }
 

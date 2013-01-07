@@ -25,12 +25,12 @@ import java.awt.Point;
 public class HImageEffectMatte implements HMatte, HAnimateEffect {
     public HImageEffectMatte()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HImageEffectMatte.class.getName(), "");
     }
 
     public HImageEffectMatte(Image[] data)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HImageEffectMatte.class.getName(), "");
     }
 
     public void setMatteData(Image[] data)

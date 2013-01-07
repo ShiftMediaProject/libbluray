@@ -22,7 +22,7 @@ package org.havi.ui;
 public class HToggleGroup {
     public HToggleGroup()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleGroup.class.getName(), "");
     }
 
     public HToggleButton getCurrent()

@@ -74,7 +74,8 @@ public class TitleImpl implements Title {
 
     public SIRequest retrieveDetails(SIRequestor requestor) {
         //TODO
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(TitleImpl.class.getName(), "retrieveDetails");
+        return null;
     }
 
     public int getTitleNum() {

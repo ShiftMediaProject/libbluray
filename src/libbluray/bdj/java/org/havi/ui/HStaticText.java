@@ -22,49 +22,61 @@ package org.havi.ui;
 import java.awt.Color;
 import java.awt.Font;
 
+import org.videolan.Logger;
+
 public class HStaticText extends HVisible implements HNoInputPreferred {
     public HStaticText()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
     }
 
     public HStaticText(String textNormal, int x, int y, int width, int height)
     {
-        throw new Error("Not implemented");
+        logger.info("HStaticText " + textNormal);
+        logger.unimplemented();
     }
 
     public HStaticText(String textNormal, int x, int y, int width, int height,
             Font font, Color foreground, Color background,
             HTextLayoutManager tlm)
     {
-        throw new Error("Not implemented");
+        logger.info("HStaticText " + textNormal);
+        logger.unimplemented();
     }
 
     public HStaticText(String textNormal)
     {
-        throw new Error("Not implemented");
+        logger.info("HStaticText " + textNormal);
+        logger.unimplemented();
     }
 
     public HStaticText(String textNormal, Font font, Color foreground,
             Color background, HTextLayoutManager tlm)
     {
-        throw new Error("Not implemented");
+        logger.info("HStaticText " + textNormal);
+        logger.unimplemented();
     }
 
     public void setLook(HLook hlook) throws HInvalidLookException
     {
-        throw new Error("Not implemented");
+        logger.unimplemented("setLook");
     }
 
     public static void setDefaultLook(HTextLook hlook)
     {
-        throw new Error("Not implemented");
+        DefaultLook = hlook;
     }
 
     public static HTextLook getDefaultLook()
     {
-        throw new Error("Not implemented");
+        if (DefaultLook == null)
+            org.videolan.Logger.unimplemented("", "getDefaultLook");
+        return DefaultLook;
     }
+
+    private static HTextLook DefaultLook = null;
+
+    private static final Logger logger = Logger.getLogger(HStaticText.class.getName());
 
     private static final long serialVersionUID = 4352450387189482885L;
 }

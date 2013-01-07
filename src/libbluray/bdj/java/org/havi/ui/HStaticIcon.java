@@ -24,17 +24,17 @@ import java.awt.Image;
 public class HStaticIcon extends HVisible implements HNoInputPreferred {
     public HStaticIcon()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HStaticIcon.class.getName(), "");
     }
 
     public HStaticIcon(Image imageNormal, int x, int y, int width, int height)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HStaticIcon.class.getName(), "");
     }
 
     public HStaticIcon(Image imageNormal)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HStaticIcon.class.getName(), "");
     }
 
     public void setLook(HLook hlook) throws HInvalidLookException
@@ -44,13 +44,17 @@ public class HStaticIcon extends HVisible implements HNoInputPreferred {
 
     public static void setDefaultLook(HGraphicLook hlook)
     {
-        throw new Error("Not implemented");
+        DefaultLook = hlook;
     }
 
     public static HGraphicLook getDefaultLook()
     {
-        throw new Error("Not implemented");
+        if (DefaultLook == null)
+            org.videolan.Logger.unimplemented("", "getDefaultLook");
+        return DefaultLook;
     }
+
+    private static HGraphicLook DefaultLook = null;
 
     private static final long serialVersionUID = 2015589998794748072L;
 }

@@ -28,63 +28,65 @@ import org.havi.ui.event.HFocusListener;
 public class HText extends HStaticText implements HNavigable {
     public HText()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HText.class.getName(), "");
     }
 
     public HText(String text)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HText.class.getName(), "");
     }
 
     public HText(String textNormal, String textFocus)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HText.class.getName(), "");
     }
 
     public HText(String text, int x, int y, int width, int height)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HText.class.getName(), "");
     }
 
     public HText(String textNormal, String textFocus, int x, int y, int width,
             int height)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HText.class.getName(), "");
     }
 
     public HText(String text, Font font, Color foreground, Color background,
             HTextLayoutManager tlm)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HText.class.getName(), "");
     }
 
     public HText(String textNormal, String textFocus, Font font,
             Color foreground, Color background, HTextLayoutManager tlm)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HText.class.getName(), "");
     }
 
     public HText(String text, int x, int y, int width, int height, Font font,
             Color foreground, Color background, HTextLayoutManager tlm)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HText.class.getName(), "");
     }
 
     public HText(String textNormal, String textFocus, int x, int y, int width,
             int height, Font font, Color foreground, Color background,
             HTextLayoutManager tlm)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HText.class.getName(), "");
     }
 
     public static void setDefaultLook(HTextLook look)
     {
-        throw new Error("Not implemented");
+        DefaultLook = look;
     }
 
     public static HTextLook getDefaultLook()
     {
-        throw new Error("Not implemented");
+        if (DefaultLook == null)
+            org.videolan.Logger.unimplemented("", "getDefaultLook");
+        return DefaultLook;
     }
 
     public void setMove(int keyCode, HNavigable target)
@@ -147,6 +149,8 @@ public class HText extends HStaticText implements HNavigable {
     {
         throw new Error("Not implemented");
     }
+
+    private static HTextLook DefaultLook = null;
 
     private static final long serialVersionUID = -8178609258303529066L;
 }

@@ -23,6 +23,8 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Dimension;
 
+import org.videolan.Logger;
+
 public class HVisible extends HComponent implements HState {
     public HVisible()
     {
@@ -42,166 +44,180 @@ public class HVisible extends HComponent implements HState {
 
     public boolean isFocusTraversable()
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
+        return true;
     }
 
     public void paint(Graphics g)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
     }
 
     public void update(Graphics g)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
     }
 
     public void setTextContent(String string, int state)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
     }
 
     public void setGraphicContent(Image image, int state)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
     }
 
     public void setAnimateContent(Image[] imageArray, int state)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
     }
 
     public void setContent(Object object, int state)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
     }
 
     public String getTextContent(int state)
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
     public Image getGraphicContent(int state)
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
     public Image[] getAnimateContent(int state)
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
     public Object getContent(int state)
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
     public void setLook(HLook hlook) throws HInvalidLookException
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
     }
 
     public HLook getLook()
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
     public Dimension getPreferredSize()
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
     public Dimension getMaximumSize()
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
     public Dimension getMinimumSize()
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
     protected void setInteractionState(int state)
     {
-        throw new Error("Not implemented");
+        InteractionState = state;
     }
 
     public int getInteractionState()
     {
-        throw new Error("Not implemented");
+        return InteractionState;
     }
 
     public void setTextLayoutManager(HTextLayoutManager manager)
     {
-        throw new Error("Not implemented");
+        TextLayoutManager = manager;
     }
 
     public HTextLayoutManager getTextLayoutManager()
     {
-        throw new Error("Not implemented");
+        return TextLayoutManager;
     }
 
     public int getBackgroundMode()
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
     public void setBackgroundMode(int mode)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
     }
 
     public boolean isOpaque()
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
     public void setDefaultSize(Dimension defaultSize)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
     }
 
     public Dimension getDefaultSize()
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
     public Object getLookData(Object key)
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
     public void setLookData(Object key, Object data)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
     }
 
     public void setHorizontalAlignment(int halign)
     {
-        throw new Error("Not implemented");
+        this.halign = halign;
     }
 
     public void setVerticalAlignment(int valign)
     {
-        throw new Error("Not implemented");
+        this.valign = valign;
     }
 
     public int getHorizontalAlignment()
     {
-        throw new Error("Not implemented");
+        return halign;
     }
 
     public int getVerticalAlignment()
     {
-        throw new Error("Not implemented");
+        return valign;
     }
 
     public void setResizeMode(int resize)
     {
-        throw new Error("Not implemented");
+        logger.unimplemented();
     }
 
     public int getResizeMode()
     {
+        logger.unimplemented();
         throw new Error("Not implemented");
     }
 
@@ -277,4 +293,9 @@ public class HVisible extends HComponent implements HState {
     private int BackgroundMode = NO_BACKGROUND_FILL;
     private boolean BordersEnabled = true;
     private int InteractionState = 0;
+    private int halign = HALIGN_LEFT;
+    private int valign = VALIGN_TOP;
+    private HTextLayoutManager TextLayoutManager = null;
+
+    private static final Logger logger = Logger.getLogger(HVisible.class.getName());
 }
