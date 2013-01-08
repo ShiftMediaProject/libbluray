@@ -27,13 +27,19 @@ public class MediaAttribute {
     }
 
     public byte[] getPMSN() {
-        // TODO
-        logger.unimplemented("getPMSN");
-        return null;
+        byte pmsn[] = Libbluray.getPMSN();
+        if (pmsn == null) {
+            logger.warning("getPMSN() failed");
+        }
+        return pmsn;
     }
 
     public byte[] getVolumeID() {
-        return Libbluray.getVolumeID();
+        byte vid[] = Libbluray.getVolumeID();
+        if (vid == null) {
+            logger.warning("getVolumeID() failed");
+        }
+        return vid;
     }
 
     private static final Logger logger = Logger.getLogger(MediaAttribute.class.getName());

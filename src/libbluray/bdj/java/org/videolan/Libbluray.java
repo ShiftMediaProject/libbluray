@@ -134,6 +134,10 @@ public class Libbluray {
         return getVolumeIDN(nativePointer);
     }
 
+    public static byte[] getPMSN() {
+        return getPMSNN(nativePointer);
+    }
+
     public static int getTitles() {
         return getTitlesN(nativePointer);
     }
@@ -388,6 +392,7 @@ public class Libbluray {
     public static final int PSR_BACKUP_PSR12     = 44;
 
     private static native byte[] getVolumeIDN(long np);
+    private static native byte[] getPMSNN(long np);
     private static native TitleInfo getTitleInfoN(long np, int title);
     private static native PlaylistInfo getPlaylistInfoN(long np, int playlist);
     private static native int getTitlesN(long np);

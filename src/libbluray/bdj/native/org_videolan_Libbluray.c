@@ -192,6 +192,22 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getVolumeIDN
 }
 
 static
+JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getPMSNN
+  (JNIEnv * env, jclass cls, jlong np)
+{
+    BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
+    const uint8_t *pmsn = bd_get_pmsn(bdj->bd);
+
+    static const uint8_t empty[16] = {0};
+    if (!pmsn || !memcmp(pmsn, empty, sizeof(empty))) {
+        return NULL;
+    }
+    jbyteArray array = (*env)->NewByteArray(env, 16);
+    (*env)->SetByteArrayRegion(env, array, 0, 16, (const jbyte *)pmsn);
+    return array;
+}
+
+static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN(JNIEnv * env,
                                                               jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
@@ -372,6 +388,11 @@ Java_org_videolan_Libbluray_methods[] =
         CC("getVolumeIDN"),
         CC("(J)[B"),
         Java_org_videolan_Libbluray_getVolumeIDN,
+    },
+    {
+        CC("getPMSNN"),
+        CC("(J)[B"),
+        Java_org_videolan_Libbluray_getPMSNN,
     },
     {
         CC("getTitleInfoN"),

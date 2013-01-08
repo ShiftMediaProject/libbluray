@@ -808,6 +808,23 @@ const uint8_t *bd_get_vid(BLURAY *bd)
     return NULL;
 }
 
+const uint8_t *bd_get_pmsn(BLURAY *bd)
+{
+    /* internal function. Used by BD-J. */
+    if (bd->aacs) {
+        fptr_p_void fptr;
+        *(void **)(&fptr) = dl_dlsym(bd->h_libaacs, "aacs_get_pmsn");
+        if (fptr) {
+            return (const uint8_t*)fptr(bd->aacs);
+        }
+        BD_DEBUG(DBG_BLURAY, "aacs_get_vid() dlsym failed! (%p)", bd);
+        return NULL;
+    }
+
+    BD_DEBUG(DBG_BLURAY, "_libaacs_get_vid(): libaacs not initialized! (%p)", bd);
+    return NULL;
+}
+
 static void _libbdplus_close(BLURAY *bd)
 {
     if (bd->bdplus) {

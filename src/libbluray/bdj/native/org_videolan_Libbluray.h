@@ -98,6 +98,15 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getVolumeIDN
 
 /*
  * Class:     org_videolan_Libbluray
+ * Method:    getPMSNN
+ * Signature: (J)[B
+ */
+static
+JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getPMSNN
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     org_videolan_Libbluray
  * Method:    getTitleInfoN
  * Signature: (JI)Lorg/videolan/TitleInfo;
  */
