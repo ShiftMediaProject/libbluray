@@ -110,8 +110,12 @@ const VALUE_MAP audio_rate_map[] = {
 };
 
 const VALUE_MAP subpath_type_map[] = {
+  {2, "Primary audio of the Browsable slideshow"},
   {3, "Interactive Graphics presentation menu"},
   {4, "Text Subtitle"},
+  {5, "Out-of-mux Synchronous elementary streams"},
+  {6, "Out-of-mux Asynchronous Picture-in-Picture presentation"},
+  {7, "In-mux Synchronous Picture-in-Picture presentation"},
   {8, "SS Video"},
   {0,NULL}
 };
