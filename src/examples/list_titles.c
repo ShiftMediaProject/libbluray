@@ -87,12 +87,12 @@ int main(int argc, char *argv[])
         BLURAY_TITLE_INFO* ti;
         ti = bd_get_title_info(bd, ii, 0);
         printf(
-       "index: %d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %d angles: %u clips %u\n",
+       "index: %d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %d angles: %u clips: %u (playlist: %05d.mpls)\n",
               ii + 1,
               (ti->duration / 90000) / (3600),
               ((ti->duration / 90000) % 3600) / 60,
               ((ti->duration / 90000) % 60),
-              ti->chapter_count, ti->angle_count, ti->clip_count
+              ti->chapter_count, ti->angle_count, ti->clip_count, ti->playlist
         );
         bd_free_title_info(ti);
     }
