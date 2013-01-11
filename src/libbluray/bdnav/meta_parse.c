@@ -120,7 +120,7 @@ static void _findMetaXMLfiles(META_ROOT *meta, const char *device_path)
             uint8_t i = meta->dl_count;
             meta->dl_count++;
             meta->dl_entries = realloc(meta->dl_entries, (meta->dl_count*sizeof(META_DL)));
-            meta->dl_entries[i].filename = str_printf("%s", ent.d_name);
+            meta->dl_entries[i].filename = str_dup(ent.d_name);
             strncpy(meta->dl_entries[i].language_code, ent.d_name+5,3);
             meta->dl_entries[i].language_code[3] = '\0';
             str_tolower(meta->dl_entries[i].language_code);
