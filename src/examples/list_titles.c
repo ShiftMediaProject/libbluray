@@ -36,7 +36,7 @@ static void _usage(char *cmd)
     fprintf(stderr, 
 "%s <BD base dir> [-s <seconds>]\n"
 "   List the titles and title info of a BD\n"
-"   -s #    - Filter out titles shorter then # seconds\n"
+"   -s #    - Filter out titles shorter than # seconds\n"
 "   -h      - This message\n",
         cmd
     );
