@@ -38,29 +38,32 @@ static void
 _usage(char *cmd)
 {
     fprintf(stderr,
-"Usage: %s -t playlist [-c first[-last]] [-k keyfile] [-a angle]  <bd path> [dest]\n"
+"Usage: %s -t title    [-c first[-last]] [-k keyfile] [-a angle]  <bd path> [dest]\n"
+"       %s -p playlist [-c first[-last]] [-k keyfile] [-a angle]  <bd path> [dest]\n"
 "Summary:\n"
-"    Given a playlist number and Blu-Ray directory tree,\n"
+"    Given a title or playlist number and Blu-Ray directory tree,\n"
 "    find the clips that compose the movie and splice\n"
 "    them together in the destination file\n"
 "Options:\n"
 "    t N         - Index of title to splice. First title is 1.\n"
+"    p N         - Playlist to splice.\n"
 "    a N         - Angle. First angle is 1.\n"
 "    c N or N-M  - Chapter or chapter range. First chapter is 1.\n"
 "    k keyfile   - AACS keyfile path.\n"
 "    <bd path>   - Path to root of Blu-Ray directory tree.\n"
 "    [dest]      - Destination of spliced clips. stdout if not specified.\n"
-, cmd);
+, cmd, cmd);
 
     exit(EXIT_FAILURE);
 }
 
-#define OPTS "c:vt:k:a:"
+#define OPTS "c:vt:p:k:a:"
 
 int
 main(int argc, char *argv[])
 {
     int title_no = -1;
+    int playlist = -1;
     int angle = 0;
     char *bdpath = NULL, *dest = NULL;
     FILE *out;
@@ -114,8 +117,18 @@ main(int argc, char *argv[])
                 break;
 
             case 't':
+                if (playlist >= 0) {
+                    _usage(argv[0]);
+                }
                 title_no = atoi(optarg);
                 title_no--;
+                break;
+
+            case 'p':
+                if (title_no >= 0) {
+                    _usage(argv[0]);
+                }
+                playlist = atoi(optarg);
                 break;
 
             case 'v':
@@ -128,7 +141,7 @@ main(int argc, char *argv[])
         }
     } while (opt != -1);
 
-    if (title_no < 0) {
+    if (title_no < 0 && playlist < 0) {
         _usage(argv[0]);
     }
     if (optind < argc) {
@@ -147,9 +160,19 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    if (!bd_select_title(bd, title_no)) {
-        fprintf(stderr, "Failed to open title: %d\n", title_no);
-        return 1;
+    if (title_no >= 0) {
+        if (!bd_select_title(bd, title_no)) {
+            fprintf(stderr, "Failed to open title: %d\n", title_no);
+            return 1;
+        }
+        ti = bd_get_title_info(bd, title_no, angle);
+
+    } else {
+        if (!bd_select_playlist(bd, playlist)) {
+            fprintf(stderr, "Failed to open playlist: %d\n", playlist);
+            return 1;
+        }
+        ti = bd_get_playlist_info(bd, playlist, angle);
     }
 
     if (dest) {
@@ -161,8 +184,6 @@ main(int argc, char *argv[])
     } else {
         out = stdout;
     }
-
-    ti = bd_get_title_info(bd, title_no, angle);
 
     if (angle >= (int)ti->angle_count) {
         fprintf(stderr, "Invalid angle %d > angle count %d. Using angle 1.\n", 
