@@ -363,6 +363,44 @@ _show_sub_path(MPLS_SUB *sub, int level)
 }
 
 static void
+_show_pip_metadata_block(MPLS_PIP_METADATA *block, int level)
+{
+    int ii;
+
+    indent_printf(level, "Clip ref: %d", block->clip_ref);
+    indent_printf(level, "Secondary video ref: %d", block->secondary_video_ref);
+    indent_printf(level, "Timeline type: %d", block->timeline_type);
+    indent_printf(level, "Luma key flag: %d", block->luma_key_flag);
+    if (block->luma_key_flag) {
+        indent_printf(level, "Upper limit luma key: %d", block->upper_limit_luma_key);
+    }
+    indent_printf(level, "Trick play flag: %d", block->trick_play_flag);
+
+    for (ii = 0; ii < block->data_count; ii++) {
+        indent_printf(level, "data block %d:", ii);
+        indent_printf(level+1, "Timestamp: %d", block->data[ii].time);
+        indent_printf(level+1, "Horizontal position %d", block->data[ii].xpos);
+        indent_printf(level+1, "Vertical position: %d", block->data[ii].ypos);
+        indent_printf(level+1, "Scaling factor: %d", block->data[ii].scale_factor);
+    }
+}
+
+static void
+_show_pip_metadata(MPLS_PL *pl, int level)
+{
+    int ii;
+
+    for (ii = 0; ii < pl->ext_pip_data_count; ii++) {
+        MPLS_PIP_METADATA *data;
+
+        data = &pl->ext_pip_data[ii];
+
+        indent_printf(level, "PiP metadata block %d:", ii);
+        _show_pip_metadata_block(data, level+1);
+    }
+}
+
+static void
 _show_sub_paths(MPLS_PL *pl, int level)
 {
     int ss;
@@ -480,7 +518,7 @@ _filter_repeats(MPLS_PL *pl, int repeats)
     return 1;
 }
 
-static int clip_list = 0, playlist_info = 0, chapter_marks = 0, sub_paths = 0;
+static int clip_list = 0, playlist_info = 0, chapter_marks = 0, sub_paths = 0, pip_metadata = 0;
 static int repeats = 0, seconds = 0, dups = 0;
 
 static MPLS_PL*
@@ -530,6 +568,9 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
     if (chapter_marks) {
         _show_marks(pl, 1);
     }
+    if (pip_metadata) {
+        _show_pip_metadata(pl, 1);
+    }
     if (clip_list) {
         _show_clip_list(pl, 1);
     }
@@ -552,6 +593,7 @@ _usage(char *cmd)
 "    i             - Dumps detailed information about each clip\n"
 "    c             - Show chapter marks\n"
 "    p             - Show sub paths\n"
+"    P             - Show picture-in-picture metadata\n"
 "    r <N>         - Filter out titles that have >N repeating clips\n"
 "    d             - Filter out duplicate titles\n"
 "    s <seconds>   - Filter out short titles\n"
@@ -561,7 +603,7 @@ _usage(char *cmd)
     exit(EXIT_FAILURE);
 }
 
-#define OPTS "vlicpfr:ds:"
+#define OPTS "vlicpPfr:ds:"
 
 static int
 _qsort_str_cmp(const void *a, const void *b)
@@ -607,6 +649,10 @@ main(int argc, char *argv[])
 
             case 'p':
                 sub_paths = 1;
+                break;
+
+            case 'P':
+                pip_metadata = 1;
                 break;
 
             case 'd':

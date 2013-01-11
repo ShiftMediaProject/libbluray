@@ -131,6 +131,25 @@ typedef struct
     MPLS_SUB_PI     *sub_play_item;
 } MPLS_SUB;
 
+typedef struct {
+    uint32_t        time;
+    uint16_t        xpos;
+    uint16_t        ypos;
+    uint8_t         scale_factor;
+} MPLS_PIP_DATA;
+
+typedef struct {
+    uint16_t        clip_ref;
+    uint8_t         secondary_video_ref;
+    uint8_t         timeline_type;
+    uint8_t         luma_key_flag;
+    uint8_t         upper_limit_luma_key;
+    uint8_t         trick_play_flag;
+
+    uint16_t        data_count;
+    MPLS_PIP_DATA   *data;
+} MPLS_PIP_METADATA;
+
 typedef struct
 {
     uint32_t        type_indicator;
@@ -149,6 +168,11 @@ typedef struct
     // extension data (profile 5, version 2.4)
     uint16_t        ext_sub_count;
     MPLS_SUB       *ext_sub_path;  // sub path entries extension
+
+    // extension data (Picture-In-Picture metadata)
+    uint16_t           ext_pip_data_count;
+    MPLS_PIP_METADATA *ext_pip_data;  // pip metadata extension
+
 } MPLS_PL;
 
 

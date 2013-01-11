@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2009-2010  John Stebbins
+ * Copyright (C) 2012  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -742,6 +743,93 @@ mpls_free(MPLS_PL *pl)
 }
 
 static int
+_parse_pip_data(BITSTREAM *bits, MPLS_PIP_METADATA *block)
+{
+    MPLS_PIP_DATA *data;
+    unsigned ii;
+
+    uint16_t entries = bs_read(bits, 16);
+    if (entries < 1) {
+        return 1;
+    }
+
+    data = calloc(entries, sizeof(MPLS_PIP_DATA));
+    for (ii = 0; ii < entries; ii++) {
+
+        data[ii].time = bs_read(bits, 32);
+        data[ii].xpos = bs_read(bits, 12);
+        data[ii].ypos = bs_read(bits, 12);
+        data[ii].scale_factor = bs_read(bits, 4);
+        bs_skip(bits, 4);
+    }
+
+    block->data_count = entries;
+    block->data = data;
+
+    return 1;
+}
+
+static int
+_parse_pip_metadata_block(BITSTREAM *bits, uint32_t start_address, MPLS_PIP_METADATA *data)
+{
+    uint32_t data_address, pos;
+    int result;
+
+    data->clip_ref            = bs_read(bits, 16);
+    data->secondary_video_ref = bs_read(bits, 8);
+    bs_skip(bits, 8);
+    data->timeline_type       = bs_read(bits, 4);
+    data->luma_key_flag       = bs_read(bits, 1);
+    data->trick_play_flag     = bs_read(bits, 1);
+    bs_skip(bits, 10);
+    if (data->luma_key_flag) {
+        bs_skip(bits, 8);
+        data->upper_limit_luma_key = bs_read(bits, 8);
+    } else {
+        bs_skip(bits, 16);
+    }
+    bs_skip(bits, 16);
+
+    data_address = bs_read(bits, 32);
+
+    pos = bs_pos(bits) / 8;
+    bs_seek_byte(bits, start_address + data_address);
+    result = _parse_pip_data(bits, data);
+    bs_seek_byte(bits, pos);
+
+    return result;
+}
+
+static int
+_parse_pip_metadata_extension(BITSTREAM *bits, MPLS_PL *pl)
+{
+    MPLS_PIP_METADATA *data;
+    int ii;
+
+    uint32_t start_address = bs_pos(bits) / 8;
+    uint32_t len     = bs_read(bits, 32);
+    int      entries = bs_read(bits, 16);
+
+    if (len < 1 || entries < 1) {
+        return 0;
+    }
+
+    data = calloc(entries, sizeof(MPLS_PIP_METADATA));
+    for (ii = 0; ii < entries; ii++) {
+      if (!_parse_pip_metadata_block(bits, start_address, data)) {
+            X_FREE(data);
+            fprintf(stderr, "error parsing pip metadata extension\n");
+            return 0;
+        }
+    }
+
+    pl->ext_pip_data_count = entries;
+    pl->ext_pip_data       = data;
+
+    return 1;
+}
+
+static int
 _parse_subpath_extension(BITSTREAM *bits, MPLS_PL *pl)
 {
     MPLS_SUB *sub_path;
@@ -772,6 +860,13 @@ static int
 _parse_mpls_extension(BITSTREAM *bits, int id1, int id2, void *handle)
 {
     MPLS_PL *pl = (MPLS_PL*)handle;
+
+    if (id1 == 1) {
+        if (id2 == 1) {
+            // PiP metadata extension
+            return _parse_pip_metadata_extension(bits, pl);
+        }
+    }
 
     if (id1 == 2) {
         if (id2 == 2) {
