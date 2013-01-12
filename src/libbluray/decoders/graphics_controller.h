@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  hpi1
+ * Copyright (C) 2010-2012  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -55,6 +55,10 @@ typedef enum {
     GC_CTRL_SET_BUTTON_PAGE,
     GC_CTRL_POPUP,           /* param: on/off */
     GC_CTRL_IG_END,          /* execution of IG object is complete */
+
+    /* PG */
+    GC_CTRL_PG_UPDATE,       /* render decoded PG composition */
+    GC_CTRL_PG_RESET,        /* reset PG composition state */
 
 } gc_ctrl_e;
 

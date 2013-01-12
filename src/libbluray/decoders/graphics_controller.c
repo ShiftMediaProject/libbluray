@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  hpi1
+ * Copyright (C) 2010-2012  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -368,6 +368,7 @@ static void _reset_page_state(GRAPHICS_CONTROLLER *gc)
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
 static void _open_osd(GRAPHICS_CONTROLLER *gc, int plane,
+                      unsigned x0, unsigned y0,
                       unsigned width, unsigned height)
 {
     if (gc->overlay_proc) {
@@ -375,6 +376,8 @@ static void _open_osd(GRAPHICS_CONTROLLER *gc, int plane,
         ov.cmd          = BD_OVERLAY_INIT;
         ov.pts          = -1;
         ov.plane        = plane;
+        ov.x            = x0;
+        ov.y            = y0;
         ov.w            = width;
         ov.h            = height;
 
@@ -414,6 +417,17 @@ static void _flush_osd(GRAPHICS_CONTROLLER *gc, int plane, int64_t pts)
         BD_OVERLAY ov = {0};
         ov.cmd     = BD_OVERLAY_FLUSH;
         ov.pts     = pts;
+        ov.plane   = plane;
+
+        gc->overlay_proc(gc->overlay_proc_handle, &ov);
+    }
+}
+
+static void _hide_osd(GRAPHICS_CONTROLLER *gc, int plane)
+{
+    if (gc->overlay_proc) {
+        BD_OVERLAY ov = {0};
+        ov.cmd     = BD_OVERLAY_HIDE;
         ov.plane   = plane;
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
@@ -487,6 +501,36 @@ static void _render_object(GRAPHICS_CONTROLLER *gc,
         ov.h       = object->height;
         ov.palette = palette->entry;
         ov.img     = object->img;
+
+        gc->overlay_proc(gc->overlay_proc_handle, &ov);
+    }
+}
+
+static void _render_composition_object(GRAPHICS_CONTROLLER *gc,
+                                       int64_t pts, unsigned plane,
+                                       BD_PG_COMPOSITION_OBJECT *cobj,
+                                       BD_PG_OBJECT *object,
+                                       BD_PG_PALETTE *palette,
+                                       int palette_update_flag)
+{
+    if (gc->overlay_proc) {
+        BD_OVERLAY ov = {0};
+        ov.cmd     = BD_OVERLAY_DRAW;
+        ov.pts     = pts;
+        ov.plane   = plane;
+        ov.x       = cobj->x;
+        ov.y       = cobj->y;
+        ov.w       = object->width;
+        ov.h       = object->height;
+        ov.palette = palette->entry;
+        ov.img     = object->img;
+        if (cobj->crop_flag) {
+            ov.crop_x  = cobj->crop_x;
+            ov.crop_y  = cobj->crop_y;
+            ov.crop_w  = cobj->crop_w;
+            ov.crop_h  = cobj->crop_h;
+        }
+        ov.palette_update_flag = palette_update_flag;
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
     }
@@ -673,6 +717,98 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
 }
 
 /*
+ * PG rendering
+ */
+
+static int _render_pg_composition_object(GRAPHICS_CONTROLLER *gc,
+                                         int64_t pts,
+                                         BD_PG_COMPOSITION_OBJECT *cobj,
+                                         BD_PG_PALETTE *palette)
+{
+    BD_PG_OBJECT   *object  = NULL;
+
+    /* lookup object */
+    object  = _find_object(gc->pgs, cobj->object_id_ref);
+    if (!object) {
+        GC_ERROR("_render_pg_composition_object: object #%d not found\n", cobj->object_id_ref);
+        return -1;
+    }
+
+    /* render object using composition parameters */
+    _render_composition_object(gc, pts, BD_OVERLAY_PG, cobj, object, palette, gc->pgs->pcs->palette_update_flag);
+
+    return 0;
+}
+
+static int _render_pg(GRAPHICS_CONTROLLER *gc)
+{
+    PG_DISPLAY_SET    *s       = gc->pgs;
+    BD_PG_COMPOSITION *pcs     = NULL;
+    BD_PG_PALETTE     *palette = NULL;
+    unsigned          ii;
+
+    if (!s || !s->pcs || !s->complete) {
+        GC_ERROR("_render_pg(): no composition\n");
+        return -1;
+    }
+    pcs = s->pcs;
+
+    /* mark PG display set handled */
+    gc->pgs->complete = 0;
+
+    /* lookup palette */
+    palette = _find_palette(gc->pgs, pcs->palette_id_ref);
+    if (!palette) {
+        GC_ERROR("_render_composition_object: unknown palette id %d (have %d palettes)\n",
+                 pcs->palette_id_ref, s->num_palette);
+        return -1;
+    }
+
+    /* open PG overlay */
+    if (!gc->pg_open) {
+        if (pcs->num_composition_objects < 1) {
+            return 0;
+        }
+        _open_osd(gc, BD_OVERLAY_PG, 0, 0, pcs->video_descriptor.video_width, pcs->video_descriptor.video_height);
+    }
+
+    /* render objects */
+    for (ii = 0; ii < pcs->num_composition_objects; ii++) {
+        BD_PG_COMPOSITION_OBJECT *cobj = &pcs->composition_object[ii];
+        _render_pg_composition_object(gc, -1, cobj, palette);
+    }
+
+    /* commit changes at given pts */
+    _flush_osd(gc, BD_OVERLAY_PG, pcs->pts);
+
+    /* clear plane but do not commit changes yet */
+    /* -> plane will be cleared and hidden when empty composition arrives */
+    /* (-> no need to store object regions for next update / clear event - or use expensive full plane clear) */
+    for (ii = 0; ii < pcs->num_composition_objects; ii++) {
+        BD_PG_COMPOSITION_OBJECT *cobj   = &pcs->composition_object[ii];
+        BD_PG_OBJECT             *object = _find_object(gc->pgs, cobj->object_id_ref);
+
+        if (object) {
+            _clear_osd_area(gc, BD_OVERLAY_PG,
+                            cobj->x, cobj->y, object->width, object->height);
+        }
+    }
+    _hide_osd(gc, BD_OVERLAY_PG);
+
+    return 0;
+}
+
+static void _reset_pg(GRAPHICS_CONTROLLER *gc)
+{
+    graphics_processor_free(&gc->pgp);
+    pg_display_set_free(&gc->pgs);
+
+    if (gc->pg_open) {
+        _close_osd(gc, BD_OVERLAY_PG);
+    }
+}
+
+/*
  * IG rendering
  */
 
@@ -779,7 +915,7 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
           page->id, page->palette_id_ref, page->num_bogs);
 
     if (!gc->ig_open) {
-        _open_osd(gc, BD_OVERLAY_IG,
+        _open_osd(gc, BD_OVERLAY_IG, 0, 0,
                   s->ics->video_descriptor.video_width,
                   s->ics->video_descriptor.video_height);
     }
@@ -1183,6 +1319,17 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
 
             bd_mutex_unlock(&gc->mutex);
             return 0;
+        case GC_CTRL_PG_UPDATE:
+            result = _render_pg(gc);
+
+            bd_mutex_unlock(&gc->mutex);
+            return result;
+
+        case GC_CTRL_PG_RESET:
+            _reset_pg(gc);
+
+            bd_mutex_unlock(&gc->mutex);
+            return 0;
 
         default:;
     }
@@ -1249,6 +1396,8 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
             break;
 
         case GC_CTRL_RESET:
+        case GC_CTRL_PG_RESET:
+        case GC_CTRL_PG_UPDATE:
             /* already handled */
             break;
     }

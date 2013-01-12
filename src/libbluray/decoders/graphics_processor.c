@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  hpi1
+ * Copyright (C) 2010-2012  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -166,11 +166,20 @@ static int _join_segment_fragments(struct pes_buffer_s *p)
 
 static int _decode_wds(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 {
-    (void)s;
-    (void)bb;
+    BD_PG_WINDOWS w;
+    memset(&w, 0, sizeof(w));
+
     (void)p;
 
-    BD_DEBUG(DBG_DECODE | DBG_CRIT, "unhandled segment type (PGS_WINDOW)\n");
+    s->num_window = 0;
+
+    if (pg_decode_windows(bb, &w)) {
+        X_FREE(s->window);
+        s->window = w.window;
+        s->num_window = w.num_windows;
+        return 1;
+    }
+
     return 0;
 }
 

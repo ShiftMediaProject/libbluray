@@ -126,6 +126,7 @@ struct bluray {
     BD_STREAM      st0; /* main path */
     BD_PRELOAD     st_ig; /* preloaded IG stream sub path */
     int            ig_pid; /* pid of currently selected IG stream in main path */
+    int            pg_pid; /* pid of currently selected PG stream in main path */
 
     /* buffer for bd_read(): current aligned unit of main stream (st0) */
     uint8_t        int_buf[6144];
@@ -167,6 +168,7 @@ struct bluray {
     GRAPHICS_CONTROLLER *graphics_controller;
     SOUND_DATA          *sound_effects;
     uint32_t             gc_status;
+    uint8_t              decode_pg;
 };
 
 #define DL_CALL(lib,func,param,...)             \
@@ -357,6 +359,66 @@ static void _update_chapter_psr(BLURAY *bd)
 }
 
 /*
+ * PG
+ */
+
+static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx)
+{
+    MPLS_PI  *pi        = &bd->title->pl->play_item[0];
+    unsigned  pg_stream = bd_psr_read(bd->regs, PSR_PG_STREAM);
+
+    /* check PG display flag from PSR */
+    if (!(pg_stream & 0x80000000)) {
+      return 0;
+    }
+
+    pg_stream &= 0xfff;
+
+    if (pg_stream > 0 && pg_stream <= pi->stn.num_pg) {
+        pg_stream--; /* stream number to table index */
+        if (pi->stn.pg[pg_stream].stream_type == 2) {
+            *sub_path_idx = pi->stn.pg[pg_stream].subpath_id;
+        }
+        *pid = pi->stn.pg[pg_stream].pid;
+
+        BD_DEBUG(DBG_BLURAY, "_find_pg_stream(): current PG stream pid 0x%04x sub-path %d\n",
+              *pid, *sub_path_idx);
+        return 1;
+    }
+
+    return 0;
+}
+
+static int _init_pg_stream(BLURAY *bd)
+{
+    int      pg_subpath = -1;
+    uint16_t pg_pid     = 0;
+
+    bd->pg_pid = 0;
+
+    if (!bd->graphics_controller) {
+        return 0;
+    }
+
+    /* reset PG decoder and controller */
+    gc_run(bd->graphics_controller, GC_CTRL_PG_RESET, 0, NULL);
+
+    if (!bd->decode_pg || !bd->title) {
+        return 0;
+    }
+
+    _find_pg_stream(bd, &pg_pid, &pg_subpath);
+
+    /* store PID of main path embedded IG stream */
+    if (pg_subpath < 0) {
+        bd->pg_pid = pg_pid;
+        return 1;
+    }
+
+    return 0;
+}
+
+/*
  * clip access (BD_STREAM)
  */
 
@@ -407,6 +469,8 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
                                                  pl->play_item[st->clip->ref].uo_mask);
 
                 _update_clip_psrs(bd, st->clip);
+
+                _init_pg_stream(bd);
             }
 
             return 1;
@@ -1223,6 +1287,11 @@ static void _seek_internal(BLURAY *bd,
         /* chapter tracking */
         _update_chapter_psr(bd);
 
+        /* reset PG decoder and controller */
+        if (bd->graphics_controller) {
+            gc_run(bd->graphics_controller, GC_CTRL_PG_RESET, 0, NULL);
+        }
+
         BD_DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
               bd->s_pos, bd);
 
@@ -1557,6 +1626,12 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                         if (gc_decode_ts(bd->graphics_controller, bd->ig_pid, bd->int_buf, 1, -1) > 0) {
                             /* initialize menus */
                             _run_gc(bd, GC_CTRL_INIT_MENU, 0);
+                        }
+                    }
+                    if (bd->pg_pid > 0) {
+                        if (gc_decode_ts(bd->graphics_controller, bd->pg_pid, bd->int_buf, 1, -1) > 0) {
+                            /* render subtitles */
+                            gc_run(bd->graphics_controller, GC_CTRL_PG_UPDATE, 0, NULL);
                         }
                     }
 
@@ -2062,6 +2137,12 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
 
     unsigned i;
 
+    if (idx == BLURAY_PLAYER_SETTING_DECODE_PG) {
+        bd->decode_pg = !!value;
+        value = (bd_psr_read(bd->regs, PSR_PG_STREAM) & (0x7fffffff)) | (value<<31);
+        return !bd_psr_setting_write(bd->regs, PSR_PG_STREAM, value);
+    }
+
     for (i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
         if (idx == map[i].idx) {
             return !bd_psr_setting_write(bd->regs, idx, value);
@@ -2241,6 +2322,11 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
                 _queue_event(bd, BD_EVENT_PG_TEXTST,        !!(ev->new_val & 0x80000000));
                 _queue_event(bd, BD_EVENT_PG_TEXTST_STREAM,    ev->new_val & 0xfff);
             }
+
+            bd_mutex_lock(&bd->mutex);
+            _init_pg_stream(bd);
+            bd_mutex_unlock(&bd->mutex);
+
             break;
 
         case PSR_SECONDARY_AUDIO_VIDEO:

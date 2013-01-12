@@ -30,13 +30,25 @@ typedef enum {
 } bd_overlay_plane_e;
 
 typedef enum {
-    BD_OVERLAY_INIT,    /* init overlay plane. Size of full plane in x,y,w,h */
-    BD_OVERLAY_CLEAR,   /* clear plane */
-    BD_OVERLAY_DRAW,    /* draw bitmap (x,y,w,h,img,palette,crop) */
-    BD_OVERLAY_WIPE,    /* clear area (x,y,w,h) */
-    BD_OVERLAY_FLUSH,   /* all changes have been done, flush overlay to display at given pts */
-    BD_OVERLAY_CLOSE,   /* close overlay */
+    /* following events are executed immediately */
+    BD_OVERLAY_INIT = 0,    /* init overlay plane. Size and position of plane in x,y,w,h */
+    BD_OVERLAY_CLOSE = 5,   /* close overlay plane */
+
+    /* following events can be processed immediately, but changes
+     * should not be flushed to display before next FLUSH event
+     */
+    BD_OVERLAY_CLEAR = 1,   /* clear plane */
+    BD_OVERLAY_DRAW = 2,    /* draw bitmap (x,y,w,h,img,palette,crop) */
+    BD_OVERLAY_WIPE = 3,    /* clear area (x,y,w,h) */
+    BD_OVERLAY_HIDE = 6,    /* overlay is empty and can be hidden */
+
+    BD_OVERLAY_FLUSH = 4,   /* all changes have been done, flush overlay to display at given pts */
+
 } bd_overlay_cmd_e;
+
+/*
+ * Compressed YUV overlays
+ */
 
 typedef struct bd_pg_palette_entry_s {
     uint8_t Y;
@@ -67,6 +79,8 @@ typedef struct bd_overlay_s {
     uint16_t crop_y;
     uint16_t crop_w;
     uint16_t crop_h;
+
+    uint8_t palette_update_flag; /* only palette was changed */
 
 } BD_OVERLAY;
 

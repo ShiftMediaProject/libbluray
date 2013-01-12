@@ -498,6 +498,8 @@ typedef enum {
     BLURAY_PLAYER_SETTING_VIDEO_CAP      = 29,  /* Player capability for video (bit mask) */
     BLURAY_PLAYER_SETTING_TEXT_CAP       = 30,  /* Player capability for text subtitle (bit mask) */
     BLURAY_PLAYER_SETTING_PLAYER_PROFILE = 31,  /* Profile1: 0, Profile1+: 1, Profile2: 3, Profile3: 8 */
+
+    BLURAY_PLAYER_SETTING_DECODE_PG      = 0x100, /* enable/disable PG (subtitle) decoder */
 } bd_player_setting;
 
 /**
