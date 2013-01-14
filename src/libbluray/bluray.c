@@ -2756,26 +2756,34 @@ int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
 {
     int result = -1;
 
+    bd_mutex_lock(&bd->mutex);
+
     bd_set_scr(bd, pts);
 
     if (bd->title_type == title_hdmv) {
         result = _run_gc(bd, GC_CTRL_MOUSE_MOVE, (x << 16) | y);
     }
 
+    bd_mutex_unlock(&bd->mutex);
+
     return result;
 }
 
 int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
 {
+    int result = -1;
+
+    bd_mutex_lock(&bd->mutex);
+
     bd_set_scr(bd, pts);
 
     if (bd->title_type == title_hdmv) {
-        return _run_gc(bd, GC_CTRL_VK_KEY, key);
+        result = _run_gc(bd, GC_CTRL_VK_KEY, key);
     } else if (bd->title_type == title_bdj) {
         _bdj_event(bd, BDJ_EVENT_VK_KEY, key);
-        return 0;
+        result = 0;
     }
-    return -1;
+    return result;
 }
 
 void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func)
