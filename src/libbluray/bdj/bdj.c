@@ -18,11 +18,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "bdj.h"
-
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include "bdj.h"
+
 #include "bdj_private.h"
 #include "bdjo_parser.h"
 #include "bdj_util.h"
