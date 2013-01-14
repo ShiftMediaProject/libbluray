@@ -153,11 +153,13 @@ BDJAVA* bdj_open(const char *path,
                  struct bluray *bd, struct bd_registers_s *registers,
                  struct indx_root_s *index)
 {
+    BD_DEBUG(DBG_BDJ, "bdj_open()\n");
+
     // first load the jvm using dlopen
     void* jvm_lib = _load_jvm();
 
     if (!jvm_lib) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Wasn't able to load libjvm.so\n");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Wasn't able to load JVM\n");
         return NULL;
     }
 
@@ -228,6 +230,8 @@ int bdj_start(BDJAVA *bdjava, unsigned title)
         return BDJ_ERROR;
     }
 
+    BD_DEBUG(DBG_BDJ, "bdj_start(%d)\n", title);
+
     if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
         (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
         attach = 1;
@@ -264,6 +268,8 @@ int bdj_stop(BDJAVA *bdjava)
         return BDJ_ERROR;
     }
 
+    BD_DEBUG(DBG_BDJ, "bdj_stop()\n");
+
     if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
         (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
         attach = 1;
@@ -299,6 +305,8 @@ void bdj_close(BDJAVA *bdjava)
         return;
     }
 
+    BD_DEBUG(DBG_BDJ, "bdj_close()\n");
+
     if (bdjava->jvm) {
         if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
             (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
@@ -333,6 +341,18 @@ void bdj_close(BDJAVA *bdjava)
 
 void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
 {
+    static const char * const ev_name[] = {
+        "NONE",
+        "CHAPTER",
+        "PLAYITEM",
+        "ANGLE",
+        "SUBTITLE",
+        "PIP",
+        "END_OF_PLAYLIST",
+        "PTS",
+        "VK_KEY",
+    };
+
     JNIEnv* env;
     int attach = 0;
     jclass event_class;
@@ -341,6 +361,8 @@ void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
     if (!bdjava) {
         return;
     }
+
+    BD_DEBUG(DBG_BDJ, "bdj_process_event(%s,%d)\n", ev_name[ev], param);
 
     if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
         (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
