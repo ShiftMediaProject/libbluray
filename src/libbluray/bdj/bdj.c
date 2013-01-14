@@ -134,6 +134,12 @@ static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
                                                  id ? id->disc_id : "00000000000000000000000000000000");
     (*env)->CallStaticVoidMethod(env, init_class, init_id,
                                  param_bdjava_ptr, param_disc_id);
+
+    if ((*env)->ExceptionOccurred(env)) {
+        (*env)->ExceptionDescribe(env);
+        (*env)->ExceptionClear(env);
+    }
+
     (*env)->DeleteLocalRef(env, init_class);
     (*env)->DeleteLocalRef(env, param_disc_id);
 
@@ -230,6 +236,12 @@ int bdj_start(BDJAVA *bdjava, unsigned title)
     if (bdj_get_method(env, &loader_class, &load_id,
                        "org/videolan/BDJLoader", "load", "(I)Z")) {
         status = (*env)->CallStaticBooleanMethod(env, loader_class, load_id, (jint)title);
+
+        if ((*env)->ExceptionOccurred(env)) {
+            (*env)->ExceptionDescribe(env);
+            (*env)->ExceptionClear(env);
+        }
+
         (*env)->DeleteLocalRef(env, loader_class);
     }
 
@@ -260,6 +272,12 @@ int bdj_stop(BDJAVA *bdjava)
     if (bdj_get_method(env, &loader_class, &unload_id,
                        "org/videolan/BDJLoader", "unload", "()Z")) {
         status = (*env)->CallStaticBooleanMethod(env, loader_class, unload_id);
+
+        if ((*env)->ExceptionOccurred(env)) {
+            (*env)->ExceptionDescribe(env);
+            (*env)->ExceptionClear(env);
+        }
+
         (*env)->DeleteLocalRef(env, loader_class);
     }
 
@@ -290,6 +308,12 @@ void bdj_close(BDJAVA *bdjava)
         if (bdj_get_method(env, &shutdown_class, &shutdown_id,
                            "org/videolan/Libbluray", "shutdown", "()V")) {
             (*env)->CallStaticVoidMethod(env, shutdown_class, shutdown_id);
+
+            if ((*env)->ExceptionOccurred(env)) {
+                (*env)->ExceptionDescribe(env);
+                (*env)->ExceptionClear(env);
+            }
+
             (*env)->DeleteLocalRef(env, shutdown_class);
         }
 
@@ -326,6 +350,12 @@ void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
     if (bdj_get_method(env, &event_class, &event_id,
                        "org/videolan/Libbluray", "processEvent", "(II)V")) {
         (*env)->CallStaticVoidMethod(env, event_class, event_id, ev, param);
+
+        if ((*env)->ExceptionOccurred(env)) {
+            (*env)->ExceptionDescribe(env);
+            (*env)->ExceptionClear(env);
+        }
+
         (*env)->DeleteLocalRef(env, event_class);
     }
 
