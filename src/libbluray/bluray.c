@@ -2754,9 +2754,15 @@ void bd_set_scr(BLURAY *bd, int64_t pts)
 
 int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
 {
+    int result = -1;
+
     bd_set_scr(bd, pts);
 
-    return _run_gc(bd, GC_CTRL_MOUSE_MOVE, (x << 16) | y);
+    if (bd->title_type == title_hdmv) {
+        result = _run_gc(bd, GC_CTRL_MOUSE_MOVE, (x << 16) | y);
+    }
+
+    return result;
 }
 
 int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
