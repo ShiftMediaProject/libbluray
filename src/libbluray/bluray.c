@@ -868,7 +868,7 @@ const uint8_t *bd_get_vid(BLURAY *bd)
         return NULL;
     }
 
-    BD_DEBUG(DBG_BLURAY, "_libaacs_get_vid(): libaacs not initialized! (%p)", bd);
+    BD_DEBUG(DBG_BLURAY, "bd_get_vid(): libaacs not initialized! (%p)", bd);
     return NULL;
 }
 
@@ -881,11 +881,11 @@ const uint8_t *bd_get_pmsn(BLURAY *bd)
         if (fptr) {
             return (const uint8_t*)fptr(bd->aacs);
         }
-        BD_DEBUG(DBG_BLURAY, "aacs_get_vid() dlsym failed! (%p)", bd);
+        BD_DEBUG(DBG_BLURAY, "aacs_get_pmsn() dlsym failed! (%p)", bd);
         return NULL;
     }
 
-    BD_DEBUG(DBG_BLURAY, "_libaacs_get_vid(): libaacs not initialized! (%p)", bd);
+    BD_DEBUG(DBG_BLURAY, "bd_get_pmsn(): libaacs not initialized! (%p)", bd);
     return NULL;
 }
 
