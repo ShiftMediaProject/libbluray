@@ -29,15 +29,22 @@
 #include "bdj_util.h"
 #include "common.h"
 #include "libbluray/register.h"
+#include "file/file.h"
 #include "file/dl.h"
 #include "util/strutl.h"
 #include "util/macro.h"
+#include "util/logging.h"
 #include "libbluray/bdnav/bdid_parse.h"
 #include "libbluray/bdj/native/register_native.h"
 
 #include <jni.h>
 #include <stdlib.h>
 #include <string.h>
+
+// stat
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
 
@@ -62,6 +69,48 @@ static void *_load_jvm(void)
 #endif	//	#ifdef WIN32
 
     return dl_dlopen(path, NULL);
+}
+
+static const char *_find_libbluray_jar(void)
+{
+    // pre-defined search paths for libbluray.jar
+    static const char * const jar_paths[] = {
+#ifdef WIN32
+        "" BDJ_JAR_FILE,
+#else
+        "/usr/lib/libbluray/" BDJ_JARFILE,
+        "/usr/share/libbluray/" BDJ_JARFILE,
+#endif
+    };
+
+    static const char *classpath = NULL;
+
+    struct stat sb;
+    unsigned i;
+
+    // check if overriding the classpath
+    if (!classpath) {
+        classpath = getenv("LIBBLURAY_CP");
+    }
+    if (classpath) {
+        return classpath;
+    }
+
+    BD_DEBUG(DBG_BDJ, "LIBBLURAY_CP not set, searching for "BDJ_JARFILE" ...\n");
+
+    // check pre-defined directories
+    for (i = 0; i < sizeof(jar_paths) / sizeof(jar_paths[0]); i++) {
+        BD_DEBUG(DBG_BDJ, "Checking %s ...\n", jar_paths[i]);
+        if (!stat(jar_paths[i], &sb)) {
+            classpath = jar_paths[i];
+            BD_DEBUG(DBG_BDJ, "using %s\n", classpath);
+            return classpath;
+        }
+    }
+
+    classpath = BDJ_CLASSPATH;
+    BD_DEBUG(DBG_BDJ | DBG_CRIT, BDJ_JARFILE" not found.\n");
+    return classpath;
 }
 
 static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
@@ -123,14 +172,9 @@ BDJAVA* bdj_open(const char *path,
 
     JavaVMInitArgs args;
 
-    // check if overriding the classpath
-    const char* classpath = getenv("LIBBLURAY_CP");
-    if (classpath == NULL)
-        classpath = BDJ_CLASSPATH;
-
     // determine classpath
     //char* classpath_opt = str_printf("-Djava.class.path=%s", classpath);
-    char* classpath_opt = str_printf("-Xbootclasspath/a:%s", classpath);
+    char* classpath_opt = str_printf("-Xbootclasspath/a:%s", _find_libbluray_jar());
 
     // determine bluray.vfs.root
     char* vfs_opt;
