@@ -64,7 +64,7 @@ static int _filter_dup(MPLS_PL *pl_list[], unsigned count, MPLS_PL *pl)
 }
 
 static unsigned int
-_find_repeats(MPLS_PL *pl, const char *m2ts)
+_find_repeats(MPLS_PL *pl, const char *m2ts, uint32_t in_time, uint32_t out_time)
 {
     unsigned ii, count = 0;
 
@@ -73,7 +73,9 @@ _find_repeats(MPLS_PL *pl, const char *m2ts)
 
         pi = &pl->play_item[ii];
         // Ignore titles with repeated segments
-        if (strcmp(pi->clip[0].clip_id, m2ts) == 0) {
+        if (strcmp(pi->clip[0].clip_id, m2ts) == 0 &&
+            pi->in_time  == in_time &&
+            pi->out_time == out_time) {
           count++;
         }
     }
@@ -90,7 +92,7 @@ _filter_repeats(MPLS_PL *pl, unsigned repeats)
 
       pi = &pl->play_item[ii];
       // Ignore titles with repeated segments
-      if (_find_repeats(pl, pi->clip[0].clip_id) > repeats) {
+      if (_find_repeats(pl, pi->clip[0].clip_id, pi->in_time, pi->out_time) > repeats) {
         return 0;
       }
     }
