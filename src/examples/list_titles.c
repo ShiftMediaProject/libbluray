@@ -92,12 +92,19 @@ int main(int argc, char *argv[])
         BLURAY_TITLE_INFO* ti;
         ti = bd_get_title_info(bd, ii, 0);
         printf(
-       "index: %d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %d angles: %u clips: %u (playlist: %05d.mpls)\n",
+       "index: %d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %3d angles: %2u clips: %3u (playlist: %05d.mpls) "
+       "V:%d A:%-2d PG:%-2d IG:%-2d SV:%d SA:%d\n",
               ii + 1,
               (ti->duration / 90000) / (3600),
               ((ti->duration / 90000) % 3600) / 60,
               ((ti->duration / 90000) % 60),
-              ti->chapter_count, ti->angle_count, ti->clip_count, ti->playlist
+              ti->chapter_count, ti->angle_count, ti->clip_count, ti->playlist,
+              ti->clips[0].video_stream_count,
+              ti->clips[0].audio_stream_count,
+              ti->clips[0].pg_stream_count,
+              ti->clips[0].ig_stream_count,
+              ti->clips[0].sec_video_stream_count,
+              ti->clips[0].sec_audio_stream_count
         );
         bd_free_title_info(ti);
     }
