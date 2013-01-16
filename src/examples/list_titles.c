@@ -29,7 +29,7 @@
 #include <inttypes.h>
 #include <unistd.h>
 
-#define OPTS "hs:"
+#define OPTS "ahs:"
 
 static void _usage(char *cmd)
 {
@@ -37,6 +37,7 @@ static void _usage(char *cmd)
 "%s <BD base dir> [-s <seconds>]\n"
 "   List the titles and title info of a BD\n"
 "   -s #    - Filter out titles shorter than # seconds\n"
+"   -a      - List all titles\n"
 "   -h      - This message\n",
         cmd
     );
@@ -48,6 +49,7 @@ int main(int argc, char *argv[])
     BLURAY *bd;
     int count, ii, opt;
     unsigned int seconds = 0;
+    unsigned int flags = TITLES_RELEVANT;
     char *bd_dir = NULL;
 
     BD_DEBUG(DBG_BLURAY,"\nListing titles:\n");
@@ -65,6 +67,9 @@ int main(int argc, char *argv[])
                     opt = 1;
                 }
                 break;
+            case 'a':
+                flags = TITLES_ALL;
+                break;
             case 's':
                 seconds = strtol(optarg, NULL, 0);
                 break;
@@ -81,7 +86,7 @@ int main(int argc, char *argv[])
     }
     bd = bd_open(bd_dir, NULL);
 
-    count = bd_get_titles(bd, TITLES_RELEVANT, seconds);
+    count = bd_get_titles(bd, flags, seconds);
     for (ii = 0; ii < count; ii++)
     {
         BLURAY_TITLE_INFO* ti;
