@@ -76,7 +76,7 @@ static const char *_find_libbluray_jar(void)
     // pre-defined search paths for libbluray.jar
     static const char * const jar_paths[] = {
 #ifdef WIN32
-        "" BDJ_JAR_FILE,
+        "" BDJ_JARFILE,
 #else
         "/usr/lib/libbluray/" BDJ_JARFILE,
         "/usr/share/libbluray/" BDJ_JARFILE,
