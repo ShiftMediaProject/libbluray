@@ -18,8 +18,6 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "org_videolan_Libbluray.h"
-
 #include "libbluray/bdj/bdj.h"
 #include "libbluray/bdj/bdj_private.h"
 #include "libbluray/bdj/bdj_util.h"
@@ -31,9 +29,10 @@
 #include "util/strutl.h"
 #include "util/macro.h"
 
-#include "org_videolan_Libbluray.h"
-
 #include <string.h>
+
+/* this automatically generated header is included to cross-check native function signatures */
+#include "org_videolan_Libbluray.h"
 
 /* Disable some warnings */
 #if defined __GNUC__
@@ -116,7 +115,6 @@ static jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
 }
 
 
-static
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
   (JNIEnv * env, jclass cls, jlong np, jint title)
 {
@@ -159,7 +157,6 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
         return NULL;
 }
 
-static
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
   (JNIEnv * env, jclass cls, jlong np, jint playlist)
 {
@@ -175,7 +172,6 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
     return titleInfo;
 }
 
-static
 JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getVolumeIDN
   (JNIEnv * env, jclass cls, jlong np)
 {
@@ -191,7 +187,6 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getVolumeIDN
     return array;
 }
 
-static
 JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getPMSNN
   (JNIEnv * env, jclass cls, jlong np)
 {
@@ -207,160 +202,137 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getPMSNN
     return array;
 }
 
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN(JNIEnv * env,
                                                               jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bdj->index->num_titles;
 }
 
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN(JNIEnv * env,
         jclass cls, jlong np, jlong pos) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_seek(bdj->bd, pos);
 }
 
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekTimeN(JNIEnv * env,
         jclass cls, jlong np, jlong tick) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_seek_time(bdj->bd, tick);
 }
 
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekChapterN(JNIEnv * env,
         jclass cls, jlong np, jint chapter) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_seek_chapter(bdj->bd, chapter);
 }
 
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_chapterPosN(JNIEnv * env,
         jclass cls, jlong np, jint chapter) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_chapter_pos(bdj->bd, chapter);
 }
 
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentChapterN(
         JNIEnv * env, jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_get_current_chapter(bdj->bd);
 }
 
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekMarkN(JNIEnv * env,
         jclass cls, jlong np, jint mark) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_seek_mark(bdj->bd, mark);
 }
 
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekPlayItemN(JNIEnv * env,
         jclass cls, jlong np, jint clip) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_seek_playitem(bdj->bd, clip);
 }
 
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectPlaylistN(
         JNIEnv * env, jclass cls, jlong np, jint playlist) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_select_playlist(bdj->bd, playlist);
 }
 
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectTitleN(JNIEnv * env,
         jclass cls, jlong np, jint title) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_play_title(bdj->bd, title);
 }
 
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectAngleN(JNIEnv * env,
         jclass cls, jlong np, jint angle) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_select_angle(bdj->bd, angle);
 }
 
-static
 JNIEXPORT void JNICALL Java_org_videolan_Libbluray_seamlessAngleChangeN(
         JNIEnv * env, jclass cls, jlong np, jint angle) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     bd_seamless_angle_change(bdj->bd, angle);
 }
 
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getTitleSizeN(JNIEnv * env,
         jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_get_title_size(bdj->bd);
 }
 
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentTitleN(
         JNIEnv * env, jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_psr_read(bdj->reg, PSR_TITLE_NUMBER);
 }
 
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentAngleN(
         JNIEnv * env, jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_get_current_angle(bdj->bd);
 }
 
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellN(JNIEnv * env,
         jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_tell(bdj->bd);
 }
 
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellTimeN(JNIEnv * env,
         jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_tell_time(bdj->bd);
 }
 
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectRateN(JNIEnv * env,
         jclass cls, jlong np, jfloat rate) {
     return 1;
 }
 
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writeGPRN(JNIEnv * env,
         jclass cls, jlong np, jint num, jint value) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_gpr_write(bdj->reg, num, value);
 }
 
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readGPRN(JNIEnv * env,
         jclass cls, jlong np, jint num) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_gpr_read(bdj->reg, num);
 }
 
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writePSRN(JNIEnv * env,
         jclass cls, jlong np, jint num, jint value) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_psr_write(bdj->reg, num, value);
 }
 
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN(JNIEnv * env,
         jclass cls, jlong np, jint num) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
     return bd_psr_read(bdj->reg, num);
 }
 
-static
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
                                                                jclass cls, jlong np, jstring name) {
 

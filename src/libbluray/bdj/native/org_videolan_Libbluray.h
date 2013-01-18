@@ -2,6 +2,11 @@
 #include <jni.h>
 /* Header for class org_videolan_Libbluray */
 
+#ifndef WIN32
+#undef JNIEXPORT
+#define JNIEXPORT static
+#endif
+
 #ifndef _Included_org_videolan_Libbluray
 #define _Included_org_videolan_Libbluray
 #ifdef __cplusplus
@@ -92,7 +97,6 @@ extern "C" {
  * Method:    getVolumeIDN
  * Signature: (J)[B
  */
-static
 JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getVolumeIDN
   (JNIEnv *, jclass, jlong);
 
@@ -101,7 +105,6 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getVolumeIDN
  * Method:    getPMSNN
  * Signature: (J)[B
  */
-static
 JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getPMSNN
   (JNIEnv *, jclass, jlong);
 
@@ -110,7 +113,6 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getPMSNN
  * Method:    getTitleInfoN
  * Signature: (JI)Lorg/videolan/TitleInfo;
  */
-static
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
   (JNIEnv *, jclass, jlong, jint);
 
@@ -119,7 +121,6 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
  * Method:    getPlaylistInfoN
  * Signature: (JI)Lorg/videolan/PlaylistInfo;
  */
-static
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
   (JNIEnv *, jclass, jlong, jint);
 
@@ -128,7 +129,6 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
  * Method:    getTitlesN
  * Signature: (J)I
  */
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN
   (JNIEnv *, jclass, jlong);
 
@@ -137,7 +137,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN
  * Method:    seekN
  * Signature: (JJ)J
  */
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN
   (JNIEnv *, jclass, jlong, jlong);
 
@@ -146,7 +145,6 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN
  * Method:    seekTimeN
  * Signature: (JJ)J
  */
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekTimeN
   (JNIEnv *, jclass, jlong, jlong);
 
@@ -155,7 +153,6 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekTimeN
  * Method:    seekChapterN
  * Signature: (JI)J
  */
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekChapterN
   (JNIEnv *, jclass, jlong, jint);
 
@@ -164,7 +161,6 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekChapterN
  * Method:    chapterPosN
  * Signature: (JI)J
  */
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_chapterPosN
   (JNIEnv *, jclass, jlong, jint);
 
@@ -173,7 +169,6 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_chapterPosN
  * Method:    getCurrentChapterN
  * Signature: (J)I
  */
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentChapterN
   (JNIEnv *, jclass, jlong);
 
@@ -182,7 +177,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentChapterN
  * Method:    seekMarkN
  * Signature: (JI)J
  */
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekMarkN
   (JNIEnv *, jclass, jlong, jint);
 
@@ -191,7 +185,6 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekMarkN
  * Method:    seekPlayItemN
  * Signature: (JI)J
  */
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekPlayItemN
   (JNIEnv *, jclass, jlong, jint);
 
@@ -200,7 +193,6 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekPlayItemN
  * Method:    selectPlaylistN
  * Signature: (JI)I
  */
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectPlaylistN
   (JNIEnv *, jclass, jlong, jint);
 
@@ -209,7 +201,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectPlaylistN
  * Method:    selectTitleN
  * Signature: (JI)I
  */
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectTitleN
   (JNIEnv *, jclass, jlong, jint);
 
@@ -218,7 +209,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectTitleN
  * Method:    selectAngleN
  * Signature: (JI)I
  */
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectAngleN
   (JNIEnv *, jclass, jlong, jint);
 
@@ -227,7 +217,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectAngleN
  * Method:    seamlessAngleChangeN
  * Signature: (JI)V
  */
-static
 JNIEXPORT void JNICALL Java_org_videolan_Libbluray_seamlessAngleChangeN
   (JNIEnv *, jclass, jlong, jint);
 
@@ -236,7 +225,6 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_seamlessAngleChangeN
  * Method:    getTitleSizeN
  * Signature: (J)J
  */
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getTitleSizeN
   (JNIEnv *, jclass, jlong);
 
@@ -245,7 +233,6 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getTitleSizeN
  * Method:    getCurrentTitleN
  * Signature: (J)I
  */
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentTitleN
   (JNIEnv *, jclass, jlong);
 
@@ -254,7 +241,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentTitleN
  * Method:    getCurrentAngleN
  * Signature: (J)I
  */
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentAngleN
   (JNIEnv *, jclass, jlong);
 
@@ -263,7 +249,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentAngleN
  * Method:    tellN
  * Signature: (J)J
  */
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellN
   (JNIEnv *, jclass, jlong);
 
@@ -272,7 +257,6 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellN
  * Method:    tellTimeN
  * Signature: (J)J
  */
-static
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellTimeN
   (JNIEnv *, jclass, jlong);
 
@@ -281,7 +265,6 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellTimeN
  * Method:    selectRateN
  * Signature: (JF)I
  */
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectRateN
   (JNIEnv *, jclass, jlong, jfloat);
 
@@ -290,7 +273,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectRateN
  * Method:    writeGPRN
  * Signature: (JII)I
  */
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writeGPRN
   (JNIEnv *, jclass, jlong, jint, jint);
 
@@ -299,7 +281,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writeGPRN
  * Method:    writePSRN
  * Signature: (JII)I
  */
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writePSRN
   (JNIEnv *, jclass, jlong, jint, jint);
 
@@ -308,7 +289,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writePSRN
  * Method:    readGPRN
  * Signature: (JI)I
  */
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readGPRN
   (JNIEnv *, jclass, jlong, jint);
 
@@ -317,7 +297,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readGPRN
  * Method:    readPSRN
  * Signature: (JI)I
  */
-static
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN
   (JNIEnv *, jclass, jlong, jint);
 
@@ -326,7 +305,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN
  * Method:    getBdjoN
  * Signature: (JLjava/lang/String;)Lorg/videolan/bdjo/Bdjo;
  */
-static
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN
   (JNIEnv *, jclass, jlong, jstring);
 
@@ -335,7 +313,6 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN
  * Method:    updateGraphicN
  * Signature: (JII[I)V
  */
-static
 JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN
   (JNIEnv *, jclass, jlong, jint, jint, jintArray);
 
