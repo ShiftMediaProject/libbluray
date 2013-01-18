@@ -38,6 +38,7 @@
 #include "bdnav/sound_parse.h"
 #include "hdmv/hdmv_vm.h"
 #include "decoders/graphics_controller.h"
+#include "decoders/overlay.h"
 #include "file/file.h"
 #include "file/dl.h"
 #ifdef USING_BDJAVA
@@ -164,11 +165,16 @@ struct bluray {
     BDJAVA         *bdjava;
 #endif
 
-    /* graphics */
+    /* HDMV graphics */
     GRAPHICS_CONTROLLER *graphics_controller;
     SOUND_DATA          *sound_effects;
     uint32_t             gc_status;
     uint8_t              decode_pg;
+
+    /* ARGB overlay output */
+    void                *argb_overlay_proc_handle;
+    bd_argb_overlay_proc_f argb_overlay_proc;
+    BD_ARGB_BUFFER      *argb_buffer;
 };
 
 #define DL_CALL(lib,func,param,...)             \
@@ -1082,11 +1088,81 @@ static void _fill_disc_info(BLURAY *bd)
  * bdj
  */
 
+#ifdef USING_BDJAVA
+/*
+ * handle graphics updates from BD-J layer
+ */
+static void _bdj_osd_cb(BLURAY *bd, const unsigned *img, int w, int h,
+                        int x0, int y0, int x1, int y1)
+{
+    BD_ARGB_OVERLAY aov;
+
+    if (!bd || !bd->argb_overlay_proc) {
+        return;
+    }
+
+    memset(&aov, 0, sizeof(aov));
+    aov.pts   = -1;
+    aov.plane = BD_OVERLAY_IG;
+
+    /* no image data -> init or close */
+    if (!img) {
+        if (w > 0 && h > 0) {
+            aov.cmd = BD_ARGB_OVERLAY_INIT;
+            aov.w   = w;
+            aov.h   = h;
+        } else {
+            aov.cmd = BD_ARGB_OVERLAY_CLOSE;
+        }
+
+        bd->argb_overlay_proc(bd->argb_overlay_proc_handle, &aov);
+        return;
+    }
+
+    /* no changed pixels ? */
+    if (x1 < x0 || y1 < y0) {
+        return;
+    }
+
+    /* pass only changed region */
+    aov.argb   = img;
+    aov.stride = w;
+    aov.x      = x0;
+    aov.y      = y0;
+    aov.w      = x1 - x0 + 1;
+    aov.h      = y1 - y0 + 1;
+
+    if (bd->argb_buffer) {
+        /* set dirty region */
+        bd->argb_buffer->dirty[BD_OVERLAY_IG].x0 = x0;
+        bd->argb_buffer->dirty[BD_OVERLAY_IG].x1 = x1;
+        bd->argb_buffer->dirty[BD_OVERLAY_IG].y0 = y0;
+        bd->argb_buffer->dirty[BD_OVERLAY_IG].y1 = y1;
+    }
+
+    /* draw */
+    aov.cmd = BD_ARGB_OVERLAY_DRAW;
+    bd->argb_overlay_proc(bd->argb_overlay_proc_handle, &aov);
+
+    /* commit changes */
+    aov.cmd = BD_ARGB_OVERLAY_FLUSH;
+    bd->argb_overlay_proc(bd->argb_overlay_proc_handle, &aov);
+
+    if (bd->argb_buffer) {
+        /* reset dirty region */
+        bd->argb_buffer->dirty[BD_OVERLAY_IG].x0 = bd->argb_buffer->width;
+        bd->argb_buffer->dirty[BD_OVERLAY_IG].x1 = bd->argb_buffer->height;
+        bd->argb_buffer->dirty[BD_OVERLAY_IG].y0 = 0;
+        bd->argb_buffer->dirty[BD_OVERLAY_IG].y1 = 0;
+    }
+}
+#endif
+
 static int _start_bdj(BLURAY *bd, unsigned title)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
-        bd->bdjava = bdj_open(bd->device_path, bd, bd->regs, bd->index);
+        bd->bdjava = bdj_open(bd->device_path, bd, bd->regs, bd->index, _bdj_osd_cb, bd->argb_buffer);
         if (!bd->bdjava) {
             return 0;
         }
@@ -2792,11 +2868,39 @@ void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func)
         return;
     }
 
+    bd_mutex_lock(&bd->mutex);
+
     gc_free(&bd->graphics_controller);
 
     if (func) {
         bd->graphics_controller = gc_init(bd->regs, handle, func);
     }
+
+    bd_mutex_unlock(&bd->mutex);
+}
+
+void bd_register_argb_overlay_proc(BLURAY *bd, void *handle, bd_argb_overlay_proc_f func, BD_ARGB_BUFFER *buf)
+{
+    if (!bd) {
+        return;
+    }
+
+    bd_mutex_lock(&bd->mutex);
+
+    if (bd->argb_overlay_proc && bd->title_type == title_bdj) {
+        /* function can't be changed when BD-J is running */
+        bd_mutex_unlock(&bd->mutex);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_register_argb_overlay_proc(): ARGB handler already registered and BD-J running !\n");
+        return;
+    }
+
+    _close_bdj(bd);
+
+    bd->argb_overlay_proc        = func;
+    bd->argb_overlay_proc_handle = handle;
+    bd->argb_buffer              = buf;
+
+    bd_mutex_unlock(&bd->mutex);
 }
 
 int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, BLURAY_SOUND_EFFECT *effect)

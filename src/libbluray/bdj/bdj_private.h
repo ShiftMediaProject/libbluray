@@ -23,12 +23,16 @@
 #include "libbluray/register.h"
 #include "libbluray/bluray.h"
 #include "libbluray/bdnav/index_parse.h"
+#include "libbluray/decoders/overlay.h"
 #include <jni.h>
 
 struct bdjava_s {
     BLURAY       *bd;
     BD_REGISTERS *reg;
     INDX_ROOT    *index;
+
+    bdj_overlay_cb  osd_cb;
+    BD_ARGB_BUFFER *buf;
 
     // JVM library
     void *h_libjvm;

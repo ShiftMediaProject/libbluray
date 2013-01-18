@@ -652,12 +652,25 @@ int  bd_menu_call(BLURAY *bd, int64_t pts);
  * User interaction and On-screen display controller
  */
 
-struct bd_overlay_s; /* defined in overlay.h */
+struct bd_overlay_s;      /* defined in overlay.h */
+struct bd_argb_overlay_s; /* defined in overlay.h */
+struct bd_argb_buffer_s;  /* defined in overlay.h */
 typedef void (*bd_overlay_proc_f)(void *, const struct bd_overlay_s * const);
+typedef void (*bd_argb_overlay_proc_f)(void *, const struct bd_argb_overlay_s * const);
+
 
 /**
  *
- *  Register overlay graphics handler function.
+ *  Register YUV overlay graphics handler function.
+ *
+ *  Only compressed YUV HDMV overlays will be passed to this function.
+ *  This function can be used when player does not support full-screen ARGB overlays
+ *  or player can optimize drawing of compressed overlays, color space conversion etc.
+ *
+ *  Callback function is called from application thread context while bd_*() functions
+ *  are called.
+ *
+ *  Note that BD-J mode outputs only ARGB graphics.
  *
  * @param bd  BLURAY object
  * @param handle application-specific handle that will be passed to handler function
@@ -665,6 +678,23 @@ typedef void (*bd_overlay_proc_f)(void *, const struct bd_overlay_s * const);
  * @return 1 on success, 0 if error
  */
 void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func);
+
+/**
+ *
+ *  Register ARGB overlay graphics handler function.
+ *
+ *  BD-J graphics can be acquired only with this function.
+ *
+ *  Callback function can be called at any time by a thread created by JAVA VM.
+ *  No more than single call for each overlay plane are executed in paraller.
+ *
+ * @param bd  BLURAY object
+ * @param handle  application-specific handle that will be passed to handler function
+ * @param func  handler function pointer
+ * @param buf  optional application-allocated frame buffer
+ * @return 1 on success, 0 if error
+ */
+void bd_register_argb_overlay_proc(BLURAY *bd, void *handle, bd_argb_overlay_proc_f func, struct bd_argb_buffer_s *buf);
 
 /**
  *

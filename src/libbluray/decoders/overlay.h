@@ -84,5 +84,82 @@ typedef struct bd_overlay_s {
 
 } BD_OVERLAY;
 
+/*
+ * ARGB overlays
+ */
+
+typedef enum {
+    /* following events are executed immediately */
+    BD_ARGB_OVERLAY_INIT = 0,    /* init overlay plane. Size and position of plane in x,y,w,h */
+    BD_ARGB_OVERLAY_CLOSE = 5,   /* close overlay */
+
+    /* following events can be processed immediately, but changes
+     * should not be flushed to display before next FLUSH event
+     */
+    BD_ARGB_OVERLAY_DRAW = 2,    /* draw image */
+    BD_ARGB_OVERLAY_FLUSH = 4,   /* all changes have been done, flush overlay to display at given pts */
+} bd_argb_overlay_cmd_e;
+
+typedef struct bd_argb_overlay_s {
+    int64_t  pts;
+    uint8_t  plane; /* bd_overlay_plane_e */
+    uint8_t  cmd;   /* bd_argb_overlay_cmd_e */
+
+    /* following fileds are used only when not using application-allocated
+     * frame buffer
+     */
+
+    /* destination clip on the overlay plane
+     */
+    uint16_t x;
+    uint16_t y;
+    uint16_t w;
+    uint16_t h;
+
+    const uint32_t * argb; /* 'h' lines, line length 'stride' pixels */
+    uint16_t stride;       /* buffer stride */
+
+} BD_ARGB_OVERLAY;
+
+/*
+ * Application-allocated frame buffer for ARGB overlays
+ *
+ * When using application-allocated frame buffer DRAW events are
+ * executed by libbluray.
+ * Application needs to handle only OPEN/FLUSH/CLOSE events.
+ *
+ * DRAW events can still be used for optimizations.
+ */
+typedef struct bd_argb_buffer_s {
+    /* optional lock / unlock functions
+     *  - Set by application
+     *  - Called when buffer is accessed or modified
+     */
+    void (*lock)  (struct bd_argb_buffer_s *);
+    void (*unlock)(struct bd_argb_buffer_s *);
+
+    /* ARGB frame buffers
+     * - Allocated by application (BD_ARGB_OVERLAY_INIT).
+     * - Buffer can be freed after BD_ARGB_OVERLAY_CLOSE.
+     * - buffer can be replaced while overlay callback is executed.
+     */
+
+    uint32_t *buf[2]; /* [0] - PG plane, [1] - IG plane */
+
+    /* size of buffers
+     * - Set by application
+     */
+    int width;
+    int height;
+
+    /* dirty area of buffers
+     * - Updated by library.
+     * - Reset after each BD_ARGB_OVERLAY_FLUSH.
+     */
+    struct {
+        uint16_t x0, y0, x1, y1;
+    } dirty[2]; /* [0] - PG plane, [1] - IG plane */
+
+} BD_ARGB_BUFFER;
 
 #endif // BD_OVERLAY_H_

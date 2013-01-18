@@ -28,6 +28,7 @@
 
 #include "util/strutl.h"
 #include "util/macro.h"
+#include "util/logging.h"
 
 #include <string.h>
 
@@ -348,6 +349,52 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
 
 JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
         jclass cls, jlong np, jint width, jint height, jintArray rgbArray) {
+
+    BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
+
+    if (!bdj || !bdj->osd_cb) {
+        return;
+    }
+
+    if (!rgbArray) {
+        bdj->osd_cb(bdj->bd, NULL, (int)width, (int)height, 0, 0, 0, 0);
+    }
+
+    if (bdj->buf && bdj->buf->buf[BD_OVERLAY_IG]) {
+
+        /* copy to application-allocated buffer */
+
+        if (bdj->buf->lock) {
+            bdj->buf->lock(bdj->buf);
+        }
+
+        if (bdj->buf->width != width || bdj->buf->height != height) {
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Incorrect ARGB frame buffer size\n");
+        }
+
+        jsize len = bdj->buf->width * bdj->buf->height * sizeof(uint32_t);
+        (*env)->GetByteArrayRegion(env, rgbArray, 0, len, (jbyte*)bdj->buf->buf[BD_OVERLAY_IG]);
+
+        if (bdj->buf->unlock) {
+            bdj->buf->unlock(bdj->buf);
+        }
+
+        bdj->osd_cb(bdj->bd, bdj->buf->buf[BD_OVERLAY_IG], (int)width, (int)height,
+                    0, 0, width-1, height-1);
+
+    } else {
+
+        /* return java array */
+
+        jint *image = (jint *)(*env)->GetPrimitiveArrayCritical(env, rgbArray, NULL);
+        if (image) {
+            bdj->osd_cb(bdj->bd, (const unsigned *)image, (int)width, (int)height,
+                        0, 0, width-1, height-1);
+            (*env)->ReleasePrimitiveArrayCritical(env, rgbArray, image, JNI_ABORT);
+        } else {
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "GetPrimitiveArrayCritical() failed\n");
+        }
+    }
 }
 
 #define CC (char*)  /*cast a literal from (const char*)*/
