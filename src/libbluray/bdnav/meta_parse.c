@@ -45,6 +45,7 @@
 
 #define BAD_CAST_CONST (const xmlChar *)
 
+#define MAX_META_FILE_SIZE  0xfffff
 
 #ifdef HAVE_LIBXML2
 static void _parseManifestNode(xmlNode * a_node, META_DL *disclib)
@@ -158,7 +159,7 @@ META_ROOT *meta_parse(const char *device_path)
         file_seek(handle, 0, SEEK_END);
         int64_t length = file_tell(handle);
 
-        if (length > 0) {
+        if (length > 0 && length < MAX_META_FILE_SIZE) {
             file_seek(handle, 0, SEEK_SET);
             uint8_t *data = malloc(length);
             int64_t size_read = file_read(handle, data, length);
