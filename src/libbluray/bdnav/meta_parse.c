@@ -161,9 +161,13 @@ META_ROOT *meta_parse(const char *device_path)
 
         if (length > 0 && length < MAX_META_FILE_SIZE) {
             file_seek(handle, 0, SEEK_SET);
-            uint8_t *data = malloc(length);
-            int64_t size_read = file_read(handle, data, length);
-            doc = xmlReadMemory((char*)data, size_read, base, NULL, 0);
+            size_t size = (size_t)length;
+            uint8_t *data = malloc(size);
+            size_t size_read = file_read(handle, data, size);
+            if (size != size_read) {
+                BD_DEBUG(DBG_DIR, "Failed to read %s\n", path);
+            } else {
+            doc = xmlReadMemory((char*)data, (int)size, base, NULL, 0);
             if (doc == NULL) {
                 BD_DEBUG(DBG_DIR, "Failed to parse %s\n", path);
                 X_FREE(path);
@@ -179,6 +183,7 @@ META_ROOT *meta_parse(const char *device_path)
             root->dl_entries[i].thumbnails = NULL;
             _parseManifestNode(root_element, &root->dl_entries[i]);
             xmlFreeDoc(doc);
+            }
             X_FREE(data);
         }
         file_close(handle);
