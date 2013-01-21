@@ -488,14 +488,14 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
 
 static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 {
-    const int len = 6144;
+    const size_t len = 6144;
 
     if (st->fp) {
         BD_DEBUG(DBG_STREAM, "Reading unit [%d bytes] at %"PRIu64"... (%p)\n",
               len, st->clip_block_pos, bd);
 
         if (len + st->clip_block_pos <= st->clip_size) {
-            int read_len;
+            size_t read_len;
 
             if ((read_len = file_read(st->fp, buf, len))) {
                 if (read_len != len)
