@@ -419,15 +419,16 @@ jobject bdjo_read(JNIEnv* env, const char* file)
     } else {
         file_seek(handle, 0, SEEK_SET);
 
-        uint8_t *data = malloc(length);
-        int64_t size_read = file_read(handle, data, length);
+        size_t size = (size_t)length;
+        uint8_t *data = malloc(size);
+        size_t size_read = file_read(handle, data, size);
 
-        if (size_read < length) {
+        if (size_read != size) {
             BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error reading %s\n", file);
 
         } else {
             BITBUFFER *buf = malloc(sizeof(BITBUFFER));
-            bb_init(buf, data, length);
+            bb_init(buf, data, size);
 
             result = _parse_bdjo(env, buf);
 
