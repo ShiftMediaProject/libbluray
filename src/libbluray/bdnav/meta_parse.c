@@ -167,20 +167,20 @@ META_ROOT *meta_parse(const char *device_path)
             if (size != size_read) {
                 BD_DEBUG(DBG_DIR, "Failed to read %s\n", path);
             } else {
-            doc = xmlReadMemory((char*)data, (int)size, base, NULL, 0);
-            if (doc == NULL) {
-                BD_DEBUG(DBG_DIR, "Failed to parse %s\n", path);
-            } else {
-            xmlNode *root_element = NULL;
-            root_element = xmlDocGetRootElement(doc);
-            root->dl_entries[i].di_name = root->dl_entries[i].di_alternative = NULL;
-            root->dl_entries[i].di_num_sets = root->dl_entries[i].di_set_number = -1;
-            root->dl_entries[i].toc_count = root->dl_entries[i].thumb_count = 0;
-            root->dl_entries[i].toc_entries = NULL;
-            root->dl_entries[i].thumbnails = NULL;
-            _parseManifestNode(root_element, &root->dl_entries[i]);
-            xmlFreeDoc(doc);
-            }
+                doc = xmlReadMemory((char*)data, (int)size, base, NULL, 0);
+                if (doc == NULL) {
+                    BD_DEBUG(DBG_DIR, "Failed to parse %s\n", path);
+                } else {
+                    xmlNode *root_element = NULL;
+                    root_element = xmlDocGetRootElement(doc);
+                    root->dl_entries[i].di_name = root->dl_entries[i].di_alternative = NULL;
+                    root->dl_entries[i].di_num_sets = root->dl_entries[i].di_set_number = -1;
+                    root->dl_entries[i].toc_count = root->dl_entries[i].thumb_count = 0;
+                    root->dl_entries[i].toc_entries = NULL;
+                    root->dl_entries[i].thumbnails = NULL;
+                    _parseManifestNode(root_element, &root->dl_entries[i]);
+                    xmlFreeDoc(doc);
+                }
             }
             X_FREE(data);
         }
