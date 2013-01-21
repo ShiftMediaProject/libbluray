@@ -33,6 +33,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #ifdef WIN32
 #include <windows.h>
@@ -74,14 +75,26 @@ static int file_eof_linux(BD_FILE_H *file)
     return feof((FILE *)file->internal);
 }
 
+#define BD_MAX_SSIZE ((int64_t)(((size_t)-1)>>1))
+
 static int64_t file_read_linux(BD_FILE_H *file, uint8_t *buf, int64_t size)
 {
-    return fread(buf, 1, size, (FILE *)file->internal);
+    if (size > 0 && size < BD_MAX_SSIZE) {
+        return (int64_t)fread(buf, 1, (size_t)size, (FILE *)file->internal);
+    }
+
+    BD_DEBUG(DBG_FILE | DBG_CRIT, "Ignoring invalid read of size %"PRId64" (%p)\n", size, file);
+    return 0;
 }
 
 static int64_t file_write_linux(BD_FILE_H *file, const uint8_t *buf, int64_t size)
 {
-    return fwrite(buf, 1, size, (FILE *)file->internal);
+    if (size > 0 && size < BD_MAX_SSIZE) {
+        return (int64_t)fwrite(buf, 1, (size_t)size, (FILE *)file->internal);
+    }
+
+    BD_DEBUG(DBG_FILE | DBG_CRIT, "Ignoring invalid write of size %"PRId64" (%p)\n", size, file);
+    return 0;
 }
 
 static BD_FILE_H *file_open_linux(const char* filename, const char *mode)
