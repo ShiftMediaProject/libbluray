@@ -29,6 +29,8 @@
 #include "util/macro.h"
 #include "bdj_util.h"
 
+#define MAX_BDJO_FILE_SIZE 0xffff
+
 /* Documentation: HD Cookbook
  * https://hdcookbook.dev.java.net/
  */
@@ -411,7 +413,7 @@ jobject bdjo_read(JNIEnv* env, const char* file)
     file_seek(handle, 0, SEEK_END);
     int64_t length = file_tell(handle);
 
-    if (length <= 0) {
+    if (length <= 0 || length > MAX_BDJO_FILE_SIZE) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error reading %s\n", file);
 
     } else {
