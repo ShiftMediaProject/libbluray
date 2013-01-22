@@ -1,3 +1,22 @@
+/*
+ * This file is part of libbluray
+ * Copyright (C) 2012  libbluray
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library. If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
 package org.dvb.ui;
 
 import java.awt.Color;
@@ -113,14 +132,14 @@ public class DVBGraphicsImpl extends DVBGraphics {
             ImageObserver observer)
     {
         return gfx.drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2,
-                bgcolor, observer);
+                             bgcolor, observer);
     }
 
     public boolean drawImage(Image img, int dx1, int dy1, int dx2, int dy2,
             int sx1, int sy1, int sx2, int sy2, ImageObserver observer)
     {
         return gfx.drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2,
-                observer);
+                             observer);
     }
 
     public void drawLine(int x1, int y1, int x2, int y2)
@@ -297,9 +316,9 @@ public class DVBGraphicsImpl extends DVBGraphics {
     public int[] getAvailableCompositeRules()
     {
         int[] rules = { DVBAlphaComposite.CLEAR, DVBAlphaComposite.SRC,
-                DVBAlphaComposite.SRC_OVER, DVBAlphaComposite.DST_OVER,
-                DVBAlphaComposite.SRC_IN, DVBAlphaComposite.DST_IN,
-                DVBAlphaComposite.SRC_OUT, DVBAlphaComposite.DST_OUT };
+                        DVBAlphaComposite.SRC_OVER, DVBAlphaComposite.DST_OVER,
+                        DVBAlphaComposite.SRC_IN, DVBAlphaComposite.DST_IN,
+                        DVBAlphaComposite.SRC_OUT, DVBAlphaComposite.DST_OUT };
 
         return rules;
     }
