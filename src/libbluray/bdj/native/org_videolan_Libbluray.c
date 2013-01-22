@@ -398,7 +398,9 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
 }
 
 #define CC (char*)  /*cast a literal from (const char*)*/
+#if defined __GNUC__
 #pragma GCC diagnostic ignored "-Wcast-qual"
+#endif
 
 BD_PRIVATE const JNINativeMethod
 Java_org_videolan_Libbluray_methods[] =

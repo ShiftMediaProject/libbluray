@@ -365,7 +365,9 @@ static void _reset_page_state(GRAPHICS_CONTROLLER *gc)
  * overlay operations
  */
 
+#if defined __GNUC__
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
 
 static void _open_osd(GRAPHICS_CONTROLLER *gc, int plane,
                       unsigned x0, unsigned y0,
