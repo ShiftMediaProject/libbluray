@@ -184,7 +184,7 @@ _show_stream(MPLS_STREAM *ss, int level)
         case 0xa2:
             indent_printf(level, "Format %02x: %s", ss->format,
                         _lookup_str(audio_format_map, ss->format));
-            indent_printf(level, "Rate %02x:", ss->rate,
+            indent_printf(level, "Rate %02x: %s", ss->rate,
                         _lookup_str(audio_rate_map, ss->rate));
             indent_printf(level, "Language: %s", ss->lang);
             break;
@@ -295,10 +295,10 @@ _show_marks(MPLS_PL *pl, int level)
         } else {
             indent_printf(level+1, "PlayItem: Invalid reference");
         }
-        indent_printf(level+1, "Time (ticks): %lu", plm->time);
+        indent_printf(level+1, "Time (ticks): %u", plm->time);
         min = plm->duration / (45000*60);
         sec = (double)(plm->duration - min * 45000 * 60) / 45000;
-        indent_printf(level+1, "Duration (mm:ss.ms, ticks): %d:%.2f, %lu", 
+        indent_printf(level+1, "Duration (mm:ss.ms, ticks): %d:%.2f, %u",
                       min, sec, plm->duration);
         printf("\n");
     }
@@ -551,13 +551,13 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
     }
     if (verbose) {
         indent_printf(0, 
-                    "%s -- Num Clips: %3d , Duration: minutes %4lu:%02lu", 
+                    "%s -- Num Clips: %3d , Duration: minutes %4u:%02u",
                     basename(name),
                     pl->list_count,
                     _pl_duration(pl) / (45000 * 60),
                     (_pl_duration(pl) / 45000) % 60);
     } else {
-        indent_printf(0, "%s -- Duration: minutes %4lu:%02lu", 
+        indent_printf(0, "%s -- Duration: minutes %4u:%02u",
                     basename(name),
                     _pl_duration(pl) / (45000 * 60),
                     (_pl_duration(pl) / 45000) % 60);
