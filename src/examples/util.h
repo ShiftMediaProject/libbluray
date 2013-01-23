@@ -19,6 +19,8 @@
 
 #include <stdint.h>
 
+#include "../util/attributes.h"
+
 #if defined( __MINGW32__ )
 #   undef  lseek
 #   define lseek  _lseeki64
@@ -38,5 +40,5 @@
 #endif
 
 void hex_dump(uint8_t *buf, int count);
-void indent_printf(int level, const char *fmt, ...);
+void indent_printf(int level, const char *fmt, ...) BD_ATTR_FORMAT_PRINTF(2,3);
 
