@@ -50,6 +50,7 @@ public class Libbluray {
             PackageManager.commitContentPrefixList();
             PackageManager.commitProtocolPrefixList();
 
+            java.awt.BDFontMetrics.init();
             FontFactory.loadDiscFonts();
 
             System.setProperty("mhp.profile.enhanced_broadcast", "YES");
@@ -295,6 +296,12 @@ public class Libbluray {
         updateGraphicN(nativePointer, width, height, rgbArray);
     }
 
+    public static void updateGraphic(int width, int height, int[] rgbArray,
+                                     int x0, int y0, int x1, int y1) {
+        updateGraphicDirtyN(nativePointer, width, height, rgbArray,
+                       x0, y0, x1, y1);
+    }
+
     public static void processEvent(int event, int param) {
         int key = 0;
         switch (event) {
@@ -343,6 +350,8 @@ public class Libbluray {
             default: key = -1; break;
             }
             if (key > 0) {
+                EventManager.getInstance().receiveKeyEvent(KeyEvent.KEY_PRESSED, 0, key);
+                EventManager.getInstance().receiveKeyEvent(KeyEvent.KEY_RELEASED, 0, key);
                 EventManager.getInstance().receiveKeyEvent(KeyEvent.KEY_TYPED, 0, key);
             }
             break;
@@ -419,6 +428,8 @@ public class Libbluray {
     private static native int readPSRN(long np, int num);
     private static native Bdjo getBdjoN(long np, String name);
     private static native void updateGraphicN(long np, int width, int height, int[] rgbArray);
+    private static native void updateGraphicDirtyN(long np, int width, int height, int[] rgbArray,
+                                                   int x0, int y0, int x1, int y1);
 
     protected static long nativePointer = 0;
 }

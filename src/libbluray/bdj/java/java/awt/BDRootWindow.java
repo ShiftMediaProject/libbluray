@@ -1,5 +1,6 @@
 /*
  * This file is part of libbluray
+ * Copyright (C) 2012  Libbluray
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,40 +27,61 @@ import java.util.TimerTask;
 import org.videolan.Libbluray;
 
 public class BDRootWindow extends Frame {
+
     public BDRootWindow () {
         super();
         setBackground(new Color(0, 0, 0, 0));
+        BDToolkit.setFocusedWindow(this);
     }
-    /*
+
+    public Rectangle getDirtyRect() {
+        return dirty;
+    }
+
     public void setBounds(int x, int y, int width, int height) {
         if (!isVisible()) {
             if ((width > 0) && (height > 0)) {
-                if ((backBuffer == null) || (this.width * this.height < width * height)) {
+                if ((backBuffer == null) || (getWidth() * getHeight() < width * height)) {
                     backBuffer = new int[width * height];
+                    dirty = new Rectangle(0, 0, width, height);
                     Arrays.fill(backBuffer, 0);
                 }
             }
             super.setBounds(x, y, width, height);
+
+            Libbluray.updateGraphic(width, height, null);
+
+            dirty.x = 0;
+            dirty.y = 0;
+            dirty.width = width;
+            dirty.height = height;
         }
     }
 
-    public int[] getBackBuffer() {
+    public int[] getBdBackBuffer() {
         return backBuffer;
     }
-    */
+
     public void postKeyEvent(int id, int modifiers, int keyCode) {
         Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getGlobalFocusOwner();
         if (focusOwner != null) {
             long when = System.currentTimeMillis();
             KeyEvent event;
-            if (id == KeyEvent.KEY_TYPED)
-                event = new KeyEvent(focusOwner, id, when, modifiers, KeyEvent.VK_UNDEFINED, (char)keyCode);
-            else
-                event = new KeyEvent(focusOwner, id, when, modifiers, keyCode, KeyEvent.CHAR_UNDEFINED);
-            Toolkit.getEventQueue().postEvent(event);
+            try {
+                if (id == KeyEvent.KEY_TYPED)
+                    event = new KeyEvent(focusOwner, id, when, modifiers, KeyEvent.VK_UNDEFINED, (char)keyCode);
+                else
+                    event = new KeyEvent(focusOwner, id, when, modifiers, keyCode, KeyEvent.CHAR_UNDEFINED);
+                Toolkit.getEventQueue().postEvent(event);
+                return;
+            } catch (Throwable e) {
+                System.err.println(" *** " + e + "");
+            }
+        } else {
+            org.videolan.Logger.getLogger("BDRootWindow").error("*** KEY event dropped ***");
         }
     }
-    /*
+
     public void notifyChanged() {
         synchronized (this) {
             changeCount++;
@@ -77,7 +99,12 @@ public class BDRootWindow extends Frame {
                 timerTask = null;
             }
             changeCount = 0;
-            Libbluray.updateGraphic(width, height, backBuffer);
+            //Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer, dirty.x, dirty.y, dirty.width, dirty.height);
+            Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer);
+            dirty.x = getWidth();
+            dirty.y = getHeight();
+            dirty.width = 0;
+            dirty.height = 0;
         }
     }
 
@@ -101,9 +128,10 @@ public class BDRootWindow extends Frame {
     }
 
     private int[] backBuffer = null;
+    private Rectangle dirty;
     private int changeCount = 0;
     private Timer timer = new Timer();
     private TimerTask timerTask = null;
-    */
+
     private static final long serialVersionUID = -8325961861529007953L;
 }

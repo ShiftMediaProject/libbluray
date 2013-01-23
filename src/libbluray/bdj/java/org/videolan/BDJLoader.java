@@ -137,6 +137,7 @@ public class BDJLoader {
             // start bdj window
             GUIManager gui = GUIManager.getInstance();
             GraphicsResolution res = bdjo.getTerminalInfo().getResolution();
+            gui.setResizable(true);
             gui.setSize(res.getWidth(), res.getHeight());
             gui.setVisible(true);
 
@@ -200,6 +201,9 @@ public class BDJLoader {
                 proxy.release();
             }
             ((BDJAppsDatabase)db).newDatabase(null, null);
+
+            Libbluray.updateGraphic(0, 0, null);
+
             return true;
         } catch (Throwable e) {
             e.printStackTrace();

@@ -38,6 +38,36 @@ import org.videolan.Logger;
 
 public class IxcRegistry {
     public static Remote lookup(XletContext xc, String path) throws NotBoundException, RemoteException {
+        int orgid, appid;
+        int s1, s2;
+        String name;
+        logger.info("Lookup " + path);
+        if (path.charAt(0) != '/')
+            throw new IllegalArgumentException();
+        s1 = path.indexOf('/', 1);
+        if (s1 <= 1)
+            throw new IllegalArgumentException();
+        try {
+            orgid = Integer.parseInt(path.substring(1, s1), 16);
+        } catch (Exception e) {
+            throw new IllegalArgumentException();
+        }
+        s1++;
+        s2 = path.indexOf('/', s1);
+        if (s2 <= s1)
+            throw new IllegalArgumentException();
+        try {
+            appid = Integer.parseInt(path.substring(s1, s2), 16);
+        } catch (Exception e) {
+            throw new IllegalArgumentException();
+        }
+        name = path.substring(s2 + 1, path.length());
+        String key = "/" + Integer.toHexString(orgid) +
+                "/" + Integer.toHexString(appid) +
+                "/" + name;
+
+        logger.info("Lookup " + key + " - path OK");
+        /*
         String[] parts = path.split("/", 3);
 
         if (parts.length != 3)
@@ -54,7 +84,7 @@ public class IxcRegistry {
                 return obj.obj;
             }
         }
-
+        */
         logger.warning("Failed to look up " + path);
         throw new NotBoundException();
     }
@@ -72,7 +102,7 @@ public class IxcRegistry {
 
         int orgId = id.getOID();
         int iappId = id.getAID();
-        short appId = (short)iappId;
+        int appId = iappId;
 
         IxcObject ixcObj = new IxcObject(orgId, appId, name, obj);
 
@@ -90,8 +120,8 @@ public class IxcRegistry {
 
         String orgid = (String)xc.getXletProperty("dvb.org.id");
         String appid = (String)xc.getXletProperty("dvb.app.id");
-        int orgId = Integer.parseInt(orgid);
-        int iappId = Integer.parseInt(appid);
+        int orgId = Integer.parseInt(orgid, 16);
+        int iappId = Integer.parseInt(appid, 16);
         short appId = (short)iappId;
 
         IxcObject ixcObj = new IxcObject(orgId, appId, name, null);
@@ -133,7 +163,7 @@ public class IxcRegistry {
     }
 
     private static class IxcObject {
-        public IxcObject(int orgId, short appId, String name, Remote obj) {
+        public IxcObject(int orgId, int appId, String name, Remote obj) {
             this.orgId = orgId;
             this.appId = appId;
             this.name = name;
@@ -161,7 +191,7 @@ public class IxcRegistry {
         }
 
         public int orgId;
-        public short appId;
+        public int appId;
         public String name;
         public Remote obj;
     }

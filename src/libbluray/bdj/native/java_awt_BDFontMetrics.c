@@ -43,7 +43,7 @@ Java_java_awt_BDFontMetrics_initN(JNIEnv * env, jclass cls)
 #ifdef HAVE_FT2
     FT_Library ftLib;
     if (!FT_Init_FreeType(&ftLib)) {
-        return (jlong)ftLib;
+        return (jlong)(intptr_t)ftLib;
     }
     BD_DEBUG(DBG_BDJ | DBG_CRIT, "Loading FreeType2 failed\n");
 #else
@@ -89,7 +89,7 @@ Java_java_awt_BDFontMetrics_loadFontN(JNIEnv * env, jobject obj, jlong ftLib, js
     fid = (*env)->GetFieldID(env, cls, "maxAdvance", "I");
     (*env)->SetIntField (env, obj, fid, ftFace->size->metrics.max_advance >> 6);
 
-    return (jlong)ftFace;
+    return (jlong)(intptr_t)ftFace;
 #else  /* HAVE_FT2 */
     return 0;
 #endif /* HAVE_FT2 */
