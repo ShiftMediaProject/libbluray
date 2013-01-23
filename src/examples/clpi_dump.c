@@ -161,7 +161,7 @@ _show_stream(CLPI_PROG_STREAM *ss, int level)
         case 0xa2:
             indent_printf(level, "Format %02x: %s", ss->format,
                         _lookup_str(audio_format_map, ss->format));
-            indent_printf(level, "Rate %02x:", ss->rate,
+            indent_printf(level, "Rate %02x: %s", ss->rate,
                         _lookup_str(audio_rate_map, ss->rate));
             indent_printf(level, "Language: %s", ss->lang);
             break;
