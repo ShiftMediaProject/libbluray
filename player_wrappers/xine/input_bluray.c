@@ -129,9 +129,8 @@ typedef struct {
   uint8_t            demux_action_req : 1;
   uint8_t            end_of_title : 1;
   uint8_t            pg_enable : 1;
-
+  uint8_t            has_video : 1;
   int                mouse_inside_button;
-
 } bluray_input_plugin_t;
 
 /*
@@ -872,6 +871,30 @@ static off_t bluray_plugin_read (input_plugin_t *this_gen, void *buf, off_t len)
 
   if (!this || !this->bdh || len < 0 || this->error)
     return -1;
+
+  if (!this->has_video) {
+    vo_frame_t *img    = NULL;
+    this->class->xine->port_ticket->acquire (this->class->xine->port_ticket, 1);
+    img = this->stream->video_out->get_frame (this->stream->video_out,
+                                              1920, 1080, 16.0/9.0,
+                                              XINE_IMGFMT_YV12, VO_BOTH_FIELDS);
+    this->class->xine->port_ticket->release (this->class->xine->port_ticket, 1);
+
+    if (img) {
+      if (img->format == XINE_IMGFMT_YV12 && img->base[0] && img->base[1] && img->base[2]) {
+        memset(img->base[0], 0x00, img->pitches[0] * img->height);
+        memset(img->base[1], 0x80, img->pitches[1] * img->height / 2);
+        memset(img->base[2], 0x80, img->pitches[2] * img->height / 2);
+        img->duration  = 0;
+        img->pts       = 0;
+        img->bad_frame = 0;
+        img->draw(img, this->stream);
+      }
+      img->free(img);
+    }
+
+    this->has_video = 1;
+  }
 
   handle_events(this);
   CHECK_READ_INTERRUPT;
