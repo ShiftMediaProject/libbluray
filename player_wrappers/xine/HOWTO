@@ -3,7 +3,7 @@ Tested with xine-lib 1.2.2
 1. Build xine plugin
 
 	make
-	
+
 2. Install xine plugin
 
 	sudo make install
@@ -15,3 +15,7 @@ Tested with xine-lib 1.2.2
     or using BluRay disc menus:
 
         xine bd:/mnt/BLURAY_DISC
+
+
+BD-J menus require ARGB overlay capability.
+Supported video output plugins are opengl2, vdpau and vaapi.

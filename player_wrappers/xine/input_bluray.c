@@ -95,11 +95,45 @@ typedef struct {
 } bluray_input_class_t;
 
 typedef struct {
+  BD_ARGB_BUFFER   buf;
+  pthread_mutex_t  buf_lock;
+} XINE_BD_ARGB_BUFFER;
+
+static void osd_buf_lock(BD_ARGB_BUFFER *buf_gen)
+{
+  XINE_BD_ARGB_BUFFER *buf = (XINE_BD_ARGB_BUFFER*)buf_gen;
+  pthread_mutex_lock(&buf->buf_lock);
+}
+
+static void osd_buf_unlock(BD_ARGB_BUFFER *buf_gen)
+{
+  XINE_BD_ARGB_BUFFER *buf = (XINE_BD_ARGB_BUFFER*)buf_gen;
+  pthread_mutex_unlock(&buf->buf_lock);
+}
+
+static void osd_buf_init(XINE_BD_ARGB_BUFFER *buf)
+{
+  buf->buf.lock   = osd_buf_lock;
+  buf->buf.unlock = osd_buf_unlock;
+  pthread_mutex_init(&buf->buf_lock, NULL);
+}
+
+static void osd_buf_destroy(XINE_BD_ARGB_BUFFER *buf)
+{
+  if (buf->buf.lock) {
+    buf->buf.lock   = NULL;
+    buf->buf.unlock = NULL;
+    pthread_mutex_destroy(&buf->buf_lock);
+  }
+}
+
+typedef struct {
   input_plugin_t        input_plugin;
 
   xine_stream_t        *stream;
   xine_event_queue_t   *event_queue;
   xine_osd_t           *osd[2];
+  XINE_BD_ARGB_BUFFER   osd_buf;
 
   bluray_input_class_t *class;
 
@@ -174,6 +208,8 @@ static void close_overlay(bluray_input_plugin_t *this, int plane)
   if (plane < 2 && this->osd[plane]) {
     xine_osd_free(this->osd[plane]);
     this->osd[plane] = NULL;
+    free(this->osd_buf.buf.buf[plane]);
+    this->osd_buf.buf.buf[plane] = NULL;
   }
 }
 
@@ -184,6 +220,14 @@ static void open_overlay(bluray_input_plugin_t *this, int plane, uint16_t x, uin
   }
 
   this->osd[plane] = xine_osd_new(this->stream, x, y, w, h);
+
+  if (xine_osd_get_capabilities(this->osd[plane]) & XINE_OSD_CAP_ARGB_LAYER) {
+    this->osd_buf.buf.width = w;
+    this->osd_buf.buf.height = h;
+    this->osd_buf.buf.buf[plane] = calloc(sizeof(uint32_t), w * h);
+  }
+
+  clear_overlay(this->osd[plane]);
 }
 
 static xine_osd_t *get_overlay(bluray_input_plugin_t *this, int plane)
@@ -292,6 +336,55 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
 
     default:
       LOGMSG("unknown overlay command %d", ov->cmd);
+      return;
+  }
+}
+
+static void argb_overlay_proc(void *this_gen, const BD_ARGB_OVERLAY * const ov)
+{
+  bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
+  xine_osd_t *osd;
+  int64_t vpts;
+
+  if (!this) {
+    return;
+  }
+
+  if (!ov) {
+    /* hide OSD */
+    close_overlay(this, -1);
+    return;
+  }
+
+  vpts = 0;
+  if (ov->pts > 0) {
+    vpts = this->stream->metronom->got_spu_packet (this->stream->metronom, ov->pts);
+  }
+
+  switch (ov->cmd) {
+    case BD_ARGB_OVERLAY_INIT:
+      open_overlay(this, ov->plane, 0, 0, ov->w, ov->h);
+      return;
+    case BD_ARGB_OVERLAY_CLOSE:
+      close_overlay(this, ov->plane);
+      return;
+    case BD_ARGB_OVERLAY_DRAW:
+      /* nothing to do */
+      return;
+
+    case BD_ARGB_OVERLAY_FLUSH:
+      osd = get_overlay(this, ov->plane);
+      xine_osd_set_argb_buffer(osd, this->osd_buf.buf.buf[ov->plane],
+                               this->osd_buf.buf.dirty[ov->plane].x0,
+                               this->osd_buf.buf.dirty[ov->plane].y0,
+                               this->osd_buf.buf.dirty[ov->plane].x1 - this->osd_buf.buf.dirty[ov->plane].x0 + 1,
+                               this->osd_buf.buf.dirty[ov->plane].y1 - this->osd_buf.buf.dirty[ov->plane].y0 + 1);
+
+      xine_osd_show(osd, vpts);
+      return;
+
+   default:
+      lprintf("unknown ARGB overlay command %d\n", ov->cmd);
       return;
   }
 }
@@ -1152,8 +1245,10 @@ static void bluray_plugin_dispose (input_plugin_t *this_gen)
 {
   bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
 
-  if (this->bdh)
+  if (this->bdh) {
+    bd_register_argb_overlay_proc(this->bdh, NULL, NULL, NULL);
     bd_register_overlay_proc(this->bdh, NULL, NULL);
+  }
 
   close_overlay(this, -1);
 
@@ -1170,6 +1265,8 @@ static void bluray_plugin_dispose (input_plugin_t *this_gen)
 
   if (this->bdh)
     bd_close(this->bdh);
+
+  osd_buf_destroy(&this->osd_buf);
 
   free (this->mrl);
   free (this->disc_root);
@@ -1274,9 +1371,10 @@ static int get_disc_info(bluray_input_plugin_t *this)
     return -1;
   }
 
+#if 0
   if (this->nav_mode && !disc_info->first_play_supported) {
     _x_message (this->stream, XINE_MSG_GENERAL_WARNING,
-                "Can't play disc in HDMV navigation mode",
+                "Can't play disc using menus",
                 "First Play title not supported", NULL);
     this->nav_mode = 0;
   }
@@ -1286,7 +1384,7 @@ static int get_disc_info(bluray_input_plugin_t *this)
                 "Unsupported titles found",
                 "Some titles can't be played in navigation mode", NULL);
   }
-
+#endif
   this->num_titles = disc_info->num_hdmv_titles + disc_info->num_bdj_titles;
   this->disc_info  = disc_info;
 
@@ -1382,6 +1480,13 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
 
   /* register overlay (graphics) handler */
 
+  if (this->stream->video_out->get_capabilities(this->stream->video_out) & VO_CAP_ARGB_LAYER_OVERLAY) {
+fprintf(stderr, "argb overlays\n");
+    osd_buf_init(&this->osd_buf);
+    bd_register_argb_overlay_proc(this->bdh, this, argb_overlay_proc, &this->osd_buf.buf);
+  } else {
+    fprintf(stderr, "no argb overlay support. NO BD-J.\n");
+  }
   bd_register_overlay_proc(this->bdh, this, overlay_proc);
 
   /* open */
