@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2000-2005 the xine project
  *
- * Copyright (C) 2009-2011 Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2009-2013 Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This file is part of xine, a free video player.
  *
@@ -27,23 +27,20 @@
 #include "config.h"
 #endif
 
-/* asprintf: */
-#define _GNU_SOURCE
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <dlfcn.h>
 #include <pthread.h>
 
+/* libbluray */
 #include <libbluray/bluray.h>
+#include <libbluray/bluray-version.h>
 #include <libbluray/keys.h>
 #include <libbluray/overlay.h>
 #include <libbluray/meta_data.h>
+
+/* xine */
 
 #define LOG_MODULE "input_bluray"
 #define LOG_VERBOSE
@@ -123,17 +120,25 @@ typedef struct {
   pthread_mutex_t    title_info_mutex;  /* lock this when accessing title_info outside of input/demux thread */
   unsigned int       current_clip;
   time_t             still_end_time;
-  int                error;
-  int                menu_open;
-  int                stream_flushed;
-  int                pg_enable;
   int                pg_stream;
+
+  uint8_t            nav_mode : 1;
+  uint8_t            error : 1;
+  uint8_t            menu_open : 1;
+  uint8_t            stream_flushed : 1;
+  uint8_t            demux_action_req : 1;
+  uint8_t            end_of_title : 1;
+  uint8_t            pg_enable : 1;
+
   int                mouse_inside_button;
 
-  uint32_t           cap_seekable;
-  uint8_t            nav_mode;
-
 } bluray_input_plugin_t;
+
+/*
+ * overlay
+ */
+
+#define PALETTE_INDEX_BACKGROUND 0xff
 
 static void send_num_buttons(bluray_input_plugin_t *this, int n)
 {
@@ -148,15 +153,15 @@ static void send_num_buttons(bluray_input_plugin_t *this, int n)
   xine_event_send(this->stream, &event);
 }
 
-static xine_osd_t *get_overlay(bluray_input_plugin_t *this, int plane)
+static void clear_overlay(xine_osd_t *osd)
 {
-  if (!this->osd[plane]) {
-    this->osd[plane] = xine_osd_new(this->stream, 0, 0, 1920, 1080);
-  }
-  if (!this->pg_enable) {
-    _x_select_spu_channel(this->stream, -1);
-  }
-  return this->osd[plane];
+  /* palette entry 0xff is background --> can't use xine_osd_clear(). */
+  memset(osd->osd.area, PALETTE_INDEX_BACKGROUND, osd->osd.width * osd->osd.height);
+  osd->osd.x1 = osd->osd.width;
+  osd->osd.y1 = osd->osd.height;
+  osd->osd.x2 = 0;
+  osd->osd.y2 = 0;
+  osd->osd.area_touched = 0;
 }
 
 static void close_overlay(bluray_input_plugin_t *this, int plane)
@@ -170,18 +175,28 @@ static void close_overlay(bluray_input_plugin_t *this, int plane)
   if (plane < 2 && this->osd[plane]) {
     xine_osd_free(this->osd[plane]);
     this->osd[plane] = NULL;
-    if (plane == 1) {
-      send_num_buttons(this, 0);
-      this->menu_open = 0;
-    }
   }
 }
 
-static void open_overlay(bluray_input_plugin_t *this, const BD_OVERLAY * const ov)
+static void open_overlay(bluray_input_plugin_t *this, int plane, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-  if (!this->osd[ov->plane]) {
-    this->osd[ov->plane] = xine_osd_new(this->stream, ov->x, ov->y, ov->w, ov->h);
+  if (this->osd[plane]) {
+    close_overlay(this, plane);
   }
+
+  this->osd[plane] = xine_osd_new(this->stream, x, y, w, h);
+}
+
+static xine_osd_t *get_overlay(bluray_input_plugin_t *this, int plane)
+{
+  if (!this->osd[plane]) {
+    open_overlay(this, plane, 0, 0, 1920, 1080);
+  }
+  if (!this->pg_enable) {
+    _x_select_spu_channel(this->stream, -1);
+  }
+  this->stream->video_out->enable_ovl(this->stream->video_out, 1);
+  return this->osd[plane];
 }
 
 static void draw_bitmap(xine_osd_t *osd, const BD_OVERLAY * const ov)
@@ -219,6 +234,8 @@ static void draw_bitmap(xine_osd_t *osd, const BD_OVERLAY * const ov)
 static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
 {
   bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
+  xine_osd_t *osd;
+  int64_t vpts;
 
   if (!this) {
     return;
@@ -234,18 +251,20 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
     return;
   }
 
-#if defined(BD_OVERLAY_INTERFACE_VERSION) && BD_OVERLAY_INTERFACE_VERSION >= 2
-
   switch (ov->cmd) {
     case BD_OVERLAY_INIT:    /* init overlay plane. Size of full plane in x,y,w,h */
-      open_overlay(this, ov);
+      open_overlay(this, ov->plane, ov->x, ov->y, ov->w, ov->h);
       return;
     case BD_OVERLAY_CLOSE:   /* close overlay */
       close_overlay(this, ov->plane);
       return;
   }
 
-  xine_osd_t *osd = get_overlay(this, ov->plane);
+  osd = get_overlay(this, ov->plane);
+  vpts = 0;
+  if (ov->pts > 0) {
+    vpts = this->stream->metronom->got_spu_packet (this->stream->metronom, ov->pts);
+  }
 
   switch (ov->cmd) {
     case BD_OVERLAY_DRAW:    /* draw bitmap (x,y,w,h,img,palette) */
@@ -253,21 +272,22 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
       return;
 
     case BD_OVERLAY_WIPE:    /* clear area (x,y,w,h) */
-      xine_osd_draw_rect(osd, ov->x, ov->y, ov->x + ov->w - 1, ov->y + ov->h - 1, 0xff, 1);
+      xine_osd_draw_rect(osd, ov->x, ov->y, ov->x + ov->w - 1, ov->y + ov->h - 1, PALETTE_INDEX_BACKGROUND, 1);
       return;
 
     case BD_OVERLAY_CLEAR:   /* clear plane */
-      xine_osd_draw_rect(osd, 0, 0, osd->osd.width - 1, osd->osd.height - 1, 0xff, 1);
-      xine_osd_clear(osd);
-      xine_osd_hide(osd, 0);
+      clear_overlay(osd);
       return;
 
-    case BD_OVERLAY_FLUSH:   /* all changes have been done, flush overlay to display at given pts */
-      xine_osd_show(osd, 0);
+    case BD_OVERLAY_HIDE:
+      osd->osd.area_touched = 0; /* will be hiden at next commit time */
+      break;
 
-      if (ov->plane == 1) {
-        this->menu_open = 1;
-        send_num_buttons(this, 1);
+    case BD_OVERLAY_FLUSH:   /* all changes have been done, flush overlay to display at given pts */
+      if (!osd->osd.area_touched) {
+        xine_osd_hide(osd, vpts);
+      } else {
+        xine_osd_show(osd, vpts);
       }
       return;
 
@@ -275,35 +295,6 @@ static void overlay_proc(void *this_gen, const BD_OVERLAY * const ov)
       LOGMSG("unknown overlay command %d", ov->cmd);
       return;
   }
-
-#else
-
-  xine_osd_t *osd = get_overlay(this, ov->plane);
-
-  if (ov->img) {
-    draw_bitmap(osd, ov);
-
-  } else {
-
-    if (ov->x == 0 && ov->y == 0 && ov->w == 1920 && ov->h == 1080) {
-      /* Nothing to display, close OSD */
-      close_overlay(this, ov->plane);
-      return;
-    }
-
-    /* wipe rect */
-    xine_osd_draw_rect(osd, ov->x, ov->y, ov->x + ov->w - 1, ov->y + ov->h - 1, 0xff, 1);
-  }
-
-  /* display */
-
-  xine_osd_show(osd, 0);
-
-  if (ov->plane == 1) {
-    this->menu_open = 1;
-    send_num_buttons(this, 1);
-  }
-#endif
 }
 
 /*
@@ -412,59 +403,55 @@ static void update_title_info(bluray_input_plugin_t *this, int playlist_id)
 
   update_stream_info(this);
 
-  /* set title */
+  /* set title name */
   update_title_name(this);
 }
 
-static int open_title (bluray_input_plugin_t *this, int title_idx)
-{
-  if (bd_select_title(this->bdh, title_idx) <= 0) {
-    LOGMSG("bd_select_title(%d) failed\n", title_idx);
-    return 0;
-  }
-
-  this->current_title_idx = title_idx;
-
-  update_title_info(this, -1);
-
-  return 1;
-}
-
-#ifndef DEMUX_OPTIONAL_DATA_FLUSH
-#  define DEMUX_OPTIONAL_DATA_FLUSH 0x10000
-#endif
+/*
+ * libbluray event handling
+ */
 
 static void stream_flush(bluray_input_plugin_t *this)
 {
-  if (this->stream_flushed)
+  if (this->stream_flushed || !this->stream)
     return;
 
   lprintf("Stream flush\n");
 
   this->stream_flushed = 1;
 
-  int tmp = 0;
-  if (DEMUX_OPTIONAL_SUCCESS !=
-      this->stream->demux_plugin->get_optional_data(this->stream->demux_plugin, &tmp, DEMUX_OPTIONAL_DATA_FLUSH)) {
-    LOGMSG("stream flush not supported by the demuxer !\n");
-    return;
-  }
+  xine_event_t event = {
+    .type        = XINE_EVENT_END_OF_CLIP,
+    .stream      = this->stream,
+    .data        = NULL,
+    .data_length = 0,
+  };
+  xine_event_send (this->stream, &event);
+
+  this->demux_action_req = 1;
 }
 
 static void stream_reset(bluray_input_plugin_t *this)
 {
-  if (!this || !this->stream || !this->stream->demux_plugin)
+  if (!this || !this->stream)
     return;
 
   lprintf("Stream reset\n");
 
-  this->cap_seekable = 0;
+  xine_event_t event = {
+    .type        = XINE_EVENT_PIDS_CHANGE,
+    .stream      = this->stream,
+    .data        = NULL,
+    .data_length = 0,
+  };
 
-  _x_set_fine_speed(this->stream, XINE_FINE_SPEED_NORMAL);
-  this->stream->demux_plugin->seek(this->stream->demux_plugin, 0, 0, 1);
-  _x_demux_control_start(this->stream);
+  if (!this->end_of_title) {
+    _x_demux_flush_engine(this->stream);
+  }
 
-  this->cap_seekable = INPUT_CAP_SEEKABLE;
+  xine_event_send (this->stream, &event);
+
+  this->demux_action_req = 1;
 }
 
 static void wait_secs(bluray_input_plugin_t *this, unsigned seconds)
@@ -519,9 +506,12 @@ static void update_audio_channel(bluray_input_plugin_t *this, int channel)
 
 static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
 {
-    switch (ev.event) {
+    switch ((bd_event_e)ev.event) {
 
       case BD_EVENT_ERROR:
+        lprintf("BD_EVENT_ERROR\n");
+        _x_message (this->stream, XINE_MSG_GENERAL_WARNING,
+                    "Error playing BluRay disc", NULL);
         this->error = 1;
         return;
 
@@ -553,11 +543,8 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
       case BD_EVENT_STILL:
         lprintf("BD_EVENT_STILL %d\n", ev.param);
         int paused = _x_get_fine_speed(this->stream) == XINE_SPEED_PAUSE;
-        if (paused && !ev.param) {
-          _x_set_fine_speed(this->stream, XINE_FINE_SPEED_NORMAL);
-        }
-        if (!paused && ev.param) {
-          _x_set_fine_speed(this->stream, XINE_SPEED_PAUSE);
+        if (paused != ev.param) {
+          _x_set_fine_speed(this->stream, ev.param ? XINE_SPEED_PAUSE : XINE_SPEED_NORMAL);
         }
         break;
 
@@ -571,6 +558,7 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
       case BD_EVENT_END_OF_TITLE:
         lprintf("BD_EVENT_END_OF_TITLE\n");
         stream_flush(this);
+        this->end_of_title = 1;
         break;
 
       case BD_EVENT_TITLE:
@@ -583,6 +571,7 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
         this->current_clip = 0;
         update_title_info(this, ev.param);
         stream_reset(this);
+        this->end_of_title = 0;
         break;
 
       case BD_EVENT_PLAYITEM:
@@ -600,21 +589,34 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
 
       case BD_EVENT_AUDIO_STREAM:
         lprintf("BD_EVENT_AUDIO_STREAM %d\n", ev.param);
-        update_audio_channel(this, ev.param - 1);
+        if (ev.param < 32) {
+          update_audio_channel(this, ev.param - 1);
+        } else {
+          update_audio_channel(this, 0);
+        }
         break;
 
       case BD_EVENT_PG_TEXTST:
         lprintf("BD_EVENT_PG_TEXTST %s\n", ev.param ? "ON" : "OFF");
-        this->pg_enable = ev.param;
+        this->pg_enable = !!ev.param;
         update_spu_channel(this, this->pg_enable ? this->pg_stream : -1);
         break;
 
       case BD_EVENT_PG_TEXTST_STREAM:
         lprintf("BD_EVENT_PG_TEXTST_STREAM %d\n", ev.param);
-        this->pg_stream = ev.param - 1;
+        if (ev.param < 64) {
+          this->pg_stream = ev.param - 1;
+        } else {
+          this->pg_stream = -1;
+        }
         if (this->pg_enable) {
           update_spu_channel(this, this->pg_stream);
         }
+        break;
+
+      case BD_EVENT_MENU:
+        this->menu_open = !!ev.param;
+        send_num_buttons(this, ev.param);
         break;
 
       case BD_EVENT_IG_STREAM:
@@ -643,6 +645,24 @@ static void handle_libbluray_events(bluray_input_plugin_t *this)
   }
 }
 
+/*
+ * xine event handling
+ */
+
+static int open_title (bluray_input_plugin_t *this, int title_idx)
+{
+  if (bd_select_title(this->bdh, title_idx) <= 0) {
+    LOGMSG("bd_select_title(%d) failed\n", title_idx);
+    return 0;
+  }
+
+  this->current_title_idx = title_idx;
+
+  update_title_info(this, -1);
+
+  return 1;
+}
+
 static void send_mouse_enter_leave_event(bluray_input_plugin_t *this, int direction)
 {
   if (direction != this->mouse_inside_button) {
@@ -664,10 +684,11 @@ static void send_mouse_enter_leave_event(bluray_input_plugin_t *this, int direct
 
 static void handle_events(bluray_input_plugin_t *this)
 {
+  xine_event_t *event;
+
   if (!this->event_queue)
     return;
 
-  xine_event_t *event;
   while (NULL != (event = xine_event_get(this->event_queue))) {
 
     if (!this->bdh || !this->title_info) {
@@ -680,8 +701,8 @@ static void handle_events(bluray_input_plugin_t *this)
 
     if (this->menu_open) {
       switch (event->type) {
-        case XINE_EVENT_INPUT_LEFT:      bd_user_input(this->bdh, pts, BD_VK_LEFT);  break;
-        case XINE_EVENT_INPUT_RIGHT:     bd_user_input(this->bdh, pts, BD_VK_RIGHT); break;
+        case XINE_EVENT_INPUT_LEFT:  bd_user_input(this->bdh, pts, BD_VK_LEFT);  break;
+        case XINE_EVENT_INPUT_RIGHT: bd_user_input(this->bdh, pts, BD_VK_RIGHT); break;
       }
     } else {
       switch (event->type) {
@@ -824,19 +845,27 @@ static void handle_events(bluray_input_plugin_t *this)
 
 static uint32_t bluray_plugin_get_capabilities (input_plugin_t *this_gen)
 {
-  bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
-  return this->cap_seekable  |
+  return INPUT_CAP_SEEKABLE  |
          INPUT_CAP_BLOCK     |
          INPUT_CAP_AUDIOLANG |
          INPUT_CAP_SPULANG   |
          INPUT_CAP_CHAPTERS;
 }
 
-#if XINE_VERSION_CODE >= 10190
+#define CHECK_READ_INTERRUPT               \
+  do {                                     \
+    if (this->demux_action_req) {          \
+      this->demux_action_req = 0;          \
+      errno = EAGAIN;                      \
+      return -1;                           \
+    }                                      \
+    if (_x_action_pending(this->stream)) { \
+      errno = EINTR;                       \
+      return -1;                           \
+    }                                      \
+  } while (0)
+
 static off_t bluray_plugin_read (input_plugin_t *this_gen, void *buf, off_t len)
-#else
-static off_t bluray_plugin_read (input_plugin_t *this_gen, char *buf, off_t len)
-#endif
 {
   bluray_input_plugin_t *this = (bluray_input_plugin_t *) this_gen;
   off_t result;
@@ -845,30 +874,37 @@ static off_t bluray_plugin_read (input_plugin_t *this_gen, char *buf, off_t len)
     return -1;
 
   handle_events(this);
+  CHECK_READ_INTERRUPT;
 
   if (this->nav_mode) {
     do {
       BD_EVENT ev;
       result = bd_read_ext (this->bdh, (unsigned char *)buf, len, &ev);
       handle_libbluray_event(this, ev);
+      CHECK_READ_INTERRUPT;
+
       if (result == 0) {
         handle_events(this);
-        if (ev.event == BD_EVENT_NONE) {
-          if (_x_action_pending(this->stream)) {
-            break;
-          }
-        }
+        CHECK_READ_INTERRUPT;
+      }
+      if (result == -1) {
+        xine_usec_sleep(10000);
+        result = 0;
       }
     } while (!this->error && result == 0);
+
   } else {
     result = bd_read (this->bdh, (unsigned char *)buf, len);
     handle_libbluray_events(this);
   }
 
-  if (result < 0)
+  if (result < 0) {
     LOGMSG("bd_read() failed: %s (%d of %d)\n", strerror(errno), (int)result, (int)len);
+  }
 
-  this->stream_flushed = 0;
+  if (result > 0) {
+    this->stream_flushed = 0;
+  }
 
   return result;
 }
@@ -1069,7 +1105,7 @@ static int get_optional_data_impl (bluray_input_plugin_t *this, void *data, int 
       return INPUT_OPTIONAL_UNSUPPORTED;
 
     default:
-      return DEMUX_OPTIONAL_UNSUPPORTED;
+      return INPUT_OPTIONAL_UNSUPPORTED;
     }
 
   return INPUT_OPTIONAL_UNSUPPORTED;
@@ -1274,7 +1310,7 @@ static int bluray_plugin_open (input_plugin_t *this_gen)
 
   /* select title */
 
-  /* if title was not in mrl, find the main title */
+  /* if title was not in mrl, guess the main title */
   if (title < 0) {
     uint64_t duration = 0;
     int i, playlist = 99999;
@@ -1368,8 +1404,6 @@ static input_plugin_t *bluray_class_get_instance (input_class_t *cls_gen, xine_s
   this->class  = (bluray_input_class_t*)cls_gen;
   this->mrl    = strdup(mrl);
 
-  this->cap_seekable = INPUT_CAP_SEEKABLE;
-
   this->input_plugin.open               = bluray_plugin_open;
   this->input_plugin.get_capabilities   = bluray_plugin_get_capabilities;
   this->input_plugin.read               = bluray_plugin_read;
@@ -1433,25 +1467,7 @@ static void parental_change_cb(void *data, xine_cfg_entry_t *cfg)
   this->parental = cfg->num_value;
 }
 
-#if INPUT_PLUGIN_IFACE_VERSION < 18
-static const char *bluray_class_get_description (input_class_t *this_gen)
-{
-  (void)this_gen;
-
-  return _("BluRay input plugin");
-}
-#endif
-
-#if INPUT_PLUGIN_IFACE_VERSION < 18
-static const char *bluray_class_get_identifier (input_class_t *this_gen)
-{
-  (void)this_gen;
-
-  return "bluray";
-}
-#endif
-
-static char **bluray_class_get_autoplay_list (input_class_t *this_gen, int *num_files)
+static const char * const *bluray_class_get_autoplay_list (input_class_t *this_gen, int *num_files)
 {
   (void)this_gen;
 
@@ -1459,7 +1475,7 @@ static char **bluray_class_get_autoplay_list (input_class_t *this_gen, int *num_
 
   *num_files = 1;
 
-  return autoplay_list;
+  return (const char * const *)autoplay_list;
 }
 
 static int bluray_class_eject_media (input_class_t *this_gen)
@@ -1493,13 +1509,8 @@ static void *bluray_init_plugin (xine_t *xine, void *data)
   this->xine = xine;
 
   this->input_class.get_instance       = bluray_class_get_instance;
-#if INPUT_PLUGIN_IFACE_VERSION < 18
-  this->input_class.get_identifier     = bluray_class_get_identifier;
-  this->input_class.get_description    = bluray_class_get_description;
-#else
   this->input_class.identifier         = "bluray";
   this->input_class.description        = _("BluRay input plugin");
-#endif
   this->input_class.get_dir            = NULL;
   this->input_class.get_autoplay_list  = bluray_class_get_autoplay_list;
   this->input_class.dispose            = bluray_class_dispose;
@@ -1554,18 +1565,37 @@ static void *bluray_init_plugin (xine_t *xine, void *data)
   return this;
 }
 
+static const char * const *bd_class_get_autoplay_list (input_class_t *this_gen, int *num_files)
+{
+  static const char * const autoplay_list[] = { "bd:/", NULL };
+
+  *num_files = 1;
+
+  return autoplay_list;
+}
+
+static void *bd_init_plugin (xine_t *xine, void *data)
+{
+  bluray_input_class_t *this = bluray_init_plugin(xine, data);
+
+  if (this) {
+    this->input_class.identifier  = "bluray";
+    this->input_class.description = _("BluRay input plugin (using menus)");
+
+    this->input_class.get_dir            = NULL;
+    this->input_class.get_autoplay_list  = bd_class_get_autoplay_list;
+  }
+
+  return this;
+}
+
 /*
  * exported plugin catalog entry
  */
 
 const plugin_info_t xine_plugin_info[] EXPORTED = {
   /* type, API, "name", version, special_info, init_function */
-#if INPUT_PLUGIN_IFACE_VERSION <= 17
-  { PLUGIN_INPUT | PLUGIN_MUST_PRELOAD, 17, "BLURAY", XINE_VERSION_CODE, NULL, bluray_init_plugin },
-  { PLUGIN_INPUT | PLUGIN_MUST_PRELOAD, 17, "BD",     XINE_VERSION_CODE, NULL, bluray_init_plugin },
-#elif INPUT_PLUGIN_IFACE_VERSION >= 18
-  { PLUGIN_INPUT | PLUGIN_MUST_PRELOAD, 18, "BLURAY", XINE_VERSION_CODE, NULL, bluray_init_plugin },
-  { PLUGIN_INPUT | PLUGIN_MUST_PRELOAD, 18, "BD",     XINE_VERSION_CODE, NULL, bluray_init_plugin },
-#endif
+  { PLUGIN_INPUT | PLUGIN_MUST_PRELOAD, INPUT_PLUGIN_IFACE_VERSION, "BLURAY", XINE_VERSION_CODE, NULL, bluray_init_plugin },
+  { PLUGIN_INPUT | PLUGIN_MUST_PRELOAD, INPUT_PLUGIN_IFACE_VERSION, "BD",     XINE_VERSION_CODE, NULL, bd_init_plugin },
   { PLUGIN_NONE, 0, "", 0, NULL, NULL }
 };

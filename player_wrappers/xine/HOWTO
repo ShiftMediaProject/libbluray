@@ -1,4 +1,4 @@
-Tested with xine-lib 1.1.18
+Tested with xine-lib 1.2.2
 
 1. Build xine plugin
 
@@ -10,8 +10,8 @@ Tested with xine-lib 1.1.18
 
 3. Run xine passing it a bluray:// or bd:// mrl as follows:
 
-	xine bluray:/mnt/BLURAY_DISC
+        xine bluray:/mnt/BLURAY_DISC
 
-	or using BluRay disc menus:
+    or using BluRay disc menus:
 
-	xine bd:/mnt/BLURAY_DISC
+        xine bd:/mnt/BLURAY_DISC
