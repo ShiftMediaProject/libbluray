@@ -21,7 +21,7 @@ package java.awt;
 
 import sun.awt.image.BufferedImagePeer;
 
-public class BDImage extends Image implements BufferedImagePeer {
+public class BDImage extends BDImageBase implements BufferedImagePeer {
     BDImage(Component component, int width, int height, GraphicsConfiguration gc) {
         super(component, width, height, gc);
     }

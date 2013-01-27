@@ -691,4 +691,5 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         }
     }
 
+    private static final Logger logger = Logger.getLogger(BDGraphics.class.getName());
 }

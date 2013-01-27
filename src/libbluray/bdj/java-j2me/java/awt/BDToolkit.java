@@ -39,6 +39,10 @@ class BDToolkit extends Toolkit {
     private static Hashtable cachedImages = new Hashtable();
     public BDToolkit () {}
 
+    public static void setFocusedWindow(Window window) {
+        /* nothing to do */
+    }
+
     public Dimension getScreenSize() {
         Rectangle dims = defaultGC.getBounds();
         return new Dimension(dims.width, dims.height);
