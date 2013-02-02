@@ -117,6 +117,12 @@ AC_ARG_WITH([bdj-type],
   [BDJ_TYPE=$withval],
   [BDJ_TYPE=j2se])
 
+AC_ARG_WITH([bdj-bootclasspath],
+  [AS_HELP_STRING([--with-bdj-bootclasspath=PATH],
+  [Specify BD-J build-time bootclass path (example /opt/PhoneME/lib/btclasses.zip;/opt/PhoneME/lib/xmlparer.jar). Default is empty.])],
+  [BDJ_BOOTCLASSPATH=$withval],
+  [BDJ_BOOTCLASSPATH=])
+
 # required programs
 AC_PROG_CC
 AC_PROG_LIBTOOL
@@ -284,6 +290,7 @@ if [[ $use_bdjava = "yes" ]]; then
 
   AC_DEFINE([USING_BDJAVA], [1], ["Define to 1 if using BD-Java"])
   AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
+  AC_DEFINE_UNQUOTED([JDK_HOME], ["$JDK_HOME"], [""])
 fi
 AM_CONDITIONAL([USING_BDJAVA], [ test $use_bdjava = "yes" ])
 
@@ -294,6 +301,8 @@ else
   BDJ_TYPE=j2se
 fi
 AC_SUBST(BDJ_TYPE)
+# bootclasspath
+AC_SUBST(BDJ_BOOTCLASSPATH)
 
 # generate documentation
 DX_INIT_DOXYGEN(libbluray, doc/doxygen-config, [doc/doxygen])
@@ -330,6 +339,9 @@ echo "  BD-J support:                  $use_bdjava"
 if [[ $use_bdjava = "yes" ]]; then
 echo "  BD-J font support (freetype2): $use_freetype"
 echo "  BD-J type:                     $BDJ_TYPE"
+if test x"$BDJ_BOOTCLASSPATH" != x""; then
+echo "  BD-J bootclasspath:            $BDJ_BOOTCLASSPATH"
+fi
 fi
 echo "  Metadata support (libxml):     $use_libxml2"
 echo "  Build examples:                $use_examples"

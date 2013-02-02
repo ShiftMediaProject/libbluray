@@ -114,7 +114,9 @@ libbluray_la_SOURCES+=$(SOURCES_bdj)
 AM_CFLAGS+=@BDJAVA_CFLAGS@
 
 all-local:
-	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml -Dsrc_awt=:java-$(BDJ_TYPE)
+	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml \
+	    -Dsrc_awt=:java-$(BDJ_TYPE) \
+	    -Dbootclasspath="$(BDJ_BOOTCLASSPATH)"
 
 clean-local:
 	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml clean
