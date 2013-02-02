@@ -548,7 +548,13 @@ static int _play_stop(HDMV_VM *p)
     }
 
     BD_DEBUG(DBG_HDMV, "_play_stop()\n");
-    _queue_event(p, HDMV_EVENT_PLAY_STOP, 0);
+    _queue_event(p, HDMV_EVENT_PLAY_STOP, 1);
+
+    /* terminate IG object. Continue executing movie object.  */
+    if (_resume_from_play_pl(p) < 0) {
+        BD_DEBUG(DBG_HDMV|DBG_CRIT, "_play_stop(): resuming movie object failed !\n");
+        return -1;
+    }
 
     return 0;
 }
@@ -777,6 +783,8 @@ static void _set_nv_timer(HDMV_VM *p, uint32_t dst, uint32_t src)
       BD_DEBUG(DBG_HDMV|DBG_CRIT, "_set_nv_timer(): invalid timeout (%d) !\n", timeout);
       return;
   }
+
+  BD_DEBUG(DBG_HDMV | DBG_CRIT, "_set_nv_timer(): navigation timer not implemented !\n");
 
   /* set expiration time */
   p->nv_timer.time = time(NULL);

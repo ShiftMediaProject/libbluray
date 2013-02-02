@@ -2692,6 +2692,8 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
         case HDMV_EVENT_PLAY_STOP:
             // stop current playlist
             _close_playlist(bd);
+
+            bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
             break;
 
         case HDMV_EVENT_STILL:

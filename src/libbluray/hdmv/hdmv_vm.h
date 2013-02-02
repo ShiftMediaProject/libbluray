@@ -33,6 +33,10 @@ typedef enum {
     HDMV_EVENT_END,            /* end of program (movie object) */
     HDMV_EVENT_IG_END,         /* end of program (interactive) */
 
+    /*
+     * playback control
+     */
+
     HDMV_EVENT_TITLE,          /* play title (from disc index) */
     HDMV_EVENT_PLAY_PL,        /* select playlist */
     HDMV_EVENT_PLAY_PI,        /* seek to playitem */
@@ -41,6 +45,9 @@ typedef enum {
 
     HDMV_EVENT_STILL,          /* param: boolean */
 
+    /*
+     * -> graphics controller
+     */
     HDMV_EVENT_SET_BUTTON_PAGE,
     HDMV_EVENT_ENABLE_BUTTON,
     HDMV_EVENT_DISABLE_BUTTON,
