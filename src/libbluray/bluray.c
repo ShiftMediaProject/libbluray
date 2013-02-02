@@ -1698,6 +1698,12 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
                     if (!_open_m2ts(bd, st)) {
                         return -1;
                     }
+
+                    if (st->clip->connection == CONNECT_NON_SEAMLESS) {
+                        /* application layer demuxer buffers must be reset here */
+                        _queue_event(bd, BD_EVENT_DISCONTINUITY, st->clip->in_time);
+                    }
+
                 }
 
                 int r = _read_block(bd, st, bd->int_buf);
