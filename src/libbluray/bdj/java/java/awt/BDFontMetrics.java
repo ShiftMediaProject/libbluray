@@ -123,6 +123,8 @@ public class BDFontMetrics extends FontMetrics {
     }
 
     static String[] getFontList() {
+        init();
+
         ArrayList fontNames = new ArrayList();
         Iterator fonts = fontNameMap.keySet().iterator();
         int dotidx;

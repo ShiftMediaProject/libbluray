@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2012  libbluray
+ * Copyright (C) 2012  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,10 +32,18 @@ public class BDFramePeer extends BDComponentPeer implements FramePeer
         this.rootWindow = rootWindow;
     }
 
-    public void setTitle(String title) {
+    public Rectangle getBoundsPrivate() {
+        return null;
     }
 
-    public void setIconImage(Image im) {
+    public int getState() {
+        return Frame.NORMAL;
+    }
+
+    public void setBoundsPrivate(int a, int b, int c, int d) {
+    }
+
+    public void setMaximizedBounds(Rectangle bounds) {
     }
 
     public void setMenuBar(MenuBar mb) {
@@ -47,70 +55,110 @@ public class BDFramePeer extends BDComponentPeer implements FramePeer
     public void setState(int state) {
     }
 
-    public int getState() {
-        return Frame.NORMAL;
-    }
-
-    public void setMaximizedBounds(Rectangle bounds) {
-    }
-
-    public void toFront() {
-    }
-
-    public void toBack() {
-    }
-
-    public int handleFocusTraversalEvent(KeyEvent e) {
-        logger.unimplemented("handleFocusTravelsalEvent");
-        return -1;
+    public void setTitle(String title) {
     }
 
     //
     // ContainerPeer
     //
 
-    public Insets getInsets() {
-        return insets;
+    public void beginLayout() {
     }
 
     public void beginValidate() {
     }
 
-    public void endValidate() {
-    }
-
-    public void beginLayout() {
-    }
-
     public void endLayout() {
     }
 
-    public boolean isPaintPending() {
-        return false;
+    public void endValidate() {
     }
 
+    public Insets getInsets() {
+        return insets;
+    }
+
+    /* java 1.6 only */
     public Insets insets() {
         return getInsets();
     }
 
-    public void applyShape(sun.java2d.pipe.Region r) {
-    }
-
-    public Rectangle getBounds() {
-        return rootWindow.getBounds();
-    }
-
-    public void layout() {
-    }
-
-    public boolean isReparentSupported() {
+    /* java 1.6 only */
+    public boolean isPaintPending() {
         return false;
     }
 
-    public void reparent(ContainerPeer p) {
+    /* java 1.6 only */
+    public boolean isRestackSupported() {
+        return false;
     }
 
-    public void flip(int a, int b, int c, int d, java.awt.BufferCapabilities.FlipContents e) {
+    /* java 1.6 only */
+    public void restack() {
+    }
+
+    //
+    // WindowPeer
+    //
+
+    public void repositionSecurityWarning() {
+    }
+
+    public void setAlwaysOnTop(boolean b) {
+    }
+
+    public void setModalBlocked(Dialog d,boolean b) {
+    }
+
+    public void setOpacity(float f) {
+    }
+
+    public void setOpaque(boolean b) {
+    }
+
+    public void toBack() {
+    }
+
+    public void toFront() {
+    }
+
+    public void updateFocusableWindowState() {
+    }
+
+    public void updateIconImages() {
+    }
+
+    public void updateMinimumSize() {
+    }
+
+    public void updateWindow(BufferedImage b) {
+        logger.unimplemented("updateWindow");
+    }
+
+    /* java 1.7 ? */
+    public void updateWindow() {
+        logger.unimplemented("updateWindow");
+    }
+
+    /* java 1.6 only */
+    public boolean requestWindowFocus()  {
+        return true;
+    }
+
+    //
+    // ComponentPeer
+    //
+
+    //public Rectangle getBounds() {
+    //    return rootWindow.getBounds();
+    //}
+
+    public Graphics getGraphics() {
+        return new BDWindowGraphics(rootWindow);
+    }
+
+    public Image createImage(int width, int height) {
+        return ((BDToolkit)BDToolkit.getDefaultToolkit()).createImage((Component)null, width, height);
     }
 
     public boolean requestFocus(Component c, boolean a, boolean b, long l, sun.awt.CausedFocusEvent.Cause d) {
@@ -121,72 +169,11 @@ public class BDFramePeer extends BDComponentPeer implements FramePeer
         return true;
     }
 
-    public void setBounds(int a, int b, int c, int d, int e) {
-    }
-
-    public void setBoundsPrivate(int a, int b, int c, int d) {
-    }
-
-    public Rectangle getBoundsPrivate() {
-        return null;
-    }
-
-    public void repositionSecurityWarning() {
-    }
-
-    public void  updateWindow(BufferedImage b) {
-        logger.unimplemented("updateWindow");
-    }
-
-    public void setOpaque(boolean b) {
-    }
-
-    public void setOpacity(float f) {
-    }
-
-    public void updateIconImages() {
-    }
-
-    public void updateMinimumSize() {
-    }
-
-    public void setModalBlocked(Dialog d,boolean b) {
-    }
-
-    public boolean requestWindowFocus()  {
-        return true;
-    }
-
-    public void updateFocusableWindowState() {
-    }
-
-    public void setAlwaysOnTop(boolean b) {
-    }
-
-    public boolean isRestackSupported() {
-        return false;
-    }
-
-    public void restack() {
-    }
-
-    //
-    // ComponentPeer
-    //
-
     public void setVisible(boolean b) {
         //Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(new WindowEvent((Frame)component, WindowEvent.WINDOW_ACTIVATED));
         if (b == true) {
             component.paint(getGraphics());
         }
-    }
-
-    public Graphics getGraphics() {
-        return new BDWindowGraphics(rootWindow);
-    }
-
-    public Image createImage(int width, int height) {
-        return ((BDToolkit)BDToolkit.getDefaultToolkit()).createImage((Component)null, width, height);
     }
 
     private BDRootWindow rootWindow;

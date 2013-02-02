@@ -375,7 +375,7 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
         }
 
         jsize len = bdj->buf->width * bdj->buf->height;
-        (*env)->GetByteArrayRegion(env, rgbArray, 0, len, (jbyte*)bdj->buf->buf[BD_OVERLAY_IG]);
+        (*env)->GetIntArrayRegion(env, rgbArray, 0, len, (jint*)bdj->buf->buf[BD_OVERLAY_IG]);
 
         if (bdj->buf->unlock) {
             bdj->buf->unlock(bdj->buf);

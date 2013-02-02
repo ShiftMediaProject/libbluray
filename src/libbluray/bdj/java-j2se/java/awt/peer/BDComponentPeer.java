@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2012  libbluray
+ * Copyright (C) 2012  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,142 +30,35 @@ public abstract class BDComponentPeer implements ComponentPeer
     public BDComponentPeer(Toolkit toolkit, Component component) {
         this.toolkit = toolkit;
         this.component = component;
-        setBounds( component.getX(), component.getY(), component.getWidth(), component.getHeight() );
+        setBounds (component.getX(), component.getY(), component.getWidth(), component.getHeight(), SET_BOUNDS);
     }
 
-    public void paint(Graphics g) {
-    }
-
-    public void repaint(long tm, int x, int y, int width, int height) {
-    }
-
-    public void print(Graphics g) {
-    }
-
-    public Graphics getGraphics() {
-        Component parent = component.getParent();
-        if( parent != null ) {
-            return parent.getGraphics().create(location.x, location.y, size.width, size.height);
-        }
-        logger.error("getGraphics(): no parent !");
-        throw new Error();
-    }
-
-    public GraphicsConfiguration getGraphicsConfiguration() {
-        return null;
-    }
-
-    public void setBounds(int x, int y, int width, int height) {
-        location.x = x;
-        location.y = y;
-        size.width = width;
-        size.height = height;
-    }
-
-    public Point getLocationOnScreen() {
-        Point screen = new Point(location);
-        Component parent = component.getParent();
-        if( parent != null ) {
-            Point parentScreen = parent.getLocationOnScreen();
-            screen.translate(parentScreen.x, parentScreen.y);
-        }
-        return screen;
-    }
-
-    public Dimension getPreferredSize() {
-        return size;
-    }
-
-    public Dimension getMinimumSize() {
-        return size;
-    }
-
-    public void setVisible(boolean b) {
-    }
-
-    public void setEnabled(boolean b) {
-    }
-
-    public boolean isObscured() {
-        return false;
+    public void applyShape(sun.java2d.pipe.Region r) {
     }
 
     public boolean canDetermineObscurity() {
         return false;
     }
 
-    public boolean isFocusable() {
-        return true;
+    public int checkImage(Image img, int w, int h, ImageObserver o) {
+        return ((BDToolkit)toolkit).checkImage(img, w, h, o);
     }
 
-    public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time) {
-        return true;
-    }
-
-    public boolean isFocusTraversable() {
-        return true;
-    }
-
-    public void handleEvent(AWTEvent e) {
-    }
-
-    public void coalescePaintEvent( PaintEvent e ) {
-    }
-
-    public boolean handlesWheelScrolling() {
-        return false;
-    }
-
-    public ColorModel getColorModel() {
-        return toolkit.getColorModel();
-    }
-
-    public void setForeground(Color c) {
-    }
-
-    public void setBackground(Color c) {
-    }
-
-    public FontMetrics getFontMetrics( Font font ) {
-        return null;
-    }
-
-    public void setFont( Font f ) {
-    }
-
-    public void updateCursorImmediately() {
-    }
-
-    public Toolkit getToolkit() {
-        return toolkit;
-    }
-
-    public void dispose() {
+    public void coalescePaintEvent(PaintEvent e) {
     }
 
     public void createBuffers(int x, BufferCapabilities bufferCapabilities) {
     }
 
-    public void destroyBuffers() {
-    }
-
-    public void flip(BufferCapabilities.FlipContents flipContents) {
-    }
-
-    public Image getBackBuffer() {
-        logger.unimplemented("getBackBuffer");
-        throw new Error();
-    }
-
     public Image createImage(ImageProducer producer) {
         logger.unimplemented("createImage");
-        throw new Error("Not implemented");
+        return null;
     }
 
     public Image createImage(int width, int height) {
         Component parent = component.getParent();
-        if( parent != null ) {
-            return parent.createImage( width, height );
+        if (parent != null) {
+            return parent.createImage(width, height);
         }
         logger.error("createImage(): no parent !");
         throw new Error();
@@ -176,41 +69,184 @@ public abstract class BDComponentPeer implements ComponentPeer
         throw new Error();
     }
 
-    public boolean prepareImage(Image img, int w, int h, ImageObserver o) {
-        return ((BDToolkit)toolkit).prepareImage(img, w, h, o);
+    public void destroyBuffers() {
     }
 
-    public int checkImage(Image img, int w, int h, ImageObserver o) {
-        return ((BDToolkit)toolkit).checkImage(img, w, h, o);
-    }
-
-    public Dimension preferredSize() {
-        return getPreferredSize();
-    }
-
-    public Dimension minimumSize() {
-        return getMinimumSize();
-    }
-
-    public void show() {
-        setVisible(true);
-    }
-
-    public void hide() {
-        setVisible(false);
-    }
-
-    public void enable() {
-        setEnabled(true);
-    }
-
+    /* java 6 only */
     public void disable() {
         setEnabled(false);
     }
 
-    public void reshape(int x, int y, int width, int height) {
-        setBounds(x, y, width, height);
+    public void dispose() {
     }
+
+    /* java 6 only */
+    public void enable() {
+        setEnabled(true);
+    }
+
+    public void flip(int a, int b, int c, int d, java.awt.BufferCapabilities.FlipContents e) {
+    }
+
+    /* java 6 only */
+    public Rectangle getBounds() {
+        return new Rectangle(location.x, location.y, size.width, size.height);
+        //rootWindow.getBounds();
+    }
+
+    public Image getBackBuffer() {
+        logger.unimplemented("getBackBuffer");
+        throw new Error();
+    }
+
+    public ColorModel getColorModel() {
+        return toolkit.getColorModel();
+    }
+
+    public FontMetrics getFontMetrics(Font font) {
+        logger.unimplemented("getFontMetrics");
+        return null;
+    }
+
+    public Graphics getGraphics() {
+        Component parent = component.getParent();
+        if (parent != null) {
+            return parent.getGraphics().create(location.x, location.y, size.width, size.height);
+        }
+        logger.error("getGraphics(): no parent !");
+        throw new Error();
+    }
+
+    public GraphicsConfiguration getGraphicsConfiguration() {
+        logger.unimplemented("getGraphicsConfiguration");
+        return null;
+    }
+
+    public Point getLocationOnScreen() {
+        Point screen = new Point(location);
+        Component parent = component.getParent();
+        if (parent != null) {
+            Point parentScreen = parent.getLocationOnScreen();
+            screen.translate(parentScreen.x, parentScreen.y);
+        }
+        return screen;
+    }
+
+    public Dimension getMinimumSize() {
+        return size;
+    }
+
+    public Dimension getPreferredSize() {
+        return size;
+    }
+
+    public Toolkit getToolkit() {
+        return toolkit;
+    }
+
+    public void handleEvent(AWTEvent e) {
+    }
+
+    public boolean handlesWheelScrolling() {
+        return false;
+    }
+
+    /* java 6 only */
+    public void hide() {
+        setVisible(false);
+    }
+
+    public boolean isFocusable() {
+        return true;
+    }
+
+    public boolean isObscured() {
+        return false;
+    }
+
+    public boolean isReparentSupported() {
+        return false;
+    }
+
+    public void layout() {
+    }
+
+    /* java 1.6 only */
+    public Dimension minimumSize() {
+        return getMinimumSize();
+    }
+
+    public void paint(Graphics g) {
+    }
+
+    /* java 1.6 only */
+    public Dimension preferredSize() {
+        return getPreferredSize();
+    }
+
+    public boolean prepareImage(Image img, int w, int h, ImageObserver o) {
+        return ((BDToolkit)toolkit).prepareImage(img, w, h, o);
+    }
+
+    public void print(Graphics g) {
+    }
+
+    /* java 1.6 only */
+    public void repaint(long tm, int x, int y, int width, int height) {
+    }
+
+    public void reparent(ContainerPeer p) {
+    }
+
+    /* java 1.6 only */
+    public void reshape(int x, int y, int width, int height) {
+        setBounds(x, y, width, height, SET_BOUNDS);
+    }
+
+    public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time) {
+        return true;
+    }
+
+
+    public void setBackground(Color c) {
+    }
+
+    public void setBounds(int x, int y, int width, int height, int op) {
+        location.x = x;
+        location.y = y;
+        size.width = width;
+        size.height = height;
+    }
+
+    public void setEnabled(boolean b) {
+    }
+
+    public void setFont(Font f) {
+    }
+
+    public void setForeground(Color c) {
+    }
+
+    public void setVisible(boolean b) {
+    }
+
+    /* java 7 */
+    public void setZOrder(ComponentPeer peer) {
+    }
+
+    /* java 6 only */
+    public void show() {
+        setVisible(true);
+    }
+
+    public void updateCursorImmediately() {
+    }
+
+    /* java 7 */
+    public boolean updateGraphicsData(GraphicsConfiguration gc) {
+        return false;
+    }
+
 
     protected Component component;
     protected Toolkit toolkit;

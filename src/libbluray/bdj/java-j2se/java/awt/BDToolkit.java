@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2012  libbluray
+ * Copyright (C) 2012  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +23,7 @@ package java.awt;
 import java.awt.image.ColorModel;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
+import java.awt.peer.KeyboardFocusManagerPeer;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Map;
@@ -30,10 +32,12 @@ import java.util.Iterator;
 import sun.awt.image.ByteArrayImageSource;
 import sun.awt.image.FileImageSource;
 import sun.awt.image.URLImageSource;
+import sun.awt.KeyboardFocusManagerPeerProvider;
 
 import java.awt.peer.BDFramePeer;
+import java.awt.peer.BDKeyboardFocusManagerPeer;
 
-public class BDToolkit extends Toolkit {
+public class BDToolkit extends Toolkit implements KeyboardFocusManagerPeerProvider {
     private EventQueue eventQueue = new EventQueue();
     private BDGraphicsEnvironment localEnv = new BDGraphicsEnvironment();
     private BDGraphicsConfiguration defaultGC = (BDGraphicsConfiguration)localEnv.getDefaultScreenDevice().getDefaultConfiguration();
@@ -44,7 +48,12 @@ public class BDToolkit extends Toolkit {
 
     public static void setFocusedWindow(Window window) {
         /* hook KeyboardFocusManagerPeer (not doing this leads to crash) */
-        BDKfmPeer.init(window);
+        BDKeyboardFocusManagerPeer.init(window);
+    }
+
+    public KeyboardFocusManagerPeer createKeyboardFocusManagerPeer(KeyboardFocusManager kfm)
+    {
+        return BDKeyboardFocusManagerPeer.init(kfm);
     }
 
     public Dimension getScreenSize() {
@@ -158,7 +167,8 @@ public class BDToolkit extends Toolkit {
         return img.checkImage(observer);
     }
 
-    public void beep() { }
+    public void beep() {
+    }
 
     protected EventQueue getSystemEventQueueImpl() {
         return eventQueue;

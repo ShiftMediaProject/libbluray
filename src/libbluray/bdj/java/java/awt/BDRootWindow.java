@@ -62,6 +62,12 @@ public class BDRootWindow extends Frame {
         return backBuffer;
     }
 
+    public Image getBackBuffer() {
+        /* exists only in J2SE */
+        org.videolan.Logger.getLogger("BDRootWindow").unimplemented("getBackBuffer");
+        return null;
+    }
+
     public void postKeyEvent(int id, int modifiers, int keyCode) {
         Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getGlobalFocusOwner();
         if (focusOwner != null) {
