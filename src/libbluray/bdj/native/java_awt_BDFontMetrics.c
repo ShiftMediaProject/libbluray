@@ -224,6 +224,6 @@ Java_java_awt_BDFontMetrics_methods[] =
     },
 };
 
-BD_PRIVATE const int
+BD_PRIVATE extern const int
 Java_java_awt_BDFontMetrics_methods_count =
     sizeof(Java_java_awt_BDFontMetrics_methods)/sizeof(Java_java_awt_BDFontMetrics_methods[0]);

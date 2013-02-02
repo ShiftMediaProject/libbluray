@@ -549,7 +549,7 @@ Java_org_videolan_Libbluray_methods[] =
     },
 };
 
-BD_PRIVATE const int
+BD_PRIVATE extern const int
 Java_org_videolan_Libbluray_methods_count =
     sizeof(Java_org_videolan_Libbluray_methods)/sizeof(Java_org_videolan_Libbluray_methods[0]);
 

@@ -98,5 +98,6 @@ Java_java_awt_BDGraphics_methods[] =
     },
 };
 
-BD_PRIVATE const int Java_java_awt_BDGraphics_methods_count =
+BD_PRIVATE extern const int
+Java_java_awt_BDGraphics_methods_count =
      sizeof(Java_java_awt_BDGraphics_methods)/sizeof(Java_java_awt_BDGraphics_methods[0]);
