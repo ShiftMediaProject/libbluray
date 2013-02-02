@@ -1761,7 +1761,7 @@ int bd_read_skip_still(BLURAY *bd)
         if (pi->still_mode == BLURAY_STILL_TIME) {
             st->clip = nav_next_clip(bd->title, st->clip);
             if (st->clip) {
-                return _open_m2ts(bd, st);
+                ret = _open_m2ts(bd, st);
             }
         }
     }
