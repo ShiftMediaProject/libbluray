@@ -1357,6 +1357,8 @@ static void _seek_internal(BLURAY *bd,
 {
     if (_seek_stream(bd, &bd->st0, clip, clip_pkt) >= 0) {
 
+        _queue_event(bd, BD_EVENT_SEEK, 0);
+
         /* update title position */
         bd->s_pos = (uint64_t)title_pkt * 192;
 
@@ -2680,12 +2682,10 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             break;
 
         case HDMV_EVENT_PLAY_PI:
-            _queue_event(bd, BD_EVENT_SEEK, 0);
             bd_seek_playitem(bd, hev->param);
             break;
 
         case HDMV_EVENT_PLAY_PM:
-            _queue_event(bd, BD_EVENT_SEEK, 0);
             bd_seek_mark(bd, hev->param);
             break;
 
