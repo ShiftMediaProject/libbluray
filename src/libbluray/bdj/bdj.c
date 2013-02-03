@@ -48,27 +48,63 @@
 
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
 
-static void *_load_jvm(void)
+static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char *jvm_lib)
 {
-    const char* java_home = getenv("JAVA_HOME"); // FIXME: should probably search multiple directories
-    if (java_home == NULL) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "JAVA_HOME not set, trying default locations\n");
+    if (java_home) {
+        char *path = str_printf("%s/%s/%s", java_home, jvm_dir, jvm_lib);
+        BD_DEBUG(DBG_BDJ|DBG_CRIT, "Opening %s ...\n", path);
+        void *h = dl_dlopen(path, NULL);
+        X_FREE(path);
+        return h;
+    } else {
+        BD_DEBUG(DBG_BDJ|DBG_CRIT, "Opening %s ...\n", jvm_lib);
+        return dl_dlopen(jvm_lib, NULL);
+    }
+}
 
-        void *h = dl_dlopen("libjvm", NULL);
-        if (h) {
-            return h;
-        }
+static void *_load_jvm(const char **p_java_home)
+{
+#ifdef HAVE_BDJ_J2ME
+# ifdef WIN32
+  static const char *jvm_path[] = {NULL, JDK_HOME};
+    static const char  jvm_dir[]  = "bin";
+    static const char  jvm_lib[]  = "cvm";
+# else
+    static const char *jvm_path[] = {NULL, JDK_HOME, "/opt/PhoneME"};
+    static const char  jvm_dir[]  = "bin";
+    static const char  jvm_lib[]  = "libcvm";
+# endif
+#else
+# ifdef WIN32
+    static const char *jvm_path[] = {NULL, JDK_HOME};
+    static const char  jvm_dir[]  = "jre/bin/server";
+    static const char  jvm_lib[]  = "jvm";
+# else
+    static const char *jvm_path[] = {NULL, JDK_HOME, "/usr/lib/jvm/default-java/"};
+    static const char  jvm_dir[]  = "jre/lib/" JAVA_ARCH "/server";
+    static const char  jvm_lib[]  = "libjvm";
+# endif
+#endif
+    const char *java_home = NULL;
+    unsigned    path_ind;
+    void       *handle = NULL;
 
-        java_home = "/usr/lib/jvm/default-java/";
+    /* JAVA_HOME set, use it */
+    java_home = getenv("JAVA_HOME");
+    if (java_home) {
+        *p_java_home = java_home;
+        return _jvm_dlopen(java_home, jvm_dir, jvm_lib);
     }
 
-#ifdef WIN32
-    char* path = str_printf("%s/jre/bin/server/jvm", java_home);
-#else	//	#ifdef WIN32
-    char* path = str_printf("%s/jre/lib/%s/server/libjvm", java_home, JAVA_ARCH);
-#endif	//	#ifdef WIN32
+    BD_DEBUG(DBG_BDJ | DBG_CRIT, "JAVA_HOME not set, trying default locations\n");
 
-    return dl_dlopen(path, NULL);
+    /* try our pre-defined locations */
+    for (path_ind = 0; !handle && path_ind < sizeof(jvm_path) / sizeof(jvm_path[0]); path_ind++) {
+        *p_java_home = jvm_path[path_ind];
+        handle = _jvm_dlopen(jvm_path[path_ind], jvm_dir, jvm_lib);
+    }
+
+    return handle;
 }
 
 static const char *_find_libbluray_jar(void)
@@ -169,7 +205,8 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     BD_DEBUG(DBG_BDJ, "bdj_open()\n");
 
     // first load the jvm using dlopen
-    void* jvm_lib = _load_jvm();
+    const char *java_home = NULL;
+    void* jvm_lib = _load_jvm(&java_home);
 
     if (!jvm_lib) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Wasn't able to load JVM\n");
@@ -190,26 +227,42 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     bdjava->index = index;
     bdjava->path = path;
     bdjava->h_libjvm = jvm_lib;
-
     bdjava->osd_cb = osd_cb;
     bdjava->buf = buf;
 
-    JavaVMInitArgs args;
+    // check if overriding persistent root path
+    const char* persistent = getenv("LIBBLURAY_PERSISTENT_ROOT");
 
-    // determine classpath
-    //char* classpath_opt = str_printf("-Djava.class.path=%s", classpath);
-    char* classpath_opt = str_printf("-Xbootclasspath/a:%s", _find_libbluray_jar());
+    // determine dvb.persistent.root
+    char* persistent_opt;
+    if (persistent == NULL) {
+        const char *home = getenv("HOME");
+        char *tmp = NULL;
+        if (home) {
+          persistent = tmp = str_printf("%s/.local/share/libbluray/", home);
+        } else {
+          persistent = "/tmp/";
+        }
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "LIBBLURAY_PERSISTENT_ROOT not set, using %s\n", persistent);
+        persistent_opt = str_printf("-Ddvb.persistent.root=%s"DIR_SEP"dvb.persistent.root", persistent);
+        X_FREE(tmp);
+    } else {
+        persistent_opt = str_printf("-Ddvb.persistent.root=%s", persistent);
+    }
 
-    // determine bluray.vfs.root
-    char* vfs_opt;
-    vfs_opt = str_printf("-Dbluray.vfs.root=%s", path);
-
-    JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 9);
+    JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 11);
     int n = 0;
-    option[n++].optionString = classpath_opt;
-    option[n++].optionString = vfs_opt;
-#ifdef HAVE_BDJ_AWT
-    option[n++].optionString = str_dup("-Dawt.toolkit=java.awt.BDToolkit");
+    JavaVMInitArgs args;
+    option[n++].optionString = persistent_opt;
+    option[n++].optionString = str_printf("-Dbluray.vfs.root=%s", path);
+    option[n++].optionString = str_dup   ("-Dawt.toolkit=java.awt.BDToolkit");
+    option[n++].optionString = str_printf("-Xbootclasspath/a:%s", _find_libbluray_jar());
+    option[n++].optionString = str_dup   ("-Xms256M");
+    option[n++].optionString = str_dup   ("-Xmx256M");
+    option[n++].optionString = str_dup   ("-Xss2048k");
+#ifdef HAVE_BDJ_J2ME
+    option[n++].optionString = str_printf("-Djava.home=%s", java_home);
+    option[n++].optionString = str_printf("-Xbootclasspath/a:%s/lib/xmlparser.jar", java_home);
 #endif
 
     args.version = JNI_VERSION_1_4;
@@ -219,9 +272,12 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 
     JNIEnv* env = NULL;
     int result = JNI_CreateJavaVM_fp(&bdjava->jvm, (void**) &env, &args);
-    free(option);
-    free(classpath_opt);
-    free(vfs_opt);
+
+//    while (n) {
+//        X_FREE(option[--n].optionString);
+//    }
+
+    X_FREE(option);
 
     if (result != JNI_OK || !env) {
         bdj_close(bdjava);
