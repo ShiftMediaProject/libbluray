@@ -32,11 +32,15 @@ public class AppEntry implements AppAttributes {
         pm.read(p);
         String lang = p.getMostFavourite();
         if (lang != null)
-                try {
-                    return getName(lang);
-                } catch (LanguageNotAvailableException e) {
+            try {
+                return getName(lang);
+            } catch (LanguageNotAvailableException e) {
 
-                }
+            }
+        if (names == null || names.length < 1) {
+            return null;
+        }
+
         return names[0][1];
     }
 
