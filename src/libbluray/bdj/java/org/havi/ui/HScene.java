@@ -74,92 +74,106 @@ public class HScene extends Container implements HComponentOrdering {
     }
 
     public boolean isDoubleBuffered() {
-        return true;// not implemented
+        return false;
     }
 
     public boolean isOpaque() {
-        return false;// not implemented
+        return false;
+    }
+
+    public int getComponentZOrder(Component component) {
+        for (int i = 0; i < getComponentCount(); i++)
+            if (getComponent(i) == component)
+                return i;
+        return -1;
+    }
+
+    public /*boolean*/void setComponentZOrder(Component component, int index) {
+        if (index < 0)
+            return;//return false;
+        int i = getComponentZOrder(component);
+        if (i < 0)
+            return;//return false;
+        if (i == index)
+            return;//return true;
+        remove(component);
+        if (i > index)
+            add(component, index);
+        else
+            add(component, index - 1);
+        //return true;
     }
 
     public Component addBefore(Component component, Component behind) {
-        int index = super.getComponentZOrder(behind);
-
-        // the behind component must already be in the Container
-        if (index == -1)
+        int index = getComponentZOrder(behind);
+        if (index < 0)
             return null;
 
         return super.add(component, index);
     }
 
     public Component addAfter(Component component, Component front) {
-        int index = super.getComponentZOrder(front);
-
-        // the front component must already be in the Container
-        if (index == -1)
+        int index = getComponentZOrder(front);
+        if (index < 0)
             return null;
 
         return super.add(component, index + 1);
     }
 
     public boolean popToFront(Component component) {
-        if (super.getComponentZOrder(component) == -1)
+        if (getComponentZOrder(component) < 0)
             return false;
-
-        super.setComponentZOrder(component, 0);
-
+        /*return */setComponentZOrder(component, 0);
         return true;
     }
 
     public boolean pushToBack(Component component) {
-        if (super.getComponentZOrder(component) == -1)
+        if (getComponentZOrder(component) < 0)
             return false;
-
-        super.setComponentZOrder(component, super.getComponentCount());
-
+        /*return */setComponentZOrder(component, getComponentCount());
         return true;
     }
 
     public boolean pop(Component component) {
-        int index = super.getComponentZOrder(component);
-        if (index == -1)
+        int index = getComponentZOrder(component);
+        if (index < 0)
             return false;
         if (index == 0)
             return true; // already at the front
 
-        super.setComponentZOrder(component, index - 1);
+        /*return */setComponentZOrder(component, index - 1);
         return true;
     }
 
     public boolean push(Component component) {
-        int index = super.getComponentZOrder(component);
-        if (index == -1)
+        int index = getComponentZOrder(component);
+        if (index < 0)
             return false;
-        if (index == super.getComponentCount())
+
+        if (index == getComponentCount())
             return true; // already at the back
 
-        super.setComponentZOrder(component, index + 1);
+        /*return */setComponentZOrder(component, index + 1);
         return true;
     }
 
     public boolean popInFrontOf(Component move, Component behind) {
-        int index = super.getComponentZOrder(behind);
+        int index = getComponentZOrder(behind);
 
         // the behind component must already be in the Container
-        if (index == -1 || super.getComponentZOrder(move) == -1)
+        if (index < 0 || getComponentZOrder(move) < 0)
             return false;
 
-        super.setComponentZOrder(move, index);
+        /*return */setComponentZOrder(move, getComponentZOrder(behind));
         return true;
     }
 
     public boolean pushBehind(Component move, Component front) {
-        int index = super.getComponentZOrder(front);
-
-        // the behind component must already be in the Container
-        if (index == -1 || super.getComponentZOrder(move) == -1)
+        int index = getComponentZOrder(front);
+        if (index < 0 || getComponentZOrder(move) < 0)
             return false;
 
-        super.setComponentZOrder(move, index + 1);
+        /*return */setComponentZOrder(move, index + 1);
         return true;
     }
 
@@ -225,12 +239,8 @@ public class HScene extends Container implements HComponentOrdering {
         return null;
     }
 
-    public void show() {
-        setVisible(true);
-    }
-
     public void dispose() {
-        // not implemented
+        // TODO not implemented
     }
 
     public boolean addShortcut(int keyCode, HActionable act) {
@@ -339,11 +349,15 @@ public class HScene extends Container implements HComponentOrdering {
     }
 
     public void setVisible(boolean visible) {
-        this.visible = visible;
+        super.setVisible(visible);
+        if (visible) {
+            for (int i = 0; i < GUIManager.getInstance().getComponentCount(); i++) {
+                    Component c = GUIManager.getInstance().getComponent(i);
+                    if (c != this)
+                        c.setVisible(false);
     }
-
-    public boolean isVisible() {
-        return visible;
+        }
+        GUIManager.getInstance().setVisible(visible);
     }
 
     public int getBackgroundMode() {
@@ -379,7 +393,6 @@ public class HScene extends Container implements HComponentOrdering {
     public static final int NO_BACKGROUND_FILL = 0;
     public static final int BACKGROUND_FILL = 1;
 
-    private boolean visible = true;
     private boolean active = false;
     private int backgroundMode = NO_BACKGROUND_FILL;
     private Image image = null;
