@@ -104,6 +104,10 @@ static void *_load_jvm(const char **p_java_home)
         handle = _jvm_dlopen(jvm_path[path_ind], jvm_dir, jvm_lib);
     }
 
+    if (!*p_java_home) {
+        *p_java_home = dl_get_path();
+    }
+
     return handle;
 }
 
