@@ -80,6 +80,11 @@ public class BDKeyboardFocusManagerPeer implements KeyboardFocusManagerPeer {
     }
 
     /* java 6 only */
+    public void setCurrentFocusedWindow(Window w) {
+        window = w;
+    }
+
+    /* java 6 only */
     public Window getCurrentFocusedWindow() {
         return window;
     }
