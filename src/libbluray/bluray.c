@@ -2870,6 +2870,8 @@ int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
         _bdj_event(bd, BDJ_EVENT_VK_KEY, key);
         result = 0;
     }
+
+    bd_mutex_unlock(&bd->mutex);
     return result;
 }
 
