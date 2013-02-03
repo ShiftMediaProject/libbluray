@@ -33,4 +33,13 @@ BD_PRIVATE void   *dl_dlopen  ( const char* path, const char *version );
 BD_PRIVATE void   *dl_dlsym   ( void* handle, const char* symbol );
 BD_PRIVATE int     dl_dlclose ( void* handle );
 
+/*
+ * Installation path of currently running libbluray.so
+ * returns NULL if unknown.
+ *
+ * This function is used to help finding libbluray.jar if location
+ * is not given in LIBBLURAY_CP environment variable.
+ */
+BD_PRIVATE const char *dl_get_path(void);
+
 #endif /* DL_H_ */

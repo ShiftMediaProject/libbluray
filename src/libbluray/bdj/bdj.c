@@ -98,6 +98,19 @@ static const char *_find_libbluray_jar(void)
 
     BD_DEBUG(DBG_BDJ, "LIBBLURAY_CP not set, searching for "BDJ_JARFILE" ...\n");
 
+    // check directory where libbluray.so was loaded from
+    const char *lib_path = dl_get_path();
+    if (lib_path) {
+        char *cp = str_printf("%s" BDJ_JARFILE, lib_path);
+        BD_DEBUG(DBG_BDJ, "Checking %s ...\n", cp);
+        if (!stat(cp, &sb)) {
+            classpath = cp;
+            BD_DEBUG(DBG_BDJ, "using %s\n", cp);
+            return cp;
+        }
+        X_FREE(cp);
+    }
+
     // check pre-defined directories
     for (i = 0; i < sizeof(jar_paths) / sizeof(jar_paths[0]); i++) {
         BD_DEBUG(DBG_BDJ, "Checking %s ...\n", jar_paths[i]);

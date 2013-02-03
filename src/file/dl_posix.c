@@ -35,6 +35,8 @@
 #   include <sys/dl.h>
 #endif
 
+#include <string.h>
+
 #if defined(_WIN32)
 static const char *dlerror(char *buf, int buf_size)
 {
@@ -159,4 +161,44 @@ int     dl_dlclose ( void* handle )
 #else
     return dlclose(handle);
 #endif
+}
+
+
+#ifdef WIN32
+    #define PATH_SEPARATOR '\\'
+#else
+    #define PATH_SEPARATOR '/'
+#endif
+
+const char *dl_get_path(void)
+{
+    static char *lib_path    = NULL;
+    static int   initialized = 0;
+
+    if (!initialized) {
+        initialized = 1;
+
+#ifdef WIN32
+        static char path[MAX_PATH];
+        HMODULE hModule;
+        wchar_t wpath[MAX_PATH];
+
+        GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCTSTR)&dl_get_path, &hModule);
+        GetModuleFileNameW(hModule, wpath, MAX_PATH);
+        WideCharToMultiByte(CP_UTF8, 0, wpath, -1, path, MAX_PATH, NULL, NULL);
+        lib_path = path;
+#endif
+        if (lib_path) {
+            /* cut library name from path */
+            char *p = strrchr(lib_path, PATH_SEPARATOR);
+            if (p) {
+                *(p+1) = 0;
+            }
+            BD_DEBUG(DBG_FILE, "library file is %s\n", lib_path);
+        } else {
+            BD_DEBUG(DBG_FILE, "Can't determine libbluray.so install path\n");
+        }
+    }
+
+    return lib_path;
 }
