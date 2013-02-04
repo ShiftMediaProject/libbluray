@@ -26,6 +26,7 @@
 #include "libbluray/bluray.h"
 #include "libbluray/bluray_internal.h"
 
+#include "util/mutex.h"
 #include "util/strutl.h"
 #include "util/macro.h"
 #include "util/logging.h"
@@ -325,7 +326,10 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readGPRN(JNIEnv * env,
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writePSRN(JNIEnv * env,
         jclass cls, jlong np, jint num, jint value) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
-    return bd_psr_write(bdj->reg, num, value);
+    bd_mutex_lock((BD_MUTEX*)bdj->bd);
+    int res = bd_psr_write(bdj->reg, num, value);
+    bd_mutex_unlock((BD_MUTEX*)bdj->bd);
+    return res;
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN(JNIEnv * env,
