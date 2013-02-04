@@ -690,6 +690,19 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
                 return false;
             }
         }
+
+        if(sx + sw > bdImage.width) {
+            int n = sx + sw - bdImage.width;
+            dw -= dw * n / sw;
+            sw -= n;
+        }
+
+        if(sy + sh > bdImage.height) {
+            int n = sy + sh - bdImage.height;
+            dh -= dh * n / sh;
+            sh -= n;
+        }
+
         if ((sw > 0) && (sh > 0) &&
             ((sx != 0) || (sy != 0) || (sw != bdImage.width) || (sh != bdImage.height))) {
             BDImage subImage = new BDImage(null, sw, sh, null);
