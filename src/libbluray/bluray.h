@@ -589,6 +589,9 @@ typedef enum {
      * status
      */
 
+    /* Nothing to do. Playlist is not playing, but title applet is running. */
+    BD_EVENT_IDLE                   = 29,
+
     /* Pop-Up menu available */
     BD_EVENT_POPUP                  = 25,  /* 0 - no, 1 - yes */
 
@@ -598,7 +601,7 @@ typedef enum {
     /* 3D */
     BD_EVENT_STEREOSCOPIC_STATUS    = 27,  /* 0 - 2D, 1 - 3D */
 
-    /*BD_EVENT_LAST = 28, */
+    /*BD_EVENT_LAST = 29, */
 
 } bd_event_e;
 

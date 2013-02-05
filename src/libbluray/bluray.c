@@ -2786,6 +2786,12 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
         return 0;
     }
 
+    if (!bd->title && bd->title_type == title_bdj) {
+        /* BD-J title running but no playlist playing */
+        _queue_event(bd, BD_EVENT_IDLE, 0);
+        return 0;
+    }
+
     int bytes = bd_read(bd, buf, len);
 
     if (bytes == 0) {
