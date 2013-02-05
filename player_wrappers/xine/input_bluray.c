@@ -640,6 +640,10 @@ static void handle_libbluray_event(bluray_input_plugin_t *this, BD_EVENT ev)
         }
         break;
 
+      case BD_EVENT_IDLE:
+        xine_usec_sleep(10000);
+        break;
+
       /* playback position */
 
       case BD_EVENT_ANGLE:
@@ -1002,10 +1006,6 @@ static off_t bluray_plugin_read (input_plugin_t *this_gen, void *buf, off_t len)
       if (result == 0) {
         handle_events(this);
         CHECK_READ_INTERRUPT;
-      }
-      if (result == -1) {
-        xine_usec_sleep(10000);
-        result = 0;
       }
     } while (!this->error && result == 0);
 
