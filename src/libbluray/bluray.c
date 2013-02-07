@@ -103,7 +103,7 @@ typedef struct {
 
 typedef struct {
     NAV_CLIP *clip;
-    uint64_t  clip_size;
+    size_t    clip_size;
     uint8_t  *buf;
 } BD_PRELOAD;
 
@@ -591,6 +591,8 @@ static void _close_preload(BD_PRELOAD *p)
     memset(p, 0, sizeof(*p));
 }
 
+#define PRELOAD_SIZE_LIMIT  (512*1024*1024)  /* do not preload clips larger than 512M */
+
 static int _preload_m2ts(BLURAY *bd, BD_PRELOAD *p)
 {
     /* setup and open BD_STREAM */
@@ -600,12 +602,17 @@ static int _preload_m2ts(BLURAY *bd, BD_PRELOAD *p)
     memset(&st, 0, sizeof(st));
     st.clip = p->clip;
 
+    if (st.clip_size > PRELOAD_SIZE_LIMIT) {
+        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_preload_m2ts(): too large clip (%"PRId64")\n", st.clip_size);
+        return 0;
+    }
+
     if (!_open_m2ts(bd, &st)) {
         return 0;
     }
 
     /* allocate buffer */
-    p->clip_size = st.clip_size;
+    p->clip_size = (size_t)st.clip_size;
     p->buf       = realloc(p->buf, p->clip_size);
 
     /* read clip to buffer */
