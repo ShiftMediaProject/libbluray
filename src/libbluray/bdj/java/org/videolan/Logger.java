@@ -70,13 +70,19 @@ public class Logger {
         unimplemented(null);
     }
 
+    public static void dumpStack() {
+        java.lang.StackTraceElement e[] = java.lang.Thread.currentThread().getStackTrace();
+        for (int i = 2; i < e.length; i++)
+            log("    " + e[i].toString());
+    }
+
     public void unimplemented(String func) {
         String location = name;
         if (func != null) {
             location = location + "." + func + "()";
             log("BD-J: Not implemented: " + location);
         }
-        Thread.dumpStack();
+        dumpStack();
 
         if (use_throw) {
             throw new Error("Not implemented: " + location);
@@ -87,7 +93,7 @@ public class Logger {
         String location = cls + "." + func + "()";
         log("BD-J: Not implemented: " + location);
 
-        Thread.dumpStack();
+        dumpStack();
 
         if (use_throw) {
             throw new Error("Not implemented: " + location);
