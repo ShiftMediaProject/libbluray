@@ -2274,7 +2274,7 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
             int result;
             bd_mutex_lock(&bd->mutex);
             result = !bd_psr_setting_write(bd->regs, idx, value);
-            bd_mutex_lock(&bd->mutex);
+            bd_mutex_unlock(&bd->mutex);
             return result;
         }
     }
