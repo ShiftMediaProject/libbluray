@@ -1625,7 +1625,7 @@ static int64_t _clip_seek_time(BLURAY *bd, uint32_t tick)
     return bd->s_pos;
 }
 
-int bd_read(BLURAY *bd, unsigned char *buf, int len)
+static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
 {
     BD_STREAM *st = &bd->st0;
     int out_len;
@@ -1764,6 +1764,17 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
     BD_DEBUG(DBG_STREAM | DBG_CRIT, "bd_read(): no valid title selected! (%p)\n", bd);
 
     return -1;
+}
+
+int bd_read(BLURAY *bd, unsigned char *buf, int len)
+{
+    int result;
+
+    bd_mutex_lock(&bd->mutex);
+    result = _bd_read(bd, buf, len);
+    bd_mutex_unlock(&bd->mutex);
+
+    return result;
 }
 
 int bd_read_skip_still(BLURAY *bd)
@@ -1960,6 +1971,7 @@ int bd_select_playlist(BLURAY *bd, uint32_t playlist)
 int bd_select_title(BLURAY *bd, uint32_t title_idx)
 {
     const char *f_name;
+    int result;
 
     // Open the playlist
     if (bd->title_list == NULL) {
@@ -1971,10 +1983,16 @@ int bd_select_title(BLURAY *bd, uint32_t title_idx)
         return 0;
     }
 
+    bd_mutex_lock(&bd->mutex);
+
     bd->title_idx = title_idx;
     f_name = bd->title_list->title_info[title_idx].name;
 
-    return _open_playlist(bd, f_name, 0);
+    result = _open_playlist(bd, f_name, 0);
+
+    bd_mutex_unlock(&bd->mutex);
+
+    return result;
 }
 
 uint32_t bd_get_current_title(BLURAY *bd)
@@ -1982,7 +2000,7 @@ uint32_t bd_get_current_title(BLURAY *bd)
     return bd->title_idx;
 }
 
-int bd_select_angle(BLURAY *bd, unsigned angle)
+static int _bd_select_angle(BLURAY *bd, unsigned angle)
 {
     unsigned orig_angle;
 
@@ -2009,12 +2027,26 @@ int bd_select_angle(BLURAY *bd, unsigned angle)
     return 1;
 }
 
+int bd_select_angle(BLURAY *bd, unsigned angle)
+{
+    int result;
+    bd_mutex_lock(&bd->mutex);
+    result = _bd_select_angle(bd, angle);
+    bd_mutex_unlock(&bd->mutex);
+    return result;
+}
+
 unsigned bd_get_current_angle(BLURAY *bd)
 {
+    int angle = 0;
+
+    bd_mutex_lock(&bd->mutex);
     if (bd->title) {
-        return bd->title->angle;
+        angle = bd->title->angle;
     }
-    return 0;
+    bd_mutex_unlock(&bd->mutex);
+
+    return angle;
 }
 
 
@@ -2239,7 +2271,11 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
 
     for (i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
         if (idx == map[i].idx) {
-            return !bd_psr_setting_write(bd->regs, idx, value);
+            int result;
+            bd_mutex_lock(&bd->mutex);
+            result = !bd_psr_setting_write(bd->regs, idx, value);
+            bd_mutex_lock(&bd->mutex);
+            return result;
         }
     }
 
@@ -2302,7 +2338,9 @@ int bd_start_bdj(BLURAY *bd, const char *start_object)
 
 void bd_stop_bdj(BLURAY *bd)
 {
+    bd_mutex_lock(&bd->mutex);
     _close_bdj(bd);
+    bd_mutex_unlock(&bd->mutex);
 }
 
 /*
@@ -2592,6 +2630,10 @@ static int _play_title(BLURAY *bd, unsigned title)
 
 int bd_play(BLURAY *bd)
 {
+    int result;
+
+    bd_mutex_lock(&bd->mutex);
+
     /* reset player state */
 
     bd->title_type = title_undef;
@@ -2607,7 +2649,13 @@ int bd_play(BLURAY *bd)
     _queue_initial_psr_events(bd);
     bd_psr_unlock(bd->regs);
 
-    return _play_title(bd, BLURAY_TITLE_FIRST_PLAY);
+    /* start playback from FIRST PLAY title */
+
+    result = _play_title(bd, BLURAY_TITLE_FIRST_PLAY);
+
+    bd_mutex_unlock(&bd->mutex);
+
+    return result;
 }
 
 static int _try_play_title(BLURAY *bd, unsigned title)
@@ -2799,7 +2847,7 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
         return 0;
     }
 
-    int bytes = bd_read(bd, buf, len);
+    int bytes = _bd_read(bd, buf, len);
 
     if (bytes == 0) {
 
@@ -2845,11 +2893,18 @@ int bd_get_event(BLURAY *bd, BD_EVENT *event)
  * user interaction
  */
 
-void bd_set_scr(BLURAY *bd, int64_t pts)
+static void _set_scr(BLURAY *bd, int64_t pts)
 {
     if (pts >= 0) {
         bd_psr_write(bd->regs, PSR_TIME, (uint32_t)(((uint64_t)pts) >> 1));
     }
+}
+
+void bd_set_scr(BLURAY *bd, int64_t pts)
+{
+    bd_mutex_lock(&bd->mutex);
+    _set_scr(bd, pts);
+    bd_mutex_unlock(&bd->mutex);
 }
 
 int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
@@ -2858,7 +2913,7 @@ int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
 
     bd_mutex_lock(&bd->mutex);
 
-    bd_set_scr(bd, pts);
+    _set_scr(bd, pts);
 
     if (bd->title_type == title_hdmv) {
         result = _run_gc(bd, GC_CTRL_MOUSE_MOVE, (x << 16) | y);
@@ -2875,7 +2930,7 @@ int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
 
     bd_mutex_lock(&bd->mutex);
 
-    bd_set_scr(bd, pts);
+    _set_scr(bd, pts);
 
     if (bd->title_type == title_hdmv) {
         result = _run_gc(bd, GC_CTRL_VK_KEY, key);
@@ -2885,6 +2940,7 @@ int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
     }
 
     bd_mutex_unlock(&bd->mutex);
+
     return result;
 }
 
