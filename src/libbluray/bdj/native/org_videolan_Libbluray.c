@@ -42,6 +42,12 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
+#ifdef __cplusplus
+#define CPP_EXTERN extern
+#else
+#define CPP_EXTERN
+#endif
+
 static jobject _make_title_info(JNIEnv* env, int title, int objType, int playbackType, const char* bdjoName, int hdmvOID)
 {
     jstring name = bdjoName ? (*env)->NewStringUTF(env, bdjoName) : NULL;
@@ -444,7 +450,7 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
 #pragma GCC diagnostic ignored "-Wcast-qual"
 #endif
 
-BD_PRIVATE const JNINativeMethod
+BD_PRIVATE CPP_EXTERN const JNINativeMethod
 Java_org_videolan_Libbluray_methods[] =
 { /* AUTOMATICALLY GENERATED */
     {
@@ -589,7 +595,7 @@ Java_org_videolan_Libbluray_methods[] =
     },
 };
 
-BD_PRIVATE extern const int
+BD_PRIVATE CPP_EXTERN const int
 Java_org_videolan_Libbluray_methods_count =
     sizeof(Java_org_videolan_Libbluray_methods)/sizeof(Java_org_videolan_Libbluray_methods[0]);
 

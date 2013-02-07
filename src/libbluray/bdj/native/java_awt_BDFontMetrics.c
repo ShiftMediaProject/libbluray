@@ -37,6 +37,12 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
+#ifdef __cplusplus
+#define CPP_EXTERN extern
+#else
+#define CPP_EXTERN
+#endif
+
 JNIEXPORT jlong JNICALL
 Java_java_awt_BDFontMetrics_initN(JNIEnv * env, jclass cls)
 {
@@ -184,7 +190,7 @@ Java_java_awt_BDFontMetrics_charsWidthN(JNIEnv * env, jobject obj, jlong ftFace,
 #define CC (char*)  /*cast a literal from (const char*)*/
 #pragma GCC diagnostic ignored "-Wcast-qual"
 
-BD_PRIVATE const JNINativeMethod
+BD_PRIVATE CPP_EXTERN const JNINativeMethod
 Java_java_awt_BDFontMetrics_methods[] =
 { /* AUTOMATICALLY GENERATED */
     {
@@ -224,6 +230,6 @@ Java_java_awt_BDFontMetrics_methods[] =
     },
 };
 
-BD_PRIVATE extern const int
+BD_PRIVATE CPP_EXTERN const int
 Java_java_awt_BDFontMetrics_methods_count =
     sizeof(Java_java_awt_BDFontMetrics_methods)/sizeof(Java_java_awt_BDFontMetrics_methods[0]);

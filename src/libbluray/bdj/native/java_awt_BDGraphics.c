@@ -39,6 +39,12 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
+#ifdef __cplusplus
+#define CPP_EXTERN extern
+#else
+#define CPP_EXTERN
+#endif
+
 JNIEXPORT void JNICALL
 Java_java_awt_BDGraphics_drawStringN(JNIEnv * env, jobject obj, jlong ftFace, jstring string, jint x, jint y, jint rgb)
 {
@@ -88,7 +94,7 @@ Java_java_awt_BDGraphics_drawStringN(JNIEnv * env, jobject obj, jlong ftFace, js
 #define CC (char*)  /*cast a literal from (const char*)*/
 #pragma GCC diagnostic ignored "-Wcast-qual"
 
-BD_PRIVATE const JNINativeMethod
+BD_PRIVATE CPP_EXTERN const JNINativeMethod
 Java_java_awt_BDGraphics_methods[] =
 { /* AUTOMATICALLY GENERATED */
     {
@@ -98,6 +104,6 @@ Java_java_awt_BDGraphics_methods[] =
     },
 };
 
-BD_PRIVATE extern const int
+BD_PRIVATE CPP_EXTERN const int
 Java_java_awt_BDGraphics_methods_count =
      sizeof(Java_java_awt_BDGraphics_methods)/sizeof(Java_java_awt_BDGraphics_methods[0]);
