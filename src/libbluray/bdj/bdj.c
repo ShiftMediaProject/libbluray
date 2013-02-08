@@ -338,7 +338,7 @@ int bdj_start(BDJAVA *bdjava, unsigned title)
 int bdj_stop(BDJAVA *bdjava)
 {
     JNIEnv *env;
-    int attach;
+    int attach = 0;
     jboolean status = JNI_FALSE;
     jclass loader_class;
     jmethodID unload_id;
@@ -376,7 +376,7 @@ int bdj_stop(BDJAVA *bdjava)
 void bdj_close(BDJAVA *bdjava)
 {
     JNIEnv *env;
-    int attach;
+    int attach = 0;
     jclass shutdown_class;
     jmethodID shutdown_id;
 
