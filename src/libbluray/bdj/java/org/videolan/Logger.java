@@ -71,7 +71,7 @@ public class Logger {
     }
 
     public static void dumpStack() {
-        java.lang.StackTraceElement e[] = java.lang.Thread.currentThread().getStackTrace();
+        StackTraceElement e[] = new Exception("Stack trace").getStackTrace();
         for (int i = 2; i < e.length; i++)
             log("    " + e[i].toString());
     }
