@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2013  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,23 +21,25 @@
 package org.havi.ui;
 
 public class HFlatMatte implements HMatte {
+    private float data;
+
     public HFlatMatte()
     {
-        org.videolan.Logger.unimplemented(HFlatMatte.class.getName(), "");
+        this.data = 1.0F;
     }
 
     public HFlatMatte(float data)
     {
-        org.videolan.Logger.unimplemented(HFlatMatte.class.getName(), "");
+        this.data = data;
     }
 
     public void setMatteData(float data)
     {
-        throw new Error("Not implemented");
+        this.data = data;
     }
 
     public float getMatteData()
     {
-        throw new Error("Not implemented");
+        return data;
     }
 }

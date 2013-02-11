@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2013  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,39 +28,48 @@ import org.videolan.Logger;
 public class HStaticText extends HVisible implements HNoInputPreferred {
     public HStaticText()
     {
-        logger.unimplemented();
+        this(null, 0, 0, 0, 0);
     }
 
     public HStaticText(String textNormal, int x, int y, int width, int height)
     {
-        logger.info("HStaticText " + textNormal);
-        logger.unimplemented();
+        super(getDefaultLook(), x, y, width, height);
+        setTextContent(textNormal, ALL_STATES);
+        logger.info("HStaticText " + textNormal + " at " + x + "," + y + " " + width + "x" + height);
     }
 
     public HStaticText(String textNormal, int x, int y, int width, int height,
             Font font, Color foreground, Color background,
             HTextLayoutManager tlm)
     {
-        logger.info("HStaticText " + textNormal);
-        logger.unimplemented();
+        this(textNormal, x, y, width, height);
+        setFont(font);
+        setForeground(foreground);
+        setBackground(background);
+        setTextLayoutManager(tlm);
     }
 
     public HStaticText(String textNormal)
     {
-        logger.info("HStaticText " + textNormal);
-        logger.unimplemented();
+        this(textNormal, 0, 0, 0, 0);
+        setTextContent(textNormal, NORMAL_STATE);
     }
 
     public HStaticText(String textNormal, Font font, Color foreground,
             Color background, HTextLayoutManager tlm)
     {
-        logger.info("HStaticText " + textNormal);
-        logger.unimplemented();
+        this(textNormal, 0, 0, 0, 0);
+        setFont(font);
+        setForeground(foreground);
+        setBackground(background);
+        setTextLayoutManager(tlm);
     }
 
     public void setLook(HLook hlook) throws HInvalidLookException
     {
-        logger.unimplemented("setLook");
+        if ((hlook != null) && !(hlook instanceof HTextLook))
+            throw new HInvalidLookException();
+        super.setLook(hlook);
     }
 
     public static void setDefaultLook(HTextLook hlook)
@@ -70,7 +80,7 @@ public class HStaticText extends HVisible implements HNoInputPreferred {
     public static HTextLook getDefaultLook()
     {
         if (DefaultLook == null)
-            org.videolan.Logger.unimplemented("", "getDefaultLook");
+            DefaultLook = new HTextLook();
         return DefaultLook;
     }
 

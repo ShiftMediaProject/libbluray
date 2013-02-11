@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2013  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,48 +28,56 @@ public abstract class HComponent extends Component implements HMatteLayer,
         TestOpacity {
     public HComponent()
     {
-        throw new Error("Not implemented");
+        this(0, 0, 0, 0);
     }
 
     public HComponent(int x, int y, int width, int height)
     {
-        throw new Error("Not implemented");
+        setBounds(x, y, width, height);
     }
 
     public void setMatte(HMatte m) throws HMatteException
     {
-        throw new Error("Not implemented");
+        matte = m;
     }
 
     public HMatte getMatte()
     {
-        throw new Error("Not implemented");
+        return matte;
     }
 
     public boolean isDoubleBuffered()
     {
-        throw new Error("Not implemented");
+        return false;
     }
 
     public boolean isOpaque()
     {
-        throw new Error("Not implemented");
+        return false;
     }
 
     public void setEnabled(boolean b)
     {
-        throw new Error("Not implemented");
+        if (b != super.isEnabled()) {
+            super.setEnabled(b);
+            super.setFocusable(b);
+            super.setVisible(b);
+        }
     }
 
     public boolean isEnabled()
     {
-        throw new Error("Not implemented");
+        return super.isEnabled();
     }
 
     protected void processEvent(AWTEvent event)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HComponent.class.getName(), "processEvent");
+
+        super.processEvent(event);
     }
+
+    private HMatte matte = null;
 
     private static final long serialVersionUID = -4115249517434074428L;
 }

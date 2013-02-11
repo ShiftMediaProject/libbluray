@@ -60,11 +60,13 @@ public class HToggleButton extends HGraphicButton implements HSwitchable {
             boolean state, HToggleGroup group)
     {
         org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
+        toggleGroup = group;
     }
 
     public HToggleButton(Image image, boolean state, HToggleGroup group)
     {
         org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
+        toggleGroup = group;
     }
 
     public HToggleButton(Image imageNormal, Image imageFocused,
@@ -72,6 +74,7 @@ public class HToggleButton extends HGraphicButton implements HSwitchable {
             int width, int height, boolean state, HToggleGroup group)
     {
         org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
+        toggleGroup = group;
     }
 
     public HToggleButton(Image imageNormal, Image imageFocused,
@@ -79,21 +82,23 @@ public class HToggleButton extends HGraphicButton implements HSwitchable {
             HToggleGroup group)
     {
         org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
+        toggleGroup = group;
     }
 
     public void setToggleGroup(HToggleGroup group)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "setToggleGroup");
+        toggleGroup = group;
     }
 
     public HToggleGroup getToggleGroup()
     {
-        throw new Error("Not implemented");
+        return toggleGroup;
     }
 
     public void removeToggleGroup()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "removeToggleGroup");
     }
 
     public static void setDefaultLook(HGraphicLook hlook)
@@ -110,25 +115,29 @@ public class HToggleButton extends HGraphicButton implements HSwitchable {
 
     public boolean getSwitchableState()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "getSwitchableState");
+        return true;
     }
 
     public void setSwitchableState(boolean state)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "setSwitchableState");
     }
 
     public void setUnsetActionSound(HSound sound)
     {
-        throw new Error("Not implemented");
+        unsetActionSound = sound;
     }
 
     public HSound getUnsetActionSound()
     {
-        throw new Error("Not implemented");
+        return unsetActionSound;
     }
 
     private static HGraphicLook DefaultLook = null;
+
+    private HToggleGroup toggleGroup = null;
+    private HSound unsetActionSound = null;
 
     private static final long serialVersionUID = 2602166176018744707L;
 }

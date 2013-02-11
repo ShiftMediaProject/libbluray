@@ -30,7 +30,8 @@ public class HSceneFactory extends Object {
     }
 
     public HSceneTemplate getBestSceneTemplate(HSceneTemplate template) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented("HSceneFactory", "getBestSceneTemplate");
+        return null;
     }
 
     public HScene getBestScene(HSceneTemplate template) {
@@ -41,7 +42,8 @@ public class HSceneFactory extends Object {
     public HSceneTemplate resizeScene(HScene scene, HSceneTemplate template)
             throws IllegalStateException
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented("HSceneFactory", "resizeScene");
+        return template;
     }
 
     public HScene getDefaultHScene(HScreen screen)

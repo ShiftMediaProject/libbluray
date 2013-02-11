@@ -30,19 +30,21 @@ public class HVideoComponent extends HComponent {
     public HVideoDevice getVideoDevice()
     {
         org.videolan.Logger.unimplemented(HVideoComponent.class.getName(), "getVideoDevice");
-        throw new Error("Not implemented");
+        return new HVideoDevice();
     }
 
     public void addOnScreenLocationModifiedListener(
             HScreenLocationModifiedListener slml)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HVideoComponent.class.getName(),
+                                          "addOnScreenLocationModifiedListener");
     }
 
     public void removeOnScreenLocationModifiedListener(
             HScreenLocationModifiedListener slml)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HVideoComponent.class.getName(),
+                                          "removeOnScreenLocationModifiedListener");
     }
 
     private static final long serialVersionUID = -2729982569604493491L;

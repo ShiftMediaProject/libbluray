@@ -20,6 +20,8 @@
 package org.havi.ui;
 
 public class HToggleGroup {
+    private HToggleButton current = null;
+
     public HToggleGroup()
     {
         org.videolan.Logger.unimplemented(HToggleGroup.class.getName(), "");
@@ -27,41 +29,45 @@ public class HToggleGroup {
 
     public HToggleButton getCurrent()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleGroup.class.getName(), "getCurrent");
+        return current;
     }
 
     public void setCurrent(HToggleButton selection)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleGroup.class.getName(), "setCurrent");
+        current = selection;
     }
 
     public void setForcedSelection(boolean forceSelection)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleGroup.class.getName(), "setForcedSelection");
     }
 
     public boolean getForcedSelection()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleGroup.class.getName(), "getForcedSelection");
+        return false;
     }
 
     public void setEnabled(boolean enable)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleGroup.class.getName(), "setEnabled");
     }
 
     public boolean isEnabled()
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleGroup.class.getName(), "isEnabled");
+        return false;
     }
 
     protected void add(HToggleButton button)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleGroup.class.getName(), "add");
     }
 
     protected void remove(HToggleButton button)
     {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HToggleGroup.class.getName(), "remove");
     }
 }
