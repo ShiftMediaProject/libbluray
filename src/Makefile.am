@@ -1,5 +1,3 @@
-SUBDIRS= . examples
-
 SET_FEATURES = -D_ISOC99_SOURCE -D_POSIX_C_SOURCE=200112L -D_REENTRANT
 SET_INCLUDES = -I$(top_srcdir) -Ifile -Ilibbluray/bdnav
 
