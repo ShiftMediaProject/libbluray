@@ -47,8 +47,6 @@ esac
 dnl messages
 library_not_found="Could not find required library!"
 function_not_found="Could not find required function!"
-libxml2_missing="Could not find libxml2 - disclib meta parser disabled."
-pkg_config_missing="Could not find pkg-config.  Assuming..."
 
 dnl configure options
 AC_ARG_VAR([JDK_HOME], [Path to the JDK @<:@default=/usr/lib/jvm/java-6-openjdk@:>@])
@@ -75,17 +73,11 @@ AC_ARG_ENABLE([bdjava],
   [use_bdjava=$enableval],
   [use_bdjava=no])
 
-AC_ARG_ENABLE([libxml2],
-  [AS_HELP_STRING([--enable-libxml2],
-  [enable libxml2 support (default is yes)])],
-  [use_libxml2=$enableval],
-  [use_libxml2=yes])
+AC_ARG_WITH([libxml2],
+  [AS_HELP_STRING([--without-libxml2], [build without libxml2 support @<:@default=with@:>@])])
 
-AC_ARG_ENABLE([freetype],
-  [AS_HELP_STRING([--enable-freetype],
-  [enable FreeType support for BD-J (default is yes)])],
-  [use_freetype=$enableval],
-  [use_freetype=yes])
+AC_ARG_WITH([freetype],
+  [AS_HELP_STRING([--without-freetype], [build without freetype support @<:@default=with@:>@])])
 
 AC_ARG_WITH([bdj-type],
   [AS_HELP_STRING([--with-bdj-type=TYPE],
@@ -130,32 +122,18 @@ AS_IF([test "${SYS}" != "mingw32"], [
   AC_SEARCH_LIBS([dlopen], [dl])
 ])
 
-dnl check for pkg-config itself so we don't try the m4 macro without pkg-config
-AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
-
 dnl libxml2 for metadata parser
-if test "x$use_libxml2" = "xyes"; then
-  if test "x$HAVE_PKG_CONFIG" = "xyes"; then
-    PKG_CHECK_MODULES([LIBXML2], libxml-2.0 >= 2.6, 
-        [AC_DEFINE([HAVE_LIBXML2], [1], 
-            [Define to 1 if libxml2 is to be used for metadata parsing])],
-        [AC_MSG_NOTICE($libxml2_missing)])
-  else
-    AC_MSG_NOTICE($pkg_config_missing $libxml2_missing)
-  fi
-fi
+AS_IF([test "x$with_libxml2" != "xno"], [
+  PKG_CHECK_MODULES([LIBXML2], [libxml-2.0 >= 2.6],
+    [AC_DEFINE([HAVE_LIBXML2], [1],
+        [Define to 1 if libxml2 is to be used for metadata parsing])])
+])
 
 dnl FreeType2
-if test x"$use_bdjava" != x"no"; then
-  if test x"$use_freetype" != x"no"; then
-    PKG_CHECK_MODULES([FT2], [freetype2], [use_freetype=yes], [use_freetype=no])
-    if test x"$use_freetype" = x"no"; then
-        AC_MSG_ERROR([FreeType2 support requested but FreeType2 library not found])
-    elif test x"$use_freetype" = x"yes"; then
-        AC_DEFINE([HAVE_FT2], 1, [Define this if you have FreeType2 library])
-    fi
-  fi
-fi
+AS_IF([test x"$use_bdjava" != x"no" -a x"$use_freetype" != x"no"], [
+  PKG_CHECK_MODULES([FT2], [freetype2],
+    [AC_DEFINE([HAVE_FT2], 1, [Define this if you have FreeType2 library])])
+])
 
 CC_CHECK_CFLAGS_APPEND([-Wall -Wdisabled-optimization -Wpointer-arith ]dnl
 [-Wredundant-decls -Wcast-qual -Wwrite-strings -Wtype-limits -Wundef ]dnl
