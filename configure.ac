@@ -110,9 +110,6 @@ dnl required headers
 AC_CHECK_HEADERS([stdarg.h sys/types.h dirent.h errno.h libgen.h malloc.h])
 AC_CHECK_HEADERS([stdlib.h mntent.h linux/cdrom.h inttypes.h strings.h])
 AC_CHECK_HEADERS([sys/time.h time.h mntent.h])
-if test "${SYS}" != "mingw32" ; then
-    AC_CHECK_HEADERS(pthread.h,, [AC_MSG_ERROR([pthread.h required])])
-fi
 
 dnl required structures
 AC_STRUCT_DIRENT_D_TYPE
@@ -125,19 +122,13 @@ AC_CHECK_FUNC([snprintf],, [AC_MSG_ERROR($function_not_found)])
 
 dnl required libraries
 dnl pthreads (not on win32)
-if test "${SYS}" != "mingw32" ; then
-    AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"])
-fi
-
-dnl dlopen check
-if test "${SYS}" != "mingw32" ; then
-  AC_CHECK_FUNCS(
-    [dlopen],
-    [DLOPEN_LIBS=""],
-    [AC_CHECK_LIB([dl], [dlopen],
-      [DLOPEN_LIBS="-ldl"],
-      [AC_MSG_ERROR($library_not_found)])])
-fi
+AS_IF([test "${SYS}" != "mingw32"], [
+  AC_CHECK_HEADERS([pthread.h], ,
+    [AC_MSG_ERROR([pthread required])])
+  AC_SEARCH_LIBS([pthread_create], [pthread], ,
+    [AC_MSG_ERROR([pthread required])])
+  AC_SEARCH_LIBS([dlopen], [dl])
+])
 
 dnl check for pkg-config itself so we don't try the m4 macro without pkg-config
 AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
@@ -244,7 +235,6 @@ AC_SUBST(LT_VERSION_INFO)
 
 dnl generate output files
 AC_SUBST(BDJAVA_CFLAGS)
-AC_SUBST(DLOPEN_LIBS)
 AC_CONFIG_FILES([Makefile src/Makefile src/examples/Makefile src/libbluray.pc src/libbluray/bluray-version.h])
 AC_OUTPUT
 

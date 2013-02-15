@@ -96,7 +96,7 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	util/logging.h
 libbluray_la_HEADERS= libbluray/bluray.h file/filesystem.h util/log_control.h libbluray/keys.h libbluray/decoders/overlay.h libbluray/bdnav/meta_data.h libbluray/bdnav/clpi_data.h libbluray/bluray-version.h
 libbluray_la_LDFLAGS= -version-info $(LIB_VERSION_INFO)
-libbluray_la_LIBADD= $(LIBXML2_LIBS) $(DLOPEN_LIBS) $(FT2_LIBS)
+libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS)
 
 if USING_BDJAVA
 
