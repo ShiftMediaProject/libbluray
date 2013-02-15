@@ -23,7 +23,6 @@ SOURCES_bdj = libbluray/bdj/bdj.h \
 EXTRA_DIST = libbluray/bdj/build.xml libbluray/bdj/java
 
 lib_LTLIBRARIES=libbluray.la
-libbluray_ladir= $(includedir)/libbluray
 libbluray_la_SOURCES=libbluray/bluray.h \
 	libbluray/bluray.c \
 	libbluray/bluray_internal.h \
@@ -90,9 +89,18 @@ libbluray_la_SOURCES=libbluray/bluray.h \
 	util/bits.h \
 	util/bits.c \
 	util/logging.h
-libbluray_la_HEADERS= libbluray/bluray.h file/filesystem.h util/log_control.h libbluray/keys.h libbluray/decoders/overlay.h libbluray/bdnav/meta_data.h libbluray/bdnav/clpi_data.h libbluray/bluray-version.h
 libbluray_la_LDFLAGS= -version-info $(LT_VERSION_INFO)
 libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS)
+
+pkginclude_HEADERS = \
+	file/filesystem.h \
+	libbluray/bdnav/clpi_data.h \
+	libbluray/bdnav/meta_data.h \
+	libbluray/bluray-version.h \
+	libbluray/bluray.h \
+	libbluray/decoders/overlay.h \
+	libbluray/keys.h \
+	util/log_control.h
 
 if USING_BDJAVA
 
