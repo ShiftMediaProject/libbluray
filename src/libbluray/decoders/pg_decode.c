@@ -259,32 +259,10 @@ void pg_clean_object(BD_PG_OBJECT *p)
     }
 }
 
-void pg_clean_composition(BD_PG_COMPOSITION *p)
+static void pg_clean_composition(BD_PG_COMPOSITION *p)
 {
     if (p) {
         X_FREE(p->composition_object);
-    }
-}
-
-void pg_clean_windows(BD_PG_WINDOWS *p)
-{
-    if (p) {
-        X_FREE(p->window);
-    }
-}
-
-void pg_free_palette(BD_PG_PALETTE **p)
-{
-    if (p && *p) {
-        X_FREE(*p);
-    }
-}
-
-void pg_free_object(BD_PG_OBJECT **p)
-{
-    if (p && *p) {
-        pg_clean_object(*p);
-        X_FREE(*p);
     }
 }
 
@@ -292,14 +270,6 @@ void pg_free_composition(BD_PG_COMPOSITION **p)
 {
     if (p && *p) {
         pg_clean_composition(*p);
-        X_FREE(*p);
-    }
-}
-
-void pg_free_windows(BD_PG_WINDOWS **p)
-{
-    if (p && *p) {
-        pg_clean_windows(*p);
         X_FREE(*p);
     }
 }

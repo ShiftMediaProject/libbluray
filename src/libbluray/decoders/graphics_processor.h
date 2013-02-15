@@ -63,25 +63,6 @@ BD_PRIVATE void                graphics_processor_free(GRAPHICS_PROCESSOR **p);
 
 /**
  *
- *  Decode data from MPEG-PES input stream
- *
- *  Only segments where DTS <= STC are decoded.
- *  If STC < 0, all segments are immediately decoded to display set.
- *
- *  All decoded PES packets are removed from buffer.
- *
- * @param s  display set
- * @param buf  data to decode
- * @param stc  current playback time
- * @return 1 if display set was completed, 0 otherwise
- */
-BD_PRIVATE int
-graphics_processor_decode_pes(PG_DISPLAY_SET **s,
-                              struct pes_buffer_s **buf,
-                              int64_t stc);
-
-/**
- *
  *  Decode data from MPEG-TS input stream
  *
  *  Segments are queued and decoded when DTS <= STC.

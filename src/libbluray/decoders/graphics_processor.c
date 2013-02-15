@@ -357,7 +357,7 @@ static int _decode_segment(PG_DISPLAY_SET *s, PES_BUFFER *p)
  * mpeg-pes interface
  */
 
-int graphics_processor_decode_pes(PG_DISPLAY_SET **s, PES_BUFFER **p, int64_t stc)
+static int graphics_processor_decode_pes(PG_DISPLAY_SET **s, PES_BUFFER **p, int64_t stc)
 {
     if (!s) {
         return 0;

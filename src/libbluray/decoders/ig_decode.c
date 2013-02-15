@@ -285,11 +285,6 @@ int ig_decode_interactive(BITBUFFER *bb, BD_IG_INTERACTIVE *p)
     return _decode_interactive_composition(bb, &p->interactive_composition);
 }
 
-void ig_clean_interactive(BD_IG_INTERACTIVE *p)
-{
-    _clean_interactive_composition(&p->interactive_composition);
-}
-
 void ig_free_interactive(BD_IG_INTERACTIVE **p)
 {
     if (p && *p) {
