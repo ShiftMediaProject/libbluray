@@ -1,22 +1,22 @@
-# library version number
+dnl library version number
 m4_define([bluray_major], 0)
 m4_define([bluray_minor], 2)
 m4_define([bluray_micro], 3)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
-# shared library version (.so version)
-#
-# - If there are no interface changes, increase revision.
-# - If interfaces have been added, increase current and age. Set revision to 0.
-# - If interfaces have been changed or removed, increase current and set age and revision to 0.
-#
-# Library file name will be libbluray.so.(current-age).age.revision
-#
+dnl shared library version (.so version)
+dnl
+dnl - If there are no interface changes, increase revision.
+dnl - If interfaces have been added, increase current and age. Set revision to 0.
+dnl - If interfaces have been changed or removed, increase current and set age and revision to 0.
+dnl
+dnl Library file name will be libbluray.so.(current-age).age.revision
+dnl
 m4_define([lt_current],  3)
 m4_define([lt_revision], 0)
 m4_define([lt_age],      2)
 
-# initilization
+dnl initilization
 AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
@@ -44,13 +44,13 @@ case "${host_os}" in
     ;;
 esac
 
-# messages
+dnl messages
 library_not_found="Could not find required library!"
 function_not_found="Could not find required function!"
 libxml2_missing="Could not find libxml2 - disclib meta parser disabled."
 pkg_config_missing="Could not find pkg-config.  Assuming..."
 
-# configure options
+dnl configure options
 
 AC_ARG_WITH([jdk],
   AS_HELP_STRING([--with-jdk=DIR],
@@ -123,14 +123,14 @@ AC_ARG_WITH([bdj-bootclasspath],
   [BDJ_BOOTCLASSPATH=$withval],
   [BDJ_BOOTCLASSPATH=])
 
-# required programs
+dnl required programs
 AC_PROG_CC
 AC_PROG_LIBTOOL
 
-# required types
+dnl required types
 AC_TYPE_SIGNAL
 
-# required headers
+dnl required headers
 AC_CHECK_HEADERS([stdarg.h sys/types.h dirent.h errno.h libgen.h malloc.h])
 AC_CHECK_HEADERS([stdlib.h mntent.h linux/cdrom.h inttypes.h strings.h])
 AC_CHECK_HEADERS([sys/time.h time.h mntent.h])
@@ -138,22 +138,22 @@ if test "${SYS}" != "mingw32" ; then
     AC_CHECK_HEADERS(pthread.h,, [AC_MSG_ERROR([pthread.h required])])
 fi
 
-# required structures
+dnl required structures
 AC_STRUCT_DIRENT_D_TYPE
 
-# required system services
+dnl required system services
 AC_SYS_LARGEFILE
 
-# required functions
+dnl required functions
 AC_CHECK_FUNC([snprintf],, [AC_MSG_ERROR($function_not_found)])
 
-# required libraries
-# pthreads (not on win32)
+dnl required libraries
+dnl pthreads (not on win32)
 if test "${SYS}" != "mingw32" ; then
     AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"])
 fi
 
-# dlopen check
+dnl dlopen check
 if test "${SYS}" != "mingw32" ; then
   AC_CHECK_FUNCS(
     [dlopen],
@@ -163,10 +163,10 @@ if test "${SYS}" != "mingw32" ; then
       [AC_MSG_ERROR($library_not_found)])])
 fi
 
-# check for pkg-config itself so we don't try the m4 macro without pkg-config
+dnl check for pkg-config itself so we don't try the m4 macro without pkg-config
 AC_CHECK_PROG(HAVE_PKG_CONFIG, pkg-config, yes)
 
-# libxml2 for metadata parser
+dnl libxml2 for metadata parser
 if test "x$use_libxml2" = "xyes"; then
   if test "x$HAVE_PKG_CONFIG" = "xyes"; then
     PKG_CHECK_MODULES([LIBXML2], libxml-2.0 >= 2.6, 
@@ -190,7 +190,7 @@ if test x"$use_bdjava" != x"no"; then
   fi
 fi
 
-# function testing for supported compiler options
+dnl function testing for supported compiler options
 check_cc_options()
 {
   local tmpfile=$(mktemp XXXXXXXXXX)
@@ -210,7 +210,7 @@ check_cc_options()
   return $retval
 }
 
-# set default warnings if supported
+dnl set default warnings if supported
 check_cc_options -Wall && \
   SET_WARNINGS="$SET_WARNINGS -Wall"
 check_cc_options -Wdisabled-optimization && \
@@ -232,17 +232,17 @@ check_cc_options -Wmissing-prototypes && \
 check_cc_options -Wshadow && \
   SET_WARNINGS="$SET_WARNINGS -Wshadow"
 
-# no implicit function declarations
+dnl no implicit function declarations
 check_cc_options -Werror-implicit-function-declaration && \
   SET_WARNINGS="$SET_WARNINGS -Werror-implicit-function-declaration"
 
-# use -Werror
+dnl use -Werror
 if [[ $use_werror = "yes" ]]; then
   check_cc_options -Werror && \
     SET_WARNINGS="$SET_WARNINGS -Werror"
 fi
 
-# use extra warnings
+dnl use extra warnings
 if [[ $use_extra_warnings = "yes" ]]; then
   check_cc_options -Wextra && \
     SET_WARNINGS="$SET_WARNINGS -Wextra"
@@ -250,7 +250,7 @@ if [[ $use_extra_warnings = "yes" ]]; then
     SET_WARNINGS="$SET_WARNINGS -Winline"
 fi
 
-# use optimizations
+dnl use optimizations
 if [[ $use_optimizations = "yes" ]]; then
   check_cc_options -O3 && \
     SET_OPTIMIZATIONS="$SET_OPTIMIZATIONS -O3"
@@ -258,16 +258,16 @@ if [[ $use_optimizations = "yes" ]]; then
     SET_OPTIMIZATIONS="$SET_OPTIMIZATIONS -fomit-frame-pointer"
 fi
 
-# use debug
+dnl use debug
 if [[ $use_debug = "yes" ]]; then
   check_cc_options -g && \
     SET_DEBUG_OPTS="$SET_DEBUG_OPTS -g"
 fi
 
-# use examples
+dnl use examples
 AM_CONDITIONAL([USING_EXAMPLES], [ test $use_examples = "yes" ])
 
-# use bdjava
+dnl use bdjava
 if [[ $use_bdjava = "yes" ]]; then
   case $target_cpu in
        x86_64) java_arch=amd64 ;;
@@ -294,20 +294,20 @@ if [[ $use_bdjava = "yes" ]]; then
 fi
 AM_CONDITIONAL([USING_BDJAVA], [ test $use_bdjava = "yes" ])
 
-# BD-J type
+dnl BD-J type
 if test "$BDJ_TYPE" = "j2me"; then
   AC_DEFINE([HAVE_BDJ_J2ME], [1], [Define to 1 if using libbluray J2ME stack])
 else
   BDJ_TYPE=j2se
 fi
 AC_SUBST(BDJ_TYPE)
-# bootclasspath
+dnl bootclasspath
 AC_SUBST(BDJ_BOOTCLASSPATH)
 
-# generate documentation
+dnl generate documentation
 DX_INIT_DOXYGEN(libbluray, doc/doxygen-config, [doc/doxygen])
 
-# export library version number
+dnl export library version number
 BLURAY_VERSION_MAJOR=bluray_major()
 AC_SUBST(BLURAY_VERSION_MAJOR)
 BLURAY_VERSION_MINOR=bluray_minor()
@@ -315,11 +315,11 @@ AC_SUBST(BLURAY_VERSION_MINOR)
 BLURAY_VERSION_MICRO=bluray_micro()
 AC_SUBST(BLURAY_VERSION_MICRO)
 
-# export library (.so) version
+dnl export library (.so) version
 LT_VERSION_INFO="lt_current():lt_revision():lt_age()"
 AC_SUBST(LT_VERSION_INFO)
 
-# generate output files
+dnl generate output files
 AC_SUBST(BDJAVA_CFLAGS)
 AC_SUBST(DLOPEN_LIBS)
 AC_SUBST(SET_WARNINGS)
