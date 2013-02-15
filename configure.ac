@@ -51,17 +51,8 @@ libxml2_missing="Could not find libxml2 - disclib meta parser disabled."
 pkg_config_missing="Could not find pkg-config.  Assuming..."
 
 dnl configure options
-
-AC_ARG_WITH([jdk],
-  AS_HELP_STRING([--with-jdk=DIR],
-  [Specify the path to the JDK (default is "/usr/lib/jvm/java-6-openjdk")]),
-  [JDK_HOME=$withval],
-  [
-    # Set JDK_HOME unless already set in environment
-    if [[ -z "$JDK_HOME" ]]; then
-      JDK_HOME="/usr/lib/jvm/java-6-openjdk"
-    fi
-  ])
+AC_ARG_VAR([JDK_HOME], [Path to the JDK @<:@default=/usr/lib/jvm/java-6-openjdk@:>@])
+AS_IF([test -z "$JDK_HOME"], [JDK_HOME="/usr/lib/jvm/java-6-openjdk"])
 
 AC_ARG_ENABLE([werror],
   [AS_HELP_STRING([--enable-werror], [set warnings as errors via -Werror @<:@default=disabled@:>@])])
