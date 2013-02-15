@@ -20,7 +20,7 @@ dnl initilization
 AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CANONICAL_SYSTEM
+AC_CANONICAL_HOST
 AM_INIT_AUTOMAKE([foreign tar-ustar])
 AC_CONFIG_HEADERS(config.h)
 
@@ -269,16 +269,16 @@ AM_CONDITIONAL([USING_EXAMPLES], [ test $use_examples = "yes" ])
 
 dnl use bdjava
 if [[ $use_bdjava = "yes" ]]; then
-  case $target_cpu in
+  case $host_cpu in
        x86_64) java_arch=amd64 ;;
        i?86)   java_arch=i386 ;;
-       *)      java_arch=$target_cpu ;;
+       *)      java_arch=$host_cpu ;;
   esac
-  case $target_os in
+  case $host_os in
        linux*)   java_os=linux ;;
        win*)     java_os=win32 ;;
        freebsd*) java_os=freebsd ;;
-       *)        java_os=$target_os ;;
+       *)        java_os=$host_os ;;
   esac
 
   BDJAVA_CFLAGS="-I${JDK_HOME}/include -I${JDK_HOME}/include/$java_os"
