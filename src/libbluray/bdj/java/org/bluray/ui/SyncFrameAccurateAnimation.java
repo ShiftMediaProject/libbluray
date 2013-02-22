@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2012  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,13 +33,34 @@ public class SyncFrameAccurateAnimation extends FrameAccurateAnimation {
             int numFrames, AnimationParameters params)
             throws NullPointerException, IllegalArgumentException
     {
-        // TODO: validate params
+        if (size == null || params == null)
+            throw new NullPointerException();
+        if (numFrames < 1)
+            throw new IllegalArgumentException();
+
+        if ((params.scaleFactor != 1) && (params.scaleFactor != 2)) {
+            throw new IllegalArgumentException();
+        }
+
+        if (params.repeatCount != null) {
+            if (numFrames != params.repeatCount.length) {
+                throw new IllegalArgumentException();
+            }
+
+            for (int i = 0; i < params.repeatCount.length; i++) {
+                if (params.repeatCount[i] < 0) {
+                    throw new IllegalArgumentException();
+                }
+            }
+        }
+
         return new SyncFrameAccurateAnimation(size, numFrames, params);
     }
 
     private SyncFrameAccurateAnimation(Dimension size,
             int numFrames, AnimationParameters params)
     {
+        super(params);
         logger.unimplemented("SyncFrameAccurateAnimation");
     }
 
@@ -71,6 +93,7 @@ public class SyncFrameAccurateAnimation extends FrameAccurateAnimation {
     public void setBounds(int x, int y, int width, int height)
     {
         logger.unimplemented("setBounds");
+        super.setBounds(x, y, width, height);
     }
 
     public Graphics2D startDrawing(long frameNumber)

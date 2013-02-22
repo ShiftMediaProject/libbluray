@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2012  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -52,9 +53,14 @@ public abstract class FrameAccurateAnimation extends Component {
         logger.unimplemented("FrameAccurateAnimation");
     }
 
+    public FrameAccurateAnimation(AnimationParameters params)
+    {
+        this.params = new AnimationParameters(params);
+    }
+
     public synchronized void destroy()
     {
-        logger.unimplemented("destroy");
+        destroyImpl();
     }
 
     public long getCompletedFrameCount()
@@ -78,63 +84,95 @@ public abstract class FrameAccurateAnimation extends Component {
 
     public int[] getRepeatCounts()
     {
-        logger.unimplemented("getRepeatCounts");
         int[] repeatCount = null;
+        if (params != null && params.repeatCount != null) {
+            repeatCount = (int[])params.repeatCount.clone();
+        }
         return repeatCount;
     }
 
     public int getThreadPriority()
     {
-        logger.unimplemented("getThreadPriority");
-        return 5;
+        return params.threadPriority;
     }
 
     public synchronized boolean isAnimated()
     {
-        logger.unimplemented("isAnimated");
-        return false;
+        return running;
     }
 
     public void paint(Graphics g)
     {
+        // should be implemented in derived classes
         logger.unimplemented("paint");
     }
 
     public synchronized void resetStartStopTime(
             FrameAccurateAnimationTimer newTimer)
     {
+        params.faaTimer = new FrameAccurateAnimationTimer(newTimer);
         logger.unimplemented("resetStartStopTime");
     }
 
     public void setBounds(int x, int y, int width, int height)
     {
-        logger.unimplemented("setBounds");
+        super.setBounds(x, y, width, height);
     }
 
     public void setLocation(int x, int y)
     {
-        logger.unimplemented("setLocation");
+        super.setLocation(x, y);
     }
 
     public void setThreadPriority(int p)
     {
-        logger.unimplemented("setThreadPriority");
+        params.threadPriority = p;
+    }
+
+    protected void startImpl() {
+        // should be implemented in derived classes
+        logger.unimplemented("startImpl");
+    }
+
+    protected void stopImpl() {
+        // should be implemented in derived classes
+        logger.unimplemented("stopImpl");
+    }
+
+    protected void destroyImpl() {
+        // should be implemented in derived classes
+        logger.unimplemented("destroyImpl");
     }
 
     public synchronized void start()
     {
-        logger.unimplemented("start");
+        if (!running) {
+            running = true;
+            // TODO: compare timer against video
+
+            if (params.faaTimer != null) {
+                logger.unimplemented("start(faaTimer)");
+            }
+
+            startImpl();
+        }
     }
 
     public synchronized void stop()
     {
-        logger.unimplemented("stop");
+        if (running) {
+            running = false;
+            stopImpl();
+        }
     }
 
     public String toString()
     {
         return "FrameAccurateAnimation";
     }
+
+    protected boolean running;
+    protected AnimationParameters params;
 
     public static final float FRAME_RATE_23_976 = 23.976F;
     public static final float FRAME_RATE_24 = 24.0F;
