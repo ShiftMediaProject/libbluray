@@ -445,7 +445,8 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
     }
 }
 
-#define CC (char*)  /*cast a literal from (const char*)*/
+#define CC (char*)             /* cast a literal from (const char*) */
+#define VC (void*)(uintptr_t)  /* cast function pointer to void* */
 #if defined __GNUC__
 #pragma GCC diagnostic ignored "-Wcast-qual"
 #endif
@@ -456,142 +457,142 @@ Java_org_videolan_Libbluray_methods[] =
     {
         CC("getVolumeIDN"),
         CC("(J)[B"),
-        Java_org_videolan_Libbluray_getVolumeIDN,
+        VC(Java_org_videolan_Libbluray_getVolumeIDN),
     },
     {
         CC("getPMSNN"),
         CC("(J)[B"),
-        Java_org_videolan_Libbluray_getPMSNN,
+        VC(Java_org_videolan_Libbluray_getPMSNN),
     },
     {
         CC("getTitleInfoN"),
         CC("(JI)Lorg/videolan/TitleInfo;"),
-        Java_org_videolan_Libbluray_getTitleInfoN,
+        VC(Java_org_videolan_Libbluray_getTitleInfoN),
     },
     {
         CC("getPlaylistInfoN"),
         CC("(JI)Lorg/videolan/PlaylistInfo;"),
-        Java_org_videolan_Libbluray_getPlaylistInfoN,
+        VC(Java_org_videolan_Libbluray_getPlaylistInfoN),
     },
     {
         CC("getTitlesN"),
         CC("(J)I"),
-        Java_org_videolan_Libbluray_getTitlesN,
+        VC(Java_org_videolan_Libbluray_getTitlesN),
     },
     {
         CC("seekN"),
         CC("(JJ)J"),
-        Java_org_videolan_Libbluray_seekN,
+        VC(Java_org_videolan_Libbluray_seekN),
     },
     {
         CC("seekTimeN"),
         CC("(JJ)J"),
-        Java_org_videolan_Libbluray_seekTimeN,
+        VC(Java_org_videolan_Libbluray_seekTimeN),
     },
     {
         CC("seekChapterN"),
         CC("(JI)J"),
-        Java_org_videolan_Libbluray_seekChapterN,
+        VC(Java_org_videolan_Libbluray_seekChapterN),
     },
     {
         CC("chapterPosN"),
         CC("(JI)J"),
-        Java_org_videolan_Libbluray_chapterPosN,
+        VC(Java_org_videolan_Libbluray_chapterPosN),
     },
     {
         CC("getCurrentChapterN"),
         CC("(J)I"),
-        Java_org_videolan_Libbluray_getCurrentChapterN,
+        VC(Java_org_videolan_Libbluray_getCurrentChapterN),
     },
     {
         CC("seekMarkN"),
         CC("(JI)J"),
-        Java_org_videolan_Libbluray_seekMarkN,
+        VC(Java_org_videolan_Libbluray_seekMarkN),
     },
     {
         CC("seekPlayItemN"),
         CC("(JI)J"),
-        Java_org_videolan_Libbluray_seekPlayItemN,
+        VC(Java_org_videolan_Libbluray_seekPlayItemN),
     },
     {
         CC("selectPlaylistN"),
         CC("(JI)I"),
-        Java_org_videolan_Libbluray_selectPlaylistN,
+        VC(Java_org_videolan_Libbluray_selectPlaylistN),
     },
     {
         CC("selectTitleN"),
         CC("(JI)I"),
-        Java_org_videolan_Libbluray_selectTitleN,
+        VC(Java_org_videolan_Libbluray_selectTitleN),
     },
     {
         CC("selectAngleN"),
         CC("(JI)I"),
-        Java_org_videolan_Libbluray_selectAngleN,
+        VC(Java_org_videolan_Libbluray_selectAngleN),
     },
     {
         CC("seamlessAngleChangeN"),
         CC("(JI)V"),
-        Java_org_videolan_Libbluray_seamlessAngleChangeN,
+        VC(Java_org_videolan_Libbluray_seamlessAngleChangeN),
     },
     {
         CC("getTitleSizeN"),
         CC("(J)J"),
-        Java_org_videolan_Libbluray_getTitleSizeN,
+        VC(Java_org_videolan_Libbluray_getTitleSizeN),
     },
     {
         CC("getCurrentTitleN"),
         CC("(J)I"),
-        Java_org_videolan_Libbluray_getCurrentTitleN,
+        VC(Java_org_videolan_Libbluray_getCurrentTitleN),
     },
     {
         CC("getCurrentAngleN"),
         CC("(J)I"),
-        Java_org_videolan_Libbluray_getCurrentAngleN,
+        VC(Java_org_videolan_Libbluray_getCurrentAngleN),
     },
     {
         CC("tellN"),
         CC("(J)J"),
-        Java_org_videolan_Libbluray_tellN,
+        VC(Java_org_videolan_Libbluray_tellN),
     },
     {
         CC("tellTimeN"),
         CC("(J)J"),
-        Java_org_videolan_Libbluray_tellTimeN,
+        VC(Java_org_videolan_Libbluray_tellTimeN),
     },
     {
         CC("selectRateN"),
         CC("(JF)I"),
-        Java_org_videolan_Libbluray_selectRateN,
+        VC(Java_org_videolan_Libbluray_selectRateN),
     },
     {
         CC("writeGPRN"),
         CC("(JII)I"),
-        Java_org_videolan_Libbluray_writeGPRN,
+        VC(Java_org_videolan_Libbluray_writeGPRN),
     },
     {
         CC("writePSRN"),
         CC("(JII)I"),
-        Java_org_videolan_Libbluray_writePSRN,
+        VC(Java_org_videolan_Libbluray_writePSRN),
     },
     {
         CC("readGPRN"),
         CC("(JI)I"),
-        Java_org_videolan_Libbluray_readGPRN,
+        VC(Java_org_videolan_Libbluray_readGPRN),
     },
     {
         CC("readPSRN"),
         CC("(JI)I"),
-        Java_org_videolan_Libbluray_readPSRN,
+        VC(Java_org_videolan_Libbluray_readPSRN),
     },
     {
         CC("getBdjoN"),
         CC("(JLjava/lang/String;)Lorg/videolan/bdjo/Bdjo;"),
-        Java_org_videolan_Libbluray_getBdjoN,
+        VC(Java_org_videolan_Libbluray_getBdjoN),
     },
     {
         CC("updateGraphicN"),
         CC("(JII[I)V"),
-        Java_org_videolan_Libbluray_updateGraphicN,
+        VC(Java_org_videolan_Libbluray_updateGraphicN),
     },
 };
 

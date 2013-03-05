@@ -187,8 +187,11 @@ Java_java_awt_BDFontMetrics_charsWidthN(JNIEnv * env, jobject obj, jlong ftFace,
 #endif /* HAVE_FT2 */
 }
 
-#define CC (char*)  /*cast a literal from (const char*)*/
+#define CC (char*)             /* cast a literal from (const char*) */
+#define VC (void*)(uintptr_t)  /* cast function pointer to void* */
+#if defined __GNUC__
 #pragma GCC diagnostic ignored "-Wcast-qual"
+#endif
 
 BD_PRIVATE CPP_EXTERN const JNINativeMethod
 Java_java_awt_BDFontMetrics_methods[] =
@@ -196,37 +199,37 @@ Java_java_awt_BDFontMetrics_methods[] =
     {
         CC("initN"),
         CC("()J"),
-        Java_java_awt_BDFontMetrics_initN,
+        VC(Java_java_awt_BDFontMetrics_initN),
     },
     {
         CC("destroyN"),
         CC("(J)V"),
-        Java_java_awt_BDFontMetrics_destroyN,
+        VC(Java_java_awt_BDFontMetrics_destroyN),
     },
     {
         CC("loadFontN"),
         CC("(JLjava/lang/String;I)J"),
-        Java_java_awt_BDFontMetrics_loadFontN,
+        VC(Java_java_awt_BDFontMetrics_loadFontN),
     },
     {
         CC("destroyFontN"),
         CC("(J)V"),
-        Java_java_awt_BDFontMetrics_destroyFontN,
+        VC(Java_java_awt_BDFontMetrics_destroyFontN),
     },
     {
         CC("charWidthN"),
         CC("(JC)I"),
-        Java_java_awt_BDFontMetrics_charWidthN,
+        VC(Java_java_awt_BDFontMetrics_charWidthN),
     },
     {
         CC("stringWidthN"),
         CC("(JLjava/lang/String;)I"),
-        Java_java_awt_BDFontMetrics_stringWidthN,
+        VC(Java_java_awt_BDFontMetrics_stringWidthN),
     },
     {
         CC("charsWidthN"),
         CC("(J[CII)I"),
-        Java_java_awt_BDFontMetrics_charsWidthN,
+        VC(Java_java_awt_BDFontMetrics_charsWidthN),
     },
 };
 

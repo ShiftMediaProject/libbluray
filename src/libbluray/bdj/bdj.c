@@ -217,7 +217,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
         return NULL;
     }
 
-    fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = (fptr_JNI_CreateJavaVM)dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
+    fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = (fptr_JNI_CreateJavaVM)(intptr_t)dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
 
     if (JNI_CreateJavaVM_fp == NULL) {
         dl_dlclose(jvm_lib);

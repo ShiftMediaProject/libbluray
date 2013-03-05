@@ -91,8 +91,11 @@ Java_java_awt_BDGraphics_drawStringN(JNIEnv * env, jobject obj, jlong ftFace, js
 #endif /* HAVE_FT2 */
 }
 
-#define CC (char*)  /*cast a literal from (const char*)*/
+#define CC (char*)             /* cast a literal from (const char*) */
+#define VC (void*)(uintptr_t)  /* cast function pointer to void* */
+#if defined __GNUC__
 #pragma GCC diagnostic ignored "-Wcast-qual"
+#endif
 
 BD_PRIVATE CPP_EXTERN const JNINativeMethod
 Java_java_awt_BDGraphics_methods[] =
@@ -100,7 +103,7 @@ Java_java_awt_BDGraphics_methods[] =
     {
         CC("drawStringN"),
         CC("(JLjava/lang/String;III)V"),
-        Java_java_awt_BDGraphics_drawStringN,
+        VC(Java_java_awt_BDGraphics_drawStringN),
     },
 };
 
