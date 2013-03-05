@@ -25,20 +25,20 @@
 #include <stdint.h>
 
 typedef struct {
-  uint8_t sub_grp    : 3;  /* command sub-group */
-  uint8_t op_cnt     : 3;  /* operand count */
-  uint8_t grp        : 2;  /* command group */
+  unsigned int sub_grp    : 3;  /* command sub-group */
+  unsigned int op_cnt     : 3;  /* operand count */
+  unsigned int grp        : 2;  /* command group */
 
-  uint8_t branch_opt : 4;  /* branch option */
-  uint8_t reserved1  : 2;
-  uint8_t imm_op2    : 1;  /* I-flag for operand 2 */
-  uint8_t imm_op1    : 1;  /* I-flag for operand 1 */
+  unsigned int branch_opt : 4;  /* branch option */
+  unsigned int reserved1  : 2;
+  unsigned int imm_op2    : 1;  /* I-flag for operand 2 */
+  unsigned int imm_op1    : 1;  /* I-flag for operand 1 */
 
-  uint8_t cmp_opt    : 4;  /* compare option */
-  uint8_t reserved2  : 4;
+  unsigned int cmp_opt    : 4;  /* compare option */
+  unsigned int reserved2  : 4;
 
-  uint8_t set_opt    : 5;  /* set option */
-  uint8_t reserved3  : 3;
+  unsigned int set_opt    : 5;  /* set option */
+  unsigned int reserved3  : 3;
 } HDMV_INSN;
 
 typedef struct bd_mobj_cmd_s {
@@ -48,9 +48,9 @@ typedef struct bd_mobj_cmd_s {
 } MOBJ_CMD;
 
 typedef struct {
-    uint8_t     resume_intention_flag : 1;
-    uint8_t     menu_call_mask        : 1;
-    uint8_t     title_search_mask     : 1;
+    uint8_t     resume_intention_flag /*: 1*/;
+    uint8_t     menu_call_mask        /*: 1*/;
+    uint8_t     title_search_mask     /*: 1*/;
 
     uint16_t    num_cmds;
     MOBJ_CMD   *cmds;
