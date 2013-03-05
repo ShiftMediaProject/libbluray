@@ -46,7 +46,7 @@ static void file_close_linux(BD_FILE_H *file)
     if (file) {
         fclose((FILE *)file->internal);
 
-        BD_DEBUG(DBG_FILE, "Closed LINUX file (%p)\n", file);
+        BD_DEBUG(DBG_FILE, "Closed LINUX file (%p)\n", (void*)file);
 
         X_FREE(file);
     }
@@ -83,7 +83,7 @@ static int64_t file_read_linux(BD_FILE_H *file, uint8_t *buf, int64_t size)
         return (int64_t)fread(buf, 1, (size_t)size, (FILE *)file->internal);
     }
 
-    BD_DEBUG(DBG_FILE | DBG_CRIT, "Ignoring invalid read of size %"PRId64" (%p)\n", size, file);
+    BD_DEBUG(DBG_FILE | DBG_CRIT, "Ignoring invalid read of size %"PRId64" (%p)\n", size, (void*)file);
     return 0;
 }
 
@@ -93,7 +93,7 @@ static int64_t file_write_linux(BD_FILE_H *file, const uint8_t *buf, int64_t siz
         return (int64_t)fwrite(buf, 1, (size_t)size, (FILE *)file->internal);
     }
 
-    BD_DEBUG(DBG_FILE | DBG_CRIT, "Ignoring invalid write of size %"PRId64" (%p)\n", size, file);
+    BD_DEBUG(DBG_FILE | DBG_CRIT, "Ignoring invalid write of size %"PRId64" (%p)\n", size, (void*)file);
     return 0;
 }
 
@@ -102,7 +102,7 @@ static BD_FILE_H *file_open_linux(const char* filename, const char *mode)
     FILE *fp = NULL;
     BD_FILE_H *file = malloc(sizeof(BD_FILE_H));
 
-    BD_DEBUG(DBG_FILE, "Opening LINUX file %s... (%p)\n", filename, file);
+    BD_DEBUG(DBG_FILE, "Opening LINUX file %s... (%p)\n", filename, (void*)file);
     file->close = file_close_linux;
     file->seek = file_seek_linux;
     file->read = file_read_linux;
@@ -123,7 +123,7 @@ static BD_FILE_H *file_open_linux(const char* filename, const char *mode)
         return file;
     }
 
-    BD_DEBUG(DBG_FILE, "Error opening file! (%p)\n", file);
+    BD_DEBUG(DBG_FILE, "Error opening file! (%p)\n", (void*)file);
 
     X_FREE(file);
 
