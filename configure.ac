@@ -125,14 +125,14 @@ AS_IF([test "${SYS}" != "mingw32"], [
 dnl libxml2 for metadata parser
 AS_IF([test "x$with_libxml2" != "xno"], [
   PKG_CHECK_MODULES([LIBXML2], [libxml-2.0 >= 2.6],
-    [AC_DEFINE([HAVE_LIBXML2], [1],
+    [with_libxml2=yes; AC_DEFINE([HAVE_LIBXML2], [1],
         [Define to 1 if libxml2 is to be used for metadata parsing])])
 ])
 
 dnl FreeType2
-AS_IF([test x"$use_bdjava" != x"no" -a x"$use_freetype" != x"no"], [
+AS_IF([test x"$use_bdjava" != x"no" -a x"$with_freetype" != x"no"], [
   PKG_CHECK_MODULES([FT2], [freetype2],
-    [AC_DEFINE([HAVE_FT2], 1, [Define this if you have FreeType2 library])])
+    [with_freetype=yes; AC_DEFINE([HAVE_FT2], 1, [Define this if you have FreeType2 library])])
 ])
 
 CC_CHECK_CFLAGS_APPEND([-Wall -Wdisabled-optimization -Wpointer-arith ]dnl
@@ -225,12 +225,12 @@ echo "  Summary:"
 echo "  --------"
 echo "  BD-J support:                  $use_bdjava"
 if [[ $use_bdjava = "yes" ]]; then
-echo "  BD-J font support (freetype2): $use_freetype"
+echo "  BD-J font support (freetype2): $with_freetype"
 echo "  BD-J type:                     $BDJ_TYPE"
 if test x"$BDJ_BOOTCLASSPATH" != x""; then
 echo "  BD-J bootclasspath:            $BDJ_BOOTCLASSPATH"
 fi
 fi
-echo "  Metadata support (libxml):     $use_libxml2"
+echo "  Metadata support (libxml2):    $with_libxml2"
 echo "  Build examples:                $use_examples"
 
