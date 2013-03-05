@@ -88,7 +88,10 @@ static void _parseManifestNode(xmlNode * a_node, META_DL *disclib)
                     disclib->thumbnails = realloc(disclib->thumbnails, (disclib->thumb_count*sizeof(META_THUMBNAIL)));
                     disclib->thumbnails[i].path = (char *)tmp;
                     if ((tmp = xmlGetProp(cur_node, BAD_CAST_CONST "size"))) {
-                        sscanf((const char*)tmp, "%ix%i", &disclib->thumbnails[i].xres, &disclib->thumbnails[i].yres);
+                        int x = 0, y = 0;
+                        sscanf((const char*)tmp, "%ix%i", &x, &y);
+                        disclib->thumbnails[i].xres = x;
+                        disclib->thumbnails[i].yres = y;
                         X_FREE(tmp);
                     }
                     else {
