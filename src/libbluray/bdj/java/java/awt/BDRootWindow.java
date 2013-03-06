@@ -30,6 +30,7 @@ public class BDRootWindow extends Frame {
 
     public BDRootWindow () {
         super();
+        setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         BDToolkit.setFocusedWindow(this);
     }

@@ -87,6 +87,8 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         actualClip = g.clip;
         clip = g.clip;
         constrainedRect = g.constrainedRect;
+        if (clip == null)
+            setupClip();
     }
 
     BDGraphics(BDRootWindow window) {
