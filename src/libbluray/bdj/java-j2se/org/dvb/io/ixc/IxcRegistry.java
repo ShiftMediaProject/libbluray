@@ -38,6 +38,8 @@ import org.videolan.Logger;
 
 public class IxcRegistry {
     public static Remote lookup(XletContext xc, String path) throws NotBoundException, RemoteException {
+        logger.info("Lookup " + path);
+        logger.warning("Lookup does not create proxy object !");
         int orgid, appid;
         int s1, s2;
         String name;
@@ -90,6 +92,7 @@ public class IxcRegistry {
     }
 
     public static void bind(XletContext xc, String name, Remote obj) throws AlreadyBoundException {
+        logger.info("Bind " + name);
         if (xc == null || name == null || obj == null)
             throw new NullPointerException();
 
@@ -115,6 +118,7 @@ public class IxcRegistry {
     }
 
     public static void unbind(XletContext xc, String name) throws NotBoundException {
+        logger.info("Unbind " + name);
         if (xc == null || name == null)
             throw new NullPointerException();
 
@@ -135,7 +139,6 @@ public class IxcRegistry {
     }
 
     public static void rebind(XletContext xc, String name, Remote obj) {
-
         try {
             unbind(xc, name);
         } catch (NotBoundException e) {
