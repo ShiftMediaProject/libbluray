@@ -48,6 +48,7 @@ public abstract class BDComponentPeer implements ComponentPeer
     }
 
     public void createBuffers(int x, BufferCapabilities bufferCapabilities) {
+        logger.unimplemented("createBuffers");
     }
 
     public Image createImage(ImageProducer producer) {
@@ -66,7 +67,7 @@ public abstract class BDComponentPeer implements ComponentPeer
 
     public VolatileImage createVolatileImage(int width, int height) {
         logger.unimplemented("createVolatileImage");
-        throw new Error();
+        return null;
     }
 
     public void destroyBuffers() {
@@ -145,6 +146,26 @@ public abstract class BDComponentPeer implements ComponentPeer
     }
 
     public void handleEvent(AWTEvent e) {
+        int id = e.getID();
+
+        if (e instanceof PaintEvent) {
+            Graphics g = null;
+            Rectangle r = ((PaintEvent)e).getUpdateRect();
+            try {
+                g = component.getGraphics();
+                if (g == null)
+                    return;
+                g.clipRect(r.x, r.y, r.width, r.height);
+                if (id == PaintEvent.PAINT)
+                    component.paint(g);
+                else
+                    component.update(g);
+                toolkit.sync();
+            } finally {
+                if (g != null)
+                    g.dispose();
+            }
+        }
     }
 
     public boolean handlesWheelScrolling() {
@@ -177,6 +198,7 @@ public abstract class BDComponentPeer implements ComponentPeer
     }
 
     public void paint(Graphics g) {
+        component.paint(g);
     }
 
     /* java 1.6 only */
@@ -193,6 +215,7 @@ public abstract class BDComponentPeer implements ComponentPeer
 
     /* java 1.6 only */
     public void repaint(long tm, int x, int y, int width, int height) {
+        logger.unimplemented("repaint");
     }
 
     public void reparent(ContainerPeer p) {
@@ -219,6 +242,7 @@ public abstract class BDComponentPeer implements ComponentPeer
     }
 
     public void setEnabled(boolean b) {
+        logger.unimplemented("setEnabled");
     }
 
     public void setFont(Font f) {
