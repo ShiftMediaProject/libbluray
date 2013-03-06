@@ -46,12 +46,15 @@ class BDGraphicsConfiguration extends GraphicsConfiguration {
     }
 
     public java.awt.geom.AffineTransform getNormalizingTransform() {
+        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "getNormalizingTransform");
         return null;
     }
     public java.awt.geom.AffineTransform getDefaultTransform() {
+        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "getDefaultTransform");
         return null;
     }
     public java.awt.image.ColorModel getColorModel(int transparency) {
+        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "getColorModel");
         return null;
     }
 
@@ -61,6 +64,11 @@ class BDGraphicsConfiguration extends GraphicsConfiguration {
                                     DataBuffer.TYPE_INT);
     }
 
+    public BufferedImage createCompatibleImage(int width, int height, int trans) {
+        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "createCompatibleImage");
+        return null;
+    }
+
     public BufferedImage createCompatibleImage(int width, int height) {
         if (width <= 0 || height <= 0)
             return null;
@@ -68,6 +76,31 @@ class BDGraphicsConfiguration extends GraphicsConfiguration {
     }
 
     public VolatileImage createCompatibleVolatileImage(int width, int height) {
+        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "createCompatibleVolatileImage");
         return null;
+    }
+
+    public VolatileImage createCompatibleVolatileImage(int width, int height, int trans) {
+        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "createCompatibleVolatileImage");
+        return null;
+    }
+
+    public VolatileImage createCompatibleVolatileImage(int width, int height, ImageCapabilities caps) {
+        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "createCompatibleVolatileImage");
+        return null;
+    }
+
+    public VolatileImage createCompatibleVolatileImage(int width, int height, ImageCapabilities caps, int trans) {
+        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "createCompatibleVolatileImage");
+        return null;
+    }
+
+    public BufferCapabilities getBufferCapabilities(){
+        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "getBufferCapabilities");
+        return super.getBufferCapabilities();
+    }
+    public ImageCapabilities getImageCapabilities(){
+        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "getImageCapabilities");
+        return super.getImageCapabilities();
     }
 }
