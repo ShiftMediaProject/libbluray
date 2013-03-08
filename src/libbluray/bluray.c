@@ -336,6 +336,9 @@ static void _update_stream_psr_by_lang(BD_REGISTERS *regs,
 
 static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
 {
+    MPLS_STN *stn = &clip->title->pl->play_item[clip->ref].stn;
+    uint32_t audio_lang = 0;
+
     bd_psr_write(bd->regs, PSR_PLAYITEM, clip->ref);
     bd_psr_write(bd->regs, PSR_TIME,     clip->in_time);
 
@@ -343,9 +346,6 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
      * Selection is based on language setting PSRs and clip STN.
      */
     if (bd->title_type == title_undef) {
-        MPLS_STN *stn = &clip->title->pl->play_item[clip->ref].stn;
-        uint32_t audio_lang = 0;
-
         _update_stream_psr_by_lang(bd->regs,
                                    PSR_AUDIO_LANG, PSR_PRIMARY_AUDIO_ID, 0,
                                    stn->audio, stn->num_audio,
@@ -354,6 +354,29 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
                                    PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
                                    stn->pg, stn->num_pg,
                                    NULL, audio_lang);
+
+    /* Validate selected audio and subtitle stream PSRs when using menus */
+    } else {
+        uint32_t psr_val;
+
+        if (stn->num_audio) {
+            psr_val = bd_psr_read(bd->regs, PSR_PRIMARY_AUDIO_ID);
+            if (psr_val == 0 || psr_val > stn->num_audio) {
+                _update_stream_psr_by_lang(bd->regs,
+                                           PSR_AUDIO_LANG, PSR_PRIMARY_AUDIO_ID, 0,
+                                           stn->audio, stn->num_audio,
+                                           &audio_lang, 0);
+            }
+        }
+        if (stn->num_pg) {
+            psr_val = bd_psr_read(bd->regs, PSR_PG_STREAM) & 0xfff;
+            if ((psr_val == 0) || (psr_val > stn->num_pg)) {
+                _update_stream_psr_by_lang(bd->regs,
+                                           PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
+                                           stn->pg, stn->num_pg,
+                                           NULL, audio_lang);
+            }
+        }
     }
 }
 
