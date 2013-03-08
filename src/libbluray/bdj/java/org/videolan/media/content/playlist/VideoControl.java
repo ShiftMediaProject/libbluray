@@ -119,10 +119,11 @@ public abstract class VideoControl extends StreamControl implements VideoPresent
         if ((vd.width == 0) || (vd.height == 0))
             return new Rectangle(0, 0);
         srcArea = getRectangleOnScreen(getNormalizedRectangle(vd, clipRect));
-        //TODO
-        throw new Error("Not implemented"); // TODO implement
 
-        //return getRectangle(vd, srcArea);
+        //TODO
+        org.videolan.Logger.unimplemented("VideoControl", "setClipRegion");
+
+        return getRectangle(vd, srcArea);
     }
 
     public float[] supportsArbitraryHorizontalScaling() {
