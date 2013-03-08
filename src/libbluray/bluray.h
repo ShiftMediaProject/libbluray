@@ -546,6 +546,7 @@ typedef enum {
     BD_EVENT_PLAYLIST     = 6,  /* current playlist (xxxxx.mpls) */
     BD_EVENT_PLAYITEM     = 7,  /* current play item, 0...N-1  */
     BD_EVENT_CHAPTER      = 8,  /* current chapter, 1...N */
+    BD_EVENT_PLAYMARK     = 30, /* playmark reached */
     BD_EVENT_END_OF_TITLE = 9,
 
     /*
@@ -601,7 +602,7 @@ typedef enum {
     /* 3D */
     BD_EVENT_STEREOSCOPIC_STATUS    = 27,  /* 0 - 2D, 1 - 3D */
 
-    /*BD_EVENT_LAST = 29, */
+    /*BD_EVENT_LAST = 30, */
 
 } bd_event_e;
 

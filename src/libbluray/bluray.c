@@ -138,8 +138,9 @@ struct bluray {
     uint32_t       angle_change_time;
     unsigned       request_angle;
 
-    /* chapter tracking */
-    uint64_t       next_chapter_start;
+    /* mark tracking */
+    uint64_t       next_mark_pos;
+    int            next_mark;
 
     /* aacs */
     void           *h_libaacs;   // library handle
@@ -356,11 +357,9 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
     }
 }
 
-
 static void _update_chapter_psr(BLURAY *bd)
 {
     uint32_t current_chapter = bd_get_current_chapter(bd);
-    bd->next_chapter_start = bd_chapter_pos(bd, current_chapter + 1);
     bd_psr_write(bd->regs, PSR_CHAPTER,  current_chapter + 1);
 }
 
@@ -1359,6 +1358,48 @@ void bd_close(BLURAY *bd)
 }
 
 /*
+ * PlayMark tracking
+ */
+
+static void _find_next_playmark(BLURAY *bd)
+{
+    unsigned ii;
+
+    bd->next_mark = -1;
+    bd->next_mark_pos = (uint64_t)-1;
+    for (ii = 0; ii < bd->title->mark_list.count; ii++) {
+        uint64_t pos = (uint64_t)bd->title->mark_list.mark[ii].title_pkt * 192L;
+        if (pos > bd->s_pos) {
+            bd->next_mark = ii;
+            bd->next_mark_pos = pos;
+            return;
+        }
+    }
+
+    _update_chapter_psr(bd);
+}
+
+static void _playmark_reached(BLURAY *bd)
+{
+    BD_DEBUG(DBG_BLURAY, "PlayMark %d reached (%"PRIu64")\n", bd->next_mark, bd->next_mark_pos);
+
+    _queue_event(bd, BD_EVENT_PLAYMARK, bd->next_mark);
+    _bdj_event(bd, BDJ_EVENT_MARK, bd->next_mark);
+
+    /* update next mark */
+    bd->next_mark++;
+    if ((unsigned)bd->next_mark < bd->title->mark_list.count) {
+        bd->next_mark_pos = (uint64_t)bd->title->mark_list.mark[bd->next_mark].title_pkt * 192L;
+    } else {
+        bd->next_mark = -1;
+        bd->next_mark_pos = (uint64_t)-1;
+    }
+
+    /* chapter tracking */
+    _update_chapter_psr(bd);
+}
+
+/*
  * seeking and current position
  */
 
@@ -1372,8 +1413,8 @@ static void _seek_internal(BLURAY *bd,
         /* update title position */
         bd->s_pos = (uint64_t)title_pkt * 192;
 
-        /* chapter tracking */
-        _update_chapter_psr(bd);
+        /* playmark tracking */
+        _find_next_playmark(bd);
 
         /* reset PG decoder and controller */
         if (bd->graphics_controller) {
@@ -1751,13 +1792,12 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
             bd->s_pos += size;
         }
 
-        /* chapter tracking */
-        if (bd->s_pos > bd->next_chapter_start) {
-            _update_chapter_psr(bd);
+        /* mark tracking */
+        if (bd->next_mark >= 0 && bd->s_pos > bd->next_mark_pos) {
+            _playmark_reached(bd);
         }
 
         BD_DEBUG(DBG_STREAM, "%d bytes read OK! (%p)\n", out_len, bd);
-
         return out_len;
     }
 
@@ -1921,11 +1961,11 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
     bd->seamless_angle_change = 0;
     bd->s_pos = 0;
 
-    bd->next_chapter_start = bd_chapter_pos(bd, 1);
-
     bd_psr_write(bd->regs, PSR_PLAYLIST, atoi(bd->title->name));
     bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
     bd_psr_write(bd->regs, PSR_CHAPTER, 1);
+
+    _find_next_playmark(bd);
 
     // Get the initial clip of the playlist
     bd->st0.clip = nav_next_clip(bd->title, NULL);

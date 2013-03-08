@@ -34,6 +34,7 @@ typedef enum {
     BDJ_EVENT_END_OF_PLAYLIST,
     BDJ_EVENT_PTS,
     BDJ_EVENT_VK_KEY,
+    BDJ_EVENT_MARK,
 } BDJ_EVENT;
 
 typedef struct bdjava_s BDJAVA;
