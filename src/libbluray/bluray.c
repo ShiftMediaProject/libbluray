@@ -1965,12 +1965,12 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
     bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
     bd_psr_write(bd->regs, PSR_CHAPTER, 1);
 
-    _find_next_playmark(bd);
-
     // Get the initial clip of the playlist
     bd->st0.clip = nav_next_clip(bd->title, NULL);
     if (_open_m2ts(bd, &bd->st0)) {
         BD_DEBUG(DBG_BLURAY, "Title %s selected! (%p)\n", f_name, bd);
+
+        _find_next_playmark(bd);
 
         _preload_subpaths(bd);
 
