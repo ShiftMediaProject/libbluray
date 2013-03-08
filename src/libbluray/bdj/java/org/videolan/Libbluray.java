@@ -308,6 +308,9 @@ public class Libbluray {
         case BDJ_EVENT_CHAPTER:
             BDHandler.onChapterReach(param);
             break;
+        case BDJ_EVENT_MARK:
+            BDHandler.onMarkReach(param);
+            break;
         case BDJ_EVENT_PLAYITEM:
             BDHandler.onPlayItemReach(param);
             break;
@@ -366,6 +369,7 @@ public class Libbluray {
     private static final int BDJ_EVENT_END_OF_PLAYLIST          = 6;
     private static final int BDJ_EVENT_PTS                      = 7;
     private static final int BDJ_EVENT_VK_KEY                   = 8;
+    private static final int BDJ_EVENT_MARK                     = 9;
 
     public static final int PSR_IG_STREAM_ID     = 0;
     public static final int PSR_PRIMARY_AUDIO_ID = 1;

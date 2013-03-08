@@ -186,9 +186,13 @@ public class Handler extends BDHandler {
     protected void doChapterReach(int param) {
         ((PlaybackControlImpl)controls[9]).onChapterReach(param);
     }
+    protected void doMarkReach(int param) {
+        ((PlaybackControlImpl)controls[9]).onMarkReach(param);
+    }
 
     protected void doPlayItemReach(int param) {
         ((PlaybackControlImpl)controls[9]).onPlayItemReach(param);
+        ((UOMaskTableControlImpl)controls[16]).onPlayItemReach(param);
     }
 
     protected void doAngleChange(int param) {

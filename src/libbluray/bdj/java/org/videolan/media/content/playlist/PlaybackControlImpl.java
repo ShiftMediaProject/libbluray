@@ -121,6 +121,25 @@ public class PlaybackControlImpl implements PlaybackControl {
         }
     }
 
+    protected void onMarkReach(int mark) {
+        if (mark < 0) {
+            return;
+        }
+        PlaylistInfo pi = player.getPlaylistInfo();
+        if (pi == null) {
+            return;
+        }
+        TIMark[] marks = pi.getMarks();
+        if (marks == null) {
+            return;
+        }
+        if (mark >= marks.length) {
+            return;
+        }
+
+        notifyListeners(new PlaybackMarkEvent(this, mark));
+    }
+
     protected void onPlayItemReach(int param) {
         notifyListeners(new PlaybackPlayItemEvent(this, param));
     }
