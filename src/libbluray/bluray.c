@@ -504,11 +504,10 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
             return 1;
         }
 
-        BD_DEBUG(DBG_BLURAY, "Clip %s empty! (%p)\n", f_name, bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Clip %s empty!\n", f_name);
     }
 
-    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open clip %s! (%p)\n",
-          f_name, bd);
+    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open clip %s!\n", f_name);
 
     X_FREE(f_name);
     return 0;
@@ -519,19 +518,19 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
     const size_t len = 6144;
 
     if (st->fp) {
-        BD_DEBUG(DBG_STREAM, "Reading unit [%zd bytes] at %"PRIu64"... (%p)\n",
-              len, st->clip_block_pos, bd);
+        BD_DEBUG(DBG_STREAM, "Reading unit [%zd bytes] at %"PRIu64"...\n",
+              len, st->clip_block_pos);
 
         if (len + st->clip_block_pos <= st->clip_size) {
             size_t read_len;
 
             if ((read_len = file_read(st->fp, buf, len))) {
                 if (read_len != len)
-                    BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %zd bytes at %"PRIu64" ; requested %zd ! (%p)\n", read_len, st->clip_block_pos, len, bd);
+                    BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %zd bytes at %"PRIu64" ; requested %zd !\n", read_len, st->clip_block_pos, len);
 
                 if (bd->aacs && bd->libaacs_decrypt_unit) {
                     if (!bd->libaacs_decrypt_unit(bd->aacs, buf)) {
-                        BD_DEBUG(DBG_AACS | DBG_CRIT, "Unable decrypt unit (AACS)! (%p)\n", bd);
+                        BD_DEBUG(DBG_AACS | DBG_CRIT, "Unable decrypt unit (AACS)!\n");
 
                         return -1;
                     } // decrypt
@@ -557,13 +556,13 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
                     /* check first TS sync bytes */
                     if (buf[4] != 0x47 || buf[4+192] != 0x47 || buf[4+2*192] != 0x47) {
                         BD_DEBUG(DBG_BLURAY | DBG_CRIT,
-                                 "TP header copy permission indicator != 0, unit is still encrypted? (%p)\n", bd);
+                                 "TP header copy permission indicator != 0, unit is still encrypted?\n");
                         _queue_event(bd, BD_EVENT_ENCRYPTED, 0);
                         return -1;
                     }
                 }
 
-                BD_DEBUG(DBG_STREAM, "Read unit OK! (%p)\n", bd);
+                BD_DEBUG(DBG_STREAM, "Read unit OK!\n");
 
 #ifdef BLURAY_READ_ERROR_TEST
                 /* simulate broken blocks */
@@ -573,7 +572,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 #endif
             }
 
-            BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %zd bytes at %"PRIu64" failed ! (%p)\n", len, st->clip_block_pos, bd);
+            BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %zd bytes at %"PRIu64" failed !\n", len, st->clip_block_pos);
 
             _queue_event(bd, BD_EVENT_READ_ERROR, 0);
 
@@ -585,7 +584,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
             return 0;
         }
 
-        BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read past EOF ! (%p)\n", bd);
+        BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read past EOF !\n");
 
         /* This is caused by truncated .m2ts file or invalid clip length.
          *
@@ -598,7 +597,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
         return 0;
     }
 
-    BD_DEBUG(DBG_BLURAY, "No valid title selected! (%p)\n", bd);
+    BD_DEBUG(DBG_BLURAY, "No valid title selected!\n");
 
     return -1;
 }
@@ -769,12 +768,12 @@ static int _libaacs_required(BLURAY *bd)
     if (fd) {
         file_close(fd);
 
-        BD_DEBUG(DBG_BLURAY, "AACS/Unit_Key_RO.inf found. Disc seems to be AACS protected (%p)\n", bd);
+        BD_DEBUG(DBG_BLURAY, "AACS/Unit_Key_RO.inf found. Disc seems to be AACS protected.\n");
         bd->disc_info.aacs_detected = 1;
         return 1;
     }
 
-    BD_DEBUG(DBG_BLURAY, "AACS/Unit_Key_RO.inf not found. No AACS protection (%p)\n", bd);
+    BD_DEBUG(DBG_BLURAY, "AACS/Unit_Key_RO.inf not found. No AACS protection.\n");
     bd->disc_info.aacs_detected = 0;
     return 0;
 }
@@ -798,18 +797,18 @@ static int _libaacs_load(BLURAY *bd)
             bd->disc_info.libaacs_detected = 1;
 
             if (file_open != file_open_default()) {
-                BD_DEBUG(DBG_BLURAY, "Registering libaacs filesystem handler %p (%p)\n", file_open, bd->h_libaacs);
+              BD_DEBUG(DBG_BLURAY, "Registering libaacs filesystem handler %p (%p)\n", (void *)(intptr_t)file_open, bd->h_libaacs);
                 DL_CALL(bd->h_libaacs, aacs_register_file, file_open);
             }
 
             return 1;
 
         } else {
-            BD_DEBUG(DBG_BLURAY, "libaacs dlsym failed! (%p)\n", bd->h_libaacs);
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "libaacs dlsym failed! (%p)\n", bd->h_libaacs);
         }
 
     } else {
-        BD_DEBUG(DBG_BLURAY, "libaacs not found! (%p)\n", bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "libaacs not found!\n");
     }
 
     _libaacs_unload(bd);
@@ -835,7 +834,7 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
     fptr_p_void aacs_open2;
     *(void **)(&aacs_open2) = dl_dlsym(bd->h_libaacs, "aacs_open2");
     if (!aacs_open2) {
-        BD_DEBUG(DBG_BLURAY, "Using old aacs_open(), no verbose error reporting available (%p)\n", bd->aacs);
+        BD_DEBUG(DBG_BLURAY, "Using old aacs_open(), no verbose error reporting available\n");
         bd->aacs = bd->libaacs_open(bd->device_path, keyfile_path);
     } else {
         bd->aacs = aacs_open2(bd->device_path, keyfile_path, &error_code);
@@ -856,13 +855,13 @@ static int _libaacs_open(BLURAY *bd, const char *keyfile_path)
         }
 
         if (!error_code) {
-            BD_DEBUG(DBG_BLURAY, "Opened libaacs (%p)\n", bd->aacs);
+            BD_DEBUG(DBG_BLURAY, "Opened libaacs\n");
             bd->disc_info.aacs_handled = 1;
             return 1;
         }
     }
 
-    BD_DEBUG(DBG_BLURAY, "aacs_open() failed!\n");
+    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "aacs_open() failed!\n");
     bd->disc_info.aacs_handled = 0;
 
     switch (error_code) {
@@ -902,11 +901,11 @@ const uint8_t *bd_get_vid(BLURAY *bd)
         if (fptr) {
             return (const uint8_t*)fptr(bd->aacs);
         }
-        BD_DEBUG(DBG_BLURAY, "aacs_get_vid() dlsym failed! (%p)", bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "aacs_get_vid() dlsym failed!");
         return NULL;
     }
 
-    BD_DEBUG(DBG_BLURAY, "bd_get_vid(): libaacs not initialized! (%p)", bd);
+    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_get_vid(): libaacs not initialized!");
     return NULL;
 }
 
@@ -919,11 +918,11 @@ const uint8_t *bd_get_pmsn(BLURAY *bd)
         if (fptr) {
             return (const uint8_t*)fptr(bd->aacs);
         }
-        BD_DEBUG(DBG_BLURAY, "aacs_get_pmsn() dlsym failed! (%p)", bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "aacs_get_pmsn() dlsym failed!");
         return NULL;
     }
 
-    BD_DEBUG(DBG_BLURAY, "bd_get_pmsn(): libaacs not initialized! (%p)", bd);
+    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_get_pmsn(): libaacs not initialized!");
     return NULL;
 }
 
@@ -961,12 +960,12 @@ static int _libbdplus_required(BLURAY *bd)
     if (fd) {
         file_close(fd);
 
-        BD_DEBUG(DBG_BLURAY, "BDSVM/00000.svm found. Disc seems to be BD+ protected (%p)\n", bd);
+        BD_DEBUG(DBG_BLURAY, "BDSVM/00000.svm found. Disc seems to be BD+ protected.\n");
         bd->disc_info.bdplus_detected = 1;
         return 1;
     }
 
-    BD_DEBUG(DBG_BLURAY, "BDSVM/00000.svm not found. No BD+ protection (%p)\n", bd);
+    BD_DEBUG(DBG_BLURAY, "BDSVM/00000.svm not found. No BD+ protection.\n");
     bd->disc_info.bdplus_detected = 0;
     return 0;
 }
@@ -994,10 +993,10 @@ static int _libbdplus_load(BLURAY *bd)
             return 1;
         }
 
-        BD_DEBUG(DBG_BLURAY, "libbdplus dlsym failed! (%p)\n", bd->h_libbdplus);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "libbdplus dlsym failed! (%p)\n", bd->h_libbdplus);
 
     } else {
-        BD_DEBUG(DBG_BLURAY, "libbdplus not found! (%p)\n", bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "libbdplus not found!\n");
     }
 
     _libbdplus_unload(bd);
@@ -1029,12 +1028,12 @@ static int _libbdplus_open(BLURAY *bd, const char *keyfile_path)
     bd->bdplus = bd->bdplus_init(bd->device_path, keyfile_path, aacs_vid ? aacs_vid : vid);
 
     if (bd->bdplus) {
-        BD_DEBUG(DBG_BLURAY,"libbdplus initialized\n");
+        BD_DEBUG(DBG_BLURAY, "libbdplus initialized\n");
         bd->disc_info.bdplus_handled = 1;
         return 1;
     }
 
-    BD_DEBUG(DBG_BLURAY,"bdplus_init() failed\n");
+    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bdplus_init() failed\n");
     bd->disc_info.bdplus_handled = 0;
 
     _libbdplus_unload(bd);
@@ -1201,7 +1200,7 @@ static int _start_bdj(BLURAY *bd, unsigned title)
     }
     return bdj_start(bd->bdjava, title);
 #else
-    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title %d: BD-J not compiled in (%p)\n", title, bd);
+    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title %d: BD-J not compiled in\n", title);
     return 0;
 #endif
 }
@@ -1339,7 +1338,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
     bd_mutex_init(&bd->mutex);
 
-    BD_DEBUG(DBG_BLURAY, "BLURAY initialized! (%p)\n", bd);
+    BD_DEBUG(DBG_BLURAY, "BLURAY initialized!\n");
 
     return bd;
 }
@@ -1375,7 +1374,7 @@ void bd_close(BLURAY *bd)
 
     bd_mutex_destroy(&bd->mutex);
 
-    BD_DEBUG(DBG_BLURAY, "BLURAY destroyed! (%p)\n", bd);
+    BD_DEBUG(DBG_BLURAY, "BLURAY destroyed!\n");
 
     X_FREE(bd);
 }
@@ -1444,8 +1443,7 @@ static void _seek_internal(BLURAY *bd,
             gc_run(bd->graphics_controller, GC_CTRL_PG_RESET, 0, NULL);
         }
 
-        BD_DEBUG(DBG_BLURAY, "Seek to %"PRIu64" (%p)\n",
-              bd->s_pos, bd);
+        BD_DEBUG(DBG_BLURAY, "Seek to %"PRIu64"\n", bd->s_pos);
 
         if (bd->bdplus_seek && bd->bdplus) {
             bd->bdplus_seek(bd->bdplus, bd->st0.clip_block_pos);
@@ -1696,7 +1694,7 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
 
     if (st->fp) {
         out_len = 0;
-        BD_DEBUG(DBG_STREAM, "Reading [%d bytes] at %"PRIu64"... (%p)\n", len, bd->s_pos, bd);
+        BD_DEBUG(DBG_STREAM, "Reading [%d bytes] at %"PRIu64"...\n", len, bd->s_pos);
 
         while (len > 0) {
             uint32_t clip_pkt;
@@ -1761,7 +1759,7 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                     // find next clip
                     st->clip = nav_next_clip(bd->title, st->clip);
                     if (st->clip == NULL) {
-                        BD_DEBUG(DBG_BLURAY|DBG_STREAM, "End of title (%p)\n", bd);
+                        BD_DEBUG(DBG_BLURAY | DBG_STREAM, "End of title\n");
                         _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
                         _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, 0);
                         return 0;
@@ -1820,11 +1818,11 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
             _playmark_reached(bd);
         }
 
-        BD_DEBUG(DBG_STREAM, "%d bytes read OK! (%p)\n", out_len, bd);
+        BD_DEBUG(DBG_STREAM, "%d bytes read OK!\n", out_len);
         return out_len;
     }
 
-    BD_DEBUG(DBG_STREAM | DBG_CRIT, "bd_read(): no valid title selected! (%p)\n", bd);
+    BD_DEBUG(DBG_STREAM | DBG_CRIT, "bd_read(): no valid title selected!\n");
 
     return -1;
 }
@@ -1976,8 +1974,7 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
 
     bd->title = nav_title_open(bd->device_path, f_name, angle);
     if (bd->title == NULL) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n",
-              f_name, bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s!\n", f_name);
         return 0;
     }
 
@@ -1991,7 +1988,7 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
     // Get the initial clip of the playlist
     bd->st0.clip = nav_next_clip(bd->title, NULL);
     if (_open_m2ts(bd, &bd->st0)) {
-        BD_DEBUG(DBG_BLURAY, "Title %s selected! (%p)\n", f_name, bd);
+        BD_DEBUG(DBG_BLURAY, "Title %s selected\n", f_name);
 
         _find_next_playmark(bd);
 
@@ -2038,11 +2035,11 @@ int bd_select_title(BLURAY *bd, uint32_t title_idx)
 
     // Open the playlist
     if (bd->title_list == NULL) {
-        BD_DEBUG(DBG_BLURAY, "Title list not yet read! (%p)\n", bd);
+        BD_DEBUG(DBG_CRIT | DBG_BLURAY, "Title list not yet read!\n");
         return 0;
     }
     if (bd->title_list->count <= title_idx) {
-        BD_DEBUG(DBG_BLURAY, "Invalid title index %d! (%p)\n", title_idx, bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Invalid title index %d!\n", title_idx);
         return 0;
     }
 
@@ -2068,7 +2065,7 @@ static int _bd_select_angle(BLURAY *bd, unsigned angle)
     unsigned orig_angle;
 
     if (bd->title == NULL) {
-        BD_DEBUG(DBG_BLURAY, "Title not yet selected! (%p)\n", bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Can't select angle: title not yet selected!\n");
         return 0;
     }
 
@@ -2083,7 +2080,7 @@ static int _bd_select_angle(BLURAY *bd, unsigned angle)
     bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
 
     if (!_open_m2ts(bd, &bd->st0)) {
-        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "Error selecting angle %d ! (%p)\n", angle, bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Error selecting angle %d !\n", angle);
         return 0;
     }
 
@@ -2135,7 +2132,7 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle)
 uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length)
 {
     if (!bd) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_get_titles(NULL) failed (%p)\n", bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_get_titles(NULL) failed\n");
         return 0;
     }
 
@@ -2145,7 +2142,7 @@ uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length)
     bd->title_list = nav_get_title_list(bd->device_path, flags, min_title_length);
 
     if (!bd->title_list) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "nav_get_title_list(%s) failed (%p)\n", bd->device_path, bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "nav_get_title_list(%s) failed\n", bd->device_path);
         return 0;
     }
 
@@ -2244,8 +2241,7 @@ static BLURAY_TITLE_INFO *_get_title_info(BLURAY *bd, uint32_t title_idx, uint32
 
     title = nav_title_open(bd->device_path, mpls_name, angle);
     if (title == NULL) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s! (%p)\n",
-              mpls_name, bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s!\n", mpls_name);
         return NULL;
     }
 
@@ -2258,11 +2254,11 @@ static BLURAY_TITLE_INFO *_get_title_info(BLURAY *bd, uint32_t title_idx, uint32
 BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx, unsigned angle)
 {
     if (bd->title_list == NULL) {
-        BD_DEBUG(DBG_BLURAY, "Title list not yet read! (%p)\n", bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title list not yet read!\n");
         return NULL;
     }
     if (bd->title_list->count <= title_idx) {
-        BD_DEBUG(DBG_BLURAY, "Invalid title index %d! (%p)\n", title_idx, bd);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Invalid title index %d!\n", title_idx);
         return NULL;
     }
 
@@ -2416,7 +2412,7 @@ static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
      * Restore stored playback position.
      */
 
-    BD_DEBUG(DBG_BLURAY, "PSR restore: psr%u = %u (%p)\n", ev->psr_idx, ev->new_val, bd);
+    BD_DEBUG(DBG_BLURAY, "PSR restore: psr%u = %u\n", ev->psr_idx, ev->new_val);
 
     switch (ev->psr_idx) {
         case PSR_ANGLE_NUMBER:
@@ -2460,7 +2456,7 @@ static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
 static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
 {
     if (ev->ev_type == BD_PSR_WRITE) {
-        BD_DEBUG(DBG_BLURAY, "PSR write: psr%u = %u (%p)\n", ev->psr_idx, ev->new_val, bd);
+        BD_DEBUG(DBG_BLURAY, "PSR write: psr%u = %u\n", ev->psr_idx, ev->new_val);
     }
 
     switch (ev->psr_idx) {
@@ -2495,7 +2491,7 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
 
 static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
 {
-    BD_DEBUG(DBG_BLURAY, "PSR change: psr%u = %u (%p)\n", ev->psr_idx, ev->new_val, bd);
+    BD_DEBUG(DBG_BLURAY, "PSR change: psr%u = %u\n", ev->psr_idx, ev->new_val);
 
     _process_psr_write_event(bd, ev);
 
@@ -2563,10 +2559,10 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
             break;
 
         case BD_PSR_SAVE:
-            BD_DEBUG(DBG_BLURAY, "PSR save event (%p)\n", bd);
+            BD_DEBUG(DBG_BLURAY, "PSR save event\n");
             break;
         default:
-            BD_DEBUG(DBG_BLURAY, "PSR event %d: psr%u = %u (%p)\n", ev->ev_type, ev->psr_idx, ev->new_val, bd);
+            BD_DEBUG(DBG_BLURAY, "PSR event %d: psr%u = %u\n", ev->ev_type, ev->psr_idx, ev->new_val);
             break;
     }
 }
@@ -2724,18 +2720,18 @@ int bd_play(BLURAY *bd)
 static int _try_play_title(BLURAY *bd, unsigned title)
 {
     if (bd->title_type == title_undef && title != BLURAY_TITLE_FIRST_PLAY) {
-        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_play_title(): bd_play() not called\n");
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_play_title(): bd_play() not called\n");
         return 0;
     }
 
     if (bd->st0.uo_mask.title_search) {
-        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "title search masked by stream\n");
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by stream\n");
         return 0;
     }
 
     if (bd->title_type == title_hdmv) {
         if (hdmv_vm_get_uo_mask(bd->hdmv_vm) & HDMV_TITLE_SEARCH_MASK) {
-            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "title search masked by movie object\n");
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by movie object\n");
             return 0;
         }
     }
@@ -2759,23 +2755,23 @@ static int _try_menu_call(BLURAY *bd, int64_t pts)
     }
 
     if (bd->title_type == title_undef) {
-        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_menu_call(): bd_play() not called\n");
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_menu_call(): bd_play() not called\n");
         return 0;
     }
 
     if (bd->st0.uo_mask.menu_call) {
-        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "menu call masked by stream\n");
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by stream\n");
         return 0;
     }
 
     if (bd->title_type == title_hdmv) {
         if (hdmv_vm_get_uo_mask(bd->hdmv_vm) & HDMV_MENU_CALL_MASK) {
-            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "menu call masked by movie object\n");
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by movie object\n");
             return 0;
         }
 
         if (hdmv_vm_suspend_pl(bd->hdmv_vm) < 0) {
-            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_menu_call(): error storing playback location\n");
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_menu_call(): error storing playback location\n");
         }
     }
 
