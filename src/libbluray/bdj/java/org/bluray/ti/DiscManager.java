@@ -19,6 +19,8 @@
 
 package org.bluray.ti;
 
+import java.util.LinkedList;
+
 public class DiscManager {
     public static synchronized DiscManager getDiscManager() {
         if (instance == null)
@@ -35,17 +37,22 @@ public class DiscManager {
     }
 
     public void addDiscStatusEventListener(DiscStatusListener listener) {
-        org.videolan.Logger.unimplemented(DiscManager.class.getName(), "addDiscStatusEventListener");
+        synchronized(listeners) {
+            listeners.add(listener);
+        }
     }
 
     public void removeDiscStatusEventListener(DiscStatusListener listener) {
-        org.videolan.Logger.unimplemented(DiscManager.class.getName(), "removeDiscStatusEventListener");
+        synchronized(listeners) {
+            listeners.remove(listener);
+        }
     }
 
     public void setCurrentDisc(String id) {
         disc = new DiscImpl(id);
     }
 
+    private LinkedList listeners = new LinkedList();
     private static DiscManager instance;
     private DiscImpl disc = null;
 }
