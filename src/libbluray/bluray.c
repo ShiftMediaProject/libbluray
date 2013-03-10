@@ -178,12 +178,12 @@ struct bluray {
     BD_ARGB_BUFFER      *argb_buffer;
 };
 
-#define DL_CALL(lib,func,param,...)             \
+#define DL_CALL(lib,func,...)                       \
      do {                                           \
           fptr_p_void fptr;                         \
           *(void **)(&fptr) = dl_dlsym(lib, #func); \
           if (fptr) {                               \
-              fptr(param, ##__VA_ARGS__);           \
+              fptr(__VA_ARGS__);                    \
           }                                         \
       } while (0)
 
