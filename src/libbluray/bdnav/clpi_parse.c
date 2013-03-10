@@ -30,8 +30,6 @@
 #define CLPI_SIG2A ('0' << 24 | '2' << 16 | '0' << 8 | '0')
 #define CLPI_SIG2B ('0' << 24 | '1' << 16 | '0' << 8 | '0')
 
-static int clpi_verbose = 0;
-
 static void
 _human_readable_sig(char *sig, uint32_t s1, uint32_t s2)
 {
@@ -648,13 +646,11 @@ clpi_free(CLPI_CL *cl)
 }
 
 static CLPI_CL*
-_clpi_parse(const char *path, int verbose)
+_clpi_parse(const char *path)
 {
     BITSTREAM  bits;
     BD_FILE_H *fp;
     CLPI_CL   *cl;
-
-    clpi_verbose = verbose;
 
     cl = calloc(1, sizeof(CLPI_CL));
     if (cl == NULL) {
@@ -707,9 +703,9 @@ _clpi_parse(const char *path, int verbose)
 }
 
 CLPI_CL*
-clpi_parse(const char *path, int verbose)
+clpi_parse(const char *path)
 {
-    CLPI_CL *cl = _clpi_parse(path, verbose);
+    CLPI_CL *cl = _clpi_parse(path);
 
     /* if failed, try backup file */
     if (!cl) {
@@ -720,7 +716,7 @@ clpi_parse(const char *path, int verbose)
         strcpy(backup + len - 18, "BACKUP/");
         strcpy(backup + len - 18 + 7, path + len - 18);
 
-        cl = _clpi_parse(backup, verbose);
+        cl = _clpi_parse(backup);
 
         X_FREE(backup);
     }

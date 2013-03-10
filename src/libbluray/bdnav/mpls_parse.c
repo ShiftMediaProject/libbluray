@@ -31,8 +31,6 @@
 #define MPLS_SIG2A ('0' << 24 | '2' << 16 | '0' << 8 | '0')
 #define MPLS_SIG2B ('0' << 24 | '1' << 16 | '0' << 8 | '0')
 
-static int mpls_verbose = 0;
-
 static void
 _human_readable_sig(char *sig, uint32_t s1, uint32_t s2)
 {
@@ -879,13 +877,11 @@ _parse_mpls_extension(BITSTREAM *bits, int id1, int id2, void *handle)
 }
 
 static MPLS_PL*
-_mpls_parse(const char *path, int verbose)
+_mpls_parse(const char *path)
 {
     BITSTREAM  bits;
     BD_FILE_H *fp;
     MPLS_PL   *pl = NULL;
-
-    mpls_verbose = verbose;
 
     pl = calloc(1, sizeof(MPLS_PL));
     if (pl == NULL) {
@@ -927,9 +923,9 @@ _mpls_parse(const char *path, int verbose)
 }
 
 MPLS_PL*
-mpls_parse(const char *path, int verbose)
+mpls_parse(const char *path)
 {
-    MPLS_PL *pl = _mpls_parse(path, verbose);
+    MPLS_PL *pl = _mpls_parse(path);
 
     /* if failed, try backup file */
     if (!pl) {
@@ -940,7 +936,7 @@ mpls_parse(const char *path, int verbose)
         strcpy(backup + len - 19, "BACKUP/");
         strcpy(backup + len - 19 + 7, path + len - 19);
 
-        pl = _mpls_parse(backup, verbose);
+        pl = _mpls_parse(backup);
 
         X_FREE(backup);
     }

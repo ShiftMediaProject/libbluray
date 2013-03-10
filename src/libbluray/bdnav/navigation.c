@@ -161,7 +161,7 @@ NAV_TITLE_LIST* nav_get_title_list(const char *root, uint32_t flags, uint32_t mi
             }
             pl_list = tmp;
         }
-        pl = mpls_parse(path, 0);
+        pl = mpls_parse(path);
         X_FREE(path);
         if (pl != NULL) {
             if ((flags & TITLES_FILTER_DUP_TITLE) &&
@@ -255,7 +255,7 @@ char* nav_find_main_title(const char *root)
             }
             pl_list = tmp;
         }
-        pl = mpls_parse(path, 0);
+        pl = mpls_parse(path);
         X_FREE(path);
         if (pl != NULL) {
             if (_filter_dup(pl_list, ii, pl) &&
@@ -421,7 +421,7 @@ static void _fill_clip(NAV_TITLE *title,
     path = str_printf("%s"DIR_SEP"BDMV"DIR_SEP"CLIPINF"DIR_SEP"%s.clpi",
                       title->root, mpls_clip[clip->angle].clip_id);
     clpi_free(clip->cl);
-    clip->cl = clpi_parse(path, 0);
+    clip->cl = clpi_parse(path);
     X_FREE(path);
     if (clip->cl == NULL) {
         clip->start_pkt = 0;
@@ -473,7 +473,7 @@ NAV_TITLE* nav_title_open(const char *root, const char *playlist, unsigned angle
                       root, playlist);
     title->angle_count = 0;
     title->angle = angle;
-    title->pl = mpls_parse(path, 0);
+    title->pl = mpls_parse(path);
     if (title->pl == NULL) {
         BD_DEBUG(DBG_NAV, "Fail: Playlist parse %s\n", path);
         X_FREE(title);

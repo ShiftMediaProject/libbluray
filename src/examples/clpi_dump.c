@@ -417,7 +417,7 @@ main(int argc, char *argv[])
     }
 
     for (ii = optind; ii < argc; ii++) {
-        cl = clpi_parse(argv[ii], verbose);
+        cl = clpi_parse(argv[ii]);
         if (cl == NULL) {
             fprintf(stderr, "Parse failed\n");
             continue;

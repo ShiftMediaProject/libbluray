@@ -526,7 +526,7 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
 {
     MPLS_PL *pl;
 
-    pl = mpls_parse(name, verbose);
+    pl = mpls_parse(name);
     if (pl == NULL) {
         fprintf(stderr, "Parse failed: %s\n", name);
         return NULL;
