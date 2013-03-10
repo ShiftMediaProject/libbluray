@@ -25,7 +25,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-static uint32_t     debug_mask = DBG_CRIT;
+uint32_t            debug_mask = DBG_CRIT;
 static BD_LOG_FUNC  log_func   = NULL;
 
 void bd_set_debug_handler(BD_LOG_FUNC f)

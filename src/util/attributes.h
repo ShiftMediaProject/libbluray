@@ -46,4 +46,12 @@
 #    define BD_PRIVATE
 #endif
 
+#if !defined(__GNUC__) || __GNUC__ < 3
+#  define BD_LIKELY(x)   (x)
+#  define BD_UNLIKELY(x) (x)
+#else
+#  define BD_LIKELY(x)   __builtin_expect((x),1)
+#  define BD_UNLIKELY(x) __builtin_expect((x),0)
+#endif
+
 #endif /* LIBBLURAY_ATTRIBUTES_H_ */
