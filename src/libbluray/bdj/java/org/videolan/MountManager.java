@@ -71,8 +71,11 @@ public class MountManager {
                 File out = new File(tmpDir + File.separator + entry.getName());
 
                 if (entry.isDirectory()) {
-                    out.mkdir();
+                    out.mkdirs();
                 } else {
+                    /* make sure path exists */
+                    out.getParentFile().mkdirs();
+
                     InputStream inStream = jar.getInputStream(entry);
                     OutputStream outStream = new FileOutputStream(out);
 
