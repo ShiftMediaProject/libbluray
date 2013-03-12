@@ -26,8 +26,8 @@ public class VFSManager {
             UnsupportedOperationException
     {
         logger.unimplemented("getInstance");
-        //return new VFSManager();
-        throw new UnsupportedOperationException();
+        return new VFSManager();
+        //throw new UnsupportedOperationException();
     }
 
     protected VFSManager()
@@ -69,7 +69,7 @@ public class VFSManager {
     public void requestUpdating(String manifestfile, String signaturefile,
             boolean initBackupRegs) throws PreparingFailedException
     {
-        logger.unimplemented("requestUpdating");
+        logger.unimplemented("requestUpdating(" + manifestfile + ")");
     }
 
     private int state;
