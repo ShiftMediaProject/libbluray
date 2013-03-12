@@ -47,7 +47,7 @@ char *print_hex(char *out, const uint8_t *buf, int count)
 {
     int zz;
     for(zz = 0; zz < count; zz++) {
-        sprintf(out + (zz * 2), "%02X", buf[zz]);
+        sprintf(out + (zz * 2), "%02x", buf[zz]);
     }
 
     return out;
