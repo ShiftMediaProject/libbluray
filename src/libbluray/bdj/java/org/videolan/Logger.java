@@ -19,12 +19,19 @@
 
 package org.videolan;
 
+import java.io.PrintStream;
+
 public class Logger {
     static {
         String prop;
 
         use_throw = false;
         use_trace = false;
+
+        // capture stdout and stderr from on-disc applets
+        // (those produce useful debug information sometimes)
+        System.setOut(createCapture(System.out, false));
+        System.setErr(createCapture(System.err, true));
 
         prop = System.getProperty("debug.unimplemented.throw");
         if (prop != null && prop.equalsIgnoreCase("YES")) {
@@ -63,6 +70,17 @@ public class Logger {
         return new Location();
     }
 
+    private static PrintStream createCapture(final PrintStream printStream, final boolean error) {
+        return new PrintStream(printStream) {
+            public void print(final String string) {
+                Logger.log(error, string);
+            }
+            public void println(final String string) {
+                Logger.log(error, string);
+            }
+        };
+    }
+
     public static Logger getLogger(String name) {
         return new Logger(name);
     }
@@ -76,7 +94,6 @@ public class Logger {
     private static void log(boolean error, String cls, String msg) {
         logN(error, cls, 0, msg);
     }
-
     private static void log(boolean error, String msg) {
         Location l = getLocation(3);
         logN(error, l.file + ":" + l.cls + "." + l.func, l.line, msg);
