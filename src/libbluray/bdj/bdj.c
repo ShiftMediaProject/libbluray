@@ -166,6 +166,54 @@ static const char *_find_libbluray_jar(void)
     return classpath;
 }
 
+static const char *_bdj_persistent_root(void)
+{
+    static const char *root = NULL;
+
+    if (root) {
+        return root;
+    }
+
+    root = getenv("LIBBLURAY_PERSISTENT_ROOT");
+    if (root) {
+        return root;
+    }
+
+    root = file_get_data_home();
+    if (!root) {
+        root = "";
+    }
+    root = str_printf("%s/bluray/dvb.persistent.root/", root);
+
+    BD_DEBUG(DBG_BDJ, "LIBBLURAY_PERSISTENT_ROOT not set, using %s\n", root);
+
+    return root;
+}
+
+static const char *_bdj_buda_root(void)
+{
+    static const char *root = NULL;
+
+    if (root) {
+        return root;
+    }
+
+    root = getenv("LIBBLURAY_CACHE_ROOT");
+    if (root) {
+        return root;
+    }
+
+    root = file_get_cache_home();
+    if (!root) {
+        root = "";
+    }
+    root = str_printf("%s/bluray/bluray.bindingunit.root/", root);
+
+    BD_DEBUG(DBG_BDJ, "LIBBLURAY_CACHE_ROOT not set, using %s\n", root);
+
+    return root;
+}
+
 static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
 {
     if (!bdj_register_native_methods(env)) {
@@ -234,31 +282,13 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     bdjava->osd_cb = osd_cb;
     bdjava->buf = buf;
 
-    // check if overriding persistent root path
-    const char* persistent = getenv("LIBBLURAY_PERSISTENT_ROOT");
-
-    // determine dvb.persistent.root
-    char* persistent_opt;
-    if (persistent == NULL) {
-        const char *home = getenv("HOME");
-        char *tmp = NULL;
-        if (home) {
-          persistent = tmp = str_printf("%s/.local/share/libbluray/", home);
-        } else {
-          persistent = "/tmp/";
-        }
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "LIBBLURAY_PERSISTENT_ROOT not set, using %s\n", persistent);
-        persistent_opt = str_printf("-Ddvb.persistent.root=%s"DIR_SEP"dvb.persistent.root", persistent);
-        X_FREE(tmp);
-    } else {
-        persistent_opt = str_printf("-Ddvb.persistent.root=%s", persistent);
-    }
-
-    JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 11);
+    JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 20);
     int n = 0;
     JavaVMInitArgs args;
-    option[n++].optionString = persistent_opt;
     option[n++].optionString = str_printf("-Dbluray.vfs.root=%s", path);
+    option[n++].optionString = str_printf("-Ddvb.persistent.root=%s", _bdj_persistent_root());
+    option[n++].optionString = str_printf("-Dbluray.bindingunit.root=%s", _bdj_buda_root());
+
     option[n++].optionString = str_dup   ("-Dawt.toolkit=java.awt.BDToolkit");
     option[n++].optionString = str_printf("-Xbootclasspath/a:%s", _find_libbluray_jar());
     option[n++].optionString = str_dup   ("-Xms256M");
