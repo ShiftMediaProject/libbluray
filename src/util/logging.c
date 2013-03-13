@@ -80,13 +80,13 @@ void bd_debug(const char *file, int line, uint32_t mask, const char *format, ...
     }
 
     if (mask & debug_mask) {
-        char buffer[512], *pt = buffer;
+        char buffer[4096], *pt = buffer;
         va_list args;
 
         pt += sprintf(buffer, "%s:%d: ", file, line);
 
         va_start(args, format);
-        vsprintf(pt, format, args);
+        vsnprintf(pt, sizeof(buffer) - (size_t)(intptr_t)(pt - buffer) - 1, format, args);
         va_end(args);
 
         if (log_func) {
