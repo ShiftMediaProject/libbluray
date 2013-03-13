@@ -31,28 +31,11 @@
 #if defined(HAVE_DIRENT_H)
 #   include <dirent.h>
 #endif
-#if defined(_WIN32)
-#   include <io.h>
-#   include <windows.h>
-#endif
 
-#if defined(_WIN32)
-typedef struct {
-    long                handle;
-    struct _wfinddata_t info;
-} dir_data_t;
-#endif
-
-static void dir_close_posix(BD_DIR_H *dir)
+static void _dir_close_posix(BD_DIR_H *dir)
 {
     if (dir) {
-#if defined(_WIN32)
-        dir_data_t *priv = (dir_data_t*)dir->internal;
-        _findclose(priv->handle);
-        X_FREE(dir->internal);
-#else
         closedir((DIR *)dir->internal);
-#endif
 
         BD_DEBUG(DBG_DIR, "Closed POSIX dir (%p)\n", (void*)dir);
 
@@ -60,20 +43,8 @@ static void dir_close_posix(BD_DIR_H *dir)
     }
 }
 
-static int dir_read_posix(BD_DIR_H *dir, BD_DIRENT *entry)
+static int _dir_read_posix(BD_DIR_H *dir, BD_DIRENT *entry)
 {
-#if defined(_WIN32)
-    dir_data_t *priv = (dir_data_t*)dir->internal;
-
-    if (!priv->info.name[0]) {
-        return 1;
-    }
-    WideCharToMultiByte(CP_UTF8, 0, priv->info.name, -1, entry->d_name, sizeof(entry->d_name), NULL, NULL);
-
-    priv->info.name[0] = 0;
-    _wfindnext(priv->handle, &priv->info);
-
-#else
     struct dirent e, *p_e;
     int result;
 
@@ -84,48 +55,21 @@ static int dir_read_posix(BD_DIR_H *dir, BD_DIRENT *entry)
         return 1;
     }
     strncpy(entry->d_name, e.d_name, 256);
-#endif
 
     return 0;
 }
 
-static BD_DIR_H *dir_open_posix(const char* dirname)
+static BD_DIR_H *_dir_open_posix(const char* dirname)
 {
     BD_DIR_H *dir = malloc(sizeof(BD_DIR_H));
 
     BD_DEBUG(DBG_DIR, "Opening POSIX dir %s... (%p)\n", dirname, (void*)dir);
-    dir->close = dir_close_posix;
-    dir->read = dir_read_posix;
+    dir->close = _dir_close_posix;
+    dir->read = _dir_read_posix;
 
-#if defined(_WIN32)
-    char       *filespec = str_printf("%s/*", dirname);
-    dir_data_t *priv     = calloc(1, sizeof(dir_data_t));
-
-    dir->internal = priv;
-
-    wchar_t wfilespec[MAX_PATH];
-    if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, filespec, -1, wfilespec, MAX_PATH))
-        priv->handle = _wfindfirst(wfilespec, &priv->info);
-    else
-        priv->handle = -1;
-
-    X_FREE(filespec);
-
-    if (priv->handle != -1) {
+    if ((dir->internal = opendir(dirname))) {
         return dir;
     }
-
-    X_FREE(dir->internal);
-
-#else
-    DIR *dp = NULL;
-
-    if ((dp = opendir(dirname))) {
-        dir->internal = dp;
-
-        return dir;
-    }
-#endif
 
     BD_DEBUG(DBG_DIR, "Error opening dir! (%p)\n", (void*)dir);
 
@@ -134,4 +78,4 @@ static BD_DIR_H *dir_open_posix(const char* dirname)
     return NULL;
 }
 
-BD_DIR_H* (*dir_open)(const char* dirname) = dir_open_posix;
+BD_DIR_H* (*dir_open)(const char* dirname) = _dir_open_posix;

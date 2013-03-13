@@ -56,11 +56,9 @@ libbluray_la_SOURCES = \
 	libbluray/hdmv/mobj_parse.h \
 	libbluray/hdmv/mobj_parse.c \
 	libbluray/hdmv/mobj_print.c \
-	file/dir_posix.c \
 	file/file.h \
 	file/file_posix.c \
 	file/dl.h \
-	file/dl_posix.c \
 	file/filesystem.h \
 	file/filesystem.c \
 	util/attributes.h \
@@ -76,13 +74,19 @@ libbluray_la_SOURCES = \
 
 if HAVE_DARWIN
 libbluray_la_SOURCES+= \
+	file/dir_posix.c \
+	file/dl_posix.c \
 	file/dirs_darwin.c
 else
 if HAVE_WIN32
 libbluray_la_SOURCES+= \
+	file/dir_win32.c \
+	file/dl_win32.c \
 	file/dirs_win32.c
 else
 libbluray_la_SOURCES+= \
+	file/dir_posix.c \
+	file/dl_posix.c \
 	file/dirs_xdg.c
 endif
 endif
