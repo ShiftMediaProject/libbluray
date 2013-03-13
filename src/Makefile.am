@@ -126,6 +126,8 @@ libbluray_la_SOURCES += \
 	libbluray/bdj/native/java_awt_BDFontMetrics.c \
 	libbluray/bdj/native/org_videolan_Libbluray.h \
 	libbluray/bdj/native/org_videolan_Libbluray.c \
+	libbluray/bdj/native/org_videolan_Logger.h \
+	libbluray/bdj/native/org_videolan_Logger.c \
 	libbluray/bdj/native/register_native.h \
 	libbluray/bdj/native/register_native.c
 

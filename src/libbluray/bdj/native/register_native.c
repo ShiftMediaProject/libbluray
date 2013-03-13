@@ -23,14 +23,20 @@
 
 int bdj_register_native_methods(JNIEnv *env)
 {
+    extern const JNINativeMethod Java_org_videolan_Logger_methods[];
     extern const JNINativeMethod Java_org_videolan_Libbluray_methods[];
     extern const JNINativeMethod Java_java_awt_BDGraphics_methods[];
     extern const JNINativeMethod Java_java_awt_BDFontMetrics_methods[];
+    extern const int Java_org_videolan_Logger_methods_count;
     extern const int Java_org_videolan_Libbluray_methods_count;
     extern const int Java_java_awt_BDGraphics_methods_count;
     extern const int Java_java_awt_BDFontMetrics_methods_count;
 
     return
+      bdj_register_methods(env, "org/videolan/Logger",
+                           Java_org_videolan_Logger_methods,
+                           Java_org_videolan_Logger_methods_count)
+      *
       bdj_register_methods(env, "org/videolan/Libbluray",
                            Java_org_videolan_Libbluray_methods,
                            Java_org_videolan_Libbluray_methods_count)

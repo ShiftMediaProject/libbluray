@@ -36,6 +36,33 @@ public class Logger {
         }
     }
 
+    private static class Location {
+        public int line = 0;
+        public String file = "?";
+        public String cls = "?";
+        public String func = "?";
+        Location() {
+        }
+        Location(StackTraceElement e) {
+            line = e.getLineNumber();
+            file = e.getFileName();
+            cls = e.getClassName();
+            func = e.getMethodName();
+            if (file == null) {
+                file = "<unknown.java>";
+            }
+        }
+    }
+    private static Location getLocation(int depth) {
+        StackTraceElement e[] = new Exception("Stack trace").getStackTrace();
+        if (e != null && e.length > 1) {
+            for (int i = depth; i < e.length; i++)
+                if (!e[i].getClassName().startsWith("org.videolan.Logger"))
+                    return new Location(e[i]);
+        }
+        return new Location();
+    }
+
     public static Logger getLogger(String name) {
         return new Logger(name);
     }
@@ -44,45 +71,57 @@ public class Logger {
         this.name = name;
     }
 
-    private static void log(String msg) {
-        System.out.println(msg);
+    private static native void logN(boolean error, String file, int line, String msg);
+
+    private static void log(boolean error, String cls, String msg) {
+        logN(error, cls, 0, msg);
+    }
+
+    private static void log(boolean error, String msg) {
+        Location l = getLocation(3);
+        logN(error, l.file + ":" + l.cls + "." + l.func, l.line, msg);
     }
 
     public void trace(String msg) {
         if (use_trace) {
-            log("BD-J: " + name + ": " + msg);
+            log(false, name, msg);
         }
     }
 
     public void info(String msg) {
-        log("BD-J: " + name + ": " + msg);
+        log(false, name, "INFO: " + msg);
     }
 
     public void warning(String msg) {
-        log("BD-J WARNING: " + name + ": " + msg);
+        log(false, name, "WARNING: " + msg);
     }
 
     public void error(String msg) {
-        log("BD-J ERROR: " + name + ": " + msg);
+        log(true, name, "ERROR: " + msg);
     }
 
     public void unimplemented() {
         unimplemented(null);
     }
 
-    public static void dumpStack() {
+    public static String dumpStack() {
+        String dump = "";
         StackTraceElement e[] = new Exception("Stack trace").getStackTrace();
-        for (int i = 2; i < e.length; i++)
-            log("    " + e[i].toString());
+        if (e != null && e.length > 1) {
+            dump = "\t" + e[2].toString();
+            for (int i = 3; i < e.length; i++)
+                dump += "\n\t" + e[i].toString();
+        }
+        return dump;
     }
 
     public void unimplemented(String func) {
         String location = name;
         if (func != null) {
             location = location + "." + func + "()";
-            log("BD-J: Not implemented: " + location);
         }
-        dumpStack();
+
+        log(true, "UNIMPLEMENTED: " + location + "\n" + dumpStack());
 
         if (use_throw) {
             throw new Error("Not implemented: " + location);
@@ -90,10 +129,17 @@ public class Logger {
     }
 
     public static void unimplemented(String cls, String func) {
-        String location = cls + "." + func + "()";
-        log("BD-J: Not implemented: " + location);
+        if (cls == null)
+            cls = "<?>";
 
-        dumpStack();
+        if (func == null)
+            func = "";
+        else
+            func = "." + func + "()";
+
+        String location = cls + func;
+
+        log(true, "UNIMPLEMENTED: " + location + "\n" + dumpStack());
 
         if (use_throw) {
             throw new Error("Not implemented: " + location);
