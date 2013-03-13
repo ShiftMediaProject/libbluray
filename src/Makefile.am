@@ -73,6 +73,21 @@ libbluray_la_SOURCES = \
 	util/bits.h \
 	util/bits.c \
 	util/logging.h
+
+if HAVE_DARWIN
+libbluray_la_SOURCES+= \
+	file/dirs_darwin.c
+else
+if HAVE_WIN32
+libbluray_la_SOURCES+= \
+	file/dirs_win32.c
+else
+libbluray_la_SOURCES+= \
+	file/dirs_xdg.c
+endif
+endif
+
+
 libbluray_la_LDFLAGS= -version-info $(LT_VERSION_INFO)
 libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS)
 

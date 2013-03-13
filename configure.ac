@@ -39,10 +39,16 @@ case "${host_os}" in
         ;;
     esac
     ;;
+  *darwin*)
+    SYS=darwin
+    ;;
   *)
     SYS="${host_os}"
     ;;
 esac
+
+AM_CONDITIONAL(HAVE_WIN32,   test "${SYS}" = "mingw32")
+AM_CONDITIONAL(HAVE_DARWIN,  test "${SYS}" = "darwin")
 
 dnl messages
 library_not_found="Could not find required library!"

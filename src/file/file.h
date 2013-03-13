@@ -55,4 +55,11 @@ BD_PRIVATE BD_FILE_OPEN file_open_default(void);
 
 BD_PRIVATE extern BD_DIR_H* (*dir_open)(const char* dirname);
 
+/*
+ * User cache and data dirs
+ */
+
+BD_PRIVATE const char *file_get_data_home(void);
+BD_PRIVATE const char *file_get_cache_home(void);
+
 #endif /* FILE_H_ */
