@@ -29,14 +29,14 @@
 #include <string.h>
 
 #include <shlobj.h>
-#include <w32api.h>
+#include <windows.h>
 #include <limits.h>
 #include <direct.h>
 
 
 const char *file_get_data_home(void)
 {
-    static char appdir[PATH_MAX] = "";
+    static char appdir[MAX_PATH] = "";
     wchar_t wdir[MAX_PATH];
 
     if (*appdir)
@@ -45,7 +45,7 @@ const char *file_get_data_home(void)
     /* Get the "Application Data" folder for the user */
     if (S_OK == SHGetFolderPathW(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE,
                 NULL, SHGFP_TYPE_CURRENT, wdir)) {
-        WideCharToMultiByte (CP_UTF8, 0, wdir, -1, appdir, PATH_MAX, NULL, NULL);
+        WideCharToMultiByte (CP_UTF8, 0, wdir, -1, appdir, MAX_PATH, NULL, NULL);
         return appdir;
     }
 
