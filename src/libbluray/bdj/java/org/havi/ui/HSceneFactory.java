@@ -89,6 +89,17 @@ public class HSceneFactory extends Object {
         GUIManager.getInstance().remove(scene);
     }
 
+    public void dispose() {
+        synchronized(HSceneFactory.class) {
+            dispose(defaultHScene);
+            defaultHScene = null;
+        }
+    }
+
+    public static void shutdown() {
+        instance.dispose();
+    }
+
     private HScene defaultHScene = null;
     private static final HSceneFactory instance = new HSceneFactory();
 }
