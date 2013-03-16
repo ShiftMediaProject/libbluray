@@ -135,7 +135,7 @@ public class BDJLoader {
             }
 
             // start bdj window
-            GUIManager gui = GUIManager.getInstance();
+            GUIManager gui = GUIManager.createInstance();
             GraphicsResolution res = bdjo.getTerminalInfo().getResolution();
             gui.setResizable(true);
             gui.setSize(res.getWidth(), res.getHeight());

@@ -126,6 +126,7 @@ public class Libbluray {
             BDJActionManager.getInstance().finalize();
             MountManager.unmountAll();
             org.havi.ui.HSceneFactory.shutdown();
+            GUIManager.shutdown();
         } catch (Throwable e) {
             e.printStackTrace();
         }

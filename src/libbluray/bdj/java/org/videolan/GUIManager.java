@@ -30,9 +30,18 @@ public class GUIManager extends BDRootWindow {
     private GUIManager() {
     }
 
-    public static synchronized GUIManager getInstance() {
-        if (instance == null)
+    public static synchronized GUIManager createInstance() {
+        if (instance == null) {
             instance = new GUIManager();
+        }
+        return instance;
+    }
+
+    public static synchronized GUIManager getInstance() {
+        if (instance == null) {
+            Logger.getLogger("GUIManager").error("getInstance(): no instance !");
+            throw new Error("no GUIManager instance");
+        }
         return instance;
     }
 
@@ -54,6 +63,18 @@ public class GUIManager extends BDRootWindow {
             component = component.getParent();
         }
         return null;
+    }
+
+    protected static void shutdown() throws Throwable {
+        synchronized (GUIManager.class) {
+            if (instance != null) {
+                instance.setVisible(false);
+                instance.removeAll();
+                instance.dispose();
+                //instance.finalize();
+                instance = null;
+            }
+        }
     }
 
     private static GUIManager instance = null;
