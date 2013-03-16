@@ -150,7 +150,14 @@ public class BDJLoader {
                                                                    bdjo.getAppCaches(),
                                                                    gui));
                 }
-                logger.info("Loaded class: " + appTable[i].getInitialClass());
+
+                /* log startup calss, startup parameters and jar file */
+                String[] params = appTable[i].getParams();
+                String p = "";
+                if (params != null && params.length > 0) {
+                    p = "(" + StrUtil.Join(params, ",") + ")";
+                }
+                logger.info("Loaded class: " + appTable[i].getInitialClass() + p + " from " + appTable[i].getBasePath() + ".jar");
             }
 
             // change psr
@@ -162,11 +169,14 @@ public class BDJLoader {
             // now run all the xlets
             for (int i = 0; i < appTable.length; i++) {
                 int code = appTable[i].getControlCode();
-                if (code == AppEntry.AUTOSTART)
+                if (code == AppEntry.AUTOSTART) {
+                    logger.info("Autostart xlet " + i + ": " + appTable[i].getInitialClass());
                     proxys[i].start();
-                else if (code == AppEntry.PRESENT)
+                } else if (code == AppEntry.PRESENT) {
+                    logger.info("Resume xlet " + i + ": " + appTable[i].getInitialClass());
                     proxys[i].resume();
-                else {
+                } else {
+                    logger.info("Pause xlet " + i + ": " + appTable[i].getInitialClass());
                     proxys[i].pause();
                 }
             }
