@@ -52,10 +52,7 @@ public class BDRootWindow extends Frame {
 
             Libbluray.updateGraphic(width, height, null);
 
-            dirty.x = 0;
-            dirty.y = 0;
-            dirty.width = width;
-            dirty.height = height;
+            dirty.setBounds(0, 0, width, height);
         }
     }
 
@@ -108,10 +105,8 @@ public class BDRootWindow extends Frame {
             changeCount = 0;
             //Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer, dirty.x, dirty.y, dirty.width, dirty.height);
             Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer);
-            dirty.x = getWidth();
-            dirty.y = getHeight();
-            dirty.width = 0;
-            dirty.height = 0;
+
+            dirty.setBounds(getWidth(), getHeight(), 0, 0);
         }
     }
 
@@ -135,7 +130,7 @@ public class BDRootWindow extends Frame {
     }
 
     private int[] backBuffer = null;
-    private Rectangle dirty;
+    private Rectangle dirty = new Rectangle();
     private int changeCount = 0;
     private Timer timer = new Timer();
     private TimerTask timerTask = null;

@@ -77,7 +77,7 @@ class BDImageBase extends Image {
         if (width > 0 && height > 0)
             backBuffer = new int[width * height];
 
-        dirty = new Rectangle(0, 0, width, height);
+        dirty = new Rectangle(width, height);
     }
 
     public void flush() {
@@ -142,6 +142,12 @@ class BDImageBase extends Image {
     public int[] getBdBackBuffer() {
         return backBuffer;
     }
+
+    public int[] getBackBuffer() {
+        System.err.println("**** BDIMAGE GETBACKBUFFER ****");
+        return backBuffer;
+    }
+
     public Rectangle getDirtyRect() {
         return dirty;
     }
@@ -212,10 +218,7 @@ class BDImageBase extends Image {
     public synchronized void setRGB(int x, int y, int rgb) {
         backBuffer[y * width + x] = rgb;
 
-        if (x < dirty.x) dirty.x = x;
-        else if (x > dirty.width) dirty.width = x;
-        if (y < dirty.y) dirty.y = y;
-        else if (y > dirty.height) dirty.height = y;
+        dirty.add(x, y);
     }
 
     public void setRGB(int x, int y, int w, int h, int[] rgbArray, int offset, int scansize) {
@@ -223,10 +226,7 @@ class BDImageBase extends Image {
             System.arraycopy(rgbArray, i * scansize + offset,
                              backBuffer, (y + i) * width + x,
                              w);
-        if (x < dirty.x) dirty.x = x;
-        else if (x + w > dirty.width) dirty.width = x + w;
-        if (y < dirty.y) dirty.y = y;
-        else if (y + h > dirty.height) dirty.height = y + h;
+        dirty.add(new Rectangle(x, y, w, h));
     }
 
     public BufferedImage getSubimage(int x, int y, int w, int h) {
