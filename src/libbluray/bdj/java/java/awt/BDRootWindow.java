@@ -133,6 +133,25 @@ public class BDRootWindow extends Frame {
         private int changeCount;
     }
 
+    public void dispose()
+    {
+        if (isVisible()) {
+            hide();
+        }
+        if (timerTask != null) {
+            timerTask.cancel();
+            timerTask = null;
+        }
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+
+        BDToolkit.setFocusedWindow(null);
+
+        super.dispose();
+    }
+
     private int[] backBuffer = null;
     private Rectangle dirty = new Rectangle();
     private int changeCount = 0;
