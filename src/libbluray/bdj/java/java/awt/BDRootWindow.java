@@ -87,6 +87,10 @@ public class BDRootWindow extends Frame {
     }
 
     public void notifyChanged() {
+        if (!isVisible()) {
+            org.videolan.Logger.getLogger("BDRootWindow").error("sync(): not visible");
+            return;
+        }
         synchronized (this) {
             changeCount++;
             if (timerTask == null) {
