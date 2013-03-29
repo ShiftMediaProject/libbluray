@@ -19,6 +19,7 @@
 
 package org.videolan;
 
+import java.awt.BDToolkit;
 import java.awt.event.KeyEvent;
 import java.util.Vector;
 
@@ -127,6 +128,7 @@ public class Libbluray {
             MountManager.unmountAll();
             org.havi.ui.HSceneFactory.shutdown();
             GUIManager.shutdown();
+            BDToolkit.shutdown();
         } catch (Throwable e) {
             e.printStackTrace();
         }

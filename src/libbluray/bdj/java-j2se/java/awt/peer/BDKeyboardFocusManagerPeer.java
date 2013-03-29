@@ -25,16 +25,36 @@ import java.awt.Window;
 import java.lang.reflect.Field;
 
 public class BDKeyboardFocusManagerPeer implements KeyboardFocusManagerPeer {
-    private Component focusOwner;
-    private Window window; /* used in java 6 only */
+    private static boolean java7 = false;
+    static BDKeyboardFocusManagerPeer instance = null;
 
-    private static KeyboardFocusManager kfm = null; /* used in java 7 only */
+    /* used in java 7 only */
+    public static KeyboardFocusManagerPeer getInstance() {
+        java7 = true;
+
+        if (instance == null)
+            instance = new BDKeyboardFocusManagerPeer();
+        return instance;
+    }
+
+    public static void shutdown()
+    {
+        if (instance != null) {
+            instance.dispose();
+            instance = null;
+        }
+    }
 
     public static void init(Window window)
     {
         /* running in java 7 ? */
-        if (kfm != null)
+        if (java7 == true)
             return;
+
+        if (instance == null)
+            instance = new BDKeyboardFocusManagerPeer();
+        instance.focusOwner = null;
+        instance.window = window;
 
         /* replace default keyboard focus manager peer */
         Field kbPeer;
@@ -51,21 +71,22 @@ public class BDKeyboardFocusManagerPeer implements KeyboardFocusManagerPeer {
         }
         try {
             kbPeer.set(KeyboardFocusManager.getCurrentKeyboardFocusManager(),
-                       new BDKeyboardFocusManagerPeer(window));
+                       instance);
         } catch (java.lang.IllegalAccessException e) {
             throw new Error("java.awt.KeyboardFocusManager.peer not accessible:" + e);
         }
     }
 
-    /* used in java 7 only */
-    public static KeyboardFocusManagerPeer init(KeyboardFocusManager _kfm) {
-        kfm = _kfm;
-        return new BDKeyboardFocusManagerPeer(null);
+    private Component focusOwner = null;
+    private Window window = null; /* used in java 6 only */
+
+    public void dispose()
+    {
+        focusOwner = null;
+        window = null;
     }
 
-    private BDKeyboardFocusManagerPeer(Window w) {
-        window = w;
-        focusOwner = null;
+    private BDKeyboardFocusManagerPeer() {
     }
 
     public void clearGlobalFocusOwner(Window w) {

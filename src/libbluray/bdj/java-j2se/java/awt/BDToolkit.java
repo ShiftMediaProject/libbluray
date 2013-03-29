@@ -50,6 +50,21 @@ public class BDToolkit extends Toolkit implements KeyboardFocusManagerPeerProvid
     public BDToolkit () {
     }
 
+    public static void shutdown() {
+        Toolkit toolkit = getDefaultToolkit();
+        if (toolkit instanceof BDToolkit) {
+            ((BDToolkit)toolkit).dispose();
+        }
+    }
+
+    public void dispose() {
+        if (eventQueue != null) {
+            eventQueue.getDispatchThread().stopDispatching();
+            eventQueue = null;
+        }
+        BDKeyboardFocusManagerPeer.shutdown();
+    }
+
     public static void setFocusedWindow(Window window) {
         /* hook KeyboardFocusManagerPeer (not doing this leads to crash) */
         BDKeyboardFocusManagerPeer.init(window);
@@ -57,7 +72,7 @@ public class BDToolkit extends Toolkit implements KeyboardFocusManagerPeerProvid
 
     public KeyboardFocusManagerPeer createKeyboardFocusManagerPeer(KeyboardFocusManager kfm)
     {
-        return BDKeyboardFocusManagerPeer.init(kfm);
+        return BDKeyboardFocusManagerPeer.getInstance();
     }
 
     public Dimension getScreenSize() {
@@ -94,6 +109,7 @@ public class BDToolkit extends Toolkit implements KeyboardFocusManagerPeerProvid
     }
 
     public void sync() {
+        org.videolan.GUIManager.getInstance().sync();
     }
 
     static void clearCache(BDImage image) {

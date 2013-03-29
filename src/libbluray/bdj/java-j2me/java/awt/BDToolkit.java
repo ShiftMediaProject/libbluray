@@ -35,7 +35,7 @@ import sun.awt.image.URLImageSource;
 import org.videolan.BDJXletContext;
 import org.videolan.Logger;
 
-class BDToolkit extends Toolkit {
+public class BDToolkit extends Toolkit {
     private EventQueue eventQueue = new EventQueue();
     private BDGraphicsEnvironment localEnv = new BDGraphicsEnvironment();
     private BDGraphicsConfiguration defaultGC = (BDGraphicsConfiguration)localEnv.getDefaultScreenDevice().getDefaultConfiguration();
@@ -46,6 +46,21 @@ class BDToolkit extends Toolkit {
 
     public static void setFocusedWindow(Window window) {
         /* nothing to do */
+    }
+
+    public static void shutdown() {
+        Toolkit toolkit = getDefaultToolkit();
+        if (toolkit instanceof BDToolkit) {
+            ((BDToolkit)toolkit).dispose();
+        }
+    }
+
+    public void dispose() {
+        if (eventQueue != null) {
+            eventQueue.getDispatchThread().stopDispatching();
+            eventQueue = null;
+        }
+        cachedImages = null;
     }
 
     public Dimension getScreenSize() {
