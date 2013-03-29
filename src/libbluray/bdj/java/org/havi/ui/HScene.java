@@ -36,10 +36,13 @@ import java.util.Map;
 import org.havi.ui.event.HEventGroup;
 import org.videolan.BDJXletContext;
 import org.videolan.GUIManager;
+import java.awt.BDToolkit;
+
 
 public class HScene extends Container implements HComponentOrdering {
     protected HScene() {
         context = BDJXletContext.getCurrentContext();
+        BDToolkit.addComponent(this);
     }
 
     public BDJXletContext getXletContext() {

@@ -19,6 +19,7 @@
 package org.videolan;
 
 import java.awt.Container;
+import java.awt.EventQueue;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -81,6 +82,14 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return loader;
     }
 
+    protected void setEventQueue(EventQueue eq) {
+        eventQueue = eq;
+    }
+
+    public EventQueue getEventQueue() {
+        return eventQueue;
+    }
+
     public static BDJXletContext getCurrentContext() {
         Object obj = AccessController.doPrivileged(
                 new PrivilegedAction() {
@@ -114,4 +123,5 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     private AppID appid;
     private BDJClassLoader loader;
     private Container container;
+    private EventQueue eventQueue = null;
 }

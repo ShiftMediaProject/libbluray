@@ -66,6 +66,10 @@ public class BDRootWindow extends Frame {
         return null;
     }
 
+    public static void stopEventQueue(EventQueue eq) {
+        eq.getDispatchThread().stopDispatching();
+    }
+
     public void postKeyEvent(int id, int modifiers, int keyCode) {
         Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getGlobalFocusOwner();
         if (focusOwner != null) {
@@ -76,7 +80,7 @@ public class BDRootWindow extends Frame {
                     event = new KeyEvent(focusOwner, id, when, modifiers, KeyEvent.VK_UNDEFINED, (char)keyCode);
                 else
                     event = new KeyEvent(focusOwner, id, when, modifiers, keyCode, KeyEvent.CHAR_UNDEFINED);
-                Toolkit.getEventQueue().postEvent(event);
+                BDToolkit.getEventQueue(focusOwner).postEvent(event);
                 return;
             } catch (Throwable e) {
                 System.err.println(" *** " + e + "");

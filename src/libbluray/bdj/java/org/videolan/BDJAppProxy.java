@@ -23,6 +23,8 @@ import org.dvb.application.AppStateChangeEvent;
 import org.dvb.application.AppStateChangeEventListener;
 import org.dvb.application.DVBJProxy;
 
+import java.awt.EventQueue;
+
 import java.io.File;
 import java.util.LinkedList;
 import javax.tv.xlet.Xlet;
@@ -37,6 +39,14 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
         thread = new Thread(threadGroup, this);
         thread.setDaemon(true);
         thread.start();
+
+        /* wait until thread has been started and event queue is initialized.
+         * We want event dispatcher thread to be inside xlet thread group
+         * -> event queue must be created from thread running inside applet thread group.
+         */
+        while (context.getEventQueue() == null) {
+            Thread.yield();
+        }
     }
 
     public int getState() {
@@ -135,6 +145,12 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
             thread.join();
         } catch (InterruptedException e) {
 
+        }
+
+        EventQueue eq = context.getEventQueue();
+        context.setEventQueue(null);
+        if (eq != null) {
+            GUIManager.stopEventQueue(eq);
         }
     }
 
@@ -275,6 +291,8 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
     }
 
     public void run() {
+        context.setEventQueue(new EventQueue());
+
         for (;;) {
             AppCommand cmd;
             synchronized(cmds) {

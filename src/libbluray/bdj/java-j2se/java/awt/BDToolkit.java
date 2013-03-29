@@ -25,7 +25,9 @@ import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.awt.peer.KeyboardFocusManagerPeer;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.WeakHashMap;
 import java.util.Map;
 import java.util.Iterator;
 
@@ -206,7 +208,43 @@ public class BDToolkit extends Toolkit implements KeyboardFocusManagerPeerProvid
     public void beep() {
     }
 
+    // mapping of Components to AppContexts, WeakHashMap<Component,AppContext>
+    private static final Map contextMap =
+        Collections.synchronizedMap(new WeakHashMap());
+
+    public static void addComponent(Component component) {
+
+        BDJXletContext context = BDJXletContext.getCurrentContext();
+        if (context == null) {
+            logger.warning("addComponent() outside of app context");
+            return;
+        }
+        contextMap.put(component, context);
+    }
+
+    public static EventQueue getEventQueue(Component component) {
+        if (component != null) {
+            BDJXletContext ctx = (BDJXletContext)contextMap.get(component);
+            if (ctx != null) {
+                EventQueue eq = ctx.getEventQueue();
+                if (eq == null) {
+                    logger.warning("getEventQueue() failed: no context event queue");
+                }
+                return eq;
+            }
+            logger.warning("getEventQueue() failed: no context");
+        }
+        return null;
+    }
+
     protected EventQueue getSystemEventQueueImpl() {
+        BDJXletContext ctx = BDJXletContext.getCurrentContext();
+        if (ctx != null) {
+            EventQueue eq = ctx.getEventQueue();
+            if (eq != null) {
+                return eq;
+            }
+        }
         return eventQueue;
     }
 
