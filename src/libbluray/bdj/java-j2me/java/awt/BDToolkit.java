@@ -32,11 +32,16 @@ import sun.awt.image.ByteArrayImageSource;
 import sun.awt.image.FileImageSource;
 import sun.awt.image.URLImageSource;
 
+import org.videolan.BDJXletContext;
+import org.videolan.Logger;
+
 class BDToolkit extends Toolkit {
     private EventQueue eventQueue = new EventQueue();
     private BDGraphicsEnvironment localEnv = new BDGraphicsEnvironment();
     private BDGraphicsConfiguration defaultGC = (BDGraphicsConfiguration)localEnv.getDefaultScreenDevice().getDefaultConfiguration();
     private static Hashtable cachedImages = new Hashtable();
+    private static final Logger logger = Logger.getLogger(BDToolkit.class.getName());
+
     public BDToolkit () {}
 
     public static void setFocusedWindow(Window window) {
@@ -112,6 +117,22 @@ class BDToolkit extends Toolkit {
     }
 
     public Image createImage(String filename) {
+        if (filename.charAt(0) != '/') {
+            BDJXletContext ctx = BDJXletContext.getCurrentContext();
+            if (ctx != null) {
+                ClassLoader cldr = (ClassLoader)ctx.getClassLoader();
+                URL url = cldr.getResource(filename);
+                if (url != null) {
+                    logger.warning("" + filename + " translated to " + url);
+                    return createImage(url);
+                } else {
+                    logger.error("ClassLoader failed to translate " + filename);
+                }
+            } else {
+                logger.error("createImage(" + filename + "): no XletContext available!\n" + logger.dumpStack());
+            }
+        }
+
         ImageProducer ip = new FileImageSource(filename);
         Image newImage = createImage(ip);
         return newImage;
