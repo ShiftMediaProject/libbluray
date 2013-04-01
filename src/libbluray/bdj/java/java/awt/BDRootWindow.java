@@ -67,7 +67,10 @@ public class BDRootWindow extends Frame {
     }
 
     public static void stopEventQueue(EventQueue eq) {
-        eq.getDispatchThread().stopDispatching();
+        EventDispatchThread t = eq.getDispatchThread();
+        if (t != null) {
+            t.stopDispatching();
+        }
     }
 
     public void postKeyEvent(int id, int modifiers, int keyCode) {
