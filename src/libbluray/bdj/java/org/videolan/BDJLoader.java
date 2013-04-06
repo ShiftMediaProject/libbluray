@@ -173,11 +173,10 @@ public class BDJLoader {
                     logger.info("Autostart xlet " + i + ": " + appTable[i].getInitialClass());
                     proxys[i].start();
                 } else if (code == AppEntry.PRESENT) {
-                    logger.info("Resume xlet " + i + ": " + appTable[i].getInitialClass());
-                    proxys[i].resume();
+                    logger.info("Init xlet " + i + ": " + appTable[i].getInitialClass());
+                    proxys[i].init();
                 } else {
-                    logger.info("Pause xlet " + i + ": " + appTable[i].getInitialClass());
-                    proxys[i].pause();
+                    logger.info("Unsupported xlet code (" +code+") xlet " + i + ": " + appTable[i].getInitialClass());
                 }
             }
 
