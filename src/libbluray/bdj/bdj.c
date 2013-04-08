@@ -481,6 +481,7 @@ void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         "END_OF_PLAYLIST",
         "PTS",
         "VK_KEY",
+        "MARK",
     };
 
     JNIEnv* env;
