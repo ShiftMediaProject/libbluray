@@ -297,6 +297,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 #ifdef HAVE_BDJ_J2ME
     option[n++].optionString = str_printf("-Djava.home=%s", java_home);
     option[n++].optionString = str_printf("-Xbootclasspath/a:%s/lib/xmlparser.jar", java_home);
+    option[n++].optionString = str_dup   ("-XfullShutdown");
 #endif
 
     args.version = JNI_VERSION_1_4;
