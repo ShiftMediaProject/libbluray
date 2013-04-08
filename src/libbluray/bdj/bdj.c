@@ -300,6 +300,26 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     option[n++].optionString = str_dup   ("-XfullShutdown");
 #endif
 
+    /* JVM debug options */
+    if (getenv("BDJ_JVM_DEBUG")) {
+        option[n++].optionString = str_dup("-ea");
+        //option[n++].optionString = str_dup("-verbose");
+        //option[n++].optionString = str_dup("-verbose:class,gc,jni");
+        option[n++].optionString = str_dup("-Xdebug");
+        option[n++].optionString = str_dup("-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n");
+    }
+
+#ifdef HAVE_BDJ_J2ME
+    /*
+      see: http://docs.oracle.com/javame/config/cdc/cdc-opt-impl/ojmeec/1.0/runtime/html/cvm.htm#CACBHBJB
+      trace method execution: BDJ_JVM_TRACE=0x0002
+      trace exceptions:       BDJ_JVM_TRACE=0x4000
+    */
+    if (getenv("BDJ_JVM_TRACE")) {
+        option[n++].optionString = str_printf("-Xtrace:%s", getenv("BDJ_JVM_TRACE"));
+    }
+#endif
+
     args.version = JNI_VERSION_1_4;
     args.nOptions = n;
     args.options = option;
