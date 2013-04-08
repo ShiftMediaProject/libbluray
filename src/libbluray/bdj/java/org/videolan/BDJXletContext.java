@@ -28,6 +28,7 @@ import javax.microedition.xlet.UnavailableContainerException;
 import org.dvb.application.AppID;
 import org.dvb.application.AppProxy;
 import org.dvb.application.AppsDatabase;
+import org.havi.ui.HSceneFactory;
 import org.videolan.bdjo.AppCache;
 import org.videolan.bdjo.AppEntry;
 
@@ -90,6 +91,15 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return eventQueue;
     }
 
+    public void setSceneFactory(HSceneFactory f) {
+        sceneFactory = f;
+    }
+
+    public HSceneFactory getSceneFactory() {
+        return sceneFactory;
+    }
+
+
     public static BDJXletContext getCurrentContext() {
         Object obj = AccessController.doPrivileged(
                 new PrivilegedAction() {
@@ -119,9 +129,23 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                 entry.getInitialClass());
     }
 
+    protected void release() {
+        if (sceneFactory != null) {
+            sceneFactory.dispose();
+            sceneFactory = null;
+        }
+
+        EventQueue eq = eventQueue;
+        eventQueue = null;
+        if (eq != null) {
+            GUIManager.stopEventQueue(eq);
+        }
+    }
+
     private String[] args;
     private AppID appid;
     private BDJClassLoader loader;
     private Container container;
     private EventQueue eventQueue = null;
+    private HSceneFactory sceneFactory = null;
 }

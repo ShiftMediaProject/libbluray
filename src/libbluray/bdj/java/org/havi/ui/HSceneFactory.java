@@ -20,13 +20,24 @@
 package org.havi.ui;
 
 import org.videolan.GUIManager;
+import org.videolan.BDJXletContext;
 
 public class HSceneFactory extends Object {
     private HSceneFactory() {
     }
 
     public static HSceneFactory getInstance() {
-        return instance;
+        BDJXletContext context = BDJXletContext.getCurrentContext();
+        if (context != null) {
+            if (context.getSceneFactory() == null) {
+                context.setSceneFactory(new HSceneFactory());
+            }
+            return context.getSceneFactory();
+        }
+
+        org.videolan.Logger.getLogger("HSceneFactory").error("getInstance(): no context at " + org.videolan.Logger.dumpStack());
+
+        return null;
     }
 
     public HSceneTemplate getBestSceneTemplate(HSceneTemplate template) {
@@ -96,10 +107,5 @@ public class HSceneFactory extends Object {
         }
     }
 
-    public static void shutdown() {
-        instance.dispose();
-    }
-
     private HScene defaultHScene = null;
-    private static final HSceneFactory instance = new HSceneFactory();
 }

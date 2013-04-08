@@ -147,11 +147,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
 
         }
 
-        EventQueue eq = context.getEventQueue();
-        context.setEventQueue(null);
-        if (eq != null) {
-            GUIManager.stopEventQueue(eq);
-        }
+        context.release();
     }
 
     public void addAppStateChangeEventListener(AppStateChangeEventListener listener) {
