@@ -211,14 +211,19 @@ public class BDToolkit extends Toolkit {
 
     public static EventQueue getEventQueue(Component component) {
         if (component != null) {
-            BDJXletContext ctx = (BDJXletContext)contextMap.get(component);
-            if (ctx != null) {
-                EventQueue eq = ctx.getEventQueue();
-                if (eq == null) {
-                    logger.warning("getEventQueue() failed: no context event queue");
+            do {
+                BDJXletContext ctx = (BDJXletContext)contextMap.get(component);
+                if (ctx != null) {
+                    EventQueue eq = ctx.getEventQueue();
+                    if (eq == null) {
+                        logger.warning("getEventQueue() failed: no context event queue");
+                    }
+                    return eq;
                 }
-                return eq;
-            }
+
+                component = component.getParent();
+            } while (component != null);
+
             logger.warning("getEventQueue() failed: no context");
         }
         return null;
