@@ -158,7 +158,7 @@ public class BDImageConsumer extends BDImage implements ImageConsumer {
         int X, Y;
         for (Y = y; Y < (y + h); Y++)
             for (X = x; X < (x + w); X++)
-                backBuffer[Y * width + X] = cm.getRGB(pixels[offset + (Y - y) * scansize + (X - x)]);
+                backBuffer[Y * width + X] = cm.getRGB(pixels[offset + (Y - y) * scansize + (X - x)] & 0xFF);
         status |= ImageObserver.SOMEBITS;
         notifyObservers(this, ImageObserver.SOMEBITS, x, y, w, h);
     }
