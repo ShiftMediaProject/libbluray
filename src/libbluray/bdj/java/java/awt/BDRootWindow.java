@@ -69,7 +69,7 @@ public class BDRootWindow extends Frame {
 
     public static void stopEventQueue(EventQueue eq) {
         EventDispatchThread t = eq.getDispatchThread();
-        if (t != null) {
+        if (t != null && t.isAlive()) {
 
             final long DISPOSAL_TIMEOUT = 5000;
             final Object notificationLock = new Object();
@@ -88,6 +88,18 @@ public class BDRootWindow extends Frame {
             }
 
             t.stopDispatching();
+            if (t.isAlive()) {
+                t.interrupt();
+            }
+
+            try {
+                t.join(1000);
+            } catch (InterruptedException e) {
+            }
+            if (t.isAlive()) {
+                org.videolan.Logger.getLogger("BDRootWindow").error("stopEventQueue() failed for " + t);
+                org.videolan.PortingHelper.stopThread(t);
+            }
         }
     }
 
