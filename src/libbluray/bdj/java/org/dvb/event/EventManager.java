@@ -19,6 +19,7 @@
 
 package org.dvb.event;
 
+import java.awt.BDJHelper;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -140,7 +141,7 @@ public class EventManager implements ResourceServer {
                             (evt.getCode() == keyCode) &&
                             (evt.getType() == type)) {
 
-                            GUIManager.getInstance().postKeyEvent(type, modifiers, keyCode);
+                            BDJHelper.postKeyEvent(type, modifiers, keyCode);
                             return;
                         }
                     }
@@ -163,7 +164,7 @@ public class EventManager implements ResourceServer {
             }
         }
 
-        GUIManager.getInstance().postKeyEvent(type, modifiers, keyCode);
+        BDJHelper.postKeyEvent(type, modifiers, keyCode);
 
         for (Iterator it = sharedUserEventListener.iterator(); it.hasNext(); ) {
             UserEventItem item = (UserEventItem)it.next();

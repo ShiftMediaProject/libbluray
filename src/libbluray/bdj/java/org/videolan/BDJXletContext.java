@@ -138,7 +138,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         EventQueue eq = eventQueue;
         eventQueue = null;
         if (eq != null) {
-            GUIManager.stopEventQueue(eq);
+            java.awt.BDJHelper.stopEventQueue(eq);
         }
     }
 

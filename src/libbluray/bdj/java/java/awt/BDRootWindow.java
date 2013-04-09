@@ -19,8 +19,6 @@
 
 package java.awt;
 
-import java.awt.event.InvocationEvent;
-import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -65,62 +63,6 @@ public class BDRootWindow extends Frame {
         /* exists only in J2SE */
         org.videolan.Logger.getLogger("BDRootWindow").unimplemented("getBackBuffer");
         return null;
-    }
-
-    public static void stopEventQueue(EventQueue eq) {
-        EventDispatchThread t = eq.getDispatchThread();
-        if (t != null && t.isAlive()) {
-
-            final long DISPOSAL_TIMEOUT = 5000;
-            final Object notificationLock = new Object();
-            Runnable runnable = new Runnable() { public void run() {
-                synchronized(notificationLock) {
-                    notificationLock.notifyAll();
-                }
-            } };
-
-            synchronized (notificationLock) {
-                eq.postEvent(new InvocationEvent(Toolkit.getDefaultToolkit(), runnable));
-                try {
-                    notificationLock.wait(DISPOSAL_TIMEOUT);
-                } catch (InterruptedException e) {
-                }
-            }
-
-            t.stopDispatching();
-            if (t.isAlive()) {
-                t.interrupt();
-            }
-
-            try {
-                t.join(1000);
-            } catch (InterruptedException e) {
-            }
-            if (t.isAlive()) {
-                org.videolan.Logger.getLogger("BDRootWindow").error("stopEventQueue() failed for " + t);
-                org.videolan.PortingHelper.stopThread(t);
-            }
-        }
-    }
-
-    public void postKeyEvent(int id, int modifiers, int keyCode) {
-        Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getGlobalFocusOwner();
-        if (focusOwner != null) {
-            long when = System.currentTimeMillis();
-            KeyEvent event;
-            try {
-                if (id == KeyEvent.KEY_TYPED)
-                    event = new KeyEvent(focusOwner, id, when, modifiers, KeyEvent.VK_UNDEFINED, (char)keyCode);
-                else
-                    event = new KeyEvent(focusOwner, id, when, modifiers, keyCode, KeyEvent.CHAR_UNDEFINED);
-                BDToolkit.getEventQueue(focusOwner).postEvent(event);
-                return;
-            } catch (Throwable e) {
-                System.err.println(" *** " + e + "");
-            }
-        } else {
-            org.videolan.Logger.getLogger("BDRootWindow").error("*** KEY event dropped ***");
-        }
     }
 
     public void notifyChanged() {

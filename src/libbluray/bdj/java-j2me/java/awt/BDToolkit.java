@@ -59,7 +59,7 @@ public class BDToolkit extends Toolkit {
 
     public void dispose() {
         if (eventQueue != null) {
-            BDRootWindow.stopEventQueue(eventQueue);
+            BDJHelper.stopEventQueue(eventQueue);
             eventQueue = null;
         }
         cachedImages = null;

@@ -61,7 +61,7 @@ public class BDToolkit extends Toolkit implements KeyboardFocusManagerPeerProvid
 
     public void dispose() {
         if (eventQueue != null) {
-            BDRootWindow.stopEventQueue(eventQueue);
+            BDJHelper.stopEventQueue(eventQueue);
             eventQueue = null;
         }
         BDKeyboardFocusManagerPeer.shutdown();
