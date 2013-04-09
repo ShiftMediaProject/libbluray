@@ -19,6 +19,7 @@
 
 package java.awt;
 
+import java.awt.event.InvocationEvent;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.Timer;
@@ -69,6 +70,23 @@ public class BDRootWindow extends Frame {
     public static void stopEventQueue(EventQueue eq) {
         EventDispatchThread t = eq.getDispatchThread();
         if (t != null) {
+
+            final long DISPOSAL_TIMEOUT = 5000;
+            final Object notificationLock = new Object();
+            Runnable runnable = new Runnable() { public void run() {
+                synchronized(notificationLock) {
+                    notificationLock.notifyAll();
+                }
+            } };
+
+            synchronized (notificationLock) {
+                eq.postEvent(new InvocationEvent(Toolkit.getDefaultToolkit(), runnable));
+                try {
+                    notificationLock.wait(DISPOSAL_TIMEOUT);
+                } catch (InterruptedException e) {
+                }
+            }
+
             t.stopDispatching();
         }
     }
