@@ -24,6 +24,7 @@
 #include "file.h"
 
 #include "util/logging.h"
+#include "util/macro.h"
 
 #include <stdio.h>
 #include <string.h>
