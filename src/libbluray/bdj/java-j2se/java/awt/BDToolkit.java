@@ -24,6 +24,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.awt.peer.KeyboardFocusManagerPeer;
+import java.io.File;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -155,7 +156,7 @@ public class BDToolkit extends Toolkit implements KeyboardFocusManagerPeerProvid
     }
 
     public Image createImage(String filename) {
-        if (filename.charAt(0) != '/') {
+        if (!new File(filename).exists()) {
             BDJXletContext ctx = BDJXletContext.getCurrentContext();
             if (ctx != null) {
                 ClassLoader cldr = (ClassLoader)ctx.getClassLoader();
