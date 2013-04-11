@@ -777,7 +777,7 @@ static int _render_pg(GRAPHICS_CONTROLLER *gc)
     /* render objects */
     for (ii = 0; ii < pcs->num_composition_objects; ii++) {
         BD_PG_COMPOSITION_OBJECT *cobj = &pcs->composition_object[ii];
-        _render_pg_composition_object(gc, -1, cobj, palette);
+        _render_pg_composition_object(gc, pcs->pts, cobj, palette);
     }
 
     /* commit changes at given pts */
