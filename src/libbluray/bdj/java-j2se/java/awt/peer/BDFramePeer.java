@@ -176,6 +176,11 @@ public class BDFramePeer extends BDComponentPeer implements FramePeer
         }
     }
 
+    public void dispose() {
+        super.dispose();
+        rootWindow = null;
+    }
+
     private BDRootWindow rootWindow;
     private Insets insets = new Insets(0, 0, 0, 0);
 
