@@ -150,7 +150,7 @@ typedef struct {
     MPLS_PIP_DATA   *data;
 } MPLS_PIP_METADATA;
 
-typedef struct
+typedef struct mpls_pl
 {
     uint32_t        type_indicator;
     uint32_t        type_indicator2;
