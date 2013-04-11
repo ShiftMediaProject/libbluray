@@ -63,6 +63,11 @@ Java_java_awt_BDFontMetrics_destroyN(JNIEnv * env, jclass cls, jlong ftLib)
 {
 #ifdef HAVE_FT2
     FT_Library lib = (FT_Library)(intptr_t)ftLib;
+
+    if (!lib) {
+        return;
+    }
+
     FT_Done_FreeType(lib);
 #endif
 }
@@ -77,6 +82,10 @@ Java_java_awt_BDFontMetrics_loadFontN(JNIEnv * env, jobject obj, jlong ftLib, js
     jclass cls;
     jfieldID fid;
     FT_Library lib = (FT_Library)(intptr_t)ftLib;
+
+    if (!lib) {
+        return 0;
+    }
 
     name = (*env)->GetStringUTFChars(env, fontName, NULL);
     result = FT_New_Face(lib, name, 0, &ftFace);
@@ -106,6 +115,11 @@ Java_java_awt_BDFontMetrics_destroyFontN(JNIEnv *env, jobject obj, jlong ftFace)
 {
 #ifdef HAVE_FT2
     FT_Face face = (FT_Face)(intptr_t)ftFace;
+
+    if (!face) {
+        return;
+    }
+
     FT_Done_Face(face);
 #endif
 }
@@ -115,6 +129,11 @@ Java_java_awt_BDFontMetrics_charWidthN(JNIEnv * env, jobject obj, jlong ftFace, 
 {
 #ifdef HAVE_FT2
     FT_Face face = (FT_Face)(intptr_t)ftFace;
+
+    if (!face) {
+        return 0;
+    }
+
     if (FT_Load_Char(face, c, FT_LOAD_DEFAULT))
         return 0;
     return face->glyph->metrics.horiAdvance >> 6;
@@ -131,6 +150,10 @@ Java_java_awt_BDFontMetrics_stringWidthN(JNIEnv * env, jobject obj, jlong ftFace
     const jchar *chars;
     jint i, width;
     FT_Face face = (FT_Face)(intptr_t)ftFace;
+
+    if (!face) {
+        return 0;
+    }
 
     length = (*env)->GetStringLength(env, string);
     if (length <= 0)
@@ -162,6 +185,10 @@ Java_java_awt_BDFontMetrics_charsWidthN(JNIEnv * env, jobject obj, jlong ftFace,
     jchar *chars;
     jint i, width;
     FT_Face face = (FT_Face)(intptr_t)ftFace;
+
+    if (!face) {
+        return 0;
+    }
 
     chars = (jchar *)malloc(sizeof(jchar) * length);
     if (chars == NULL)
