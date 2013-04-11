@@ -37,7 +37,7 @@
 
 
 typedef struct {
-    long                handle;
+    intptr_t            handle;
     struct _wfinddata_t info;
 } dir_data_t;
 
