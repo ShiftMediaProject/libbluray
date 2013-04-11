@@ -32,8 +32,9 @@ public class BDKeyboardFocusManagerPeer implements KeyboardFocusManagerPeer {
     public static KeyboardFocusManagerPeer getInstance() {
         java7 = true;
 
-        if (instance == null)
+        if (instance == null) {
             instance = new BDKeyboardFocusManagerPeer();
+        }
         return instance;
     }
 
@@ -79,11 +80,13 @@ public class BDKeyboardFocusManagerPeer implements KeyboardFocusManagerPeer {
 
     private Component focusOwner = null;
     private Window window = null; /* used in java 6 only */
+    private boolean disposed = false;
 
     public void dispose()
     {
         focusOwner = null;
         window = null;
+        disposed = true;
     }
 
     private BDKeyboardFocusManagerPeer() {
@@ -97,12 +100,16 @@ public class BDKeyboardFocusManagerPeer implements KeyboardFocusManagerPeer {
     }
 
     public void setCurrentFocusOwner(Component c) {
-        focusOwner = c;
+        if (!disposed) {
+            focusOwner = c;
+        }
     }
 
     /* java 6 only */
     public void setCurrentFocusedWindow(Window w) {
-        window = w;
+        if (!disposed) {
+            window = w;
+        }
     }
 
     /* java 6 only */
