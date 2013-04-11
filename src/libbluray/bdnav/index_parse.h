@@ -62,21 +62,21 @@ typedef enum {
 } indx_bdj_playback_type;
 
 typedef struct {
-    unsigned int      initial_output_mode_preference : 1; /* 0 - 2D, 1 - 3D */
-    unsigned int      content_exist_flag : 1;
-    unsigned int      video_format : 4;
-    unsigned int      frame_rate : 4;
-    uint8_t           user_data[32];
+    unsigned int       initial_output_mode_preference : 1; /* 0 - 2D, 1 - 3D */
+    unsigned int       content_exist_flag : 1;
+    unsigned int       video_format : 4;
+    unsigned int       frame_rate : 4;
+    uint8_t            user_data[32];
 } INDX_APP_INFO;
 
 typedef struct {
-    uint8_t                playback_type/* : 2*/;
-    char                   name[6];
+    uint8_t            playback_type/* : 2*/;
+    char               name[6];
 } INDX_BDJ_OBJ;
 
 typedef struct {
-    uint8_t                 playback_type/* : 2*/;
-    uint16_t                id_ref;
+    uint8_t            playback_type/* : 2*/;
+    uint16_t           id_ref;
 } INDX_HDMV_OBJ;
 
 typedef struct {
