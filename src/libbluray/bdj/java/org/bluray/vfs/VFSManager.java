@@ -51,7 +51,7 @@ public class VFSManager {
     public String[] getDisabledClipIDs()
     {
         logger.unimplemented("getDisabledClipIDs");
-        return null;
+        return new String[]{};
     }
 
     public int getState()
