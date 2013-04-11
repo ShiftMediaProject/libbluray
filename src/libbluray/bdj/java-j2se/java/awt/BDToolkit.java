@@ -64,7 +64,16 @@ public class BDToolkit extends Toolkit implements KeyboardFocusManagerPeerProvid
             BDJHelper.stopEventQueue(eventQueue);
             eventQueue = null;
         }
+
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().setGlobalCurrentFocusCycleRoot(null);
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().setGlobalFocusedWindow(null);
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().setGlobalActiveWindow(null);
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().setGlobalPermanentFocusOwner(null);
+
         BDKeyboardFocusManagerPeer.shutdown();
+
+        KeyboardFocusManager.setCurrentKeyboardFocusManager(null);
     }
 
     public static void setFocusedWindow(Window window) {
