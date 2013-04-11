@@ -242,7 +242,10 @@ public class BDFontMetrics extends FontMetrics {
     }
 
     protected void finalize() throws Throwable {
-        destroyFontN(ftFace);
+        if (ftFace != 0) {
+            destroyFontN(ftFace);
+            ftFace = 0;
+        }
         super.finalize();
     }
 }
