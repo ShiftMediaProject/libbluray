@@ -77,6 +77,11 @@ public class GUIManager extends BDRootWindow {
         }
     }
 
+    public void dispose() {
+        super.dispose();
+        instance = null;
+    }
+
     private static GUIManager instance = null;
     private static final long serialVersionUID = 8670041014494973439L;
 }
