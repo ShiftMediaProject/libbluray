@@ -33,10 +33,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
     public BDJAppProxy(BDJXletContext context) {
         this.context = context;
         state = NOT_LOADED;
-        threadGroup = new BDJThreadGroup((String)context.getXletProperty("dvb.org.id") + "." +
-                                         (String)context.getXletProperty("dvb.app.id"),
-                                         context);
-        thread = new Thread(threadGroup, this);
+        thread = new Thread(context.getThreadGroup(), this);
         thread.setDaemon(true);
         thread.start();
 
@@ -237,7 +234,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
         if ((state != NOT_LOADED) && (state != LOADED)) {
             try {
                 xlet.destroyXlet(force);
-                for (int i = 0; (i < 50) && (threadGroup.activeCount() > 1); i++)
+                for (int i = 0; (i < 50) && (context.getThreadGroup().activeCount() > 1); i++)
                     Thread.sleep(20L);
                 String persistent = System.getProperty("dvb.persistent.root") + File.separator +
                     (String)context.getXletProperty("dvb.org.id") + File.separator +
@@ -357,7 +354,6 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
     private int state;
     private LinkedList listeners = new LinkedList();
     private LinkedList cmds = new LinkedList();
-    private BDJThreadGroup threadGroup;
     private Thread thread;
 
     private class AppCommand {

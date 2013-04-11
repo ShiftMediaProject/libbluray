@@ -42,6 +42,11 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                 entry.getClassPathExt(),
                 entry.getInitialClass());
         this.container = container;
+
+        this.threadGroup = new BDJThreadGroup(Integer.toHexString(appid.getOID()) + "." +
+                                              Integer.toHexString(appid.getAID()) + "." +
+                                              entry.getInitialClass(),
+                                              this);
     }
 
     public Object getXletProperty(String key) {
@@ -81,6 +86,10 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
     public ClassLoader getClassLoader() {
         return loader;
+    }
+
+    public BDJThreadGroup getThreadGroup() {
+        return threadGroup;
     }
 
     protected void setEventQueue(EventQueue eq) {
@@ -148,4 +157,5 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     private Container container;
     private EventQueue eventQueue = null;
     private HSceneFactory sceneFactory = null;
+    private BDJThreadGroup threadGroup = null;
 }
