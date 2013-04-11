@@ -1228,7 +1228,7 @@ static void _update_selected_button(GRAPHICS_CONTROLLER *gc)
     }
 }
 
-static int _mouse_move(GRAPHICS_CONTROLLER *gc, unsigned x, unsigned y, GC_NAV_CMDS *cmds)
+static int _mouse_move(GRAPHICS_CONTROLLER *gc, uint16_t x, uint16_t y, GC_NAV_CMDS *cmds)
 {
     PG_DISPLAY_SET *s          = gc->igs;
     BD_IG_PAGE     *page       = NULL;
