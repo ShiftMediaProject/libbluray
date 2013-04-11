@@ -79,6 +79,8 @@ public abstract class BDComponentPeer implements ComponentPeer
     }
 
     public void dispose() {
+        component = null;
+        toolkit = null;
     }
 
     /* java 6 only */
