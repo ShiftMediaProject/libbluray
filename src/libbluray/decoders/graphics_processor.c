@@ -356,7 +356,7 @@ static int _decode_segment(PG_DISPLAY_SET *s, PES_BUFFER *p)
 /*
  * mpeg-pes interface
  */
-
+#define MAX_STC_DTS_DIFF (INT64_C(90000 * 30)) /* 30 seconds */
 static int graphics_processor_decode_pes(PG_DISPLAY_SET **s, PES_BUFFER **p, int64_t stc)
 {
     if (!s) {
@@ -371,9 +371,14 @@ static int graphics_processor_decode_pes(PG_DISPLAY_SET **s, PES_BUFFER **p, int
 
         /* time to decode next segment ? */
         if (stc >= 0 && (*p)->dts > stc) {
-            GP_TRACE("Segment dts > stc (%"PRId64" > %"PRId64" ; diff %"PRId64")\n",
-                     (*p)->dts, stc, (*p)->dts - stc);
-            return 0;
+
+            /* filter out values that seem to be incorrect (if stc is not updated) */
+            int64_t diff = (*p)->dts - stc;
+            if (diff < MAX_STC_DTS_DIFF) {
+                GP_TRACE("Segment dts > stc (%"PRId64" > %"PRId64" ; diff %"PRId64")\n",
+                         (*p)->dts, stc, diff);
+                return 0;
+            }
         }
 
         /* all fragments present ? */
