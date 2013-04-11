@@ -58,7 +58,6 @@ void *dl_dlopen(const char *path, const char *version)
     wchar_t wname[MAX_PATH];
     char *name;
     void *result;
-    int i;
 
     name = str_printf("%s.dll", path);
     MultiByteToWideChar(CP_UTF8, 0, name, -1, wname, MAX_PATH);
