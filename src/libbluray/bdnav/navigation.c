@@ -706,9 +706,18 @@ uint32_t nav_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time)
 NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt)
 {
     uint32_t pos, len;
-    MPLS_PI *pi;
+    MPLS_PI *pi = NULL;
     NAV_CLIP *clip;
     unsigned ii;
+
+    if (!title->pl) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "Time search failed (title not opened)\n");
+        return NULL;
+    }
+    if (title->pl->list_count < 1) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "Time search failed (empty playlist)\n");
+        return NULL;
+    }
 
     pos = 0;
     for (ii = 0; ii < title->pl->list_count; ii++) {
