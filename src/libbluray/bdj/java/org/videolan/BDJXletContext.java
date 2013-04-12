@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2013  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -98,6 +99,17 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
     public EventQueue getEventQueue() {
         return eventQueue;
+    }
+
+    protected int numEventQueueThreads() {
+        int cnt = 0;
+        if (eventQueue != null) {
+            Thread t = java.awt.BDJHelper.getEventDispatchThread(eventQueue);
+            if (t != null && t.isAlive()) {
+                cnt++;
+            }
+        }
+        return cnt;
     }
 
     public void setSceneFactory(HSceneFactory f) {

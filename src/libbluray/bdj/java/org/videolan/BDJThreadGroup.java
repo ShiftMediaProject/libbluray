@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2013  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,6 +33,23 @@ public class BDJThreadGroup extends ThreadGroup {
 
     public void setContext(BDJXletContext context) {
         this.context = context;
+    }
+
+    public boolean waitForShutdown(int maxThreads, int timeout) {
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + 1000;
+        while ((activeCount() > maxThreads) &&
+               (System.currentTimeMillis() < endTime)) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) { }
+        }
+
+        boolean result = (activeCount() <= maxThreads);
+        if (!result) {
+            Logger.getLogger("BDJThreadGroup").error("waitForShutdown timeout");
+        }
+        return result;
     }
 
     private BDJXletContext context;

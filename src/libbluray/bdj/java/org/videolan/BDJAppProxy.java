@@ -234,8 +234,9 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
         if ((state != NOT_LOADED) && (state != LOADED)) {
             try {
                 xlet.destroyXlet(force);
-                for (int i = 0; (i < 50) && (context.getThreadGroup().activeCount() > 1); i++)
-                    Thread.sleep(20L);
+
+                context.getThreadGroup().waitForShutdown(1000, 1 + context.numEventQueueThreads());
+
                 String persistent = System.getProperty("dvb.persistent.root") + File.separator +
                     (String)context.getXletProperty("dvb.org.id") + File.separator +
                     (String)context.getXletProperty("dvb.app.id");
