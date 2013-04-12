@@ -47,10 +47,46 @@ public class BDJThreadGroup extends ThreadGroup {
 
         boolean result = (activeCount() <= maxThreads);
         if (!result) {
-            Logger.getLogger("BDJThreadGroup").error("waitForShutdown timeout");
+            logger.error("waitForShutdown timeout");
         }
         return result;
     }
 
+    protected void stopAll(int timeout) {
+
+        interrupt();
+        waitForShutdown(0, timeout);
+
+        if (activeCount() > 0) {
+            logger.error("stopAll(): killing threads");
+            dumpThreads();
+
+            PortingHelper.stopThreadGroup(this);
+            waitForShutdown(0, 500);
+        }
+
+        try {
+            destroy();
+        } catch (IllegalThreadStateException e) {
+            logger.error("ThreadGroup destroy failed: " + e);
+        }
+
+        context = null;
+    }
+
+    public void dumpThreads() {
+        logger.info("Active threads in " + this + ":");
+        Thread[] threads = new Thread[activeCount() + 1];
+        while (enumerate( threads, true ) == threads.length) {
+            threads = new Thread[threads.length * 2];
+        }
+        for (int i = 0; i < threads.length; i++) {
+            if (threads[i] == null)
+                continue;
+            logger.info("    " + threads[i]);
+        }
+    }
+
     private BDJXletContext context;
+    private static final Logger logger = Logger.getLogger(BDJThreadGroup.class.getName());
 }

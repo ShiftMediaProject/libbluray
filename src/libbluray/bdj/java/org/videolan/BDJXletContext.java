@@ -166,6 +166,10 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             java.awt.BDJHelper.stopEventQueue(eq);
         }
 
+        threadGroup.stopAll(1000);
+
+        threadGroup = null;
+        loader = null;
         container = null;
     }
 
