@@ -82,6 +82,10 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     }
 
     public Container getContainer() throws UnavailableContainerException {
+        if (container == null) {
+            logger.error("getContainer(): container is null");
+            throw new UnavailableContainerException();
+        }
         return container;
     }
 
@@ -161,6 +165,8 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         if (eq != null) {
             java.awt.BDJHelper.stopEventQueue(eq);
         }
+
+        container = null;
     }
 
     private String[] args;
@@ -170,4 +176,5 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     private EventQueue eventQueue = null;
     private HSceneFactory sceneFactory = null;
     private BDJThreadGroup threadGroup = null;
+    private static final Logger logger = Logger.getLogger(BDJXletContext.class.getName());
 }
