@@ -101,7 +101,7 @@ static int
 _parse_appinfo(BITSTREAM *bits, MPLS_AI *ai)
 {
     int len;
-    int pos;
+    off_t pos;
 
     if (!bs_is_align(bits, 0x07)) {
         fprintf(stderr, "_parse_appinfo: alignment error\n");
@@ -161,7 +161,7 @@ static int
 _parse_stream(BITSTREAM *bits, MPLS_STREAM *s)
 {
     int len;
-    int pos;
+    off_t pos;
 
     if (!bs_is_align(bits, 0x07)) {
         fprintf(stderr, "_parse_stream: Stream alignment error\n");
@@ -248,7 +248,7 @@ static int
 _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
 {
     int len;
-    int pos;
+    off_t pos;
     MPLS_STREAM    *ss;
     int ii,jj;
 
@@ -421,7 +421,7 @@ static int
 _parse_playitem(BITSTREAM *bits, MPLS_PI *pi)
 {
     int len, ii;
-    int pos;
+    off_t pos;
     char clip_id[6], codec_id[5];
     uint8_t stc_id;
 
@@ -515,7 +515,7 @@ static int
 _parse_subplayitem(BITSTREAM *bits, MPLS_SUB_PI *spi)
 {
     int len, ii;
-    int pos;
+    off_t pos;
     char clip_id[6], codec_id[5];
     uint8_t stc_id;
 
@@ -594,7 +594,7 @@ static int
 _parse_subpath(BITSTREAM *bits, MPLS_SUB *sp)
 {
     int len, ii;
-    int pos;
+    off_t pos;
     MPLS_SUB_PI *spi = NULL;
 
     if (!bs_is_align(bits, 0x07)) {
@@ -770,8 +770,9 @@ _parse_pip_data(BITSTREAM *bits, MPLS_PIP_METADATA *block)
 static int
 _parse_pip_metadata_block(BITSTREAM *bits, uint32_t start_address, MPLS_PIP_METADATA *data)
 {
-    uint32_t data_address, pos;
+    uint32_t data_address;
     int result;
+    off_t pos;
 
     data->clip_ref            = bs_read(bits, 16);
     data->secondary_video_ref = bs_read(bits, 8);
@@ -804,9 +805,9 @@ _parse_pip_metadata_extension(BITSTREAM *bits, MPLS_PL *pl)
     MPLS_PIP_METADATA *data;
     int ii;
 
-    uint32_t start_address = bs_pos(bits) / 8;
-    uint32_t len     = bs_read(bits, 32);
-    int      entries = bs_read(bits, 16);
+    uint32_t start_address = (uint32_t)bs_pos(bits) / 8;
+    uint32_t len           = bs_read(bits, 32);
+    int      entries       = bs_read(bits, 16);
 
     if (len < 1 || entries < 1) {
         return 0;
