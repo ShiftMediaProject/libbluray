@@ -84,14 +84,6 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         actualClip = g.clip;
         clip = g.clip;
         constrainedRect = g.constrainedRect;
-
-        //public Recangle getDirtyRect() {
-        //return dirty;
-        //}
-        //dirty.x = width;
-        //dirty.y = height;
-        //dirty.width = 0;
-        //dirty.height = 0;
     }
 
     BDGraphics(BDRootWindow window) {
@@ -135,11 +127,6 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         fontMetrics = BDFontMetrics.getFontMetrics(font);
         composite = AlphaComposite.SrcOver;
         setupClip();
-
-        dirty.x = width;
-        dirty.y = height;
-        dirty.width = 0;
-        dirty.height = 0;
     }
 
     public Graphics create() {
@@ -295,10 +282,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
 
     private void drawPointN(int x, int y, int rgb) {
 
-        if (x < dirty.x) dirty.x = x;
-        else if (x > dirty.width) dirty.width = x;
-        if (y < dirty.y) dirty.y = y;
-        else if (y > dirty.height) dirty.height = y;
+        dirty.add(x, y);
 
         if (xorColor != null) {
             backBuffer[y * width + x] ^= xorColor.getRGB() ^ rgb;
@@ -350,10 +334,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         for (int i = 0; i < h; i++)
             Arrays.fill(backBuffer, (y + i) * width + x, (y + i) * width + x + w, rgb);
 
-        if (x < dirty.x) dirty.x = x;
-        else if (x + w > dirty.width) dirty.width = x + w;
-        if (y < dirty.y) dirty.y = y;
-        else if (y + h > dirty.height) dirty.height = y + h;
+        dirty.add(rect);
     }
 
     public void fillRect(int x, int y, int w, int h) {
@@ -369,11 +350,6 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         for (int Y = y; Y < (y + h); Y++)
             for (int X = x; X < (x + w); X++)
                 drawPointN(X, Y, rgb);
-
-        if (x < dirty.x) dirty.x = x;
-        else if (x + w > dirty.width) dirty.width = x + w;
-        if (y < dirty.y) dirty.y = y;
-        else if (y + h > dirty.height) dirty.height = y + h;
     }
 
     public void drawRect(int x, int y, int w, int h) {

@@ -44,6 +44,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
     private int width;
     private int height;
     private int[] backBuffer;
+    private Rectangle dirty;
     private GraphicsConfiguration gc;
     private Color foreground;
     private Color background;
@@ -74,6 +75,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
 
     BDGraphics(BDGraphics g) {
         backBuffer = g.backBuffer;
+        dirty = g.dirty;
         width = g.width;
         height = g.height;
         gc = g.gc;
@@ -95,6 +97,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         width = window.getWidth();
         height = window.getHeight();
         backBuffer = window.getBdBackBuffer();
+        dirty = window.getDirtyRect();
         gc = window.getGraphicsConfiguration();
         foreground = window.getForeground();
         background = window.getBackground();
@@ -121,6 +124,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         width = image.getWidth();
         height = image.getHeight();
         backBuffer = image.getBdBackBuffer();
+        dirty = image.getDirtyRect();
 
         gc = image.getGraphicsConfiguration();
         Component component = image.getComponent();
@@ -362,6 +366,9 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
     }
 
     private void drawPointN(int x, int y, int rgb) {
+
+        dirty.add(x, y);
+
         if (xorColor != null) {
             backBuffer[y * width + x] ^= xorColor.getRGB() ^ rgb;
             return;
@@ -405,6 +412,8 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         int rgb = background.getRGB();
         for (int i = 0; i < h; i++)
             Arrays.fill(backBuffer, (y + i) * width + x, (y + i) * width + x + w, rgb);
+
+        dirty.add(rect);
     }
 
     public void fillRect(int x, int y, int w, int h) {

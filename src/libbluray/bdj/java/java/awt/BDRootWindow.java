@@ -43,7 +43,6 @@ public class BDRootWindow extends Frame {
             if ((width > 0) && (height > 0)) {
                 if ((backBuffer == null) || (getWidth() * getHeight() < width * height)) {
                     backBuffer = new int[width * height];
-                    dirty = new Rectangle(0, 0, width, height);
                     Arrays.fill(backBuffer, 0);
                 }
             }
@@ -51,7 +50,7 @@ public class BDRootWindow extends Frame {
 
             Libbluray.updateGraphic(width, height, null);
 
-            dirty.setBounds(0, 0, width, height);
+            dirty.setBounds(0, 0, width - 1, height - 1);
         }
     }
 
