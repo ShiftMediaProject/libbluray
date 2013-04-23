@@ -311,10 +311,10 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN
 /*
  * Class:     org_videolan_Libbluray
  * Method:    updateGraphicN
- * Signature: (JII[I)V
+ * Signature: (JII[IIIII)V
  */
 JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN
-  (JNIEnv *, jclass, jlong, jint, jint, jintArray);
+(JNIEnv *, jclass, jlong, jint, jint, jintArray, jint, jint, jint, jint);
 
 #ifdef __cplusplus
 }

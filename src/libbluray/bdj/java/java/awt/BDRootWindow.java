@@ -85,10 +85,10 @@ public class BDRootWindow extends Frame {
                 timerTask = null;
             }
             changeCount = 0;
-            //Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer, dirty.x, dirty.y, dirty.width, dirty.height);
-            Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer);
 
-            dirty.setBounds(getWidth(), getHeight(), 0, 0);
+            Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer, dirty.x, dirty.y, dirty.width, dirty.height);
+
+            dirty.setBounds(0xffff, 0xffff, 0, 0);
         }
     }
 

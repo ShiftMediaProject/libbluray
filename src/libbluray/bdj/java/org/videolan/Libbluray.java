@@ -296,12 +296,13 @@ public class Libbluray {
     }
 
     public static void updateGraphic(int width, int height, int[] rgbArray) {
-        updateGraphicN(nativePointer, width, height, rgbArray);
+        updateGraphicN(nativePointer, width, height, rgbArray,
+                       0, 0, width - 1, height - 1);
     }
 
     public static void updateGraphic(int width, int height, int[] rgbArray,
                                      int x0, int y0, int x1, int y1) {
-        updateGraphicDirtyN(nativePointer, width, height, rgbArray,
+        updateGraphicN(nativePointer, width, height, rgbArray,
                        x0, y0, x1, y1);
     }
 
@@ -434,9 +435,8 @@ public class Libbluray {
     private static native int readGPRN(long np, int num);
     private static native int readPSRN(long np, int num);
     private static native Bdjo getBdjoN(long np, String name);
-    private static native void updateGraphicN(long np, int width, int height, int[] rgbArray);
-    private static native void updateGraphicDirtyN(long np, int width, int height, int[] rgbArray,
-                                                   int x0, int y0, int x1, int y1);
+    private static native void updateGraphicN(long np, int width, int height, int[] rgbArray,
+                                              int x0, int y0, int x1, int y1);
 
     protected static long nativePointer = 0;
 }

@@ -392,7 +392,8 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
 }
 
 JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
-        jclass cls, jlong np, jint width, jint height, jintArray rgbArray) {
+        jclass cls, jlong np, jint width, jint height, jintArray rgbArray,
+        jint x0, jint y0, jint x1, jint y1) {
 
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
 
@@ -437,7 +438,7 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
         jint *image = (jint *)(*env)->GetPrimitiveArrayCritical(env, rgbArray, NULL);
         if (image) {
             bdj->osd_cb(bdj->bd, (const unsigned *)image, (int)width, (int)height,
-                        0, 0, width-1, height-1);
+                        x0, y0, x1, y1);
             (*env)->ReleasePrimitiveArrayCritical(env, rgbArray, image, JNI_ABORT);
         } else {
             BD_DEBUG(DBG_BDJ | DBG_CRIT, "GetPrimitiveArrayCritical() failed\n");
@@ -591,7 +592,7 @@ Java_org_videolan_Libbluray_methods[] =
     },
     {
         CC("updateGraphicN"),
-        CC("(JII[I)V"),
+        CC("(JII[IIIII)V"),
         VC(Java_org_videolan_Libbluray_updateGraphicN),
     },
 };
