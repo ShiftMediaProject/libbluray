@@ -173,8 +173,8 @@ MOBJ_OBJECTS *mobj_parse(const char *file_name)
 
     /* if failed, try backup file */
     if (!objects) {
-        int   len    = strlen(file_name);
-        char *backup = malloc(len + 8);
+        size_t len    = strlen(file_name);
+        char  *backup = malloc(len + 8);
 
         strcpy(backup, file_name);
         strcpy(backup + len - 16, "BACKUP/MovieObject.bdmv");
