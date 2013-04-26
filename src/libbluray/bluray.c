@@ -1129,6 +1129,7 @@ static void _bdj_osd_cb(BLURAY *bd, const unsigned *img, int w, int h,
     BD_ARGB_OVERLAY aov;
 
     if (!bd || !bd->argb_overlay_proc) {
+        _queue_event(bd, BD_EVENT_MENU, 0);
         return;
     }
 
@@ -1142,8 +1143,10 @@ static void _bdj_osd_cb(BLURAY *bd, const unsigned *img, int w, int h,
             aov.cmd = BD_ARGB_OVERLAY_INIT;
             aov.w   = w;
             aov.h   = h;
+            _queue_event(bd, BD_EVENT_MENU, 1);
         } else {
             aov.cmd = BD_ARGB_OVERLAY_CLOSE;
+            _queue_event(bd, BD_EVENT_MENU, 0);
         }
 
         bd->argb_overlay_proc(bd->argb_overlay_proc_handle, &aov);
