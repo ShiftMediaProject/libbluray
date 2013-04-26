@@ -1,3 +1,25 @@
+2013-04-26: Version 0.3.0
+- Build fixes
+- Fixed stopping playback from pop-up menu
+- Fixed multithreading issues in API
+- Fixed initial setting for player profile
+- Fixed stack corruption with long log strings
+- Improved configure script
+- Improved Visual Studio support
+- Improved BD-J support (still alpha)
+- Allow changing player version
+- Added PG (subtitle) decoding and rendering support
+- Added ARGB overlay interface for BD-J graphics
+- Added events for discontinuity, idle state and 3D mode
+- Added playmarks to BLURAY_TITLE_INFO
+- added start time, in time and out time to BLURAY_CLIP_INFO
+- added sub-path id to BLURAY_STREAM_INFO
+- Added bd_seek_playitem()
+- Added bd_set_scr()
+- Added 3D extension data to raw clip info
+- added 3D player settings
+- Added cropping and palette update flag to BD_OVERLAY
+
 2012-08-17: Version 0.2.3
  - Fixed memory leaks
  - Automatic language selection: disable subtitles when audio is in the same language
