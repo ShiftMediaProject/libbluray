@@ -113,6 +113,11 @@ public class BDWindowGraphics extends BDGraphics {
         window.notifyChanged();
     }
 
+    public void dispose() {
+        super.dispose();
+        window = null;
+    }
+
     public boolean drawImageN(Image img,
         int dx, int dy, int dw, int dh,
         int sx, int sy, int sw, int sh,
