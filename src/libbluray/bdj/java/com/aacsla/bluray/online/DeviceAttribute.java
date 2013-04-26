@@ -19,6 +19,7 @@
 
 package com.aacsla.bluray.online;
 
+import org.videolan.Libbluray;
 import org.videolan.Logger;
 
 public class DeviceAttribute {
@@ -26,10 +27,10 @@ public class DeviceAttribute {
     }
 
     public byte[] getDeviceBindingID() {
-        // TODO
-        logger.unimplemented("getDeviceBindingID");
-        return null;
+        byte bid[] = Libbluray.getDeviceBindingID();
+        if (bid == null) {
+            Logger.getLogger(DeviceAttribute.class.getName()).warning("getDeviceBindingID() failed");
+        }
+        return bid;
     }
-
-    private static final Logger logger = Logger.getLogger(DeviceAttribute.class.getName());
 }

@@ -28,5 +28,6 @@
 
 BD_PRIVATE const uint8_t *bd_get_vid(BLURAY *bd);
 BD_PRIVATE const uint8_t *bd_get_pmsn(BLURAY *bd);
+BD_PRIVATE const uint8_t *bd_get_device_binding_id(BLURAY *bd);
 
 #endif  /* _BLURAY_INTERNAL_H_ */

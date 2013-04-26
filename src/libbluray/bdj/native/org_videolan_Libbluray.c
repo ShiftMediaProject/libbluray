@@ -217,6 +217,22 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getPMSNN
     return array;
 }
 
+JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getDeviceBindingIDN
+  (JNIEnv * env, jclass cls, jlong np)
+{
+    BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
+    const uint8_t *bid = bd_get_device_binding_id(bdj->bd);
+
+    static const uint8_t empty[16] = {0};
+    if (!bid || !memcmp(bid, empty, sizeof(empty))) {
+        return NULL;
+    }
+    jbyteArray array = (*env)->NewByteArray(env, 16);
+    (*env)->SetByteArrayRegion(env, array, 0, 16, (const jbyte *)bid);
+    return array;
+}
+
+
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN(JNIEnv * env,
                                                               jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
@@ -464,6 +480,11 @@ Java_org_videolan_Libbluray_methods[] =
         CC("getPMSNN"),
         CC("(J)[B"),
         VC(Java_org_videolan_Libbluray_getPMSNN),
+    },
+    {
+        CC("getDeviceBindingIDN"),
+        CC("(J)[B"),
+        VC(Java_org_videolan_Libbluray_getDeviceBindingIDN),
     },
     {
         CC("getTitleInfoN"),

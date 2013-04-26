@@ -926,6 +926,23 @@ const uint8_t *bd_get_pmsn(BLURAY *bd)
     return NULL;
 }
 
+const uint8_t *bd_get_device_binding_id(BLURAY *bd)
+{
+    /* internal function. Used by BD-J. */
+    if (bd->aacs) {
+        fptr_p_void fptr;
+        *(void **)(&fptr) = dl_dlsym(bd->h_libaacs, "aacs_get_device_binding_id");
+        if (fptr) {
+            return (const uint8_t*)fptr(bd->aacs);
+        }
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "aacs_get_device_binding_id() dlsym failed!");
+        return NULL;
+    }
+
+    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_get_device_binding_id(): libaacs not initialized!");
+    return NULL;
+}
+
 static void _libbdplus_close(BLURAY *bd)
 {
     if (bd->bdplus) {

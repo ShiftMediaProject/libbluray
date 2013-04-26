@@ -110,6 +110,14 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getPMSNN
 
 /*
  * Class:     org_videolan_Libbluray
+ * Method:    getDeviceBindingIDN
+ * Signature: (J)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getDeviceBindingIDN
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     org_videolan_Libbluray
  * Method:    getTitleInfoN
  * Signature: (JI)Lorg/videolan/TitleInfo;
  */
