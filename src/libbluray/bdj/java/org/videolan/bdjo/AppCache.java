@@ -13,22 +13,22 @@ public class AppCache {
     {
         return type;
     }
-    
+
     public String getRefToName()
     {
         return refToName;
     }
-    
+
     public String getLanguage()
     {
         return language;
     }
-    
+
     public String toString()
     {
         return "AppCache [language=" + language + ", refToName=" + refToName + ", type=" + type + "]";
     }
-    
+
     public static final int JAR_FILE = 1;
     public static final int DIRECTORY = 2;
 
