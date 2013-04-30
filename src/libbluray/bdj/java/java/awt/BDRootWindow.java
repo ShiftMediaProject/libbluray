@@ -88,7 +88,7 @@ public class BDRootWindow extends Frame {
 
             if ((dirty.width | dirty.height) >= 0) {
                 Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer, dirty.x, dirty.y,
-                                        dirty.x + dirty.width, dirty.y + dirty.height);
+                                        dirty.x + dirty.width - 1, dirty.y + dirty.height - 1);
             }
             dirty.setSize(-1, -1);
         }
