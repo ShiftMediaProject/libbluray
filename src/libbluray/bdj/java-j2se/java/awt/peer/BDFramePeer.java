@@ -104,7 +104,12 @@ public class BDFramePeer extends BDComponentPeer implements FramePeer
     public void repositionSecurityWarning() {
     }
 
+    /* Removed in java 1.6 update 45 */
     public void setAlwaysOnTop(boolean b) {
+    }
+
+    /* java 1.6 update 45. Also in java 7 / 8. */
+    public void updateAlwaysOnTopState() {
     }
 
     public void setModalBlocked(Dialog d,boolean b) {
