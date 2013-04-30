@@ -1,4 +1,4 @@
-2013-04-26: Version 0.3.0
+2013-04-30: Version 0.3.0
 - Build fixes
 - Fixed stopping playback from pop-up menu
 - Fixed multithreading issues in API
