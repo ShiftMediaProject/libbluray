@@ -34,7 +34,7 @@ public class BDRootWindow extends Frame {
         BDToolkit.setFocusedWindow(this);
     }
 
-    public Rectangle getDirtyRect() {
+    public Area getDirtyArea() {
         return dirty;
     }
 
@@ -50,7 +50,7 @@ public class BDRootWindow extends Frame {
 
             Libbluray.updateGraphic(width, height, null);
 
-            dirty.setBounds(0, 0, width - 1, height - 1);
+            dirty.add(new Rectangle(0, 0, width - 1, height - 1));
         }
     }
 
@@ -86,11 +86,12 @@ public class BDRootWindow extends Frame {
             }
             changeCount = 0;
 
-            if ((dirty.width | dirty.height) >= 0) {
-                Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer, dirty.x, dirty.y,
-                                        dirty.x + dirty.width - 1, dirty.y + dirty.height - 1);
+            Area a = dirty.getBounds();
+            dirty.clear();
+
+            if (!a.isEmpty()) {
+                Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer, a.x0, a.y0, a.x1, a.y1);
             }
-            dirty.setSize(-1, -1);
         }
     }
 
@@ -133,7 +134,7 @@ public class BDRootWindow extends Frame {
     }
 
     private int[] backBuffer = null;
-    private Rectangle dirty = new Rectangle();
+    private Area dirty = new Area();
     private int changeCount = 0;
     private Timer timer = new Timer();
     private TimerTask timerTask = null;

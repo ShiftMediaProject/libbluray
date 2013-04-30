@@ -39,7 +39,7 @@ class BDImageBase extends Image {
     private Component component;
     protected int width, height;
     protected int[] backBuffer;
-    protected Rectangle dirty;
+    protected Area dirty;
     private GraphicsConfiguration gc;
     private Vector observers = new Vector();
 
@@ -77,7 +77,7 @@ class BDImageBase extends Image {
         if (width > 0 && height > 0)
             backBuffer = new int[width * height];
 
-        dirty = new Rectangle(width, height);
+        dirty = new Area(width, height);
     }
 
     public void flush() {
@@ -148,7 +148,7 @@ class BDImageBase extends Image {
         return backBuffer;
     }
 
-    public Rectangle getDirtyRect() {
+    public Area getDirtyArea() {
         return dirty;
     }
 

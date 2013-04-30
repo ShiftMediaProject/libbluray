@@ -40,7 +40,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
     private int width;
     private int height;
     private int[] backBuffer;
-    private Rectangle dirty;
+    private Area dirty;
     private GraphicsConfiguration gc;
     private Color foreground;
     private Color background;
@@ -90,7 +90,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         width = window.getWidth();
         height = window.getHeight();
         backBuffer = window.getBdBackBuffer();
-        dirty = window.getDirtyRect();
+        dirty = window.getDirtyArea();
         gc = window.getGraphicsConfiguration();
         foreground = window.getForeground();
         background = window.getBackground();
@@ -110,7 +110,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         width = image.getWidth();
         height = image.getHeight();
         backBuffer = image.getBdBackBuffer();
-        dirty = image.getDirtyRect();
+        dirty = image.getDirtyArea();
         gc = image.getGraphicsConfiguration();
         Component component = image.getComponent();
         if (component != null) {
