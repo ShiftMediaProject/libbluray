@@ -3,7 +3,11 @@ SET_INCLUDES = -I$(top_srcdir) -Ifile -Ilibbluray/bdnav
 
 AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_INCLUDES) $(LIBXML2_CFLAGS) $(FT2_CFLAGS)
 
-EXTRA_DIST = libbluray/bdj/build.xml libbluray/bdj/java
+EXTRA_DIST = \
+       libbluray/bdj/build.xml \
+       libbluray/bdj/java \
+       libbluray/bdj/java-j2me \
+       libbluray/bdj/java-j2se
 
 lib_LTLIBRARIES=libbluray.la
 libbluray_la_SOURCES = \
