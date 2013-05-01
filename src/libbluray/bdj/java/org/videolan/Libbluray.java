@@ -310,8 +310,10 @@ public class Libbluray {
                        x0, y0, x1, y1);
     }
 
-    public static void processEvent(int event, int param) {
+    public static boolean processEvent(int event, int param) {
+        boolean result = true;
         int key = 0;
+
         switch (event) {
         case BDJ_EVENT_CHAPTER:
             BDHandler.onChapterReach(param);
@@ -358,15 +360,23 @@ public class Libbluray {
             case 14: key = KeyEvent.VK_LEFT; break;
             case 15: key = KeyEvent.VK_RIGHT; break;
             case 16: key = KeyEvent.VK_ENTER; break;
-            default: key = -1; break;
+            default:
+                key = -1;
+                result = false;
+                break;
             }
             if (key > 0) {
-                EventManager.getInstance().receiveKeyEvent(KeyEvent.KEY_PRESSED, 0, key);
-                EventManager.getInstance().receiveKeyEvent(KeyEvent.KEY_RELEASED, 0, key);
-                EventManager.getInstance().receiveKeyEvent(KeyEvent.KEY_TYPED, 0, key);
+                result =
+                    EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_PRESSED, 0, key) ||
+                    EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_RELEASED, 0, key) ||
+                    EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_TYPED, 0, key);
             }
             break;
+        default:
+            result = false;
         }
+
+        return result;
     }
 
     private static final int BDJ_EVENT_CHAPTER                  = 1;

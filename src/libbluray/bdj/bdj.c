@@ -469,7 +469,7 @@ void bdj_close(BDJAVA *bdjava)
     X_FREE(bdjava);
 }
 
-void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
+int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
 {
     static const char * const ev_name[] = {
         "NONE",
@@ -488,9 +488,10 @@ void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
     int attach = 0;
     jclass event_class;
     jmethodID event_id;
+    int result = -1;
 
     if (!bdjava) {
-        return;
+        return -1;
     }
 
     BD_DEBUG(DBG_BDJ, "bdj_process_event(%s,%d)\n", ev_name[ev], param);
@@ -501,8 +502,10 @@ void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
     }
 
     if (bdj_get_method(env, &event_class, &event_id,
-                       "org/videolan/Libbluray", "processEvent", "(II)V")) {
-        (*env)->CallStaticVoidMethod(env, event_class, event_id, ev, param);
+                       "org/videolan/Libbluray", "processEvent", "(II)Z")) {
+        if ((*env)->CallStaticBooleanMethod(env, event_class, event_id, ev, param)) {
+            result = 0;
+        }
 
         if ((*env)->ExceptionOccurred(env)) {
             (*env)->ExceptionDescribe(env);
@@ -515,4 +518,6 @@ void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
     if (attach) {
         (*bdjava->jvm)->DetachCurrentThread(bdjava->jvm);
     }
+
+    return result;
 }

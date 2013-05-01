@@ -68,7 +68,7 @@ public class BDJHelper {
         }
     }
 
-    public static void postKeyEvent(int id, int modifiers, int keyCode) {
+    public static boolean postKeyEvent(int id, int modifiers, int keyCode) {
         Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getGlobalFocusOwner();
         if (focusOwner != null) {
             long when = System.currentTimeMillis();
@@ -79,12 +79,14 @@ public class BDJHelper {
                 else
                     event = new KeyEvent(focusOwner, id, when, modifiers, keyCode, KeyEvent.CHAR_UNDEFINED);
                 BDToolkit.getEventQueue(focusOwner).postEvent(event);
-                return;
+                return true;
             } catch (Throwable e) {
                 org.videolan.Logger.getLogger("BDJHelper").error("postKeyEvent failed: " + e);
             }
         } else {
             org.videolan.Logger.getLogger("BDJHelper").error("*** KEY event dropped ***");
         }
+
+        return false;
     }
 }

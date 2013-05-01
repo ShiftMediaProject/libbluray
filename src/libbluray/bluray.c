@@ -1226,14 +1226,15 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 }
 
 #ifdef USING_BDJAVA
-static void _bdj_event(BLURAY *bd, unsigned ev, unsigned param)
+static int _bdj_event(BLURAY *bd, unsigned ev, unsigned param)
 {
     if (bd->bdjava != NULL) {
-        bdj_process_event(bd->bdjava, ev, param);
+        return bdj_process_event(bd->bdjava, ev, param);
     }
+    return -1;
 }
 #else
-#define _bdj_event(bd, ev, param) do{}while(0)
+#define _bdj_event(bd, ev, param) (bd=bd, -1)
 #endif
 
 static void _stop_bdj(BLURAY *bd)
@@ -3014,8 +3015,7 @@ int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
     if (bd->title_type == title_hdmv) {
         result = _run_gc(bd, GC_CTRL_VK_KEY, key);
     } else if (bd->title_type == title_bdj) {
-        _bdj_event(bd, BDJ_EVENT_VK_KEY, key);
-        result = 0;
+        result = _bdj_event(bd, BDJ_EVENT_VK_KEY, key);
     }
 
     bd_mutex_unlock(&bd->mutex);

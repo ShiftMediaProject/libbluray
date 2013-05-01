@@ -127,7 +127,12 @@ public class EventManager implements ResourceServer {
     }
 
     public void receiveKeyEvent(int type, int modifiers, int keyCode) {
+        receiveKeyEventN(type, modifiers, keyCode);
+    }
+
+    public boolean receiveKeyEventN(int type, int modifiers, int keyCode) {
         HScene focusHScene = GUIManager.getInstance().getFocusHScene();
+        boolean result = false;
         if (focusHScene != null) {
             XletContext context = focusHScene.getXletContext();
             for (Iterator it = exclusiveAWTEventListener.iterator(); it.hasNext(); ) {
@@ -141,8 +146,8 @@ public class EventManager implements ResourceServer {
                             (evt.getCode() == keyCode) &&
                             (evt.getType() == type)) {
 
-                            BDJHelper.postKeyEvent(type, modifiers, keyCode);
-                            return;
+                            result = BDJHelper.postKeyEvent(type, modifiers, keyCode);
+                            return result;
                         }
                     }
                 }
@@ -159,12 +164,12 @@ public class EventManager implements ResourceServer {
                     (evt.getType() == type)) {
 
                     BDJActionManager.getInstance().putCallback(new UserEventAction(item, i));
-                    return;
+                    return true;
                 }
             }
         }
 
-        BDJHelper.postKeyEvent(type, modifiers, keyCode);
+        result = BDJHelper.postKeyEvent(type, modifiers, keyCode);
 
         for (Iterator it = sharedUserEventListener.iterator(); it.hasNext(); ) {
             UserEventItem item = (UserEventItem)it.next();
@@ -175,9 +180,12 @@ public class EventManager implements ResourceServer {
                     (evt.getCode() == keyCode) &&
                     (evt.getType() == type)) {
                     BDJActionManager.getInstance().putCallback(new UserEventAction(item, i));
+                    result = true;
                 }
             }
         }
+
+        return result;
     }
 
     private boolean cleanupReservedEvents(UserEventRepository userEvents) {

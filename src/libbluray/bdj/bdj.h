@@ -53,6 +53,6 @@ BD_PRIVATE BDJAVA* bdj_open(const char *path, struct bluray *bd,
 BD_PRIVATE int  bdj_start(BDJAVA *bdjava, unsigned title);
 BD_PRIVATE int  bdj_stop(BDJAVA *bdjava);
 BD_PRIVATE void bdj_close(BDJAVA *bdjava);
-BD_PRIVATE void bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
+BD_PRIVATE int  bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
 
 #endif
