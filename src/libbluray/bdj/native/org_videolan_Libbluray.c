@@ -232,6 +232,17 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getDeviceBindingIDN
     return array;
 }
 
+JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getUOMaskN(JNIEnv * env,
+        jclass cls, jlong np) {
+    BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
+    return bd_get_uo_mask(bdj->bd);
+}
+
+JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setUOMaskN(JNIEnv * env,
+        jclass cls, jlong np, jboolean menuCallMask, jboolean titleSearchMask) {
+    BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
+    bdj->uo_mask = ((!!menuCallMask) * BDJ_MENU_CALL_MASK) | ((!!titleSearchMask) * BDJ_TITLE_SEARCH_MASK);
+}
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN(JNIEnv * env,
                                                               jclass cls, jlong np) {
@@ -311,7 +322,7 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectTitleN(JNIEnv * env,
 
     BD_DEBUG(DBG_JNI, "selectTitleN(%d)\n", (int)title);
 
-    return bd_play_title(bdj->bd, title);
+    return bd_play_title_internal(bdj->bd, title);
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectAngleN(JNIEnv * env,
@@ -485,6 +496,16 @@ Java_org_videolan_Libbluray_methods[] =
         CC("getDeviceBindingIDN"),
         CC("(J)[B"),
         VC(Java_org_videolan_Libbluray_getDeviceBindingIDN),
+    },
+    {
+        CC("getUOMaskN"),
+        CC("(J)J"),
+        VC(Java_org_videolan_Libbluray_getUOMaskN),
+    },
+    {
+        CC("setUOMaskN"),
+        CC("(JZZ)V"),
+        VC(Java_org_videolan_Libbluray_setUOMaskN),
     },
     {
         CC("getTitleInfoN"),

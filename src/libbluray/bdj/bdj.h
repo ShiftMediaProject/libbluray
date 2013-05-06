@@ -37,6 +37,10 @@ typedef enum {
     BDJ_EVENT_MARK,
 } BDJ_EVENT;
 
+/* bdj_get_uo_mask() */
+#define BDJ_MENU_CALL_MASK     0x01
+#define BDJ_TITLE_SEARCH_MASK  0x02
+
 typedef struct bdjava_s BDJAVA;
 
 struct bluray;
@@ -54,5 +58,6 @@ BD_PRIVATE int  bdj_start(BDJAVA *bdjava, unsigned title);
 BD_PRIVATE int  bdj_stop(BDJAVA *bdjava);
 BD_PRIVATE void bdj_close(BDJAVA *bdjava);
 BD_PRIVATE int  bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
+BD_PRIVATE int  bdj_get_uo_mask(BDJAVA *bdjava);
 
 #endif

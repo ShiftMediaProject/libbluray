@@ -41,6 +41,8 @@ struct bdjava_s {
     JavaVM* jvm;
 
     const char *path;
+
+    unsigned uo_mask; /* UO masks from bdjo */
 };
 
 #endif

@@ -38,6 +38,7 @@ import org.videolan.bdjo.AppEntry;
 import org.videolan.bdjo.Bdjo;
 import org.videolan.bdjo.GraphicsResolution;
 import org.videolan.bdjo.PlayListTable;
+import org.videolan.bdjo.TerminalInfo;
 
 public class BDJLoader {
     public static boolean load(int title) {
@@ -136,10 +137,13 @@ public class BDJLoader {
 
             // start bdj window
             GUIManager gui = GUIManager.createInstance();
-            GraphicsResolution res = bdjo.getTerminalInfo().getResolution();
+            TerminalInfo terminfo = bdjo.getTerminalInfo();
+            GraphicsResolution res = terminfo.getResolution();
             gui.setResizable(true);
             gui.setSize(res.getWidth(), res.getHeight());
             gui.setVisible(true);
+
+            Libbluray.setUOMask(terminfo.getMenuCallMask(), terminfo.getTitleSearchMask());
 
             // initialize appProxys
             for (int i = 0; i < appTable.length; i++) {

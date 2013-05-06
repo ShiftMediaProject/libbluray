@@ -521,3 +521,12 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
 
     return result;
 }
+
+int bdj_get_uo_mask(BDJAVA *bdjava)
+{
+    if (!bdjava) {
+        return 0;
+    }
+
+    return bdjava->uo_mask;
+}

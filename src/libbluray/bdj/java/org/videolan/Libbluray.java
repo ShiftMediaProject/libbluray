@@ -255,6 +255,10 @@ public class Libbluray {
         return getCurrentAngleN(nativePointer);
     }
 
+    public static long getUOMask() {
+        return getUOMaskN(nativePointer);
+    }
+
     public static long tell() {
         return tellN(nativePointer);
     }
@@ -379,6 +383,10 @@ public class Libbluray {
         return result;
     }
 
+    public static void setUOMask(boolean menuCallMask, boolean titleSearchMask) {
+        setUOMaskN(nativePointer, menuCallMask, titleSearchMask);
+    }
+
     private static final int BDJ_EVENT_CHAPTER                  = 1;
     private static final int BDJ_EVENT_PLAYITEM                 = 2;
     private static final int BDJ_EVENT_ANGLE                    = 3;
@@ -440,6 +448,8 @@ public class Libbluray {
     private static native int selectAngleN(long np, int angle);
     private static native void seamlessAngleChangeN(long np, int angle);
     private static native long getTitleSizeN(long np);
+    private static native long getUOMaskN(long np);
+    private static native void setUOMaskN(long np, boolean menuCallMask, boolean titleSearchMask);
     private static native int getCurrentTitleN(long np);
     private static native int getCurrentAngleN(long np);
     private static native long tellN(long np);

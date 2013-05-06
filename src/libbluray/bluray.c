@@ -1137,6 +1137,23 @@ static void _fill_disc_info(BLURAY *bd)
  */
 
 #ifdef USING_BDJAVA
+uint64_t bd_get_uo_mask(BLURAY *bd)
+{
+    /* internal function. Used by BD-J. */
+    union {
+      uint64_t u64;
+      BD_UO_MASK mask;
+    } mask = {0};
+
+    //bd_mutex_lock(&bd->mutex);
+    memcpy(&mask.mask, &bd->st0.uo_mask, sizeof(BD_UO_MASK));
+    //bd_mutex_unlock(&bd->mutex);
+
+    return mask.u64;
+}
+#endif
+
+#ifdef USING_BDJAVA
 /*
  * handle graphics updates from BD-J layer
  */
@@ -2708,6 +2725,18 @@ static int _play_title(BLURAY *bd, unsigned title)
     return 0;
 }
 
+#ifdef USING_BDJAVA
+int bd_play_title_internal(BLURAY *bd, unsigned title)
+{
+    /* used by BD-J. Like bd_play_title() but bypasses UO mask checks. */
+    int ret;
+    bd_mutex_lock(&bd->mutex);
+    ret = _play_title(bd, title);
+    bd_mutex_unlock(&bd->mutex);
+    return ret;
+}
+#endif
+
 int bd_play(BLURAY *bd)
 {
     int result;
@@ -2757,6 +2786,15 @@ static int _try_play_title(BLURAY *bd, unsigned title)
         }
     }
 
+#ifdef USING_BDJAVA
+    if (bd->title_type == title_bdj) {
+        if (bdj_get_uo_mask(bd->bdjava) & BDJ_TITLE_SEARCH_MASK) {
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by BD-J\n");
+            return 0;
+        }
+    }
+#endif
+
     return _play_title(bd, title);
 }
 
@@ -2795,6 +2833,15 @@ static int _try_menu_call(BLURAY *bd, int64_t pts)
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_menu_call(): error storing playback location\n");
         }
     }
+
+#ifdef USING_BDJAVA
+    if (bd->title_type == title_bdj) {
+        if (bdj_get_uo_mask(bd->bdjava) & BDJ_MENU_CALL_MASK) {
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by BD-J\n");
+            return 0;
+        }
+    }
+#endif
 
     return _play_title(bd, BLURAY_TITLE_TOP_MENU);
 }

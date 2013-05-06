@@ -30,6 +30,7 @@ import org.bluray.media.UOMaskedEvent;
 
 import org.videolan.BDJAction;
 import org.videolan.BDJActionManager;
+import org.videolan.Libbluray;
 import org.videolan.PlaylistInfo;
 
 public class UOMaskTableControlImpl implements UOMaskTableControl {
@@ -54,12 +55,13 @@ public class UOMaskTableControlImpl implements UOMaskTableControl {
     }
 
     public boolean[] getMaskedUOTable() {
-        org.videolan.Logger.unimplemented("UOMaskTableControlImpl", "getMaskedUOTable");
-        // TODO: set masks
-
+        long mask = Libbluray.getUOMask();
         boolean[] table = new boolean[64];
-        for (int i = 0; i < 64; i++)
-            table[i] = false;
+        for (int i = 0; i < table.length; i++)
+            if (0L != (mask & 1L << i))
+                table[i] = true;
+            else
+                table[i] = false;
 
         return table;
     }

@@ -118,6 +118,22 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getDeviceBindingIDN
 
 /*
  * Class:     org_videolan_Libbluray
+ * Method:    getUOMask
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getUOMaskN
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     org_videolan_Libbluray
+ * Method:    getUOMask
+ * Signature: (JZZ)V
+ */
+JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setUOMaskN
+(JNIEnv *, jclass, jlong, jboolean, jboolean);
+
+/*
+ * Class:     org_videolan_Libbluray
  * Method:    getTitleInfoN
  * Signature: (JI)Lorg/videolan/TitleInfo;
  */
