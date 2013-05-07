@@ -46,6 +46,7 @@ typedef struct bd_uo_mask_table_s
     unsigned int activate : 1;
     unsigned int select_and_activate : 1;
     unsigned int primary_audio_change : 1;
+    unsigned int reserved0 : 1;
     unsigned int angle_change : 1;
     unsigned int popup_on : 1;
     unsigned int popup_off : 1;
@@ -55,6 +56,7 @@ typedef struct bd_uo_mask_table_s
     unsigned int secondary_video_change : 1;
     unsigned int secondary_audio_enable_disable : 1;
     unsigned int secondary_audio_change : 1;
+    unsigned int reserved1 : 1;
     unsigned int pip_pg_change : 1;
 } BD_UO_MASK;
 
