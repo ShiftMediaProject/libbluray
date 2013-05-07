@@ -424,18 +424,27 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
 
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
 
-    BD_DEBUG(DBG_JNI, "updateGraphicN()\n");
+    BD_DEBUG(DBG_JNI, "updateGraphicN(%d,%d-%d,%d)\n", x0, y0, x1, y1);
 
+    /* app callback not initialized ? */
     if (!bdj || !bdj->osd_cb) {
         return;
     }
 
+    /* close ? */
     if (!rgbArray) {
         bdj->osd_cb(bdj->bd, NULL, (int)width, (int)height, 0, 0, 0, 0);
         return;
     }
 
+    /* nothing to draw ? */
+    if (x1 < x0 || y1 < y0 || (x1 | y1) < 0) {
+        return;
+    }
+
     if (bdj->buf && bdj->buf->buf[BD_OVERLAY_IG]) {
+        jint y, *dst;
+        jsize offset;
 
         /* copy to application-allocated buffer */
 
@@ -443,20 +452,46 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
             bdj->buf->lock(bdj->buf);
         }
 
+        /* check buffer size */
         if (bdj->buf->width != width || bdj->buf->height != height) {
             BD_DEBUG(DBG_BDJ | DBG_CRIT, "Incorrect ARGB frame buffer size (is: %dx%d expect: %dx%d)\n",
                      bdj->buf->width, bdj->buf->height, width, height);
         }
 
-        jsize len = bdj->buf->width * bdj->buf->height;
-        (*env)->GetIntArrayRegion(env, rgbArray, 0, len, (jint*)bdj->buf->buf[BD_OVERLAY_IG]);
+        /* clip */
+        if (y1 >= bdj->buf->height) {
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Cropping %d rows from bottom\n", y1 - bdj->buf->height);
+            y1 = bdj->buf->height - 1;
+        }
+        if (x1 >= bdj->buf->width) {
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Cropping %d pixels from right\n", x1 - bdj->buf->width);
+            x1 = bdj->buf->width - 1;
+        }
+
+        /* copy */
+
+        offset = y0 * width + x0;
+        dst    = (jint*)bdj->buf->buf[BD_OVERLAY_IG] + y0 * bdj->buf->width + x0;
+
+        for (y = y0; y <= y1; y++) {
+            (*env)->GetIntArrayRegion(env, rgbArray, offset, x1 - x0 + 1, dst);
+            offset += width;
+            dst += bdj->buf->width;
+        }
+
+        /* check for errors */
+        if ((*env)->ExceptionOccurred(env)) {
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Array access error at %d (+%d)\n", offset, x1 - x0 + 1);
+            (*env)->ExceptionDescribe(env);
+            (*env)->ExceptionClear(env);
+        }
 
         if (bdj->buf->unlock) {
             bdj->buf->unlock(bdj->buf);
         }
 
         bdj->osd_cb(bdj->bd, bdj->buf->buf[BD_OVERLAY_IG], (int)width, (int)height,
-                    0, 0, width-1, height-1);
+                    x0, y0, x1, y1);
 
     } else {
 
