@@ -909,6 +909,7 @@ const uint8_t *bd_get_vid(BLURAY *bd)
     return NULL;
 }
 
+#ifdef USING_BDJAVA
 const uint8_t *bd_get_pmsn(BLURAY *bd)
 {
     /* internal function. Used by BD-J. */
@@ -925,7 +926,9 @@ const uint8_t *bd_get_pmsn(BLURAY *bd)
     BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_get_pmsn(): libaacs not initialized!\n");
     return NULL;
 }
+#endif
 
+#ifdef USING_BDJAVA
 const uint8_t *bd_get_device_binding_id(BLURAY *bd)
 {
     /* internal function. Used by BD-J. */
@@ -942,6 +945,7 @@ const uint8_t *bd_get_device_binding_id(BLURAY *bd)
     BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_get_device_binding_id(): libaacs not initialized!");
     return NULL;
 }
+#endif
 
 static void _libbdplus_close(BLURAY *bd)
 {
@@ -1254,24 +1258,28 @@ static int _bdj_event(BLURAY *bd, unsigned ev, unsigned param)
 #define _bdj_event(bd, ev, param) (bd=bd, -1)
 #endif
 
+#ifdef USING_BDJAVA
 static void _stop_bdj(BLURAY *bd)
 {
-#ifdef USING_BDJAVA
     if (bd->bdjava != NULL) {
         bdj_stop(bd->bdjava);
     }
-#endif
 }
+#else
+#define _stop_bdj(bd) do{}while(0)
+#endif
 
+#ifdef USING_BDJAVA
 static void _close_bdj(BLURAY *bd)
 {
-#ifdef USING_BDJAVA
     if (bd->bdjava != NULL) {
         bdj_close(bd->bdjava);
         bd->bdjava = NULL;
     }
-#endif
 }
+#else
+#define _close_bdj(bd) do{}while(0)
+#endif
 
 #ifdef HAVE_MNTENT_H
 /*
