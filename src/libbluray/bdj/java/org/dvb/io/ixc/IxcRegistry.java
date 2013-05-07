@@ -18,28 +18,24 @@
 
 package org.dvb.io.ixc;
 
-import java.rmi.AccessException;
 import java.rmi.RemoteException;
 import java.rmi.NotBoundException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.Remote;
 
-import javax.microedition.xlet.ixc.StubException;
 import javax.tv.xlet.XletContext;
 
-import org.dvb.application.AppID;
-import org.dvb.application.AppProxy;
-import org.dvb.application.AppsDatabase;
-import org.videolan.BDJXletContext;
+import org.videolan.IxcRegistryImpl;
+
 
 public class IxcRegistry {
-    private static javax.microedition.xlet.ixc.IxcRegistry getIxcRegistry(XletContext xc) {
-        if (!(xc instanceof BDJXletContext))
-            throw new IllegalArgumentException();
-        javax.microedition.xlet.ixc.IxcRegistry registry;
-        registry = javax.microedition.xlet.ixc.IxcRegistry.getRegistry((BDJXletContext)xc);
-        if (registry == null)
-            throw new IllegalArgumentException();
+
+    private static IxcRegistryImpl registry = null;
+
+    private static IxcRegistryImpl getIxcRegistry() {
+        if (registry == null) {
+            registry = new IxcRegistryImpl();
+        }
         return registry;
     }
 
@@ -68,23 +64,18 @@ public class IxcRegistry {
         String key = "/" + Integer.toHexString(orgid) +
                      "/" + Integer.toHexString(appid) +
                      "/" + path.substring(s2 + 1, path.length());
-        return getIxcRegistry(xc).lookup(key);
+
+        return getIxcRegistry().lookup(xc, key);
     }
 
     public static void bind(XletContext xc, String name, Remote obj) throws AlreadyBoundException {
         if ((xc == null) || (name == null) || (obj == null))
             throw new NullPointerException();
-        String orgid = (String)xc.getXletProperty("dvb.org.id");
-        String appid = (String)xc.getXletProperty("dvb.app.id");
-        AppID id = new AppID(Integer.parseInt(orgid, 16), Integer.parseInt(appid, 16));
-        if (AppsDatabase.getAppsDatabase().getAppProxy(id).getState() == AppProxy.DESTROYED)
-            return;
-        String key = "/" + orgid + "/" + appid + "/" + name;
-        try {
-            getIxcRegistry(xc).bind(key, obj);
-        } catch (StubException e) {
-            throw new IllegalArgumentException();
-        }
+        String key = "/" + (String)xc.getXletProperty("dvb.org.id") +
+                     "/" + (String)xc.getXletProperty("dvb.app.id") +
+                     "/" + name;
+
+        getIxcRegistry().bind(xc, key, obj);
     }
 
     public static void unbind(XletContext xc, String name) throws NotBoundException {
@@ -93,32 +84,28 @@ public class IxcRegistry {
         String key = "/" + (String)xc.getXletProperty("dvb.org.id") +
                      "/" + (String)xc.getXletProperty("dvb.app.id") +
                      "/" + name;
-        try {
-            getIxcRegistry(xc).unbind(key);
-        } catch (AccessException e) {
-            throw new IllegalArgumentException();
-        }
+
+        getIxcRegistry().unbind(key);
     }
 
     public static void rebind(XletContext xc, String name, Remote obj) {
         if ((xc == null) || (name == null) || (obj == null))
             throw new NullPointerException();
-        String orgid = (String)xc.getXletProperty("dvb.org.id");
-        String appid = (String)xc.getXletProperty("dvb.app.id");
-        AppID id = new AppID(Integer.parseInt(orgid, 16), Integer.parseInt(appid, 16));
-        if (AppsDatabase.getAppsDatabase().getAppProxy(id).getState() == AppProxy.DESTROYED)
-            return;
-        String key = "/" + orgid + "/" + appid + "/" + name;
+        String key = "/" + (String)xc.getXletProperty("dvb.org.id") +
+                     "/" + (String)xc.getXletProperty("dvb.app.id") +
+                     "/" + name;
         try {
-            getIxcRegistry(xc).rebind(key, obj);
-        } catch (StubException e) {
-            throw new IllegalArgumentException();
-        } catch (AccessException e) {
-            throw new IllegalArgumentException();
+            getIxcRegistry().unbind(key);
+        }
+        catch (NotBoundException e) {
+        }
+        try {
+            getIxcRegistry().bind(xc, key, obj);
+        } catch (AlreadyBoundException e) {
         }
     }
 
     public static String[] list(XletContext xc) {
-        return getIxcRegistry(xc).list();
+        return getIxcRegistry().list();
     }
 }

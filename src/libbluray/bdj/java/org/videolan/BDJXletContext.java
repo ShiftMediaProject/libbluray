@@ -93,6 +93,14 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return loader;
     }
 
+    protected AppProxy getAppProxy() {
+        return AppsDatabase.getAppsDatabase().getAppProxy(appid);
+    }
+
+    public boolean isDestroyed() {
+        return AppsDatabase.getAppsDatabase().getAppProxy(appid).getState() == AppProxy.DESTROYED;
+    }
+
     public BDJThreadGroup getThreadGroup() {
         return threadGroup;
     }
