@@ -126,6 +126,10 @@ AS_IF([test "${SYS}" != "mingw32"], [
   AC_SEARCH_LIBS([pthread_create], [pthread], ,
     [AC_MSG_ERROR([pthread required])])
   AC_SEARCH_LIBS([dlopen], [dl])
+  DLOPEN_LIBS="$ac_cv_search_dlopen"
+  AS_CASE([$DLOPEN_LIBS],
+    [no|none\ required], [DLOPEN_LIBS=""])
+  AC_SUBST([DLOPEN_LIBS])
 ])
 
 dnl libxml2 for metadata parser
