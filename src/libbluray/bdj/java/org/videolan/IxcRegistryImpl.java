@@ -168,11 +168,11 @@ public class IxcRegistryImpl {
 
             Thread remoteThread = new Thread(remoteObj.context.getThreadGroup(), remoteMethod, "Ixc Remote thread " + method);
 
-            /* TODO: track threads so that unfinished threads can be killed when Xlet is terminated */
-
+            remoteMethod.callerContext.addIxcThread(remoteThread);
             remoteThread.setDaemon(false);
             remoteThread.start();
             remoteThread.join();
+            remoteMethod.callerContext.removeIxcThread(remoteThread);
 
             if (!remoteMethod.finished) {
                 throw new RemoteException("calling xlet destroyed during remote execution");

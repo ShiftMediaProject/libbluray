@@ -21,6 +21,7 @@ package org.videolan;
 
 import java.awt.Container;
 import java.awt.EventQueue;
+import java.util.LinkedList;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -132,6 +133,35 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return sceneFactory;
     }
 
+    protected void addIxcThread(Thread thread) {
+        synchronized (ixcThreads) {
+            ixcThreads.addLast(thread);
+        }
+    }
+    protected void removeIxcThread(Thread thread) {
+        synchronized (ixcThreads) {
+            ixcThreads.remove(thread);
+        }
+    }
+    protected void stopIxcThreads() {
+        synchronized (ixcThreads) {
+            while (!ixcThreads.isEmpty()) {
+                Thread thread = (Thread)ixcThreads.removeFirst();
+                logger.info("Stopping remote thread " + thread);
+                thread.interrupt();
+                try {
+                    thread.join(500);
+                } catch (Throwable t) {
+                }
+                if (thread.isAlive()) {
+                    PortingHelper.stopThread(thread);
+                }
+                if (thread.isAlive()) {
+                    logger.error("Error stopping remote thread " + thread);
+                }
+            }
+        }
+    }
 
     public static BDJXletContext getCurrentContext() {
         Object obj = AccessController.doPrivileged(
@@ -163,6 +193,8 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     }
 
     protected void release() {
+        stopIxcThreads();
+
         if (sceneFactory != null) {
             sceneFactory.dispose();
             sceneFactory = null;
@@ -188,5 +220,6 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     private EventQueue eventQueue = null;
     private HSceneFactory sceneFactory = null;
     private BDJThreadGroup threadGroup = null;
+    private LinkedList ixcThreads = new LinkedList();
     private static final Logger logger = Logger.getLogger(BDJXletContext.class.getName());
 }
