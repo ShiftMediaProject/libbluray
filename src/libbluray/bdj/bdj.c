@@ -290,6 +290,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     option[n++].optionString = str_printf("-Dbluray.bindingunit.root=%s", _bdj_buda_root());
 
     option[n++].optionString = str_dup   ("-Dawt.toolkit=java.awt.BDToolkit");
+    option[n++].optionString = str_dup   ("-Djava.awt.graphicsenv=java.awt.BDGraphicsEnvironment");
     option[n++].optionString = str_printf("-Xbootclasspath/p:%s", _find_libbluray_jar());
     option[n++].optionString = str_dup   ("-Xms256M");
     option[n++].optionString = str_dup   ("-Xmx256M");
