@@ -86,7 +86,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         fontMetrics = g.fontMetrics;
         originX = g.originX;
         originY = g.originY;
-        actualClip = g.clip;
+        actualClip = g.actualClip;
         clip = g.clip;
         constrainedRect = g.constrainedRect;
         if (clip == null)
@@ -683,16 +683,12 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         if (img instanceof BDImage) {
             bdImage = (BDImage)img;
         } else if (img instanceof DVBBufferedImage) {
-            logger.unimplemented("drawImageN(DVBBufferedImage)");
-            //bdImage = (BDImage)getBufferedImagePeer(
-            //          (BufferedImage)(((DVBBufferedImage)img).getImage()));
-            bdImage = (BDImage)((DVBBufferedImage)img).getImage();
+            bdImage = (BDImage)getBufferedImagePeer(
+                      (BufferedImage)(((DVBBufferedImage)img).getImage()));
         } else if (img instanceof BufferedImage) {
-            logger.unimplemented("drawImageN(BufferedImage)");
-            //bdImage = (BDImage)getBufferedImagePeer((BufferedImage)img);
-            return false;
+            bdImage = (BDImage)getBufferedImagePeer((BufferedImage)img);
         } else {
-            logger.unimplemented("drawImageN(UNKNOWN)");
+            logger.unimplemented("drawImageN: unsupported image type " + img.getClass().getName());
             return false;
         }
         if (bdImage instanceof BDImageConsumer) {
@@ -762,6 +758,33 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
 
     public String toString() {
         return getClass().getName() + "[" + originX + "," + originY + "]";
+    }
+
+    private static Image getBufferedImagePeer(BufferedImage image) {
+        try {
+            return (Image)bufferedImagePeer.get(image);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static Field bufferedImagePeer;
+
+    static {
+        try {
+            Class c = Class.forName("java.awt.image.BufferedImage");
+            bufferedImagePeer = c.getDeclaredField("peer");
+            bufferedImagePeer.setAccessible(true);
+        } catch (ClassNotFoundException e) {
+            throw new AWTError("java.awt.image.BufferedImage not found");
+        } catch (SecurityException e) {
+            throw new AWTError("java.awt.image.BufferedImage.peer not accessible");
+        } catch (NoSuchFieldException e) {
+            throw new AWTError("java.awt.image.BufferedImage.peer not found");
+        }
     }
 
     private static final Logger logger = Logger.getLogger(BDGraphics.class.getName());
