@@ -59,4 +59,9 @@ class BDGraphicsDevice extends GraphicsDevice {
 
     public void setFullScreenWindow(Window window) {
     }
+
+    /* J2SE java 7 */
+    boolean isWindowTranslucencySupported(GraphicsDevice.WindowTranslucency translucencyKind) {
+        return true;
+    }
 }

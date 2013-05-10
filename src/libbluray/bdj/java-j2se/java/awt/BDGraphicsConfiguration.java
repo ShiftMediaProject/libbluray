@@ -103,4 +103,9 @@ class BDGraphicsConfiguration extends GraphicsConfiguration {
         org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "getImageCapabilities");
         return super.getImageCapabilities();
     }
+
+    /* J2SE java 6 */
+    boolean isTranslucencyCapable() {
+        return true;
+    }
 }
