@@ -346,6 +346,9 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
         return NULL;
     }
 
+    /* detach java main thread (CreateJavaVM attachs calling thread to JVM) */
+    (*bdjava->jvm)->DetachCurrentThread(bdjava->jvm);
+
     return bdjava;
 }
 
