@@ -18,11 +18,11 @@
 
 package java.awt;
 
-class BDGraphicsDevice extends GraphicsDevice {
+class BDGraphicsDeviceImpl extends GraphicsDevice {
     private BDGraphicsConfiguration configuration;
 
-    BDGraphicsDevice(BDGraphicsEnvironment environment) {
-        configuration = new BDGraphicsConfiguration(this);
+    BDGraphicsDeviceImpl(BDGraphicsEnvironment environment) {
+        configuration = new BDGraphicsConfiguration((BDGraphicsDevice)this);
     }
 
     public int getType() {
@@ -58,10 +58,5 @@ class BDGraphicsDevice extends GraphicsDevice {
     }
 
     public void setFullScreenWindow(Window window) {
-    }
-
-    /* J2SE java 7 */
-    boolean isWindowTranslucencySupported(GraphicsDevice.WindowTranslucency translucencyKind) {
-        return true;
     }
 }
