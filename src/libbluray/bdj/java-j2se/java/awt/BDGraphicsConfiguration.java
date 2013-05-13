@@ -105,7 +105,7 @@ class BDGraphicsConfiguration extends GraphicsConfiguration {
     }
 
     /* J2SE java 6 */
-    boolean isTranslucencyCapable() {
+    public boolean isTranslucencyCapable() {
         return true;
     }
 }

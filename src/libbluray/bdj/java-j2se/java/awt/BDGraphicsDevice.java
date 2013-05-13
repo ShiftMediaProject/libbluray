@@ -25,7 +25,7 @@ class BDGraphicsDevice extends BDGraphicsDeviceImpl {
     }
 
     /* J2SE java 7 */
-    boolean isWindowTranslucencySupported(GraphicsDevice.WindowTranslucency translucencyKind) {
+    public boolean isWindowTranslucencySupported(GraphicsDevice.WindowTranslucency translucencyKind) {
         return true;
     }
 }
