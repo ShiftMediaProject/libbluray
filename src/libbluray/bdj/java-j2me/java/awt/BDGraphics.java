@@ -574,20 +574,25 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         if ((sx < 0) || (sy < 0) ||
             (sw == 0) || (sh == 0) || (dw == 0) || (dh == 0))
             return false;
+
         BDImage bdImage;
-        if (img instanceof BDImage)
+        if (img instanceof BDImage) {
             bdImage = (BDImage)img;
-        else if (img instanceof DVBBufferedImage)
+        } else if (img instanceof DVBBufferedImage) {
             bdImage = (BDImage)getBufferedImagePeer(
-                    (BufferedImage)(((DVBBufferedImage)img).getImage()));
-        else if (img instanceof BufferedImage)
+                      (BufferedImage)(((DVBBufferedImage)img).getImage()));
+        } else if (img instanceof BufferedImage) {
             bdImage = (BDImage)getBufferedImagePeer((BufferedImage)img);
-        else
+        } else {
+            logger.unimplemented("drawImageN: unsupported image type " + img.getClass().getName());
             return false;
+        }
+
         if (bdImage instanceof BDImageConsumer) {
             BDImageConsumer consumer = (BDImageConsumer)bdImage;
-            if (!consumer.isComplete(observer))
+            if (!consumer.isComplete(observer)) {
                 return false;
+            }
         }
 
         if(sx + sw > bdImage.width) {

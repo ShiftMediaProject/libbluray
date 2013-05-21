@@ -194,7 +194,8 @@ public class BDToolkit extends Toolkit {
         return img.checkImage(observer);
     }
 
-    public void beep() { }
+    public void beep() {
+    }
 
     // mapping of Components to AppContexts, WeakHashMap<Component,AppContext>
     private static final Map contextMap =
