@@ -58,6 +58,7 @@ class BDGraphicsConfiguration extends GraphicsConfiguration {
     }
 
     public VolatileImage createCompatibleVolatileImage(int width, int height) {
+        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "createCompatibleVolatileImage");
         return null;
     }
 }
