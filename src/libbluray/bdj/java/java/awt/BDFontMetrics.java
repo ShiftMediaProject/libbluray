@@ -53,7 +53,7 @@ public class BDFontMetrics extends FontMetrics {
                         try {
                             BDFontMetrics fm = (BDFontMetrics)it.next();
                             it.remove();
-                            fm.finalize();
+                            fm.destroy();
                         } catch (Throwable e) {
                             e.printStackTrace();
                         }
@@ -243,11 +243,15 @@ public class BDFontMetrics extends FontMetrics {
         return newWidths;
     }
 
-    protected void finalize() throws Throwable {
+    public void destroy() {
         if (ftFace != 0) {
             destroyFontN(ftFace);
             ftFace = 0;
         }
+    }
+
+    protected void finalize() throws Throwable {
+        destroy();
         super.finalize();
     }
 }
