@@ -40,8 +40,10 @@ public class BDFontMetrics extends FontMetrics {
 
         ftLib = initN();
 
-        if (ftLib == 0)
+        if (ftLib == 0) {
+            System.err.println("freetype library not loaded");
             throw new AWTError("freetype lib not loaded");
+        }
 
         Runtime.getRuntime().addShutdownHook(
             new Thread() {
