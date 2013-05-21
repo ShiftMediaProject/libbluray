@@ -59,4 +59,8 @@ class BDGraphicsDeviceImpl extends GraphicsDevice {
 
     public void setFullScreenWindow(Window window) {
     }
+
+    boolean isWindowPerpixelTranslucencySupported() {
+        return true;
+    }
 }
