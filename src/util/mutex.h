@@ -74,7 +74,7 @@ static inline int bd_mutex_init(BD_MUTEX *p)
     p->lock_count = 0;
 
     if (pthread_mutex_init(&p->mutex, NULL)) {
-        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_mutex_init() failed !");
+        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_mutex_init() failed !\n");
         return -1;
     }
 
@@ -84,7 +84,7 @@ static inline int bd_mutex_init(BD_MUTEX *p)
 static inline int bd_mutex_destroy(BD_MUTEX *p)
 {
     if (pthread_mutex_destroy(&p->mutex)) {
-        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_mutex_destroy() failed !");
+        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_mutex_destroy() failed !\n");
         return -1;
     }
     return 0;
