@@ -33,6 +33,8 @@ public class GUIManager extends BDRootWindow {
     public static synchronized GUIManager createInstance() {
         if (instance == null) {
             instance = new GUIManager();
+        } else {
+            instance.clearOverlay();
         }
         return instance;
     }

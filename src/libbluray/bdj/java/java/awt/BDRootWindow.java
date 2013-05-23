@@ -131,6 +131,16 @@ public class BDRootWindow extends Frame {
         }
     }
 
+    /* called when new title starts (window is "created" again) */
+    public void clearOverlay() {
+        if (overlay_open) {
+            org.videolan.Logger.getLogger("BDRootWindow").error("clearOverlay() ignored (overlay is visible)");
+        } else {
+            Arrays.fill(backBuffer, 0);
+            dirty.clear();
+        }
+    }
+
     public void dispose()
     {
         if (isVisible()) {
