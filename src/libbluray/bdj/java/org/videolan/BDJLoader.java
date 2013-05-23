@@ -215,7 +215,8 @@ public class BDJLoader {
             }
             ((BDJAppsDatabase)db).newDatabase(null, null);
 
-            Libbluray.updateGraphic(0, 0, null);
+            //GUIManager.shutdown() does not work with J2ME (window can't be opened again)
+            GUIManager.getInstance().setVisible(false);
 
             return true;
         } catch (Throwable e) {

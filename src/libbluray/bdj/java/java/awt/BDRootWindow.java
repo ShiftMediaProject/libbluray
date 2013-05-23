@@ -47,10 +47,6 @@ public class BDRootWindow extends Frame {
                 }
             }
             super.setBounds(x, y, width, height);
-
-            Libbluray.updateGraphic(width, height, null);
-
-            dirty.add(new Rectangle(0, 0, width - 1, height - 1));
         }
     }
 
@@ -90,6 +86,11 @@ public class BDRootWindow extends Frame {
             dirty.clear();
 
             if (!a.isEmpty()) {
+                if (!overlay_open) {
+                    Libbluray.updateGraphic(getWidth(), getHeight(), null);
+                    overlay_open = true;
+                    a = new Area(getWidth(), getHeight()); /* force full plane update */
+                }
                 Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer, a.x0, a.y0, a.x1, a.y1);
             }
         }
@@ -112,6 +113,22 @@ public class BDRootWindow extends Frame {
 
         private BDRootWindow window;
         private int changeCount;
+    }
+
+    private void close() {
+        if (overlay_open) {
+            Libbluray.updateGraphic(0, 0, null);
+            overlay_open = false;
+        }
+    }
+
+    public void setVisible(boolean visible) {
+
+        super.setVisible(visible);
+
+        if (!visible) {
+            close();
+        }
     }
 
     public void dispose()
@@ -138,6 +155,7 @@ public class BDRootWindow extends Frame {
     private int changeCount = 0;
     private Timer timer = new Timer();
     private TimerTask timerTask = null;
+    private boolean overlay_open = false;
 
     private static final long serialVersionUID = -8325961861529007953L;
 }
