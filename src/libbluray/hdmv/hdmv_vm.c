@@ -913,20 +913,21 @@ static int _hdmv_step(HDMV_VM *p)
             switch (insn->sub_grp) {
                 case BRANCH_GOTO:
                     if (insn->op_cnt > 1) {
-                        BD_DEBUG(DBG_HDMV|DBG_CRIT, "[too many operands in BRANCH/GOTO opcode 0x%08x] ", *(uint32_t*)insn);
+                        BD_DEBUG(DBG_HDMV|DBG_CRIT, "too many operands in BRANCH/GOTO opcode 0x%08x\n", *(uint32_t*)insn);
                     }
                     switch (insn->branch_opt) {
                         case INSN_NOP:                      break;
                         case INSN_GOTO:  p->pc   = dst - 1; break;
                         case INSN_BREAK: p->pc   = 1 << 17; break;
                         default:
-                            BD_DEBUG(DBG_HDMV|DBG_CRIT, "[unknown BRANCH/GOTO option in opcode 0x%08x] ", *(uint32_t*)insn);
+                            BD_DEBUG(DBG_HDMV|DBG_CRIT, "unknown BRANCH/GOTO option %d in opcode 0x%08x\n",
+                                     insn->branch_opt, *(uint32_t*)insn);
                             break;
                     }
                     break;
                 case BRANCH_JUMP:
                     if (insn->op_cnt > 1) {
-                        BD_DEBUG(DBG_HDMV|DBG_CRIT, "[too many operands in BRANCH/JUMP opcode 0x%08x] ", *(uint32_t*)insn);
+                        BD_DEBUG(DBG_HDMV|DBG_CRIT, "too many operands in BRANCH/JUMP opcode 0x%08x\n", *(uint32_t*)insn);
                     }
                     switch (insn->branch_opt) {
                         case INSN_JUMP_TITLE:  _jump_title(p, dst); break;
@@ -935,7 +936,8 @@ static int _hdmv_step(HDMV_VM *p)
                         case INSN_JUMP_OBJECT: if (!_jump_object(p, dst)) { inc_pc = 0; } break;
                         case INSN_CALL_OBJECT: if (!_call_object(p, dst)) { inc_pc = 0; } break;
                         default:
-                            BD_DEBUG(DBG_HDMV|DBG_CRIT, "[unknown BRANCH/JUMP option in opcode 0x%08x] ", *(uint32_t*)insn);
+                            BD_DEBUG(DBG_HDMV|DBG_CRIT, "unknown BRANCH/JUMP option %d in opcode 0x%08x\n",
+                                     insn->branch_opt, *(uint32_t*)insn);
                             break;
                     }
                     break;
@@ -948,20 +950,22 @@ static int _hdmv_step(HDMV_VM *p)
                         case INSN_LINK_PI:      _play_at(p,  -1, dst,  -1); break;
                         case INSN_LINK_MK:      _play_at(p,  -1,  -1, dst); break;
                         default:
-                            BD_DEBUG(DBG_HDMV|DBG_CRIT, "[unknown BRANCH/PLAY option in opcode 0x%08x] ", *(uint32_t*)insn);
+                            BD_DEBUG(DBG_HDMV|DBG_CRIT, "unknown BRANCH/PLAY option %d in opcode 0x%08x\n",
+                                     insn->branch_opt, *(uint32_t*)insn);
                             break;
                     }
                     break;
 
                 default:
-                    BD_DEBUG(DBG_HDMV|DBG_CRIT, "[unknown BRANCH subgroup in opcode 0x%08x] ", *(uint32_t*)insn);
+                    BD_DEBUG(DBG_HDMV|DBG_CRIT, "unknown BRANCH subgroup %d in opcode 0x%08x\n",
+                             insn->sub_grp, *(uint32_t*)insn);
                     break;
             }
             break; /* INSN_GROUP_BRANCH */
 
         case INSN_GROUP_CMP:
             if (insn->op_cnt < 2) {
-                BD_DEBUG(DBG_HDMV|DBG_CRIT, "missing operand in BRANCH/JUMP opcode 0x%08x] ", *(uint32_t*)insn);
+                BD_DEBUG(DBG_HDMV|DBG_CRIT, "missing operand in BRANCH/JUMP opcode 0x%08x\n", *(uint32_t*)insn);
             }
             switch (insn->cmp_opt) {
                 case INSN_BC: p->pc += !!(dst & ~src); break;
@@ -972,7 +976,8 @@ static int _hdmv_step(HDMV_VM *p)
                 case INSN_LE: p->pc += !(dst <= src); break;
                 case INSN_LT: p->pc += !(dst <  src); break;
                 default:
-                    BD_DEBUG(DBG_HDMV|DBG_CRIT, "[unknown COMPARE option in opcode 0x%08x] ", *(uint32_t*)insn);
+                    BD_DEBUG(DBG_HDMV|DBG_CRIT, "unknown COMPARE option %d in opcode 0x%08x\n",
+                             insn->cmp_opt, *(uint32_t*)insn);
                     break;
             }
             break; /* INSN_GROUP_CMP */
@@ -984,7 +989,7 @@ static int _hdmv_step(HDMV_VM *p)
                     uint32_t dst0 = dst;
 
                     if (insn->op_cnt < 2) {
-                        BD_DEBUG(DBG_HDMV|DBG_CRIT, "missing operand in SET/SET opcode 0x%08x] ", *(uint32_t*)insn);
+                        BD_DEBUG(DBG_HDMV|DBG_CRIT, "missing operand in SET/SET opcode 0x%08x\n", *(uint32_t*)insn);
                     }
                     switch (insn->set_opt) {
                         case INSN_MOVE:   dst  = src;         break;
@@ -1003,7 +1008,8 @@ static int _hdmv_step(HDMV_VM *p)
                         case INSN_SHL:    dst <<= src;        break;
                         case INSN_SHR:    dst >>= src;        break;
                         default:
-                            BD_DEBUG(DBG_HDMV|DBG_CRIT, "[unknown SET option in opcode 0x%08x] ", *(uint32_t*)insn);
+                            BD_DEBUG(DBG_HDMV|DBG_CRIT, "unknown SET option %d in opcode 0x%08x\n",
+                                     insn->set_opt, *(uint32_t*)insn);
                             break;
                     }
 
@@ -1030,18 +1036,20 @@ static int _hdmv_step(HDMV_VM *p)
                         case INSN_SET_OUTPUT_MODE: _set_output_mode(p, dst);      break;
                         case INSN_SET_STREAM_SS:   _set_stream_ss  (p, dst, src); break;
                         default:
-                            BD_DEBUG(DBG_HDMV|DBG_CRIT, "[unknown SETSYSTEM option in opcode 0x%08x] ", *(uint32_t*)insn);
+                            BD_DEBUG(DBG_HDMV|DBG_CRIT, "unknown SETSYSTEM option %d in opcode 0x%08x\n", insn->set_opt, *(uint32_t*)insn);
                             break;
                     }
                     break;
                 default:
-                    BD_DEBUG(DBG_HDMV|DBG_CRIT, "[unknown SET subgroup in opcode 0x%08x] ", *(uint32_t*)insn);
+                    BD_DEBUG(DBG_HDMV|DBG_CRIT, "unknown SET subgroup %d in opcode 0x%08x\n",
+                             insn->sub_grp, *(uint32_t*)insn);
                     break;
             }
             break; /* INSN_GROUP_SET */
 
         default:
-            BD_DEBUG(DBG_HDMV|DBG_CRIT, "[unknown group in opcode 0x%08x] ", *(uint32_t*)insn);
+            BD_DEBUG(DBG_HDMV|DBG_CRIT, "unknown operation group %d in opcode 0x%08x\n",
+                     insn->grp, *(uint32_t*)insn);
             break;
     }
 
