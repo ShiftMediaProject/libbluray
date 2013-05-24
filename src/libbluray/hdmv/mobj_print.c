@@ -214,9 +214,9 @@ static int _sprint_operands(char *buf, MOBJ_CMD *cmd)
         buf += sprintf(buf, "       \t      ");
     }
 
-    if (psr1 >= 0)
+    if (psr1 >= 0 && psr1 < 128 && psr_info[psr1])
         buf += sprintf(buf, " %s", psr_info[psr1]);
-    if (psr2 >= 0 && psr2 != psr1)
+    if (psr2 >= 0 && psr2 < 128 && psr2 != psr1 && psr_info[psr2])
         buf += sprintf(buf, " %s", psr_info[psr2]);
 
     return buf - start;
