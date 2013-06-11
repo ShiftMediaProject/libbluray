@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.videolan.Logger;
 import org.videolan.Libbluray;
 
 public class BDRootWindow extends Frame {
@@ -56,18 +57,18 @@ public class BDRootWindow extends Frame {
 
     public Image getBackBuffer() {
         /* exists only in J2SE */
-        org.videolan.Logger.getLogger("BDRootWindow").unimplemented("getBackBuffer");
+        logger.unimplemented("getBackBuffer");
         return null;
     }
 
     public void notifyChanged() {
         if (!isVisible()) {
-            org.videolan.Logger.getLogger("BDRootWindow").error("sync(): not visible");
+            logger.error("sync(): not visible");
             return;
         }
         synchronized (this) {
             if (timer == null) {
-                org.videolan.Logger.getLogger("BDRootWindow").error("notifyChanged(): window already disposed");
+                logger.error("notifyChanged(): window already disposed");
                 return;
             }
             changeCount++;
@@ -140,7 +141,7 @@ public class BDRootWindow extends Frame {
     /* called when new title starts (window is "created" again) */
     public void clearOverlay() {
         if (overlay_open) {
-            org.videolan.Logger.getLogger("BDRootWindow").error("clearOverlay() ignored (overlay is visible)");
+            logger.error("clearOverlay() ignored (overlay is visible)");
         } else {
             Arrays.fill(backBuffer, 0);
             dirty.clear();
@@ -175,6 +176,8 @@ public class BDRootWindow extends Frame {
     private Timer timer = new Timer();
     private TimerTask timerTask = null;
     private boolean overlay_open = false;
+
+    private static final Logger logger = Logger.getLogger(BDRootWindow.class.getName());
 
     private static final long serialVersionUID = -8325961861529007953L;
 }
