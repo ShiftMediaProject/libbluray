@@ -183,6 +183,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 state = LOADED;
                 return true;
             } catch (Throwable e) {
+                logger.error("doLoad() failed: " + e);
                 e.printStackTrace();
                 state = INVALID;
             }
@@ -203,6 +204,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 state = PAUSED;
                 return true;
             } catch (Throwable e) {
+                logger.error("doInit() failed: " + e);
                 e.printStackTrace();
                 state = INVALID;
             }
@@ -221,6 +223,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 state = STARTED;
                 return true;
             } catch (Throwable e) {
+                logger.error("doStart() failed: " + e);
                 e.printStackTrace();
                 state = INVALID;
             }
@@ -246,6 +249,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                     new File(persistent).delete();
                 }
             } catch (Throwable e) {
+                logger.error("doStop() failed: " + e);
                 e.printStackTrace();
                 state = INVALID;
                 return false;
@@ -263,6 +267,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 state = PAUSED;
                 return true;
             } catch (Throwable e) {
+                logger.error("doPause() failed: " + e);
                 e.printStackTrace();
                 state = INVALID;
             }
@@ -277,6 +282,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 state = STARTED;
                 return true;
             } catch (Throwable e) {
+                logger.error("doResume() failed: " + e);
                 e.printStackTrace();
                 state = INVALID;
             }
@@ -356,6 +362,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
     private LinkedList listeners = new LinkedList();
     private LinkedList cmds = new LinkedList();
     private Thread thread;
+    private static final Logger logger = Logger.getLogger(BDJAppProxy.class.getName());
 
     private class AppCommand {
         public AppCommand(int cmd, Object arg) {

@@ -50,6 +50,7 @@ public class BDJLoader {
             BDLocator locator = new BDLocator(null, title, -1);
             return load((TitleImpl)(SIManager.createInstance().getService(locator)), restart, callback);
         } catch (Throwable e) {
+            logger.error("load() failed: " + e);
             e.printStackTrace();
             return false;
         }
@@ -59,6 +60,7 @@ public class BDJLoader {
         try {
             return load((TitleImpl)(SIManager.createInstance().getService(locator)), restart, callback);
         } catch (Throwable e) {
+            logger.error("load() failed: " + e);
             e.printStackTrace();
             return false;
         }
@@ -93,6 +95,7 @@ public class BDJLoader {
         try {
             queue.finalize();
         } catch (Throwable e) {
+            logger.error("shutdown() failed: " + e);
             e.printStackTrace();
         }
     }
@@ -198,6 +201,7 @@ public class BDJLoader {
             return true;
 
         } catch (Throwable e) {
+            logger.error("loadN() failed: " + e);
             e.printStackTrace();
             unloadN();
             return false;
@@ -220,6 +224,7 @@ public class BDJLoader {
 
             return true;
         } catch (Throwable e) {
+            logger.error("unloadN() failed: " + e);
             e.printStackTrace();
             return false;
         }
