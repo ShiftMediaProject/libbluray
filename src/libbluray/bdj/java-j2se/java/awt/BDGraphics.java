@@ -117,7 +117,9 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         return background;
     }
     public void setBackground(Color c) {
-        background = c;
+        if (c != null) {
+            background = c;
+        }
     }
 
     BDGraphics(BDImage image) {
@@ -136,7 +138,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         if (foreground == null)
             foreground = DEFAULT_COLOR;
         if (background == null)
-            background = DEFAULT_COLOR;
+            background = new Color(0, 0, 0, 0);
         if (font == null)
             font = DEFAULT_FONT;
         fontMetrics = BDFontMetrics.getFontMetrics(font);
@@ -265,6 +267,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
 
     public void setPaintMode() {
         xorColor = null;
+        composite = AlphaComposite.SrcOver;
     }
 
     public void setXORMode(Color color) {

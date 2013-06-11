@@ -121,7 +121,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         if (foreground == null)
             foreground = DEFAULT_COLOR;
         if (background == null)
-            background = DEFAULT_COLOR;
+            background = new Color(0, 0, 0, 0);
         if (font == null)
             font = DEFAULT_FONT;
         fontMetrics = BDFontMetrics.getFontMetrics(font);
