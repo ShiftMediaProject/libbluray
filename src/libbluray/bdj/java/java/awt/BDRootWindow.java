@@ -66,6 +66,10 @@ public class BDRootWindow extends Frame {
             return;
         }
         synchronized (this) {
+            if (timer == null) {
+                org.videolan.Logger.getLogger("BDRootWindow").error("notifyChanged(): window already disposed");
+                return;
+            }
             changeCount++;
             if (timerTask == null) {
                 timerTask = new RefreshTimerTask(this);
@@ -145,16 +149,19 @@ public class BDRootWindow extends Frame {
 
     public void dispose()
     {
+        synchronized (this) {
+            if (timerTask != null) {
+                timerTask.cancel();
+                timerTask = null;
+            }
+            if (timer != null) {
+                timer.cancel();
+                timer = null;
+            }
+        }
+
         if (isVisible()) {
             hide();
-        }
-        if (timerTask != null) {
-            timerTask.cancel();
-            timerTask = null;
-        }
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
         }
 
         BDToolkit.setFocusedWindow(null);
