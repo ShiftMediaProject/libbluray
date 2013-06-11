@@ -116,9 +116,11 @@ public class BDRootWindow extends Frame {
     }
 
     private void close() {
-        if (overlay_open) {
-            Libbluray.updateGraphic(0, 0, null);
-            overlay_open = false;
+        synchronized (this) {
+            if (overlay_open) {
+                Libbluray.updateGraphic(0, 0, null);
+                overlay_open = false;
+            }
         }
     }
 
