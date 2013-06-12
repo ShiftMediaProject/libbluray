@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2009-2010  John Stebbins
+ * Copyright (C) 2012-2013  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -184,6 +185,21 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
             bs_skip(bits, 8);
         }
     }
+
+    // font info
+    if (cl->clip.application_type == 6 /* Sub TS for a sub-path of Text subtitle */) {
+        bs_skip(bits, 8);
+        cl->font_info.font_count = bs_read(bits, 8);
+        if (cl->font_info.font_count) {
+            cl->font_info.font = malloc(cl->font_info.font_count * sizeof(CLPI_FONT));
+            for (ii = 0; ii < cl->font_info.font_count; ii++) {
+                bs_read_bytes(bits, cl->font_info.font[ii].file_id, 5);
+                cl->font_info.font[ii].file_id[5] = '\0';
+                bs_skip(bits, 8);
+            }
+        }
+    }
+
     return 1;
 }
 
@@ -642,6 +658,8 @@ clpi_free(CLPI_CL *cl)
     _clean_program(&cl->program_ss);
     _clean_cpi(&cl->cpi_ss);
 
+    X_FREE(cl->font_info.font);
+
     X_FREE(cl);
 }
 
@@ -732,7 +750,6 @@ clpi_copy(const CLPI_CL* src_cl)
 
     if (src_cl) {
         dest_cl = (CLPI_CL*) calloc(1, sizeof(CLPI_CL));
-
         dest_cl->clip.clip_stream_type = src_cl->clip.clip_stream_type;
         dest_cl->clip.application_type = src_cl->clip.application_type;
         dest_cl->clip.is_atc_delta = src_cl->clip.is_atc_delta;
@@ -804,6 +821,12 @@ clpi_copy(const CLPI_CL* src_cl)
                 dest_cl->cpi.entry[ii].fine[jj].pts_ep = src_cl->cpi.entry[ii].fine[jj].pts_ep;
                 dest_cl->cpi.entry[ii].fine[jj].spn_ep = src_cl->cpi.entry[ii].fine[jj].spn_ep;
             }
+        }
+
+        dest_cl->font_info.font_count = src_cl->font_info.font_count;
+        if (dest_cl->font_info.font_count) {
+            dest_cl->font_info.font = malloc(dest_cl->font_info.font_count * sizeof(CLPI_FONT));
+            memcpy(dest_cl->font_info.font, src_cl->font_info.font, dest_cl->font_info.font_count * sizeof(CLPI_FONT));
         }
     }
 

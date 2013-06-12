@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2009-2010  John Stebbins
+ * Copyright (C) 2012-2013  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -195,8 +196,9 @@ _show_stream(CLPI_PROG_STREAM *ss, int level)
 }
 
 static void
-_show_clip_info(CLPI_CLIP_INFO *ci, int level)
+_show_clip_info(CLPI_CL *cl, int level)
 {
+    CLPI_CLIP_INFO *ci = &cl->clip;
     int ii;
 
     indent_printf(level, "Clip Info");
@@ -218,6 +220,14 @@ _show_clip_info(CLPI_CLIP_INFO *ci, int level)
         indent_printf(level+2, "File Id %s", ci->atc_delta[ii].file_id);
         indent_printf(level+2, "File Code %s", ci->atc_delta[ii].file_code);
     }
+    // show fonts
+    if (cl->font_info.font_count) {
+        indent_printf(level+1, "Font files");
+        for (ii = 0; ii < cl->font_info.font_count; ii++) {
+            indent_printf(level+2, "Font file %d: %s.otf", ii+1, cl->font_info.font[ii].file_id);
+        }
+    }
+
     printf("\n");
 }
 
@@ -435,7 +445,7 @@ main(int argc, char *argv[])
         }
         if (opt_clip_info) {
             // Show clip info
-            _show_clip_info(&cl->clip, 1);
+            _show_clip_info(cl, 1);
         }
         if (opt_seq_info) {
             // Show sequence info
