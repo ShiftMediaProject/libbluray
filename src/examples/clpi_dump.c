@@ -127,6 +127,17 @@ const VALUE_MAP audio_rate_map[] = {
     {0, NULL}
 };
 
+const VALUE_MAP application_type_map[] = {
+    {1, "Main TS for a main-path of Movie"},
+    {2, "Main TS for a main-path of Time based slide show"},
+    {3, "Main TS for a main-path of Browsable slide show"},
+    {4, "Sub TS for a sub-path of Browsable slide show"},
+    {5, "Sub TS for a sub-path of Interactive Graphics menu"},
+    {6, "Sub TS for a sub-path of Text subtitle"},
+    {7, "Sub TS for a sub-path of one or more elementary streams path"},
+    {0, NULL},
+};
+
 static void
 _show_stream(CLPI_PROG_STREAM *ss, int level)
 {
@@ -190,8 +201,8 @@ _show_clip_info(CLPI_CLIP_INFO *ci, int level)
 
     indent_printf(level, "Clip Info");
     indent_printf(level+1, "Clip Stream Type: %02x", ci->clip_stream_type);
-    indent_printf(level+1, "Clip Application Type: %02x", 
-                ci->application_type);
+    indent_printf(level+1, "Clip Application Type (%02x): %s",
+                  ci->application_type, _lookup_str(application_type_map, ci->application_type));
     indent_printf(level+1, "is_ATC_delta: %s", ci->is_atc_delta ? "True" : "False");
     indent_printf(level+1, "ATC delta count: %d", ci->atc_delta_count);
     indent_printf(level+1, "TS Recording Rate: %u", ci->ts_recording_rate);
