@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010-2012  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2010-2013  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,6 +21,7 @@
 
 #include "ig_decode.h"
 #include "pg_decode.h"
+#include "textst_decode.h"
 #include "pes_buffer.h"
 #include "m2ts_demux.h"
 
@@ -46,11 +47,29 @@ typedef enum {
     PGS_WINDOW         = 0x17,
     PGS_IG_COMPOSITION = 0x18,
     PGS_END_OF_DISPLAY = 0x80,
+    /* Text subtitles */
+    TGS_DIALOG_STYLE        = 0x81,
+    TGS_DIALOG_PRESENTATION = 0x82,
 } pgs_segment_type_e;
 
 /*
  * PG_DISPLAY_SET
  */
+
+static void _free_dialogs(PG_DISPLAY_SET *s)
+{
+    unsigned ii;
+
+    textst_free_dialog_style(&s->style);
+
+    for (ii = 0; ii < s->num_dialog; ii++) {
+        textst_clean_dialog_presentation(&s->dialog[ii]);
+    }
+    X_FREE(s->dialog);
+
+    s->num_dialog = 0;
+    s->total_dialog = 0;
+}
 
 void pg_display_set_free(PG_DISPLAY_SET **s)
 {
@@ -64,6 +83,8 @@ void pg_display_set_free(PG_DISPLAY_SET **s)
         X_FREE((*s)->window);
         X_FREE((*s)->object);
         X_FREE((*s)->palette);
+
+        _free_dialogs(*s);
 
         X_FREE(*s);
     }
@@ -317,6 +338,59 @@ static int _decode_ics(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
     return 1;
 }
 
+static int _decode_dialog_style(PG_DISPLAY_SET *s, BITBUFFER *bb)
+{
+    _free_dialogs(s);
+
+    s->style = calloc(1, sizeof(*s->style));
+    if (!textst_decode_dialog_style(bb, s->style)) {
+        textst_free_dialog_style(&s->style);
+        return 0;
+    }
+
+    if (bb->p != bb->p_end - 2 || bb->i_left != 8) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "_decode_dialog_style() failed: bytes in buffer %d\n", (int)(bb->p_end - bb->p));
+        textst_free_dialog_style(&s->style);
+        return 0;
+    }
+
+    s->total_dialog = bb_read(bb, 16);
+    if (s->total_dialog < 1) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "_decode_dialog_style(): no dialog segments\n");
+        textst_free_dialog_style(&s->style);
+        return 0;
+    }
+
+    s->dialog = calloc(s->total_dialog, sizeof(*s->dialog));
+    BD_DEBUG(DBG_DECODE, "_decode_dialog_style(): %d dialogs in stream\n", s->total_dialog);
+    return 1;
+}
+
+static int _decode_dialog_presentation(PG_DISPLAY_SET *s, BITBUFFER *bb)
+{
+    if (!s->style || s->total_dialog < 1) {
+        BD_DEBUG(DBG_DECODE, "_decode_dialog_presentation() failed: style segment not decoded\n");
+        return 0;
+    }
+    if (s->num_dialog >= s->total_dialog) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "_decode_dialog_presentation(): unexpected dialog segment\n");
+        return 0;
+    }
+
+    if (!textst_decode_dialog_presentation(bb, &s->dialog[s->num_dialog])) {
+        textst_clean_dialog_presentation(&s->dialog[s->num_dialog]);
+        return 0;
+    }
+
+    s->num_dialog++;
+
+    if (s->num_dialog == s->total_dialog) {
+        s->complete = 1;
+    }
+
+    return 1;
+}
+
 static int _decode_segment(PG_DISPLAY_SET *s, PES_BUFFER *p)
 {
     BITBUFFER bb;
@@ -324,7 +398,6 @@ static int _decode_segment(PG_DISPLAY_SET *s, PES_BUFFER *p)
 
     uint8_t type   =    bb_read(&bb, 8);
     /*uint16_t len = */ bb_read(&bb, 16);
-
     switch (type) {
         case PGS_OBJECT:
             return _decode_ods(s, &bb, p);
@@ -344,6 +417,12 @@ static int _decode_segment(PG_DISPLAY_SET *s, PES_BUFFER *p)
         case PGS_END_OF_DISPLAY:
             s->complete = 1;
             return 1;
+
+        case TGS_DIALOG_STYLE:
+          return _decode_dialog_style(s, &bb);
+
+        case TGS_DIALOG_PRESENTATION:
+          return _decode_dialog_presentation(s, &bb);
 
         default:
             BD_DEBUG(DBG_DECODE | DBG_CRIT, "unknown segment type 0x%x\n", type);

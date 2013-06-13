@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010-2012  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2010-2013  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -73,10 +73,12 @@ struct graphics_controller_s {
     /* data */
     PG_DISPLAY_SET *pgs;
     PG_DISPLAY_SET *igs;
+    PG_DISPLAY_SET *tgs;  /* TextST */
 
     /* */
     GRAPHICS_PROCESSOR *pgp;
     GRAPHICS_PROCESSOR *igp;
+    GRAPHICS_PROCESSOR *tgp;  /* TextST */
 };
 
 /*
@@ -576,9 +578,11 @@ static void _gc_reset(GRAPHICS_CONTROLLER *gc)
 
     graphics_processor_free(&gc->igp);
     graphics_processor_free(&gc->pgp);
+    graphics_processor_free(&gc->tgp);
 
     pg_display_set_free(&gc->pgs);
     pg_display_set_free(&gc->igs);
+    pg_display_set_free(&gc->tgs);
 
     X_FREE(gc->bog_data);
 }
@@ -709,6 +713,22 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
                                      stc);
 
         if (!gc->pgs || !gc->pgs->complete) {
+            return 0;
+        }
+
+        return 1;
+    }
+
+    else if (pid == 0x1800) {
+        /* TextST stream */
+        if (!gc->tgp) {
+            gc->tgp = graphics_processor_init();
+        }
+        graphics_processor_decode_ts(gc->tgp, &gc->tgs,
+                                     pid, block, num_blocks,
+                                     stc);
+
+        if (!gc->tgs || !gc->tgs->complete) {
             return 0;
         }
 

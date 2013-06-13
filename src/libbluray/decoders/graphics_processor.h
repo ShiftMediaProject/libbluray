@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2010-2013  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,9 @@
 #if !defined(_GRAPHICS_PROCESSOR_H_)
 #define _GRAPHICS_PROCESSOR_H_
 
+#include "pg.h"
 #include "ig.h"
+#include "textst.h"
 
 #include <util/attributes.h>
 
@@ -41,14 +43,18 @@ typedef struct {
     unsigned      num_palette;
     unsigned      num_object;
     unsigned      num_window;
+    unsigned      num_dialog;    /* number of decoded dialog segments */
+    unsigned      total_dialog;  /* total dialog segments in stream */
 
     BD_PG_PALETTE *palette;
     BD_PG_OBJECT  *object;
     BD_PG_WINDOW  *window;
+    BD_TEXTST_DIALOG_PRESENTATION *dialog;
 
     /* only one of the following segments can be present */
     BD_IG_INTERACTIVE   *ics;
     BD_PG_COMPOSITION   *pcs;
+    BD_TEXTST_DIALOG_STYLE *style;
 
 } PG_DISPLAY_SET;
 

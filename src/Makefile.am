@@ -49,6 +49,9 @@ libbluray_la_SOURCES = \
 	libbluray/decoders/ig.h \
 	libbluray/decoders/ig_decode.h \
 	libbluray/decoders/ig_decode.c \
+	libbluray/decoders/textst.h \
+	libbluray/decoders/textst_decode.h \
+	libbluray/decoders/textst_decode.c \
 	libbluray/decoders/graphics_processor.h \
 	libbluray/decoders/graphics_processor.c \
 	libbluray/decoders/graphics_controller.h \
