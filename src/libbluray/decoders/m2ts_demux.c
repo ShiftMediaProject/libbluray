@@ -85,15 +85,19 @@ static int _add_ts(PES_BUFFER *p, unsigned pusi, uint8_t *buf, unsigned len)
 
     if (pusi) {
         // Parse PES header
+        unsigned pes_pid    = buf[3];
         unsigned pes_length = buf[4] << 8 | buf[5];
-        unsigned pts_exists = buf[7] & 0x80;
-        unsigned dts_exists = buf[7] & 0x40;
-        unsigned hdr_len    = buf[8] + 9;
+        unsigned hdr_len    = 6;
 
         if (buf[0] || buf[1] || buf[2] != 1) {
             BD_DEBUG(DBG_DECODE, "invalid PES header (00 00 01)");
             return -1;
         }
+
+        if (pes_pid != 0xbf) {
+        unsigned pts_exists = buf[7] & 0x80;
+        unsigned dts_exists = buf[7] & 0x40;
+        hdr_len += buf[8] + 3;
 
         if (len < hdr_len) {
             BD_DEBUG(DBG_DECODE, "invalid BDAV TS (PES header not in single TS packet)\n");
@@ -105,6 +109,7 @@ static int _add_ts(PES_BUFFER *p, unsigned pusi, uint8_t *buf, unsigned len)
         }
         if (dts_exists) {
             p->dts = _parse_timestamp(buf + 14);
+        }
         }
 
         buf += hdr_len;
