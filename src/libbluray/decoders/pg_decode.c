@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  hpi1
+ * Copyright (C) 2010  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -78,6 +78,16 @@ void pg_decode_composition_object(BITBUFFER *bb, BD_PG_COMPOSITION_OBJECT *p)
     }
 }
 
+void pg_decode_palette_entry(BITBUFFER *bb, BD_PG_PALETTE_ENTRY *entry)
+{
+    uint8_t entry_id = bb_read(bb, 8);
+
+    entry[entry_id].Y  = bb_read(bb, 8);
+    entry[entry_id].Cr = bb_read(bb, 8);
+    entry[entry_id].Cb = bb_read(bb, 8);
+    entry[entry_id].T  = bb_read(bb, 8);
+}
+
 /*
  * segments
  */
@@ -88,12 +98,7 @@ int pg_decode_palette_update(BITBUFFER *bb, BD_PG_PALETTE *p)
     p->version = bb_read(bb, 8);
 
     while (!bb_eof(bb)) {
-        uint8_t entry_id = bb_read(bb, 8);
-
-        p->entry[entry_id].Y  = bb_read(bb, 8);
-        p->entry[entry_id].Cr = bb_read(bb, 8);
-        p->entry[entry_id].Cb = bb_read(bb, 8);
-        p->entry[entry_id].T  = bb_read(bb, 8);
+        pg_decode_palette_entry(bb, p->entry);
     }
 
     return 1;

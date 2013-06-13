@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  hpi1
+ * Copyright (C) 2010  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -34,6 +34,7 @@ BD_PRIVATE void pg_decode_composition_descriptor(BITBUFFER *bb, BD_PG_COMPOSITIO
 BD_PRIVATE void pg_decode_sequence_descriptor(BITBUFFER *bb, BD_PG_SEQUENCE_DESCRIPTOR *p);
 BD_PRIVATE void pg_decode_window(BITBUFFER *bb, BD_PG_WINDOW *p);
 BD_PRIVATE void pg_decode_composition_object(BITBUFFER *bb, BD_PG_COMPOSITION_OBJECT *p);
+BD_PRIVATE void pg_decode_palette_entry(BITBUFFER *bb, BD_PG_PALETTE_ENTRY *p);
 
 /*
  * segments
