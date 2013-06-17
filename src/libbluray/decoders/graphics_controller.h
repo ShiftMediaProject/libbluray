@@ -60,6 +60,10 @@ typedef enum {
     GC_CTRL_PG_UPDATE,       /* render decoded PG composition */
     GC_CTRL_PG_RESET,        /* reset PG composition state */
 
+    /* TextST */
+    GC_CTRL_PG_CHARCODE,
+    GC_CTRL_STYLE_SELECT,    /* select next TextST user style */
+
 } gc_ctrl_e;
 
 
@@ -77,6 +81,9 @@ typedef struct {
 
     /* graphics status (none, menu, popup) */
     uint32_t status; /* bit mask */
+
+    /* */
+    uint32_t wakeup_time;
 } GC_NAV_CMDS;
 
 /*
@@ -112,5 +119,12 @@ BD_PRIVATE int                  gc_run(GRAPHICS_CONTROLLER *p,
                                        /* in */  gc_ctrl_e msg, uint32_t param,
                                        /* out */ GC_NAV_CMDS *cmds);
 
+
+/*
+ * Add TextST font
+ */
+
+BD_PRIVATE int                  gc_add_font(GRAPHICS_CONTROLLER *p,
+                                            const char *font_file);
 
 #endif // _GRAPHICS_CONTROLLER_H_

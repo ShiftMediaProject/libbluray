@@ -22,6 +22,8 @@
 #include "graphics_processor.h"
 #include "ig.h"
 #include "overlay.h"
+#include "textst_render.h"
+#include "rle.h"
 
 #include "util/macro.h"
 #include "util/logging.h"
@@ -79,6 +81,12 @@ struct graphics_controller_s {
     GRAPHICS_PROCESSOR *pgp;
     GRAPHICS_PROCESSOR *igp;
     GRAPHICS_PROCESSOR *tgp;  /* TextST */
+
+    /* */
+    TEXTST_RENDER  *textst_render;
+    uint32_t        prev_stc; /* detect seeks */
+    int             next_dialog_idx;
+    int             textst_user_style;
 };
 
 /*
@@ -211,6 +219,19 @@ static BD_PG_OBJECT *_find_object_for_button(PG_DISPLAY_SET *s,
     object = _find_object(s, object_id);
 
     return object;
+}
+
+static BD_TEXTST_REGION_STYLE *_find_region_style(BD_TEXTST_DIALOG_STYLE *p, unsigned region_style_id)
+{
+    unsigned ii;
+
+    for (ii = 0; ii < p->region_style_count; ii++) {
+        if (p->region_style[ii].region_style_id == region_style_id) {
+            return &p->region_style[ii];
+        }
+    }
+
+    return NULL;
 }
 
 /*
@@ -540,6 +561,29 @@ static void _render_composition_object(GRAPHICS_CONTROLLER *gc,
     }
 }
 
+static void _render_rle(GRAPHICS_CONTROLLER *gc,
+                        int64_t pts,
+                        BD_PG_RLE_ELEM *img,
+                        uint16_t x, uint16_t y,
+                        uint16_t width, uint16_t height,
+                        BD_PG_PALETTE_ENTRY *palette)
+{
+    if (gc->overlay_proc) {
+        BD_OVERLAY ov = {0};
+        ov.cmd     = BD_OVERLAY_DRAW;
+        ov.pts     = pts;
+        ov.plane   = BD_OVERLAY_PG;
+        ov.x       = x;
+        ov.y       = y;
+        ov.w       = width;
+        ov.h       = height;
+        ov.palette = palette;
+        ov.img     = img;
+
+        gc->overlay_proc(gc->overlay_proc_handle, &ov);
+    }
+}
+
 /*
  * page selection and IG effects
  */
@@ -583,6 +627,8 @@ static void _gc_reset(GRAPHICS_CONTROLLER *gc)
     pg_display_set_free(&gc->pgs);
     pg_display_set_free(&gc->igs);
     pg_display_set_free(&gc->tgs);
+
+    textst_render_free(&gc->textst_render);
 
     X_FREE(gc->bog_data);
 }
@@ -739,6 +785,169 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
 }
 
 /*
+ * TextST rendering
+ */
+
+static int _textst_style_select(GRAPHICS_CONTROLLER *p, int user_style_idx)
+{
+    p->textst_user_style = user_style_idx;
+
+    GC_ERROR("User style selection not implemented\n");
+    return -1;
+}
+
+int gc_add_font(GRAPHICS_CONTROLLER *p, const char *font_file)
+{
+    if (!p) {
+        return -1;
+    }
+
+    if (!font_file) {
+        textst_render_free(&p->textst_render);
+        return 0;
+    }
+
+    if (!p->textst_render) {
+        p->textst_render = textst_render_init();
+    }
+
+    return textst_render_add_font(p->textst_render, font_file);
+}
+
+static int _render_textst_region(GRAPHICS_CONTROLLER *p, int64_t pts, BD_TEXTST_REGION_STYLE *style, TEXTST_BITMAP *bmp,
+                                 BD_PG_PALETTE_ENTRY *palette)
+{
+    unsigned y, bmp_y;
+    RLE_ENC  rle;
+
+    rle_begin(&rle);
+
+    for (y = 0, bmp_y = 0; y < style->region_info.region.height; y++) {
+        if (y < style->text_box.ypos || y > style->text_box.ypos + style->text_box.height) {
+            rle_add_bite(&rle, style->region_info.background_color, style->region_info.region.width);
+        } else {
+            rle_add_bite(&rle, style->region_info.background_color, style->text_box.xpos);
+            rle_compress_chunk(&rle, bmp->mem + bmp->stride * bmp_y, bmp->width);
+            bmp_y++;
+            rle_add_bite(&rle, style->region_info.background_color,
+                         style->region_info.region.width - style->text_box.width - style->text_box.xpos);
+        }
+
+        rle_add_eol(&rle);
+    }
+
+    _render_rle(p, pts, rle.start,
+                style->region_info.region.xpos, style->region_info.region.ypos,
+                style->region_info.region.width, style->region_info.region.height,
+                palette);
+
+    rle_end(&rle);
+
+    return 0;
+}
+
+static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmds)
+{
+    BD_TEXTST_DIALOG_PRESENTATION *dialog = NULL;
+    PG_DISPLAY_SET *s   = p->tgs;
+    int64_t         now = ((int64_t)stc) << 1;
+    unsigned ii, jj;
+
+    if (!s || !s->dialog || !s->style) {
+        GC_ERROR("_render_textst(): no TextST decoded\n");
+        return -1;
+    }
+    if (!p->textst_render) {
+        GC_ERROR("_render_textst(): no TextST renderer (missing fonts ?)\n");
+        return -1;
+    }
+
+    dialog = s->dialog;
+
+    /* detect seeks */
+    if (stc < p->prev_stc) {
+      ii = 0;
+    } else {
+      ii = p->next_dialog_idx;
+    }
+    p->prev_stc = stc;
+
+    /* loop over all matching dialogs */
+    for ( ; ii < s->num_dialog; ii++) {
+
+        /* next dialog too far in future ? */
+        if (dialog[ii].start_pts >= now + 90000) {
+            cmds->wakeup_time = dialog[ii].start_pts / 2;
+            GC_TRACE("_render_textst(): next event #%d in %lld seconds (pts %"PRId64")\n",
+                     ii, (dialog[ii].start_pts - now)/90000, dialog[ii].start_pts);
+            return 1;
+        }
+
+        p->next_dialog_idx = ii + 1;
+
+        /* too late ? */
+        if (dialog[ii].start_pts < now - 45000) {
+            continue;
+        }
+
+        if (dialog[ii].palette_update) {
+            GC_ERROR("_render_textst(): Palette update not implemented\n");
+            continue;
+        }
+
+        GC_TRACE("_render_textst(): rendering dialog #%d (pts %"PRId64", diff %"PRId64"\n",
+                 ii, dialog[ii].start_pts, dialog[ii].start_pts - now);
+
+
+        if (!dialog[ii].region_count) {
+            continue;
+        }
+
+        /* TODO: */
+        if (dialog[ii].region_count > 1) {
+            GC_ERROR("_render_textst(): Multiple regions not supported\n");
+        }
+
+        /* open PG overlay */
+        if (!p->pg_open) {
+            _open_osd(p, BD_OVERLAY_PG, 0, 0, 1920, 1080);
+        }
+
+        /* render all regions */
+        for (jj = 0; jj < dialog[ii].region_count; jj++) {
+
+            BD_TEXTST_DIALOG_REGION *region = &dialog[ii].region[jj];
+            BD_TEXTST_REGION_STYLE  *style = NULL;
+
+            style = _find_region_style(s->style, region->region_style_id_ref);
+            if (!style) {
+                GC_ERROR("_render_textst: region style #%d not found\n", region->region_style_id_ref);
+                continue;
+            }
+
+            TEXTST_BITMAP bmp = {NULL, style->text_box.width, style->text_box.height, style->text_box.width};
+            bmp.mem = malloc(bmp.width * bmp.height);
+            memset(bmp.mem, style->region_info.background_color, bmp.width * bmp.height);
+
+            textst_render(p->textst_render, &bmp, style, region);
+
+            _render_textst_region(p, dialog[ii].start_pts, style, &bmp, s->style->palette);
+        }
+
+        /* commit changes */
+        _flush_osd(p, BD_OVERLAY_PG, -1);//dialog[ii].start_pts);
+
+        /* push hide event */
+        //_clear_osd(p, BD_OVERLAY_PG);
+        //_hide_osd(p, BD_OVERLAY_PG);
+        //_flush_osd(p, BD_OVERLAY_PG, dialog[ii].end_pts);
+    }
+
+    return 0;
+}
+
+
+/*
  * PG rendering
  */
 
@@ -823,6 +1032,7 @@ static int _render_pg(GRAPHICS_CONTROLLER *gc)
 static void _reset_pg(GRAPHICS_CONTROLLER *gc)
 {
     graphics_processor_free(&gc->pgp);
+
     pg_display_set_free(&gc->pgs);
 
     if (gc->pg_open) {
@@ -1342,8 +1552,25 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
             bd_mutex_unlock(&gc->mutex);
             return 0;
         case GC_CTRL_PG_UPDATE:
-            result = _render_pg(gc);
+            if (gc->pgs && gc->pgs->pcs) {
+                result = _render_pg(gc);
+            }
+            if (gc->tgs && gc->tgs->dialog) {
+                result = _render_textst(gc, param, cmds);
+            }
+            bd_mutex_unlock(&gc->mutex);
+            return result;
 
+        case GC_CTRL_STYLE_SELECT:
+            result = _textst_style_select(gc, param);
+            bd_mutex_unlock(&gc->mutex);
+            return result;
+
+        case GC_CTRL_PG_CHARCODE:
+            if (gc->textst_render) {
+                textst_render_set_char_code(gc->textst_render, param);
+                result = 0;
+            }
             bd_mutex_unlock(&gc->mutex);
             return result;
 
@@ -1420,6 +1647,8 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         case GC_CTRL_RESET:
         case GC_CTRL_PG_RESET:
         case GC_CTRL_PG_UPDATE:
+        case GC_CTRL_PG_CHARCODE:
+        case GC_CTRL_STYLE_SELECT:
             /* already handled */
             break;
     }

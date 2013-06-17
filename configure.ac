@@ -140,7 +140,7 @@ AS_IF([test "x$with_libxml2" != "xno"], [
 ])
 
 dnl FreeType2
-AS_IF([test x"$use_bdjava" != x"no" -a x"$with_freetype" != x"no"], [
+AS_IF([test "x$with_freetype" != "xno"], [
   PKG_CHECK_MODULES([FT2], [freetype2],
     [with_freetype=yes; AC_DEFINE([HAVE_FT2], 1, [Define this if you have FreeType2 library])])
 ])
@@ -235,12 +235,12 @@ echo "  Summary:"
 echo "  --------"
 echo "  BD-J support:                  $use_bdjava"
 if [[ $use_bdjava = "yes" ]]; then
-echo "  BD-J font support (freetype2): $with_freetype"
 echo "  BD-J type:                     $BDJ_TYPE"
 if test x"$BDJ_BOOTCLASSPATH" != x""; then
 echo "  BD-J bootclasspath:            $BDJ_BOOTCLASSPATH"
 fi
 fi
+echo "  Font support (freetype2):      $with_freetype"
 echo "  Metadata support (libxml2):    $with_libxml2"
 echo "  Build examples:                $use_examples"
 
