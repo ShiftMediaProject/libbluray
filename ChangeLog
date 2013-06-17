@@ -1,3 +1,9 @@
+- Fixed slide shows: always cut reads at clip end boundary
+- Fixed logging with non-default mask
+- Added missing Java files to distribution package
+- Improved BD-J support (still alpha)
+- Added initial support for BluRay Text Subtitles
+
 2013-04-30: Version 0.3.0
 - Build fixes
 - Fixed stopping playback from pop-up menu
