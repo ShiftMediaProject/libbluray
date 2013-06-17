@@ -29,7 +29,7 @@
 #include <stdlib.h>
 
 
-static int16_t _decode_int8(BITBUFFER *bb)
+static int8_t _decode_int8(BITBUFFER *bb)
 {
   unsigned sign = bb_read(bb, 1);
   int8_t   val  = bb_read(bb, 7);
