@@ -1850,6 +1850,15 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
             if (size > (unsigned int)6144 - st->int_buf_off) {
                 size = 6144 - st->int_buf_off;
             }
+
+            /* cut read at clip end packet */
+            uint32_t new_clip_pkt = SPN(st->clip_pos + size);
+            if (new_clip_pkt > st->clip->end_pkt) {
+                BD_DEBUG(DBG_STREAM, "cut %d bytes at end of block\n", (new_clip_pkt - st->clip->end_pkt) * 192);
+                size -= (new_clip_pkt - st->clip->end_pkt) * 192;
+            }
+
+            /* copy chunk */
             memcpy(buf, bd->int_buf + st->int_buf_off, size);
             buf += size;
             len -= size;
