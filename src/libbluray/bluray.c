@@ -126,6 +126,7 @@ struct bluray {
     /* streams */
     BD_STREAM      st0; /* main path */
     BD_PRELOAD     st_ig; /* preloaded IG stream sub path */
+    BD_PRELOAD     st_textst; /* preloaded TextST sub path */
     int            ig_pid; /* pid of currently selected IG stream in main path */
     int            pg_pid; /* pid of currently selected PG stream in main path */
 
@@ -171,6 +172,10 @@ struct bluray {
     SOUND_DATA          *sound_effects;
     uint32_t             gc_status;
     uint8_t              decode_pg;
+
+    /* TextST */
+    uint32_t gc_wakeup_time;  /* stream timestamp of next subtitle */
+    uint64_t gc_wakeup_pos;   /* stream position of gc_wakeup_time */
 
     /* ARGB overlay output */
     void                *argb_overlay_proc_handle;
@@ -390,7 +395,7 @@ static void _update_chapter_psr(BLURAY *bd)
  * PG
  */
 
-static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx)
+static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, bd_char_code_e *char_code)
 {
     MPLS_PI  *pi        = &bd->title->pl->play_item[0];
     unsigned  pg_stream = bd_psr_read(bd->regs, PSR_PG_STREAM);
@@ -408,6 +413,10 @@ static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx)
             *sub_path_idx = pi->stn.pg[pg_stream].subpath_id;
         }
         *pid = pi->stn.pg[pg_stream].pid;
+
+        if (char_code && pi->stn.pg[pg_stream].coding_type == BLURAY_STREAM_TYPE_SUB_TEXT) {
+            *char_code = pi->stn.pg[pg_stream].char_code;
+        }
 
         BD_DEBUG(DBG_BLURAY, "_find_pg_stream(): current PG stream pid 0x%04x sub-path %d\n",
               *pid, *sub_path_idx);
@@ -435,7 +444,7 @@ static int _init_pg_stream(BLURAY *bd)
         return 0;
     }
 
-    _find_pg_stream(bd, &pg_pid, &pg_subpath);
+    _find_pg_stream(bd, &pg_pid, &pg_subpath, NULL);
 
     /* store PID of main path embedded IG stream */
     if (pg_subpath < 0) {
@@ -444,6 +453,40 @@ static int _init_pg_stream(BLURAY *bd)
     }
 
     return 0;
+}
+
+static void _update_textst_timer(BLURAY *bd)
+{
+    if (bd->st_textst.clip) {
+        if (bd->s_pos >= bd->gc_wakeup_pos) {
+            GC_NAV_CMDS cmds = {-1, NULL, -1, 0, 0};
+
+            gc_run(bd->graphics_controller, GC_CTRL_PG_UPDATE, bd->gc_wakeup_time, &cmds);
+
+            bd->gc_wakeup_time = cmds.wakeup_time;
+            bd->gc_wakeup_pos = (uint64_t)(int64_t)-1; /* no wakeup */
+
+            /* next event in this clip ? */
+            if (cmds.wakeup_time >= bd->st0.clip->in_time && cmds.wakeup_time < bd->st0.clip->out_time) {
+                /* find event position in main path clip */
+                NAV_CLIP *clip = bd->st0.clip;
+                uint32_t spn = clpi_lookup_spn(clip->cl, cmds.wakeup_time, 1,
+                                               bd->title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
+                if (spn) {
+                    bd->gc_wakeup_pos = spn * 192;
+                }
+            }
+        }
+    }
+}
+
+static void _init_textst_timer(BLURAY *bd)
+{
+    if (bd->st_textst.clip) {
+        bd->gc_wakeup_time = (uint32_t)(bd_tell_time(bd) >> 1);
+        bd->gc_wakeup_pos = 0;
+        _update_textst_timer(bd);
+    }
 }
 
 /*
@@ -499,6 +542,8 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
                 _update_clip_psrs(bd, st->clip);
 
                 _init_pg_stream(bd);
+
+                _init_textst_timer(bd);
             }
 
             return 1;
@@ -694,7 +739,7 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
     int result = -1;
 
     if (bd && bd->graphics_controller && bd->hdmv_vm) {
-        GC_NAV_CMDS cmds = {-1, NULL, -1, 0};
+        GC_NAV_CMDS cmds = {-1, NULL, -1, 0, 0};
 
         result = gc_run(bd->graphics_controller, msg, param, &cmds);
 
@@ -1399,6 +1444,7 @@ void bd_close(BLURAY *bd)
 
     _close_m2ts(&bd->st0);
     _close_preload(&bd->st_ig);
+    _close_preload(&bd->st_textst);
 
     if (bd->title_list != NULL) {
         nav_free_title_list(bd->title_list);
@@ -1487,6 +1533,8 @@ static void _seek_internal(BLURAY *bd,
         /* reset PG decoder and controller */
         if (bd->graphics_controller) {
             gc_run(bd->graphics_controller, GC_CTRL_PG_RESET, 0, NULL);
+
+            _init_textst_timer(bd);
         }
 
         BD_DEBUG(DBG_BLURAY, "Seek to %"PRIu64"\n", bd->s_pos);
@@ -1836,6 +1884,9 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                             gc_run(bd->graphics_controller, GC_CTRL_PG_UPDATE, 0, NULL);
                         }
                     }
+                    if (bd->st_textst.clip) {
+                        _update_textst_timer(bd);
+                    }
 
                     st->int_buf_off = st->clip_pos % 6144;
 
@@ -1917,6 +1968,60 @@ int bd_read_skip_still(BLURAY *bd)
 }
 
 /*
+ * synchronous sub paths
+ */
+
+static int _preload_textst_subpath(BLURAY *bd)
+{
+    bd_char_code_e char_code = BLURAY_TEXT_CHAR_CODE_UTF8;
+    int            textst_subpath = -1;
+    uint16_t       textst_pid     = 0;
+    unsigned       ii;
+
+    if (!bd->graphics_controller) {
+        return 0;
+    }
+
+    _find_pg_stream(bd, &textst_pid, &textst_subpath, &char_code);
+    if (textst_subpath < 0) {
+        return 0;
+    }
+
+    if (bd->st_textst.clip == &bd->title->sub_path[textst_subpath].clip_list.clip[0]) {
+        BD_DEBUG(DBG_STREAM, "_preload_textst_subpath(): subpath already loaded");
+        return 1;
+    }
+
+    gc_run(bd->graphics_controller, GC_CTRL_PG_RESET, 0, NULL);
+
+    bd->st_textst.clip = &bd->title->sub_path[textst_subpath].clip_list.clip[0];
+    if (bd->title->sub_path[textst_subpath].clip_list.count > 1) {
+        BD_DEBUG(DBG_STREAM | DBG_CRIT, "_preload_textst_subpath(): multi-clip sub paths not supported\n");
+    }
+
+    if (!_preload_m2ts(bd, &bd->st_textst)) {
+        _close_preload(&bd->st_textst);
+        return 0;
+    }
+
+    gc_decode_ts(bd->graphics_controller, 0x1800, bd->st_textst.buf, SPN(bd->st_textst.clip_size) / 32, -1);
+
+    /* set fonts and encoding from clip info */
+    gc_add_font(bd->graphics_controller, NULL);
+    for (ii = 0; ii < bd->st_textst.clip->cl->font_info.font_count; ii++) {
+        char *file = str_printf("%s/BDMV/AUXDATA/%s.otf", bd->device_path, bd->st_textst.clip->cl->font_info.font[ii].file_id);
+        gc_add_font(bd->graphics_controller, file);
+        X_FREE(file);
+    }
+    gc_run(bd->graphics_controller, GC_CTRL_PG_CHARCODE, char_code, NULL);
+
+    /* start presentation timer */
+    _init_textst_timer(bd);
+
+    return 1;
+}
+
+/*
  * preloader for asynchronous sub paths
  */
 
@@ -1955,7 +2060,16 @@ static int _preload_ig_subpath(BLURAY *bd)
         return 0;
     }
 
+    if (bd->st_ig.clip == &bd->title->sub_path[ig_subpath].clip_list.clip[0]) {
+        BD_DEBUG(DBG_STREAM | DBG_CRIT, "_preload_ig_subpath(): subpath already loaded");
+        //return 1;
+    }
+
     bd->st_ig.clip = &bd->title->sub_path[ig_subpath].clip_list.clip[0];
+
+    if (bd->title->sub_path[ig_subpath].clip_list.count > 1) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_preload_ig_subpath(): multi-clip sub paths not supported\n");
+    }
 
     if (!_preload_m2ts(bd, &bd->st_ig)) {
         _close_preload(&bd->st_ig);
@@ -1968,12 +2082,13 @@ static int _preload_ig_subpath(BLURAY *bd)
 static int _preload_subpaths(BLURAY *bd)
 {
     _close_preload(&bd->st_ig);
+    _close_preload(&bd->st_textst);
 
     if (bd->title->pl->sub_count <= 0) {
         return 0;
     }
 
-    return _preload_ig_subpath(bd);
+    return _preload_ig_subpath(bd) | _preload_textst_subpath(bd);
 }
 
 static int _init_ig_stream(BLURAY *bd)
@@ -2016,6 +2131,7 @@ static void _close_playlist(BLURAY *bd)
 
     _close_m2ts(&bd->st0);
     _close_preload(&bd->st_ig);
+    _close_preload(&bd->st_textst);
 
     if (bd->title) {
         nav_title_close(bd->title);
@@ -2571,6 +2687,10 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
 
             bd_mutex_lock(&bd->mutex);
             _init_pg_stream(bd);
+            if (bd->st_textst.clip) {
+                BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Changing TextST stream\n");
+                _preload_textst_subpath(bd);
+            }
             bd_mutex_unlock(&bd->mutex);
 
             break;
