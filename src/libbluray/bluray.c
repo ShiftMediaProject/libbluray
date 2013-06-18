@@ -395,7 +395,7 @@ static void _update_chapter_psr(BLURAY *bd)
  * PG
  */
 
-static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, bd_char_code_e *char_code)
+static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, uint8_t *char_code)
 {
     MPLS_PI  *pi        = &bd->title->pl->play_item[0];
     unsigned  pg_stream = bd_psr_read(bd->regs, PSR_PG_STREAM);
@@ -1973,7 +1973,7 @@ int bd_read_skip_still(BLURAY *bd)
 
 static int _preload_textst_subpath(BLURAY *bd)
 {
-    bd_char_code_e char_code = BLURAY_TEXT_CHAR_CODE_UTF8;
+    uint8_t        char_code      = BLURAY_TEXT_CHAR_CODE_UTF8;
     int            textst_subpath = -1;
     uint16_t       textst_pid     = 0;
     unsigned       ii;
