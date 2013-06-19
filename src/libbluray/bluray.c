@@ -2506,16 +2506,23 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
     };
 
     unsigned i;
+    int result;
 
     if (idx == BLURAY_PLAYER_SETTING_DECODE_PG) {
+        bd_mutex_lock(&bd->mutex);
         bd->decode_pg = !!value;
-        value = (bd_psr_read(bd->regs, PSR_PG_STREAM) & (0x7fffffff)) | (value<<31);
-        return !bd_psr_setting_write(bd->regs, PSR_PG_STREAM, value);
+
+        bd_psr_lock(bd->regs);
+        value = (bd_psr_read(bd->regs, PSR_PG_STREAM) & (0x7fffffff)) | ((!!value)<<31);
+        result = !bd_psr_setting_write(bd->regs, PSR_PG_STREAM, value);
+        bd_psr_unlock(bd->regs);
+
+        bd_mutex_unlock(&bd->mutex);
+        return result;
     }
 
     for (i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
         if (idx == map[i].idx) {
-            int result;
             bd_mutex_lock(&bd->mutex);
             result = !bd_psr_setting_write(bd->regs, idx, value);
             bd_mutex_unlock(&bd->mutex);
