@@ -293,37 +293,41 @@ static void _update_stream_psr_by_lang(BD_REGISTERS *regs,
                                        uint32_t *lang, uint32_t blacklist)
 {
     uint32_t psr_val;
+    uint32_t preferred_lang;
     int      stream_idx = -1;
     unsigned ii;
+    uint32_t stream_lang = 0;
 
     /* get preferred language */
-    psr_val = bd_psr_read(regs, psr_lang);
-    if (psr_val == 0xffffff) {
-        /* language setting not initialized */
-        return;
-    }
+    preferred_lang = bd_psr_read(regs, psr_lang);
 
     /* find stream */
-
     for (ii = 0; ii < num_streams; ii++) {
-        if (psr_val == str_to_uint32((const char *)streams[ii].lang, 3)) {
+        if (preferred_lang == str_to_uint32((const char *)streams[ii].lang, 3)) {
             stream_idx = ii;
             break;
         }
     }
 
+    /* requested language not found ? */
     if (stream_idx < 0) {
-        /* requested language not found */
+        BD_DEBUG(DBG_BLURAY, "Stream with preferred language not found\n");
+        /* select first stream */
         stream_idx = 0;
+        /* no subtitles if preferred language not found */
         enable_flag = 0;
+    }
 
-    } else {
-        if (lang) {
-            *lang = psr_val;
-        }
-        if (blacklist == psr_val) {
-            enable_flag = 0;
-        }
+    stream_lang = str_to_uint32((const char *)streams[stream_idx].lang, 3);
+
+    /* avoid enabling subtitles if audio is in the same language */
+    if (blacklist && blacklist == stream_lang) {
+        enable_flag = 0;
+        BD_DEBUG(DBG_BLURAY, "Subtitles disabled (audio is in the same language)\n");
+    }
+
+    if (lang) {
+        *lang = stream_lang;
     }
 
     /* update PSR */
@@ -351,14 +355,20 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
      * Selection is based on language setting PSRs and clip STN.
      */
     if (bd->title_type == title_undef) {
-        _update_stream_psr_by_lang(bd->regs,
-                                   PSR_AUDIO_LANG, PSR_PRIMARY_AUDIO_ID, 0,
-                                   stn->audio, stn->num_audio,
-                                   &audio_lang, 0);
-        _update_stream_psr_by_lang(bd->regs,
-                                   PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
-                                   stn->pg, stn->num_pg,
-                                   NULL, audio_lang);
+
+        if (stn->num_audio) {
+            _update_stream_psr_by_lang(bd->regs,
+                                       PSR_AUDIO_LANG, PSR_PRIMARY_AUDIO_ID, 0,
+                                       stn->audio, stn->num_audio,
+                                       &audio_lang, 0);
+        }
+
+        if (stn->num_pg) {
+            _update_stream_psr_by_lang(bd->regs,
+                                       PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
+                                       stn->pg, stn->num_pg,
+                                       NULL, audio_lang);
+        }
 
     /* Validate selected audio and subtitle stream PSRs when using menus */
     } else {
