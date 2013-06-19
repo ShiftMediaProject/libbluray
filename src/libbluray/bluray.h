@@ -431,6 +431,23 @@ uint64_t bd_tell(BLURAY *bd);
  */
 uint64_t bd_tell_time(BLURAY *bd);
 
+/**
+ *
+ *  Select stream (PG / TextST track)
+ *
+ *  This function can be used to override automatic stream selection.
+ *  Selecting the stream is useful only when using libbluray internal decoders
+ *  or stream is stored in a sub-path.
+ *
+ * @param bd  BLURAY object
+ * @param stream_type  BLURAY_*_STREAM
+ * @param stream_id  stream number (1..N)
+ * @param enable_flag  set to 0 to disable streams of this type
+ */
+#define BLURAY_PG_TEXTST_STREAM  1
+
+void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint32_t enable_flag);
+
 /*
  * Disc info
  */

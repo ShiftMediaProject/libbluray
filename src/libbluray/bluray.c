@@ -2549,6 +2549,28 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
     }
 }
 
+void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint32_t enable_flag)
+{
+    uint32_t val;
+
+    bd_mutex_lock(&bd->mutex);
+    bd_psr_lock(bd->regs);
+
+    switch (stream_type) {
+        case BLURAY_PG_TEXTST_STREAM:
+            val = bd_psr_read(bd->regs, PSR_PG_STREAM);
+            bd_psr_write(bd->regs, PSR_PG_STREAM, ((!!enable_flag)<<31) | (stream_id & 0xfff) | (val & 0x7ffff000));
+            break;
+        /*
+        case BLURAY_SECONDARY_VIDEO_STREAM:
+        case BLURAY_SECONDARY_AUDIO_STREAM:
+        */
+    }
+
+    bd_psr_unlock(bd->regs);
+    bd_mutex_unlock(&bd->mutex);
+}
+
 /*
  * BD-J testing
  */
