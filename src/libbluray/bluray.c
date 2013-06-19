@@ -1992,6 +1992,10 @@ static int _preload_textst_subpath(BLURAY *bd)
         return 0;
     }
 
+    if (!bd->decode_pg || !bd->title) {
+        return 0;
+    }
+
     _find_pg_stream(bd, &textst_pid, &textst_subpath, &char_code);
     if (textst_subpath < 0) {
         return 0;
