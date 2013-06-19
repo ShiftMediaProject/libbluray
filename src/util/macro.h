@@ -30,6 +30,10 @@
 #define MKINT_BE32(X) ( (X)[0] << 24 | (X)[1] << 16 |  (X)[2] << 8 | (X)[3] )
 #define X_FREE(X)     ( free(X), X = NULL )
 
+#define BD_MIN(a,b) ((a)<(b)?(a):(b))
+#define BD_MAX(a,b) ((a)>(b)?(a):(b))
+
+
 /*
  * automatic cast from void* (malloc/calloc/realloc)
  */
