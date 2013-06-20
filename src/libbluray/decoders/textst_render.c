@@ -30,6 +30,7 @@
 #ifdef HAVE_FT2
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include <freetype/ftsynth.h>
 #endif
 
 #include "textst_render.h"
@@ -135,7 +136,7 @@ int textst_render_set_char_code(TEXTST_RENDER *p, int char_code)
 }
 
 /*
- * rendering
+ * UTF-8
  */
 
 static int _utf8_char_size(const uint8_t *s)
@@ -173,16 +174,28 @@ static unsigned _utf8_char_get(const uint8_t *s, int char_size)
     return s[0];
 }
 
+/*
+ * rendering
+ */
+
 static int _draw_string(FT_Face face, const uint8_t *string, int length,
-                        uint8_t *mem, int x, int y, int width, int height, int stride,
-                        int color)
+                        TEXTST_BITMAP *bmp, int x, int y,
+                        BD_TEXTST_REGION_STYLE *style,
+                        int *baseline_pos)
 {
 #ifdef HAVE_FT2
+    uint8_t  color = style->font_color;
     unsigned char_code;
     int      ii, jj, kk;
+    unsigned flags;
 
     if (length <= 0) {
         return -1;
+    }
+    if (!bmp) {
+        flags = FT_LOAD_DEFAULT;
+    } else {
+        flags = FT_LOAD_RENDER;
     }
 
     for (ii = 0; ii < length; ii++) {
@@ -192,38 +205,124 @@ static int _draw_string(FT_Face face, const uint8_t *string, int length,
             ii += char_size - 1;
         /*}*/
 
-        if (FT_Load_Char(face, char_code, FT_LOAD_RENDER /*| FT_LOAD_MONOCHROME*/) == 0) {
-            for (jj = 0; jj < face->glyph->bitmap.rows; jj++) {
-                for (kk = 0; kk < face->glyph->bitmap.width; kk++) {
-                    uint8_t pixel = face->glyph->bitmap.buffer[jj * face->glyph->bitmap.pitch + kk];
-                    if (pixel & 0x80) {
-                        int xpos = x + face->glyph->bitmap_left + kk;
-                        int ypos = y - face->glyph->bitmap_top + jj;
-                        if (xpos >= 0 && xpos < width && ypos >= 0 && ypos < height) {
-                            mem[xpos + ypos * stride] = color;
+        if (FT_Load_Char(face, char_code, flags /*| FT_LOAD_MONOCHROME*/) == 0) {
+
+            if (style->font_style.bold && !(face->style_flags & FT_STYLE_FLAG_BOLD)) {
+                FT_GlyphSlot_Embolden( face->glyph );
+            }
+            if (style->font_style.italic && !(face->style_flags & FT_STYLE_FLAG_ITALIC)) {
+                FT_GlyphSlot_Oblique( face->glyph );
+            }
+
+            if (bmp) {
+                for (jj = 0; jj < face->glyph->bitmap.rows; jj++) {
+                    for (kk = 0; kk < face->glyph->bitmap.width; kk++) {
+                        uint8_t pixel = face->glyph->bitmap.buffer[jj * face->glyph->bitmap.pitch + kk];
+                        if (pixel & 0x80) {
+                            int xpos = x + face->glyph->bitmap_left + kk;
+                            int ypos = y - face->glyph->bitmap_top + jj;
+                            if (xpos >= 0 && xpos < bmp->width && ypos >= 0 && ypos < bmp->height) {
+                                bmp->mem[xpos + ypos * bmp->stride] = color;
+                            }
                         }
                     }
                 }
             }
+
+            /* track max baseline when calculating line size */
+            if (baseline_pos) {
+                *baseline_pos = BD_MAX(*baseline_pos, (face->size->metrics.ascender >> 6) + 1);
+            }
+
             x += face->glyph->metrics.horiAdvance >> 6;
         }
     }
 #endif /* HAVE_FT2 */
+
     return x;
 }
 
+static void _update_face(TEXTST_RENDER *p, FT_Face *face, const BD_TEXTST_REGION_STYLE *style)
+{
+    if (style->font_id_ref >= p->font_count || !p->face[style->font_id_ref]) {
+        TEXTST_ERROR("textst_Render: incorrect font index %d\n", style->font_id_ref);
+        if (!*face) {
+            *face = p->face[0];
+        }
+    } else {
+        *face = p->face[style->font_id_ref];
+    }
+    FT_Set_Char_Size(*face, 0, style->font_size << 6, 0, 0);
+}
+
+static int _render_line(TEXTST_RENDER *p, TEXTST_BITMAP *bmp,
+                        const BD_TEXTST_REGION_STYLE *base_style,
+                        BD_TEXTST_REGION_STYLE *style,
+                        uint8_t **p_ptr, int *p_elem_count,
+                        int xpos, int ypos, int *baseline_pos)
+{
+    FT_Face  face = NULL;
+
+    /* select font */
+    _update_face(p, &face, style);
+
+    while ( (*p_elem_count) > 0) {
+        BD_TEXTST_DATA *elem = (BD_TEXTST_DATA*)*p_ptr;
+        (*p_ptr) += sizeof(BD_TEXTST_DATA);
+        (*p_elem_count)--;
+
+        switch (elem->type) {
+            case BD_TEXTST_DATA_STRING:
+                xpos = _draw_string(face, elem->data.text.string, elem->data.text.length,
+                                    bmp, xpos, ypos, style, baseline_pos);
+                (*p_ptr) += elem->data.text.length;
+                break;
+
+            case BD_TEXTST_DATA_NEWLINE:
+                return xpos;
+
+            case BD_TEXTST_DATA_FONT_ID:
+                style->font_id_ref = elem->data.font_id_ref;
+                _update_face(p, &face, style);
+                break;
+
+            case BD_TEXTST_DATA_FONT_STYLE:
+                style->font_style =  elem->data.style.style;
+                style->outline_color = elem->data.style.outline_color;
+                style->outline_thickness = elem->data.style.outline_thickness;
+                if (style->font_style.outline_border) {
+                    TEXTST_ERROR("textst_render: unsupported style: outline\n");
+                }
+                break;
+
+            case BD_TEXTST_DATA_FONT_SIZE:
+                style->font_size = elem->data.font_size;
+                _update_face(p, &face, style);
+                break;
+
+            case BD_TEXTST_DATA_FONT_COLOR:
+                style->font_color = elem->data.font_color;
+                break;
+
+            case BD_TEXTST_DATA_RESET_STYLE:
+                memcpy(style, base_style, sizeof(*style));
+                _update_face(p, &face, style);
+                break;
+
+            default:
+                TEXTST_ERROR("Unknown control code %d\n", elem->type);
+                break;
+        }
+    }
+
+    return xpos;
+}
 
 int textst_render(TEXTST_RENDER *p,
                   TEXTST_BITMAP *bmp,
-                  const BD_TEXTST_REGION_STYLE *style,
+                  const BD_TEXTST_REGION_STYLE *base_style,
                   const BD_TEXTST_DIALOG_REGION *region)
 {
-    FT_Face                face;
-    BD_TEXTST_REGION_STYLE s;   /* current style settings */
-
-    /* settings can be changed and reset with inline codes. Use local copy. */
-    memcpy(&s, style, sizeof(s));
-
     /* fonts loaded ? */
     if (p->font_count < 1) {
         TEXTST_ERROR("textst_render: no fonts loaded\n");
@@ -231,114 +330,80 @@ int textst_render(TEXTST_RENDER *p,
     }
 
     /* TODO: */
-    if (s.text_flow != BD_TEXTST_FLOW_LEFT_RIGHT) {
-        TEXTST_ERROR("textst_render: unsupported text flow type %d\n", s.text_flow);
+    if (base_style->text_flow != BD_TEXTST_FLOW_LEFT_RIGHT) {
+        TEXTST_ERROR("textst_render: unsupported text flow type %d\n", base_style->text_flow);
     }
     if (bmp->argb) {
         TEXTST_ERROR("textst_render: ARGB output not implemented\n");
         return -1;
     }
-    if (s.font_style.bold) {
-        TEXTST_ERROR("textst_render: unsupported style: bold\n");
-    }
-    if (s.font_style.italic) {
-        TEXTST_ERROR("textst_render: unsupported style: italic\n");
-    }
-    if (s.font_style.outline_border) {
+    if (base_style->font_style.outline_border) {
+        /* TODO: styles: see ex. vlc/modules/text_renderer/freetype.c ; function GetGlyph() */
         TEXTST_ERROR("textst_render: unsupported style: outline\n");
     }
 
-    /* select font */
-    if (s.font_id_ref >= p->font_count || !p->face[s.font_id_ref]) {
-        TEXTST_ERROR("textst_Render: incorrect font index %d\n", s.font_id_ref);
-        face = p->face[0];
-    } else {
-        face = p->face[s.font_id_ref];
-    }
-    FT_Set_Char_Size(face, 0, s.font_size << 6, 0, 0);
-
     /* */
 
-    unsigned  ee;
+    BD_TEXTST_REGION_STYLE s;   /* current style settings */
+    unsigned  line;
     uint8_t  *ptr = (uint8_t*)region->elem;
+    int       elem_count = region->elem_count;
     int       xpos = 0;
     int       ypos = 0;
 
-    /* */
+    /* settings can be changed and reset with inline codes. Use local copy. */
+    memcpy(&s, base_style, sizeof(s));
 
-    /* vertical alignment */
+    /* apply vertical alignment */
     switch (s.text_valign) {
         case BD_TEXTST_VALIGN_TOP:
             break;
         case BD_TEXTST_VALIGN_BOTTOM:
             ypos = s.text_box.height - region->line_count * s.line_space;
-TEXTST_ERROR("adjust lines: %d px to bottom\n", ypos);
             break;
         case BD_TEXTST_VALIGN_MIDDLE:
             ypos = (s.text_box.height - region->line_count * s.line_space) / 2;
-TEXTST_ERROR("adjust lines: %d px to middle\n", ypos);
             break;
         default:
             TEXTST_ERROR("textst_render: unsupported vertical align %d\n", s.text_halign);
             break;
     }
-    ypos += (face->size->metrics.ascender >> 6) + 1;
 
-    /* horizontal alignment (per line) */
-    if (s.text_halign != BD_TEXTST_HALIGN_LEFT) {
-        TEXTST_ERROR("textst_render: unsupported horizontal align %d\n", s.text_halign);
-    }
+    for (line = 0; line < region->line_count; line++) {
 
-    /* TODO: need to get max height for all fonts in line */
-    /* TODO: styles: see ex. vlc/modules/text_renderer/freetype.c ; function GetGlyph() */
+        /* calculate line width and max. ascender */
+        uint8_t *ptr_tmp = ptr;
+        int elem_count_tmp = elem_count;
+        BD_TEXTST_REGION_STYLE style_tmp;
+        int baseline = 0, line_width;
 
-    for (ee = 0; ee < region->elem_count; ee++) {
-        BD_TEXTST_DATA *elem = (BD_TEXTST_DATA*)ptr;
-        switch (elem->type) {
-            case BD_TEXTST_DATA_STRING:
-                xpos = _draw_string(face, elem->data.text.string, elem->data.text.length,
-                                    bmp->mem, xpos, ypos, bmp->width, bmp->height, bmp->stride, s.font_color);
-                ptr += elem->data.text.length;
+        /* dry-run: count line width and height */
+        memcpy(&style_tmp, &s, sizeof(s)); /* use copy in first pass */
+        line_width = _render_line(p, NULL, base_style, &style_tmp, &ptr_tmp, &elem_count_tmp, 0, 0, &baseline);
+
+        /* adjust to baseline */
+        ypos += baseline;
+
+        /* apply horizontal alignment */
+        xpos = 0;
+        switch (s.text_halign) {
+            case BD_TEXTST_HALIGN_LEFT:
                 break;
-
-            case BD_TEXTST_DATA_NEWLINE:
-                ypos += style->line_space;
-                xpos = 0;
+            case BD_TEXTST_HALIGN_RIGHT:
+                xpos = s.text_box.width - line_width - 1;
                 break;
-
-            case BD_TEXTST_DATA_FONT_ID:
-                if (elem->data.font_id_ref >= p->font_count || !p->face[elem->data.font_id_ref]) {
-                    TEXTST_ERROR("textst_Render: incorrect font index %d\n", elem->data.font_id_ref);
-                } else {
-                    TEXTST_ERROR("Font change not implemented\n");
-                    //s.font_id_ref = elem->data.font_idx;
-                    //face = p->face[s.font_id_ref];
-                    //FT_Set_Char_Size(face, 0, s.font_size << 6, 0, 0);
-                }
+            case BD_TEXTST_HALIGN_CENTER:
+                xpos = (s.text_box.width - line_width) / 2 - 1;
                 break;
-
-            case BD_TEXTST_DATA_FONT_STYLE:
-                TEXTST_ERROR("Font style change not implemented\n");
-                break;
-
-            case BD_TEXTST_DATA_FONT_SIZE:
-                TEXTST_ERROR("Font size change not implemented\n");
-                break;
-
-            case BD_TEXTST_DATA_FONT_COLOR:
-                s.font_color = elem->data.font_color;
-                break;
-
-            case BD_TEXTST_DATA_RESET_STYLE:
-                memcpy(&s, style, sizeof(s));
-                FT_Set_Char_Size(face, 0, s.font_size << 6, 0, 0);
-                break;
-
             default:
-                TEXTST_ERROR("Unknown control code %d\n", elem->type);
+                TEXTST_ERROR("textst_render: unsupported horizontal align %d\n", s.text_halign);
                 break;
         }
-        ptr += sizeof(BD_TEXTST_DATA);
+
+        /* render line */
+        _render_line(p, bmp, base_style, &s, &ptr, &elem_count, xpos, ypos, NULL);
+
+        ypos += s.line_space - baseline;
     }
 
     return 0;
