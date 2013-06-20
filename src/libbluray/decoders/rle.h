@@ -41,13 +41,12 @@ typedef struct {
  */
 
 #include "util/macro.h"
-
-#include <stdlib.h>
+#include "util/refcnt.h"
 
 static void rle_begin(RLE_ENC *p)
 {
     p->num_elem = 1024;
-    p->start = malloc(p->num_elem * sizeof(BD_PG_RLE_ELEM));
+    p->start = refcnt_realloc(NULL, p->num_elem * sizeof(BD_PG_RLE_ELEM));
 
     p->elem   = p->start;
     p->elem->len = 0;
@@ -56,7 +55,8 @@ static void rle_begin(RLE_ENC *p)
 
 static void rle_end(RLE_ENC *p)
 {
-    X_FREE(p->start);
+    bd_refcnt_dec(p->start);
+    p->start = NULL;
 }
 
 static void _rle_grow(RLE_ENC *p)
@@ -65,7 +65,7 @@ static void _rle_grow(RLE_ENC *p)
     if (count >= p->num_elem) {
         /* realloc */
         p->num_elem = p->num_elem * 2;
-        p->start = realloc(p->start, p->num_elem * sizeof(BD_PG_RLE_ELEM));
+        p->start = refcnt_realloc(p->start, p->num_elem * sizeof(BD_PG_RLE_ELEM));
     }
 
     p->elem = p->start + count;
