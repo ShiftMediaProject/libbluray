@@ -40,8 +40,8 @@ typedef struct {
  *
  */
 
-#include "util/macro.h"
 #include "util/refcnt.h"
+#include "util/macro.h"
 
 static void rle_begin(RLE_ENC *p)
 {

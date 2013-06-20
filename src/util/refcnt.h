@@ -24,6 +24,10 @@
 
 #include <sys/types.h>
 
+#ifdef MACRO_H_
+#  error macro.h included before refcnt.h
+#endif
+
 /*
  * Reference-counted memory blocks.
  *
