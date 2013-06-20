@@ -81,8 +81,43 @@ typedef struct bd_overlay_s {
     uint16_t crop_h;
 
     uint8_t palette_update_flag; /* only palette was changed */
-
 } BD_OVERLAY;
+
+/*
+  RLE images are reference-counted. If application caches rle data for later use,
+  it needs to use bd_refcnt_inc() and bd_refcnt_dec().
+*/
+
+void bd_refcnt_inc(const void *);
+void bd_refcnt_dec(const void *);
+
+#if 0
+BD_OVERLAY *bd_overlay_copy(const BD_OVERLAY *src)
+{
+    BD_OVERLAY *ov = malloc(sizeof(*ov));
+    memcpy(ov, src, sizeof(*ov));
+    if (ov->palette) {
+        ov->palette = malloc(256 * sizeof(BD_PG_PALETTE_ENTRY));
+        memcpy((void*)ov->palette, src->palette, 256 * sizeof(BD_PG_PALETTE_ENTRY));
+    }
+    if (ov->img) {
+        bd_refcnt_inc(ov->img);
+    }
+    return ov;
+}
+
+void bd_overlay_free(BD_OVERLAY **pov)
+{
+    if (pov && *pov) {
+        BD_OVERLAY *ov = *pov;
+        void *p = (void*)ov->palette;
+        bd_refcnt_dec(ov->img);
+        X_FREE(p);
+        ov->palette = NULL;
+        X_FREE(*pov);
+    }
+}
+#endif
 
 /*
  * ARGB overlays

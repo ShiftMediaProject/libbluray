@@ -65,6 +65,7 @@ auto_cast_wrapper<R> auto_cast(const R& x)
 #  define calloc(n,s)  auto_cast(calloc(n,s))
 #  define malloc(s)    auto_cast(malloc(s))
 #  define realloc(p,s) auto_cast(realloc(p,s))
+#  define refcnt_realloc(p,s) auto_cast(refcnt_realloc(p,s))
 #endif /* __cplusplus */
 
 

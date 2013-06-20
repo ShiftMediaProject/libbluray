@@ -22,10 +22,14 @@
 #include "util/macro.h"
 #include "util/logging.h"
 #include "util/bits.h"
+#include "util/refcnt.h"
 
 #include <string.h>
 #include <stdlib.h>
 
+/*
+ *
+ */
 
 void pg_decode_video_descriptor(BITBUFFER *bb, BD_PG_VIDEO_DESCRIPTOR *p)
 {
@@ -120,7 +124,7 @@ static int _decode_rle(BITBUFFER *bb, BD_PG_OBJECT *p)
     if (rle_size < 1)
         rle_size = 1;
 
-    p->img = realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
+    p->img = refcnt_realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
     if (!p->img) {
         BD_DEBUG(DBG_DECODE | DBG_CRIT, "pg_decode_object(): relloc(%zu) failed\n",
                  rle_size * sizeof(BD_PG_RLE_ELEM));
@@ -162,7 +166,7 @@ static int _decode_rle(BITBUFFER *bb, BD_PG_OBJECT *p)
         if (num_rle >= rle_size) {
             void *tmp = p->img;
             rle_size *= 2;
-            p->img = realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
+            p->img = refcnt_realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
             if (!p->img) {
                 BD_DEBUG(DBG_DECODE | DBG_CRIT, "pg_decode_object(): relloc(%zu) failed\n",
                          rle_size * sizeof(BD_PG_RLE_ELEM));
@@ -260,7 +264,8 @@ int pg_decode_windows(BITBUFFER *bb, BD_PG_WINDOWS *p)
 void pg_clean_object(BD_PG_OBJECT *p)
 {
     if (p) {
-        X_FREE(p->img);
+        bd_refcnt_dec(p->img);
+        p->img = NULL;
     }
 }
 

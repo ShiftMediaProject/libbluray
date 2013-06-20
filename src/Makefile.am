@@ -72,6 +72,8 @@ libbluray_la_SOURCES = \
 	file/filesystem.h \
 	file/filesystem.c \
 	util/attributes.h \
+	util/refcnt.h \
+	util/refcnt.c \
 	util/strutl.c \
 	util/strutl.h \
 	util/macro.h \
