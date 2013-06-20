@@ -464,8 +464,6 @@ static int _init_pg_stream(BLURAY *bd)
     if (pg_subpath < 0) {
         bd->pg_pid = pg_pid;
         return !!pg_pid;
-    } else {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_init_pg_stream(): PG streams in sub-path not supported\n");
     }
 
     return 0;
