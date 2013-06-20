@@ -744,6 +744,19 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
             return 0;
         }
 
+        /* TODO: */
+        if (gc->igs->ics) {
+            if (gc->igs->ics->interactive_composition.composition_timeout_pts > 0) {
+                GC_TRACE("gc_decode_ts(): IG composition_timeout_pts not implemented\n");
+            }
+            if (gc->igs->ics->interactive_composition.selection_timeout_pts) {
+                GC_TRACE("gc_decode_ts(): IG selection_timeout_pts not implemented\n");
+            }
+            if (gc->igs->ics->interactive_composition.user_timeout_duration) {
+                GC_TRACE("gc_decode_ts(): IG user_timeout_duration not implemented\n");
+            }
+        }
+
         bd_mutex_unlock(&gc->mutex);
 
         return 1;
@@ -918,6 +931,14 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
 
             BD_TEXTST_DIALOG_REGION *region = &dialog[ii].region[jj];
             BD_TEXTST_REGION_STYLE  *style = NULL;
+
+            // TODO:
+            if (region->continous_present_flag) {
+                GC_ERROR("_render_textst(): continous_present_flag: not implemented\n");
+            }
+            if (region->forced_on_flag) {
+                GC_ERROR("_render_textst(): forced_on_flag: not implemented\n");
+            }
 
             style = _find_region_style(s->style, region->region_style_id_ref);
             if (!style) {
@@ -1134,6 +1155,11 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
         GC_ERROR("_render_page: unknown page id %d (have %d pages)\n",
               page_id, s->ics->interactive_composition.num_pages);
         return -1;
+    }
+
+    /* TODO: */
+    if (page->in_effects.num_effects || page->out_effects.num_effects) {
+        GC_ERROR("_render_page(): in/out effects not implemented\n");
     }
 
     palette = _find_palette(s, page->palette_id_ref);
