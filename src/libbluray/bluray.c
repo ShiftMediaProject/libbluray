@@ -336,7 +336,7 @@ static void _update_stream_psr_by_lang(BD_REGISTERS *regs,
 
     bd_psr_lock(regs);
 
-    psr_val = bd_psr_read(regs, psr_stream) & 0xffff0000;
+    psr_val = bd_psr_read(regs, psr_stream) & 0x7fff0000;
     psr_val |= (stream_idx + 1) | enable_flag;
     bd_psr_write(regs, psr_stream, psr_val);
 
