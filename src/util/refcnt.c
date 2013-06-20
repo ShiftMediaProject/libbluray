@@ -20,7 +20,6 @@
 #include "refcnt.h"
 
 #include "logging.h"
-#include "macro.h"
 #include "mutex.h"
 
 #include <stdio.h>
@@ -83,7 +82,7 @@ void bd_refcnt_dec(const void *obj)
         bd_mutex_destroy(&ref->mutex);
     }
 
-    X_FREE(ref);
+    free(ref);
 }
 
 void *refcnt_realloc(void *obj, size_t sz)

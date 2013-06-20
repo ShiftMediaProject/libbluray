@@ -19,10 +19,10 @@
 
 #include "pg_decode.h"
 
+#include "util/refcnt.h"
 #include "util/macro.h"
 #include "util/logging.h"
 #include "util/bits.h"
-#include "util/refcnt.h"
 
 #include <string.h>
 #include <stdlib.h>
