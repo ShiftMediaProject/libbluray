@@ -459,14 +459,14 @@ static void _hide_osd(GRAPHICS_CONTROLLER *gc, int plane)
     }
 }
 
-static void _clear_osd_area(GRAPHICS_CONTROLLER *gc, int plane,
+static void _clear_osd_area(GRAPHICS_CONTROLLER *gc, int plane, int64_t pts,
                             uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
     if (gc->overlay_proc) {
         /* wipe area */
         BD_OVERLAY ov = {0};
         ov.cmd     = BD_OVERLAY_WIPE;
-        ov.pts     = -1;
+        ov.pts     = pts;
         ov.plane   = plane;
         ov.x       = x;
         ov.y       = y;
@@ -500,7 +500,7 @@ static void _clear_bog_area(GRAPHICS_CONTROLLER *gc, BOG_DATA *bog_data)
 {
     if (gc->ig_drawn && bog_data->w && bog_data->h) {
 
-        _clear_osd_area(gc, BD_OVERLAY_IG, bog_data->x, bog_data->y, bog_data->w, bog_data->h);
+        _clear_osd_area(gc, BD_OVERLAY_IG, -1, bog_data->x, bog_data->y, bog_data->w, bog_data->h);
 
         bog_data->x = bog_data->y = bog_data->w = bog_data->h = 0;
         bog_data->visible_object_id = -1;
@@ -956,12 +956,33 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
         }
 
         /* commit changes */
-        _flush_osd(p, BD_OVERLAY_PG, -1);//dialog[ii].start_pts);
+        _flush_osd(p, BD_OVERLAY_PG, dialog[ii].start_pts);
 
-        /* push hide event */
-        //_clear_osd(p, BD_OVERLAY_PG);
-        //_hide_osd(p, BD_OVERLAY_PG);
-        //_flush_osd(p, BD_OVERLAY_PG, dialog[ii].end_pts);
+        /* detect overlapping dialogs (not allowed) */
+        if (ii < s->num_dialog - 1) {
+            if (dialog[ii + 1].start_pts < dialog[ii].end_pts) {
+                GC_ERROR("_render_textst: overlapping dialogs detected\n");
+            }
+        }
+
+        /* push hide events */
+        for (jj = 0; jj < dialog[ii].region_count; jj++) {
+          BD_TEXTST_DIALOG_REGION *region = &dialog[ii].region[jj];
+          BD_TEXTST_REGION_STYLE  *style = NULL;
+
+          style = _find_region_style(s->style, region->region_style_id_ref);
+          if (!style) {
+            continue;
+          }
+          _clear_osd_area(p, BD_OVERLAY_PG, dialog[ii].end_pts,
+                          style->region_info.region.xpos, style->region_info.region.ypos,
+                          style->region_info.region.width, style->region_info.region.height);
+        }
+
+        _hide_osd(p, BD_OVERLAY_PG);
+
+        /* commit changes */
+        _flush_osd(p, BD_OVERLAY_PG, dialog[ii].end_pts);
     }
 
     return 0;
@@ -1041,7 +1062,7 @@ static int _render_pg(GRAPHICS_CONTROLLER *gc)
         BD_PG_OBJECT             *object = _find_object(gc->pgs, cobj->object_id_ref);
 
         if (object) {
-            _clear_osd_area(gc, BD_OVERLAY_PG,
+            _clear_osd_area(gc, BD_OVERLAY_PG, -1,
                             cobj->x, cobj->y, object->width, object->height);
         }
     }
