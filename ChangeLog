@@ -1,6 +1,7 @@
 - Fixed slide shows: always cut reads at clip end boundary
 - Fixed logging with non-default mask
 - Added missing Java files to distribution package
+- Added support for multi-clip sub paths
 - Improved BD-J support (still alpha)
 - Improved language-based stream autoselection
 - Added initial support for BluRay Text Subtitles

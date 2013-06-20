@@ -407,7 +407,7 @@ static void _update_chapter_psr(BLURAY *bd)
  * PG
  */
 
-static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, uint8_t *char_code)
+static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigned *sub_clip_idx, uint8_t *char_code)
 {
     MPLS_PI  *pi        = &bd->title->pl->play_item[0];
     unsigned  pg_stream = bd_psr_read(bd->regs, PSR_PG_STREAM);
@@ -423,6 +423,7 @@ static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, uint8_t
         pg_stream--; /* stream number to table index */
         if (pi->stn.pg[pg_stream].stream_type == 2) {
             *sub_path_idx = pi->stn.pg[pg_stream].subpath_id;
+            *sub_clip_idx = pi->stn.pg[pg_stream].subclip_id;
         }
         *pid = pi->stn.pg[pg_stream].pid;
 
@@ -441,6 +442,7 @@ static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, uint8_t
 static int _init_pg_stream(BLURAY *bd)
 {
     int      pg_subpath = -1;
+    unsigned pg_subclip = 0;
     uint16_t pg_pid     = 0;
 
     bd->pg_pid = 0;
@@ -456,12 +458,14 @@ static int _init_pg_stream(BLURAY *bd)
         return 0;
     }
 
-    _find_pg_stream(bd, &pg_pid, &pg_subpath, NULL);
+    _find_pg_stream(bd, &pg_pid, &pg_subpath, &pg_subclip, NULL);
 
-    /* store PID of main path embedded IG stream */
+    /* store PID of main path embedded PG stream */
     if (pg_subpath < 0) {
         bd->pg_pid = pg_pid;
-        return 1;
+        return !!pg_pid;
+    } else {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_init_pg_stream(): PG streams in sub-path not supported\n");
     }
 
     return 0;
@@ -1987,6 +1991,7 @@ static int _preload_textst_subpath(BLURAY *bd)
 {
     uint8_t        char_code      = BLURAY_TEXT_CHAR_CODE_UTF8;
     int            textst_subpath = -1;
+    unsigned       textst_subclip = 0;
     uint16_t       textst_pid     = 0;
     unsigned       ii;
 
@@ -1998,22 +2003,24 @@ static int _preload_textst_subpath(BLURAY *bd)
         return 0;
     }
 
-    _find_pg_stream(bd, &textst_pid, &textst_subpath, &char_code);
+    _find_pg_stream(bd, &textst_pid, &textst_subpath, &textst_subclip, &char_code);
     if (textst_subpath < 0) {
         return 0;
     }
 
-    if (bd->st_textst.clip == &bd->title->sub_path[textst_subpath].clip_list.clip[0]) {
-        BD_DEBUG(DBG_STREAM, "_preload_textst_subpath(): subpath already loaded");
+    if (textst_subclip >= bd->title->sub_path[textst_subpath].clip_list.count) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_preload_textst_subpath(): invalid subclip id\n");
+        return -1;
+    }
+
+    if (bd->st_textst.clip == &bd->title->sub_path[textst_subpath].clip_list.clip[textst_subclip]) {
+        BD_DEBUG(DBG_BLURAY, "_preload_textst_subpath(): subpath already loaded");
         return 1;
     }
 
     gc_run(bd->graphics_controller, GC_CTRL_PG_RESET, 0, NULL);
 
-    bd->st_textst.clip = &bd->title->sub_path[textst_subpath].clip_list.clip[0];
-    if (bd->title->sub_path[textst_subpath].clip_list.count > 1) {
-        BD_DEBUG(DBG_STREAM | DBG_CRIT, "_preload_textst_subpath(): multi-clip sub paths not supported\n");
-    }
+    bd->st_textst.clip = &bd->title->sub_path[textst_subpath].clip_list.clip[textst_subclip];
 
     if (!_preload_m2ts(bd, &bd->st_textst)) {
         _close_preload(&bd->st_textst);
@@ -2041,7 +2048,7 @@ static int _preload_textst_subpath(BLURAY *bd)
  * preloader for asynchronous sub paths
  */
 
-static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx)
+static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigned *sub_clip_idx)
 {
     MPLS_PI  *pi        = &bd->title->pl->play_item[0];
     unsigned  ig_stream = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
@@ -2050,6 +2057,7 @@ static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx)
         ig_stream--; /* stream number to table index */
         if (pi->stn.ig[ig_stream].stream_type == 2) {
             *sub_path_idx = pi->stn.ig[ig_stream].subpath_id;
+            *sub_clip_idx = pi->stn.ig[ig_stream].subclip_id;
         }
         *pid = pi->stn.ig[ig_stream].pid;
 
@@ -2064,24 +2072,30 @@ static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx)
 static int _preload_ig_subpath(BLURAY *bd)
 {
     int      ig_subpath = -1;
+    unsigned ig_subclip = 0;
     uint16_t ig_pid     = 0;
 
     if (!bd->graphics_controller) {
         return 0;
     }
 
-    _find_ig_stream(bd, &ig_pid, &ig_subpath);
+    _find_ig_stream(bd, &ig_pid, &ig_subpath, &ig_subclip);
 
     if (ig_subpath < 0) {
         return 0;
     }
 
-    if (bd->st_ig.clip == &bd->title->sub_path[ig_subpath].clip_list.clip[0]) {
-        BD_DEBUG(DBG_STREAM | DBG_CRIT, "_preload_ig_subpath(): subpath already loaded");
+    if (ig_subclip >= bd->title->sub_path[ig_subpath].clip_list.count) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_preload_ig_subpath(): invalid subclip id\n");
+        return -1;
+    }
+
+    if (bd->st_ig.clip == &bd->title->sub_path[ig_subpath].clip_list.clip[ig_subclip]) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_preload_ig_subpath(): subpath already loaded");
         //return 1;
     }
 
-    bd->st_ig.clip = &bd->title->sub_path[ig_subpath].clip_list.clip[0];
+    bd->st_ig.clip = &bd->title->sub_path[ig_subpath].clip_list.clip[ig_subclip];
 
     if (bd->title->sub_path[ig_subpath].clip_list.count > 1) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_preload_ig_subpath(): multi-clip sub paths not supported\n");
@@ -2110,6 +2124,7 @@ static int _preload_subpaths(BLURAY *bd)
 static int _init_ig_stream(BLURAY *bd)
 {
     int      ig_subpath = -1;
+    unsigned ig_subclip = 0;
     uint16_t ig_pid     = 0;
 
     bd->ig_pid = 0;
@@ -2118,7 +2133,7 @@ static int _init_ig_stream(BLURAY *bd)
         return 0;
     }
 
-    _find_ig_stream(bd, &ig_pid, &ig_subpath);
+    _find_ig_stream(bd, &ig_pid, &ig_subpath, &ig_subclip);
 
     /* decode already preloaded IG sub-path */
     if (bd->st_ig.clip) {
