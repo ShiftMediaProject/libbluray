@@ -381,6 +381,8 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
                                            PSR_AUDIO_LANG, PSR_PRIMARY_AUDIO_ID, 0,
                                            stn->audio, stn->num_audio,
                                            &audio_lang, 0);
+            } else {
+                audio_lang = str_to_uint32((const char *)stn->audio[psr_val - 1].lang, 3);
             }
         }
         if (stn->num_pg) {
