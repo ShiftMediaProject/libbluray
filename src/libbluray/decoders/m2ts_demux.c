@@ -132,7 +132,8 @@ static int _add_ts(PES_BUFFER *p, unsigned pusi, uint8_t *buf, unsigned len)
     // realloc
     if (p->size < p->len + len) {
         p->size *= 2;
-        p->buf   = realloc(p->buf, p->size);
+        p->size = BD_MAX(p->size, BD_MAX(result, 0x100));
+        p->buf  = realloc(p->buf, p->size);
     }
 
     // append
@@ -189,7 +190,7 @@ PES_BUFFER *m2ts_demux(M2TS_DEMUX *p, uint8_t *buf)
                       p->buf->len, p->pes_length);
                 pes_buffer_free(&p->buf);
             }
-            p->buf = pes_buffer_alloc(0xffff);
+            p->buf = pes_buffer_alloc();
         }
 
         if (!p->buf) {
