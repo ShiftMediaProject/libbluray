@@ -836,7 +836,7 @@ static int _render_textst_region(GRAPHICS_CONTROLLER *p, int64_t pts, BD_TEXTST_
     rle_begin(&rle);
 
     for (y = 0, bmp_y = 0; y < style->region_info.region.height; y++) {
-        if (y < style->text_box.ypos || y > style->text_box.ypos + style->text_box.height) {
+        if (y < style->text_box.ypos || y >= style->text_box.ypos + style->text_box.height) {
             rle_add_bite(&rle, style->region_info.background_color, style->region_info.region.width);
         } else {
             rle_add_bite(&rle, style->region_info.background_color, style->text_box.xpos);
