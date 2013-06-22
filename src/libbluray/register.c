@@ -233,8 +233,8 @@ void bd_psr_unregister_cb(BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*)
 
     while (i < p->num_cb) {
         if (p->cb[i].handle == cb_handle && p->cb[i].cb == callback) {
-            if (--p->num_cb) {
-                memmove(p->cb + i, p->cb + i + 1, sizeof(PSR_CB_DATA) * p->num_cb);
+            if (--p->num_cb && i < p->num_cb) {
+                memmove(p->cb + i, p->cb + i + 1, sizeof(PSR_CB_DATA) * (p->num_cb - i));
                 continue;
             }
         }
