@@ -66,9 +66,9 @@ static void *_load_jvm(const char **p_java_home)
 {
 #ifdef HAVE_BDJ_J2ME
 # ifdef WIN32
-  static const char *jvm_path[] = {NULL, JDK_HOME};
+    static const char *jvm_path[] = {NULL, JDK_HOME};
     static const char  jvm_dir[]  = "bin";
-    static const char  jvm_lib[]  = "cvm";
+    static const char  jvm_lib[]  = "cvmi";
 # else
     static const char *jvm_path[] = {NULL, JDK_HOME, "/opt/PhoneME"};
     static const char  jvm_dir[]  = "bin";
