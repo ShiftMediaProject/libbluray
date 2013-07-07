@@ -671,6 +671,19 @@ static void _set_stream_ss(HDMV_VM *p, uint32_t dst, uint32_t src)
     BD_DEBUG(DBG_HDMV, "_set_stream_ss(0x%x, 0x%x) unimplemented\n", dst, src);
 }
 
+static void _setsystem_0x10(HDMV_VM *p, uint32_t dst, uint32_t src)
+{
+    BD_DEBUG(DBG_HDMV, "_set_psr103(0x%x, 0x%x)\n", dst, src);
+
+    bd_psr_lock(p->regs);
+
+    /* just a guess ... */
+    //bd_psr_write(p->regs, 104, 0);
+    bd_psr_write(p->regs, 103, dst);
+
+    bd_psr_unlock(p->regs);
+}
+
 /*
  * SET/SYSTEM navigation control
  */
@@ -1035,6 +1048,7 @@ static int _hdmv_step(HDMV_VM *p)
                         case INSN_STILL_OFF:       _set_still_mode (p,   0);      break;
                         case INSN_SET_OUTPUT_MODE: _set_output_mode(p, dst);      break;
                         case INSN_SET_STREAM_SS:   _set_stream_ss  (p, dst, src); break;
+                        case INSN_SETSYSTEM_0x10:  _setsystem_0x10 (p, dst, src); break;
                         default:
                             BD_DEBUG(DBG_HDMV|DBG_CRIT, "unknown SETSYSTEM option %d in opcode 0x%08x\n", insn->set_opt, *(uint32_t*)insn);
                             break;

@@ -204,6 +204,11 @@ static const char * const insn_opt_setsys[32] = {
     "STILL_OFF",
     "SET_OUTPUT_MODE",
     "SET_STREAM_SS",
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    "[SETSYSTEM_0x10]",
 };
 
 static const char * const insn_opt_cmp[16] = {
@@ -364,8 +369,15 @@ int mobj_sprint_cmd(char *buf, MOBJ_CMD *cmd)
                     break;
             case SET_SETSYSTEM:
                 if (insn_opt_setsys[insn->set_opt]) {
+
                     buf += sprintf(buf, "%-10s ", insn_opt_setsys[insn->set_opt]);
-                    buf += _sprint_operands_hex(buf, cmd);
+                    if (insn->set_opt == INSN_SET_STREAM ||
+                        insn->set_opt == INSN_SET_SEC_STREAM ||
+                        insn->set_opt == INSN_SET_BUTTON_PAGE) {
+                        buf += _sprint_operands_hex(buf, cmd);
+                    } else {
+                        buf += _sprint_operands(buf, cmd);
+                    }
                 } else {
                     buf += sprintf(buf, "[unknown SETSYSTEM option in opcode 0x%08x] ", *(uint32_t*)insn);
                 }
