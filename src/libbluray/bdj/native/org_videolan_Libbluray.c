@@ -508,11 +508,8 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
     }
 }
 
-#define CC (char*)             /* cast a literal from (const char*) */
+#define CC (char*)(uintptr_t)  /* cast a literal from (const char*) */
 #define VC (void*)(uintptr_t)  /* cast function pointer to void* */
-#if defined __GNUC__
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#endif
 
 BD_PRIVATE CPP_EXTERN const JNINativeMethod
 Java_org_videolan_Libbluray_methods[] =
