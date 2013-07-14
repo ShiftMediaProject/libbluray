@@ -85,7 +85,8 @@ public class PiPControlImpl extends VideoControl implements PiPControl, Asynchro
     }
 
     public boolean getIsSyncedDuringTrickPlay() {
-        throw new Error("Not implemented"); // TODO implement
+        org.videolan.Logger.unimplemented("PiPControlImpl", "getIsSyncedDuringTrickPlay");
+        return false;
     }
 
     protected void onPiPChange(int param) {
@@ -129,23 +130,25 @@ public class PiPControlImpl extends VideoControl implements PiPControl, Asynchro
     }
 
     public void start() {
-        throw new Error("Not implemented"); // TODO implement
+        org.videolan.Logger.unimplemented("PiPControlImpl", "start");
     }
 
     public void stop() {
-        throw new Error("Not implemented"); // TODO implement
+        org.videolan.Logger.unimplemented("PiPControlImpl", "stop");
     }
 
     public void pause() {
-        throw new Error("Not implemented"); // TODO implement
+        org.videolan.Logger.unimplemented("PiPControlImpl", "pause");
     }
 
     public boolean resume() {
-        throw new Error("Not implemented"); // TODO implement
+        org.videolan.Logger.unimplemented("PiPControlImpl", "resume");
+        return true;
     }
 
     public Time getElapsedTime() {
-        throw new Error("Not implemented"); // TODO implement
+        org.videolan.Logger.unimplemented("PiPControlImpl", "getElapsedTime");
+        return null;
     }
 
     private LinkedList listeners = new LinkedList();

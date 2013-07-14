@@ -135,11 +135,13 @@ public abstract class VideoControl extends StreamControl implements VideoPresent
     }
 
     public float[] getHorizontalScalingFactors() {
-        throw new Error("Not implemented"); // TODO implement
+        org.videolan.Logger.unimplemented("VideoControl", "getHorizontalScalingFactors");
+        return null;
     }
 
     public float[] getVerticalScalingFactors() {
-        throw new Error("Not implemented"); // TODO implement
+        org.videolan.Logger.unimplemented("VideoControl", "getVerticalScalingFactors");
+        return null;
     }
 
     public byte getPositioningCapability() {
@@ -147,7 +149,8 @@ public abstract class VideoControl extends StreamControl implements VideoPresent
     }
 
     public Component getControlComponent() {
-        throw new Error("Not implemented"); // TODO implement
+        org.videolan.Logger.unimplemented("VideoControl", "getControlComponent");
+        return null;
     }
 
     private int plane = 0;

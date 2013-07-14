@@ -76,6 +76,7 @@ public class VideoFormatControlImpl implements VideoFormatControl {
 
     public void addVideoFormatListener(VideoFormatListener listener) {
         // TODO: implement
+        org.videolan.Logger.unimplemented("VideoFormatControlImpl", "addVideoFormatListener");
     }
 
     public void removeVideoFormatListener(VideoFormatListener listener) {

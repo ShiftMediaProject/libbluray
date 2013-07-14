@@ -50,6 +50,7 @@ public class OverallGainControlImpl implements OverallGainControl {
 
     public void addGainChangeListener(GainChangeListener listener) {
         // TODO Not implemented
+        org.videolan.Logger.unimplemented("OverallGainControlImpl", "addGainChangeListener");
     }
 
     public void removeGainChangeListener(GainChangeListener listener) {

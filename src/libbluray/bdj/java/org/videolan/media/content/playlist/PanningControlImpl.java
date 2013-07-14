@@ -31,6 +31,7 @@ public class PanningControlImpl implements PanningControl {
     }
 
     public void addPanningChangeListener(PanningChangeListener listener) {
+        org.videolan.Logger.unimplemented("PanningControlImpl", "addPanningVChangeListener");
         // TODO Not implemented
     }
 

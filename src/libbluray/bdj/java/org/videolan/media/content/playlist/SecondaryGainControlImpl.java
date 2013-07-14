@@ -52,6 +52,7 @@ public class SecondaryGainControlImpl implements SecondaryGainControl {
 
     public void addGainChangeListener(GainChangeListener listener) {
         // TODO Not implemented
+        org.videolan.Logger.unimplemented("SecondaryGainControlImpl", "addGainChangeListener");
     }
 
     public void removeGainChangeListener(GainChangeListener listener) {

@@ -128,10 +128,12 @@ public class VideoControl implements VideoPresentationControl {
     }
 
     public float[] getHorizontalScalingFactors() {
+        org.videolan.Logger.unimplemented("VideoControl", "getHorizontalScalingFactors");
         throw new Error("Not implemented"); // TODO implement
     }
 
     public float[] getVerticalScalingFactors() {
+        org.videolan.Logger.unimplemented("VideoControl", "getVerticalScalingFactors");
         throw new Error("Not implemented"); // TODO implement
     }
 
@@ -140,6 +142,7 @@ public class VideoControl implements VideoPresentationControl {
     }
 
     public Component getControlComponent() {
+        org.videolan.Logger.unimplemented("VideoControl", "getControlComponent");
         throw new Error("Not implemented"); // TODO implement
     }
 

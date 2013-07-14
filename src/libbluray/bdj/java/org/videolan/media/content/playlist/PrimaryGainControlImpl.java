@@ -52,6 +52,7 @@ public class PrimaryGainControlImpl implements PrimaryGainControl {
 
     public void addGainChangeListener(GainChangeListener listener) {
         // TODO Not implemented
+        org.videolan.Logger.unimplemented("PrimaryGainControlImpl", "addGainChangeListener");
     }
 
     public void removeGainChangeListener(GainChangeListener listener) {

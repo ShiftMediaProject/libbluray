@@ -130,6 +130,8 @@ public class DVBMediaSelectControlImpl implements DVBMediaSelectControl{
     }
 
     public void addMediaSelectListener(MediaSelectListener listener) {
+        org.videolan.Logger.unimplemented("DVBMediaSelectControlImpl", "addMediaSelectListener");
+        // callback is never triggered ?
         synchronized(listeners) {
             listeners.add(listener);
         }
