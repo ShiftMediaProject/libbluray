@@ -486,6 +486,7 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         "PTS",
         "VK_KEY",
         "MARK",
+        "PSR102",
     };
 
     JNIEnv* env;

@@ -2714,6 +2714,10 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
             _bdj_event  (bd, BDJ_EVENT_PTS,     ev->new_val);
             break;
 
+        case 102:
+            _bdj_event  (bd, BDJ_EVENT_PSR102,  ev->new_val);
+            break;
+
         default:;
     }
 }

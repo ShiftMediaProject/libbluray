@@ -35,6 +35,7 @@ typedef enum {
     BDJ_EVENT_PTS,
     BDJ_EVENT_VK_KEY,
     BDJ_EVENT_MARK,
+    BDJ_EVENT_PSR102,
 } BDJ_EVENT;
 
 /* bdj_get_uo_mask() */

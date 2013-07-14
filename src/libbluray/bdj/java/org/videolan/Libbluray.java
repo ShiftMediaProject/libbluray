@@ -340,6 +340,9 @@ public class Libbluray {
         case BDJ_EVENT_END_OF_PLAYLIST:
             BDHandler.activePlayerEndOfMedia();
             break;
+        case BDJ_EVENT_PSR102:
+            org.bluray.bdplus.Status.getInstance().receive(param);
+            break;
         case BDJ_EVENT_PTS:
             BDHandler.activePlayerUpdateTime(param);
             break;
@@ -396,7 +399,9 @@ public class Libbluray {
     private static final int BDJ_EVENT_PTS                      = 7;
     private static final int BDJ_EVENT_VK_KEY                   = 8;
     private static final int BDJ_EVENT_MARK                     = 9;
+    private static final int BDJ_EVENT_PSR102                   = 10;
 
+    /* TODO: use org/bluray/system/RegisterAccess instead */
     public static final int PSR_IG_STREAM_ID     = 0;
     public static final int PSR_PRIMARY_AUDIO_ID = 1;
     public static final int PSR_PG_STREAM        = 2;

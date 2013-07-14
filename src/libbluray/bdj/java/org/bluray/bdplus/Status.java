@@ -60,6 +60,32 @@ public class Status {
         Libbluray.writePSR(104, data);
     }
 
+    public void receive(int data) {
+        logger.trace("receive(" + data + ")");
+
+        synchronized (listeners) {
+            if (!listeners.isEmpty())
+                org.videolan.BDJActionManager.getInstance().putCallback(new PSR102Callback(data));
+        }
+    }
+
+    private class PSR102Callback extends org.videolan.BDJAction {
+        private PSR102Callback(int value) {
+            this.value = value;
+        }
+
+        protected void doAction() {
+            ArrayList list;
+            synchronized (listeners) {
+                list = (ArrayList)listeners.clone();
+            }
+            for (int i = 0; i < list.size(); i++)
+                ((StatusListener)list.get(i)).receive(value);
+        }
+
+        private int value;
+    }
+
     private static Status instance = null;
     private ArrayList listeners = new ArrayList();
 
