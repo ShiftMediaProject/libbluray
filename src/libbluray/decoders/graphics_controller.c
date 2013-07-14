@@ -28,6 +28,7 @@
 #include "util/macro.h"
 #include "util/logging.h"
 #include "util/mutex.h"
+#include "util/time.h"
 
 #include "../register.h"
 #include "../keys.h"
@@ -71,6 +72,12 @@ struct graphics_controller_s {
     unsigned        auto_action_triggered;
     BOG_DATA       *bog_data;
     BOG_DATA       *saved_bog_data;
+
+    /* page effects */
+    int                    effect_idx;
+    BD_IG_EFFECT_SEQUENCE *in_effects;
+    BD_IG_EFFECT_SEQUENCE *out_effects;
+    int64_t                next_effect_time; /* 90 kHz */
 
     /* data */
     PG_DISPLAY_SET *pgs;
@@ -345,6 +352,9 @@ static int _save_page_state(GRAPHICS_CONTROLLER *gc)
 
 static int _restore_page_state(GRAPHICS_CONTROLLER *gc)
 {
+    gc->in_effects  = NULL;
+    gc->out_effects = NULL;
+
     if (gc->saved_bog_data) {
         if (gc->bog_data) {
             GC_ERROR("_restore_page_state(): bog data already exists !\n");
@@ -382,6 +392,11 @@ static void _reset_page_state(GRAPHICS_CONTROLLER *gc)
         gc->bog_data[ii].animate_indx   = 0;
         gc->bog_data[ii].visible_object_id = -1;
     }
+
+    /* effects */
+    gc->effect_idx  = 0;
+    gc->in_effects  = NULL;
+    gc->out_effects = NULL;
 }
 
 /*
@@ -594,18 +609,37 @@ static void _select_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id)
     gc->auto_action_triggered = 0;
 }
 
-static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id)
+static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id, int out_effects)
 {
+    unsigned cur_page_id = bd_psr_read(gc->regs, PSR_MENU_PAGE_ID);
+    BD_IG_PAGE *page = NULL;
+
     bd_psr_write(gc->regs, PSR_MENU_PAGE_ID, page_id);
-    if (gc->ig_open) {
-        _clear_osd(gc, BD_OVERLAY_IG);
-    }
+
     _reset_page_state(gc);
 
     uint16_t button_id = _find_selected_button_id(gc);
     _select_button(gc, button_id);
 
     gc->valid_mouse_position = 0;
+
+    if (out_effects) {
+        page = _find_page(&gc->igs->ics->interactive_composition, cur_page_id);
+        if (page && page->out_effects.num_effects) {
+            gc->next_effect_time = bd_get_scr();
+            gc->out_effects = &page->out_effects;
+        }
+    }
+
+    page = _find_page(&gc->igs->ics->interactive_composition, page_id);
+    if (page && page->in_effects.num_effects) {
+        gc->next_effect_time = bd_get_scr();
+        gc->in_effects = &page->in_effects;
+    }
+
+    if (gc->ig_open && !gc->out_effects) {
+        _clear_osd(gc, BD_OVERLAY_IG);
+    }
 }
 
 static void _gc_reset(GRAPHICS_CONTROLLER *gc)
@@ -1149,6 +1183,55 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
     gc->ig_dirty = 1;
 }
 
+static int _render_ig_composition_object(GRAPHICS_CONTROLLER *gc,
+                                         int64_t pts,
+                                         BD_PG_COMPOSITION_OBJECT *cobj,
+                                         BD_PG_PALETTE *palette)
+{
+    BD_PG_OBJECT   *object  = NULL;
+
+    /* lookup object */
+    object  = _find_object(gc->igs, cobj->object_id_ref);
+    if (!object) {
+        GC_ERROR("_render_ig_composition_object: object #%d not found\n", cobj->object_id_ref);
+        return -1;
+    }
+
+    /* render object using composition parameters */
+    _render_composition_object(gc, pts, BD_OVERLAY_IG, cobj, object, palette, 0);
+
+    return 0;
+}
+
+static int _render_effect(GRAPHICS_CONTROLLER *gc, BD_IG_EFFECT *effect)
+{
+    BD_PG_PALETTE *palette = NULL;
+    unsigned ii;
+    int64_t pts = -1;
+
+    if (!gc->ig_open) {
+        _open_osd(gc, BD_OVERLAY_IG, 0, 0,
+                  gc->igs->ics->video_descriptor.video_width,
+                  gc->igs->ics->video_descriptor.video_height);
+    }
+
+    _clear_osd(gc, BD_OVERLAY_IG);
+
+    palette = _find_palette(gc->igs, effect->palette_id_ref);
+    if (!palette) {
+        GC_ERROR("_render_effect: palette #%d not found\n", effect->palette_id_ref);
+        return -1;
+    }
+
+    for (ii = 0; ii < effect->num_composition_objects; ii++) {
+        _render_ig_composition_object(gc, pts, &effect->composition_object[ii], palette);
+    }
+
+    _flush_osd(gc, BD_OVERLAY_IG, pts);
+
+    return 0;
+}
+
 static int _render_page(GRAPHICS_CONTROLLER *gc,
                          unsigned activated_button_id,
                          GC_NAV_CMDS *cmds)
@@ -1171,16 +1254,27 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
         return 0;
     }
 
+    /* running page effects ? */
+    if (gc->out_effects) {
+        if (gc->effect_idx < gc->out_effects->num_effects) {
+            _render_effect(gc, &gc->out_effects->effect[gc->effect_idx]);
+            return 1;
+        }
+        gc->out_effects = NULL;
+    }
+    if (gc->in_effects) {
+        if (gc->effect_idx < gc->in_effects->num_effects) {
+            _render_effect(gc, &gc->in_effects->effect[gc->effect_idx]);
+            return 1;
+        }
+        gc->in_effects = NULL;
+    }
+
     page = _find_page(&s->ics->interactive_composition, page_id);
     if (!page) {
         GC_ERROR("_render_page: unknown page id %d (have %d pages)\n",
               page_id, s->ics->interactive_composition.num_pages);
         return -1;
-    }
-
-    /* TODO: */
-    if (page->in_effects.num_effects || page->out_effects.num_effects) {
-        GC_ERROR("_render_page(): in/out effects not implemented\n");
     }
 
     palette = _find_palette(s, page->palette_id_ref);
@@ -1402,7 +1496,7 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param)
 
         /* page changes */
 
-        _select_page(gc, page_id);
+        _select_page(gc, page_id, 1);
 
     } else {
         /* page does not change */
@@ -1573,6 +1667,46 @@ static int _mouse_move(GRAPHICS_CONTROLLER *gc, uint16_t x, uint16_t y, GC_NAV_C
     return gc->valid_mouse_position;
 }
 
+static int _animate(GRAPHICS_CONTROLLER *gc, GC_NAV_CMDS *cmds)
+{
+    int result = -1;
+
+    if (gc->ig_open) {
+
+        result = 0;
+
+        if (gc->out_effects) {
+            int64_t pts = bd_get_scr();
+            int64_t duration = (int64_t)gc->out_effects->effect[gc->effect_idx].duration;
+            if (pts >= (gc->next_effect_time + duration)) {
+                gc->next_effect_time += duration;
+                gc->effect_idx++;
+                if (gc->effect_idx >= gc->out_effects->num_effects) {
+                    gc->out_effects = NULL;
+                    gc->effect_idx = 0;
+                    _clear_osd(gc, BD_OVERLAY_IG);
+                }
+                result = _render_page(gc, 0xffff, cmds);
+            }
+        } else if (gc->in_effects) {
+            int64_t pts = bd_get_scr();
+            int64_t duration = (int64_t)gc->in_effects->effect[gc->effect_idx].duration;
+            if (pts >= (gc->next_effect_time + duration)) {
+                gc->next_effect_time += duration;
+                gc->effect_idx++;
+                if (gc->effect_idx >= gc->in_effects->num_effects) {
+                    gc->in_effects = NULL;
+                    gc->effect_idx = 0;
+                    _clear_osd(gc, BD_OVERLAY_IG);
+                }
+                result = _render_page(gc, 0xffff, cmds);
+            }
+        }
+    }
+
+    return result;
+}
+
 int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS *cmds)
 {
     int result = -1;
@@ -1660,17 +1794,18 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
             gc->popup_visible = !!param;
 
             if (gc->popup_visible) {
-                _select_page(gc, 0);
+                _select_page(gc, 0, 0);
             }
 
-            /* fall thru */
-
-        case GC_CTRL_NOP:
             result = _render_page(gc, 0xffff, cmds);
             break;
 
+        case GC_CTRL_NOP:
+            result = _animate(gc, cmds);
+            break;
+
         case GC_CTRL_INIT_MENU:
-            _select_page(gc, 0);
+            _select_page(gc, 0, 0);
             _render_page(gc, 0xffff, cmds);
             break;
 
@@ -1706,6 +1841,9 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         }
         if (gc->ig_drawn) {
             cmds->status |= GC_STATUS_MENU_OPEN;
+        }
+        if (gc->in_effects || gc->out_effects) {
+            cmds->status |= GC_STATUS_ANIMATE;
         }
     }
 

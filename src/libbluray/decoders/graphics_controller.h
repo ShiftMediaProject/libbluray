@@ -70,6 +70,7 @@ typedef enum {
 #define GC_STATUS_NONE      0
 #define GC_STATUS_POPUP     1  /* popup menu loaded */
 #define GC_STATUS_MENU_OPEN 2  /* menu open */
+#define GC_STATUS_ANIMATE   4  /* animation or effect running */
 
 typedef struct {
     /* HDMV navigation command sequence */

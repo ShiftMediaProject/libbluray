@@ -2,6 +2,8 @@
 - Fixed logging with non-default mask
 - Added missing Java files to distribution package
 - Added support for multi-clip sub paths
+- Added bd_select_stream()
+- Added menu page effects
 - Improved BD-J support (still alpha)
 - Improved language-based stream autoselection
 - Added initial support for BluRay Text Subtitles

@@ -3147,7 +3147,7 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
     }
 
     /* run HDMV VM ? */
-    if (!bd->hdmv_suspended && bd->title_type == title_hdmv) {
+    if (bd->title_type == title_hdmv) {
 
         while (!bd->hdmv_suspended) {
 
@@ -3159,6 +3159,10 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
             if (_get_event(bd, event)) {
                 return 0;
             }
+        }
+
+        if (bd->gc_status & GC_STATUS_ANIMATE) {
+            _run_gc(bd, GC_CTRL_NOP, 0);
         }
     }
 
