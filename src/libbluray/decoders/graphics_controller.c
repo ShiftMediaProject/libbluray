@@ -570,6 +570,11 @@ static void _render_composition_object(GRAPHICS_CONTROLLER *gc,
             ov.crop_w  = cobj->crop_w;
             ov.crop_h  = cobj->crop_h;
         }
+        if (ov.crop_h) {
+          ov.h = ov.crop_h;
+          ov.crop_h = 0;
+        }
+
         ov.palette_update_flag = palette_update_flag;
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
