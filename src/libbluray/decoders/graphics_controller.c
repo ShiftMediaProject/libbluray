@@ -1559,7 +1559,7 @@ static void _set_button_page(GRAPHICS_CONTROLLER *gc, uint32_t param)
 
         /* page changes */
 
-        _select_page(gc, page_id, 1);
+        _select_page(gc, page_id, !effect_flag);
 
     } else {
         /* page does not change */
