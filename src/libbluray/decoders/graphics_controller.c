@@ -48,6 +48,7 @@ typedef struct {
     uint16_t x, y, w, h;      /* button rect on overlay plane (if drawn) */
     int      visible_object_id; /* id of currently visible object */
     int      animate_indx;    /* currently showing object index of animated button, < 0 for static buttons */
+    int      effect_running;  /* single-loop animation not yet complete */
 } BOG_DATA;
 
 struct graphics_controller_s {
@@ -78,6 +79,11 @@ struct graphics_controller_s {
     BD_IG_EFFECT_SEQUENCE *in_effects;
     BD_IG_EFFECT_SEQUENCE *out_effects;
     int64_t                next_effect_time; /* 90 kHz */
+
+    /* animated buttons */
+    unsigned               frame_interval;
+    unsigned               button_effect_running;
+    unsigned               button_animation_running;
 
     /* data */
     PG_DISPLAY_SET *pgs;
@@ -198,6 +204,7 @@ static BD_PG_OBJECT *_find_object_for_button(PG_DISPLAY_SET *s,
     }
 
     if (bog_data) {
+        bog_data->effect_running = 0;
         if (bog_data->animate_indx >= 0) {
             int range = object_id_end - object_id;
 
@@ -207,20 +214,23 @@ static BD_PG_OBJECT *_find_object_for_button(PG_DISPLAY_SET *s,
 
                 object_id += bog_data->animate_indx % (range + 1);
                 bog_data->animate_indx++;
-                if (!repeat && bog_data->animate_indx > range) {
-                /* terminate animation to the last object */
-                    bog_data->animate_indx = -1;
+                if (!repeat) {
+                    if (bog_data->animate_indx > range) {
+                        /* terminate animation to the last object */
+                        bog_data->animate_indx = -1;
+                    } else {
+                        bog_data->effect_running = 1;
+                    }
                 }
-
             } else {
                 /* no animation for this button */
                 bog_data->animate_indx = -1;
             }
+        } else {
+            if (object_id_end < 0xfffe) {
+                object_id = object_id_end;
+            }
         }
-    }
-
-    if (!repeat && object_id_end < 0xfffe) {
-        object_id = object_id_end;
     }
 
     object = _find_object(s, object_id);
@@ -392,6 +402,18 @@ static void _reset_page_state(GRAPHICS_CONTROLLER *gc)
         gc->bog_data[ii].animate_indx   = 0;
         gc->bog_data[ii].visible_object_id = -1;
     }
+
+    /* animation frame rate */
+    static const unsigned frame_interval[8] = {
+        0,
+        90000 / 1001 * 24,
+        90000 / 1000 * 24,
+        90000 / 1000 * 25,
+        90000 / 1001 * 30,
+        90000 / 1000 * 50,
+        90000 / 1001 * 60,
+    };
+    gc->frame_interval = frame_interval[s->ics->video_descriptor.frame_rate] * (page->animation_frame_rate_code + 1);
 
     /* effects */
     gc->effect_idx  = 0;
@@ -610,6 +632,18 @@ static void _render_rle(GRAPHICS_CONTROLLER *gc,
 
 static void _select_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id)
 {
+    BD_IG_PAGE     *page       = NULL;
+    unsigned        page_id    = bd_psr_read(gc->regs, PSR_MENU_PAGE_ID);
+    unsigned        bog_idx    = 0;
+
+    /* reset animation */
+    page = _find_page(&gc->igs->ics->interactive_composition, page_id);
+    if (page && _find_button_page(page, button_id, &bog_idx)) {
+        gc->bog_data[bog_idx].animate_indx = 0;
+        gc->next_effect_time = bd_get_scr();
+    }
+
+    /* select page */
     bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, button_id);
     gc->auto_action_triggered = 0;
 }
@@ -1247,6 +1281,10 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
     unsigned        page_id = bd_psr_read(gc->regs, PSR_MENU_PAGE_ID);
     unsigned        ii;
     unsigned        selected_button_id = bd_psr_read(gc->regs, PSR_SELECTED_BUTTON_ID);
+    BD_IG_BUTTON   *auto_activate_button = NULL;
+
+    gc->button_effect_running = 0;
+    gc->button_animation_running = 0;
 
     if (s->ics->interactive_composition.ui_model == IG_UI_MODEL_POPUP && !gc->popup_visible) {
 
@@ -1321,12 +1359,9 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
 
             if (button->auto_action_flag && !gc->auto_action_triggered) {
                 if (cmds) {
-                    GC_TRACE("   auto-activate #%d\n", button->id);
-
-                    cmds->num_nav_cmds = button->num_nav_cmds;
-                    cmds->nav_cmds     = button->nav_cmds;
-
-                    gc->auto_action_triggered = 1;
+                    if (!auto_activate_button) {
+                        auto_activate_button = button;
+                    }
                 } else {
                     GC_ERROR("   auto-activate #%d not triggered (!cmds)\n", button->id);
                 }
@@ -1340,6 +1375,24 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
         } else {
             _render_button(gc, button, palette, BTN_NORMAL, &gc->bog_data[ii]);
 
+        }
+
+        gc->button_effect_running    += gc->bog_data[ii].effect_running;
+        gc->button_animation_running += (gc->bog_data[ii].animate_indx >= 0);
+    }
+
+    /* process auto-activate */
+    if (auto_activate_button) {
+        GC_TRACE("   auto-activate #%d\n", auto_activate_button->id);
+
+        /* do not trigger auto action before single-loop animations have been terminated */
+        if (gc->button_effect_running) {
+            GC_TRACE("   auto-activate #%d not triggered (ANIMATING)\n", auto_activate_button->id);
+        } else {
+            cmds->num_nav_cmds = auto_activate_button->num_nav_cmds;
+            cmds->nav_cmds     = auto_activate_button->nav_cmds;
+
+            gc->auto_action_triggered = 1;
         }
     }
 
@@ -1376,6 +1429,11 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, uint32_t key, GC_NAV_CMDS *cmds)
     }
     if (!gc->ig_drawn) {
         GC_ERROR("_user_input(): menu not visible\n");
+        return -1;
+    }
+
+    if (gc->button_effect_running) {
+        GC_ERROR("_user_input(): button_effect_running\n");
         return -1;
     }
 
@@ -1571,6 +1629,7 @@ static void _enable_button(GRAPHICS_CONTROLLER *gc, uint32_t button_id, unsigned
             bd_psr_write(gc->regs, PSR_SELECTED_BUTTON_ID, 0x10000|button_id);
         }
         gc->bog_data[bog_idx].enabled_button = button_id;
+        gc->bog_data[bog_idx].animate_indx = 0;
 
     } else {
         if (gc->bog_data[bog_idx].enabled_button == button_id) {
@@ -1617,6 +1676,11 @@ static int _mouse_move(GRAPHICS_CONTROLLER *gc, uint16_t x, uint16_t y, GC_NAV_C
 
     if (!gc->ig_drawn) {
         GC_TRACE("_mouse_move(): menu not visible\n");
+        return -1;
+    }
+
+    if (gc->button_effect_running) {
+        GC_ERROR("_mouse_move(): button_effect_running\n");
         return -1;
     }
 
@@ -1704,6 +1768,13 @@ static int _animate(GRAPHICS_CONTROLLER *gc, GC_NAV_CMDS *cmds)
                     gc->effect_idx = 0;
                     _clear_osd(gc, BD_OVERLAY_IG);
                 }
+                result = _render_page(gc, 0xffff, cmds);
+            }
+
+        } else {
+            int64_t pts = bd_get_scr();
+            if (pts >= (gc->next_effect_time + gc->frame_interval)) {
+                gc->next_effect_time += gc->frame_interval;
                 result = _render_page(gc, 0xffff, cmds);
             }
         }
@@ -1847,7 +1918,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         if (gc->ig_drawn) {
             cmds->status |= GC_STATUS_MENU_OPEN;
         }
-        if (gc->in_effects || gc->out_effects) {
+        if (gc->in_effects || gc->out_effects || gc->button_animation_running) {
             cmds->status |= GC_STATUS_ANIMATE;
         }
     }
