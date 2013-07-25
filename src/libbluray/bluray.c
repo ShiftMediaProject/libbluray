@@ -99,6 +99,9 @@ typedef struct {
 
     BD_UO_MASK     uo_mask;
 
+    /* internally handled pids */
+    uint16_t        ig_pid; /* pid of currently selected IG stream */
+    uint16_t        pg_pid; /* pid of currently selected PG stream */
 } BD_STREAM;
 
 typedef struct {
@@ -127,8 +130,6 @@ struct bluray {
     BD_STREAM      st0; /* main path */
     BD_PRELOAD     st_ig; /* preloaded IG stream sub path */
     BD_PRELOAD     st_textst; /* preloaded TextST sub path */
-    int            ig_pid; /* pid of currently selected IG stream in main path */
-    int            pg_pid; /* pid of currently selected PG stream in main path */
 
     /* buffer for bd_read(): current aligned unit of main stream (st0) */
     uint8_t        int_buf[6144];
@@ -445,7 +446,7 @@ static int _init_pg_stream(BLURAY *bd)
     unsigned pg_subclip = 0;
     uint16_t pg_pid     = 0;
 
-    bd->pg_pid = 0;
+    bd->st0.pg_pid = 0;
 
     if (!bd->graphics_controller) {
         return 0;
@@ -462,7 +463,7 @@ static int _init_pg_stream(BLURAY *bd)
 
     /* store PID of main path embedded PG stream */
     if (pg_subpath < 0) {
-        bd->pg_pid = pg_pid;
+        bd->st0.pg_pid = pg_pid;
         return !!pg_pid;
     }
 
@@ -1886,14 +1887,14 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                 int r = _read_block(bd, st, bd->int_buf);
                 if (r > 0) {
 
-                    if (bd->ig_pid > 0) {
-                        if (gc_decode_ts(bd->graphics_controller, bd->ig_pid, bd->int_buf, 1, -1) > 0) {
+                    if (st->ig_pid > 0) {
+                        if (gc_decode_ts(bd->graphics_controller, st->ig_pid, bd->int_buf, 1, -1) > 0) {
                             /* initialize menus */
                             _run_gc(bd, GC_CTRL_INIT_MENU, 0);
                         }
                     }
-                    if (bd->pg_pid > 0) {
-                        if (gc_decode_ts(bd->graphics_controller, bd->pg_pid, bd->int_buf, 1, -1) > 0) {
+                    if (st->pg_pid > 0) {
+                        if (gc_decode_ts(bd->graphics_controller, st->pg_pid, bd->int_buf, 1, -1) > 0) {
                             /* render subtitles */
                             gc_run(bd->graphics_controller, GC_CTRL_PG_UPDATE, 0, NULL);
                         }
@@ -2125,7 +2126,7 @@ static int _init_ig_stream(BLURAY *bd)
     unsigned ig_subclip = 0;
     uint16_t ig_pid     = 0;
 
-    bd->ig_pid = 0;
+    bd->st0.ig_pid = 0;
 
     if (!bd->graphics_controller) {
         return 0;
@@ -2141,7 +2142,7 @@ static int _init_ig_stream(BLURAY *bd)
 
     /* store PID of main path embedded IG stream */
     if (ig_subpath < 0) {
-        bd->ig_pid = ig_pid;
+        bd->st0.ig_pid = ig_pid;
         return 1;
     }
 
