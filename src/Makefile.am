@@ -71,6 +71,10 @@ libbluray_la_SOURCES = \
 	file/dl.h \
 	file/filesystem.h \
 	file/filesystem.c \
+	file/libaacs.h \
+	file/libaacs.c \
+	file/libbdplus.h \
+	file/libbdplus.c \
 	util/attributes.h \
 	util/refcnt.h \
 	util/refcnt.c \

@@ -23,6 +23,36 @@
 
 #include <util/attributes.h>
 
+#include <stdint.h>
+
+/*
+ * function pointer types
+ */
+
+#ifdef __cplusplus
+typedef int     (*fptr_int)(...);
+typedef int32_t (*fptr_int32)(...);
+typedef void*   (*fptr_p_void)(...);
+#else
+typedef int     (*fptr_int)();
+typedef int32_t (*fptr_int32)();
+typedef void*   (*fptr_p_void)();
+#endif
+
+/*
+ * Macro to call function without return value
+ */
+
+#define DL_CALL(lib,func,...)                       \
+     do {                                           \
+          fptr_p_void fptr;                         \
+          *(void **)(&fptr) = dl_dlsym(lib, #func); \
+          if (fptr) {                               \
+              fptr(__VA_ARGS__);                    \
+          }                                         \
+      } while (0)
+
+
 // We don't bother aliasing dlopen to dlopen_posix, since only one
 // of the .C files will be compiled and linked, the right one for the
 // platform.
