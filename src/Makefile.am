@@ -42,6 +42,8 @@ libbluray_la_SOURCES = \
 	libbluray/decoders/pes_buffer.c \
 	libbluray/decoders/m2ts_demux.h \
 	libbluray/decoders/m2ts_demux.c \
+	libbluray/decoders/m2ts_filter.h \
+	libbluray/decoders/m2ts_filter.c \
 	libbluray/decoders/overlay.h \
 	libbluray/decoders/pg.h \
 	libbluray/decoders/pg_decode.h \

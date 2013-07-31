@@ -38,6 +38,7 @@
 #include "bdnav/sound_parse.h"
 #include "hdmv/hdmv_vm.h"
 #include "decoders/graphics_controller.h"
+#include "decoders/m2ts_filter.h"
 #include "decoders/overlay.h"
 #include "file/file.h"
 #ifdef USING_BDJAVA
@@ -95,6 +96,8 @@ typedef struct {
     /* internally handled pids */
     uint16_t        ig_pid; /* pid of currently selected IG stream */
     uint16_t        pg_pid; /* pid of currently selected PG stream */
+
+    M2TS_FILTER    *m2ts_filter;
 
     /* BD+ */
     BD_BDPLUS_ST   *bdplus;
@@ -504,6 +507,8 @@ static void _close_m2ts(BD_STREAM *st)
         st->fp = NULL;
     }
 
+    m2ts_filter_close(&st->m2ts_filter);
+
     libbdplus_m2ts_close(&st->bdplus);
 
     /* reset UO mask */
@@ -534,8 +539,14 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
 
             if (st == &bd->st0) {
                 MPLS_PL *pl = st->clip->title->pl;
+                MPLS_STN *stn = &pl->play_item[st->clip->ref].stn;
+
                 st->uo_mask = bd_uo_mask_combine(pl->app_info.uo_mask,
                                                  pl->play_item[st->clip->ref].uo_mask);
+
+                st->m2ts_filter = m2ts_filter_init((int64_t)st->clip->in_time << 1,
+                                                   (int64_t)st->clip->out_time << 1,
+                                                   stn->num_video, stn->num_audio);
 
                 _update_clip_psrs(bd, st->clip);
 
@@ -588,6 +599,14 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
                                  "TP header copy permission indicator != 0, unit is still encrypted?\n");
                         _queue_event(bd, BD_EVENT_ENCRYPTED, 0);
                         return -1;
+                    }
+                }
+
+                if (st->m2ts_filter) {
+                    int result = m2ts_filter(st->m2ts_filter, buf);
+                    if (result < 0) {
+                        m2ts_filter_close(&st->m2ts_filter);
+                        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "m2ts filter error\n");
                     }
                 }
 
@@ -702,6 +721,10 @@ static int64_t _seek_stream(BLURAY *bd, BD_STREAM *st,
         if (!_open_m2ts(bd, st)) {
             return -1;
         }
+    }
+
+    if (st->m2ts_filter) {
+        m2ts_filter_seek(st->m2ts_filter, 0, (int64_t)st->clip->in_time << 1);
     }
 
     st->clip_pos = (uint64_t)clip_pkt * 192;
