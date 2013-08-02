@@ -1919,7 +1919,12 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
             cmds->status |= GC_STATUS_MENU_OPEN;
         }
         if (gc->in_effects || gc->out_effects || gc->button_animation_running) {
-            cmds->status |= GC_STATUS_ANIMATE;
+            /* do not trigger if unopened pop-up menu has animations */
+            if (gc->ig_open) {
+                cmds->status |= GC_STATUS_ANIMATE;
+                /* user input is still not handled, but user "sees" the menu. */
+                cmds->status |= GC_STATUS_MENU_OPEN;
+            }
         }
     }
 
