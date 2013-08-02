@@ -74,7 +74,7 @@ public class BDRootWindow extends Frame {
             changeCount++;
             if (timerTask == null) {
                 timerTask = new RefreshTimerTask(this);
-                timer.schedule(timerTask, 50, 50);
+                timer.schedule(timerTask, 40, 40);
             }
         }
     }
