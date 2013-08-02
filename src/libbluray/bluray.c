@@ -3111,6 +3111,11 @@ struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref)
     return NULL;
 }
 
+struct clpi_cl *bd_read_clpi(const char *path)
+{
+    return clpi_parse(path);
+}
+
 void bd_free_clpi(struct clpi_cl *cl)
 {
     clpi_free(cl);

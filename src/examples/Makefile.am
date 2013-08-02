@@ -33,12 +33,8 @@ mpls_dump_SOURCES = \
 	../libbluray/bdnav/navigation.c
 
 clpi_dump_SOURCES = \
-	clpi_dump.c util.c util.h \
-	../util/bits.c \
-	../util/logging.c \
-	../file/file_posix.c \
-	../libbluray/bdnav/extdata_parse.c \
-	../libbluray/bdnav/clpi_parse.c
+	clpi_dump.c util.c util.h
+clpi_dump_LDADD = $(BLURAY_LIB)
 
 sound_dump_SOURCES = \
 	sound_dump.c \

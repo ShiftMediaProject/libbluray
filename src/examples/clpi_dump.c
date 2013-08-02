@@ -25,7 +25,8 @@
 #include <unistd.h>
 #include <inttypes.h>
 
-#include "libbluray/bdnav/clpi_parse.h"
+#include "libbluray/bdnav/clpi_data.h"
+#include "libbluray/bluray.h"
 
 #include "util.h"
 
@@ -438,9 +439,9 @@ main(int argc, char *argv[])
     }
 
     for (ii = optind; ii < argc; ii++) {
-        cl = clpi_parse(argv[ii]);
+        cl = bd_read_clpi(argv[ii]);
         if (cl == NULL) {
-            fprintf(stderr, "Parse failed\n");
+            fprintf(stderr, "Parsing %s failed\n", argv[ii]);
             continue;
         }
         if (opt_clip_info) {
@@ -481,7 +482,7 @@ main(int argc, char *argv[])
             }
         }
 
-        clpi_free(cl);
+        bd_free_clpi(cl);
     }
     return 0;
 }

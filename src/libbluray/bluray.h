@@ -813,6 +813,7 @@ struct clpi_cl;
  * @return pointer to allocated CLPI_CL object on success, NULL on error
  */
 struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref);
+struct clpi_cl *bd_read_clpi(const char *clpi_file);
 
 /**
  *
