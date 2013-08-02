@@ -331,7 +331,7 @@ static uint16_t _find_selected_button_id(GRAPHICS_CONTROLLER *gc)
 static int _save_page_state(GRAPHICS_CONTROLLER *gc)
 {
     if (!gc->bog_data) {
-        GC_ERROR("_save_page_state(): no bog data !\n");
+        GC_TRACE("_save_page_state(): no bog data !\n");
         return -1;
     }
 
