@@ -149,7 +149,7 @@ int libaacs_open(BD_AACS *p, const char *device_path, const char *keyfile_path)
             p->mkbv = aacs_get_mkb_version(p->aacs);
         }
         if (aacs_get_disc_id) {
-            p->disc_id = aacs_get_disc_id(p->aacs);
+            p->disc_id = (const uint8_t *)aacs_get_disc_id(p->aacs);
         }
         return error_code;
     }
