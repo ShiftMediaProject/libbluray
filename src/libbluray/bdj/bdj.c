@@ -38,13 +38,9 @@
 #include "libbluray/bdj/native/register_native.h"
 
 #include <jni.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-// stat
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
 
@@ -125,7 +121,7 @@ static const char *_find_libbluray_jar(void)
 
     static const char *classpath = NULL;
 
-    struct stat sb;
+    FILE *fp;
     unsigned i;
 
     // check if overriding the classpath
@@ -143,7 +139,9 @@ static const char *_find_libbluray_jar(void)
     if (lib_path) {
         char *cp = str_printf("%s" BDJ_JARFILE, lib_path);
         BD_DEBUG(DBG_BDJ, "Checking %s ...\n", cp);
-        if (!stat(cp, &sb)) {
+        fp = fopen(cp, "rb")
+        if (fp) {
+            fclose(fp);
             classpath = cp;
             BD_DEBUG(DBG_BDJ, "using %s\n", cp);
             return cp;
@@ -154,7 +152,9 @@ static const char *_find_libbluray_jar(void)
     // check pre-defined directories
     for (i = 0; i < sizeof(jar_paths) / sizeof(jar_paths[0]); i++) {
         BD_DEBUG(DBG_BDJ, "Checking %s ...\n", jar_paths[i]);
-        if (!stat(jar_paths[i], &sb)) {
+        fp = fopen(cp, "rb")
+        if (fp) {
+            fclose(fp);
             classpath = jar_paths[i];
             BD_DEBUG(DBG_BDJ, "using %s\n", classpath);
             return classpath;
