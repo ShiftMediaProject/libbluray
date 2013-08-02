@@ -139,7 +139,7 @@ static const char *_find_libbluray_jar(void)
     if (lib_path) {
         char *cp = str_printf("%s" BDJ_JARFILE, lib_path);
         BD_DEBUG(DBG_BDJ, "Checking %s ...\n", cp);
-        fp = fopen(cp, "rb")
+        fp = fopen(cp, "rb");
         if (fp) {
             fclose(fp);
             classpath = cp;
@@ -152,7 +152,7 @@ static const char *_find_libbluray_jar(void)
     // check pre-defined directories
     for (i = 0; i < sizeof(jar_paths) / sizeof(jar_paths[0]); i++) {
         BD_DEBUG(DBG_BDJ, "Checking %s ...\n", jar_paths[i]);
-        fp = fopen(cp, "rb")
+        fp = fopen(jar_paths[i], "rb");
         if (fp) {
             fclose(fp);
             classpath = jar_paths[i];
