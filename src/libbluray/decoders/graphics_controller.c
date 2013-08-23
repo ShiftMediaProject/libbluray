@@ -1195,9 +1195,11 @@ static void _render_button(GRAPHICS_CONTROLLER *gc, BD_IG_BUTTON *button, BD_PG_
         return;
     }
 
-    /* new object is smaller than already drawn one ? -> need to render background */
+    /* new object is smaller than already drawn one, or in different position ? -> need to render background */
     if (bog_data->w > object->width ||
-        bog_data->h > object->height) {
+        bog_data->h > object->height ||
+        bog_data->x != button->x_pos ||
+        bog_data->y != button->y_pos) {
 
         /* make sure we won't wipe other buttons */
         unsigned ii, skip = 0;
