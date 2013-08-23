@@ -393,10 +393,14 @@ static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigne
     MPLS_PI  *pi        = &bd->title->pl->play_item[0];
     unsigned  pg_stream = bd_psr_read(bd->regs, PSR_PG_STREAM);
 
+#if 0
+    /* Enable decoder unconditionally (required for forced subtitles).
+       Display flag is checked in graphics controller. */
     /* check PG display flag from PSR */
     if (!(pg_stream & 0x80000000)) {
       return 0;
     }
+#endif
 
     pg_stream &= 0xfff;
 

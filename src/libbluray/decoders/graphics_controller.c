@@ -1071,7 +1071,8 @@ static int _render_pg_composition_object(GRAPHICS_CONTROLLER *gc,
                                          BD_PG_COMPOSITION_OBJECT *cobj,
                                          BD_PG_PALETTE *palette)
 {
-    BD_PG_OBJECT   *object  = NULL;
+    BD_PG_COMPOSITION *pcs     = gc->pgs->pcs;
+    BD_PG_OBJECT      *object  = NULL;
 
     /* lookup object */
     object  = _find_object(gc->pgs, cobj->object_id_ref);
@@ -1080,8 +1081,13 @@ static int _render_pg_composition_object(GRAPHICS_CONTROLLER *gc,
         return -1;
     }
 
+    /* open PG overlay */
+    if (!gc->pg_open) {
+        _open_osd(gc, BD_OVERLAY_PG, 0, 0, pcs->video_descriptor.video_width, pcs->video_descriptor.video_height);
+    }
+
     /* render object using composition parameters */
-    _render_composition_object(gc, pts, BD_OVERLAY_PG, cobj, object, palette, gc->pgs->pcs->palette_update_flag);
+    _render_composition_object(gc, pts, BD_OVERLAY_PG, cobj, object, palette, pcs->palette_update_flag);
 
     return 0;
 }
@@ -1091,7 +1097,8 @@ static int _render_pg(GRAPHICS_CONTROLLER *gc)
     PG_DISPLAY_SET    *s       = gc->pgs;
     BD_PG_COMPOSITION *pcs     = NULL;
     BD_PG_PALETTE     *palette = NULL;
-    unsigned          ii;
+    unsigned           display_flag;
+    unsigned           ii;
 
     if (!s || !s->pcs || !s->complete) {
         GC_ERROR("_render_pg(): no composition\n");
@@ -1105,23 +1112,26 @@ static int _render_pg(GRAPHICS_CONTROLLER *gc)
     /* lookup palette */
     palette = _find_palette(gc->pgs, pcs->palette_id_ref);
     if (!palette) {
-        GC_ERROR("_render_composition_object: unknown palette id %d (have %d palettes)\n",
+        GC_ERROR("_render_pg(): unknown palette id %d (have %d palettes)\n",
                  pcs->palette_id_ref, s->num_palette);
         return -1;
     }
 
-    /* open PG overlay */
-    if (!gc->pg_open) {
-        if (pcs->num_composition_objects < 1) {
-            return 0;
-        }
-        _open_osd(gc, BD_OVERLAY_PG, 0, 0, pcs->video_descriptor.video_width, pcs->video_descriptor.video_height);
-    }
+    display_flag = bd_psr_read(gc->regs, PSR_PG_STREAM) >> 31;
 
     /* render objects */
     for (ii = 0; ii < pcs->num_composition_objects; ii++) {
         BD_PG_COMPOSITION_OBJECT *cobj = &pcs->composition_object[ii];
-        _render_pg_composition_object(gc, pcs->pts, cobj, palette);
+        if (cobj->forced_on_flag) {
+            GC_ERROR("_render_pg(): forced_on_flag not implemented\n");
+        }
+        if (cobj->forced_on_flag || display_flag) {
+            _render_pg_composition_object(gc, pcs->pts, cobj, palette);
+        }
+    }
+
+    if (!gc->pg_open) {
+        return 0;
     }
 
     /* commit changes at given pts */
