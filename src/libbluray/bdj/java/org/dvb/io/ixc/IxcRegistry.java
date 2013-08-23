@@ -108,4 +108,8 @@ public class IxcRegistry {
     public static String[] list(XletContext xc) {
         return getIxcRegistry().list();
     }
+
+    public static void unbindAll(XletContext xc) {
+        getIxcRegistry().unbindAll(xc);
+    }
 }

@@ -195,6 +195,8 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     protected void release() {
         stopIxcThreads();
 
+        org.dvb.io.ixc.IxcRegistry.unbindAll(this);
+
         if (sceneFactory != null) {
             sceneFactory.dispose();
             sceneFactory = null;

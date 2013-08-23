@@ -395,4 +395,20 @@ public class IxcRegistryImpl {
 
         return result;
     }
+
+    public void unbindAll(XletContext xc) {
+
+        Debug("IxcRegistry.removeBinding(" + xc + ")");
+        String prefix = "/" + (String)xc.getXletProperty("dvb.org.id") + "/" + (String)xc.getXletProperty("dvb.app.id") + "/";
+
+        synchronized (remoteObjects) {
+            Iterator it = remoteObjects.keySet().iterator();
+            while (it.hasNext()) {
+                Object o = it.next();
+                String path = (String)o;
+                if (path.startsWith(prefix))
+                    it.remove();
+            }
+        }
+    }
 }
