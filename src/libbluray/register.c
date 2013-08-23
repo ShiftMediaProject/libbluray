@@ -56,7 +56,7 @@ static const uint32_t bd_psr_init[BD_PSR_COUNT] = {
     0xffffff,    /* PS: PSR17: Language code for PG and Text subtitles */
     0xffffff,    /* PS: PSR18: Menu description language code */
     0xffff,      /* PS: PSR19: Country code */
-    0x07,        /* PS: PSR20: Region code */ /* 1 - A, 2 - B, 4 - C */
+    0x02,        /* PS: PSR20: Region code */ /* 1 - A, 2 - B, 4 - C */
     0,           /* PS: PSR21: Output mode preference */
     0,           /*     PSR22: Stereoscopic status */
     0,           /* PS: PSR23: Display capability */
