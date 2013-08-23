@@ -1429,14 +1429,18 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, uint32_t key, GC_NAV_CMDS *cmds)
         GC_TRACE("_user_input(): popup menu not visible\n");
         return -1;
     }
-    if (!gc->ig_drawn) {
-        GC_ERROR("_user_input(): menu not visible\n");
+    if (!gc->ig_open) {
+        GC_ERROR("_user_input(): menu not open\n");
         return -1;
     }
 
+    if (!gc->ig_drawn) {
+        GC_ERROR("_user_input(): menu not visible\n");
+        return 0;
+    }
     if (gc->button_effect_running) {
         GC_ERROR("_user_input(): button_effect_running\n");
-        return -1;
+        return 0;
     }
 
     GC_TRACE("_user_input(%d)\n", key);
