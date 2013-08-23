@@ -453,7 +453,7 @@ static int _init_pg_stream(BLURAY *bd)
 static void _update_textst_timer(BLURAY *bd)
 {
     if (bd->st_textst.clip) {
-        if (bd->s_pos >= bd->gc_wakeup_pos) {
+        if (bd->st0.clip_block_pos >= bd->gc_wakeup_pos) {
             GC_NAV_CMDS cmds = {-1, NULL, -1, 0, 0};
 
             gc_run(bd->graphics_controller, GC_CTRL_PG_UPDATE, bd->gc_wakeup_time, &cmds);
@@ -465,7 +465,7 @@ static void _update_textst_timer(BLURAY *bd)
             if (cmds.wakeup_time >= bd->st0.clip->in_time && cmds.wakeup_time < bd->st0.clip->out_time) {
                 /* find event position in main path clip */
                 NAV_CLIP *clip = bd->st0.clip;
-                uint32_t spn = clpi_lookup_spn(clip->cl, cmds.wakeup_time, 1,
+                uint32_t spn = clpi_lookup_spn(clip->cl, cmds.wakeup_time, /*before=*/1,
                                                bd->title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
                 if (spn) {
                     bd->gc_wakeup_pos = spn * 192;
