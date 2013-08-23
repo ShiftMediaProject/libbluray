@@ -97,7 +97,6 @@ struct graphics_controller_s {
 
     /* */
     TEXTST_RENDER  *textst_render;
-    uint32_t        prev_stc; /* detect seeks */
     int             next_dialog_idx;
     int             textst_user_style;
 };
@@ -702,6 +701,8 @@ static void _gc_reset(GRAPHICS_CONTROLLER *gc)
     pg_display_set_free(&gc->tgs);
 
     textst_render_free(&gc->textst_render);
+    gc->next_dialog_idx = 0;
+    gc->textst_user_style = -1;
 
     X_FREE(gc->bog_data);
 }
@@ -760,6 +761,8 @@ GRAPHICS_CONTROLLER *gc_init(BD_REGISTERS *regs, void *handle, gc_overlay_proc_f
     bd_mutex_init(&p->mutex);
 
     bd_psr_register_cb(regs, _process_psr_event, p);
+
+    p->textst_user_style = -1;
 
     return p;
 }
@@ -950,19 +953,11 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
 
     dialog = s->dialog;
 
-    /* detect seeks */
-    if (stc < p->prev_stc) {
-      ii = 0;
-    } else {
-      ii = p->next_dialog_idx;
-    }
-    p->prev_stc = stc;
-
     /* loop over all matching dialogs */
-    for ( ; ii < s->num_dialog; ii++) {
+    for (ii = p->next_dialog_idx; ii < s->num_dialog; ii++) {
 
         /* next dialog too far in future ? */
-        if (dialog[ii].start_pts >= now + 90000) {
+        if (now < 1 || dialog[ii].start_pts >= now + 90000) {
             cmds->wakeup_time = dialog[ii].start_pts / 2;
             GC_TRACE("_render_textst(): next event #%d in %"PRId64" seconds (pts %"PRId64")\n",
                      ii, (dialog[ii].start_pts - now)/90000, dialog[ii].start_pts);
@@ -973,6 +968,11 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
 
         /* too late ? */
         if (dialog[ii].start_pts < now - 45000) {
+            GC_TRACE("_render_textst(): not showing #%d (start time passed)\n",ii);
+            continue;
+        }
+        if (dialog[ii].end_pts < now) {
+            GC_TRACE("_render_textst(): not showing #%d (hide time passed)\n",ii);
             continue;
         }
 
@@ -1153,6 +1153,8 @@ static void _reset_pg(GRAPHICS_CONTROLLER *gc)
     if (gc->pg_open) {
         _close_osd(gc, BD_OVERLAY_PG);
     }
+
+    gc->next_dialog_idx = 0;
 }
 
 /*
