@@ -123,6 +123,8 @@ public class IxcRegistryImpl {
             }
         }
 
+        Debug("wrapOrCopy: Object is neither Serializable nor Remote");
+
         throw new RemoteException("Object is neither Serializable nor Remote");
     }
 
@@ -153,6 +155,7 @@ public class IxcRegistryImpl {
 
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             if (null == remoteObj.context || remoteObj.context.isDestroyed()) {
+                Debug("invoke(): callee has been destroyed");
                 throw new RemoteException("callee has been destroyed");
             }
 
@@ -163,6 +166,7 @@ public class IxcRegistryImpl {
             RemoteMethod remoteMethod = new RemoteMethod(method, remoteObj.context, args);
 
             if (remoteMethod.callerContext.isDestroyed()) {
+                Debug("invoke(): caller has been destroyed");
                 throw new RemoteException("caller has been destroyed");
             }
 
@@ -175,12 +179,15 @@ public class IxcRegistryImpl {
             remoteMethod.callerContext.removeIxcThread(remoteThread);
 
             if (!remoteMethod.finished) {
+                Debug("invoke(): calling xlet destroyed during remote execution");
                 throw new RemoteException("calling xlet destroyed during remote execution");
             }
             if (remoteMethod.exception != null) {
+                Debug("Exception in remote thread");
                 if (remoteMethod.exception instanceof InvocationTargetException) {
                     throw ((InvocationTargetException)remoteMethod.exception).getTargetException();
                 }
+                Debug("Exception in remote thread is not InvocationTargetException");
                 throw remoteMethod.exception;
             }
 
@@ -291,7 +298,7 @@ public class IxcRegistryImpl {
      */
 
     private static final boolean DEBUG = true;
-    private static final boolean TRACE = false;
+    private static final boolean TRACE = true;
     private static final Logger logger = Logger.getLogger(IxcRegistryImpl.class.getName());
 
     private static void Debug(String s) {
@@ -316,9 +323,11 @@ public class IxcRegistryImpl {
         Debug("IxcRegistry.bind(" + xc + ", " + path + ", " + obj + ")");
 
         if (!(xc instanceof BDJXletContext) || (BDJXletContext)xc != BDJXletContext.getCurrentContext()) {
+            Debug("bind(): xc not current BDJXletContext");
             throw new IllegalArgumentException("xc not current BDJXletContext");
         }
         if (((BDJXletContext)xc).isDestroyed()) {
+            Debug("bind(): xc is destroyed");
             return;
         }
 
@@ -335,6 +344,7 @@ public class IxcRegistryImpl {
         Debug("IxcRegistry.lookup(" + xc + ", " + path + ")");
 
         if (!(xc instanceof BDJXletContext) || (BDJXletContext)xc != BDJXletContext.getCurrentContext()) {
+            Debug("lookup(): xc not current BDJXletContext");
             throw new IllegalArgumentException("xc not current BDJXletContext");
         }
 
