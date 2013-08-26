@@ -42,6 +42,7 @@ class BDImageBase extends Image {
     protected Area dirty;
     private GraphicsConfiguration gc;
     private Vector observers = new Vector();
+    private ImageProducer offscreenSource = null;
 
     static {
         try {
@@ -78,6 +79,8 @@ class BDImageBase extends Image {
             backBuffer = new int[width * height];
 
         dirty = new Area(width, height);
+
+        offscreenSource = new BDOffScreenImageSource(backBuffer, width, height);
     }
 
     public void flush() {
@@ -132,7 +135,7 @@ class BDImageBase extends Image {
     }
 
     public ImageProducer getSource() {
-        return null;
+        return offscreenSource;
     }
 
     public Component getComponent() {
