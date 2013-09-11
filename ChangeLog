@@ -1,12 +1,21 @@
+2013-09-11: Version 0.4.0
 - Fixed slide shows: always cut reads at clip end boundary
 - Fixed logging with non-default mask
+- Fixed buffer overflow in bd_psr_unregister_cb()
+- Fixed IG background when button image position changes
+- Fixed BD-J tearing issues
+- Changed default PhoneME library name in Windows (cvm -> cvmi)
+- Initialize default player region code to B
+- Improved BD-J support (still alpha)
+- Improved language-based stream autoselection
 - Added missing Java files to distribution package
 - Added support for multi-clip sub paths
 - Added bd_select_stream()
 - Added menu page effects
-- Improved BD-J support (still alpha)
-- Improved language-based stream autoselection
+- Added button animations
 - Added initial support for BluRay Text Subtitles
+- Added bd_read_clpi(): use only public API in clpi_dump
+- Added reference-counted RLE images
 
 2013-04-30: Version 0.3.0
 - Build fixes
