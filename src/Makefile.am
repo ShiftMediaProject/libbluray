@@ -152,11 +152,16 @@ AM_CFLAGS += $(BDJAVA_CFLAGS)
 
 all-local:
 	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml \
+	    -Dbuild='$(abs_builddir)/libbluray/bdj/build' \
+	    -Ddist='$(abs_builddir)/.libs' \
 	    -Dsrc_awt=:java-$(BDJ_TYPE) \
 	    -Dbootclasspath="$(BDJ_BOOTCLASSPATH)"
 
 clean-local:
-	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml clean
+	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml \
+	    -Dbuild='$(abs_builddir)/libbluray/bdj/build' \
+	    -Ddist='$(abs_builddir)/.libs' \
+	    clean
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig
