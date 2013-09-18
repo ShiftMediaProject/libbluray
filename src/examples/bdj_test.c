@@ -32,6 +32,11 @@
 
 #include "libbluray/bluray.h"
 
+#if defined(_WIN32)
+#include <windows.h>
+#define sleep(x) Sleep(x)
+#endif
+
 static void _usage(void) {
     printf("Usage: [path to disc] [starting object]\n");
 }
