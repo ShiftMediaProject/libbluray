@@ -126,11 +126,13 @@ int textst_render_add_font(TEXTST_RENDER *p, const char *file)
 
 int textst_render_set_char_code(TEXTST_RENDER *p, int char_code)
 {
+#ifdef HAVE_FT2
     p->char_code = (bd_char_code_e)char_code;
     if (p->char_code != BLURAY_TEXT_CHAR_CODE_UTF8) {
         TEXTST_ERROR("WARNING: unsupported TextST coding type %d\n", char_code);
         return -1;
     }
+#endif
 
     return 0;
 }
@@ -138,6 +140,8 @@ int textst_render_set_char_code(TEXTST_RENDER *p, int char_code)
 /*
  * UTF-8
  */
+
+#ifdef HAVE_FT2
 
 static int _utf8_char_size(const uint8_t *s)
 {
@@ -174,16 +178,19 @@ static unsigned _utf8_char_get(const uint8_t *s, int char_size)
     return s[0];
 }
 
+#endif /* HAVE_FT2 */
+
 /*
  * rendering
  */
+
+#ifdef HAVE_FT2
 
 static int _draw_string(FT_Face face, const uint8_t *string, int length,
                         TEXTST_BITMAP *bmp, int x, int y,
                         BD_TEXTST_REGION_STYLE *style,
                         int *baseline_pos)
 {
-#ifdef HAVE_FT2
     uint8_t  color = style->font_color;
     unsigned char_code;
     int      ii, jj, kk;
@@ -237,7 +244,6 @@ static int _draw_string(FT_Face face, const uint8_t *string, int length,
             x += face->glyph->metrics.horiAdvance >> 6;
         }
     }
-#endif /* HAVE_FT2 */
 
     return x;
 }
@@ -318,11 +324,15 @@ static int _render_line(TEXTST_RENDER *p, TEXTST_BITMAP *bmp,
     return xpos;
 }
 
+#endif /* HAVE_FT2 */
+
 int textst_render(TEXTST_RENDER *p,
                   TEXTST_BITMAP *bmp,
                   const BD_TEXTST_REGION_STYLE *base_style,
                   const BD_TEXTST_DIALOG_REGION *region)
 {
+#ifdef HAVE_FT2
+
     /* fonts loaded ? */
     if (p->font_count < 1) {
         TEXTST_ERROR("textst_render: no fonts loaded\n");
@@ -405,6 +415,8 @@ int textst_render(TEXTST_RENDER *p,
 
         ypos += s.line_space - baseline;
     }
+
+#endif /* HAVE_FT2 */
 
     return 0;
 }
