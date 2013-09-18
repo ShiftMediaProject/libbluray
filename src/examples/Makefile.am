@@ -26,7 +26,11 @@ mpls_dump_SOURCES = \
 	../util/strutl.c \
 	../util/logging.c \
 	../file/file_posix.c \
+if HAVE_WIN32
+	../file/dir_win32.c \
+else
 	../file/dir_posix.c \
+endif
 	../libbluray/bdnav/extdata_parse.c \
 	../libbluray/bdnav/mpls_parse.c \
 	../libbluray/bdnav/clpi_parse.c \
