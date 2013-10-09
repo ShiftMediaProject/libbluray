@@ -166,3 +166,102 @@ endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libbluray.pc
+
+
+#
+# examples
+#
+
+#SET_FEATURES = -D_ISOC99_SOURCE -D_POSIX_C_SOURCE=200112L -D_REENTRANT
+#SET_INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/src -I$(top_srcdir)/src/file -I$(top_srcdir)/src/libbluray/bdnav
+
+if USING_EXAMPLES
+
+#AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_INCLUDES)
+
+noinst_PROGRAMS = \
+	bdsplice \
+	clpi_dump \
+	hdmv_test \
+	index_dump \
+	libbluray_test \
+	list_titles \
+	mobj_dump \
+	mpls_dump \
+	sound_dump
+
+if USING_BDJAVA
+noinst_PROGRAMS += \
+	bdj_test
+endif
+
+bin_PROGRAMS = \
+	bd_info
+
+bdsplice_SOURCES = examples/bdsplice.c
+bdsplice_LDADD = libbluray.la
+
+mpls_dump_CFLAGS = $(AM_CFLAGS)
+mpls_dump_SOURCES = \
+	examples/mpls_dump.c \
+	examples/util.c \
+	examples/util.h \
+	file/file_posix.c \
+	libbluray/bdnav/clpi_parse.c \
+	libbluray/bdnav/extdata_parse.c \
+	libbluray/bdnav/mpls_parse.c \
+	libbluray/bdnav/navigation.c \
+	util/bits.c \
+	util/logging.c \
+	util/strutl.c
+if HAVE_WIN32
+mpls_dump_SOURCES += \
+	file/dir_win32.c
+else
+mpls_dump_SOURCES += \
+	file/dir_posix.c
+endif
+
+clpi_dump_CFLAGS = $(AM_CFLAGS)
+clpi_dump_SOURCES = \
+	examples/clpi_dump.c \
+	examples/util.c \
+	examples/util.h
+clpi_dump_LDADD = libbluray.la
+
+index_dump_CFLAGS = $(AM_CFLAGS)
+index_dump_SOURCES = \
+	examples/index_dump.c \
+	file/file_posix.c \
+	libbluray/bdnav/index_parse.c \
+	util/bits.c \
+	util/logging.c
+
+mobj_dump_CFLAGS = $(AM_CFLAGS)
+mobj_dump_SOURCES = \
+	examples/mobj_dump.c \
+	file/file_posix.c \
+	libbluray/hdmv/mobj_parse.c \
+	libbluray/hdmv/mobj_print.c \
+	util/bits.c \
+	util/logging.c
+
+sound_dump_SOURCES = examples/sound_dump.c
+sound_dump_LDADD = libbluray.la
+
+libbluray_test_SOURCES = examples/libbluray_test.c
+libbluray_test_LDADD = libbluray.la
+
+hdmv_test_SOURCES = examples/hdmv_test.c
+hdmv_test_LDADD = libbluray.la
+
+list_titles_SOURCES = examples/list_titles.c
+list_titles_LDADD = libbluray.la
+
+bd_info_SOURCES = examples/bd_info.c
+bd_info_LDADD = libbluray.la
+
+bdj_test_SOURCES = examples/bdj_test.c
+bdj_test_LDADD = libbluray.la
+
+endif

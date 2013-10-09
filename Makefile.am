@@ -1,9 +1,6 @@
 include $(top_srcdir)/doxygen-include.am
 
 SUBDIRS = src
-if USING_EXAMPLES
-SUBDIRS += src/examples
-endif
 
 ACLOCAL_AMFLAGS=-I m4
 

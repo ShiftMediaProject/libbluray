@@ -21,7 +21,7 @@ AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libblur
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE([foreign tar-ustar dist-bzip2 no-dist-gzip])
+AM_INIT_AUTOMAKE([foreign tar-ustar dist-bzip2 no-dist-gzip subdir-objects])
 AC_CONFIG_HEADERS(config.h)
 
 case "${host_os}" in
@@ -100,6 +100,7 @@ AC_ARG_WITH([bdj-bootclasspath],
 
 dnl required programs
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 
 dnl required types
@@ -226,7 +227,7 @@ AC_SUBST(LT_VERSION_INFO)
 
 dnl generate output files
 AC_SUBST(BDJAVA_CFLAGS)
-AC_CONFIG_FILES([Makefile src/Makefile src/examples/Makefile src/libbluray.pc src/libbluray/bluray-version.h])
+AC_CONFIG_FILES([Makefile src/Makefile src/libbluray.pc src/libbluray/bluray-version.h])
 AC_OUTPUT
 
 
