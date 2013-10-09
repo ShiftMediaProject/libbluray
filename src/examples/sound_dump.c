@@ -17,58 +17,45 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "libbluray/bdnav/sound_parse.h"
+#include "libbluray/bluray.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
 
-static void _sound_print(SOUND_DATA *data)
+static void _sound_print(int sound_index, BLURAY_SOUND_EFFECT *data)
 {
-    uint32_t i;
-
-    printf("Number of sounds: %d\n", data->num_sounds);
-
-    for (i = 0; i < data->num_sounds; i++) {
-        printf("  Sound %d:\n", i);
-        printf("      bits per sample: %d\n", data->sounds[i].bits_per_sample);
-        printf("      sample rate: %d\n",     data->sounds[i].sample_rate);
-        printf("      channels: %d\n",        data->sounds[i].num_channels);
-        printf("      audio frames: %d",      data->sounds[i].num_frames);
-        printf(" (%d ms)\n", data->sounds[i].num_frames * 1000 / data->sounds[i].sample_rate);
-    }
+    printf("  Sound %d:\n", sound_index);
+    printf("      bits per sample: %d\n", 16);
+    printf("      sample rate: %d\n",     48000);
+    printf("      channels: %d\n",        data->num_channels);
+    printf("      audio frames: %d",      data->num_frames);
+    printf(" (%d ms)\n", data->num_frames * 1000 / 48000);
 }
 
-static void _sound_dump(SOUND_DATA *data, int sound)
+static void _sound_dump(int sound_index, BLURAY_SOUND_EFFECT *data)
 {
     size_t bytes;
 
-    if (sound < 0 || sound >= data->num_sounds) {
-        fprintf(stderr, "Invalid sound index %d\n", sound);
-        return;
-    }
-
     fprintf(stderr, "Sound %d: %d frames LPCM_LE, %dHz, %d bits, %s\n",
-            sound,
-            data->sounds[sound].num_frames,
-            data->sounds[sound].sample_rate,
-            data->sounds[sound].bits_per_sample,
-            data->sounds[sound].num_channels == 1 ? "mono" : "stereo");
+            sound_index,
+            data->num_frames,
+            48000,
+            16,
+            data->num_channels == 1 ? "mono" : "stereo");
 
-    bytes  = data->sounds[sound].bits_per_sample/8 * data->sounds[sound].num_channels;
-    bytes *= data->sounds[sound].num_frames;
+    bytes = 2 * data->num_channels * data->num_frames;
 
-    if (fwrite(data->sounds[sound].samples, bytes, 1, stdout) != bytes) {
+    if (fwrite(data->samples, bytes, 1, stdout) != 1) {
         fprintf(stderr, "I/O error\n");
     }
-
 }
 
 int main(int argc, const char *argv[])
 {
-    char       file[1024];
-    SOUND_DATA *data;
-    int         sound_index = -1;
+    BLURAY_SOUND_EFFECT effect;
+    BLURAY *bd;
+    int     sound_index = -1;
 
     if (argc < 2 || argc > 3) {
         fprintf(stderr, "usage: sound_dump [sound_index] <disc_root>\n");
@@ -80,21 +67,31 @@ int main(int argc, const char *argv[])
       sound_index = atoi(argv[1]);
     }
 
-    sprintf(file, "%s/BDMV/AUXDATA/sound.bdmv", argv[argc-1]);
+    /* open disc */
+    bd = bd_open(argv[argc-1], NULL);
+    if (!bd) {
+        fprintf(stderr, "error opening disc %s\n", argv[argc-1]);
+        return -1;
+    }
 
-    data = sound_parse(file);
-
-    if (data) {
-
-        if (sound_index >= 0) {
-            _sound_dump(data, sound_index);
-
+    if (sound_index >= 0) {
+        if (bd_get_sound_effect(bd, sound_index, &effect) <= 0) {
+            fprintf(stderr, "Invalid sound index %d\n", sound_index);
         } else {
-            _sound_print(data);
+            _sound_dump(sound_index, &effect);
         }
 
-        sound_free(&data);
+    } else {
+
+        while (bd_get_sound_effect(bd, ++sound_index, &effect) > 0) {
+            _sound_print(sound_index, &effect);
+        }
+        if (sound_index == 0) {
+            fprintf(stderr, "No sound effects\n");
+        }
     }
+
+    bd_close(bd);
 
     return 0;
 }

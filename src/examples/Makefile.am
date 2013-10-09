@@ -44,11 +44,8 @@ clpi_dump_SOURCES = \
 clpi_dump_LDADD = $(BLURAY_LIB)
 
 sound_dump_SOURCES = \
-	sound_dump.c \
-	../util/bits.c \
-	../util/logging.c \
-	../file/file_posix.c \
-	../libbluray/bdnav/sound_parse.c
+	sound_dump.c
+sound_dump_LDADD = $(BLURAY_LIB)
 
 index_dump_SOURCES = \
 	index_dump.c \
