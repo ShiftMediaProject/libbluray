@@ -180,6 +180,7 @@ if [[ $use_bdjava = "yes" ]]; then
   case $host_os in
        linux*)   java_os=linux ;;
        win*)     java_os=win32 ;;
+       mingw*)   java_os=win32 ;;
        freebsd*) java_os=freebsd ;;
        solaris*) java_os=solaris ;;
        *)        java_os=$host_os ;;
