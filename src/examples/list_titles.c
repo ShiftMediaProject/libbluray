@@ -22,7 +22,6 @@
 #endif
 
 #include "libbluray/bluray.h"
-#include "util/logging.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,8 +50,6 @@ int main(int argc, char *argv[])
     unsigned int seconds = 0;
     unsigned int flags = TITLES_RELEVANT;
     char *bd_dir = NULL;
-
-    BD_DEBUG(DBG_BLURAY,"\nListing titles:\n");
 
     do
     {

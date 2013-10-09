@@ -76,7 +76,7 @@ hdmv_test_SOURCES = \
 hdmv_test_LDADD = $(BLURAY_LIB)
 
 list_titles_SOURCES = \
-	list_titles.c ../util/logging.c
+	list_titles.c
 
 list_titles_LDADD = $(BLURAY_LIB)
 
