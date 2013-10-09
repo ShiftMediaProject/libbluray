@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2009-2010  Obliter0n
+ * Copyright (C) 2013       VideoLAN
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,73 +23,84 @@
 #endif
 
 #include "libbluray/bluray.h"
-#include "util/logging.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 
-#define HEX_PRINT(X,Y) { int zz; for(zz = 0; zz < Y; zz++) fprintf(stderr, "%02X", X[zz]); fprintf(stderr, "\n"); }
-
 int main(int argc, char *argv[])
 {
-    if (argc == 4) {
-    BLURAY *bd = bd_open(argv[1], argv[2]);
-    int count, ii;
+    BLURAY *bd;
+    int     ii, num_titles;
 
-    //bd_get_titles(bd, 0);
-
-    BD_DEBUG(DBG_BLURAY,"\nListing titles:\n");
-
-    count = bd_get_titles(bd, TITLES_RELEVANT, 0);
-    for (ii = 0; ii < count; ii++)
-    {
-        BLURAY_TITLE_INFO* ti;
-        ti = bd_get_title_info(bd, ii, 0);
-        BD_DEBUG(DBG_BLURAY,
-       "index: %d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %d\n",
-              ii,
-              (ti->duration / 90000) / (3600),
-              ((ti->duration / 90000) % 3600) / 60,
-              ((ti->duration / 90000) % 60),
-              ti->chapter_count);
+    if (argc < 3) {
+        fprintf(stderr, "Usage:\n   %s <media_path> [<title_number>]\n\n", argv[0]);
+    }
+    if (argc < 2) {
+        return -1;
     }
 
-    bd_select_title(bd, atoi(argv[3]));
+    /* open disc */
+    bd = bd_open(argv[1], NULL);
+    if (!bd) {
+        fprintf(stderr, "Error opening %s\n", argv[1]);
+        return -1;
+    }
 
-    unsigned char *buf = malloc(6144);
-    memset(buf,0,6144);
+    /* get titles */
+    num_titles = bd_get_titles(bd, TITLES_RELEVANT, 0);
 
-#if 0
-    bd_read(bd, buf, 2048);
-    bd_read(bd, buf, 2048);
-    bd_read(bd, buf, 2048);
-    bd_read(bd, buf, 6144);
-#else
+    /* list titles */
+    if (argc < 3) {
+        printf("Listing titles:\n");
 
+        for (ii = 0; ii < num_titles; ii++) {
+            BLURAY_TITLE_INFO* ti;
+            ti = bd_get_title_info(bd, ii, 0);
+            printf("index: %d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %d\n",
+                   ii,
+                   (ti->duration / 90000) / (3600),
+                   ((ti->duration / 90000) % 3600) / 60,
+                   ((ti->duration / 90000) % 60),
+                   ti->chapter_count);
+        }
+
+        bd_close(bd);
+        return 0;
+    }
+
+    /* select title */
+    if (bd_select_title(bd, atoi(argv[2])) <= 0) {
+        fprintf(stderr, "Error opening title #%s\n", argv[2]);
+        bd_close(bd);
+        return -1;
+    }
+
+    /* dump */
     FILE *fd = fopen("streamdump.m2ts", "wb");
     if (fd) {
+        printf("Writing to streamdump.m2ts\n");
+        ii = 0;
         while (1) {
+            unsigned char buf[6144];
             int len = bd_read(bd, buf, 6144);
             if (len <= 0) break;
-            if (fwrite(buf, len, 1, fd) < 1)
-              break;
-            if (!(ii % 1000)) {
-                BD_DEBUG(DBG_BLURAY,
-                         "%d\r", ii);
+            if (fwrite(buf, len, 1, fd) < 1) {
+                fprintf(stderr, "Write error\n");
+                break;
             }
-
+            if (!(ii % 100)) {
+                printf("Block %d\r", ii);
+            }
+            ii++;
         }
         fclose(fd);
+    } else {
+        printf("Error opening streamdump.m2ts\n");
     }
-
-#endif
 
     bd_close(bd);
-    } else {
-        printf("\nUsage:\n   %s <media_path> <keyfile_path> <title_number>\n\n", argv[0]);
-    }
 
     return 0;
 }

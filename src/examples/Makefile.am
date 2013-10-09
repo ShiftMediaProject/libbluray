@@ -63,7 +63,7 @@ mobj_dump_SOURCES = \
 	../libbluray/hdmv/mobj_print.c
 
 libbluray_test_SOURCES = \
-	libbluray_test.c ../util/logging.c
+	libbluray_test.c
 
 libbluray_test_LDADD = $(BLURAY_LIB)
 
