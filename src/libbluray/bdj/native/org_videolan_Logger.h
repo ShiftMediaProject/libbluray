@@ -2,7 +2,7 @@
 #include <jni.h>
 /* Header for class java_awt_BDGraphics */
 
-#ifndef WIN32
+#ifndef _WIN32
 #undef JNIEXPORT
 #define JNIEXPORT static
 #endif

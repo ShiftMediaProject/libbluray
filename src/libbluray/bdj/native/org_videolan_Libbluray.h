@@ -2,7 +2,7 @@
 #include <jni.h>
 /* Header for class org_videolan_Libbluray */
 
-#ifndef WIN32
+#ifndef _WIN32
 #undef JNIEXPORT
 #define JNIEXPORT static
 #endif

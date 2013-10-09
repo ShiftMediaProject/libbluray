@@ -61,7 +61,7 @@ static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char 
 static void *_load_jvm(const char **p_java_home)
 {
 #ifdef HAVE_BDJ_J2ME
-# ifdef WIN32
+# ifdef _WIN32
     static const char *jvm_path[] = {NULL, JDK_HOME};
     static const char  jvm_dir[]  = "bin";
     static const char  jvm_lib[]  = "cvmi";
@@ -71,7 +71,7 @@ static void *_load_jvm(const char **p_java_home)
     static const char  jvm_lib[]  = "libcvm";
 # endif
 #else
-# ifdef WIN32
+# ifdef _WIN32
     static const char *jvm_path[] = {NULL, JDK_HOME};
     static const char  jvm_dir[]  = "jre/bin/server";
     static const char  jvm_lib[]  = "jvm";
@@ -111,7 +111,7 @@ static const char *_find_libbluray_jar(void)
 {
     // pre-defined search paths for libbluray.jar
     static const char * const jar_paths[] = {
-#ifdef WIN32
+#ifdef _WIN32
         "" BDJ_JARFILE,
 #else
         "/usr/lib/libbluray/" BDJ_JARFILE,

@@ -35,11 +35,11 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #define	ftello	_ftelli64
 #define	fseeko	_fseeki64
-#endif	//	#ifdef WIN32
+#endif	//	#ifdef _WIN32
 
 static void file_close_linux(BD_FILE_H *file)
 {
@@ -110,7 +110,7 @@ static BD_FILE_H *file_open_linux(const char* filename, const char *mode)
     file->tell = file_tell_linux;
     file->eof = file_eof_linux;
 
-#ifdef WIN32
+#ifdef _WIN32
     wchar_t wfilename[MAX_PATH], wmode[8];
     if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, filename, -1, wfilename, MAX_PATH) &&
         MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, mode, -1, wmode, 8) &&
