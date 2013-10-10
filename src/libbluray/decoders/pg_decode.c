@@ -126,8 +126,7 @@ static int _decode_rle(BITBUFFER *bb, BD_PG_OBJECT *p)
 
     p->img = refcnt_realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
     if (!p->img) {
-        BD_DEBUG(DBG_DECODE | DBG_CRIT, "pg_decode_object(): relloc(%zu) failed\n",
-                 rle_size * sizeof(BD_PG_RLE_ELEM));
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "pg_decode_object(): realloc failed\n");
         return 0;
     }
 
@@ -168,8 +167,7 @@ static int _decode_rle(BITBUFFER *bb, BD_PG_OBJECT *p)
             rle_size *= 2;
             p->img = refcnt_realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
             if (!p->img) {
-                BD_DEBUG(DBG_DECODE | DBG_CRIT, "pg_decode_object(): relloc(%zu) failed\n",
-                         rle_size * sizeof(BD_PG_RLE_ELEM));
+                BD_DEBUG(DBG_DECODE | DBG_CRIT, "pg_decode_object(): realloc failed\n");
                 X_FREE(tmp);
                 return 0;
             }

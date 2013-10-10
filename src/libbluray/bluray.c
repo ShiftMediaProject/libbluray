@@ -559,16 +559,15 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
     const size_t len = 6144;
 
     if (st->fp) {
-        BD_DEBUG(DBG_STREAM, "Reading unit [%zd bytes] at %"PRIu64"...\n",
-              len, st->clip_block_pos);
+        BD_DEBUG(DBG_STREAM, "Reading unit at %"PRIu64"...\n", st->clip_block_pos);
 
         if (len + st->clip_block_pos <= st->clip_size) {
             size_t read_len;
 
             if ((read_len = file_read(st->fp, buf, len))) {
-                if (read_len != len)
-                    BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %zd bytes at %"PRIu64" ; requested %zd !\n", read_len, st->clip_block_pos, len);
-
+                if (read_len != len) {
+                    BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d !\n", (int)read_len, st->clip_block_pos, (int)len);
+                }
                 if (bd->libaacs && libaacs_decrypt_unit(bd->libaacs, buf)) {
                     return -1;
                 }
@@ -599,7 +598,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 #endif
             }
 
-            BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %zd bytes at %"PRIu64" failed !\n", len, st->clip_block_pos);
+            BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read unit at %"PRIu64" failed !\n", st->clip_block_pos);
 
             _queue_event(bd, BD_EVENT_READ_ERROR, 0);
 
