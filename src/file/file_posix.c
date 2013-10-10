@@ -37,8 +37,6 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#define	ftello	_ftelli64
-#define	fseeko	_fseeki64
 #endif	//	#ifdef _WIN32
 
 static void file_close_linux(BD_FILE_H *file)
@@ -56,6 +54,8 @@ static int64_t file_seek_linux(BD_FILE_H *file, int64_t offset, int32_t origin)
 {
 #if defined(__MINGW32__)
     return fseeko64((FILE *)file->internal, offset, origin);
+#elif defined(_WIN32)
+    return _fseeki64((FILE *)file->internal, offset, origin);
 #else
     return fseeko((FILE *)file->internal, offset, origin);
 #endif
@@ -65,6 +65,8 @@ static int64_t file_tell_linux(BD_FILE_H *file)
 {
 #if defined(__MINGW32__)
     return ftello64((FILE *)file->internal);
+#elif defined(_WIN32)
+    return _ftelli64((FILE *)file->internal);
 #else
     return ftello((FILE *)file->internal);
 #endif
