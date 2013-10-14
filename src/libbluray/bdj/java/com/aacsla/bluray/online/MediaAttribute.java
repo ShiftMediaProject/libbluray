@@ -27,7 +27,7 @@ public class MediaAttribute {
     }
 
     public byte[] getPMSN() {
-        byte pmsn[] = Libbluray.getPMSN();
+        byte pmsn[] = Libbluray.getAacsData(Libbluray.AACS_MEDIA_PMSN);
         if (pmsn == null) {
             logger.warning("getPMSN() failed");
         }
@@ -35,7 +35,7 @@ public class MediaAttribute {
     }
 
     public byte[] getVolumeID() {
-        byte vid[] = Libbluray.getVolumeID();
+        byte vid[] = Libbluray.getAacsData(Libbluray.AACS_MEDIA_VID);
         if (vid == null) {
             logger.warning("getVolumeID() failed");
         }

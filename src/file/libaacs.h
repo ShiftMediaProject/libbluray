@@ -32,14 +32,17 @@ BD_PRIVATE BD_AACS *libaacs_load(void);
 BD_PRIVATE int  libaacs_open(BD_AACS *p, const char *device_path, const char *keyfile_path);
 BD_PRIVATE void libaacs_unload(BD_AACS **p);
 
-BD_PRIVATE uint32_t libaacs_get_mkbv(BD_AACS *p);
-BD_PRIVATE const uint8_t *libaacs_get_disc_id(BD_AACS *p);
-BD_PRIVATE const uint8_t *libaacs_get_vid(BD_AACS *p);
-BD_PRIVATE const uint8_t *libaacs_get_pmsn(BD_AACS *p);
-BD_PRIVATE const uint8_t *libaacs_get_device_binding_id(BD_AACS *p);
-
 BD_PRIVATE void libaacs_select_title(BD_AACS *p, uint32_t title);
 BD_PRIVATE int  libaacs_decrypt_unit(BD_AACS *p, uint8_t *buf);
+
+BD_PRIVATE uint32_t libaacs_get_mkbv(BD_AACS *p);
+
+#define BD_AACS_DISC_ID            1
+#define BD_AACS_MEDIA_VID          2
+#define BD_AACS_MEDIA_PMSN         3
+#define BD_AACS_DEVICE_BINDING_ID  4
+
+BD_PRIVATE const uint8_t *libaacs_get_aacs_data(BD_AACS *p, int type);
 
 
 #endif /* _BD_LIBAACS_H_ */

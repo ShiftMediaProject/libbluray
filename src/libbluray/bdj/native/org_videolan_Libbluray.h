@@ -94,27 +94,11 @@ extern "C" {
 #define org_videolan_Libbluray_PSR_BACKUP_PSR12 44L
 /*
  * Class:     org_videolan_Libbluray
- * Method:    getVolumeIDN
- * Signature: (J)[B
+ * Method:    getAacsData
+ * Signature: (JI)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getVolumeIDN
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     org_videolan_Libbluray
- * Method:    getPMSNN
- * Signature: (J)[B
- */
-JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getPMSNN
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     org_videolan_Libbluray
- * Method:    getDeviceBindingIDN
- * Signature: (J)[B
- */
-JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getDeviceBindingIDN
-  (JNIEnv *, jclass, jlong);
+JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getAacsDataN
+  (JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     org_videolan_Libbluray

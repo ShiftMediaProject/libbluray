@@ -26,9 +26,7 @@
 
 #include <stdint.h>
 
-BD_PRIVATE const uint8_t *bd_get_vid(BLURAY *bd);
-BD_PRIVATE const uint8_t *bd_get_pmsn(BLURAY *bd);
-BD_PRIVATE const uint8_t *bd_get_device_binding_id(BLURAY *bd);
+BD_PRIVATE const uint8_t *bd_get_aacs_data(BLURAY *bd, int type);
 
 BD_PRIVATE uint64_t bd_get_uo_mask(BLURAY *bd);
 BD_PRIVATE int bd_play_title_internal(BLURAY *bd, unsigned title);

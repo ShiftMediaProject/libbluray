@@ -764,6 +764,7 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
 static int _libaacs_init(BLURAY *bd, const char *keyfile_path)
 {
     int result;
+    const uint8_t *disc_id;
 
     libaacs_unload(&bd->libaacs);
 
@@ -785,8 +786,9 @@ static int _libaacs_init(BLURAY *bd, const char *keyfile_path)
     bd->disc_info.aacs_error_code = result;
     bd->disc_info.aacs_handled    = !result;
     bd->disc_info.aacs_mkbv       = libaacs_get_mkbv(bd->libaacs);
-    if (libaacs_get_disc_id(bd->libaacs)) {
-        memcpy(bd->disc_info.disc_id, libaacs_get_disc_id(bd->libaacs), 20);
+    disc_id = libaacs_get_aacs_data(bd->libaacs, BD_AACS_DISC_ID);
+    if (disc_id) {
+        memcpy(bd->disc_info.disc_id, disc_id, 20);
     }
 
     if (result) {
@@ -799,24 +801,11 @@ static int _libaacs_init(BLURAY *bd, const char *keyfile_path)
     return 1;
 }
 
-const uint8_t *bd_get_vid(BLURAY *bd)
+const uint8_t *bd_get_aacs_data(BLURAY *bd, int type)
 {
     /* internal function. Used by BD-J and libbdplus loader. */
-    return libaacs_get_vid(bd->libaacs);
+    return libaacs_get_aacs_data(bd->libaacs, type);
 }
-
-#ifdef USING_BDJAVA
-const uint8_t *bd_get_pmsn(BLURAY *bd)
-{
-    return libaacs_get_pmsn(bd->libaacs);
-}
-
-const uint8_t *bd_get_device_binding_id(BLURAY *bd)
-{
-    /* internal function. Used by BD-J. */
-    return libaacs_get_device_binding_id(bd->libaacs);
-}
-#endif /* USING_BDJAVA */
 
 static int _libbdplus_init(BLURAY *bd)
 {
@@ -833,7 +822,14 @@ static int _libbdplus_init(BLURAY *bd)
         return 0;
     }
 
-    if (libbdplus_init(bd->libbdplus, bd->device_path, bd_get_vid(bd))) {
+    const uint8_t *vid = libaacs_get_aacs_data(bd->libaacs, BD_AACS_MEDIA_VID);
+    if (!vid) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "BD+ initialization failed (no AACS ?)\n");
+        libaacs_unload(&bd->libaacs);
+        return 0;
+    }
+
+    if (libbdplus_init(bd->libbdplus, bd->device_path, vid)) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bdplus_init() failed\n");
 
         bd->disc_info.bdplus_handled = 0;

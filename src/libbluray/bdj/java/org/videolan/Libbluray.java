@@ -134,16 +134,8 @@ public class Libbluray {
         nativePointer = 0;
     }
 
-    public static byte[] getVolumeID() {
-        return getVolumeIDN(nativePointer);
-    }
-
-    public static byte[] getPMSN() {
-        return getPMSNN(nativePointer);
-    }
-
-    public static byte[] getDeviceBindingID() {
-        return getDeviceBindingIDN(nativePointer);
+    public static byte[] getAacsData(int type) {
+        return getAacsDataN(nativePointer, type);
     }
 
     public static int getTitles() {
@@ -435,9 +427,12 @@ public class Libbluray {
     public static final int PSR_BACKUP_PSR11     = 43;
     public static final int PSR_BACKUP_PSR12     = 44;
 
-    private static native byte[] getVolumeIDN(long np);
-    private static native byte[] getPMSNN(long np);
-    private static native byte[] getDeviceBindingIDN(long np);
+    public static final int AACS_DISC_ID           = 1;
+    public static final int AACS_MEDIA_VID         = 2;
+    public static final int AACS_MEDIA_PMSN        = 3;
+    public static final int AACS_DEVICE_BINDING_ID = 4;
+
+    private static native byte[] getAacsDataN(long np, int type);
     private static native TitleInfo getTitleInfoN(long np, int title);
     private static native PlaylistInfo getPlaylistInfoN(long np, int playlist);
     private static native int getTitlesN(long np);

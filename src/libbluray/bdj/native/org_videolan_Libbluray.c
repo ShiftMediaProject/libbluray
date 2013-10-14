@@ -187,48 +187,17 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
     return titleInfo;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getVolumeIDN
-  (JNIEnv * env, jclass cls, jlong np)
+JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getAacsDataN
+  (JNIEnv * env, jclass cls, jlong np, jint type)
 {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
-    const uint8_t *vid = bd_get_vid(bdj->bd);
+    const uint8_t *data = bd_get_aacs_data(bdj->bd, type);
 
-    static const uint8_t empty[16] = {0};
-    if (!vid || !memcmp(vid, empty, sizeof(empty))) {
+    if (!data) {
         return NULL;
     }
     jbyteArray array = (*env)->NewByteArray(env, 16);
-    (*env)->SetByteArrayRegion(env, array, 0, 16, (const jbyte *)vid);
-    return array;
-}
-
-JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getPMSNN
-  (JNIEnv * env, jclass cls, jlong np)
-{
-    BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
-    const uint8_t *pmsn = bd_get_pmsn(bdj->bd);
-
-    static const uint8_t empty[16] = {0};
-    if (!pmsn || !memcmp(pmsn, empty, sizeof(empty))) {
-        return NULL;
-    }
-    jbyteArray array = (*env)->NewByteArray(env, 16);
-    (*env)->SetByteArrayRegion(env, array, 0, 16, (const jbyte *)pmsn);
-    return array;
-}
-
-JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getDeviceBindingIDN
-  (JNIEnv * env, jclass cls, jlong np)
-{
-    BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
-    const uint8_t *bid = bd_get_device_binding_id(bdj->bd);
-
-    static const uint8_t empty[16] = {0};
-    if (!bid || !memcmp(bid, empty, sizeof(empty))) {
-        return NULL;
-    }
-    jbyteArray array = (*env)->NewByteArray(env, 16);
-    (*env)->SetByteArrayRegion(env, array, 0, 16, (const jbyte *)bid);
+    (*env)->SetByteArrayRegion(env, array, 0, 16, (const jbyte *)data);
     return array;
 }
 
@@ -515,19 +484,9 @@ BD_PRIVATE CPP_EXTERN const JNINativeMethod
 Java_org_videolan_Libbluray_methods[] =
 { /* AUTOMATICALLY GENERATED */
     {
-        CC("getVolumeIDN"),
-        CC("(J)[B"),
-        VC(Java_org_videolan_Libbluray_getVolumeIDN),
-    },
-    {
-        CC("getPMSNN"),
-        CC("(J)[B"),
-        VC(Java_org_videolan_Libbluray_getPMSNN),
-    },
-    {
-        CC("getDeviceBindingIDN"),
-        CC("(J)[B"),
-        VC(Java_org_videolan_Libbluray_getDeviceBindingIDN),
+        CC("getAacsDataN"),
+        CC("(JI)[B"),
+        VC(Java_org_videolan_Libbluray_getAacsDataN),
     },
     {
         CC("getUOMaskN"),
