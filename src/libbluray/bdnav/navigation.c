@@ -190,6 +190,15 @@ NAV_TITLE_LIST* nav_get_title_list(const char *root, uint32_t flags, uint32_t mi
                 title_list->title_info = tmp;
             }
             pl_list[ii] = pl;
+
+            /* main title guessing */
+            if (_filter_dup(pl_list, ii, pl) &&
+                _filter_repeats(pl, 2)) {
+                if (_pl_duration(pl_list[ii]) >= _pl_duration(pl_list[title_list->main_title_idx])) {
+                    title_list->main_title_idx = ii;
+                }
+            }
+
             strncpy(title_list->title_info[ii].name, ent.d_name, 11);
             title_list->title_info[ii].name[10] = '\0';
             title_list->title_info[ii].ref = ii;
@@ -212,77 +221,6 @@ void nav_free_title_list(NAV_TITLE_LIST *title_list)
 {
     X_FREE(title_list->title_info);
     X_FREE(title_list);
-}
-
-char* nav_find_main_title(const char *root)
-{
-    BD_DIR_H *dir;
-    BD_DIRENT ent;
-    char *path = NULL;
-    MPLS_PL **pl_list = NULL;
-    MPLS_PL **tmp = NULL;
-    MPLS_PL *pl = NULL;
-    unsigned count, ii, jj, pl_list_size = 0;
-    int res;
-    char longest[11];
-
-    BD_DEBUG(DBG_NAV, "Root: %s:\n", root);
-    path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST", root);
-
-    dir = dir_open(path);
-    if (dir == NULL) {
-        fprintf(stderr, "Failed to open dir: %s\n", path);
-        X_FREE(path);
-        return NULL;
-    }
-    X_FREE(path);
-
-    ii = jj = 0;
-    for (res = dir_read(dir, &ent); !res; res = dir_read(dir, &ent)) {
-
-        if (ent.d_name[0] == '.') {
-            continue;
-        }
-        path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST" DIR_SEP "%s",
-                          root, ent.d_name);
-
-        if (ii >= pl_list_size) {
-            pl_list_size += 100;
-            tmp = realloc(pl_list, pl_list_size * sizeof(MPLS_PL*));
-            if (tmp == NULL) {
-                X_FREE(path);
-                break;
-            }
-            pl_list = tmp;
-        }
-        pl = mpls_parse(path);
-        X_FREE(path);
-        if (pl != NULL) {
-            if (_filter_dup(pl_list, ii, pl) &&
-                _filter_repeats(pl, 2)) {
-                pl_list[ii] = pl;
-                if (_pl_duration(pl_list[ii]) >= _pl_duration(pl_list[jj])) {
-                    strncpy(longest, ent.d_name, 11);
-                    longest[10] = '\0';
-                    jj = ii;
-                }
-                ii++;
-            } else {
-                mpls_free(pl);
-            }
-        }
-    }
-    dir_close(dir);
-
-    count = ii;
-    for (ii = 0; ii < count; ii++) {
-        mpls_free(pl_list[ii]);
-    }
-    if (count > 0) {
-        return str_dup(longest);
-    } else {
-        return NULL;
-    }
 }
 
 uint8_t nav_lookup_aspect(NAV_CLIP *clip, int pid)

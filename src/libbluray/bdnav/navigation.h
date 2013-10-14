@@ -133,10 +133,11 @@ struct nav_title_list_s
 {
     unsigned int     count;
     NAV_TITLE_INFO  *title_info;
+
+    unsigned int     main_title_idx;
 };
 
 BD_PRIVATE uint8_t nav_lookup_aspect(NAV_CLIP *clip, int pid);
-BD_PRIVATE char* nav_find_main_title(const char *root);
 BD_PRIVATE NAV_TITLE* nav_title_open(const char *root, const char *playlist, unsigned angle);
 BD_PRIVATE void nav_title_close(NAV_TITLE *title);
 BD_PRIVATE NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip);

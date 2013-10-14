@@ -213,6 +213,16 @@ uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length);
 
 /**
  *
+ *  Get main title
+ *  Returned number is an index to the list created by bd_get_titles()
+ *
+ * @param bd  BLURAY object
+ * @return title index of main title, -1 on error
+ */
+int bd_get_main_title(BLURAY *bd);
+
+/**
+ *
  *  Get information about a title
  *
  * @param bd  BLURAY object

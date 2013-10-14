@@ -46,7 +46,7 @@ static void _usage(char *cmd)
 int main(int argc, char *argv[])
 {
     BLURAY *bd;
-    int count, ii, opt;
+    int count, ii, opt, main_title;
     unsigned int seconds = 0;
     unsigned int flags = TITLES_RELEVANT;
     char *bd_dir = NULL;
@@ -84,6 +84,10 @@ int main(int argc, char *argv[])
     bd = bd_open(bd_dir, NULL);
 
     count = bd_get_titles(bd, flags, seconds);
+    main_title = bd_get_main_title(bd);
+    if (main_title >= 0) {
+        printf("Main title: %d\n", main_title + 1);
+    }
     for (ii = 0; ii < count; ii++)
     {
         BLURAY_TITLE_INFO* ti;

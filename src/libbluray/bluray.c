@@ -2080,6 +2080,20 @@ uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length)
     return bd->title_list->count;
 }
 
+int bd_get_main_title(BLURAY *bd)
+{
+    if (bd->title_type != title_undef) {
+        BD_DEBUG(DBG_CRIT | DBG_BLURAY, "bd_get_main_title() can't be used with BluRay menus\n");
+    }
+
+    if (bd->title_list == NULL) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title list not yet read!\n");
+        return -1;
+    }
+
+    return bd->title_list->main_title_idx;
+}
+
 static void _copy_streams(NAV_CLIP *clip, BLURAY_STREAM_INFO *streams, MPLS_STREAM *si, int count)
 {
     int ii;
