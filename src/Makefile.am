@@ -210,7 +210,6 @@ mpls_dump_SOURCES = \
 	libbluray/bdnav/clpi_parse.c \
 	libbluray/bdnav/extdata_parse.c \
 	libbluray/bdnav/mpls_parse.c \
-	libbluray/bdnav/navigation.c \
 	util/bits.c \
 	util/logging.c \
 	util/strutl.c

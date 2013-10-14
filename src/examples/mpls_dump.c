@@ -28,7 +28,6 @@
 #include "util/strutl.h"
 
 #include "libbluray/bdnav/mpls_parse.h"
-#include "libbluray/bdnav/navigation.h"
 
 #include "util.h"
 
@@ -691,8 +690,6 @@ main(int argc, char *argv[])
         dir = NULL;
         if (S_ISDIR(st.st_mode)) {
 
-            char *main_title = NULL;
-
             printf("Directory: %s:\n", argv[ii]);
             path = str_printf("%s/BDMV/PLAYLIST", argv[ii]);
             if (path == NULL) {
@@ -704,13 +701,6 @@ main(int argc, char *argv[])
                 fprintf(stderr, "Failed to open dir: %s\n", path);
                 free(path);
                 continue;
-            }
-            main_title = nav_find_main_title(argv[ii]);
-            if (main_title != NULL) {
-                printf("Main Title: %s\n", main_title);
-                free(main_title);
-            } else {
-                fprintf(stderr, "Main title search failed\n");
             }
         }
         if (dir != NULL) {
