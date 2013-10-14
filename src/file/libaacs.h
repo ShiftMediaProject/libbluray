@@ -41,6 +41,7 @@ BD_PRIVATE uint32_t libaacs_get_mkbv(BD_AACS *p);
 #define BD_AACS_MEDIA_VID          2
 #define BD_AACS_MEDIA_PMSN         3
 #define BD_AACS_DEVICE_BINDING_ID  4
+#define BD_AACS_DEVICE_NONCE       5
 
 BD_PRIVATE const uint8_t *libaacs_get_aacs_data(BD_AACS *p, int type);
 

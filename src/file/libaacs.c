@@ -41,6 +41,7 @@ struct bd_aacs {
     fptr_p_void    get_vid;
     fptr_p_void    get_pmsn;
     fptr_p_void    get_device_binding_id;
+    fptr_p_void    get_device_nonce;
 };
 
 
@@ -102,6 +103,7 @@ BD_AACS *libaacs_load(void)
     *(void **)(&p->get_vid)      = dl_dlsym(p->h_libaacs, "aacs_get_vid");
     *(void **)(&p->get_pmsn)     = dl_dlsym(p->h_libaacs, "aacs_get_pmsn");
     *(void **)(&p->get_device_binding_id) = dl_dlsym(p->h_libaacs, "aacs_get_device_binding_id");
+    *(void **)(&p->get_device_nonce)      = dl_dlsym(p->h_libaacs, "aacs_get_device_nonce");
 
     if (!p->decrypt_unit) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "libaacs dlsym failed! (%p)\n", p->h_libaacs);
@@ -215,6 +217,16 @@ static const uint8_t *_get_device_binding_id(BD_AACS *p)
     return (const uint8_t*)p->get_device_binding_id(p->aacs);
 }
 
+static const uint8_t *_get_device_nonce(BD_AACS *p)
+{
+    if (!p->get_device_nonce) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "aacs_get_device_nonce() dlsym failed!\n");
+        return NULL;
+    }
+
+    return (const uint8_t*)p->get_device_nonce(p->aacs);
+}
+
 uint32_t libaacs_get_mkbv(BD_AACS *p)
 {
     return p ? p->mkbv : 0;
@@ -239,6 +251,9 @@ BD_PRIVATE const uint8_t *libaacs_get_aacs_data(BD_AACS *p, int type)
 
         case BD_AACS_DEVICE_BINDING_ID:
             return _get_device_binding_id(p);
+
+        case BD_AACS_DEVICE_NONCE:
+            return _get_device_nonce(p);
     }
 
     BD_DEBUG(DBG_BLURAY | DBG_CRIT, "get_aacs_data(): unknown query %d\n", type);

@@ -19,6 +19,7 @@
 
 package com.aacsla.bluray.online;
 
+import org.videolan.Libbluray;
 import org.videolan.Logger;
 
 public class EnablePermission {
@@ -32,9 +33,11 @@ public class EnablePermission {
     }
 
     public byte[] getNonce() {
-        // TODO
-        logger.unimplemented("getNonce");
-        return null;
+        byte nonce[] = Libbluray.getAacsData(Libbluray.AACS_DEVICE_NONCE);
+        if (nonce == null) {
+            Logger.getLogger(DeviceAttribute.class.getName()).warning("getNonce() failed");
+        }
+        return nonce;
     }
 
     public boolean isCacheable() {
