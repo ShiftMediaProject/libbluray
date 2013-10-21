@@ -39,6 +39,9 @@ struct bd_bdplus {
     fptr_int32     m2ts_close;
     fptr_int32     seek;
     fptr_int32     fixup;
+
+    /* old API */
+    fptr_p_void    title;
 };
 
 
@@ -103,8 +106,15 @@ BD_BDPLUS *libbdplus_load(void)
     *(void **)(&p->seek)       = dl_dlsym(p->h_libbdplus, "bdplus_seek");
     *(void **)(&p->fixup)      = dl_dlsym(p->h_libbdplus, "bdplus_fixup");
     *(void **)(&p->m2ts_close) = dl_dlsym(p->h_libbdplus, "bdplus_m2ts_close");
+    if (!p->m2ts) {
+        /* Old API */
+        *(void **)(&p->title)  = dl_dlsym(p->h_libbdplus, "bdplus_set_title");
+        if (!p->title) {
+            *(void **)(&p->title)  = dl_dlsym(p->h_libbdplus, "bdplus_set_m2ts");
+        }
+    }
 
-    if (!p->event || !p->m2ts || !p->seek || !p->fixup || !p->m2ts_close) {
+    if (!p->seek || !p->fixup || !((p->m2ts && p->m2ts_close) || p->title)) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "libbdplus dlsym failed! (%p)\n", p->h_libbdplus);
         libbdplus_unload(&p);
         return NULL;
@@ -144,7 +154,7 @@ int libbdplus_init(BD_BDPLUS *p, const char *device_path, const uint8_t *vid)
 
 void libbdplus_event(BD_BDPLUS *p, uint32_t event, uint32_t param1, uint32_t param2)
 {
-    if (p && p->bdplus) {
+    if (p && p->bdplus && p->event) {
         p->event(p->bdplus, event, param1, param2);
     }
 }
@@ -159,7 +169,7 @@ void libbdplus_mmap(BD_BDPLUS *p, uint32_t region_id, void *mem)
 void libbdplus_psr(BD_BDPLUS *p, void *regs, void *read, void *write)
 {
     if (p && p->bdplus) {
-        DL_CALL(p->h_libbdplus, bdplus_psr, regs, read, write);
+        DL_CALL(p->h_libbdplus, bdplus_psr, p->bdplus, regs, read, write);
     }
 }
 
@@ -182,6 +192,16 @@ struct bd_bdplus_st {
 BD_BDPLUS_ST *libbdplus_m2ts(BD_BDPLUS *p, uint32_t clip_id, uint64_t pos)
 {
     if (p && p->bdplus) {
+
+        if (!p->m2ts) {
+            /* use old API */
+            BD_BDPLUS_ST *ret = calloc(1, sizeof(BD_BDPLUS_ST));
+            ret->lib = p;
+            ret->st  = NULL;
+            p->title(p->bdplus, clip_id);
+            p->seek(p->bdplus, pos);
+            return ret;
+        }
 
         void *st = p->m2ts(p->bdplus, clip_id);
 
@@ -218,8 +238,13 @@ int libbdplus_m2ts_close(BD_BDPLUS_ST **p)
 
 int libbdplus_seek(BD_BDPLUS_ST *p, uint64_t pos)
 {
-    if (p && p->st) {
-        return p->lib->seek(p->st, pos);
+    if (p) {
+        if (p->st) {
+            return p->lib->seek(p->st, pos);
+        } else {
+            /* use old API */
+            return p->lib->seek(p->lib->bdplus, pos);
+        }
     }
 
     return -1;
@@ -227,6 +252,11 @@ int libbdplus_seek(BD_BDPLUS_ST *p, uint64_t pos)
 
 int libbdplus_fixup(BD_BDPLUS_ST *p, uint8_t *buf, int len)
 {
+    if (p && !p->lib->m2ts) {
+        /* use old API */
+        return p->lib->fixup(p->lib->bdplus, len, buf);
+    }
+
     if (p && p->st) {
         int32_t numFixes;
         numFixes = p->lib->fixup(p->st, len, buf);
