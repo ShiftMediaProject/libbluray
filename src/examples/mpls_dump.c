@@ -119,6 +119,13 @@ const VALUE_MAP subpath_type_map[] = {
   {0,NULL}
 };
 
+const VALUE_MAP playback_type_map[] = {
+  {1, "Sequential"},
+  {2, "Random"},
+  {3, "Shuffle"},
+  {0, NULL}
+};
+
 static const char*
 _lookup_str(const VALUE_MAP *map, int val)
 {
@@ -270,6 +277,17 @@ _show_details(MPLS_PL *pl, int level)
             }
         }
         printf("\n");
+    }
+}
+
+static void
+_show_ai(MPLS_PL *pl, int level)
+{
+    indent_printf(level, "Playback type: %s (%d)",
+                  _lookup_str(playback_type_map, pl->app_info.playback_type),
+                  pl->app_info.playback_type);
+    if (pl->app_info.playback_type == 2 || pl->app_info.playback_type == 3) {
+        indent_printf(level+1, "Playback count: %d", pl->app_info.playback_count);
     }
 }
 
@@ -555,6 +573,7 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
                     pl->list_count,
                     _pl_duration(pl) / (45000 * 60),
                     (_pl_duration(pl) / 45000) % 60);
+        _show_ai(pl, 1);
     } else {
         indent_printf(0, "%s -- Duration: minutes %4u:%02u",
                     basename(name),
