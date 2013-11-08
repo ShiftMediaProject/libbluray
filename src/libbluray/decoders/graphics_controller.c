@@ -575,6 +575,7 @@ static void _render_composition_object(GRAPHICS_CONTROLLER *gc,
                                        int palette_update_flag)
 {
     if (gc->overlay_proc) {
+        BD_PG_RLE_ELEM *cropped_img = NULL;
         BD_OVERLAY ov = {0};
         ov.cmd     = BD_OVERLAY_DRAW;
         ov.pts     = pts;
@@ -585,20 +586,21 @@ static void _render_composition_object(GRAPHICS_CONTROLLER *gc,
         ov.h       = object->height;
         ov.palette = palette->entry;
         ov.img     = object->img;
+
         if (cobj->crop_flag) {
-            ov.crop_x  = cobj->crop_x;
-            ov.crop_y  = cobj->crop_y;
-            ov.crop_w  = cobj->crop_w;
-            ov.crop_h  = cobj->crop_h;
-        }
-        if (ov.crop_h) {
-          ov.h = ov.crop_h;
-          ov.crop_h = 0;
+            if (cobj->crop_x || cobj->crop_y || cobj->crop_w != object->width) {
+                ov.img = cropped_img = rle_crop_object(object->img, object->width,
+                                                       cobj->crop_x, cobj->crop_y, cobj->crop_w, cobj->crop_h);
+            }
+            ov.w  = cobj->crop_w;
+            ov.h  = cobj->crop_h;
         }
 
         ov.palette_update_flag = palette_update_flag;
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
+
+        bd_refcnt_dec(cropped_img);
     }
 }
 
