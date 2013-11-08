@@ -925,7 +925,7 @@ static int _render_textst_region(GRAPHICS_CONTROLLER *p, int64_t pts, BD_TEXTST_
         rle_add_eol(&rle);
     }
 
-    _render_rle(p, pts, rle.start,
+    _render_rle(p, pts, rle_get(&rle),
                 style->region_info.region.xpos, style->region_info.region.ypos,
                 style->region_info.region.width, style->region_info.region.height,
                 palette);

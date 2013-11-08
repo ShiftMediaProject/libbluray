@@ -27,13 +27,13 @@
 #include <stdint.h>
 
 /*
- *
+ * encode state
  */
 
 typedef struct {
-    BD_PG_RLE_ELEM *start;    /* first element */
     BD_PG_RLE_ELEM *elem;     /* current element */
-    int             num_elem; /* allocated element count */
+    unsigned int    free_elem;/* unused element count */
+    unsigned int    num_elem; /* allocated element count */
 } RLE_ENC;
 
 /*
@@ -43,65 +43,38 @@ typedef struct {
 #include "util/refcnt.h"
 #include "util/macro.h"
 
-static void rle_begin(RLE_ENC *p)
+BD_PRIVATE BD_PG_RLE_ELEM *rle_crop_object(const BD_PG_RLE_ELEM *orig, int width,
+                                           int crop_x, int crop_y, int crop_w, int crop_h);
+
+static inline void rle_begin(RLE_ENC *p)
 {
     p->num_elem = 1024;
-    p->start = refcnt_realloc(NULL, p->num_elem * sizeof(BD_PG_RLE_ELEM));
+    p->free_elem = 1024;
+    p->elem = refcnt_realloc(NULL, p->num_elem * sizeof(BD_PG_RLE_ELEM));
 
-    p->elem   = p->start;
     p->elem->len = 0;
     p->elem->color = 0xffff;
 }
 
-static void rle_end(RLE_ENC *p)
+static inline BD_PG_RLE_ELEM *rle_get(RLE_ENC *p)
 {
-    bd_refcnt_dec(p->start);
-    p->start = NULL;
+    BD_PG_RLE_ELEM *start = (p->elem ? p->elem - (p->num_elem - p->free_elem) : NULL);
+    return start;
 }
 
-static void _rle_grow(RLE_ENC *p)
+static inline void rle_end(RLE_ENC *p)
 {
-    int count = (int)(p->elem - p->start) + 1;
-    if (count >= p->num_elem) {
-        /* realloc */
-        p->num_elem = p->num_elem * 2;
-        p->start = refcnt_realloc(p->start, p->num_elem * sizeof(BD_PG_RLE_ELEM));
-    }
-
-    p->elem = p->start + count;
-    p->elem->len = 0;
+    BD_PG_RLE_ELEM *start = rle_get(p);
+    bd_refcnt_dec(start);
+    p->elem = NULL;
 }
 
-static void rle_add_eol(RLE_ENC *p)
-{
-    if (p->elem->len) {
-        _rle_grow(p);
-    }
-    p->elem->color = 0;
+/*
+ * compression
+ */
 
-    _rle_grow(p);
-    p->elem->color = 0xffff;
-}
-
-static void rle_add_bite(RLE_ENC *p, uint8_t color, int len)
-{
-    if (color == p->elem->color) {
-        p->elem->len += len;
-    } else {
-        if (p->elem->len) {
-            _rle_grow(p);
-        }
-        p->elem->color = color;
-        p->elem->len = len;
-    }
-}
-
-static void rle_compress_chunk(RLE_ENC *p, const uint8_t *mem, unsigned width)
-{
-    unsigned ii;
-    for (ii = 0; ii < width; ii++) {
-        rle_add_bite(p, mem[ii], 1);
-    }
-}
+BD_PRIVATE void rle_add_eol(RLE_ENC *p);
+BD_PRIVATE void rle_add_bite(RLE_ENC *p, uint8_t color, int len);
+BD_PRIVATE void rle_compress_chunk(RLE_ENC *p, const uint8_t *mem, unsigned width);
 
 #endif /* _BD_RLE_H_ */
