@@ -176,18 +176,20 @@ typedef struct bd_argb_buffer_s {
     /* ARGB frame buffers
      * - Allocated by application (BD_ARGB_OVERLAY_INIT).
      * - Buffer can be freed after BD_ARGB_OVERLAY_CLOSE.
-     * - buffer can be replaced while overlay callback is executed.
+     * - buffer can be replaced in overlay callback or lock().
      */
 
     uint32_t *buf[2]; /* [0] - PG plane, [1] - IG plane */
 
     /* size of buffers
      * - Set by application
+     * - If the buffer size is smaller than the size requested in BD_ARGB_OVERLAY_INIT,
+     *   the buffer points only to the dirty area.
      */
     int width;
     int height;
 
-    /* dirty area of buffers
+    /* dirty area of frame buffers
      * - Updated by library before lock() call.
      * - Reset after each BD_ARGB_OVERLAY_FLUSH.
      */

@@ -1015,7 +1015,11 @@ static void _bdj_osd_cb(BLURAY *bd, const unsigned *img, int w, int h,
     }
 
     /* pass only changed region */
-    aov.argb   = img + x0 + y0 * w;
+    if (bd->argb_buffer->width < w || bd->argb_buffer->height < h) {
+        aov.argb   = img;
+    } else {
+        aov.argb   = img + x0 + y0 * w;
+    }
     aov.stride = w;
     aov.x      = x0;
     aov.y      = y0;

@@ -428,10 +428,24 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
         }
 
         /* check buffer size */
-        if (bdj->buf->width != width || bdj->buf->height != height) {
-            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Incorrect ARGB frame buffer size (is: %dx%d expect: %dx%d)\n",
+        if (bdj->buf->width < width || bdj->buf->height < height) {
+            /* assume buffer is only for the dirty arrea */
+            BD_DEBUG(DBG_BDJ, "ARGB frame buffer size is smaller than BD-J frame buffer size (app: %dx%d BD-J: %dx%d)\n",
                      bdj->buf->width, bdj->buf->height, width, height);
-        }
+
+            if (bdj->buf->width < (x1 - x0 + 1) || bdj->buf->height < (y1 - y0 + 1)) {
+                BD_DEBUG(DBG_BDJ | DBG_CRIT, "ARGB frame buffer size is smaller than dirty area\n");
+                if (bdj->buf->unlock) {
+                    bdj->buf->unlock(bdj->buf);
+                }
+                return;
+            }
+
+            dst = (jint*)bdj->buf->buf[BD_OVERLAY_IG];
+
+        } else {
+
+            dst = (jint*)bdj->buf->buf[BD_OVERLAY_IG] + y0 * bdj->buf->width + x0;
 
         /* clip */
         if (y1 >= bdj->buf->height) {
@@ -442,11 +456,11 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
             BD_DEBUG(DBG_BDJ | DBG_CRIT, "Cropping %d pixels from right\n", x1 - bdj->buf->width);
             x1 = bdj->buf->width - 1;
         }
+        }
 
         /* copy */
 
         offset = y0 * width + x0;
-        dst    = (jint*)bdj->buf->buf[BD_OVERLAY_IG] + y0 * bdj->buf->width + x0;
 
         for (y = y0; y <= y1; y++) {
             (*env)->GetIntArrayRegion(env, rgbArray, offset, x1 - x0 + 1, dst);
