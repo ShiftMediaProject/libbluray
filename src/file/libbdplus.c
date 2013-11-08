@@ -92,7 +92,12 @@ BD_BDPLUS *libbdplus_load(void)
 
     BD_DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
 
-    p->h_libbdplus = dl_dlopen("libbdplus", "0");
+    const char *libbdplus = getenv("LIBBDPLUS_PATH");
+    if (!libbdplus) {
+        libbdplus = "libbdplus";
+    }
+
+    p->h_libbdplus = dl_dlopen(libbdplus, "0");
     if (!p->h_libbdplus) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "libbdplus not found!\n");
         X_FREE(p);

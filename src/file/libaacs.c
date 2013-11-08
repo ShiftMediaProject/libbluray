@@ -90,7 +90,12 @@ BD_AACS *libaacs_load(void)
 {
     BD_AACS *p = calloc(1, sizeof(BD_AACS));
 
-    p->h_libaacs = dl_dlopen("libaacs", "0");
+    const char *libaacs = getenv("LIBAACS_PATH");
+    if (!libaacs) {
+        libaacs = "libaacs";
+    }
+
+    p->h_libaacs = dl_dlopen(libaacs, "0");
     if (!p->h_libaacs) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "libaacs not found!\n");
         X_FREE(p);
