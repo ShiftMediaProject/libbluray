@@ -86,23 +86,40 @@ int libaacs_required(const char *device_path)
     return 0;
 }
 
+static void *_open_libaacs(void)
+{
+    const char * const libaacs[] = {
+      getenv("LIBAACS_PATH"),
+      "libaacs",
+      "libmmbd",
+    };
+    unsigned ii;
+
+    for (ii = 0; ii < sizeof(libaacs) / sizeof(libaacs[0]); ii++) {
+        if (libaacs[ii]) {
+            void *handle = dl_dlopen(libaacs[ii], "0");
+            if (handle) {
+                BD_DEBUG(DBG_BLURAY, "Using %s for AACS\n", libaacs[ii]);
+                return handle;
+            }
+        }
+    }
+
+    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No usable AACS libraries found!\n");
+    return NULL;
+}
+
 BD_AACS *libaacs_load(void)
 {
     BD_AACS *p = calloc(1, sizeof(BD_AACS));
 
-    const char *libaacs = getenv("LIBAACS_PATH");
-    if (!libaacs) {
-        libaacs = "libaacs";
-    }
-
-    p->h_libaacs = dl_dlopen(libaacs, "0");
+    p->h_libaacs = _open_libaacs();
     if (!p->h_libaacs) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "libaacs not found!\n");
         X_FREE(p);
         return NULL;
     }
 
-    BD_DEBUG(DBG_BLURAY, "Loading libaacs (%p)\n", p->h_libaacs);
+    BD_DEBUG(DBG_BLURAY, "Loading aacs library (%p)\n", p->h_libaacs);
 
     *(void **)(&p->decrypt_unit) = dl_dlsym(p->h_libaacs, "aacs_decrypt_unit");
     *(void **)(&p->get_vid)      = dl_dlsym(p->h_libaacs, "aacs_get_vid");

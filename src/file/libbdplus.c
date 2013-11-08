@@ -86,20 +86,37 @@ int libbdplus_required(const char *device_path)
     return 0;
 }
 
+static void *_libbdplus_open(void)
+{
+    const char * const libbdplus[] = {
+      getenv("LIBBDPLUS_PATH"),
+      "libbdplus",
+      "libmmbd",
+    };
+    unsigned ii;
+
+    for (ii = 0; ii < sizeof(libbdplus) / sizeof(libbdplus[0]); ii++) {
+        if (libbdplus[ii]) {
+            void *handle = dl_dlopen(libbdplus[ii], "0");
+            if (handle) {
+                BD_DEBUG(DBG_BLURAY, "Using %s for BD+\n", libbdplus[ii]);
+                return handle;
+            }
+        }
+    }
+
+    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No usable BD+ libraries found!\n");
+    return NULL;
+}
+
 BD_BDPLUS *libbdplus_load(void)
 {
     BD_BDPLUS *p = calloc(1, sizeof(BD_BDPLUS));
 
     BD_DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
 
-    const char *libbdplus = getenv("LIBBDPLUS_PATH");
-    if (!libbdplus) {
-        libbdplus = "libbdplus";
-    }
-
-    p->h_libbdplus = dl_dlopen(libbdplus, "0");
+    p->h_libbdplus = _libbdplus_open();
     if (!p->h_libbdplus) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "libbdplus not found!\n");
         X_FREE(p);
         return NULL;
     }
