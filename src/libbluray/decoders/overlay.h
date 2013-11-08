@@ -188,7 +188,7 @@ typedef struct bd_argb_buffer_s {
     int height;
 
     /* dirty area of buffers
-     * - Updated by library.
+     * - Updated by library before lock() call.
      * - Reset after each BD_ARGB_OVERLAY_FLUSH.
      */
     struct {

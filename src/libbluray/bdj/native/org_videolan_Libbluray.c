@@ -415,6 +415,12 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
         jint y, *dst;
         jsize offset;
 
+        /* set dirty area before lock() */
+        bdj->buf->dirty[BD_OVERLAY_IG].x0 = x0;
+        bdj->buf->dirty[BD_OVERLAY_IG].x1 = x1;
+        bdj->buf->dirty[BD_OVERLAY_IG].y0 = y0;
+        bdj->buf->dirty[BD_OVERLAY_IG].y1 = y1;
+
         /* copy to application-allocated buffer */
 
         if (bdj->buf->lock) {
