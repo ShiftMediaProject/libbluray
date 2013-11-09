@@ -411,7 +411,7 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
         return;
     }
 
-    if (bdj->buf && bdj->buf->buf[BD_OVERLAY_IG]) {
+    if (bdj->buf) {
 
         /* copy to application-allocated buffer */
 
@@ -424,8 +424,16 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
         bdj->buf->dirty[BD_OVERLAY_IG].y0 = y0;
         bdj->buf->dirty[BD_OVERLAY_IG].y1 = y1;
 
+        /* get buffer */
         if (bdj->buf->lock) {
             bdj->buf->lock(bdj->buf);
+        }
+        if (!bdj->buf->buf[BD_OVERLAY_IG]) {
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "ARGB frame buffer missing\n");
+            if (bdj->buf->unlock) {
+                bdj->buf->unlock(bdj->buf);
+            }
+            return;
         }
 
         /* check buffer size */
