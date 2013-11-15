@@ -71,6 +71,7 @@ libbluray_la_SOURCES = \
 	libbluray/hdmv/mobj_print.c \
 	file/file.h \
 	file/file_posix.c \
+	file/dirs.h \
 	file/dl.h \
 	file/filesystem.h \
 	file/filesystem.c \

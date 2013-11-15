@@ -21,7 +21,7 @@
 # include "config.h"
 #endif
 
-#include "file.h"
+#include "dirs.h"
 
 #include "util/strutl.h"
 #include "util/logging.h"
@@ -35,9 +35,35 @@
  * http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
  */
 
+#define USER_CFG_DIR   ".config"
 #define USER_CACHE_DIR ".cache"
 #define USER_DATA_DIR  ".local/share"
+#define SYSTEM_CFG_DIR "/etc/xdg"
 
+
+const char *file_get_config_home(void)
+{
+    static char *dir       = NULL;
+    static int   init_done = 0;
+
+    if (!init_done) {
+        init_done = 1;
+
+        const char *xdg_home = getenv("XDG_CONFIG_HOME");
+        if (xdg_home && *xdg_home) {
+            return dir = str_printf("%s", xdg_home);
+        }
+
+        const char *user_home = getenv("HOME");
+        if (user_home && *user_home) {
+            return dir = str_printf("%s/%s", user_home, USER_CFG_DIR);
+        }
+
+        BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    }
+
+    return dir;
+}
 
 const char *file_get_data_home(void)
 {
@@ -82,6 +108,43 @@ const char *file_get_cache_home(void)
         }
 
         BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    }
+
+    return dir;
+}
+
+const char *file_get_config_system(const char *dir)
+{
+    static char *dirs = NULL; // "dir1\0dir2\0...\0dirN\0\0"
+
+    if (!dirs) {
+        const char *xdg_sys = getenv("XDG_CONFIG_DIRS");
+
+        if (xdg_sys && *xdg_sys) {
+
+            dirs = calloc(1, strlen(xdg_sys) + 2);
+            strcpy(dirs, xdg_sys);
+
+            char *pt = dirs;
+            while (NULL != (pt = strchr(pt, ':'))) {
+                *pt++ = 0;
+            }
+
+        } else {
+            dirs = str_printf("%s%c%c", SYSTEM_CFG_DIR, 0, 0);
+        }
+    }
+
+    if (!dir) {
+        // first call
+        dir = dirs;
+    } else {
+        // next call
+        dir += strlen(dir) + 1;
+        if (!*dir) {
+            // end of list
+            dir = NULL;
+        }
     }
 
     return dir;

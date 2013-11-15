@@ -29,7 +29,7 @@
 #include "bdj_util.h"
 #include "common.h"
 #include "libbluray/register.h"
-#include "file/file.h"
+#include "file/dirs.h"
 #include "file/dl.h"
 #include "util/strutl.h"
 #include "util/macro.h"
