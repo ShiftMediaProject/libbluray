@@ -21,7 +21,7 @@
 # include "config.h"
 #endif
 
-#include "file.h"
+#include "dirs.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 
