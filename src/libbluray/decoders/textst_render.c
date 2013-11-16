@@ -30,7 +30,7 @@
 #ifdef HAVE_FT2
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include <freetype/ftsynth.h>
+#include FT_SYNTHESIS_H
 #endif
 
 #include "textst_render.h"
