@@ -586,7 +586,6 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
                     return -1;
                 }
                 if (st->bdplus && libbdplus_fixup(st->bdplus, buf, len)) {
-                    return -1;
                 }
 
                 st->clip_block_pos += len;
