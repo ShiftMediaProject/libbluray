@@ -238,14 +238,6 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getTitleSizeN
 
 /*
  * Class:     org_videolan_Libbluray
- * Method:    getCurrentTitleN
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentTitleN
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     org_videolan_Libbluray
  * Method:    getCurrentAngleN
  * Signature: (J)I
  */

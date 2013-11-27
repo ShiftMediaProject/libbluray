@@ -240,7 +240,7 @@ public class Libbluray {
     }
 
     public static int getCurrentTitle() {
-        return getCurrentTitleN(nativePointer);
+        return readPSR(PSR_TITLE_NUMBER);
     }
 
     public static int getCurrentAngle() {
@@ -451,7 +451,6 @@ public class Libbluray {
     private static native long getTitleSizeN(long np);
     private static native long getUOMaskN(long np);
     private static native void setUOMaskN(long np, boolean menuCallMask, boolean titleSearchMask);
-    private static native int getCurrentTitleN(long np);
     private static native int getCurrentAngleN(long np);
     private static native long tellN(long np);
     private static native long tellTimeN(long np);

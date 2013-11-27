@@ -312,12 +312,6 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getTitleSizeN(JNIEnv * env,
     return bd_get_title_size(bdj->bd);
 }
 
-JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentTitleN(
-        JNIEnv * env, jclass cls, jlong np) {
-    BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
-    return bd_psr_read(bdj->reg, PSR_TITLE_NUMBER);
-}
-
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentAngleN(
         JNIEnv * env, jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
@@ -602,11 +596,6 @@ Java_org_videolan_Libbluray_methods[] =
         CC("getTitleSizeN"),
         CC("(J)J"),
         VC(Java_org_videolan_Libbluray_getTitleSizeN),
-    },
-    {
-        CC("getCurrentTitleN"),
-        CC("(J)I"),
-        VC(Java_org_videolan_Libbluray_getCurrentTitleN),
     },
     {
         CC("getCurrentAngleN"),
