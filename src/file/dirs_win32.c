@@ -82,7 +82,7 @@ const char *file_get_config_system(const char *dir)
     if (!dir) {
         // first call
 
-        if (*appdir)
+        if (appdir)
             return appdir;
 
         /* Get the "Application Data" folder for all users */
