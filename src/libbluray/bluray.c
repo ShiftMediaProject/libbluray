@@ -975,6 +975,31 @@ uint64_t bd_get_uo_mask(BLURAY *bd)
 #endif
 
 #ifdef USING_BDJAVA
+uint32_t bd_reg_read(BLURAY *bd, int psr, int reg)
+{
+    if (psr) {
+        return bd_psr_read(bd->regs, reg);
+    } else {
+        return bd_gpr_read(bd->regs, reg);
+    }
+}
+#endif
+
+#ifdef USING_BDJAVA
+int bd_reg_write(BLURAY *bd, int psr, int reg, uint32_t value)
+{
+    if (psr) {
+        bd_mutex_lock(&bd->mutex); /* avoid deadlocks (psr_write triggers callbacks that may lock this mutex) */
+        int res = bd_psr_write(bd->regs, reg, value);
+        bd_mutex_unlock(&bd->mutex);
+        return res;
+    } else {
+        return bd_gpr_write(bd->regs, reg, value);
+    }
+}
+#endif
+
+#ifdef USING_BDJAVA
 /*
  * handle graphics updates from BD-J layer
  */
@@ -1055,7 +1080,7 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
-        bd->bdjava = bdj_open(bd->device_path, bd, bd->regs, bd->index, _bdj_osd_cb, bd->argb_buffer);
+        bd->bdjava = bdj_open(bd->device_path, bd, bd->index, _bdj_osd_cb, bd->argb_buffer);
         if (!bd->bdjava) {
             return 0;
         }

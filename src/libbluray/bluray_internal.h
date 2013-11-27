@@ -31,4 +31,7 @@ BD_PRIVATE const uint8_t *bd_get_aacs_data(BLURAY *bd, int type);
 BD_PRIVATE uint64_t bd_get_uo_mask(BLURAY *bd);
 BD_PRIVATE int bd_play_title_internal(BLURAY *bd, unsigned title);
 
+BD_PRIVATE uint32_t bd_reg_read(BLURAY *bd, int psr, int reg);
+BD_PRIVATE int bd_reg_write(BLURAY *bd, int psr, int reg, uint32_t value);
+
 #endif  /* _BLURAY_INTERNAL_H_ */

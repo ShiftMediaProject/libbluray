@@ -251,7 +251,7 @@ static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
 }
 
 BDJAVA* bdj_open(const char *path, struct bluray *bd,
-                 struct bd_registers_s *registers, struct indx_root_s *index,
+                 struct indx_root_s *index,
                  bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf)
 {
     BD_DEBUG(DBG_BDJ, "bdj_open()\n");
@@ -275,7 +275,6 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 
     BDJAVA* bdjava = calloc(1, sizeof(BDJAVA));
     bdjava->bd = bd;
-    bdjava->reg = registers;
     bdjava->index = index;
     bdjava->path = path;
     bdjava->h_libjvm = jvm_lib;

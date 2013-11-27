@@ -22,11 +22,9 @@
 #include "libbluray/bdj/bdj_private.h"
 #include "libbluray/bdj/bdj_util.h"
 #include "libbluray/bdj/bdjo_parser.h"
-#include "libbluray/register.h"
 #include "libbluray/bluray.h"
 #include "libbluray/bluray_internal.h"
 
-#include "util/mutex.h"
 #include "util/strutl.h"
 #include "util/macro.h"
 #include "util/logging.h"
@@ -341,13 +339,17 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writeGPRN(JNIEnv * env,
 
     BD_DEBUG(DBG_JNI, "writeGPRN(%d,%d)\n", (int)num, (int)value);
 
-    return bd_gpr_write(bdj->reg, num, value);
+    return bd_reg_write(bdj->bd, 0, num, value);
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readGPRN(JNIEnv * env,
         jclass cls, jlong np, jint num) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
-    return bd_gpr_read(bdj->reg, num);
+    int value = bd_reg_read(bdj->bd, 0, num);
+
+    BD_DEBUG(DBG_JNI, "readGPRN(%d) -> %d\n", (int)num, (int)value);
+
+    return value;
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writePSRN(JNIEnv * env,
@@ -356,16 +358,17 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writePSRN(JNIEnv * env,
 
     BD_DEBUG(DBG_JNI, "writePSRN(%d,%d)\n", (int)num, (int)value);
 
-    bd_mutex_lock((BD_MUTEX*)bdj->bd);
-    int res = bd_psr_write(bdj->reg, num, value);
-    bd_mutex_unlock((BD_MUTEX*)bdj->bd);
-    return res;
+    return bd_reg_write(bdj->bd, 1, num, value);
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN(JNIEnv * env,
         jclass cls, jlong np, jint num) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
-    return bd_psr_read(bdj->reg, num);
+    int value = bd_reg_read(bdj->bd, 1, num);
+
+    BD_DEBUG(DBG_JNI, "readPSRN(%d) -> %d\n", (int)num, (int)value);
+
+    return value;
 }
 
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
