@@ -871,9 +871,6 @@ static int _libbdplus_init(BLURAY *bd)
     /* connect registers */
     libbdplus_psr(bd->libbdplus, (void*)bd->regs, (void*)bd_psr_read, (void*)bd_psr_write);
 
-    /* start VM */
-    libbdplus_start(bd->libbdplus);
-
     bd->disc_info.bdplus_handled = 1;
     return 1;
 }
@@ -2132,6 +2129,11 @@ uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length)
         return 0;
     }
 
+    /* start BD+. No real title info will be passed to BD+ VM ... */
+    if (bd->libbdplus) {
+        libbdplus_event(bd->libbdplus, 0xffffffff, bd->index->num_titles, 0);
+    }
+
     return bd->title_list->count;
 }
 
@@ -2498,6 +2500,7 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
             break;
         case PSR_TITLE_NUMBER:
             _queue_event(bd, BD_EVENT_TITLE,    ev->new_val);
+            libbdplus_event(bd->libbdplus, 0x110, ev->new_val, 0);
             break;
         case PSR_PLAYLIST:
             _queue_event(bd, BD_EVENT_PLAYLIST, ev->new_val);
@@ -2759,6 +2762,9 @@ int bd_play(BLURAY *bd)
     bd_psr_register_cb(bd->regs, _process_psr_event, bd);
     _queue_initial_psr_events(bd);
     bd_psr_unlock(bd->regs);
+
+    /* start BD+ VM */
+    libbdplus_start(bd->libbdplus);
 
     /* start playback from FIRST PLAY title */
 
