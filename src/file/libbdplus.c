@@ -284,7 +284,7 @@ int libbdplus_fixup(BD_BDPLUS_ST *p, uint8_t *buf, int len)
         numFixes = p->lib->fixup(p->st, len, buf);
 #if 1
         if (numFixes) {
-            BD_DEBUG(DBG_BDPLUS | DBG_CRIT, "BD+ did %d fixups\n", numFixes);
+            BD_DEBUG(DBG_BDPLUS, "BD+ did %d fixups\n", numFixes);
         }
 #endif
         return numFixes;
