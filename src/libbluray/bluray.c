@@ -986,9 +986,14 @@ uint32_t bd_reg_read(BLURAY *bd, int psr, int reg)
 int bd_reg_write(BLURAY *bd, int psr, int reg, uint32_t value)
 {
     if (psr) {
-        bd_mutex_lock(&bd->mutex); /* avoid deadlocks (psr_write triggers callbacks that may lock this mutex) */
+        if (psr < 102) {
+            /* avoid deadlocks (psr_write triggers callbacks that may lock this mutex) */
+            bd_mutex_lock(&bd->mutex);
+        }
         int res = bd_psr_write(bd->regs, reg, value);
-        bd_mutex_unlock(&bd->mutex);
+        if (psr < 102) {
+            bd_mutex_unlock(&bd->mutex);
+        }
         return res;
     } else {
         return bd_gpr_write(bd->regs, reg, value);
