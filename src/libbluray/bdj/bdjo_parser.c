@@ -410,15 +410,12 @@ jobject bdjo_read(JNIEnv* env, const char* file)
         return NULL;
     }
 
-    file_seek(handle, 0, SEEK_END);
-    int64_t length = file_tell(handle);
+    int64_t length = file_size(handle);
 
     if (length <= 0 || length > MAX_BDJO_FILE_SIZE) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error reading %s\n", file);
 
     } else {
-        file_seek(handle, 0, SEEK_SET);
-
         size_t size = (size_t)length;
         uint8_t *data = malloc(size);
         size_t size_read = file_read(handle, data, size);

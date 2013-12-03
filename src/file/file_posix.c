@@ -138,3 +138,21 @@ BD_FILE_OPEN file_open_default(void)
 {
     return file_open_linux;
 }
+
+/*
+ *
+ */
+
+int64_t file_size(BD_FILE_H *fp)
+{
+    int64_t pos    = file_tell(fp);
+    int64_t res1   = file_seek(fp, 0, SEEK_END);
+    int64_t length = file_tell(fp);
+    int64_t res2   = file_seek(fp, pos, SEEK_SET);
+
+    if (res1 < 0 || res2 < 0 || pos < 0 || length < 0) {
+        return -1;
+    }
+
+    return length;
+}

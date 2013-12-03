@@ -159,11 +159,9 @@ META_ROOT *meta_parse(const char *device_path)
             continue;
         }
 
-        file_seek(handle, 0, SEEK_END);
-        int64_t length = file_tell(handle);
+        int64_t length = file_size(handle);
 
         if (length > 0 && length < MAX_META_FILE_SIZE) {
-            file_seek(handle, 0, SEEK_SET);
             size_t size = (size_t)length;
             uint8_t *data = malloc(size);
             size_t size_read = file_read(handle, data, size);

@@ -22,6 +22,8 @@
 
 #include "bits.h"
 
+#include "util/logging.h"
+
 #include <stdio.h>
 
 /**
@@ -39,12 +41,16 @@ void bb_init( BITBUFFER *bb, uint8_t *p_data, size_t i_data )
 
 void bs_init( BITSTREAM *bs, BD_FILE_H *fp )
 {
+    int64_t size = file_size(fp);;
     bs->fp = fp;
     bs->pos = 0;
-    file_seek(bs->fp, 0, SEEK_END);
-    bs->end = file_tell(bs->fp);
-    file_seek(bs->fp, 0, SEEK_SET);
+    bs->end = (size < 0) ? 0 : size;
     bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
+    if (bs->size == 0 || bs->size > BF_BUF_SIZE) {
+        bs->size = 0;
+        bs->end = 0;
+        BD_DEBUG(DBG_FILE|DBG_CRIT, "bs_init(): read error!\n");
+    }
     bb_init(&bs->bb, bs->buf, bs->size);
 }
 

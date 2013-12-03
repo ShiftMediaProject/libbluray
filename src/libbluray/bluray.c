@@ -526,13 +526,17 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
     st->fp = file_open(f_name, "rb");
     X_FREE(f_name);
 
+    st->clip_size = 0;
     st->clip_pos = (uint64_t)st->clip->start_pkt * 192;
     st->clip_block_pos = (st->clip_pos / 6144) * 6144;
 
     if (st->fp) {
-        file_seek(st->fp, 0, SEEK_END);
-        if ((st->clip_size = file_tell(st->fp))) {
+        int64_t clip_size = file_size(st->fp);
+        if (clip_size > 0) {
+
             file_seek(st->fp, st->clip_block_pos, SEEK_SET);
+
+            st->clip_size   = clip_size;
             st->int_buf_off = 6144;
 
             libaacs_select_title(bd->libaacs, bd_psr_read(bd->regs, PSR_TITLE_NUMBER));
