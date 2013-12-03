@@ -534,7 +534,11 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
         int64_t clip_size = file_size(st->fp);
         if (clip_size > 0) {
 
-            file_seek(st->fp, st->clip_block_pos, SEEK_SET);
+            if (file_seek(st->fp, st->clip_block_pos, SEEK_SET) < 0) {
+                BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to seek clip %s!\n", st->clip->name);
+                _close_m2ts(st);
+                return 0;
+            }
 
             st->clip_size   = clip_size;
             st->int_buf_off = 6144;
@@ -565,6 +569,7 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
         }
 
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Clip %s empty!\n", st->clip->name);
+        _close_m2ts(st);
     }
 
     BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open clip %s!\n", st->clip->name);
@@ -630,7 +635,10 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
             /* skip broken unit */
             st->clip_block_pos += len;
             st->clip_pos += len;
-            file_seek(st->fp, st->clip_block_pos, SEEK_SET);
+
+            if (file_seek(st->fp, st->clip_block_pos, SEEK_SET) < 0) {
+                BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to seek clip %s!\n", st->clip->name);
+            }
 
             return 0;
         }
@@ -733,7 +741,9 @@ static int64_t _seek_stream(BLURAY *bd, BD_STREAM *st,
     st->clip_pos = (uint64_t)clip_pkt * 192;
     st->clip_block_pos = (st->clip_pos / 6144) * 6144;
 
-    file_seek(st->fp, st->clip_block_pos, SEEK_SET);
+    if (file_seek(st->fp, st->clip_block_pos, SEEK_SET) < 0) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to seek clip %s!\n", st->clip->name);
+    }
 
     st->int_buf_off = 6144;
 
