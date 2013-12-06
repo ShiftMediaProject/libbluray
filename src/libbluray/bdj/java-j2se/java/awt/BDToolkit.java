@@ -249,6 +249,8 @@ public class BDToolkit extends Toolkit implements KeyboardFocusManagerPeerProvid
 
             logger.warning("getEventQueue() failed: no context");
         }
+
+        logger.warning("getEventQueue() failed: no component");
         return null;
     }
 
@@ -260,6 +262,8 @@ public class BDToolkit extends Toolkit implements KeyboardFocusManagerPeerProvid
                 return eq;
             }
         }
+
+        logger.warning("getSystemEventQueue(): no context");
         return eventQueue;
     }
 
