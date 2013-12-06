@@ -56,10 +56,20 @@ import org.bluray.net.BDLocator;
 
 import org.videolan.BDJAction;
 import org.videolan.BDJActionManager;
+import org.videolan.BDJXletContext;
+import org.videolan.Logger;
 
 public abstract class BDHandler implements Player, ServiceContentHandler {
     public BDHandler() {
+        BDJXletContext ownerContext = BDJXletContext.getCurrentContext();
+        if (ownerContext == null) {
+            Logger.getLogger(BDHandler.class.getName()).error("Create BDHandler from wrong thread: " + org.videolan.Logger.dumpStack());
+        }
+        this.ownerContext = ownerContext;
+    }
 
+    public BDJXletContext getOwnerContext() {
+        return this.ownerContext;
     }
 
     private void checkUnrealized() {
@@ -539,6 +549,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
 
     private class PlayerCallback extends BDJAction {
         private PlayerCallback(BDHandler player, ControllerEvent event) {
+            super(player.ownerContext);
             this.player = player;
             this.event = event;
         }
@@ -618,6 +629,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     protected float rate = 1.0f;
     protected Control[] controls = null;
     protected BDLocator locator = null;
+    protected BDJXletContext ownerContext;
     private LinkedList listeners = new LinkedList();
 
     public static final double TO_SECONDS = 1 / 90000.0d;

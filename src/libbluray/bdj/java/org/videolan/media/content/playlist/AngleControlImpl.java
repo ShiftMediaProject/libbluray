@@ -78,6 +78,7 @@ public class AngleControlImpl implements AngleControl {
 
     private class AngleCallback extends BDJAction {
         private AngleCallback(AngleControlImpl control, int angle) {
+            super(control.player.getOwnerContext());
             this.control = control;
             this.angle = angle;
         }

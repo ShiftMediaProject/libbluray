@@ -146,6 +146,7 @@ public class SubtitlingControlImpl extends StreamControl implements SubtitlingCo
 
     private class SubtitleCallback extends BDJAction {
         private SubtitleCallback(SubtitlingControlImpl control) {
+            super(control.player.getOwnerContext());
             this.control = control;
         }
 

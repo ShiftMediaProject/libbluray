@@ -154,6 +154,7 @@ public class PlaybackControlImpl implements PlaybackControl {
 
     private class PlayeBackCallback extends BDJAction {
         private PlayeBackCallback(PlaybackControlImpl control, Object event) {
+            super(control.player.getOwnerContext());
             this.control = control;
             this.event = event;
         }

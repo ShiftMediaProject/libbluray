@@ -86,6 +86,7 @@ public class UOMaskTableControlImpl implements UOMaskTableControl {
 
     private class UOMaskTableCallback extends BDJAction {
         private UOMaskTableCallback(UOMaskTableControlImpl control, Object event) {
+            super(control.player.getOwnerContext());
             this.control = control;
             this.event = event;
         }

@@ -111,6 +111,7 @@ public class PiPControlImpl extends VideoControl implements PiPControl, Asynchro
 
     private class PiPCallback extends BDJAction {
         private PiPCallback(PiPControlImpl control, boolean available) {
+            super(control.player.getOwnerContext());
             this.control = control;
             this.available = available;
         }
