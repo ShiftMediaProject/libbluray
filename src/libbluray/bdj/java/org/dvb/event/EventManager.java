@@ -66,7 +66,7 @@ public class EventManager implements ResourceServer {
     }
 
     public void removeUserEventListener(UserEventListener listener) {
-        XletContext context = BDJXletContext.getCurrentContext();
+        BDJXletContext context = BDJXletContext.getCurrentContext();
         synchronized (this) {
             for (Iterator it = sharedUserEventListener.iterator(); it.hasNext(); ) {
                 UserEventItem item = (UserEventItem)it.next();
@@ -97,7 +97,7 @@ public class EventManager implements ResourceServer {
     }
 
     public void removeExclusiveAccessToAWTEvent(ResourceClient client) {
-        XletContext context = BDJXletContext.getCurrentContext();
+        BDJXletContext context = BDJXletContext.getCurrentContext();
         synchronized (this) {
             for (Iterator it = exclusiveAWTEventListener.iterator(); it.hasNext(); ) {
                 UserEventItem item = (UserEventItem)it.next();
@@ -134,7 +134,7 @@ public class EventManager implements ResourceServer {
         HScene focusHScene = GUIManager.getInstance().getFocusHScene();
         boolean result = false;
         if (focusHScene != null) {
-            XletContext context = focusHScene.getXletContext();
+            BDJXletContext context = focusHScene.getXletContext();
             for (Iterator it = exclusiveAWTEventListener.iterator(); it.hasNext(); ) {
                 UserEventItem item = (UserEventItem)it.next();
                 if (item.context == context) {
@@ -189,7 +189,7 @@ public class EventManager implements ResourceServer {
     }
 
     private boolean cleanupReservedEvents(UserEventRepository userEvents) {
-        XletContext context = BDJXletContext.getCurrentContext();
+        BDJXletContext context = BDJXletContext.getCurrentContext();
         for (Iterator it = exclusiveUserEventListener.iterator(); it.hasNext(); ) {
             UserEventItem item = (UserEventItem)it.next();
                 if (item.context == context)
@@ -230,7 +230,7 @@ public class EventManager implements ResourceServer {
     }
 
     private class UserEventItem {
-        public UserEventItem(XletContext context, UserEventListener listener,
+        public UserEventItem(BDJXletContext context, UserEventListener listener,
                              ResourceClient client, UserEventRepository userEvents) {
             this.context = context;
             this.listener = listener;
@@ -238,7 +238,7 @@ public class EventManager implements ResourceServer {
             this.userEvents = userEvents;
         }
 
-        public XletContext context;
+        public BDJXletContext context;
         public UserEventListener listener;
         public ResourceClient client;
         public UserEventRepository userEvents;
@@ -246,7 +246,7 @@ public class EventManager implements ResourceServer {
 
     private class UserEventAction extends BDJAction {
         public UserEventAction(UserEventItem item, int event) {
-            super((BDJXletContext)item.context);
+            super(item.context);
             this.item = item;
             this.event = event;
         }
