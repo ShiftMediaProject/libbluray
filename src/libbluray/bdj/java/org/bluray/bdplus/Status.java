@@ -19,8 +19,7 @@
 
 package org.bluray.bdplus;
 
-import java.util.ArrayList;
-
+import org.videolan.BDJListeners;
 import org.videolan.Libbluray;
 import org.videolan.Logger;
 
@@ -34,9 +33,7 @@ public class Status {
     }
 
     public void addListener(StatusListener listener) {
-        synchronized (listeners) {
-            listeners.add(listener);
-        }
+        listeners.add(listener);
     }
 
     public int get() {
@@ -45,9 +42,7 @@ public class Status {
     }
 
     public void removeListener(StatusListener listener) {
-        synchronized (listeners) {
-            listeners.remove(listener);
-        }
+        listeners.remove(listener);
     }
 
     public void send(int data) {
@@ -62,32 +57,11 @@ public class Status {
 
     public void receive(int data) {
         logger.trace("receive(" + data + ")");
-
-        synchronized (listeners) {
-            if (!listeners.isEmpty())
-                org.videolan.BDJActionManager.getInstance().putCallback(new PSR102Callback(data));
-        }
-    }
-
-    private class PSR102Callback extends org.videolan.BDJAction {
-        private PSR102Callback(int value) {
-            this.value = value;
-        }
-
-        protected void doAction() {
-            ArrayList list;
-            synchronized (listeners) {
-                list = (ArrayList)listeners.clone();
-            }
-            for (int i = 0; i < list.size(); i++)
-                ((StatusListener)list.get(i)).receive(value);
-        }
-
-        private int value;
+        listeners.putPSR102Callback(data);
     }
 
     private static Status instance = null;
-    private ArrayList listeners = new ArrayList();
+    private BDJListeners listeners = new BDJListeners();
 
     private static final Logger logger = Logger.getLogger(Status.class.getName());
 }

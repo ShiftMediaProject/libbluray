@@ -28,8 +28,7 @@ import org.bluray.media.UOMaskTableListener;
 import org.bluray.media.UOMaskTableChangedEvent;
 import org.bluray.media.UOMaskedEvent;
 
-import org.videolan.BDJAction;
-import org.videolan.BDJActionManager;
+import org.videolan.BDJListeners;
 import org.videolan.Libbluray;
 import org.videolan.PlaylistInfo;
 
@@ -43,15 +42,11 @@ public class UOMaskTableControlImpl implements UOMaskTableControl {
     }
 
     public void addUOMaskTableEventListener(UOMaskTableListener listener) {
-        synchronized(listeners) {
-            listeners.add(listener);
-        }
+        listeners.add(listener);
     }
 
     public void removeUOMaskTableEventListener(UOMaskTableListener listener) {
-        synchronized(listeners) {
-            listeners.remove(listener);
-        }
+        listeners.remove(listener);
     }
 
     public boolean[] getMaskedUOTable() {
@@ -68,48 +63,14 @@ public class UOMaskTableControlImpl implements UOMaskTableControl {
 
     protected void onUOMasked(int position) {
         // TODO: this method is not called
-        notifyListeners(new UOMaskedEvent(this, position));
+        listeners.putCallback(new UOMaskedEvent(this, position));
     }
 
     protected void onPlayItemReach(int param) {
         // TODO: check if masked UO table actually changed
-        notifyListeners(new UOMaskTableChangedEvent(this));
+        listeners.putCallback(new UOMaskTableChangedEvent(this));
     }
 
-    private void notifyListeners(Object event) {
-        synchronized (listeners) {
-            if (!listeners.isEmpty())
-                BDJActionManager.getInstance().putCallback(
-                        new UOMaskTableCallback(this, event));
-        }
-    }
-
-    private class UOMaskTableCallback extends BDJAction {
-        private UOMaskTableCallback(UOMaskTableControlImpl control, Object event) {
-            super(control.player.getOwnerContext());
-            this.control = control;
-            this.event = event;
-        }
-
-        protected void doAction() {
-            LinkedList list;
-            synchronized (control.listeners) {
-                list = (LinkedList)control.listeners.clone();
-            }
-            if (event instanceof UOMaskTableChangedEvent) {
-                for (int i = 0; i < list.size(); i++)
-                    ((UOMaskTableListener)list.get(i)).receiveUOMaskTableChangedEvent((UOMaskTableChangedEvent)event);
-            }
-            else if (event instanceof UOMaskedEvent) {
-                for (int i = 0; i < list.size(); i++)
-                    ((UOMaskTableListener)list.get(i)).receiveUOMaskedEvent((UOMaskedEvent)event);
-            }
-        }
-
-        private UOMaskTableControlImpl control;
-        private Object event;
-    }
-
-    private LinkedList listeners = new LinkedList();
+    private BDJListeners listeners = new BDJListeners();
     private Handler player;
 }

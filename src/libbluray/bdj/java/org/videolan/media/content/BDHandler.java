@@ -56,20 +56,12 @@ import org.bluray.net.BDLocator;
 
 import org.videolan.BDJAction;
 import org.videolan.BDJActionManager;
+import org.videolan.BDJListeners;
 import org.videolan.BDJXletContext;
 import org.videolan.Logger;
 
 public abstract class BDHandler implements Player, ServiceContentHandler {
     public BDHandler() {
-        BDJXletContext ownerContext = BDJXletContext.getCurrentContext();
-        if (ownerContext == null) {
-            Logger.getLogger(BDHandler.class.getName()).error("Create BDHandler from wrong thread: " + org.videolan.Logger.dumpStack());
-        }
-        this.ownerContext = ownerContext;
-    }
-
-    public BDJXletContext getOwnerContext() {
-        return this.ownerContext;
     }
 
     private void checkUnrealized() {
@@ -139,15 +131,11 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     }
 
     public void addControllerListener(ControllerListener listener) {
-        synchronized (listeners) {
-            listeners.add(listener);
-        }
+        listeners.add(listener);
     }
 
     public void removeControllerListener(ControllerListener listener) {
-        synchronized (listeners) {
-            listeners.remove(listener);
-        }
+        listeners.remove(listener);
     }
 
     public Time getStartLatency() {
@@ -389,10 +377,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     }
 
     private void notifyListeners(ControllerEvent event) {
-        synchronized (listeners) {
-            if (!listeners.isEmpty())
-                BDJActionManager.getInstance().putCallback(new PlayerCallback(this, event));
-        }
+        listeners.putCallback(event);
     }
 
     private boolean doRealizeAction() {
@@ -547,26 +532,6 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         }
     }
 
-    private class PlayerCallback extends BDJAction {
-        private PlayerCallback(BDHandler player, ControllerEvent event) {
-            super(player.ownerContext);
-            this.player = player;
-            this.event = event;
-        }
-
-        protected void doAction() {
-            LinkedList list;
-            synchronized (player.listeners) {
-                list = (LinkedList)player.listeners.clone();
-            }
-            for (int i = 0; i < list.size(); i++)
-                ((ControllerListener)list.get(i)).controllerUpdate(event);
-        }
-
-        private BDHandler player;
-        private ControllerEvent event;
-    }
-
     private class PlayerAction extends BDJAction {
         private PlayerAction(BDHandler player, int action, Object param) {
             this.player = player;
@@ -629,8 +594,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     protected float rate = 1.0f;
     protected Control[] controls = null;
     protected BDLocator locator = null;
-    protected BDJXletContext ownerContext;
-    private LinkedList listeners = new LinkedList();
+    private BDJListeners listeners = new BDJListeners();
 
     public static final double TO_SECONDS = 1 / 90000.0d;
     public static final double FROM_SECONDS = 90000.0d;

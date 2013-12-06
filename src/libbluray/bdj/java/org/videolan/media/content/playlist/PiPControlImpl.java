@@ -20,7 +20,6 @@
 package org.videolan.media.content.playlist;
 
 import java.awt.Dimension;
-import java.util.LinkedList;
 
 import javax.media.Time;
 
@@ -31,8 +30,7 @@ import org.bluray.media.PiPStatusListener;
 import org.bluray.media.StreamNotAvailableException;
 import org.havi.ui.HScreenRectangle;
 
-import org.videolan.BDJAction;
-import org.videolan.BDJActionManager;
+import org.videolan.BDJListeners;
 import org.videolan.Libbluray;
 import org.videolan.StreamInfo;
 import org.videolan.TIClip;
@@ -90,44 +88,15 @@ public class PiPControlImpl extends VideoControl implements PiPControl, Asynchro
     }
 
     protected void onPiPChange(int param) {
-        synchronized (listeners) {
-            if (!listeners.isEmpty())
-                BDJActionManager.getInstance().putCallback(
-                                                           new PiPCallback(this, param > 0));
-        }
+        listeners.putCallback(new PiPStatusEvent(param > 0, this));
     }
 
     public void addPiPStatusListener(PiPStatusListener listener) {
-        synchronized(listeners) {
-            listeners.add(listener);
-        }
+        listeners.add(listener);
     }
 
     public void removePiPStatusListener(PiPStatusListener listener) {
-        synchronized(listeners) {
-            listeners.remove(listener);
-        }
-    }
-
-    private class PiPCallback extends BDJAction {
-        private PiPCallback(PiPControlImpl control, boolean available) {
-            super(control.player.getOwnerContext());
-            this.control = control;
-            this.available = available;
-        }
-
-        protected void doAction() {
-            LinkedList list;
-            synchronized (control.listeners) {
-                list = (LinkedList)control.listeners.clone();
-            }
-            PiPStatusEvent event = new PiPStatusEvent(available, control);
-            for (int i = 0; i < list.size(); i++)
-                ((PiPStatusListener)list.get(i)).piPStatusChange(event);
-        }
-
-        private PiPControlImpl control;
-        private boolean available;
+        listeners.remove(listener);
     }
 
     public void start() {
@@ -152,5 +121,5 @@ public class PiPControlImpl extends VideoControl implements PiPControl, Asynchro
         return null;
     }
 
-    private LinkedList listeners = new LinkedList();
+    private BDJListeners listeners = new BDJListeners();
 }

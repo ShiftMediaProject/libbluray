@@ -49,6 +49,8 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                                               Integer.toHexString(appid.getAID()) + "." +
                                               entry.getInitialClass(),
                                               this);
+
+        callbackQueue = new BDJActionQueue(this.threadGroup);
     }
 
     public Object getXletProperty(String key) {
@@ -112,6 +114,15 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
     public EventQueue getEventQueue() {
         return eventQueue;
+    }
+
+    public boolean putCallback(BDJAction cb)
+    {
+        if (!isDestroyed()) {
+            callbackQueue.put(cb);
+            return true;
+        }
+        return false;
     }
 
     protected int numEventQueueThreads() {
@@ -202,6 +213,13 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             sceneFactory = null;
         }
 
+        try {
+            callbackQueue.finalize();
+        } catch (Throwable t) {
+        } finally {
+            //callbackQueue = null;
+        }
+
         EventQueue eq = eventQueue;
         eventQueue = null;
         if (eq != null) {
@@ -223,5 +241,6 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     private HSceneFactory sceneFactory = null;
     private BDJThreadGroup threadGroup = null;
     private LinkedList ixcThreads = new LinkedList();
+    private BDJActionQueue callbackQueue;
     private static final Logger logger = Logger.getLogger(BDJXletContext.class.getName());
 }

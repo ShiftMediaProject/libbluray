@@ -28,6 +28,14 @@ public class BDJActionQueue implements Runnable {
         thread.start();
     }
 
+    public BDJActionQueue(BDJThreadGroup threadGroup) {
+        /* run all actions in given thread group / xlet context */
+        group = null;
+        thread = new Thread(group, this);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
     protected void finalize() throws Throwable {
         synchronized (actions) {
             actions.addLast(null);
@@ -52,7 +60,9 @@ public class BDJActionQueue implements Runnable {
             if (action == null)
                 return;
             try {
-                group.setContext(((BDJAction)action).getContext());
+                if (group != null) {
+                    group.setContext(((BDJAction)action).getContext());
+                }
                 ((BDJAction)action).process();
             } catch (Throwable e) {
                 e.printStackTrace();

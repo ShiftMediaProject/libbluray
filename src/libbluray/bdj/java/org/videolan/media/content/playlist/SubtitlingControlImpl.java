@@ -20,7 +20,6 @@
 package org.videolan.media.content.playlist;
 
 import java.util.EventObject;
-import java.util.LinkedList;
 
 import org.bluray.media.StreamNotAvailableException;
 import org.bluray.media.SubtitleStyleNotAvailableException;
@@ -28,8 +27,7 @@ import org.bluray.media.SubtitlingControl;
 import org.bluray.media.TextSubtitleNotAvailableException;
 import org.bluray.ti.CodingType;
 import org.dvb.media.SubtitleListener;
-import org.videolan.BDJAction;
-import org.videolan.BDJActionManager;
+import org.videolan.BDJListeners;
 import org.videolan.Libbluray;
 import org.videolan.StreamInfo;
 import org.videolan.TIClip;
@@ -125,43 +123,16 @@ public class SubtitlingControlImpl extends StreamControl implements SubtitlingCo
     }
 
     public void addSubtitleListener(SubtitleListener listener) {
-        synchronized(listeners) {
-            listeners.add(listener);
-        }
+        listeners.add(listener);
     }
 
     public void removeSubtitleListener(SubtitleListener listener) {
-        synchronized(listeners) {
-            listeners.remove(listener);
-        }
+        listeners.remove(listener);
     }
 
     protected void onSubtitleChange(int param) {
-        synchronized (listeners) {
-            if (!listeners.isEmpty())
-                BDJActionManager.getInstance().putCallback(
-                        new SubtitleCallback(this));
-        }
+        listeners.putCallback(new EventObject(this));
     }
 
-    private class SubtitleCallback extends BDJAction {
-        private SubtitleCallback(SubtitlingControlImpl control) {
-            super(control.player.getOwnerContext());
-            this.control = control;
-        }
-
-        protected void doAction() {
-            LinkedList list;
-            synchronized (control.listeners) {
-                list = (LinkedList)control.listeners.clone();
-            }
-            EventObject event = new EventObject(control);
-            for (int i = 0; i < list.size(); i++)
-                ((SubtitleListener)list.get(i)).subtitleStatusChanged(event);
-        }
-
-        private SubtitlingControlImpl control;
-    }
-
-    private LinkedList listeners = new LinkedList();
+    private BDJListeners listeners = new BDJListeners();
 }

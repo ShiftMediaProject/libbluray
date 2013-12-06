@@ -38,6 +38,7 @@ import org.videolan.BDJLoader;
 import org.videolan.BDJAction;
 import org.videolan.BDJActionManager;
 import org.videolan.BDJLoaderCallback;
+import org.videolan.BDJListeners;
 import org.videolan.media.content.playlist.Handler;
 
 public class TitleContextImpl implements TitleContext {
@@ -90,19 +91,11 @@ public class TitleContextImpl implements TitleContext {
     }
 
     public void addListener(ServiceContextListener listener) {
-        if (listener != null) {
-            synchronized (listeners) {
-                listeners.add(listener);
-            }
-        }
+        listeners.add(listener);
     }
 
     public void removeListener(ServiceContextListener listener) {
-        if (listener != null) {
-            synchronized (listeners) {
-                listeners.remove(listener);
-            }
-        }
+        listeners.remove(listener);
     }
 
     public void removeServiceContentHandler(ServiceContentHandler handler) {
@@ -113,23 +106,9 @@ public class TitleContextImpl implements TitleContext {
         }
     }
 
-    private class TitleCallbackAction extends BDJAction {
-        private TitleCallbackAction(TitleContextImpl context, ServiceContextEvent event) {
-            this.context = context;
-            this.event = event;
-        }
-
-        protected void doAction() {
-            LinkedList list;
-            synchronized (context.listeners) {
-                list = (LinkedList)context.listeners.clone();
-            }
-            for (int i = 0; i < list.size(); i++)
-                ((ServiceContextListener)list.get(i)).receiveServiceContextEvent(event);
-        }
-
-        private TitleContextImpl context;
-        private ServiceContextEvent event;
+    private void postEvent(ServiceContextEvent event)
+    {
+        listeners.putCallback(event);
     }
 
     private class TitleStartAction implements BDJLoaderCallback {
@@ -142,7 +121,7 @@ public class TitleContextImpl implements TitleContext {
             if (succeed) {
                 context.title = title;
                 context.state = STATE_STARTED;
-                BDJActionManager.getInstance().putCallback(new TitleCallbackAction(context, new NormalContentEvent(context)));
+                context.postEvent(new NormalContentEvent(context));
             }
         }
 
@@ -157,13 +136,9 @@ public class TitleContextImpl implements TitleContext {
 
         public void loaderDone(boolean succeed) {
             if (succeed) {
-                BDJActionManager.getInstance().putCallback(
-                        new TitleCallbackAction(context,
-                                                new PresentationTerminatedEvent(context, PresentationTerminatedEvent.USER_STOP)));
+                context.postEvent(new PresentationTerminatedEvent(context, PresentationTerminatedEvent.USER_STOP));
                 if (context.state == STATE_DESTROYED)
-                    BDJActionManager.getInstance().putCallback(
-                            new TitleCallbackAction(context,
-                                                    new ServiceContextDestroyedEvent(context)));
+                    context.postEvent(new ServiceContextDestroyedEvent(context));
                 else
                     context.state = STATE_STOPPED;
             }
@@ -175,7 +150,7 @@ public class TitleContextImpl implements TitleContext {
     private static final int STATE_STOPPED = 0;
     private static final int STATE_STARTED = 1;
     private static final int STATE_DESTROYED = 2;
-    private LinkedList listeners = new LinkedList();
+    private BDJListeners listeners = new BDJListeners();
     private LinkedList handlers = new LinkedList();
     private TitleImpl title = null;
     private int state = STATE_STOPPED;
