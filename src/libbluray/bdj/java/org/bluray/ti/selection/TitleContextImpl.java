@@ -116,6 +116,7 @@ public class TitleContextImpl implements TitleContext {
     private class TitleCallbackAction extends BDJAction {
         private TitleCallbackAction(TitleContextImpl context, ServiceContextEvent event) {
             this.context = context;
+            this.event = event;
         }
 
         protected void doAction() {
