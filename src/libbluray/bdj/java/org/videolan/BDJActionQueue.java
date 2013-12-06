@@ -23,7 +23,7 @@ import java.util.LinkedList;
 public class BDJActionQueue implements Runnable {
     public BDJActionQueue() {
         group = new BDJThreadGroup("ActionQueue", null);
-        thread = new Thread(this);
+        thread = new Thread(group, this);
         thread.setDaemon(true);
         thread.start();
     }
