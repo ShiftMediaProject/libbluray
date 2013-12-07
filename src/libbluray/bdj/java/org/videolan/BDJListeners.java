@@ -18,6 +18,7 @@
  */
 package org.videolan;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.media.ControllerEvent;
@@ -48,29 +49,41 @@ public class BDJListeners {
 
     public void add(Object listener) {
         if (listener != null) {
+            BDJXletContext ctx = BDJXletContext.getCurrentContext();
+            if (ctx == null) {
+                logger.error("Listener added from wrong thread: " + Logger.dumpStack());
+                return;
+            }
             synchronized (listeners) {
                 remove(listener);
-                listeners.add(new BDJListener(listener));
+                listeners.add(new BDJListener(ctx, listener));
             }
         }
     }
 
     public void remove(Object listener) {
         synchronized (listeners) {
-            for (int i = 0; i < listeners.size(); i++) {
-                if (((BDJListener)listeners.get(i)).listener == listener) {
-                    listeners.remove(i);
-                    i--;
-                }
+            for (Iterator it = listeners.iterator(); it.hasNext(); ) {
+                BDJListener item = (BDJListener)it.next();
+                if (item.listener == listener)
+                    it.remove();
             }
         }
     }
 
     public void putCallback(Object event) {
         synchronized (listeners) {
-            for (int i = 0; i < listeners.size(); i++) {
-                BDJListener listener = (BDJListener)listeners.get(i);
-                listener.ctx.putCallback(new Callback(event, listener.listener));
+            for (Iterator it = listeners.iterator(); it.hasNext(); ) {
+                BDJListener item = (BDJListener)it.next();
+                if (item.ctx == null) {
+                    logger.error("Listener callback: no context: " + item.listener);
+                    it.remove();
+                } else if (item.ctx.isDestroyed()) {
+                    logger.error("Listener terminated: " + item.ctx);
+                    it.remove();
+                } else {
+                    item.ctx.putCallback(new Callback(event, item.listener));
+                }
             }
         }
     }
@@ -90,8 +103,8 @@ public class BDJListeners {
         public BDJXletContext ctx;
         public Object listener;
 
-        BDJListener(Object listener) {
-            this.ctx = BDJXletContext.getCurrentContext();
+        BDJListener(BDJXletContext ctx, Object listener) {
+            this.ctx = ctx;
             this.listener = listener;
         }
     }
@@ -137,4 +150,6 @@ public class BDJListeners {
         private Object listener;
         private Object event;
     }
+
+    private static final Logger logger = Logger.getLogger(BDJListeners.class.getName());
 }
