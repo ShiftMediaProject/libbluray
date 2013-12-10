@@ -52,6 +52,13 @@ public class IxcRegistryImpl {
         if (toContext == remoteObj.context) {
             return remoteObj.object;
         }
+        if (toContext == null) {
+            logger.error("toContext is null");
+            return remoteObj.object;
+        }
+        if (remoteObj.context == null) {
+            logger.error("remote context is null");
+        }
 
         InvocationHandler handler = new RemoteObjectInvocationHandler(remoteObj);
         ClassLoader cl = ((BDJXletContext)toContext).getClassLoader();
@@ -210,6 +217,12 @@ public class IxcRegistryImpl {
                 throws RemoteException {
 
                 callerContext  = BDJXletContext.getCurrentContext();
+                if (callerContext == null) {
+                    logger.error("caller context is null");
+                }
+                if (context == null) {
+                    logger.error("callee context is null");
+                }
                 calleeContext  = context;
                 methodInCallee = findMethodInCallee(method);
                 if (null != args) {
