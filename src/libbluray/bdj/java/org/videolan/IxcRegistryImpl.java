@@ -152,8 +152,55 @@ public class IxcRegistryImpl {
         getAllInterfaces(objClass.getSuperclass(), resultList);
     }
 
+    private static final void verifyRemoteInterfaces(Class remoteClass) throws RemoteException {
+        Class[] remoteInterfaces = remoteClass.getInterfaces();
+        for (int i = 0; i < remoteInterfaces.length; i++) {
+            if (Remote.class.isAssignableFrom(remoteInterfaces[i])) {
+                Method[] remoteMethods = remoteInterfaces[i].getMethods();
+                for (int j = 0; j < remoteMethods.length; j++) {
+                    verifyRemoteMethod(remoteMethods[j]);
+                }
+            }
+        }
+    }
+
+    private static final void verifyRemoteMethod(Method remoteMethod) throws RemoteException {
+        Class[] expTypes = remoteMethod.getExceptionTypes();
+        boolean hasRemoteException = false;
+        for (int i = 0; i < expTypes.length; i++) {
+            if (expTypes[i].isAssignableFrom(RemoteException.class)) {
+                hasRemoteException = true;
+                break;
+            }
+        }
+        if (!hasRemoteException) {
+            throw new RemoteException("no RemoteException found from remote method");
+        }
+
+        Class[] paramTypes = remoteMethod.getParameterTypes();
+        for (int i = 0; i < paramTypes.length; i++) {
+            verifyRemoteParameters(paramTypes[i]);
+        }
+        verifyRemoteParameters(remoteMethod.getReturnType());
+    }
+
+    private static final void verifyRemoteParameters(Class parameter) throws RemoteException {
+        if (Remote.class.isAssignableFrom(parameter)) {
+            if (!parameter.isInterface())
+                throw new RemoteException("remote parameter is not an interface");
+            Class[] superInterfaces = parameter.getInterfaces();
+            for (int j = 0; j < superInterfaces.length; j++) {
+                if (!Remote.class.isAssignableFrom(superInterfaces[j]))
+                    throw new RemoteException("remote parameter not assignable");
+            }
+        }
+        else if ((!parameter.isPrimitive()) && (!parameter.equals(Void.TYPE)) && (!Serializable.class.isAssignableFrom(parameter))) {
+            throw new RemoteException("invalid parameter");
+        }
+    }
+
     private class RemoteObjectInvocationHandler implements InvocationHandler {
-        public WrappedRemoteObj remoteObj = null;
+        public IxcRegistryImpl.WrappedRemoteObj remoteObj = null;
 
         public RemoteObjectInvocationHandler(IxcRegistryImpl.WrappedRemoteObj remoteObj) {
             TRACE("RemoteInvocationHandler created for " + remoteObj);
@@ -168,7 +215,14 @@ public class IxcRegistryImpl {
 
             TRACE("RemoteInvocationHandler called for " + remoteObj);
 
-            /* TODO: verify interfaces */
+            if (null != args) {
+                /* verify interfaces */
+                for (int i = 0; i < args.length; i++) {
+                    if ((null != args[i]) && (Remote.class.isAssignableFrom(args[i].getClass()))) {
+                        IxcRegistryImpl.verifyRemoteInterfaces(args[i].getClass());
+                    }
+                }
+            }
 
             RemoteMethod remoteMethod = new RemoteMethod(method, remoteObj.context, args);
 
