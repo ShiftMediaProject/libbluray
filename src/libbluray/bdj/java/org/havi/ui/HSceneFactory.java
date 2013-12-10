@@ -21,6 +21,7 @@ package org.havi.ui;
 
 import org.videolan.GUIManager;
 import org.videolan.BDJXletContext;
+import org.videolan.Logger;
 
 public class HSceneFactory extends Object {
     private HSceneFactory() {
@@ -97,15 +98,31 @@ public class HSceneFactory extends Object {
     }
 
     public void dispose(HScene scene) {
+
+        if (scene == null) {
+            logger.error("null HScene");
+            return;
+        }
+        if (defaultHScene == null) {
+            logger.error("no HScene created");
+            return;
+        }
+
+        if (!scene.equals(defaultHScene)) {
+            logger.error("wrong HScene");
+        }
+
         GUIManager.getInstance().remove(scene);
+        defaultHScene = null;
     }
 
     public void dispose() {
         synchronized(HSceneFactory.class) {
             dispose(defaultHScene);
-            defaultHScene = null;
         }
     }
 
     private HScene defaultHScene = null;
+
+    private static final Logger logger = Logger.getLogger(HSceneFactory.class.getName());
 }
