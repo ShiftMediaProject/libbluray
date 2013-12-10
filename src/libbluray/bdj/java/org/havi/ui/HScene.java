@@ -242,8 +242,34 @@ public class HScene extends Container implements HComponentOrdering {
         return null;
     }
 
-    public void dispose() {
-        // TODO not implemented
+    public synchronized void dispose() {
+        if (null != BDJXletContext.getCurrentContext())
+            HSceneFactory.getInstance().dispose(this);
+    }
+
+    protected void disposeImpl()
+    {
+        // called by HSceneFactory
+        try {
+            removeAll();
+
+            Graphics g = GUIManager.getInstance().getGraphics();
+            Rectangle r = getBounds();
+            g.clearRect(r.x, r.y, r.width, r.height);
+
+            if (image != null) {
+                image.flush();
+            }
+            if (shortcuts != null) {
+                shortcuts.clear();
+            }
+        } finally {
+            image = null;
+            eventGroup = null;
+            shortcuts = null;
+            windowListener = null;
+            context = null;
+        }
     }
 
     public boolean addShortcut(int keyCode, HActionable act) {

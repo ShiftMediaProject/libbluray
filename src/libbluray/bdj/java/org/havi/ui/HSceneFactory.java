@@ -109,6 +109,7 @@ public class HSceneFactory extends Object {
             logger.error("wrong HScene");
         }
 
+        scene.disposeImpl();
         GUIManager.getInstance().remove(scene);
         defaultHScene = null;
     }
