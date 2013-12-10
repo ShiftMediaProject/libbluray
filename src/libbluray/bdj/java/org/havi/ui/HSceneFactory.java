@@ -36,17 +36,23 @@ public class HSceneFactory extends Object {
             return context.getSceneFactory();
         }
 
-        org.videolan.Logger.getLogger("HSceneFactory").error("getInstance(): no context at " + org.videolan.Logger.dumpStack());
+        logger.error("getInstance(): no context at " + Logger.dumpStack());
 
         return null;
     }
 
     public HSceneTemplate getBestSceneTemplate(HSceneTemplate template) {
-        org.videolan.Logger.unimplemented("HSceneFactory", "getBestSceneTemplate");
+        logger.unimplemented("getBestSceneTemplate");
         return null;
     }
 
     public HScene getBestScene(HSceneTemplate template) {
+        /*
+        if (defaultHScene != null) {
+            logger.error("HScene already exists");
+            return null;
+        }
+        */
         return getDefaultHScene();
         // TODO
     }
@@ -54,7 +60,7 @@ public class HSceneFactory extends Object {
     public HSceneTemplate resizeScene(HScene scene, HSceneTemplate template)
             throws IllegalStateException
     {
-        org.videolan.Logger.unimplemented("HSceneFactory", "resizeScene");
+        logger.unimplemented("resizeScene");
         return template;
     }
 
@@ -74,16 +80,7 @@ public class HSceneFactory extends Object {
 
     public HScene getDefaultHScene()
     {
-        synchronized(HSceneFactory.class) {
-            if (defaultHScene == null) {
-                defaultHScene = new HScene();
-                defaultHScene.setLocation(0, 0);
-                defaultHScene.setSize(GUIManager.getInstance().getWidth(), GUIManager.getInstance().getHeight());
-                GUIManager.getInstance().add(defaultHScene);
-            }
-        }
-
-        return defaultHScene;
+        return getDefaultHScene(HScreen.getDefaultHScreen());
     }
 
     public HScene getFullScreenScene(HGraphicsDevice device) {
