@@ -116,7 +116,9 @@ public class HSceneFactory extends Object {
 
     public void dispose() {
         synchronized(HSceneFactory.class) {
-            dispose(defaultHScene);
+            if (defaultHScene != null) {
+                dispose(defaultHScene);
+            }
         }
     }
 
