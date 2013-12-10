@@ -23,6 +23,7 @@ package org.bluray.ui;
 import java.awt.Component;
 import java.awt.Graphics;
 
+import org.videolan.BDJXletContext;
 import org.videolan.Logger;
 
 public abstract class FrameAccurateAnimation extends Component {
@@ -55,11 +56,23 @@ public abstract class FrameAccurateAnimation extends Component {
 
     public FrameAccurateAnimation(AnimationParameters params)
     {
+        context = BDJXletContext.getCurrentContext();
+        if (context != null) {
+            context.addFAA(this);
+        } else {
+            logger.error("FrameAccurateAnimation created from wrong thread: " + logger.dumpStack());
+        }
+
         this.params = new AnimationParameters(params);
     }
 
     public synchronized void destroy()
     {
+        if (context != null) {
+            context.removeFAA(this);
+            context = null;
+        }
+
         destroyImpl();
     }
 
@@ -171,6 +184,7 @@ public abstract class FrameAccurateAnimation extends Component {
         return "FrameAccurateAnimation";
     }
 
+    private BDJXletContext context;
     protected boolean running;
     protected AnimationParameters params;
 

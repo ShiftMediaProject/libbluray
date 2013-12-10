@@ -27,6 +27,7 @@ import java.security.PrivilegedAction;
 
 import javax.microedition.xlet.UnavailableContainerException;
 
+import org.bluray.ui.FrameAccurateAnimation;
 import org.dvb.application.AppID;
 import org.dvb.application.AppProxy;
 import org.dvb.application.AppsDatabase;
@@ -174,6 +175,29 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         }
     }
 
+    public void addFAA(FrameAccurateAnimation faa) {
+        synchronized (faaList) {
+            faaList.add(faa);
+        }
+    }
+
+    public void removeFAA(FrameAccurateAnimation faa) {
+        synchronized (faaList) {
+            faaList.remove(faa);
+        }
+    }
+
+    public void removeAllFAA() {
+        Object[] faaArray;
+        synchronized (faaList) {
+            faaArray = faaList.toArray();
+        }
+        for (int i = 0; i < faaArray.length; i++) {
+            FrameAccurateAnimation faa = (FrameAccurateAnimation)faaArray[i];
+            faa.destroy();
+        }
+    }
+
     public static BDJXletContext getCurrentContext() {
         Object obj = AccessController.doPrivileged(
                 new PrivilegedAction() {
@@ -204,6 +228,8 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     }
 
     protected void release() {
+
+        removeAllFAA();
         stopIxcThreads();
 
         org.dvb.io.ixc.IxcRegistry.unbindAll(this);
@@ -241,6 +267,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     private HSceneFactory sceneFactory = null;
     private BDJThreadGroup threadGroup = null;
     private LinkedList ixcThreads = new LinkedList();
+    private LinkedList faaList = new LinkedList();
     private BDJActionQueue callbackQueue;
     private static final Logger logger = Logger.getLogger(BDJXletContext.class.getName());
 }
