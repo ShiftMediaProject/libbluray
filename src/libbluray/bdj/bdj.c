@@ -42,7 +42,84 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <winreg.h>
+#endif
+
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
+
+#if defined(_WIN32) && !defined(HAVE_BDJ_J2ME)
+static void *_load_jvm_win32(const char **p_java_home)
+{
+    static const char *java_home = NULL;
+
+    wchar_t buf_loc[4096] = L"SOFTWARE\\JavaSoft\\Java Runtime Environment\\";
+    wchar_t buf_vers[128];
+
+    char strbuf[256];
+
+    LONG r;
+    DWORD lType;
+    DWORD dSize = sizeof(buf_vers);
+    HKEY hkey;
+
+    r = RegOpenKeyExW(HKEY_LOCAL_MACHINE, buf_loc, 0, KEY_READ, &hkey);
+    if (r != ERROR_SUCCESS) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error opening registry key SOFTWARE\\JavaSoft\\Java Runtime Environment\\");
+        return NULL;
+    }
+
+    r = RegQueryValueExW(hkey, L"CurrentVersion", NULL, &lType, (LPBYTE)buf_vers, &dSize);
+    RegCloseKey(hkey);
+    if (r != ERROR_SUCCESS) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "CurrentVersion registry value not found");
+        return NULL;
+    }
+
+    if (debug_mask & DBG_BDJ) {
+        WideCharToMultiByte(CP_UTF8, 0, buf_vers, -1, strbuf, sizeof(strbuf), NULL, NULL);
+        BD_DEBUG(DBG_BDJ, "JRE version: %s\n", strbuf);
+    }
+    wcscat(buf_loc, buf_vers);
+
+    dSize = sizeof(buf_loc);
+    r = RegOpenKeyExW(HKEY_LOCAL_MACHINE, buf_loc, 0, KEY_READ, &hkey);
+    if (r != ERROR_SUCCESS) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error opening JRE version-specific registry key");
+        return NULL;
+    }
+
+    r = RegQueryValueExW(hkey, L"JavaHome", NULL, &lType, (LPBYTE)buf_loc, &dSize);
+
+    if (r == ERROR_SUCCESS) {
+        /* do not fail even if not found */
+        WideCharToMultiByte(CP_UTF8, 0, buf_loc, -1, strbuf, sizeof(strbuf), NULL, NULL);
+        *p_java_home = java_home = str_dup(strbuf);
+        BD_DEBUG(DBG_BDJ, "JavaHome: %s\n", strbuf);
+    }
+
+    dSize = sizeof(buf_loc);
+    r = RegQueryValueExW(hkey, L"RuntimeLib", NULL, &lType, (LPBYTE)buf_loc, &dSize);
+    RegCloseKey(hkey);
+
+    if (r != ERROR_SUCCESS) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "RuntimeLib registry value not found");
+        return NULL;
+    }
+
+    void *result = LoadLibraryW(buf_loc);
+
+    WideCharToMultiByte(CP_UTF8, 0, buf_loc, -1, strbuf, sizeof(strbuf), NULL, NULL);
+    if (!result) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "can't open library '%s'\n", strbuf);
+    } else {
+        BD_DEBUG(DBG_BDJ, "Using JRE library %s\n", strbuf);
+    }
+
+    return result;
+}
+#endif
 
 static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char *jvm_lib)
 {
@@ -91,6 +168,13 @@ static void *_load_jvm(const char **p_java_home)
         *p_java_home = java_home;
         return _jvm_dlopen(java_home, jvm_dir, jvm_lib);
     }
+
+#if defined(_WIN32) && !defined(HAVE_BDJ_J2ME)
+    handle = _load_jvm_win32(p_java_home);
+    if (handle) {
+        return handle;
+    }
+#endif
 
     BD_DEBUG(DBG_BDJ | DBG_CRIT, "JAVA_HOME not set, trying default locations\n");
 
