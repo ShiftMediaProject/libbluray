@@ -48,6 +48,12 @@ public class MountManager {
         if (jarStr == null)
             throw new IllegalArgumentException();
 
+        String oldPath = getMount(jarId);
+        if (oldPath != null) {
+            logger.error("JAR " + jarId + " already mounted");
+            return oldPath;
+        }
+
         String path = System.getProperty("bluray.vfs.root") + "/BDMV/JAR/" + jarStr + ".jar";
 
         JarFile jar = null;
@@ -65,10 +71,13 @@ public class MountManager {
         tmpDir.mkdir();
 
         try {
+            byte[] buffer = new byte[32*1024];
             Enumeration entries = jar.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = (JarEntry)entries.nextElement();
                 File out = new File(tmpDir + File.separator + entry.getName());
+
+                logger.info("   mount: " + entry.getName());
 
                 if (entry.isDirectory()) {
                     out.mkdirs();
@@ -79,8 +88,9 @@ public class MountManager {
                     InputStream inStream = jar.getInputStream(entry);
                     OutputStream outStream = new FileOutputStream(out);
 
-                    while (inStream.available() > 0) {
-                        outStream.write(inStream.read());
+                    int length;
+                    while ((length = inStream.read(buffer)) > 0) {
+                        outStream.write(buffer, 0, length);
                     }
 
                     inStream.close();
@@ -92,6 +102,8 @@ public class MountManager {
             recursiveDelete(tmpDir);
             throw new MountException();
         }
+
+        logger.info("Mounting JAR " + jarId + " complete.");
 
         mountPoints.put(new Integer(jarId), tmpDir);
         return tmpDir.getAbsolutePath();
