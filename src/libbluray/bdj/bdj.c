@@ -250,6 +250,28 @@ static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
     return 1;
 }
 
+int bdj_jvm_available(void)
+{
+    const char *java_home;
+    void* jvm_lib = _load_jvm(&java_home);
+    if (!jvm_lib) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J check: Failed to load JVM library\n");
+        return 0;
+    }
+    dl_dlclose(jvm_lib);
+
+    FILE *fp = fopen(_find_libbluray_jar(), "rb");
+    if (!fp) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J check: Failed to load libbluray.jar\n");
+        return 1;
+    }
+    fclose(fp);
+
+    BD_DEBUG(DBG_BDJ, "BD-J check: OK\n");
+
+    return 2;
+}
+
 BDJAVA* bdj_open(const char *path, struct bluray *bd,
                  struct indx_root_s *index,
                  bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf)

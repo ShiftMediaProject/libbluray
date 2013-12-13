@@ -153,6 +153,15 @@ int main(int argc, char *argv[])
         printf("HDMV titles         : %d\n", info->num_hdmv_titles);
         printf("BD-J titles         : %d\n", info->num_bdj_titles);
         printf("UNSUPPORTED titles  : %d\n", info->num_unsupported_titles);
+
+        printf("\nBD-J detected       : %s\n", _yes_no(info->bdj_supported));
+        if (info->bdj_detected) {
+            printf("BD-J supported      : %s\n", _yes_no(info->bdj_supported));
+            if (info->bdj_supported) {
+                printf("Java VM found       : %s\n", _yes_no(info->libjvm_detected));
+                printf("BD-J handled        : %s\n", _yes_no(info->bdj_handled));
+            }
+        }
     }
 
     printf("\nAACS detected       : %s\n", _yes_no(info->aacs_detected));

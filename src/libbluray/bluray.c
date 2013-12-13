@@ -936,11 +936,18 @@ static void _fill_disc_info(BLURAY *bd)
     bd->disc_info.num_bdj_titles         = 0;
     bd->disc_info.num_unsupported_titles = 0;
 
+    bd->disc_info.bdj_detected    = 0;
+    bd->disc_info.bdj_supported   = 0;
+    bd->disc_info.libjvm_detected = 0;
+    bd->disc_info.bdj_handled     = 0;
+
     if (bd->index) {
         INDX_PLAY_ITEM *pi;
         unsigned        ii;
 
         bd->disc_info.bluray_detected = 1;
+
+        /* count titles */
 
         for (ii = 0; ii < bd->index->num_titles; ii++) {
             if (bd->index->titles[ii].object_type == indx_object_type_hdmv) {
@@ -949,8 +956,30 @@ static void _fill_disc_info(BLURAY *bd)
             if (bd->index->titles[ii].object_type == indx_object_type_bdj) {
                 bd->disc_info.num_bdj_titles++;
                 bd->disc_info.num_unsupported_titles++;
+                bd->disc_info.bdj_detected = 1;
             }
         }
+
+        if (bd->index->first_play.object_type == indx_object_type_bdj) {
+            bd->disc_info.bdj_detected = 1;
+        }
+        if (bd->index->top_menu.object_type == indx_object_type_bdj) {
+            bd->disc_info.bdj_detected = 1;
+        }
+
+        /* BD-J capability */
+
+#ifdef USING_BDJAVA
+        if (bd->disc_info.bdj_detected) {
+            bd->disc_info.bdj_supported = 1;
+            /* BD-J titles found. Check if jvm + jar can be loaded ? */
+            switch (bdj_jvm_available()) {
+                case 2: bd->disc_info.bdj_handled     = 1;
+                case 1: bd->disc_info.libjvm_detected = 1;
+                default:;
+            }
+        }
+#endif /* USING_BDJAVA */
 
         pi = &bd->index->first_play;
         if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
@@ -2655,6 +2684,11 @@ static void _queue_initial_psr_events(BLURAY *bd)
 
 static int _play_bdj(BLURAY *bd, unsigned title)
 {
+    if (!bd->disc_info.bdj_handled) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Can't play BD-J title %d\n", title);
+        return 0;
+    }
+
     bd->title_type = title_bdj;
 
     return _start_bdj(bd, title);

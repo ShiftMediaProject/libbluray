@@ -60,4 +60,6 @@ BD_PRIVATE void bdj_close(BDJAVA *bdjava);
 BD_PRIVATE int  bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
 BD_PRIVATE int  bdj_get_uo_mask(BDJAVA *bdjava);
 
+BD_PRIVATE int  bdj_jvm_available(void); /* 0: no. 1: only jvm. 2: jvm + libbluray.jar. */
+
 #endif
