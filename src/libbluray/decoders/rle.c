@@ -124,10 +124,11 @@ BD_PG_RLE_ELEM *rle_crop_object(const BD_PG_RLE_ELEM *orig, int width,
 
 static void _rle_grow(RLE_ENC *p)
 {
-    _rle_ensure_size(p);
-
     p->free_elem--;
     p->elem++;
+
+    _rle_ensure_size(p);
+
     p->elem->len = 0;
 }
 
