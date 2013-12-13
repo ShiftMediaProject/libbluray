@@ -1049,6 +1049,8 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
             textst_render(p->textst_render, &bmp, style, region);
 
             _render_textst_region(p, dialog[ii].start_pts, style, &bmp, s->style->palette);
+
+            X_FREE(bmp.mem);
         }
 
         /* commit changes */
