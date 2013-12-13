@@ -80,6 +80,9 @@ struct graphics_controller_s {
     BD_IG_EFFECT_SEQUENCE *out_effects;
     int64_t                next_effect_time; /* 90 kHz */
 
+    /* timers */
+    int64_t                user_timeout;
+
     /* animated buttons */
     unsigned               frame_interval;
     unsigned               button_effect_running;
@@ -327,6 +330,20 @@ static uint16_t _find_selected_button_id(GRAPHICS_CONTROLLER *gc)
     return 0xffff;
 }
 
+static void _reset_user_timeout(GRAPHICS_CONTROLLER *gc)
+{
+    gc->user_timeout = 0;
+
+    if (gc->igs->ics->interactive_composition.ui_model == IG_UI_MODEL_POPUP ||
+        bd_psr_read(gc->regs, PSR_MENU_PAGE_ID) != 0) {
+
+        gc->user_timeout = gc->igs->ics->interactive_composition.user_timeout_duration;
+        if (gc->user_timeout) {
+            gc->user_timeout += bd_get_scr();
+        }
+    }
+}
+
 static int _save_page_state(GRAPHICS_CONTROLLER *gc)
 {
     if (!gc->bog_data) {
@@ -418,6 +435,9 @@ static void _reset_page_state(GRAPHICS_CONTROLLER *gc)
     gc->effect_idx  = 0;
     gc->in_effects  = NULL;
     gc->out_effects = NULL;
+
+    /* timers */
+    _reset_user_timeout(gc);
 }
 
 /*
@@ -831,7 +851,8 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
                 GC_TRACE("gc_decode_ts(): IG selection_timeout_pts not implemented\n");
             }
             if (gc->igs->ics->interactive_composition.user_timeout_duration) {
-                GC_TRACE("gc_decode_ts(): IG user_timeout_duration not implemented\n");
+                GC_TRACE("gc_decode_ts(): IG user_timeout_duration %d\n",
+                         gc->igs->ics->interactive_composition.user_timeout_duration);
             }
         }
 
@@ -1284,6 +1305,8 @@ static int _render_effect(GRAPHICS_CONTROLLER *gc, BD_IG_EFFECT *effect)
 
     _flush_osd(gc, BD_OVERLAY_IG, pts);
 
+    _reset_user_timeout(gc);
+
     return 0;
 }
 
@@ -1452,6 +1475,9 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, uint32_t key, GC_NAV_CMDS *cmds)
         GC_ERROR("_user_input(): menu not visible\n");
         return 0;
     }
+
+    _reset_user_timeout(gc);
+
     if (gc->button_effect_running) {
         GC_ERROR("_user_input(): button_effect_running\n");
         return 0;
@@ -1751,6 +1777,8 @@ static int _mouse_move(GRAPHICS_CONTROLLER *gc, uint16_t x, uint16_t y, GC_NAV_C
         _select_button(gc, new_btn_id);
 
         _render_page(gc, -1, cmds);
+
+        _reset_user_timeout(gc);
     }
 
     return gc->valid_mouse_position;
@@ -1791,11 +1819,43 @@ static int _animate(GRAPHICS_CONTROLLER *gc, GC_NAV_CMDS *cmds)
                 result = _render_page(gc, 0xffff, cmds);
             }
 
-        } else {
+        } else if (gc->button_animation_running) {
             int64_t pts = bd_get_scr();
             if (pts >= (gc->next_effect_time + gc->frame_interval)) {
                 gc->next_effect_time += gc->frame_interval;
                 result = _render_page(gc, 0xffff, cmds);
+            }
+        }
+    }
+
+    return result;
+}
+
+static int _run_timers(GRAPHICS_CONTROLLER *gc, GC_NAV_CMDS *cmds)
+{
+    int result = -1;
+
+    if (gc->ig_open) {
+
+        result = 0;
+
+        if (gc->user_timeout) {
+            int64_t pts = bd_get_scr();
+            if (pts > gc->user_timeout) {
+
+                GC_TRACE("user timeout expired\n");
+
+                if (gc->igs->ics->interactive_composition.ui_model != IG_UI_MODEL_POPUP) {
+
+                    if (bd_psr_read(gc->regs, PSR_MENU_PAGE_ID) != 0) {
+                        _select_page(gc, 0, 0);
+                        result = _render_page(gc, 0xffff, cmds);
+                    }
+
+                } else {
+                    gc->popup_visible = 0;
+                    result = _render_page(gc, 0xffff, cmds);
+                }
             }
         }
     }
@@ -1898,6 +1958,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
 
         case GC_CTRL_NOP:
             result = _animate(gc, cmds);
+            _run_timers(gc, cmds);
             break;
 
         case GC_CTRL_INIT_MENU:
@@ -1938,7 +1999,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         if (gc->ig_drawn) {
             cmds->status |= GC_STATUS_MENU_OPEN;
         }
-        if (gc->in_effects || gc->out_effects || gc->button_animation_running) {
+        if (gc->in_effects || gc->out_effects || gc->button_animation_running || gc->user_timeout) {
             /* do not trigger if unopened pop-up menu has animations */
             if (gc->ig_open) {
                 cmds->status |= GC_STATUS_ANIMATE;
