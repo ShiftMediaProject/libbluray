@@ -942,16 +942,6 @@ static void _fill_disc_info(BLURAY *bd)
 
         bd->disc_info.bluray_detected = 1;
 
-        pi = &bd->index->first_play;
-        if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
-            bd->disc_info.first_play_supported = 1;
-        }
-
-        pi = &bd->index->top_menu;
-        if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
-            bd->disc_info.top_menu_supported = 1;
-        }
-
         for (ii = 0; ii < bd->index->num_titles; ii++) {
             if (bd->index->titles[ii].object_type == indx_object_type_hdmv) {
                 bd->disc_info.num_hdmv_titles++;
@@ -960,6 +950,16 @@ static void _fill_disc_info(BLURAY *bd)
                 bd->disc_info.num_bdj_titles++;
                 bd->disc_info.num_unsupported_titles++;
             }
+        }
+
+        pi = &bd->index->first_play;
+        if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
+            bd->disc_info.first_play_supported = 1;
+        }
+
+        pi = &bd->index->top_menu;
+        if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
+            bd->disc_info.top_menu_supported = 1;
         }
     }
 }
