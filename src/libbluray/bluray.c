@@ -592,9 +592,11 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
                     BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d !\n", (int)read_len, st->clip_block_pos, (int)len);
                 }
                 if (bd->libaacs && libaacs_decrypt_unit(bd->libaacs, buf)) {
+                    _queue_event(bd, BD_EVENT_ENCRYPTED, BD_ERROR_AACS);
                     return -1;
                 }
-                if (st->bdplus && libbdplus_fixup(st->bdplus, buf, len)) {
+                if (st->bdplus && (libbdplus_fixup(st->bdplus, buf, len) < 0)) {
+                    _queue_event(bd, BD_EVENT_ENCRYPTED, BD_ERROR_BDPLUS);
                 }
 
                 st->clip_block_pos += len;
@@ -605,7 +607,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
                     if (buf[4] != 0x47 || buf[4+192] != 0x47 || buf[4+2*192] != 0x47) {
                         BD_DEBUG(DBG_BLURAY | DBG_CRIT,
                                  "TP header copy permission indicator != 0, unit is still encrypted?\n");
-                        _queue_event(bd, BD_EVENT_ENCRYPTED, 0);
+                        _queue_event(bd, BD_EVENT_ENCRYPTED, BD_ERROR_AACS);
                         return -1;
                     }
                 }

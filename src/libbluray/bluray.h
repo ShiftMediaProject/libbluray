@@ -651,6 +651,10 @@ typedef struct {
 #define BD_ERROR_HDMV    1
 #define BD_ERROR_BDJ     2
 
+/* BD_EVENT_ENCRYPTED param vlues */
+#define BD_ERROR_AACS    3
+#define BD_ERROR_BDPLUS  4
+
 
 #define BLURAY_TITLE_FIRST_PLAY  0xffff
 #define BLURAY_TITLE_TOP_MENU    0
