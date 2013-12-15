@@ -174,6 +174,28 @@ int libbdplus_init(BD_BDPLUS *p, const char *device_path, const uint8_t *vid)
     return 0;
 }
 
+static uint32_t _bdplus_get(BD_BDPLUS *p, const char *func)
+{
+    if (p && p->bdplus) {
+        fptr_int32 fp;
+        *(void **)(&fp) = dl_dlsym(p->h_libbdplus, func);
+        if (fp) {
+            return fp(p->bdplus);
+        }
+    }
+    return 0;
+}
+
+int libbdplus_get_gen(BD_BDPLUS *p)
+{
+    return _bdplus_get(p, "bdplus_get_code_gen");
+}
+
+int libbdplus_get_date(BD_BDPLUS *p)
+{
+    return _bdplus_get(p, "bdplus_get_code_date");
+}
+
 void libbdplus_event(BD_BDPLUS *p, uint32_t event, uint32_t param1, uint32_t param2)
 {
     if (p && p->bdplus && p->event) {

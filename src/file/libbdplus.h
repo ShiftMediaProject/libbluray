@@ -32,6 +32,9 @@ BD_PRIVATE BD_BDPLUS *libbdplus_load(void);
 BD_PRIVATE int  libbdplus_init(BD_BDPLUS *p, const char *device_path, const uint8_t *vid);
 BD_PRIVATE void libbdplus_unload(BD_BDPLUS **p);
 
+BD_PRIVATE int  libbdplus_get_gen(BD_BDPLUS *p);
+BD_PRIVATE int  libbdplus_get_date(BD_BDPLUS *p);
+
 BD_PRIVATE void libbdplus_mmap(BD_BDPLUS *p, uint32_t region_id, void *mem);
 BD_PRIVATE void libbdplus_psr(BD_BDPLUS *p, void *regs, void *read, void *write);
 BD_PRIVATE void libbdplus_start(BD_BDPLUS *p);

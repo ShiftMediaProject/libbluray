@@ -180,7 +180,16 @@ int main(int argc, char *argv[])
     printf("\nBD+ detected        : %s\n", _yes_no(info->bdplus_detected));
     if (info->bdplus_detected) {
         printf("libbdplus detected  : %s\n", _yes_no(info->libbdplus_detected));
-        printf("BD+ handled         : %s\n", _yes_no(info->bdplus_handled));
+        if (info->libbdplus_detected) {
+            if (info->bdplus_gen) {
+                printf("BD+ generation      : %d\n", info->bdplus_gen);
+            }
+            if (info->bdplus_date) {
+                printf("BD+ release date    : %d-%02d-%02d\n",
+                       info->bdplus_date >> 16, (info->bdplus_date >> 8) & 0xff, info->bdplus_date & 0xff );
+            }
+            printf("BD+ handled         : %s\n", _yes_no(info->bdplus_handled));
+        }
     }
 
     _print_meta(bd_get_meta(bd));

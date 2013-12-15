@@ -885,6 +885,8 @@ static int _libbdplus_init(BLURAY *bd)
     /* connect registers */
     libbdplus_psr(bd->libbdplus, (void*)bd->regs, (void*)bd_psr_read, (void*)bd_psr_write);
 
+    bd->disc_info.bdplus_gen     = libbdplus_get_gen(bd->libbdplus);
+    bd->disc_info.bdplus_date    = libbdplus_get_date(bd->libbdplus);
     bd->disc_info.bdplus_handled = 1;
     return 1;
 }

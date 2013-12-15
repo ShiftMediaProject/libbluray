@@ -500,6 +500,11 @@ typedef struct {
     uint8_t  bdj_supported;    /* 1 if BD-J support was compiled in */
     uint8_t  libjvm_detected;  /* 1 if usable Java VM was found */
     uint8_t  bdj_handled;      /* 1 if usable Java VM + libbluray.jar was found */
+
+    /* BD+ content code generation */
+    uint8_t  bdplus_gen;
+    /* BD+ content code relese date */
+    uint32_t bdplus_date;      /* (year << 16) | (month << 8) | day */
 } BLURAY_DISC_INFO;
 
 /**
