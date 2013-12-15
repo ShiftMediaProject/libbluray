@@ -647,6 +647,11 @@ typedef struct {
     uint32_t   param;
 } BD_EVENT;
 
+/* BD_EVENT_ERROR param values */
+#define BD_ERROR_HDMV    1
+#define BD_ERROR_BDJ     2
+
+
 #define BLURAY_TITLE_FIRST_PLAY  0xffff
 #define BLURAY_TITLE_TOP_MENU    0
 /**

@@ -2691,9 +2691,17 @@ static int _play_bdj(BLURAY *bd, unsigned title)
         return 0;
     }
 
+    int result;
+
     bd->title_type = title_bdj;
 
-    return _start_bdj(bd, title);
+    result = _start_bdj(bd, title);
+    if (result <= 0) {
+        bd->title_type = title_undef;
+        _queue_event(bd, BD_EVENT_ERROR, BD_ERROR_BDJ);
+    }
+
+    return result;
 }
 
 static int _play_hdmv(BLURAY *bd, unsigned id_ref)
@@ -2713,6 +2721,11 @@ static int _play_hdmv(BLURAY *bd, unsigned id_ref)
     }
 
     bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
+
+    if (result <= 0) {
+        bd->title_type = title_undef;
+        _queue_event(bd, BD_EVENT_ERROR, BD_ERROR_HDMV);
+    }
 
     return result;
 }
@@ -2987,7 +3000,7 @@ static int _run_hdmv(BLURAY *bd)
 
     /* run VM */
     if (hdmv_vm_run(bd->hdmv_vm, &hdmv_ev) < 0) {
-        _queue_event(bd, BD_EVENT_ERROR, 0);
+        _queue_event(bd, BD_EVENT_ERROR, BD_ERROR_HDMV);
         bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
         return -1;
     }
