@@ -152,7 +152,7 @@ BD_BDPLUS *libbdplus_load(void)
     return p;
 }
 
-int libbdplus_init(BD_BDPLUS *p, const char *device_path, const uint8_t *vid)
+int libbdplus_init(BD_BDPLUS *p, const char *device_path, const uint8_t *vid, const uint8_t *mk)
 {
     fptr_p_void    bdplus_init;
 
@@ -170,6 +170,8 @@ int libbdplus_init(BD_BDPLUS *p, const char *device_path, const uint8_t *vid)
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bdplus_init() failed! (%p)\n", p->h_libbdplus);
         return -1;
     }
+
+    DL_CALL(p->h_libbdplus, bdplus_set_mk, p->bdplus, mk);
 
     return 0;
 }

@@ -864,13 +864,14 @@ static int _libbdplus_init(BLURAY *bd)
     }
 
     const uint8_t *vid = libaacs_get_aacs_data(bd->libaacs, BD_AACS_MEDIA_VID);
+    const uint8_t *mk  = libaacs_get_aacs_data(bd->libaacs, BD_AACS_MEDIA_KEY);
     if (!vid) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "BD+ initialization failed (no AACS ?)\n");
         libaacs_unload(&bd->libaacs);
         return 0;
     }
 
-    if (libbdplus_init(bd->libbdplus, bd->device_path, vid)) {
+    if (libbdplus_init(bd->libbdplus, bd->device_path, vid, mk)) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bdplus_init() failed\n");
 
         bd->disc_info.bdplus_handled = 0;
@@ -922,6 +923,7 @@ static int _meta_open(BLURAY *bd)
 
     return !!bd->meta;
 }
+
 /*
  * disc info
  */
