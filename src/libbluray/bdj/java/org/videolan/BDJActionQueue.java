@@ -31,7 +31,7 @@ public class BDJActionQueue implements Runnable {
     public BDJActionQueue(BDJThreadGroup threadGroup) {
         /* run all actions in given thread group / xlet context */
         group = null;
-        thread = new Thread(group, this);
+        thread = new Thread(threadGroup, this);
         thread.setDaemon(true);
         thread.start();
     }
