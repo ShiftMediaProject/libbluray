@@ -34,6 +34,10 @@ public class UserEventRepository extends RepositoryDescriptor {
 
     public void addUserEvent(UserEvent event)
     {
+        if (contains(event)) {
+            return;
+        }
+
         events.add(event);
     }
 
@@ -53,10 +57,10 @@ public class UserEventRepository extends RepositoryDescriptor {
 
     public void addKey(int keycode)
     {
-        events.add(new UserEvent(this, UserEvent.UEF_KEY_EVENT,
-                                 KeyEvent.KEY_PRESSED, keycode, 0, 0));
-        events.add(new UserEvent(this, UserEvent.UEF_KEY_EVENT,
-                                 KeyEvent.KEY_RELEASED, keycode, 0, 0));
+        addUserEvent(new UserEvent(this, UserEvent.UEF_KEY_EVENT,
+                                   KeyEvent.KEY_PRESSED, keycode, 0, 0));
+        addUserEvent(new UserEvent(this, UserEvent.UEF_KEY_EVENT,
+                                   KeyEvent.KEY_RELEASED, keycode, 0, 0));
     }
 
     public void removeKey(int keycode)
@@ -127,6 +131,17 @@ public class UserEventRepository extends RepositoryDescriptor {
         removeKey(HRcEvent.VK_RIGHT);
         removeKey(HRcEvent.VK_UP);
         removeKey(HRcEvent.VK_DOWN);
+    }
+
+    boolean contains(UserEvent event)
+    {
+        for(Iterator it = events.iterator(); it.hasNext() == true; ) {
+            UserEvent e = (UserEvent)it.next();
+            if (e.getFamily() == event.getFamily() && e.getType() == event.getType() && e.getCode() == event.getCode()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private LinkedList events = new LinkedList();
