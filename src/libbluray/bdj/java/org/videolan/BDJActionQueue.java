@@ -20,17 +20,13 @@ package org.videolan;
 
 import java.util.LinkedList;
 
-public class BDJActionQueue implements Runnable {
+class BDJActionQueue implements Runnable {
     public BDJActionQueue() {
-        group = new BDJThreadGroup("ActionQueue", null);
-        thread = new Thread(group, this);
-        thread.setDaemon(true);
-        thread.start();
+        this(null);
     }
 
     public BDJActionQueue(BDJThreadGroup threadGroup) {
         /* run all actions in given thread group / xlet context */
-        group = null;
         thread = new Thread(threadGroup, this);
         thread.setDaemon(true);
         thread.start();
@@ -60,9 +56,6 @@ public class BDJActionQueue implements Runnable {
             if (action == null)
                 return;
             try {
-                if (group != null) {
-                    group.setContext(((BDJAction)action).getContext());
-                }
                 ((BDJAction)action).process();
             } catch (Throwable e) {
                 e.printStackTrace();
@@ -79,7 +72,6 @@ public class BDJActionQueue implements Runnable {
         }
     }
 
-    private BDJThreadGroup group;
     private Thread thread;
     private LinkedList actions = new LinkedList();
 }

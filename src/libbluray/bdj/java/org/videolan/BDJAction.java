@@ -20,15 +20,6 @@ package org.videolan;
 
 public abstract class BDJAction {
     public BDJAction() {
-        this(BDJXletContext.getCurrentContext());
-    }
-
-    public BDJAction(BDJXletContext context) {
-        this.context = context;
-    }
-
-    public BDJXletContext getContext() {
-        return context;
     }
 
     public int getState() {
@@ -77,7 +68,6 @@ public abstract class BDJAction {
 
     protected abstract void doAction();
 
-    private BDJXletContext context;
     private int state = NOT_PROCESSED;
 
     public static final int NOT_PROCESSED = 0;
