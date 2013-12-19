@@ -141,8 +141,8 @@ public class EventManager implements ResourceServer {
                 UserEventItem item = (UserEventItem)it.next();
                 if (item.context == context) {
                     if (item.userEvents.contains(ue)) {
-                            result = BDJHelper.postKeyEvent(type, modifiers, keyCode);
-                            return result;
+                        result = BDJHelper.postKeyEvent(type, modifiers, keyCode);
+                        return true;
                     }
                 }
             }
