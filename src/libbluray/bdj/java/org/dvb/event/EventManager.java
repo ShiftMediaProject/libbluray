@@ -34,6 +34,7 @@ import org.videolan.BDJAction;
 import org.videolan.BDJActionManager;
 import org.videolan.BDJXletContext;
 import org.videolan.GUIManager;
+import org.videolan.Logger;
 
 public class EventManager implements ResourceServer {
     public static EventManager getInstance() {
@@ -139,6 +140,10 @@ public class EventManager implements ResourceServer {
             BDJXletContext context = focusHScene.getXletContext();
             for (Iterator it = exclusiveAWTEventListener.iterator(); it.hasNext(); ) {
                 UserEventItem item = (UserEventItem)it.next();
+                if (item.context == null) {
+                    it.remove();
+                    continue;
+                }
                 if (item.context == context) {
                     if (item.userEvents.contains(ue)) {
                         result = BDJHelper.postKeyEvent(type, modifiers, keyCode);
@@ -150,9 +155,13 @@ public class EventManager implements ResourceServer {
 
         for (Iterator it = exclusiveUserEventListener.iterator(); it.hasNext(); ) {
             UserEventItem item = (UserEventItem)it.next();
+            if (item.context == null) {
+                it.remove();
+                continue;
+            }
             if (item.userEvents.contains(ue)) {
-                    BDJActionManager.getInstance().putCallback(new UserEventAction(item, ue));
-                    return true;
+                item.context.putCallback(new UserEventAction(item, ue));
+                return true;
             }
         }
 
@@ -160,9 +169,13 @@ public class EventManager implements ResourceServer {
 
         for (Iterator it = sharedUserEventListener.iterator(); it.hasNext(); ) {
             UserEventItem item = (UserEventItem)it.next();
+            if (item.context == null) {
+                it.remove();
+                continue;
+            }
             if (item.userEvents.contains(ue)) {
-                    BDJActionManager.getInstance().putCallback(new UserEventAction(item, ue));
-                    result = true;
+                item.context.putCallback(new UserEventAction(item, ue));
+                result = true;
             }
         }
 
@@ -217,6 +230,9 @@ public class EventManager implements ResourceServer {
             this.listener = listener;
             this.client = client;
             this.userEvents = userEvents.getNewInstance();
+            if (context == null) {
+                Logger.getLogger(EventManager.class.getName()).error("Missing xlet context: " + Logger.dumpStack());
+            }
         }
 
         public BDJXletContext context;
@@ -227,7 +243,6 @@ public class EventManager implements ResourceServer {
 
     private class UserEventAction extends BDJAction {
         public UserEventAction(UserEventItem item, UserEvent event) {
-            super(item.context);
             this.listener = item.listener;
             this.event = event;
         }
