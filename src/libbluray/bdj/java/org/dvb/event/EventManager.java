@@ -189,8 +189,14 @@ public class EventManager implements ResourceServer {
                 if (item.context == context)
                     continue;
                 if (hasOverlap(userEvents, item.userEvents)) {
-                    if (!item.client.requestRelease(item.userEvents, null))
+                    try {
+                        if (!item.client.requestRelease(item.userEvents, null))
+                            return false;
+                    } catch (Exception e) {
+                        logger.error("requestRelease() failed: " + e.getClass());
+                        logger.info("" + e.getStackTrace());
                         return false;
+                    }
                     sendResourceStatusEvent(new UserEventAvailableEvent(item.userEvents));
                     it.remove();
                 }
@@ -200,8 +206,14 @@ public class EventManager implements ResourceServer {
             if (item.context == context)
                 continue;
             if (hasOverlap(userEvents, item.userEvents)) {
-                if (!item.client.requestRelease(item.userEvents, null))
+                try {
+                    if (!item.client.requestRelease(item.userEvents, null))
+                        return false;
+                } catch (Exception e) {
+                    logger.error("requestRelease() failed: " + e.getClass());
+                    logger.info("" + e.getStackTrace());
                     return false;
+                }
                 sendResourceStatusEvent(new UserEventAvailableEvent(item.userEvents));
                 it.remove();
             }
@@ -231,7 +243,7 @@ public class EventManager implements ResourceServer {
             this.client = client;
             this.userEvents = userEvents.getNewInstance();
             if (context == null) {
-                Logger.getLogger(EventManager.class.getName()).error("Missing xlet context: " + Logger.dumpStack());
+                logger.error("Missing xlet context: " + Logger.dumpStack());
             }
         }
 
@@ -261,4 +273,6 @@ public class EventManager implements ResourceServer {
     private LinkedList resourceStatusEventListeners = new LinkedList();
 
     private static EventManager instance = null;
+
+    private static final Logger logger = Logger.getLogger(EventManager.class.getName());
 }
