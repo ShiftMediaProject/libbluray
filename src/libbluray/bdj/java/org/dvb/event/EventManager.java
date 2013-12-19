@@ -131,7 +131,6 @@ public class EventManager implements ResourceServer {
     }
 
     public boolean receiveKeyEventN(int type, int modifiers, int keyCode) {
-
         UserEvent ue = new UserEvent(this, 1, type, keyCode, modifiers, System.currentTimeMillis());
         HScene focusHScene = GUIManager.getInstance().getFocusHScene();
         boolean result = false;
@@ -141,17 +140,9 @@ public class EventManager implements ResourceServer {
             for (Iterator it = exclusiveAWTEventListener.iterator(); it.hasNext(); ) {
                 UserEventItem item = (UserEventItem)it.next();
                 if (item.context == context) {
-                    UserEvent[] evts = item.userEvents.getUserEvent();
-                    for (int i = 0; i < evts.length; i++) {
-                        UserEvent evt = evts[i];
-                        if ((evt.getFamily() == UserEvent.UEF_KEY_EVENT) &&
-                            (evt.getFamily() == UserEvent.UEF_KEY_EVENT) &&
-                            (evt.getCode() == keyCode) &&
-                            (evt.getType() == type)) {
-
+                    if (item.userEvents.contains(ue)) {
                             result = BDJHelper.postKeyEvent(type, modifiers, keyCode);
                             return result;
-                        }
                     }
                 }
             }
@@ -159,16 +150,9 @@ public class EventManager implements ResourceServer {
 
         for (Iterator it = exclusiveUserEventListener.iterator(); it.hasNext(); ) {
             UserEventItem item = (UserEventItem)it.next();
-            UserEvent[] evts = item.userEvents.getUserEvent();
-            for (int i = 0; i < evts.length; i++) {
-                UserEvent evt = evts[i];
-                if ((evt.getFamily() == UserEvent.UEF_KEY_EVENT) &&
-                    (evt.getCode() == keyCode) &&
-                    (evt.getType() == type)) {
-
+            if (item.userEvents.contains(ue)) {
                     BDJActionManager.getInstance().putCallback(new UserEventAction(item, ue));
                     return true;
-                }
             }
         }
 
@@ -176,15 +160,9 @@ public class EventManager implements ResourceServer {
 
         for (Iterator it = sharedUserEventListener.iterator(); it.hasNext(); ) {
             UserEventItem item = (UserEventItem)it.next();
-            UserEvent[] evts = item.userEvents.getUserEvent();
-            for (int i = 0; i < evts.length; i++) {
-                UserEvent evt = evts[i];
-                if ((evt.getFamily() == UserEvent.UEF_KEY_EVENT) &&
-                    (evt.getCode() == keyCode) &&
-                    (evt.getType() == type)) {
+            if (item.userEvents.contains(ue)) {
                     BDJActionManager.getInstance().putCallback(new UserEventAction(item, ue));
                     result = true;
-                }
             }
         }
 
@@ -250,15 +228,15 @@ public class EventManager implements ResourceServer {
     private class UserEventAction extends BDJAction {
         public UserEventAction(UserEventItem item, UserEvent event) {
             super(item.context);
-            this.item = item;
+            this.listener = item.listener;
             this.event = event;
         }
 
         protected void doAction() {
-            item.listener.userEventReceived(event);
+            listener.userEventReceived(event);
         }
 
-        private UserEventItem item;
+        private UserEventListener listener;
         private UserEvent event;
     }
 
