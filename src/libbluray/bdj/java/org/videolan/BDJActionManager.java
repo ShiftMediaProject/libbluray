@@ -29,12 +29,10 @@ public class BDJActionManager {
 
     public BDJActionManager() {
         commandQueue = new BDJActionQueue();
-        callbackQueue = new BDJActionQueue();
     }
 
     protected void finalize() throws Throwable {
         commandQueue.finalize();
-        callbackQueue.finalize();
         synchronized (BDJActionManager.class) {
             instance = null;
         }
@@ -45,12 +43,7 @@ public class BDJActionManager {
         commandQueue.put(action);
     }
 
-    public void putCallback(BDJAction action) {
-        callbackQueue.put(action);
-    }
-
     private BDJActionQueue commandQueue;
-    private BDJActionQueue callbackQueue;
 
     private static BDJActionManager instance = null;
 }
