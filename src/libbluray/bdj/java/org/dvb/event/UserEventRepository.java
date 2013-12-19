@@ -144,5 +144,18 @@ public class UserEventRepository extends RepositoryDescriptor {
         return false;
     }
 
+    /* deep copy */
+
+    private UserEventRepository(UserEventRepository r)
+    {
+        super(r.getClient(), r.getName());
+        events = ((LinkedList)r.events.clone());
+    }
+
+    protected UserEventRepository getNewInstance()
+    {
+        return new UserEventRepository(this);
+    }
+
     private LinkedList events = new LinkedList();
 }

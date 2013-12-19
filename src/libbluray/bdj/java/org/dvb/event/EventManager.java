@@ -235,7 +235,7 @@ public class EventManager implements ResourceServer {
             this.context = context;
             this.listener = listener;
             this.client = client;
-            this.userEvents = userEvents;
+            this.userEvents = userEvents.getNewInstance();
         }
 
         public BDJXletContext context;
