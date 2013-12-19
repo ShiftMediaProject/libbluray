@@ -131,8 +131,11 @@ public class EventManager implements ResourceServer {
     }
 
     public boolean receiveKeyEventN(int type, int modifiers, int keyCode) {
+
+        UserEvent ue = new UserEvent(this, 1, type, keyCode, modifiers, System.currentTimeMillis());
         HScene focusHScene = GUIManager.getInstance().getFocusHScene();
         boolean result = false;
+
         if (focusHScene != null) {
             BDJXletContext context = focusHScene.getXletContext();
             for (Iterator it = exclusiveAWTEventListener.iterator(); it.hasNext(); ) {
@@ -163,7 +166,7 @@ public class EventManager implements ResourceServer {
                     (evt.getCode() == keyCode) &&
                     (evt.getType() == type)) {
 
-                    BDJActionManager.getInstance().putCallback(new UserEventAction(item, i));
+                    BDJActionManager.getInstance().putCallback(new UserEventAction(item, ue));
                     return true;
                 }
             }
@@ -179,7 +182,7 @@ public class EventManager implements ResourceServer {
                 if ((evt.getFamily() == UserEvent.UEF_KEY_EVENT) &&
                     (evt.getCode() == keyCode) &&
                     (evt.getType() == type)) {
-                    BDJActionManager.getInstance().putCallback(new UserEventAction(item, i));
+                    BDJActionManager.getInstance().putCallback(new UserEventAction(item, ue));
                     result = true;
                 }
             }
@@ -245,18 +248,18 @@ public class EventManager implements ResourceServer {
     }
 
     private class UserEventAction extends BDJAction {
-        public UserEventAction(UserEventItem item, int event) {
+        public UserEventAction(UserEventItem item, UserEvent event) {
             super(item.context);
             this.item = item;
             this.event = event;
         }
 
         protected void doAction() {
-            item.listener.userEventReceived(item.userEvents.getUserEvent()[event]);
+            item.listener.userEventReceived(event);
         }
 
         private UserEventItem item;
-        private int event;
+        private UserEvent event;
     }
 
     private LinkedList exclusiveUserEventListener = new LinkedList();
