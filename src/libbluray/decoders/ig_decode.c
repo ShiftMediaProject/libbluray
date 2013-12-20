@@ -202,7 +202,7 @@ static void _clean_page(BD_IG_PAGE *p)
     X_FREE(p->bog);
 }
 
-static inline uint64_t bb_read_u64(BITBUFFER *bb, int i_count)
+static uint64_t bb_read_u64(BITBUFFER *bb, int i_count)
 {
     uint64_t result = 0;
     if (i_count > 32) {
