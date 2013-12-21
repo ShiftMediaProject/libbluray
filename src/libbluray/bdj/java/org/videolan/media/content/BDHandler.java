@@ -305,6 +305,13 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         }
     }
 
+    public static void onPlaylistStart(int param) {
+        synchronized (BDHandler.class) {
+            if (activePlayer != null)
+                activePlayer.doPlaylistStart(param);
+        }
+    }
+
     public static void onPlayItemReach(int param) {
         synchronized (BDHandler.class) {
             if (activePlayer != null)
@@ -333,6 +340,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         }
     }
 
+    protected abstract void doPlaylistStart(int param);
     protected abstract void doChapterReach(int param);
     protected abstract void doMarkReach(int param);
     protected abstract void doPlayItemReach(int param);

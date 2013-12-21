@@ -591,6 +591,7 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         "VK_KEY",
         "MARK",
         "PSR102",
+        "PLAYLIST",
     };
 
     JNIEnv* env;

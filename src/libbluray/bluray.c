@@ -2557,6 +2557,7 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
             libbdplus_event(bd->libbdplus, 0x110, ev->new_val, 0);
             break;
         case PSR_PLAYLIST:
+            _bdj_event  (bd, BDJ_EVENT_PLAYLIST,ev->new_val);
             _queue_event(bd, BD_EVENT_PLAYLIST, ev->new_val);
             break;
         case PSR_PLAYITEM:

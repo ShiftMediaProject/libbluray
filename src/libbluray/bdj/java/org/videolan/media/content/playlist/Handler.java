@@ -190,6 +190,9 @@ public class Handler extends BDHandler {
         ((PlaybackControlImpl)controls[9]).onMarkReach(param);
     }
 
+    protected void doPlaylistStart(int param) {
+    }
+
     protected void doPlayItemReach(int param) {
         ((PlaybackControlImpl)controls[9]).onPlayItemReach(param);
         ((UOMaskTableControlImpl)controls[16]).onPlayItemReach(param);

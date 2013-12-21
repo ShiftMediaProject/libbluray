@@ -320,6 +320,9 @@ public class Libbluray {
         case BDJ_EVENT_PLAYITEM:
             BDHandler.onPlayItemReach(param);
             break;
+        case BDJ_EVENT_PLAYLIST:
+            BDHandler.onPlaylistStart(param);
+            break;
         case BDJ_EVENT_ANGLE:
             BDHandler.onAngleChange(param);
             break;
@@ -392,6 +395,7 @@ public class Libbluray {
     private static final int BDJ_EVENT_VK_KEY                   = 8;
     private static final int BDJ_EVENT_MARK                     = 9;
     private static final int BDJ_EVENT_PSR102                   = 10;
+    private static final int BDJ_EVENT_PLAYLIST                 = 11;
 
     /* TODO: use org/bluray/system/RegisterAccess instead */
     public static final int PSR_IG_STREAM_ID     = 0;
