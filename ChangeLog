@@ -1,4 +1,16 @@
-- Added bd_get_main_title()
+2013-12-21: Version 0.5.0
+- Portability fixes.
+- Build system updates.
+- Improved BD-J support (still alpha).
+- Improved updating of application-allocated ARGB frame buffer.
+- Get JRE library location from registry (Windows).
+- Added bd_get_main_title().
+- Added BD_EVENT_ERROR when title playback fails.
+- Added BD-J flags to disc info.
+- Added support for user timeout in HDMV menus.
+- Added cropping of RLE images. Cropping values in overlay are now always 0.
+- Added support for LIBAACS_PATH and LIBBDPLUS_PATH environment variables.
+- Added timestamp based m2ts stream filtering.
 
 2013-09-11: Version 0.4.0
 - Fixed slide shows: always cut reads at clip end boundary
