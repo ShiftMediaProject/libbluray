@@ -37,6 +37,9 @@ typedef enum {
     BDJ_EVENT_MARK,
     BDJ_EVENT_PSR102,
     BDJ_EVENT_PLAYLIST,
+
+    BDJ_EVENT_START, /* param: title number */
+    BDJ_EVENT_STOP,
 } BDJ_EVENT;
 
 /* bdj_get_uo_mask() */
@@ -55,8 +58,6 @@ typedef void (*bdj_overlay_cb)(struct bluray *, const unsigned *, int, int,
 BD_PRIVATE BDJAVA* bdj_open(const char *path, struct bluray *bd,
                             struct indx_root_s *index,
                             bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf);
-BD_PRIVATE int  bdj_start(BDJAVA *bdjava, unsigned title);
-BD_PRIVATE int  bdj_stop(BDJAVA *bdjava);
 BD_PRIVATE void bdj_close(BDJAVA *bdjava);
 BD_PRIVATE int  bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
 BD_PRIVATE int  bdj_get_uo_mask(BDJAVA *bdjava);

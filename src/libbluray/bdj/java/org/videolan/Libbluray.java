@@ -311,6 +311,12 @@ public class Libbluray {
         int key = 0;
 
         switch (event) {
+
+        case BDJ_EVENT_START:
+            return BDJLoader.load(param);
+        case BDJ_EVENT_STOP:
+            return BDJLoader.unload();
+
         case BDJ_EVENT_CHAPTER:
             BDHandler.onChapterReach(param);
             break;
@@ -396,6 +402,9 @@ public class Libbluray {
     private static final int BDJ_EVENT_MARK                     = 9;
     private static final int BDJ_EVENT_PSR102                   = 10;
     private static final int BDJ_EVENT_PLAYLIST                 = 11;
+
+    private static final int BDJ_EVENT_START                    = 12;
+    private static final int BDJ_EVENT_STOP                     = 13;
 
     /* TODO: use org/bluray/system/RegisterAccess instead */
     public static final int PSR_IG_STREAM_ID     = 0;

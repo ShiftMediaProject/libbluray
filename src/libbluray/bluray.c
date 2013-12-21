@@ -1136,7 +1136,7 @@ static int _start_bdj(BLURAY *bd, unsigned title)
             return 0;
         }
     }
-    return bdj_start(bd->bdjava, title);
+    return !bdj_process_event(bd->bdjava, BDJ_EVENT_START, title);
 #else
     BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title %d: BD-J not compiled in\n", title);
     return 0;
@@ -1159,7 +1159,7 @@ static int _bdj_event(BLURAY *bd, unsigned ev, unsigned param)
 static void _stop_bdj(BLURAY *bd)
 {
     if (bd->bdjava != NULL) {
-        bdj_stop(bd->bdjava);
+        bdj_process_event(bd->bdjava, BDJ_EVENT_STOP, 0);
     }
 }
 #else

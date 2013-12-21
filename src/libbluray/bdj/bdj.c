@@ -456,82 +456,6 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     return bdjava;
 }
 
-int bdj_start(BDJAVA *bdjava, unsigned title)
-{
-    JNIEnv* env;
-    int attach = 0;
-    jboolean status = JNI_FALSE;
-    jclass loader_class;
-    jmethodID load_id;
-
-    if (!bdjava) {
-        return BDJ_ERROR;
-    }
-
-    BD_DEBUG(DBG_BDJ, "bdj_start(%d)\n", title);
-
-    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
-        (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
-        attach = 1;
-    }
-
-    if (bdj_get_method(env, &loader_class, &load_id,
-                       "org/videolan/BDJLoader", "load", "(I)Z")) {
-        status = (*env)->CallStaticBooleanMethod(env, loader_class, load_id, (jint)title);
-
-        if ((*env)->ExceptionOccurred(env)) {
-            (*env)->ExceptionDescribe(env);
-            (*env)->ExceptionClear(env);
-        }
-
-        (*env)->DeleteLocalRef(env, loader_class);
-    }
-
-    if (attach) {
-        (*bdjava->jvm)->DetachCurrentThread(bdjava->jvm);
-    }
-
-    return (status == JNI_TRUE) ? BDJ_SUCCESS : BDJ_ERROR;
-}
-
-int bdj_stop(BDJAVA *bdjava)
-{
-    JNIEnv *env;
-    int attach = 0;
-    jboolean status = JNI_FALSE;
-    jclass loader_class;
-    jmethodID unload_id;
-
-    if (!bdjava) {
-        return BDJ_ERROR;
-    }
-
-    BD_DEBUG(DBG_BDJ, "bdj_stop()\n");
-
-    if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
-        (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
-        attach = 1;
-    }
-
-    if (bdj_get_method(env, &loader_class, &unload_id,
-                       "org/videolan/BDJLoader", "unload", "()Z")) {
-        status = (*env)->CallStaticBooleanMethod(env, loader_class, unload_id);
-
-        if ((*env)->ExceptionOccurred(env)) {
-            (*env)->ExceptionDescribe(env);
-            (*env)->ExceptionClear(env);
-        }
-
-        (*env)->DeleteLocalRef(env, loader_class);
-    }
-
-    if (attach) {
-        (*bdjava->jvm)->DetachCurrentThread(bdjava->jvm);
-    }
-
-    return (status == JNI_TRUE) ? BDJ_SUCCESS : BDJ_ERROR;
-}
-
 void bdj_close(BDJAVA *bdjava)
 {
     JNIEnv *env;
@@ -592,6 +516,9 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         "MARK",
         "PSR102",
         "PLAYLIST",
+
+        "START",
+        "STOP",
     };
 
     JNIEnv* env;
