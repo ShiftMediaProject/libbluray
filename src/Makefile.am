@@ -127,7 +127,7 @@ pkginclude_HEADERS = \
 	util/log_control.h
 
 if USING_BDJAVA
-jardir=$(libdir)/libbluray/
+jardir=$(datadir)/java/
 jar_DATA=$(top_builddir)/src/.libs/libbluray.jar
 
 $(top_builddir)/src/.libs/libbluray.jar: all-local

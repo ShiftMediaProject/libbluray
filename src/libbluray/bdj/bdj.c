@@ -198,8 +198,7 @@ static const char *_find_libbluray_jar(void)
 #ifdef _WIN32
         "" BDJ_JARFILE,
 #else
-        "/usr/lib/libbluray/" BDJ_JARFILE,
-        "/usr/share/libbluray/" BDJ_JARFILE,
+        "/usr/share/java/" BDJ_JARFILE,
 #endif
     };
 
