@@ -82,7 +82,13 @@ public class BDToolkit extends Toolkit implements KeyboardFocusManagerPeerProvid
         BDKeyboardFocusManagerPeer.init(window);
     }
 
+    // required by older Java 7 versions
     public KeyboardFocusManagerPeer createKeyboardFocusManagerPeer(KeyboardFocusManager kfm)
+    {
+        return getKeyboardFocusManagerPeer();
+    }
+
+    public KeyboardFocusManagerPeer getKeyboardFocusManagerPeer()
     {
         return BDKeyboardFocusManagerPeer.getInstance();
     }

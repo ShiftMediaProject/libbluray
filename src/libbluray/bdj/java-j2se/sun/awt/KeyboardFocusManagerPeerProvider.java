@@ -23,5 +23,8 @@ import java.awt.KeyboardFocusManager;
 import java.awt.peer.KeyboardFocusManagerPeer;
 
 public abstract interface KeyboardFocusManagerPeerProvider {
+    // required by older Java 7 versions
     public abstract KeyboardFocusManagerPeer createKeyboardFocusManagerPeer(KeyboardFocusManager kfm);
+
+    public abstract KeyboardFocusManagerPeer getKeyboardFocusManagerPeer();
 }
