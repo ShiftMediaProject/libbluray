@@ -8,6 +8,7 @@
     <property name="dist"  location="../../.libs"/>
     <property name="src_awt" value=""/>
     <property name="bootclasspath" value=""/>
+    <property name="version" value=""/>
 
     <target name="init">
         <tstamp/>
@@ -23,12 +24,12 @@
     </target>
     <target name="dist" depends="compile"
             description="generate the distribution" >
-        <jar jarfile="${dist}/libbluray.jar" basedir="${build}" />
+        <jar jarfile="${dist}/libbluray-${version}.jar" basedir="${build}" />
     </target>
 
     <target name="clean"
             description="clean up" >
         <delete dir="${build}"/>
-        <delete dir="${dist}/libbluray.jar"/>
+        <delete dir="${dist}/libbluray-${version}.jar"/>
     </target>
 </project>

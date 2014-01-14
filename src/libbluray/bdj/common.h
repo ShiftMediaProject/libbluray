@@ -20,7 +20,13 @@
 #ifndef BDJ_COMMON_H_
 #define BDJ_COMMON_H_
 
-#define BDJ_JARFILE   "libbluray.jar"
+#include "config.h"
+
+#ifdef HAVE_BDJ_J2ME
+#define BDJ_JARFILE   "libbluray-j2me-" VERSION ".jar"
+#else
+#define BDJ_JARFILE   "libbluray-j2se-" VERSION ".jar"
+#endif
 #define BDJ_CLASSPATH BDJ_JARFILE
 #define BDJ_BDJO_PATH "/BDMV/BDJO"
 #define BDJ_JAR_PATH "/BDMV/JAR"

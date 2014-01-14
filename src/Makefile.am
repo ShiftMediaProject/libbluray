@@ -128,9 +128,9 @@ pkginclude_HEADERS = \
 
 if USING_BDJAVA
 jardir=$(datadir)/java/
-jar_DATA=$(top_builddir)/src/.libs/libbluray.jar
+jar_DATA=$(top_builddir)/src/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar
 
-$(top_builddir)/src/.libs/libbluray.jar: all-local
+$(top_builddir)/src/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar: all-local
 
 libbluray_la_SOURCES += \
 	libbluray/bdj/bdj.h \
@@ -159,12 +159,14 @@ all-local:
 	    -Dbuild='$(abs_builddir)/libbluray/bdj/build' \
 	    -Ddist='$(abs_builddir)/.libs' \
 	    -Dsrc_awt=:java-$(BDJ_TYPE) \
-	    -Dbootclasspath="$(BDJ_BOOTCLASSPATH)"
+	    -Dbootclasspath="$(BDJ_BOOTCLASSPATH)" \
+	    -Dversion='$(BDJ_TYPE)-$(VERSION)'
 
 clean-local:
 	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml \
 	    -Dbuild='$(abs_builddir)/libbluray/bdj/build' \
 	    -Ddist='$(abs_builddir)/.libs' \
+	    -Dversion='$(BDJ_TYPE)-$(VERSION)' \
 	    clean
 endif
 
