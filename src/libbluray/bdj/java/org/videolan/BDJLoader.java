@@ -126,16 +126,22 @@ public class BDJLoader {
                 for (int i = 0; i < appTable.length; i++) {
                     if (id.equals(appTable[i].getIdentifier()) &&
                         entry.getInitialClass().equals(appTable[i].getInitialClass())) {
-                        if (restart && appTable[i].getIsServiceBound())
+                        if (restart && appTable[i].getIsServiceBound()) {
+                            logger.info("Stopping xlet " + appTable[i].getInitialClass() + " (for restart)");
                             proxy.stop(true);
-                        proxy.getXletContext().update(appTable[i], bdjo.getAppCaches());
-                        proxys[i] = proxy;
-                        proxy = null;
+                        } else {
+                            logger.info("Keeping xlet " + appTable[i].getInitialClass());
+                            proxy.getXletContext().update(appTable[i], bdjo.getAppCaches());
+                            proxys[i] = proxy;
+                            proxy = null;
+                        }
                         break;
                     }
                 }
-                if (proxy != null)
+                if (proxy != null) {
+                    logger.info("Terminating xlet " + entry.getInitialClass());
                     proxy.release();
+                }
             }
 
             // start bdj window
