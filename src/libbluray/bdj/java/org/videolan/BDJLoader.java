@@ -162,15 +162,16 @@ public class BDJLoader {
                                                                    appTable[i],
                                                                    bdjo.getAppCaches(),
                                                                    gui));
+                    /* log startup class, startup parameters and jar file */
+                    String[] params = appTable[i].getParams();
+                    String p = "";
+                    if (params != null && params.length > 0) {
+                        p = "(" + StrUtil.Join(params, ",") + ")";
+                    }
+                    logger.info("Loaded class: " + appTable[i].getInitialClass() + p + " from " + appTable[i].getBasePath() + ".jar");
+                } else {
+                    logger.info("Reused class: " + appTable[i].getInitialClass() +     " from " + appTable[i].getBasePath() + ".jar");
                 }
-
-                /* log startup calss, startup parameters and jar file */
-                String[] params = appTable[i].getParams();
-                String p = "";
-                if (params != null && params.length > 0) {
-                    p = "(" + StrUtil.Join(params, ",") + ")";
-                }
-                logger.info("Loaded class: " + appTable[i].getInitialClass() + p + " from " + appTable[i].getBasePath() + ".jar");
             }
 
             // change psr
