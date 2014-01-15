@@ -78,7 +78,7 @@ public class BDJListeners {
                 if (item.ctx == null) {
                     logger.error("Listener callback: no context: " + item.listener);
                     it.remove();
-                } else if (item.ctx.isDestroyed()) {
+                } else if (item.ctx.isReleased()) {
                     logger.error("Listener terminated: " + item.ctx);
                     it.remove();
                 } else {

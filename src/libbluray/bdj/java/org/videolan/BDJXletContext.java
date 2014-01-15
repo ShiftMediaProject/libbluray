@@ -101,9 +101,18 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return AppsDatabase.getAppsDatabase().getAppProxy(appid);
     }
 
-    public boolean isDestroyed() {
-        return AppsDatabase.getAppsDatabase().getAppProxy(appid).getState() == AppProxy.DESTROYED;
+    public boolean isReleased() {
+        return released;
     }
+
+    /*
+    public boolean isDestroyed() {
+        if (released)
+            return true;
+        AppProxy proxy = AppsDatabase.getAppsDatabase().getAppProxy(appid);
+        return proxy == null || proxy.getState() == AppProxy.DESTROYED;
+    }
+    */
 
     public BDJThreadGroup getThreadGroup() {
         return threadGroup;
@@ -119,11 +128,18 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
     public boolean putCallback(BDJAction cb)
     {
-        if (!isDestroyed()) {
+        synchronized (this) {
+            if (isReleased()) {
+                logger.error("callback ignored (xlet destroyed)");
+                return false;
+            }
+            if (callbackQueue == null) {
+                logger.error("callback ignored (no queue)");
+                return false;
+            }
             callbackQueue.put(cb);
             return true;
         }
-        return false;
     }
 
     protected int numEventQueueThreads() {
@@ -133,6 +149,10 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             if (t != null && t.isAlive()) {
                 cnt++;
             }
+        }
+        if (!released) {
+            // callbackQueue
+            cnt++;
         }
         return cnt;
     }
@@ -242,8 +262,6 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         try {
             callbackQueue.finalize();
         } catch (Throwable t) {
-        } finally {
-            //callbackQueue = null;
         }
 
         EventQueue eq = eventQueue;
@@ -254,11 +272,16 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
         threadGroup.stopAll(1000);
 
-        threadGroup = null;
-        loader = null;
-        container = null;
+        synchronized (this) {
+            threadGroup = null;
+            loader = null;
+            container = null;
+            callbackQueue = null;
+            released = true;
+        }
     }
 
+    private boolean released = false;
     private String[] args;
     private AppID appid;
     private BDJClassLoader loader;

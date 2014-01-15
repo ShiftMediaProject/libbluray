@@ -208,7 +208,7 @@ public class IxcRegistryImpl {
         }
 
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (null == remoteObj.context || remoteObj.context.isDestroyed()) {
+            if (null == remoteObj.context || remoteObj.context.isReleased()) {
                 Debug("invoke(): callee has been destroyed");
                 throw new RemoteException("callee has been destroyed");
             }
@@ -226,7 +226,7 @@ public class IxcRegistryImpl {
 
             RemoteMethod remoteMethod = new RemoteMethod(method, remoteObj.context, args);
 
-            if (remoteMethod.callerContext.isDestroyed()) {
+            if (remoteMethod.callerContext.isReleased()) {
                 Debug("invoke(): caller has been destroyed");
                 throw new RemoteException("caller has been destroyed");
             }
@@ -393,7 +393,7 @@ public class IxcRegistryImpl {
             Debug("bind(): xc not current BDJXletContext");
             throw new IllegalArgumentException("xc not current BDJXletContext");
         }
-        if (((BDJXletContext)xc).isDestroyed()) {
+        if (((BDJXletContext)xc).isReleased()) {
             Debug("bind(): xc is destroyed");
             return;
         }

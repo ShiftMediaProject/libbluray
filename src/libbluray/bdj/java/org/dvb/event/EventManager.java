@@ -140,7 +140,8 @@ public class EventManager implements ResourceServer {
             BDJXletContext context = focusHScene.getXletContext();
             for (Iterator it = exclusiveAWTEventListener.iterator(); it.hasNext(); ) {
                 UserEventItem item = (UserEventItem)it.next();
-                if (item.context == null) {
+                if (item.context == null || item.context.isReleased()) {
+                    logger.error("Removing exclusive AWT event listener for " + item.context);
                     it.remove();
                     continue;
                 }
@@ -155,7 +156,8 @@ public class EventManager implements ResourceServer {
 
         for (Iterator it = exclusiveUserEventListener.iterator(); it.hasNext(); ) {
             UserEventItem item = (UserEventItem)it.next();
-            if (item.context == null) {
+            if (item.context == null || item.context.isReleased()) {
+                logger.error("Removing exclusive UserEvent listener for " + item.context);
                 it.remove();
                 continue;
             }
@@ -169,7 +171,8 @@ public class EventManager implements ResourceServer {
 
         for (Iterator it = sharedUserEventListener.iterator(); it.hasNext(); ) {
             UserEventItem item = (UserEventItem)it.next();
-            if (item.context == null) {
+            if (item.context == null || item.context.isReleased()) {
+                logger.error("Removing UserEvent listener for " + item.context);
                 it.remove();
                 continue;
             }
