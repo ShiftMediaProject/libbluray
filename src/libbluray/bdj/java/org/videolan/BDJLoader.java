@@ -211,12 +211,22 @@ public class BDJLoader {
     private static boolean unloadN() {
         try {
             AppsDatabase db = AppsDatabase.getAppsDatabase();
+
+            /* stop xlets first */
             Enumeration ids = db.getAppIDs(new CurrentServiceFilter());
+            while (ids.hasMoreElements()) {
+                AppID id = (AppID)ids.nextElement();
+                BDJAppProxy proxy = (BDJAppProxy)db.getAppProxy(id);
+                proxy.stop(true);
+            }
+
+            ids = db.getAppIDs(new CurrentServiceFilter());
             while (ids.hasMoreElements()) {
                 AppID id = (AppID)ids.nextElement();
                 BDJAppProxy proxy = (BDJAppProxy)db.getAppProxy(id);
                 proxy.release();
             }
+
             ((BDJAppsDatabase)db).newDatabase(null, null);
 
             //GUIManager.shutdown() does not work with J2ME (window can't be opened again)
