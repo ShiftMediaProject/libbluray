@@ -131,7 +131,7 @@ abstract class BDToolkitBase extends Toolkit {
     }
 
     public Image createImage(String filename) {
-        if (!new File(filename).exists()) {
+        if (!new File(filename).isAbsolute()) {
             URL url = BDJXletContext.getCurrentResource(filename);
             if (url != null) {
                 logger.warning("" + filename + " translated to " + url);
