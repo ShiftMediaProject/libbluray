@@ -291,7 +291,8 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
     }
 
     public void run() {
-        context.setEventQueue(new EventQueue());
+        if (context.getEventQueue() == null)
+            context.setEventQueue(new EventQueue());
 
         for (;;) {
             AppCommand cmd;
