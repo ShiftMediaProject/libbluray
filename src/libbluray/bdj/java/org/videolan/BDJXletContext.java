@@ -121,6 +121,10 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             return null;
         }
 
+        if (path.startsWith("./") || path.startsWith(".\\")) {
+            path = path.substring(2);
+        }
+
         URL url = cldr.getResource(path);
         if (url == null) {
             logger.error("getCurrentResource(): " + path + " not found: " + Logger.dumpStack());
