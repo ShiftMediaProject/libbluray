@@ -34,6 +34,7 @@ class BDJActionQueue implements Runnable {
 
     protected void finalize() throws Throwable {
         synchronized (actions) {
+            terminated = true;
             actions.addLast(null);
             actions.notifyAll();
         }
@@ -66,12 +67,18 @@ class BDJActionQueue implements Runnable {
     public void put(BDJAction action) {
         if (action != null) {
             synchronized (actions) {
-                actions.addLast(action);
-                actions.notifyAll();
+                if (!terminated) {
+                    actions.addLast(action);
+                    actions.notifyAll();
+                } else {
+                    Logger.getLogger(BDJActionQueue.class.getName()).error("Action skipped (queue stopped): " + action);
+                    action.abort();
+                }
             }
         }
     }
 
+    private boolean terminated = false;
     private Thread thread;
     private LinkedList actions = new LinkedList();
 }

@@ -66,6 +66,13 @@ public abstract class BDJAction {
         }
     }
 
+    public void abort() {
+        synchronized (this) {
+            state = PROCESSED;
+            this.notifyAll();
+        }
+    }
+
     protected abstract void doAction();
 
     private int state = NOT_PROCESSED;
