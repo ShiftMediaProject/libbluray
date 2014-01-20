@@ -132,18 +132,10 @@ abstract class BDToolkitBase extends Toolkit {
 
     public Image createImage(String filename) {
         if (!new File(filename).exists()) {
-            BDJXletContext ctx = BDJXletContext.getCurrentContext();
-            if (ctx != null) {
-                ClassLoader cldr = (ClassLoader)ctx.getClassLoader();
-                URL url = cldr.getResource(filename);
-                if (url != null) {
-                    logger.warning("" + filename + " translated to " + url);
-                    return createImage(url);
-                } else {
-                    logger.error("ClassLoader failed to translate " + filename);
-                }
-            } else {
-                logger.error("createImage(" + filename + "): no XletContext available!\n" + logger.dumpStack());
+            URL url = BDJXletContext.getCurrentResource(filename);
+            if (url != null) {
+                logger.warning("" + filename + " translated to " + url);
+                return createImage(url);
             }
         }
 

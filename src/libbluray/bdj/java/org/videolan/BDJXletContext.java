@@ -21,6 +21,7 @@ package org.videolan;
 
 import java.awt.Container;
 import java.awt.EventQueue;
+import java.net.URL;
 import java.util.LinkedList;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -95,6 +96,38 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
     public ClassLoader getClassLoader() {
         return loader;
+    }
+
+    public static ClassLoader getCurrentClassLoader() {
+        BDJXletContext ctx = BDJXletContext.getCurrentContext();
+        if (ctx == null) {
+            logger.error("getCurrentClassLoader(): no context: " + Logger.dumpStack());
+            return null;
+        }
+
+        ClassLoader cldr = (ClassLoader)ctx.getClassLoader();
+        if (cldr == null) {
+            logger.error("getCurrentClassLoader(): no class loader: " + Logger.dumpStack());
+            return null;
+        }
+
+        return cldr;
+    }
+
+    public static URL getCurrentResource(String path)
+    {
+        ClassLoader cldr = (ClassLoader)BDJXletContext.getCurrentClassLoader();
+        if (cldr == null) {
+            return null;
+        }
+
+        URL url = cldr.getResource(path);
+        if (url == null) {
+            logger.error("getCurrentResource(): " + path + " not found: " + Logger.dumpStack());
+            return null;
+        }
+
+        return url;
     }
 
     protected AppProxy getAppProxy() {
