@@ -110,5 +110,17 @@ public class BDJClassLoader extends URLClassLoader {
         this.xletClass = xletClass;
     }
 
+    public Class loadClass(String name) throws java.lang.ClassNotFoundException {
+        /* hook FileSystem in java.io.File */
+        if (name.equals("java.io.File")) {
+            Class c = super.loadClass(name);
+            if (c != null) {
+                java.io.BDFileSystem.init(c);
+            }
+            return c;
+        }
+        return super.loadClass(name);
+    }
+
     private String xletClass;
 }
