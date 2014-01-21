@@ -78,7 +78,7 @@ static void _parseManifestNode(xmlNode * a_node, META_DL *disclib)
                     disclib->toc_entries = realloc(disclib->toc_entries, (disclib->toc_count*sizeof(META_TITLE)));
                     disclib->toc_entries[i].title_number = atoi((const char*)tmp);
                     disclib->toc_entries[i].title_name = (char*)xmlNodeGetContent(cur_node);
-                    X_FREE(tmp);
+                    xmlFree(tmp);
                 }
             }
             else if (xmlStrEqual(cur_node->parent->name, BAD_CAST_CONST "description")) {
@@ -92,7 +92,7 @@ static void _parseManifestNode(xmlNode * a_node, META_DL *disclib)
                         sscanf((const char*)tmp, "%ix%i", &x, &y);
                         disclib->thumbnails[i].xres = x;
                         disclib->thumbnails[i].yres = y;
-                        X_FREE(tmp);
+                        xmlFree(tmp);
                     }
                     else {
                         disclib->thumbnails[i].xres = disclib->thumbnails[i].yres = -1;
@@ -236,16 +236,16 @@ void meta_free(META_ROOT **p)
         for (i = 0; i < (*p)->dl_count; i++) {
             uint32_t t;
             for (t = 0; t < (*p)->dl_entries[i].toc_count; t++) {
-                X_FREE((*p)->dl_entries[i].toc_entries[t].title_name);
+                xmlFree((*p)->dl_entries[i].toc_entries[t].title_name);
             }
             for (t = 0; t < (*p)->dl_entries[i].thumb_count; t++) {
-                X_FREE((*p)->dl_entries[i].thumbnails[t].path);
+                xmlFree((*p)->dl_entries[i].thumbnails[t].path);
             }
             X_FREE((*p)->dl_entries[i].toc_entries);
             X_FREE((*p)->dl_entries[i].thumbnails);
             X_FREE((*p)->dl_entries[i].filename);
-            X_FREE((*p)->dl_entries[i].di_name);
-            X_FREE((*p)->dl_entries[i].di_alternative);
+            xmlFree((*p)->dl_entries[i].di_name);
+            xmlFree((*p)->dl_entries[i].di_alternative);
         }
         X_FREE((*p)->dl_entries);
         X_FREE(*p);
