@@ -1085,6 +1085,11 @@ static int _hdmv_step(HDMV_VM *p)
 int hdmv_vm_select_object(HDMV_VM *p, int object)
 {
     int result;
+
+    if (!p) {
+        return -1;
+    }
+
     bd_mutex_lock(&p->mutex);
 
     result = _jump_object(p, object);
@@ -1121,6 +1126,11 @@ static int _set_object(HDMV_VM *p, int num_nav_cmds, void *nav_cmds)
 int hdmv_vm_set_object(HDMV_VM *p, int num_nav_cmds, void *nav_cmds)
 {
     int result = -1;
+
+    if (!p) {
+        return -1;
+    }
+
     bd_mutex_lock(&p->mutex);
 
     p->object = NULL;
@@ -1150,6 +1160,11 @@ int hdmv_vm_get_event(HDMV_VM *p, HDMV_EVENT *ev)
 int hdmv_vm_running(HDMV_VM *p)
 {
     int result;
+
+    if (!p) {
+        return 0;
+    }
+
     bd_mutex_lock(&p->mutex);
 
     result = !!p->object;
@@ -1162,6 +1177,10 @@ uint32_t hdmv_vm_get_uo_mask(HDMV_VM *p)
 {
     uint32_t     mask = 0;
     MOBJ_OBJECT *o    = NULL;
+
+    if (!p) {
+        return 0;
+    }
 
     bd_mutex_lock(&p->mutex);
 
@@ -1177,6 +1196,11 @@ uint32_t hdmv_vm_get_uo_mask(HDMV_VM *p)
 int hdmv_vm_resume(HDMV_VM *p)
 {
     int result;
+
+    if (!p) {
+        return -1;
+    }
+
     bd_mutex_lock(&p->mutex);
 
     result = _resume_from_play_pl(p);
@@ -1188,6 +1212,11 @@ int hdmv_vm_resume(HDMV_VM *p)
 int hdmv_vm_suspend_pl(HDMV_VM *p)
 {
     int result = -1;
+
+    if (!p) {
+        return -1;
+    }
+
     bd_mutex_lock(&p->mutex);
 
     if (p->object || p->ig_object) {
@@ -1277,6 +1306,11 @@ static int _vm_run(HDMV_VM *p, HDMV_EVENT *ev)
 int hdmv_vm_run(HDMV_VM *p, HDMV_EVENT *ev)
 {
     int result;
+
+    if (!p) {
+        return -1;
+    }
+
     bd_mutex_lock(&p->mutex);
 
     result = _vm_run(p, ev);
