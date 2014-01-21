@@ -165,9 +165,11 @@ BD_REGISTERS *bd_registers_init(void)
 {
     BD_REGISTERS *p = calloc(1, sizeof(BD_REGISTERS));
 
-    memcpy(p->psr, bd_psr_init, sizeof(bd_psr_init));
+    if (p) {
+        memcpy(p->psr, bd_psr_init, sizeof(bd_psr_init));
 
-    bd_mutex_init(&p->mutex);
+        bd_mutex_init(&p->mutex);
+    }
 
     return p;
 }
@@ -218,9 +220,13 @@ void bd_psr_register_cb  (BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*)
 
     p->num_cb++;
     p->cb = realloc(p->cb, p->num_cb * sizeof(PSR_CB_DATA));
-
-    p->cb[p->num_cb - 1].cb     = callback;
-    p->cb[p->num_cb - 1].handle = cb_handle;
+    if (p->cb) {
+        p->cb[p->num_cb - 1].cb     = callback;
+        p->cb[p->num_cb - 1].handle = cb_handle;
+    } else {
+        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_psr_register_cb(): realloc failed\n");
+        p->num_cb = 0;
+    }
 
     bd_psr_unlock(p);
 }

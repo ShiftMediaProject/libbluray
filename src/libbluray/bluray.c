@@ -1263,6 +1263,13 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         return NULL;
     }
 
+    bd->regs = bd_registers_init();
+    if (!bd->regs) {
+        BD_DEBUG(DBG_BLURAY, "bd_registers_init() failed\n");
+        X_FREE(bd);
+        return NULL;
+    }
+
     bd->device_path = str_dup(device_path);
 
 #if (defined HAVE_MNTENT_H || defined __APPLE__)
@@ -1270,8 +1277,6 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 #endif
 
     _libaacs_init(bd, keyfile_path);
-
-    bd->regs = bd_registers_init();
 
     _libbdplus_init(bd);
 
