@@ -44,6 +44,7 @@
 #endif
 
 #define BAD_CAST_CONST (const xmlChar *)
+#define XML_FREE(p) (xmlFree(p), p = NULL)
 
 #define MAX_META_FILE_SIZE  0xfffff
 
@@ -64,11 +65,11 @@ static void _parseManifestNode(xmlNode * a_node, META_DL *disclib)
                 }
                 if (xmlStrEqual(cur_node->name, BAD_CAST_CONST "numSets")) {
                     disclib->di_num_sets = atoi((char*)(tmp = xmlNodeGetContent(cur_node)));
-                    xmlFree(tmp);
+                    XML_FREE(tmp);
                 }
                 if (xmlStrEqual(cur_node->name, BAD_CAST_CONST "setNumber")) {
                     disclib->di_set_number = atoi((char*)(tmp = xmlNodeGetContent(cur_node)));
-                    xmlFree(tmp);
+                    XML_FREE(tmp);
                 }
             }
             else if (xmlStrEqual(cur_node->parent->name, BAD_CAST_CONST "tableOfContents")) {
@@ -78,7 +79,7 @@ static void _parseManifestNode(xmlNode * a_node, META_DL *disclib)
                     disclib->toc_entries = realloc(disclib->toc_entries, (disclib->toc_count*sizeof(META_TITLE)));
                     disclib->toc_entries[i].title_number = atoi((const char*)tmp);
                     disclib->toc_entries[i].title_name = (char*)xmlNodeGetContent(cur_node);
-                    xmlFree(tmp);
+                    XML_FREE(tmp);
                 }
             }
             else if (xmlStrEqual(cur_node->parent->name, BAD_CAST_CONST "description")) {
@@ -92,7 +93,7 @@ static void _parseManifestNode(xmlNode * a_node, META_DL *disclib)
                         sscanf((const char*)tmp, "%ix%i", &x, &y);
                         disclib->thumbnails[i].xres = x;
                         disclib->thumbnails[i].yres = y;
-                        xmlFree(tmp);
+                        XML_FREE(tmp);
                     }
                     else {
                         disclib->thumbnails[i].xres = disclib->thumbnails[i].yres = -1;
@@ -182,7 +183,7 @@ META_ROOT *meta_parse(const char *device_path)
                     root->dl_entries[i].toc_entries = NULL;
                     root->dl_entries[i].thumbnails = NULL;
                     _parseManifestNode(root_element, &root->dl_entries[i]);
-                    xmlFreeDoc(doc);
+                    XML_FREE(doc);
                 }
             }
             X_FREE(data);
@@ -236,16 +237,16 @@ void meta_free(META_ROOT **p)
         for (i = 0; i < (*p)->dl_count; i++) {
             uint32_t t;
             for (t = 0; t < (*p)->dl_entries[i].toc_count; t++) {
-                xmlFree((*p)->dl_entries[i].toc_entries[t].title_name);
+                XML_FREE((*p)->dl_entries[i].toc_entries[t].title_name);
             }
             for (t = 0; t < (*p)->dl_entries[i].thumb_count; t++) {
-                xmlFree((*p)->dl_entries[i].thumbnails[t].path);
+                XML_FREE((*p)->dl_entries[i].thumbnails[t].path);
             }
             X_FREE((*p)->dl_entries[i].toc_entries);
             X_FREE((*p)->dl_entries[i].thumbnails);
             X_FREE((*p)->dl_entries[i].filename);
-            xmlFree((*p)->dl_entries[i].di_name);
-            xmlFree((*p)->dl_entries[i].di_alternative);
+            XML_FREE((*p)->dl_entries[i].di_name);
+            XML_FREE((*p)->dl_entries[i].di_alternative);
         }
         X_FREE((*p)->dl_entries);
         X_FREE(*p);
