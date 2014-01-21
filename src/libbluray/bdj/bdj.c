@@ -125,12 +125,12 @@ static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char 
 {
     if (java_home) {
         char *path = str_printf("%s/%s/%s", java_home, jvm_dir, jvm_lib);
-        BD_DEBUG(DBG_BDJ|DBG_CRIT, "Opening %s ...\n", path);
+        BD_DEBUG(DBG_BDJ, "Opening %s ...\n", path);
         void *h = dl_dlopen(path, NULL);
         X_FREE(path);
         return h;
     } else {
-        BD_DEBUG(DBG_BDJ|DBG_CRIT, "Opening %s ...\n", jvm_lib);
+        BD_DEBUG(DBG_BDJ, "Opening %s ...\n", jvm_lib);
         return dl_dlopen(jvm_lib, NULL);
     }
 }
@@ -176,7 +176,7 @@ static void *_load_jvm(const char **p_java_home)
     }
 #endif
 
-    BD_DEBUG(DBG_BDJ | DBG_CRIT, "JAVA_HOME not set, trying default locations\n");
+    BD_DEBUG(DBG_BDJ, "JAVA_HOME not set, trying default locations\n");
 
     /* try our pre-defined locations */
     for (path_ind = 0; !handle && path_ind < sizeof(jvm_path) / sizeof(jvm_path[0]); path_ind++) {
