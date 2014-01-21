@@ -87,6 +87,10 @@ static int _mobj_parse_object(BITSTREAM *bs, MOBJ_OBJECT *obj)
 
     obj->num_cmds = bs_read(bs, 16);
     obj->cmds     = calloc(obj->num_cmds, sizeof(MOBJ_CMD));
+    if (!obj->cmds) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
 
     for (i = 0; i < obj->num_cmds; i++) {
         uint8_t buf[12];
@@ -101,12 +105,14 @@ void mobj_free(MOBJ_OBJECTS **p)
 {
     if (p && *p) {
 
-        int i;
-        for (i = 0 ; i < (*p)->num_objects; i++) {
-            X_FREE((*p)->objects[i].cmds);
-        }
+        if ((*p)->objects) {
+            int i;
+            for (i = 0 ; i < (*p)->num_objects; i++) {
+                X_FREE((*p)->objects[i].cmds);
+            }
 
-        X_FREE((*p)->objects);
+            X_FREE((*p)->objects);
+        }
 
         X_FREE(*p);
     }
@@ -143,12 +149,21 @@ static MOBJ_OBJECTS *_mobj_parse(const char *file_name)
         goto error;
     }
 
+    objects = calloc(1, sizeof(MOBJ_OBJECTS));
+    if (!objects) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        goto error;
+    }
+
     bs_skip(&bs, 32); /* reserved */
     num_objects = bs_read(&bs, 16);
 
-    objects = calloc(1, sizeof(MOBJ_OBJECTS));
     objects->num_objects = num_objects;
     objects->objects = calloc(num_objects, sizeof(MOBJ_OBJECT));
+    if (!objects->objects) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        goto error;
+    }
 
     for (i = 0; i < objects->num_objects; i++) {
         if (!_mobj_parse_object(&bs, &objects->objects[i])) {
@@ -175,6 +190,9 @@ MOBJ_OBJECTS *mobj_parse(const char *file_name)
     if (!objects) {
         size_t len    = strlen(file_name);
         char  *backup = malloc(len + 8);
+        if (!backup) {
+            return NULL;
+        }
 
         strcpy(backup, file_name);
         strcpy(backup + len - 16, "BACKUP/MovieObject.bdmv");

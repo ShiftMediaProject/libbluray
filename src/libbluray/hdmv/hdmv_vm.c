@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010-2012  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2010-2014  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -243,6 +243,11 @@ HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs, INDX_ROOT *indx
 {
     HDMV_VM *p = calloc(1, sizeof(HDMV_VM));
     char *file;
+
+    if (!p) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return NULL;
+    }
 
     /* read movie objects */
     file = str_printf("%s/BDMV/MovieObject.bdmv", disc_root);
@@ -1088,6 +1093,31 @@ int hdmv_vm_select_object(HDMV_VM *p, int object)
     return result;
 }
 
+static int _set_object(HDMV_VM *p, int num_nav_cmds, void *nav_cmds)
+{
+    MOBJ_OBJECT *ig_object = calloc(1, sizeof(MOBJ_OBJECT));
+    if (!ig_object) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return -1;
+    }
+
+    ig_object->num_cmds = num_nav_cmds;
+    ig_object->cmds     = calloc(num_nav_cmds, sizeof(MOBJ_CMD));
+    if (!ig_object->cmds) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        X_FREE(ig_object);
+        return -1;
+    }
+
+    memcpy(ig_object->cmds, nav_cmds, num_nav_cmds * sizeof(MOBJ_CMD));
+
+    p->pc        = 0;
+    p->ig_object = ig_object;
+    p->object    = ig_object;
+
+    return 0;
+}
+
 int hdmv_vm_set_object(HDMV_VM *p, int num_nav_cmds, void *nav_cmds)
 {
     int result = -1;
@@ -1098,16 +1128,7 @@ int hdmv_vm_set_object(HDMV_VM *p, int num_nav_cmds, void *nav_cmds)
     _free_ig_object(p);
 
     if (nav_cmds && num_nav_cmds > 0) {
-        MOBJ_OBJECT *ig_object = calloc(1, sizeof(MOBJ_OBJECT));
-        ig_object->num_cmds = num_nav_cmds;
-        ig_object->cmds     = calloc(num_nav_cmds, sizeof(MOBJ_CMD));
-        memcpy(ig_object->cmds, nav_cmds, num_nav_cmds * sizeof(MOBJ_CMD));
-
-        p->pc        = 0;
-        p->ig_object = ig_object;
-        p->object    = ig_object;
-
-        result = 0;
+        result = _set_object(p, num_nav_cmds, nav_cmds);
     }
 
     bd_mutex_unlock(&p->mutex);
