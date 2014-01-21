@@ -439,8 +439,8 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     X_FREE(option);
 
     if (result != JNI_OK || !env) {
-        bdj_close(bdjava);
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM.\n");
+        bdj_close(bdjava);
         return NULL;
     }
 
