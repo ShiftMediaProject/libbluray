@@ -433,10 +433,9 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     JNIEnv* env = NULL;
     int result = JNI_CreateJavaVM_fp(&bdjava->jvm, (void**) &env, &args);
 
-//    while (n) {
-//        X_FREE(option[--n].optionString);
-//    }
-
+    while (--n >= 0) {
+        X_FREE(option[n].optionString);
+    }
     X_FREE(option);
 
     if (result != JNI_OK || !env) {
