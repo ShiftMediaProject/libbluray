@@ -23,7 +23,8 @@ import java.util.LinkedList;
 
 import javax.media.ControllerEvent;
 import javax.media.ControllerListener;
-
+import javax.tv.media.MediaSelectEvent;
+import javax.tv.media.MediaSelectListener;
 import javax.tv.service.selection.ServiceContextEvent;
 import javax.tv.service.selection.ServiceContextListener;
 
@@ -39,6 +40,9 @@ import org.bluray.media.PlaybackPlayItemEvent;
 import org.bluray.media.UOMaskTableListener;
 import org.bluray.media.UOMaskTableChangedEvent;
 import org.bluray.media.UOMaskedEvent;
+
+import org.davic.resources.ResourceStatusEvent;
+import org.davic.resources.ResourceStatusListener;
 
 import org.dvb.media.SubtitleListener;
 import java.util.EventObject;
@@ -130,9 +134,14 @@ public class BDJListeners {
                 ((PiPStatusListener)listener).piPStatusChange((PiPStatusEvent)event);
             } else if (event instanceof AngleChangeEvent) {
                 ((AngleChangeListener)listener).angleChange((AngleChangeEvent)event);
+            } else if (event instanceof MediaSelectEvent) {
+                ((MediaSelectListener)listener).selectionComplete((MediaSelectEvent)event);
 
             } else if (event instanceof ControllerEvent) {
                 ((ControllerListener)listener).controllerUpdate((ControllerEvent)event);
+
+            } else if (event instanceof ResourceStatusEvent) {
+                ((ResourceStatusListener)listener).statusChanged((ResourceStatusEvent)event);
 
             /* need to use wrapper if some other callback uses EventObject */
             } else if (event instanceof EventObject &&
