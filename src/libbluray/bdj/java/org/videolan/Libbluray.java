@@ -33,7 +33,7 @@ import org.bluray.ui.event.HRcEvent;
 import org.dvb.event.EventManager;
 import org.dvb.ui.FontFactory;
 import org.videolan.bdjo.Bdjo;
-import org.videolan.media.content.BDHandler;
+import org.videolan.media.content.PlayerManager;
 
 /**
  * This class allows BDJ to call various libbluray functions.
@@ -318,34 +318,34 @@ public class Libbluray {
             return BDJLoader.unload();
 
         case BDJ_EVENT_CHAPTER:
-            BDHandler.onChapterReach(param);
+            PlayerManager.getInstance().onChapterReach(param);
             break;
         case BDJ_EVENT_MARK:
-            BDHandler.onMarkReach(param);
+            PlayerManager.getInstance().onMarkReach(param);
             break;
         case BDJ_EVENT_PLAYITEM:
-            BDHandler.onPlayItemReach(param);
+            PlayerManager.getInstance().onPlayItemReach(param);
             break;
         case BDJ_EVENT_PLAYLIST:
-            BDHandler.onPlaylistStart(param);
+            PlayerManager.getInstance().onPlaylistStart(param);
             break;
         case BDJ_EVENT_ANGLE:
-            BDHandler.onAngleChange(param);
+            PlayerManager.getInstance().onAngleChange(param);
             break;
         case BDJ_EVENT_SUBTITLE:
-            BDHandler.onSubtitleChange(param);
+            PlayerManager.getInstance().onSubtitleChange(param);
             break;
         case BDJ_EVENT_PIP:
-            BDHandler.onPiPChange(param);
+            PlayerManager.getInstance().onPiPChange(param);
             break;
         case BDJ_EVENT_END_OF_PLAYLIST:
-            BDHandler.activePlayerEndOfMedia();
+            PlayerManager.getInstance().onPlaylistEnd();
             break;
         case BDJ_EVENT_PSR102:
             org.bluray.bdplus.Status.getInstance().receive(param);
             break;
         case BDJ_EVENT_PTS:
-            BDHandler.activePlayerUpdateTime(param);
+            PlayerManager.getInstance().onPlaylistTime(param);
             break;
         case BDJ_EVENT_VK_KEY:
             //case KeyEvent.KEY_TYPED:

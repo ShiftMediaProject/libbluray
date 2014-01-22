@@ -41,6 +41,7 @@ import javax.media.NotRealizedError;
 import javax.media.Player;
 import javax.media.PrefetchCompleteEvent;
 import javax.media.RealizeCompleteEvent;
+import javax.media.ResourceUnavailableEvent;
 import javax.media.StartEvent;
 import javax.media.StopByRequestEvent;
 import javax.media.Time;
@@ -61,7 +62,14 @@ import org.videolan.BDJXletContext;
 import org.videolan.Logger;
 
 public abstract class BDHandler implements Player, ServiceContentHandler {
+
     public BDHandler() {
+        ownerContext = BDJXletContext.getCurrentContext();
+        PlayerManager.getInstance().registerPlayer(this);
+    }
+
+    protected BDJXletContext getOwnerContext() {
+        return ownerContext;
     }
 
     private void checkUnrealized() {
@@ -277,76 +285,13 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         //currentTime = new Time(time * TO_SECONDS);
     }
 
-    public static void activePlayerEndOfMedia() {
-        synchronized (BDHandler.class) {
-            if (activePlayer != null)
-                activePlayer.endOfMedia();
-        }
-    }
-
-    public static void activePlayerUpdateTime(int pts) {
-        synchronized (BDHandler.class) {
-            if (activePlayer != null)
-                activePlayer.updateTime(pts);
-        }
-    }
-
-    public static void onChapterReach(int param) {
-        synchronized (BDHandler.class) {
-            if (activePlayer != null)
-                activePlayer.doChapterReach(param);
-        }
-    }
-
-    public static void onMarkReach(int param) {
-        synchronized (BDHandler.class) {
-            if (activePlayer != null)
-                activePlayer.doMarkReach(param);
-        }
-    }
-
-    public static void onPlaylistStart(int param) {
-        synchronized (BDHandler.class) {
-            if (activePlayer != null)
-                activePlayer.doPlaylistStart(param);
-        }
-    }
-
-    public static void onPlayItemReach(int param) {
-        synchronized (BDHandler.class) {
-            if (activePlayer != null)
-                activePlayer.doPlayItemReach(param);
-        }
-    }
-
-    public static void onAngleChange(int param) {
-        synchronized (BDHandler.class) {
-            if (activePlayer != null)
-                activePlayer.doAngleChange(param);
-        }
-    }
-
-    public static void onSubtitleChange(int param) {
-        synchronized (BDHandler.class) {
-            if (activePlayer != null)
-                activePlayer.doSubtitleChange(param);
-        }
-    }
-
-    public static void onPiPChange(int param) {
-        synchronized (BDHandler.class) {
-            if (activePlayer != null)
-                activePlayer.doPiPChange(param);
-        }
-    }
-
-    protected abstract void doPlaylistStart(int param);
-    protected abstract void doChapterReach(int param);
-    protected abstract void doMarkReach(int param);
-    protected abstract void doPlayItemReach(int param);
-    protected abstract void doAngleChange(int param);
-    protected abstract void doSubtitleChange(int param);
-    protected abstract void doPiPChange(int param);
+    protected void doPlaylistStart(int param) {};
+    protected void doChapterReach(int param) {};
+    protected void doMarkReach(int param) {};
+    protected void doPlayItemReach(int param) {};
+    protected void doAngleChange(int param) {};
+    protected void doSubtitleChange(int param) {};
+    protected void doPiPChange(int param) {};
 
     protected ControllerErrorEvent doRealize() {
         return null;
@@ -420,10 +365,10 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
             state = Prefetching;
             notifyListeners(new TransitionEvent(this, Realized, Prefetching, Prefetched));
         case Prefetching:
-            synchronized (BDHandler.class) {
-                if (activePlayer != null)
-                    activePlayer.doDeallocateAction();
-                activePlayer = this;
+
+            if (!PlayerManager.getInstance().allocateResource(this)) {
+                notifyListeners(new ResourceUnavailableEvent(this));
+                return false;
             }
             ControllerErrorEvent error = doPrefetch();
             if (error == null) {
@@ -507,10 +452,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         default:
             error = doDeallocate();
             if (error == null) {
-                synchronized (BDHandler.class) {
-                    if (activePlayer == this)
-                        activePlayer = null;
-                }
+                PlayerManager.getInstance().releaseResource(this);
                 int previous = state;
                 state = Realized;
                 notifyListeners(new DeallocateEvent(this, previous, Realized, Realized, getMediaTime()));
@@ -526,6 +468,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     private void doCloseAction() {
         doClose();
         notifyListeners(new ControllerClosedEvent(this));
+        PlayerManager.getInstance().unregisterPlayer(this);
     }
 
     private void doEndOfMediaAction() {
@@ -603,10 +546,10 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     protected Control[] controls = null;
     protected BDLocator locator = null;
     private BDJListeners listeners = new BDJListeners();
+    private BDJXletContext ownerContext;
 
     public static final double TO_SECONDS = 1 / 90000.0d;
     public static final double FROM_SECONDS = 90000.0d;
     public static final double TO_NAROSECONDS = 1000000 / 90.0d;
     public static final double FROM_NAROSECONDS = 0.00009d;
-    public static BDHandler activePlayer = null;
 }
