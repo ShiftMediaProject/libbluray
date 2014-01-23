@@ -605,7 +605,10 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         return -1;
     }
 
-    BD_DEBUG(DBG_BDJ, "bdj_process_event(%s,%d)\n", ev_name[ev], param);
+    // Disable too verbose logging (PTS)
+    if (ev != BDJ_EVENT_PTS) {
+        BD_DEBUG(DBG_BDJ, "bdj_process_event(%s,%d)\n", ev_name[ev], param);
+    }
 
     if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
         (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
