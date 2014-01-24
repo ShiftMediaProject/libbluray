@@ -35,8 +35,6 @@ import javax.tv.service.selection.ServiceContextListener;
 import org.bluray.ti.Title;
 import org.bluray.ti.TitleImpl;
 import org.videolan.BDJLoader;
-import org.videolan.BDJAction;
-import org.videolan.BDJActionManager;
 import org.videolan.BDJLoaderCallback;
 import org.videolan.BDJListeners;
 import org.videolan.media.content.playlist.Handler;

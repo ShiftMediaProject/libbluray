@@ -31,7 +31,6 @@ import org.davic.resources.ResourceStatusEvent;
 import org.davic.resources.ResourceStatusListener;
 import org.havi.ui.HScene;
 import org.videolan.BDJAction;
-import org.videolan.BDJActionManager;
 import org.videolan.BDJXletContext;
 import org.videolan.GUIManager;
 import org.videolan.Logger;
