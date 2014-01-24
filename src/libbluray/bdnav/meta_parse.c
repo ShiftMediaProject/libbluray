@@ -202,6 +202,7 @@ META_ROOT *meta_parse(const char *device_path)
 
 const META_DL *meta_get(const META_ROOT *meta_root, const char *language_code)
 {
+#ifdef HAVE_LIBXML2
     unsigned i;
 
     if (meta_root == NULL || meta_root->dl_count == 0) {
@@ -227,10 +228,14 @@ const META_DL *meta_get(const META_ROOT *meta_root, const char *language_code)
 
     BD_DEBUG(DBG_DIR, "requested disclib language '%s' or default '"DEFAULT_LANGUAGE"' not found, using '%s' instead\n", language_code, meta_root->dl_entries[0].language_code);
     return &meta_root->dl_entries[0];
+#else
+    return NULL;
+#endif
 }
 
 void meta_free(META_ROOT **p)
 {
+#ifdef HAVE_LIBXML2
     if (p && *p)
     {
         uint8_t i;
@@ -251,4 +256,5 @@ void meta_free(META_ROOT **p)
         X_FREE((*p)->dl_entries);
         X_FREE(*p);
     }
+#endif
 }
