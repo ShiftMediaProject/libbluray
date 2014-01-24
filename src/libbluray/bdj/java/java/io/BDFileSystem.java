@@ -27,11 +27,17 @@
 package java.io;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import java.net.URL;
 
 import org.videolan.BDJXletContext;
+import org.videolan.Logger;
 
 public abstract class BDFileSystem extends FileSystem {
+
+    private static final Logger logger = Logger.getLogger(BDFileSystem.class.getName());
 
     protected final FileSystem fs;
 
@@ -90,7 +96,7 @@ public abstract class BDFileSystem extends FileSystem {
 
     public String resolve(File f) {
         if (!f.isAbsolute()) {
-            System.err.println("***** resolve " + f);
+            System.err.println("***** resolve " + f + " -> " + fs.resolve(f));
         }
         return fs.resolve(f);
     }
@@ -110,7 +116,7 @@ public abstract class BDFileSystem extends FileSystem {
             return 0;
         }
 
-        org.videolan.Logger.getLogger("BDFileSystem").info("Relative path " + f.getPath() + " translated to " + url);
+        logger.info("Relative path " + f.getPath() + " translated to " + url);
 
         return FileSystem.BA_EXISTS; //|BA_REGULAR
     }
@@ -133,8 +139,50 @@ public abstract class BDFileSystem extends FileSystem {
       public abstract boolean setPermission(File f, int access, boolean enable, boolean owneronly);
     */
 
+    /* this version exists in some java6 versions.
+     * Use reflection to make sure build succees and right method is called.
+     */
+    public boolean createFileExclusively(String path, boolean restrictive) throws IOException {
+        return createFileExclusivelyImpl(path, restrictive);
+    }
+    /* this version exists in most java versions (1.4, 1.7, some 1.6 versions) */
     public boolean createFileExclusively(String path) throws IOException {
-        return fs.createFileExclusively(path);
+        return createFileExclusivelyImpl(path, false);
+    }
+
+    private boolean createFileExclusivelyImpl(String path, boolean restrictive) throws IOException {
+        Method m;
+        Object[] args;
+
+        /* resolve method and set up arguments */
+        try {
+            try {
+                m = fs.getClass().getDeclaredMethod("createFileExclusively", new Class[] { String.class });
+                args = new Object[] {(Object)path};
+            } catch (NoSuchMethodException e) {
+                m  = fs.getClass().getDeclaredMethod("createFileExclusively", new Class[] { String.class, boolean.class });
+                args = new Object[] {(Object)path, (Object)new Boolean(restrictive)};
+            }
+        } catch (NoSuchMethodException e) {
+            logger.error("no matching FileSystem.createFileExclusively found !");
+            throw new IOException();
+        }
+
+        /* call */
+        try {
+            Boolean result = (Boolean)m.invoke(fs, args);
+            return result.booleanValue();
+        } catch (IllegalAccessException e) {
+            logger.error("" + e);
+            throw new IOException();
+        } catch (InvocationTargetException e) {
+            Throwable t = e.getTargetException();
+            if (t instanceof IOException) {
+                throw (IOException)t;
+            }
+            logger.error("" + t);
+            throw new IOException();
+        }
     }
 
     /*
@@ -174,11 +222,6 @@ public abstract class BDFileSystem extends FileSystem {
     public File[] listRoots() {
         return fs.listRoots();
     }
-
-    /*
-      SE only
-      public abstract long getSpace(File f, int t);
-    */
 
     public int compare(File f1, File f2) {
         return fs.compare(f1, f2);
