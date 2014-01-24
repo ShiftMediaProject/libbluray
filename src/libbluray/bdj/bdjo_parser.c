@@ -69,7 +69,7 @@ static jstring _read_jstring(JNIEnv* env, BITBUFFER* buf, uint32_t length)
     char* str;
     _make_string(buf, &str, length);
     jstring jstr = (*env)->NewStringUTF(env, str);
-    free(str);
+    X_FREE(str);
     return jstr;
 }
 
@@ -429,10 +429,10 @@ jobject bdjo_read(JNIEnv* env, const char* file)
 
             result = _parse_bdjo(env, buf);
 
-            free(buf);
+            X_FREE(buf);
         }
 
-        free(data);
+        X_FREE(data);
     }
 
     file_close(handle);

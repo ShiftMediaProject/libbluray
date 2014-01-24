@@ -327,7 +327,7 @@ static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
     (*env)->DeleteLocalRef(env, init_class);
     (*env)->DeleteLocalRef(env, param_disc_id);
 
-    free(id_path);
+    X_FREE(id_path);
     bdid_free(&id);
 
     return 1;
