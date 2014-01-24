@@ -432,7 +432,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         return true;
     }
 
-    private boolean doDeallocateAction() {
+    protected boolean doDeallocateAction() {
         ControllerErrorEvent error;
         switch (state) {
         case Realizing:
