@@ -107,7 +107,12 @@ void textst_render_free(TEXTST_RENDER **pp)
 int textst_render_add_font(TEXTST_RENDER *p, const char *file)
 {
 #ifdef HAVE_FT2
-    p->face = realloc(p->face, sizeof(*(p->face)) * (p->font_count + 1));
+    FT_Face *tmp = realloc(p->face, sizeof(*(p->face)) * (p->font_count + 1));
+    if (!tmp) {
+        TEXTST_ERROR("out of memory\n");
+        return -1;
+    }
+    p->face = tmp;
 
     if (FT_New_Face(p->ft_lib, file, -1, NULL)) {
         TEXTST_ERROR("Unsupport font file format (%s)\n", file);

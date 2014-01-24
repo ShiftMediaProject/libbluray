@@ -61,6 +61,10 @@ M2TS_FILTER *m2ts_filter_init(int64_t in_pts, int64_t out_pts,
         p->out_pts  = out_pts;
         p->wipe_pid = calloc(num_audio + num_video + 1, sizeof(uint16_t));
         p->pass_pid = calloc(num_audio + num_video + 1, sizeof(uint16_t));
+        if (!p->pass_pid || !p->wipe_pid) {
+            m2ts_filter_close(&p);
+            return NULL;
+        }
 
         pid = (in_pts >= 0) ? p->wipe_pid : p->pass_pid;
 

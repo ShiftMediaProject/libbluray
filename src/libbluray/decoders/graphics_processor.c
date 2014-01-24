@@ -109,8 +109,16 @@ static void _join_fragments(PES_BUFFER *p1, PES_BUFFER *p2, int data_pos)
     unsigned new_len = p1->len + p2->len - data_pos;
 
     if (p1->size < new_len) {
+        uint8_t *tmp;
         p1->size = new_len + 1;
-        p1->buf  = realloc(p1->buf, p1->size);
+        tmp = realloc(p1->buf, p1->size);
+        if (!tmp) {
+            BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+            p1->size = 0;
+            p1->len = 0;
+            return;
+        }
+        p1->buf = tmp;
     }
 
     memcpy(p1->buf + p1->len, p2->buf + data_pos, p2->len - data_pos);
@@ -201,6 +209,8 @@ static int _decode_wds(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
         return 1;
     }
 
+    pg_clean_windows(&w);
+
     return 0;
 }
 
@@ -219,6 +229,7 @@ static int _decode_ods(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
                     s->object[ii].pts = p->pts;
                     return 1;
                 }
+                pg_clean_object(&s->object[ii]);
                 return 0;
             }
         }
@@ -226,7 +237,12 @@ static int _decode_ods(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 
     /* add and decode new object */
 
-    s->object = realloc(s->object, sizeof(s->object[0]) * (s->num_object + 1));
+    BD_PG_OBJECT *tmp = realloc(s->object, sizeof(s->object[0]) * (s->num_object + 1));
+    if (!tmp) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+        return 0;
+    }
+    s->object = tmp;
     memset(&s->object[s->num_object], 0, sizeof(s->object[0]));
 
     if (pg_decode_object(bb, &s->object[s->num_object])) {
@@ -234,6 +250,8 @@ static int _decode_ods(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
         s->num_object++;
         return 1;
     }
+
+    pg_clean_object(&s->object[s->num_object]);
 
     return 0;
 }
@@ -268,7 +286,12 @@ static int _decode_pds(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 
     /* add and decode new palette */
 
-    s->palette = realloc(s->palette, sizeof(s->palette[0]) * (s->num_palette + 1));
+    BD_PG_PALETTE *tmp = realloc(s->palette, sizeof(s->palette[0]) * (s->num_palette + 1));
+    if (!tmp) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+        return 0;
+    }
+    s->palette = tmp;
     memset(&s->palette[s->num_palette], 0, sizeof(s->palette[0]));
 
     if (pg_decode_palette(bb, &s->palette[s->num_palette])) {
@@ -306,6 +329,10 @@ static int _decode_pcs(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 {
     pg_free_composition(&s->pcs);
     s->pcs = calloc(1, sizeof(*s->pcs));
+    if (!s->pcs) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+        return 0;
+    }
 
     if (!pg_decode_composition(bb, s->pcs)) {
         pg_free_composition(&s->pcs);
@@ -324,6 +351,10 @@ static int _decode_ics(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 {
     ig_free_interactive(&s->ics);
     s->ics = calloc(1, sizeof(*s->ics));
+    if (!s->ics) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+        return 0;
+    }
 
     if (!ig_decode_interactive(bb, s->ics)) {
         ig_free_interactive(&s->ics);
@@ -343,6 +374,11 @@ static int _decode_dialog_style(PG_DISPLAY_SET *s, BITBUFFER *bb)
     _free_dialogs(s);
 
     s->style = calloc(1, sizeof(*s->style));
+    if (!s->style) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+        return 0;
+    }
+
     if (!textst_decode_dialog_style(bb, s->style)) {
         textst_free_dialog_style(&s->style);
         return 0;
@@ -362,6 +398,12 @@ static int _decode_dialog_style(PG_DISPLAY_SET *s, BITBUFFER *bb)
     }
 
     s->dialog = calloc(s->total_dialog, sizeof(*s->dialog));
+    if (!s->dialog) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+        s->total_dialog = 0;
+        return 0;
+    }
+
     BD_DEBUG(DBG_DECODE, "_decode_dialog_style(): %d dialogs in stream\n", s->total_dialog);
     return 1;
 }
@@ -444,6 +486,10 @@ static int graphics_processor_decode_pes(PG_DISPLAY_SET **s, PES_BUFFER **p, int
 
     if (*s == NULL) {
         *s = calloc(1, sizeof(PG_DISPLAY_SET));
+        if (!*s) {
+            BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+            return 0;
+        }
     }
 
     while (*p) {
@@ -525,6 +571,7 @@ int graphics_processor_decode_ts(GRAPHICS_PROCESSOR *p,
                                  int64_t stc)
 {
     unsigned ii;
+    int result = 0;
 
     if (pid != p->pid) {
         m2ts_demux_free(&p->demux);
@@ -532,6 +579,9 @@ int graphics_processor_decode_ts(GRAPHICS_PROCESSOR *p,
     }
     if (!p->demux) {
         p->demux = m2ts_demux_init(pid);
+        if (!p->demux) {
+            return 0;
+        }
         p->pid   = pid;
     }
 
@@ -541,8 +591,8 @@ int graphics_processor_decode_ts(GRAPHICS_PROCESSOR *p,
     }
 
     if (p->queue) {
-        return graphics_processor_decode_pes(s, &p->queue, stc);
+        result = graphics_processor_decode_pes(s, &p->queue, stc);
     }
 
-    return 0;
+    return result;
 }

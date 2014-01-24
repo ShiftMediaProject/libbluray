@@ -367,6 +367,10 @@ static int _save_page_state(GRAPHICS_CONTROLLER *gc)
 
     X_FREE(gc->saved_bog_data);
     gc->saved_bog_data = calloc(page->num_bogs, sizeof(*gc->saved_bog_data));
+    if (!gc->saved_bog_data) {
+        GC_ERROR("_save_page_state(): out of memory\n");
+        return -1;
+    }
 
     for (ii = 0; ii < page->num_bogs; ii++) {
         gc->saved_bog_data[ii].enabled_button = gc->bog_data[ii].enabled_button;
@@ -774,6 +778,10 @@ static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
 GRAPHICS_CONTROLLER *gc_init(BD_REGISTERS *regs, void *handle, gc_overlay_proc_f func)
 {
     GRAPHICS_CONTROLLER *p = calloc(1, sizeof(*p));
+    if (!p) {
+        GC_ERROR("gc_init(): out of memory\n");
+        return NULL;
+    }
 
     p->regs = regs;
 
@@ -825,6 +833,9 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
 
         if (!gc->igp) {
             gc->igp = graphics_processor_init();
+            if (!gc->igp) {
+                return -1;
+            }
         }
 
         bd_mutex_lock(&gc->mutex);
@@ -865,6 +876,9 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
         /* PG stream */
         if (!gc->pgp) {
             gc->pgp = graphics_processor_init();
+            if (!gc->pgp) {
+                return -1;
+            }
         }
         graphics_processor_decode_ts(gc->pgp, &gc->pgs,
                                      pid, block, num_blocks,
@@ -881,6 +895,9 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
         /* TextST stream */
         if (!gc->tgp) {
             gc->tgp = graphics_processor_init();
+            if (!gc->tgp) {
+                return -1;
+            }
         }
         graphics_processor_decode_ts(gc->tgp, &gc->tgs,
                                      pid, block, num_blocks,
@@ -921,6 +938,9 @@ int gc_add_font(GRAPHICS_CONTROLLER *p, const char *font_file)
 
     if (!p->textst_render) {
         p->textst_render = textst_render_init();
+        if (!p->textst_render) {
+            return -1;
+        }
     }
 
     return textst_render_add_font(p->textst_render, font_file);
@@ -1044,13 +1064,17 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
 
             TEXTST_BITMAP bmp = {NULL, style->text_box.width, style->text_box.height, style->text_box.width};
             bmp.mem = malloc(bmp.width * bmp.height);
-            memset(bmp.mem, style->region_info.background_color, bmp.width * bmp.height);
+            if (bmp.mem) {
+                memset(bmp.mem, style->region_info.background_color, bmp.width * bmp.height);
 
-            textst_render(p->textst_render, &bmp, style, region);
+                textst_render(p->textst_render, &bmp, style, region);
 
-            _render_textst_region(p, dialog[ii].start_pts, style, &bmp, s->style->palette);
+                _render_textst_region(p, dialog[ii].start_pts, style, &bmp, s->style->palette);
 
-            X_FREE(bmp.mem);
+                X_FREE(bmp.mem);
+            } else {
+                GC_ERROR("_render_textst(): out of memory\n");
+            }
         }
 
         /* commit changes */

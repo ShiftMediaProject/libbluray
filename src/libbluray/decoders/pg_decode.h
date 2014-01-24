@@ -51,6 +51,7 @@ BD_PRIVATE int pg_decode_windows(BITBUFFER *bb, BD_PG_WINDOWS *p);
  */
 
 BD_PRIVATE void pg_clean_object(BD_PG_OBJECT *p);
+BD_PRIVATE void pg_clean_windows(BD_PG_WINDOWS *p);
 
 BD_PRIVATE void pg_free_composition(BD_PG_COMPOSITION **p);
 

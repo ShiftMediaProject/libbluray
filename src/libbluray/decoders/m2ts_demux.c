@@ -131,9 +131,16 @@ static int _add_ts(PES_BUFFER *p, unsigned pusi, uint8_t *buf, unsigned len)
 
     // realloc
     if (p->size < p->len + len) {
+        uint8_t *tmp;
         p->size *= 2;
         p->size = BD_MAX(p->size, BD_MAX(result, 0x100));
-        p->buf  = realloc(p->buf, p->size);
+        tmp     = realloc(p->buf, p->size);
+        if (!tmp) {
+            BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+            p->size = 0;
+            return -1;
+        }
+        p->buf = tmp;
     }
 
     // append

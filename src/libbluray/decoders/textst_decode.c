@@ -105,7 +105,7 @@ static void _decode_user_style(BITBUFFER *bb, BD_TEXTST_USER_STYLE *p)
     p->line_space_delta      = _decode_int8(bb);
 }
 
-static void _decode_dialog_region(BITBUFFER *bb, BD_TEXTST_DIALOG_REGION *p)
+static int _decode_dialog_region(BITBUFFER *bb, BD_TEXTST_DIALOG_REGION *p)
 {
     p->continous_present_flag = bb_read(bb, 1);
     p->forced_on_flag         = bb_read(bb, 1);
@@ -119,6 +119,10 @@ static void _decode_dialog_region(BITBUFFER *bb, BD_TEXTST_DIALOG_REGION *p)
     p->elem       = malloc(bytes_allocated);
     p->elem_count = 0;
     p->line_count = 1;
+    if (!p->elem) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+        return 0;
+    }
 
     uint8_t *ptr = (uint8_t *)p->elem;
 
@@ -143,7 +147,12 @@ static void _decode_dialog_region(BITBUFFER *bb, BD_TEXTST_DIALOG_REGION *p)
         int need = bytes_used + length + sizeof(BD_TEXTST_DATA);
         if (bytes_allocated < need) {
             bytes_allocated = need * 2;
-            p->elem = realloc(p->elem, bytes_allocated);
+            BD_TEXTST_DATA *tmp = realloc(p->elem, bytes_allocated);
+            if (!tmp) {
+                BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+                return 0;
+            }
+            p->elem = tmp;
             ptr = ((uint8_t *)p->elem) + bytes_used;
         }
 
@@ -186,6 +195,8 @@ static void _decode_dialog_region(BITBUFFER *bb, BD_TEXTST_DIALOG_REGION *p)
         ptr += sizeof(BD_TEXTST_DATA);
         p->elem_count++;
     }
+
+    return 1;
 }
 
 static void _decode_palette(BITBUFFER *bb, BD_PG_PALETTE_ENTRY *p)
@@ -215,6 +226,10 @@ BD_PRIVATE int textst_decode_dialog_style(BITBUFFER *bb, BD_TEXTST_DIALOG_STYLE 
 
     if (p->region_style_count) {
         p->region_style = calloc(p->region_style_count, sizeof(BD_TEXTST_REGION_STYLE));
+        if (!p->region_style) {
+            BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+            return 0;
+        }
         for (ii = 0; ii < p->region_style_count; ii++) {
             _decode_region_style(bb, &p->region_style[ii]);
         }
@@ -222,6 +237,10 @@ BD_PRIVATE int textst_decode_dialog_style(BITBUFFER *bb, BD_TEXTST_DIALOG_STYLE 
 
     if (p->user_style_count) {
         p->user_style = calloc(p->user_style_count, sizeof(BD_TEXTST_USER_STYLE));
+        if (!p->user_style) {
+            BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+            return 0;
+        }
         for (ii = 0; ii < p->user_style_count; ii++) {
             _decode_user_style(bb, &p->user_style[ii]);
         }
@@ -246,13 +265,23 @@ BD_PRIVATE int textst_decode_dialog_presentation(BITBUFFER *bb, BD_TEXTST_DIALOG
 
     if (palette_update_flag) {
         p->palette_update = calloc(256, sizeof(BD_PG_PALETTE_ENTRY));
+        if (!p->palette_update) {
+            BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+            return 0;
+        }
         _decode_palette(bb, p->palette_update);
     }
 
     p->region_count = bb_read(bb, 8);
     if (p->region_count) {
+        if (p->region_count > 2) {
+            BD_DEBUG(DBG_DECODE | DBG_CRIT, "too many regions (%d)\n", p->region_count);
+            return 0;
+        }
         for (ii = 0; ii < p->region_count; ii++) {
-            _decode_dialog_region(bb, &p->region[ii]);
+            if (!_decode_dialog_region(bb, &p->region[ii])) {
+                return 0;
+            }
         }
     }
 

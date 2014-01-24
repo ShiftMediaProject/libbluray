@@ -117,6 +117,7 @@ int pg_decode_palette(BITBUFFER *bb, BD_PG_PALETTE *p)
 
 static int _decode_rle(BITBUFFER *bb, BD_PG_OBJECT *p)
 {
+    BD_PG_RLE_ELEM *tmp;
     int pixels_left = p->width * p->height;
     int num_rle     = 0;
     int rle_size    = p->width * p->height / 4;
@@ -124,11 +125,12 @@ static int _decode_rle(BITBUFFER *bb, BD_PG_OBJECT *p)
     if (rle_size < 1)
         rle_size = 1;
 
-    p->img = refcnt_realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
-    if (!p->img) {
+    tmp = refcnt_realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
+    if (!tmp) {
         BD_DEBUG(DBG_DECODE | DBG_CRIT, "pg_decode_object(): realloc failed\n");
         return 0;
     }
+    p->img = tmp;
 
     while (!bb_eof(bb)) {
         uint32_t len   = 1;
@@ -163,14 +165,13 @@ static int _decode_rle(BITBUFFER *bb, BD_PG_OBJECT *p)
 
         num_rle++;
         if (num_rle >= rle_size) {
-            void *tmp = p->img;
             rle_size *= 2;
-            p->img = refcnt_realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
-            if (!p->img) {
+            tmp = refcnt_realloc(p->img, rle_size * sizeof(BD_PG_RLE_ELEM));
+            if (!tmp) {
                 BD_DEBUG(DBG_DECODE | DBG_CRIT, "pg_decode_object(): realloc failed\n");
-                X_FREE(tmp);
                 return 0;
             }
+            p->img = tmp;
         }
     }
 
@@ -233,6 +234,10 @@ int pg_decode_composition(BITBUFFER *bb, BD_PG_COMPOSITION *p)
 
     p->num_composition_objects = bb_read(bb, 8);
     p->composition_object      = calloc(p->num_composition_objects, sizeof(BD_PG_COMPOSITION_OBJECT));
+    if (!p->composition_object) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+        return 0;
+    }
 
     for (ii = 0; ii < p->num_composition_objects; ii++) {
         pg_decode_composition_object(bb, &p->composition_object[ii]);
@@ -247,6 +252,10 @@ int pg_decode_windows(BITBUFFER *bb, BD_PG_WINDOWS *p)
 
     p->num_windows = bb_read(bb, 8);
     p->window = calloc(p->num_windows, sizeof(BD_PG_WINDOW));
+    if (!p->window) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+        return 0;
+    }
 
     for (ii = 0; ii < p->num_windows; ii++) {
         pg_decode_window(bb, &p->window[ii]);
@@ -264,6 +273,13 @@ void pg_clean_object(BD_PG_OBJECT *p)
     if (p) {
         bd_refcnt_dec(p->img);
         p->img = NULL;
+    }
+}
+
+void pg_clean_windows(BD_PG_WINDOWS *p)
+{
+    if (p) {
+        X_FREE(p->window);
     }
 }
 
