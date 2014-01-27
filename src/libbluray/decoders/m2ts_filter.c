@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define M2TS_TRACE(...) BD_DEBUG(DBG_CRIT,__VA_ARGS__)
+#define M2TS_TRACE(...) BD_DEBUG(DBG_STREAM,__VA_ARGS__)
 //#define M2TS_TRACE(...) do {} while(0)
 
 /*
