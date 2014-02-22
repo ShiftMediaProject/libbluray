@@ -98,6 +98,7 @@ public class BDJLoader {
             logger.error("shutdown() failed: " + e);
             e.printStackTrace();
         }
+        queue = null;
     }
 
     private static boolean loadN(TitleImpl title, boolean restart) {
