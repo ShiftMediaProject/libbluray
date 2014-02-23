@@ -86,6 +86,11 @@ static inline int bs_eof( const BITSTREAM *bs )
     return file_eof(bs->fp) && bb_eof(&bs->bb);
 }
 
+static inline off_t bs_avail( const BITSTREAM *bs )
+{
+    return bs_end(bs) - bs_pos(bs);
+}
+
 static inline void bb_seek_byte( BITBUFFER *bb, off_t off)
 {
     bb_seek(bb, off << 3, SEEK_SET);

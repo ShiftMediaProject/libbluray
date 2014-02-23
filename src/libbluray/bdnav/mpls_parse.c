@@ -100,14 +100,18 @@ _parse_uo(BITSTREAM *bits, BD_UO_MASK *uo)
 static int
 _parse_appinfo(BITSTREAM *bits, MPLS_AI *ai)
 {
-    int len;
-    off_t pos;
+    off_t pos, len;
 
     if (!bs_is_align(bits, 0x07)) {
         fprintf(stderr, "_parse_appinfo: alignment error\n");
     }
     pos = bs_pos(bits) >> 3;
     len = bs_read(bits, 32);
+
+    if (bs_avail(bits) < len * 8) {
+        fprintf(stderr, "_parse_appinfo: unexpected end of file\n");
+        return 0;
+    }
 
     // Reserved
     bs_skip(bits, 8);
@@ -131,6 +135,11 @@ _parse_appinfo(BITSTREAM *bits, MPLS_AI *ai)
 static int
 _parse_header(BITSTREAM *bits, MPLS_PL *pl)
 {
+    if (bs_avail(bits) < 5 * 32 + 160) {
+        fprintf(stderr, "_parse_header: unexpected end of file\n");
+        return 0;
+    }
+
     pl->type_indicator  = bs_read(bits, 32);
     pl->type_indicator2 = bs_read(bits, 32);
     if (pl->type_indicator != MPLS_SIG1 || 
@@ -641,12 +650,19 @@ _clean_subpath(MPLS_SUB *sp)
 static int
 _parse_playlistmark(BITSTREAM *bits, MPLS_PL *pl)
 {
+    off_t len;
     int ii;
     MPLS_PLM *plm = NULL;
 
     bs_seek_byte(bits, pl->mark_pos);
-    // Skip the length field, I don't use it
-    bs_skip(bits, 32);
+    // length field
+    len = bs_read(bits, 32);
+
+    if (bs_avail(bits) < len * 8) {
+        fprintf(stderr, "_parse_playlistmark: unexpected end of file\n");
+        return 0;
+    }
+
     // Then get the number of marks
     pl->mark_count = bs_read(bits, 16);
 
@@ -666,13 +682,20 @@ _parse_playlistmark(BITSTREAM *bits, MPLS_PL *pl)
 static int
 _parse_playlist(BITSTREAM *bits, MPLS_PL *pl)
 {
+    off_t len;
     int ii;
     MPLS_PI *pi = NULL;
     MPLS_SUB *sub_path = NULL;
 
     bs_seek_byte(bits, pl->list_pos);
-    // Skip playlist length
-    bs_skip(bits, 32);
+    // playlist length
+    len = bs_read(bits, 32);
+
+    if (bs_avail(bits) < len * 8) {
+        fprintf(stderr, "_parse_playlist: unexpected end of file\n");
+        return 0;
+    }
+
     // Skip reserved bytes
     bs_skip(bits, 16);
 
