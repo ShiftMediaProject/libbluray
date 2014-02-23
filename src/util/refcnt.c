@@ -99,8 +99,14 @@ void *refcnt_realloc(void *obj, size_t sz)
 
     if (obj) {
         obj = realloc(&((BD_REFCNT *)obj)[-1], sz);
+        if (!obj) {
+            return NULL;
+        }
     } else {
         obj = realloc(NULL, sz);
+        if (!obj) {
+            return NULL;
+        }
         memset(obj, 0, sizeof(BD_REFCNT));
     }
 
