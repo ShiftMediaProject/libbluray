@@ -206,6 +206,7 @@ void bd_psr_unlock(BD_REGISTERS *p)
 void bd_psr_register_cb  (BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*), void *cb_handle)
 {
     /* no duplicates ! */
+    PSR_CB_DATA *cb;
     unsigned i;
 
     bd_psr_lock(p);
@@ -218,14 +219,14 @@ void bd_psr_register_cb  (BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*)
         }
     }
 
-    p->num_cb++;
-    p->cb = realloc(p->cb, p->num_cb * sizeof(PSR_CB_DATA));
-    if (p->cb) {
-        p->cb[p->num_cb - 1].cb     = callback;
-        p->cb[p->num_cb - 1].handle = cb_handle;
+    cb = realloc(p->cb, (p->num_cb + 1) * sizeof(PSR_CB_DATA));
+    if (cb) {
+        p->cb = cb;
+        p->cb[p->num_cb].cb     = callback;
+        p->cb[p->num_cb].handle = cb_handle;
+        p->num_cb++;
     } else {
         BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_psr_register_cb(): realloc failed\n");
-        p->num_cb = 0;
     }
 
     bd_psr_unlock(p);
