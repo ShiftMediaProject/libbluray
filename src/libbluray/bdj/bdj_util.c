@@ -104,3 +104,35 @@ int bdj_register_methods(JNIEnv *env, const char *class_name,
 
     return !error;
 }
+
+int bdj_unregister_methods(JNIEnv *env, const char *class_name)
+{
+    jclass cls;
+    int error;
+
+    (*env)->ExceptionClear(env);
+
+    cls = (*env)->FindClass(env, class_name);
+
+    if (!cls) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate class %s\n", class_name);
+        (*env)->ExceptionDescribe(env);
+        (*env)->ExceptionClear(env);
+        return 0;
+    }
+
+    error =  (*env)->UnregisterNatives(env, cls);
+
+    if ((*env)->ExceptionOccurred(env)) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to unregister native methods for class %s\n", class_name);
+        (*env)->ExceptionDescribe(env);
+        (*env)->ExceptionClear(env);
+        return 0;
+    }
+
+    if (error) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to runegister native methods for class %s\n", class_name);
+    }
+
+    return !error;
+}

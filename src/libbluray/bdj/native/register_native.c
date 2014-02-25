@@ -51,3 +51,11 @@ int bdj_register_native_methods(JNIEnv *env)
                            Java_java_awt_BDGraphics_methods_count)
       ;
 }
+
+void bdj_unregister_native_methods(JNIEnv *env)
+{
+    bdj_unregister_methods(env, "java/awt/BDGraphics");
+    bdj_unregister_methods(env, "java/awt/BDFontMetrics");
+    bdj_unregister_methods(env, "org/videolan/Libbluray");
+    bdj_unregister_methods(env, "org/videolan/Logger");
+}

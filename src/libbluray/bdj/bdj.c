@@ -491,6 +491,8 @@ void bdj_close(BDJAVA *bdjava)
             (*env)->DeleteLocalRef(env, shutdown_class);
         }
 
+        bdj_unregister_native_methods(env);
+
         if (attach) {
             (*bdjava->jvm)->DetachCurrentThread(bdjava->jvm);
         }

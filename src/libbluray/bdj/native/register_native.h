@@ -25,5 +25,6 @@
 #include <jni.h>
 
 BD_PRIVATE int bdj_register_native_methods(JNIEnv *env);
+BD_PRIVATE void bdj_unregister_native_methods(JNIEnv *env);
 
 #endif /* _REGISTER_NATIVE_H_ */
