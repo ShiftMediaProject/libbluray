@@ -70,7 +70,7 @@ libbluray_la_SOURCES = \
 	libbluray/hdmv/mobj_parse.c \
 	libbluray/hdmv/mobj_print.c \
 	file/file.h \
-	file/file_posix.c \
+	file/file.c \
 	file/dirs.h \
 	file/dl.h \
 	file/filesystem.h \
@@ -95,17 +95,20 @@ libbluray_la_SOURCES = \
 
 if HAVE_DARWIN
 libbluray_la_SOURCES+= \
+	file/file_posix.c \
 	file/dir_posix.c \
 	file/dl_posix.c \
 	file/dirs_darwin.c
 else
 if HAVE_WIN32
 libbluray_la_SOURCES+= \
+	file/file_win32.c \
 	file/dir_win32.c \
 	file/dl_win32.c \
 	file/dirs_win32.c
 else
 libbluray_la_SOURCES+= \
+	file/file_posix.c \
 	file/dir_posix.c \
 	file/dl_posix.c \
 	file/dirs_xdg.c
@@ -212,7 +215,7 @@ mpls_dump_SOURCES = \
 	examples/mpls_dump.c \
 	examples/util.c \
 	examples/util.h \
-	file/file_posix.c \
+	file/file.c \
 	libbluray/bdnav/clpi_parse.c \
 	libbluray/bdnav/extdata_parse.c \
 	libbluray/bdnav/mpls_parse.c \
@@ -221,9 +224,11 @@ mpls_dump_SOURCES = \
 	util/strutl.c
 if HAVE_WIN32
 mpls_dump_SOURCES += \
+	file/file_win32.c \
 	file/dir_win32.c
 else
 mpls_dump_SOURCES += \
+	file/file_posix.c \
 	file/dir_posix.c
 endif
 
@@ -237,19 +242,33 @@ clpi_dump_LDADD = libbluray.la
 index_dump_CFLAGS = $(AM_CFLAGS)
 index_dump_SOURCES = \
 	examples/index_dump.c \
-	file/file_posix.c \
+	file/file.c \
 	libbluray/bdnav/index_parse.c \
 	util/bits.c \
 	util/logging.c
+if HAVE_WIN32
+index_dump_SOURCES += \
+	file/file_win32.c
+else
+index_dump_SOURCES += \
+	file/file_posix.c
+endif
 
 mobj_dump_CFLAGS = $(AM_CFLAGS)
 mobj_dump_SOURCES = \
 	examples/mobj_dump.c \
-	file/file_posix.c \
+	file/file.c \
 	libbluray/hdmv/mobj_parse.c \
 	libbluray/hdmv/mobj_print.c \
 	util/bits.c \
 	util/logging.c
+if HAVE_WIN32
+mobj_dump_SOURCES += \
+	file/file_win32.c
+else
+mobj_dump_SOURCES += \
+	file/file_posix.c
+endif
 
 sound_dump_SOURCES = examples/sound_dump.c
 sound_dump_LDADD = libbluray.la

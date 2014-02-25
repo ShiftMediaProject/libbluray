@@ -22,6 +22,11 @@
 #include "config.h"
 #endif
 
+#if defined(__MINGW32__)
+/* ftello64() and fseeko64() prototypes from stdio.h */
+#   undef __STRICT_ANSI__
+#endif
+
 #include "file.h"
 #include "util/macro.h"
 #include "util/logging.h"
@@ -30,33 +35,43 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-static void file_close_linux(BD_FILE_H *file)
+#include <windows.h>
+
+static void _file_close(BD_FILE_H *file)
 {
     if (file) {
         fclose((FILE *)file->internal);
 
-        BD_DEBUG(DBG_FILE, "Closed LINUX file (%p)\n", (void*)file);
+        BD_DEBUG(DBG_FILE, "Closed WIN32 file (%p)\n", (void*)file);
 
         X_FREE(file);
     }
 }
 
-static int64_t file_seek_linux(BD_FILE_H *file, int64_t offset, int32_t origin)
+static int64_t _file_seek(BD_FILE_H *file, int64_t offset, int32_t origin)
 {
-    return fseeko((FILE *)file->internal, offset, origin);
+#if defined(__MINGW32__)
+    return fseeko64((FILE *)file->internal, offset, origin);
+#else
+    return _fseeki64((FILE *)file->internal, offset, origin);
+#endif
 }
 
-static int64_t file_tell_linux(BD_FILE_H *file)
+static int64_t _file_tell(BD_FILE_H *file)
 {
-    return ftello((FILE *)file->internal);
+#if defined(__MINGW32__)
+    return ftello64((FILE *)file->internal);
+#else
+    return _ftelli64((FILE *)file->internal);
+#endif
 }
 
-static int file_eof_linux(BD_FILE_H *file)
+static int _file_eof(BD_FILE_H *file)
 {
     return feof((FILE *)file->internal);
 }
 
-static int64_t file_read_linux(BD_FILE_H *file, uint8_t *buf, int64_t size)
+static int64_t _file_read(BD_FILE_H *file, uint8_t *buf, int64_t size)
 {
     if (size > 0 && size < BD_MAX_SSIZE) {
         return (int64_t)fread(buf, 1, (size_t)size, (FILE *)file->internal);
@@ -66,7 +81,7 @@ static int64_t file_read_linux(BD_FILE_H *file, uint8_t *buf, int64_t size)
     return 0;
 }
 
-static int64_t file_write_linux(BD_FILE_H *file, const uint8_t *buf, int64_t size)
+static int64_t _file_write(BD_FILE_H *file, const uint8_t *buf, int64_t size)
 {
     if (size > 0 && size < BD_MAX_SSIZE) {
         return (int64_t)fwrite(buf, 1, (size_t)size, (FILE *)file->internal);
@@ -76,35 +91,35 @@ static int64_t file_write_linux(BD_FILE_H *file, const uint8_t *buf, int64_t siz
     return 0;
 }
 
-static BD_FILE_H *file_open_linux(const char* filename, const char *mode)
+static BD_FILE_H *_file_open(const char* filename, const char *mode)
 {
     FILE *fp = NULL;
-    BD_FILE_H *file = malloc(sizeof(BD_FILE_H));
 
-    BD_DEBUG(DBG_FILE, "Opening LINUX file %s... (%p)\n", filename, (void*)file);
-    file->close = file_close_linux;
-    file->seek = file_seek_linux;
-    file->read = file_read_linux;
-    file->write = file_write_linux;
-    file->tell = file_tell_linux;
-    file->eof = file_eof_linux;
+    wchar_t wfilename[MAX_PATH], wmode[8];
+    if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, filename, -1, wfilename, MAX_PATH) &&
+        MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, mode, -1, wmode, 8) &&
+        (fp = _wfopen(wfilename, wmode))) {
 
-    if ((fp = fopen(filename, mode))) {
+        BD_FILE_H *file = malloc(sizeof(BD_FILE_H));
         file->internal = fp;
+        file->close    = _file_close;
+        file->seek     = _file_seek;
+        file->read     = _file_read;
+        file->write    = _file_write;
+        file->tell     = _file_tell;
+        file->eof      = _file_eof;
 
+        BD_DEBUG(DBG_FILE, "Opened WIN32 file %s (%p)\n", filename, (void*)file);
         return file;
     }
 
-    BD_DEBUG(DBG_FILE, "Error opening file! (%p)\n", (void*)file);
-
-    X_FREE(file);
-
+    BD_DEBUG(DBG_FILE, "Error opening file %s\n", filename);
     return NULL;
 }
 
-BD_FILE_H* (*file_open)(const char* filename, const char *mode) = file_open_linux;
+BD_FILE_H* (*file_open)(const char* filename, const char *mode) = _file_open;
 
 BD_FILE_OPEN file_open_default(void)
 {
-    return file_open_linux;
+    return _file_open;
 }

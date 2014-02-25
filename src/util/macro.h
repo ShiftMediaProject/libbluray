@@ -33,6 +33,7 @@
 #define BD_MIN(a,b) ((a)<(b)?(a):(b))
 #define BD_MAX(a,b) ((a)>(b)?(a):(b))
 
+#define BD_MAX_SSIZE ((int64_t)(((size_t)-1)>>1))
 
 /*
  * automatic cast from void* (malloc/calloc/realloc)
