@@ -80,11 +80,12 @@ static inline int bb_eof( const BITBUFFER *bb )
 {
     return bb->p >= bb->p_end ? 1: 0 ;
 }
-
+/*
 static inline int bs_eof( const BITSTREAM *bs )
 {
     return file_eof(bs->fp) && bb_eof(&bs->bb);
 }
+*/
 
 static inline off_t bs_avail( const BITSTREAM *bs )
 {
