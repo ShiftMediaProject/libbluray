@@ -307,7 +307,7 @@ static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
     jclass init_class;
     jmethodID init_id;
     if (!bdj_get_method(env, &init_class, &init_id,
-                        "org/videolan/Libbluray", "init", "(JLjava/lang/String;)V")) {
+                        "org/videolan/Libbluray", "init", "(JLjava/lang/String;Ljava/lang/String;)V")) {
         return 0;
     }
 
@@ -316,8 +316,9 @@ static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
     jlong param_bdjava_ptr = (jlong)(intptr_t) bdjava;
     jstring param_disc_id = (*env)->NewStringUTF(env,
                                                  id ? id->disc_id : "00000000000000000000000000000000");
+    jstring param_disc_root = (*env)->NewStringUTF(env, bdjava->path);
     (*env)->CallStaticVoidMethod(env, init_class, init_id,
-                                 param_bdjava_ptr, param_disc_id);
+                                 param_bdjava_ptr, param_disc_id, param_disc_root);
 
     if ((*env)->ExceptionOccurred(env)) {
         (*env)->ExceptionDescribe(env);
@@ -326,6 +327,7 @@ static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
 
     (*env)->DeleteLocalRef(env, init_class);
     (*env)->DeleteLocalRef(env, param_disc_id);
+    (*env)->DeleteLocalRef(env, param_disc_root);
 
     X_FREE(id_path);
     bdid_free(&id);
@@ -389,7 +391,6 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 20);
     int n = 0;
     JavaVMInitArgs args;
-    option[n++].optionString = str_printf("-Dbluray.vfs.root=%s", path);
     option[n++].optionString = str_printf("-Ddvb.persistent.root=%s", _bdj_persistent_root());
     option[n++].optionString = str_printf("-Dbluray.bindingunit.root=%s", _bdj_buda_root());
 

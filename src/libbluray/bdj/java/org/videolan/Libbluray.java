@@ -39,7 +39,9 @@ import org.videolan.media.content.PlayerManager;
  * This class allows BDJ to call various libbluray functions.
  */
 public class Libbluray {
-        protected static void init(long nativePointer, String discID) {
+    protected static void init(long nativePointer, String discID, String discRoot) {
+
+        System.setProperty("bluray.vfs.root", discRoot);
 
             Libbluray.nativePointer = nativePointer;
             DiscManager.getDiscManager().setCurrentDisc(discID);
