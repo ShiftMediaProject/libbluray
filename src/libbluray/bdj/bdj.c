@@ -357,36 +357,16 @@ int bdj_jvm_available(void)
     return 2;
 }
 
-BDJAVA* bdj_open(const char *path, struct bluray *bd,
-                 struct indx_root_s *index,
-                 bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf)
+static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaVM **jvm)
 {
-    BD_DEBUG(DBG_BDJ, "bdj_open()\n");
-
-    // first load the jvm using dlopen
-    const char *java_home = NULL;
-    void* jvm_lib = _load_jvm(&java_home);
-
-    if (!jvm_lib) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Wasn't able to load JVM\n");
-        return NULL;
-    }
+    (void)java_home;  /* used only with J2ME */
 
     fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = (fptr_JNI_CreateJavaVM)(intptr_t)dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
-
     if (JNI_CreateJavaVM_fp == NULL) {
         dl_dlclose(jvm_lib);
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't find symbol JNI_CreateJavaVM.\n");
-        return NULL;
+        return 0;
     }
-
-    BDJAVA* bdjava = calloc(1, sizeof(BDJAVA));
-    bdjava->bd = bd;
-    bdjava->index = index;
-    bdjava->path = path;
-    bdjava->h_libjvm = jvm_lib;
-    bdjava->osd_cb = osd_cb;
-    bdjava->buf = buf;
 
     JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 20);
     int n = 0;
@@ -431,19 +411,51 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     args.options = option;
     args.ignoreUnrecognized = JNI_FALSE; // don't ignore unrecognized options
 
-    JNIEnv* env = NULL;
-    int result = JNI_CreateJavaVM_fp(&bdjava->jvm, (void**) &env, &args);
+    int result = JNI_CreateJavaVM_fp(jvm, (void**) env, &args);
 
     while (--n >= 0) {
         X_FREE(option[n].optionString);
     }
     X_FREE(option);
 
-    if (result != JNI_OK || !env) {
+    if (result != JNI_OK || !*env) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM.\n");
-        bdj_close(bdjava);
+        return 0;
+    }
+
+    return 1;
+}
+
+BDJAVA* bdj_open(const char *path, struct bluray *bd,
+                 struct indx_root_s *index,
+                 bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf)
+{
+    BD_DEBUG(DBG_BDJ, "bdj_open()\n");
+
+    // first load the jvm using dlopen
+    const char *java_home = NULL;
+    void* jvm_lib = _load_jvm(&java_home);
+
+    if (!jvm_lib) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Wasn't able to load JVM\n");
+        return 0;
+    }
+
+    JNIEnv* env = NULL;
+    JavaVM *jvm = NULL;
+    if (!_create_jvm(jvm_lib, java_home, &env, &jvm)) {
+        dl_dlclose(jvm_lib);
         return NULL;
     }
+
+    BDJAVA* bdjava = calloc(1, sizeof(BDJAVA));
+    bdjava->bd = bd;
+    bdjava->index = index;
+    bdjava->path = path;
+    bdjava->h_libjvm = jvm_lib;
+    bdjava->osd_cb = osd_cb;
+    bdjava->buf = buf;
+    bdjava->jvm = jvm;
 
     if (debug_mask & DBG_JNI) {
         int version = (int)(*env)->GetVersion(env);
