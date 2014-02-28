@@ -363,7 +363,6 @@ static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaV
 
     fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = (fptr_JNI_CreateJavaVM)(intptr_t)dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
     if (JNI_CreateJavaVM_fp == NULL) {
-        dl_dlclose(jvm_lib);
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't find symbol JNI_CreateJavaVM.\n");
         return 0;
     }
