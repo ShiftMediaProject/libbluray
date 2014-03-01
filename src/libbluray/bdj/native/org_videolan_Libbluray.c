@@ -390,7 +390,7 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
 
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
 
-    BD_DEBUG(DBG_JNI, "updateGraphicN(%d,%d-%d,%d)\n", x0, y0, x1, y1);
+    BD_DEBUG(DBG_JNI, "updateGraphicN(%ld,%ld-%ld,%ld)\n", (long)x0, (long)y0, (long)x1, (long)y1);
 
     /* app callback not initialized ? */
     if (!bdj || !bdj->osd_cb) {
@@ -437,8 +437,8 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
 
         if (bdj->buf->width < width || bdj->buf->height < height) {
             /* assume buffer is only for the dirty arrea */
-            BD_DEBUG(DBG_BDJ, "ARGB frame buffer size is smaller than BD-J frame buffer size (app: %dx%d BD-J: %dx%d)\n",
-                     bdj->buf->width, bdj->buf->height, width, height);
+            BD_DEBUG(DBG_BDJ, "ARGB frame buffer size is smaller than BD-J frame buffer size (app: %dx%d BD-J: %ldx%ld)\n",
+                     bdj->buf->width, bdj->buf->height, (long)width, (long)height);
 
             if (bdj->buf->width < (x1 - x0 + 1) || bdj->buf->height < (y1 - y0 + 1)) {
                 BD_DEBUG(DBG_BDJ | DBG_CRIT, "ARGB frame buffer size is smaller than dirty area\n");
@@ -456,11 +456,11 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
 
             /* clip */
             if (y1 >= bdj->buf->height) {
-                BD_DEBUG(DBG_BDJ | DBG_CRIT, "Cropping %d rows from bottom\n", y1 - bdj->buf->height);
+              BD_DEBUG(DBG_BDJ | DBG_CRIT, "Cropping %ld rows from bottom\n", (long)(y1 - bdj->buf->height));
                 y1 = bdj->buf->height - 1;
             }
             if (x1 >= bdj->buf->width) {
-                BD_DEBUG(DBG_BDJ | DBG_CRIT, "Cropping %d pixels from right\n", x1 - bdj->buf->width);
+              BD_DEBUG(DBG_BDJ | DBG_CRIT, "Cropping %ld pixels from right\n", (long)(x1 - bdj->buf->width));
                 x1 = bdj->buf->width - 1;
             }
         }
@@ -477,7 +477,7 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
 
         /* check for errors */
         if ((*env)->ExceptionOccurred(env)) {
-            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Array access error at %d (+%d)\n", offset, x1 - x0 + 1);
+          BD_DEBUG(DBG_BDJ | DBG_CRIT, "Array access error at %ld (+%ld)\n", (long)offset, (long)(x1 - x0 + 1));
             (*env)->ExceptionDescribe(env);
             (*env)->ExceptionClear(env);
         }
