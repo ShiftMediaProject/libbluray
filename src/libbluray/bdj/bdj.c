@@ -48,6 +48,7 @@
 #endif
 
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
+typedef jint (JNICALL * fptr_JNI_GetCreatedJavaVMs) (JavaVM **vmBuf, jsize bufLen, jsize *nVMs);
 
 #if defined(_WIN32) && !defined(HAVE_BDJ_J2ME)
 static void *_load_jvm_win32(const char **p_java_home)
@@ -357,6 +358,27 @@ int bdj_jvm_available(void)
     return 2;
 }
 
+static int _find_jvm(void *jvm_lib, JNIEnv **env, JavaVM **jvm)
+{
+    fptr_JNI_GetCreatedJavaVMs JNI_GetCreatedJavaVMs_fp = (fptr_JNI_GetCreatedJavaVMs)(intptr_t)dl_dlsym(jvm_lib, "JNI_GetCreatedJavaVMs");
+    if (JNI_GetCreatedJavaVMs_fp == NULL) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't find symbol JNI_GetCreatedJavaVMs.\n");
+        return 0;
+    }
+
+    jsize nVMs = 0;
+    JavaVM* javavm = NULL;
+
+    int result = JNI_GetCreatedJavaVMs_fp(&javavm, 1, &nVMs);
+    if (result == JNI_OK && nVMs > 0) {
+      *jvm = javavm;
+      (**jvm)->AttachCurrentThread(*jvm, (void**)env, NULL);
+      return 1;
+    }
+
+    return 0;
+}
+
 static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaVM **jvm)
 {
     (void)java_home;  /* used only with J2ME */
@@ -442,7 +464,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 
     JNIEnv* env = NULL;
     JavaVM *jvm = NULL;
-    if (!_create_jvm(jvm_lib, java_home, &env, &jvm)) {
+    if (!_find_jvm(jvm_lib, &env, &jvm) && !_create_jvm(jvm_lib, java_home, &env, &jvm)) {
         dl_dlclose(jvm_lib);
         return NULL;
     }
@@ -508,8 +530,6 @@ void bdj_close(BDJAVA *bdjava)
         if (attach) {
             (*bdjava->jvm)->DetachCurrentThread(bdjava->jvm);
         }
-
-        (*bdjava->jvm)->DestroyJavaVM(bdjava->jvm);
     }
 
     if (bdjava->h_libjvm) {
