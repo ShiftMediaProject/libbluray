@@ -52,7 +52,7 @@ typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *
 #if defined(_WIN32) && !defined(HAVE_BDJ_J2ME)
 static void *_load_jvm_win32(const char **p_java_home)
 {
-    static const char java_home[256] = "";
+    static char java_home[256] = "";
 
     wchar_t buf_loc[4096] = L"SOFTWARE\\JavaSoft\\Java Runtime Environment\\";
     wchar_t buf_vers[128];
