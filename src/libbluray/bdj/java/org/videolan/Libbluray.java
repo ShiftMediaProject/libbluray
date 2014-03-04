@@ -129,7 +129,7 @@ public class Libbluray {
             BDJActionManager.getInstance().finalize();
             MountManager.unmountAll();
             GUIManager.shutdown();
-            BDToolkit.shutdown();
+            BDToolkit.shutdownDisc();
         } catch (Throwable e) {
             e.printStackTrace();
         }

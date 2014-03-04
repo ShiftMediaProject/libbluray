@@ -31,8 +31,8 @@ public class BDToolkit extends BDToolkitBase implements KeyboardFocusManagerPeer
     public BDToolkit () {
     }
 
-    public void dispose() {
-        super.dispose();
+    protected void shutdown() {
+        super.shutdown();
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
         KeyboardFocusManager.getCurrentKeyboardFocusManager().setGlobalCurrentFocusCycleRoot(null);

@@ -45,25 +45,37 @@ abstract class BDToolkitBase extends Toolkit {
     private static Hashtable cachedImages = new Hashtable();
     private static final Logger logger = Logger.getLogger(BDToolkit.class.getName());
 
+    // mapping of Components to AppContexts, WeakHashMap<Component,AppContext>
+    private static final Map contextMap = Collections.synchronizedMap(new WeakHashMap());
+
+
     public BDToolkitBase () {
     }
 
     public static void setFocusedWindow(Window window) {
     }
 
-    public static void shutdown() {
-        Toolkit toolkit = getDefaultToolkit();
-        if (toolkit instanceof BDToolkit) {
-            ((BDToolkit)toolkit).dispose();
+    public static void shutdownDisc() {
+        try {
+            Toolkit toolkit = getDefaultToolkit();
+            if (toolkit instanceof BDToolkit) {
+                ((BDToolkit)toolkit).shutdown();
+            }
+        } catch (Throwable t) {
+            logger.error("shutdownDisc() failed: " + t);
+            t.printStackTrace();
         }
     }
 
-    public void dispose() {
+    protected void shutdown() {
+        /*
         if (eventQueue != null) {
             BDJHelper.stopEventQueue(eventQueue);
             eventQueue = null;
         }
-        cachedImages = null;
+        */
+        cachedImages.clear();
+        contextMap.clear();
     }
 
     public Dimension getScreenSize() {
@@ -184,10 +196,6 @@ abstract class BDToolkitBase extends Toolkit {
 
     public void beep() {
     }
-
-    // mapping of Components to AppContexts, WeakHashMap<Component,AppContext>
-    private static final Map contextMap =
-        Collections.synchronizedMap(new WeakHashMap());
 
     public static void addComponent(Component component) {
 
