@@ -41,6 +41,12 @@ public class SIManagerImpl extends SIManager {
         }
     }
 
+    public static void shutdown() {
+        synchronized (SIManagerImpl.class) {
+            instance = null;
+        }
+    }
+
     protected SIManagerImpl() {
         int ntitles = Libbluray.getTitles();
         LinkedList list = new LinkedList();

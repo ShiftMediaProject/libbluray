@@ -24,6 +24,7 @@ import java.awt.event.KeyEvent;
 import java.util.Vector;
 
 import javax.media.PackageManager;
+import javax.tv.service.SIManagerImpl;
 import javax.tv.service.selection.ServiceContextFactory;
 
 import org.bluray.ti.DiscManager;
@@ -130,6 +131,7 @@ public class Libbluray {
             MountManager.unmountAll();
             GUIManager.shutdown();
             BDToolkit.shutdownDisc();
+            SIManagerImpl.shutdown();
         } catch (Throwable e) {
             e.printStackTrace();
         }
