@@ -483,9 +483,13 @@ static int _jump_title(HDMV_VM *p, uint32_t title)
 
 static int _call_object(HDMV_VM *p, uint32_t object)
 {
+    if (object >= p->movie_objects->num_objects) {
+        BD_DEBUG(DBG_HDMV|DBG_CRIT, "_call_object(): invalid object %u\n", object);
+        return -1;
+    }
+
     BD_DEBUG(DBG_HDMV, "_call_object(%u)\n", object);
 
-    _queue_event(p, HDMV_EVENT_PLAY_STOP, 0);
     _suspend_object(p, 1);
 
     return _jump_object(p, object);
