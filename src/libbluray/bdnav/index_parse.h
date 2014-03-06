@@ -61,6 +61,15 @@ typedef enum {
     indx_bdj_playback_type_interactive = 3,
 } indx_bdj_playback_type;
 
+typedef enum {
+    indx_access_permitted       = 0,  /* jump into this title is permitted.  title number may be shown on UI.  */
+    indx_access_prohibited      = 1,  /* jump into this title is prohibited. title number may be shown on UI. */
+    indx_access_hidden          = 3,  /* jump into this title is prohibited. title number shall not be shown on UI. */
+} indx_access_type;
+
+#define  INDX_ACCESS_PROHIBITED_MASK  0x01  /* if set, jump to this title is not allowed */
+#define  INDX_ACCESS_HIDDEN_MASK      0x02  /* if set, title number shall not be displayed on UI */
+
 typedef struct {
     unsigned int       initial_output_mode_preference : 1; /* 0 - 2D, 1 - 3D */
     unsigned int       content_exist_flag : 1;
