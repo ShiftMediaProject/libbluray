@@ -58,11 +58,11 @@ struct hdmv_vm_s {
 
     /* object currently playing playlist */
     MOBJ_OBJECT *playing_object;
-    int          playing_pc;
+    uint32_t     playing_pc;
 
     /* suspended object */
     MOBJ_OBJECT *suspended_object;
-    int          suspended_pc;
+    uint32_t     suspended_pc;
 
     /* disc index (used to verify CALL_TITLE/JUMP_TITLE) */
     INDX_ROOT   *indx;
@@ -424,7 +424,7 @@ static int _resume_object(HDMV_VM *p, int psr_restore)
  * branching
  */
 
-static int _is_valid_title(HDMV_VM *p, int title)
+static int _is_valid_title(HDMV_VM *p, uint32_t title)
 {
     if (title == 0 || title == 0xffff) {
         INDX_PLAY_ITEM *pi = (!title) ? &p->indx->top_menu : &p->indx->first_play;
@@ -439,14 +439,14 @@ static int _is_valid_title(HDMV_VM *p, int title)
     return title > 0 && title <= p->indx->num_titles;
 }
 
-static int _jump_object(HDMV_VM *p, int object)
+static int _jump_object(HDMV_VM *p, uint32_t object)
 {
-    if (object < 0 || object >= p->movie_objects->num_objects) {
-        BD_DEBUG(DBG_HDMV|DBG_CRIT, "_jump_object(): invalid object %d\n", object);
+    if (object >= p->movie_objects->num_objects) {
+        BD_DEBUG(DBG_HDMV|DBG_CRIT, "_jump_object(): invalid object %u\n", object);
         return -1;
     }
 
-    BD_DEBUG(DBG_HDMV, "_jump_object(): jumping to object %d\n", object);
+    BD_DEBUG(DBG_HDMV, "_jump_object(): jumping to object %u\n", object);
 
     _queue_event(p, HDMV_EVENT_PLAY_STOP, 0);
 
@@ -462,10 +462,10 @@ static int _jump_object(HDMV_VM *p, int object)
     return 0;
 }
 
-static int _jump_title(HDMV_VM *p, int title)
+static int _jump_title(HDMV_VM *p, uint32_t title)
 {
     if (_is_valid_title(p, title)) {
-        BD_DEBUG(DBG_HDMV, "_jump_title(%d)\n", title);
+        BD_DEBUG(DBG_HDMV, "_jump_title(%u)\n", title);
 
         /* discard suspended object */
         p->suspended_object = NULL;
@@ -476,14 +476,14 @@ static int _jump_title(HDMV_VM *p, int title)
         return 0;
     }
 
-    BD_DEBUG(DBG_HDMV|DBG_CRIT, "_jump_title(%d): invalid title number\n", title);
+    BD_DEBUG(DBG_HDMV|DBG_CRIT, "_jump_title(%u): invalid title number\n", title);
 
     return -1;
 }
 
-static int _call_object(HDMV_VM *p, int object)
+static int _call_object(HDMV_VM *p, uint32_t object)
 {
-    BD_DEBUG(DBG_HDMV, "_call_object(%d)\n", object);
+    BD_DEBUG(DBG_HDMV, "_call_object(%u)\n", object);
 
     _queue_event(p, HDMV_EVENT_PLAY_STOP, 0);
     _suspend_object(p, 1);
@@ -491,10 +491,10 @@ static int _call_object(HDMV_VM *p, int object)
     return _jump_object(p, object);
 }
 
-static int _call_title(HDMV_VM *p, int title)
+static int _call_title(HDMV_VM *p, uint32_t title)
 {
     if (_is_valid_title(p, title)) {
-        BD_DEBUG(DBG_HDMV, "_call_title(%d)\n", title);
+        BD_DEBUG(DBG_HDMV, "_call_title(%u)\n", title);
 
         _suspend_object(p, 1);
 
@@ -503,7 +503,7 @@ static int _call_title(HDMV_VM *p, int title)
         return 0;
     }
 
-    BD_DEBUG(DBG_HDMV|DBG_CRIT, "_call_title(%d): invalid title number\n", title);
+    BD_DEBUG(DBG_HDMV|DBG_CRIT, "_call_title(%u): invalid title number\n", title);
 
     return -1;
 }
@@ -1082,7 +1082,7 @@ static int _hdmv_step(HDMV_VM *p)
  * interface
  */
 
-int hdmv_vm_select_object(HDMV_VM *p, int object)
+int hdmv_vm_select_object(HDMV_VM *p, uint32_t object)
 {
     int result;
 
