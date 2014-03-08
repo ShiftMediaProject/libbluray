@@ -48,6 +48,7 @@ public class MountManager {
         if (jarStr == null)
             throw new IllegalArgumentException();
 
+        synchronized (mountPoints) {
         String oldPath = getMount(jarId);
         if (oldPath != null) {
             logger.error("JAR " + jarId + " already mounted");
@@ -107,31 +108,54 @@ public class MountManager {
 
         mountPoints.put(new Integer(jarId), tmpDir);
         return tmpDir.getAbsolutePath();
+        }
     }
 
     public static void unmount(int jarId) {
         logger.info("Unmounting JAR: " + jarId);
+
         Integer id = new Integer(jarId);
-        File mountPoint = (File)mountPoints.get(id);
+        File mountPoint;
+
+        synchronized (mountPoints) {
+            mountPoint = (File)mountPoints.remove(id);
+        }
         if (mountPoint != null) {
             recursiveDelete(mountPoint);
-            mountPoints.remove(id);
+        } else {
+            logger.info("JAR " + jarId + " not mounted");
         }
     }
 
     public static void unmountAll() {
-        Iterator iterator = mountPoints.keySet().iterator();
-        while (iterator.hasNext())
-            unmount(((Integer)iterator.next()).intValue());
+        logger.info("Unmounting all JARs");
+
+        Object[] dirs;
+
+        synchronized (mountPoints) {
+            dirs = mountPoints.values().toArray();
+            mountPoints.clear();
+        }
+        if (dirs != null) {
+            for (int i = 0; i < dirs.length; i++) {
+                recursiveDelete((File)dirs[i]);
+            }
+        }
     }
 
     public static String getMount(int jarId) {
         Integer id = new Integer(jarId);
-        if (mountPoints.containsKey(id)) {
-            return ((File)mountPoints.get(id)).getAbsolutePath();
-        } else {
-            return null;
+        File mountPoint;
+
+        synchronized (mountPoints) {
+            mountPoint = (File)mountPoints.get(id);
         }
+        if (mountPoint != null) {
+            return mountPoint.getAbsolutePath();
+        } else {
+            logger.info("JAR " + jarId + " not mounted");
+        }
+        return null;
     }
 
     private static String jarIdToString(int jarId) {
@@ -154,6 +178,6 @@ public class MountManager {
         dir.delete();
     }
 
-    private static Map mountPoints = Collections.synchronizedMap(new HashMap());
+    private static Map mountPoints = new HashMap();
     private static final Logger logger = Logger.getLogger(MountManager.class.getName());
 }
