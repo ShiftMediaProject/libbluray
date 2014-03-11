@@ -35,7 +35,7 @@ public class BDJThreadGroup extends ThreadGroup {
         this.context = context;
     }
 
-    public boolean waitForShutdown(int maxThreads, int timeout) {
+    public boolean waitForShutdown(int timeout, int maxThreads) {
         long startTime = System.currentTimeMillis();
         long endTime = startTime + 1000;
         while ((activeCount() > maxThreads) &&
@@ -55,14 +55,14 @@ public class BDJThreadGroup extends ThreadGroup {
     protected void stopAll(int timeout) {
 
         interrupt();
-        waitForShutdown(0, timeout);
+        waitForShutdown(timeout, 0);
 
         if (activeCount() > 0) {
             logger.error("stopAll(): killing threads");
             dumpThreads();
 
             PortingHelper.stopThreadGroup(this);
-            waitForShutdown(0, 500);
+            waitForShutdown(500, 0);
         }
 
         try {
