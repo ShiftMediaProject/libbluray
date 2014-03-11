@@ -47,6 +47,8 @@ public class Libbluray {
             Libbluray.nativePointer = nativePointer;
             DiscManager.getDiscManager().setCurrentDisc(discID);
 
+            BDJActionManager.getInstance();
+
             Vector prefix = new Vector();
             prefix.add("org.videolan");
             PackageManager.setContentPrefixList(prefix);
