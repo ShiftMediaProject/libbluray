@@ -157,6 +157,10 @@ public class AppEntry implements AppAttributes {
         this.classpathExt = classpathExt;
         this.initialClass = initialClass;
         this.params = params;
+
+        if ((binding & (DISC_BOUND | TITLE_BOUND)) == 0) {
+            System.err.println("Disc unbound application: " + initialClass);
+        }
     }
 
     public int getControlCode() {
