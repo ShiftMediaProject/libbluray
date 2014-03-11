@@ -26,4 +26,8 @@ public class PortingHelper {
 
     public static void stopThreadGroup(ThreadGroup t) {
     }
+
+    public static String dumpStack(Thread t) {
+        return "";
+    }
 }

@@ -28,4 +28,14 @@ public class PortingHelper {
     public static void stopThreadGroup(ThreadGroup t) {
         t.stop();
     }
+
+    public static String dumpStack(Thread t) {
+        String dump = "";
+        StackTraceElement e[] = t.getStackTrace();
+        if (e != null) {
+            for (int i = 0; i < e.length; i++)
+                dump += "\n\t" + e[i].toString();
+        }
+        return dump;
+    }
 }

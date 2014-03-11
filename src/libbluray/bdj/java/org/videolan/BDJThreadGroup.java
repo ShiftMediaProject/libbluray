@@ -63,7 +63,7 @@ public class BDJThreadGroup extends ThreadGroup {
 
         boolean result = (activeCount() <= maxThreads);
         if (!result) {
-            logger.error("waitForShutdown timeout");
+            logger.error("waitForShutdown timeout (have " + activeCount() + " threads, expected " + maxThreads + ")");
         }
         return result;
     }
@@ -100,6 +100,8 @@ public class BDJThreadGroup extends ThreadGroup {
             if (threads[i] == null)
                 continue;
             logger.info("    " + threads[i]);
+            logger.info("   state " + threads[i].getState().toString());
+            logger.info("    at " + PortingHelper.dumpStack(threads[i]));
         }
     }
 
