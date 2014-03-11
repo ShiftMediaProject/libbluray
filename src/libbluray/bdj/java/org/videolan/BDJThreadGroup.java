@@ -27,6 +27,22 @@ public class BDJThreadGroup extends ThreadGroup {
         this.context = context;
     }
 
+    public void uncaughtException(Thread t, Throwable e) {
+
+        String stack = "";
+        StackTraceElement elems[] = e.getStackTrace();
+        if (e != null) {
+            for (int i = 0; i < elems.length; i++)
+                stack += "\n\t" + elems[i].toString();
+        }
+
+        if (e instanceof ThreadDeath) {
+            logger.error("Thread " + t + " killed" + stack);
+        } else {
+            logger.error("Unhandled exception in thread " + t + ": " + e + stack);
+        }
+    }
+
     public BDJXletContext getContext() {
         return context;
     }
