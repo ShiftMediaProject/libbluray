@@ -80,8 +80,11 @@ public class GUIManager extends BDRootWindow {
     }
 
     public void dispose() {
-        super.dispose();
-        instance = null;
+        try {
+            super.dispose();
+        } finally {
+            instance = null;
+        }
     }
 
     private static GUIManager instance = null;
