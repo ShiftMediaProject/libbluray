@@ -20,9 +20,13 @@
 package org.videolan;
 
 import java.net.MalformedURLException;
+
+import java.io.InputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Enumeration;;
 
 import javax.tv.xlet.Xlet;
 
@@ -120,6 +124,31 @@ public class BDJClassLoader extends URLClassLoader {
             return c;
         }
         return super.loadClass(name);
+    }
+
+    public URL getResource(String name) {
+        name = name.replace('\\', '/');
+        return super.getResource(name);
+    }
+
+    public Enumeration getResources(String name) throws IOException {
+        name = name.replace('\\', '/');
+        return super.getResources(name);
+    }
+
+    public URL findResource(String name) {
+        name = name.replace('\\', '/');
+        return super.findResource(name);
+    }
+
+    public Enumeration findResources(String name) throws IOException {
+        name = name.replace('\\', '/');
+        return super.findResources(name);
+    }
+
+    public InputStream getResourceAsStream(String name) {
+        name = name.replace('\\', '/');
+        return super.getResourceAsStream(name);
     }
 
     private String xletClass;
