@@ -19,6 +19,8 @@
 
 package org.havi.ui;
 
+import org.videolan.Logger;
+
 public class HGraphicsDevice extends HScreenDevice {
     protected HGraphicsDevice() {
         int length = HScreenConfigTemplate.defaultConfig.length;
@@ -66,9 +68,17 @@ public class HGraphicsDevice extends HScreenDevice {
             throws SecurityException, HPermissionDeniedException,
             HConfigurationException {
         this.hgc = hgc;
+
+        logger.unimplemented("setGraphicsConfiguration");
+
+        //org.videolan.GUIManager.getInstance().setBounds(0, 0, 960, 540);
+        // -- not enough ...
+
         return true;
     }
 
     private HGraphicsConfiguration[] hgcArray;
     private HGraphicsConfiguration hgc;
+
+    private static final Logger logger = Logger.getLogger(HGraphicsDevice.class.getName());
 }
