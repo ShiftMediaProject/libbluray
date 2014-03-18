@@ -65,8 +65,9 @@ class BDGraphicsConfiguration extends GraphicsConfiguration {
     }
 
     public BufferedImage createCompatibleImage(int width, int height, int trans) {
-        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "createCompatibleImage");
-        return null;
+        if (width <= 0 || height <= 0)
+            return null;
+        return BDImage.getBuffededImage(width, height, this);
     }
 
     public BufferedImage createCompatibleImage(int width, int height) {
