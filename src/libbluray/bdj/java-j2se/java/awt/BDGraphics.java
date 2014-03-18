@@ -664,8 +664,31 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         int dx1, int dy1, int dx2, int dy2,
         int sx1, int sy1, int sx2, int sy2,
         Color bg, ImageObserver observer) {
-        if ((dx1 >= dx2) || (dy1 >= dy2))
-            return false;
+
+        if (dx1 > dx2) {
+            int swap = dx1;
+            dx1 = dx2;
+            dx2 = swap;
+        }
+
+        if (dy1 > dy2) {
+            int swap = dy1;
+            dy1 = dy2;
+            dy2 = swap;
+        }
+
+        if (sx1 > sx2) {
+            int swap = sx1;
+            sx1 = sx2;
+            sx2 = swap;
+        }
+
+        if (sy1 > sy2) {
+            int swap = sy1;
+            sy1 = sy2;
+            sy2 = swap;
+        }
+
         return drawImageN(img, dx1, dy1, dx2 - dx1, dy2 - dy1,
                           sx1, sy1, sx2 - sx1, sy2 - sy1, bg, observer);
     }
