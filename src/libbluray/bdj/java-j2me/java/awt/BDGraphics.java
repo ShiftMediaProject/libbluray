@@ -502,12 +502,14 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
 
     /** Draws the given string. */
     public void drawString(String string, int x, int y) {
-        drawStringN(fontMetrics.ftFace, string, x, y, foreground.getRGB());
+        if (fontMetrics != null) {
+            fontMetrics.drawString(this, string, x, y, foreground.getRGB());
+        }
     }
 
     /** Draws the given character array. */
     public void drawChars(char chars[], int offset, int length, int x, int y) {
-        drawStringN(fontMetrics.ftFace, new String(chars, offset, length), x, y, foreground.getRGB());
+        drawString(new String(chars, offset, length), x, y);
     }
 
     public void drawString(AttributedCharacterIterator arg0, int arg1, int arg2) {

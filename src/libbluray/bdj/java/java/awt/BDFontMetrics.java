@@ -162,7 +162,7 @@ public class BDFontMetrics extends FontMetrics {
         fontNameMap.remove(name);
     }
 
-    long ftFace;
+    private long ftFace;
     private int ascent;
     private int descent;
     private int leading;
@@ -195,6 +195,10 @@ public class BDFontMetrics extends FontMetrics {
     private native int stringWidthN(long ftFace, String string);
     private native int charsWidthN(long ftFace, char chars[], int offset, int len);
 
+    protected synchronized void drawString(BDGraphics g, String string, int x, int y, int rgb) {
+        g.drawStringN(ftFace, string, x, y, rgb);
+    }
+
     public int getAscent() {
         return ascent;
     }
@@ -214,7 +218,7 @@ public class BDFontMetrics extends FontMetrics {
     /**
      * Fast lookup of first 256 chars as these are always the same eg. ASCII charset.
      */
-    public int charWidth(char c) {
+    public synchronized int charWidth(char c) {
         if (c < 256)
             return widths[c];
         return charWidthN(ftFace, c);
@@ -223,14 +227,14 @@ public class BDFontMetrics extends FontMetrics {
     /**
      * Return the width of the specified string in this Font.
      */
-    public int stringWidth(String string) {
+    public synchronized int stringWidth(String string) {
         return stringWidthN(ftFace, string);
     }
 
     /**
      * Return the width of the specified char[] in this Font.
      */
-    public int charsWidth(char chars[], int offset, int length) {
+    public synchronized int charsWidth(char chars[], int offset, int length) {
         return charsWidthN(ftFace, chars, offset, length);
     }
 
