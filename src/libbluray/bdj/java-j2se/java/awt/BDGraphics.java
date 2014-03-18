@@ -435,13 +435,16 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
     }
 
     public void drawRect(int x, int y, int w, int h) {
+        x += originX;
+        y += originY;
+
         drawLineN(x, y, x + w, y);
         drawLineN(x, y + h, x + w, y + h);
         drawLineN(x, y, x, y + h);
         drawLineN(x + w, y, x + w, y + h);
     }
 
-    public void drawLineN(int x1, int y1, int x2, int y2) {
+    private void drawLineN(int x1, int y1, int x2, int y2) {
         int rgb = foreground.getRGB();
         int dy = y2 - y1;
         int dx = x2 - x1;
@@ -490,6 +493,13 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
     }
 
     public void drawLine(int x1, int y1, int x2, int y2) {
+
+        x1 += originX;
+        y1 += originY;
+
+        x2 += originX;
+        y2 += originY;
+
         drawLineN(x1, y1, x2, y2);
     }
 
@@ -511,22 +521,22 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
     /** Draws lines defined by an array of x points and y points */
     public void drawPolyline(int xPoints[], int yPoints[], int nPoints) {
         if (nPoints == 1) {
-            drawPointN(xPoints[0], yPoints[0], foreground.getRGB());
+            drawPoint(xPoints[0], yPoints[0], foreground.getRGB());
         } else {
             for (int i = 0; i < (nPoints - 1); i++)
-                drawLineN(xPoints[i], xPoints[i], xPoints[i + 1], xPoints[i + 1]);
+                drawLine(xPoints[i], xPoints[i], xPoints[i + 1], xPoints[i + 1]);
         }
     }
 
     /** Draws a polygon defined by an array of x points and y points */
     public void drawPolygon(int xPoints[], int yPoints[], int nPoints) {
         if (nPoints == 1) {
-            drawPointN(xPoints[0], yPoints[0], foreground.getRGB());
+            drawPoint(xPoints[0], yPoints[0], foreground.getRGB());
         } else {
             for (int i = 0; i < (nPoints - 1); i++)
-                drawLineN(xPoints[i], xPoints[i], xPoints[i + 1], xPoints[i + 1]);
+                drawLine(xPoints[i], xPoints[i], xPoints[i + 1], xPoints[i + 1]);
             if (nPoints > 2)
-                drawLineN(xPoints[0], xPoints[0], xPoints[nPoints - 1], xPoints[nPoints - 1]);
+                drawLine(xPoints[0], xPoints[0], xPoints[nPoints - 1], xPoints[nPoints - 1]);
         }
     }
 
