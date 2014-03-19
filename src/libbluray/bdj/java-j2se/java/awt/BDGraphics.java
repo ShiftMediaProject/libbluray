@@ -636,12 +636,33 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
 
     /** Draws an oval to fit in the given rectangle */
     public void drawOval(int x, int y, int w, int h) {
-        logger.unimplemented("drawOval");
+
+        float angleIncriment = 180 / h;
+        int   rgb = foreground.getRGB();
+
+        for (int i = 0; i < h; i++) {
+            int offset = (int) (w/2 * Math.sin(angleIncriment*i));
+            int startX = x + w/2 - offset;
+            int endX   = x + w/2 + offset;
+
+            drawPoint(startX, y + i, rgb);
+            drawPoint(endX, y + i, rgb);
+        }
     }
 
     /** Fills an oval to fit in the given rectangle */
     public void fillOval(int x, int y, int w, int h) {
-        logger.unimplemented("fillOval");
+
+        float angleIncriment = angleIncriment = 180 / h;
+        int   rgb = foreground.getRGB();
+
+        for (int i = 0; i < h; i++) {
+            int offset = (int) (w/2 * Math.sin(angleIncriment*i));
+            int startX = x + w/2 - offset;
+            int endX   = x + w/2 + offset;
+
+            drawSpan(startX, y + i, endX - startX, rgb);
+        }
     }
 
     /**
