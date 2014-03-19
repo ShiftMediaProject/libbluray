@@ -437,8 +437,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         h = rect.height;
         int rgb = foreground.getRGB();
         for (int Y = y; Y < (y + h); Y++)
-            for (int X = x; X < (x + w); X++)
-                drawPointN(X, Y, rgb);
+            drawSpanN(x, Y, w, rgb);
     }
 
     public void drawRect(int x, int y, int w, int h) {
