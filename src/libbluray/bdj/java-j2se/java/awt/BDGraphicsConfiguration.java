@@ -19,11 +19,6 @@
 
 package java.awt;
 
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DirectColorModel;
 import java.awt.image.VolatileImage;
 
 class BDGraphicsConfiguration extends BDGraphicsConfigurationBase {

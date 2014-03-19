@@ -20,8 +20,6 @@
 package java.awt;
 
 class BDGraphicsConfiguration extends BDGraphicsConfigurationBase {
-    private BDGraphicsDevice device;
-
     BDGraphicsConfiguration(BDGraphicsDevice device) {
         super(device);
     }
