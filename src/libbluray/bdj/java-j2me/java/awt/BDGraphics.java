@@ -305,14 +305,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
             return;
         }
 
-        int rule;
-        if (composite != null) {
-            rule = composite.getRule();
-        } else {
-            rule = AlphaComposite.SRC_OVER;
-        }
-
-        switch (rule) {
+        switch (composite.getRule()) {
             case AlphaComposite.CLEAR:
                 for (int i = 0; i < length; i++) {
                     backBuffer[y * width + x + i] = 0;
@@ -355,14 +348,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
             return;
         }
 
-        int rule;
-        if (composite != null) {
-            rule = composite.getRule();
-        } else {
-            rule = AlphaComposite.SRC_OVER;
-        }
-
-        switch (rule) {
+        switch (composite.getRule()) {
             case AlphaComposite.CLEAR:
                 for (int i = 0; i < length; i++) {
                     backBuffer[y * width + x + i] = 0;
