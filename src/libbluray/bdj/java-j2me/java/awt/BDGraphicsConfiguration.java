@@ -19,52 +19,10 @@
 
 package java.awt;
 
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DirectColorModel;
-import java.awt.image.VolatileImage;
-
-class BDGraphicsConfiguration extends GraphicsConfiguration {
+class BDGraphicsConfiguration extends BDGraphicsConfigurationBase {
     private BDGraphicsDevice device;
 
     BDGraphicsConfiguration(BDGraphicsDevice device) {
-        this.device = device;
-    }
-
-    public GraphicsDevice getDevice() {
-        return device;
-    }
-
-    public Rectangle getBounds() {
-        return device.getBounds();
-    }
-
-    int getCompatibleImageType() {
-        return BufferedImage.TYPE_INT_ARGB;
-    }
-
-    public synchronized ColorModel getColorModel() {
-        return new DirectColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB),
-                                    32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000, true,
-                                    DataBuffer.TYPE_INT);
-    }
-
-    public BufferedImage createCompatibleImage(int width, int height) {
-        if (width <= 0 || height <= 0)
-            return null;
-        return BDImage.getBuffededImage(width, height, this);
-    }
-
-    public BufferedImage createCompatibleImage(int width, int height, int trans) {
-        if (width <= 0 || height <= 0)
-            return null;
-        return BDImage.getBuffededImage(width, height, this);
-    }
-
-    public VolatileImage createCompatibleVolatileImage(int width, int height) {
-        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "createCompatibleVolatileImage");
-        return null;
+        super(device);
     }
 }

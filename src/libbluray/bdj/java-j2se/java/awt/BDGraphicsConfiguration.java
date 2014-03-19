@@ -26,23 +26,9 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DirectColorModel;
 import java.awt.image.VolatileImage;
 
-class BDGraphicsConfiguration extends GraphicsConfiguration {
-    private BDGraphicsDevice device;
-
+class BDGraphicsConfiguration extends BDGraphicsConfigurationBase {
     BDGraphicsConfiguration(BDGraphicsDevice device) {
-        this.device = device;
-    }
-
-    public GraphicsDevice getDevice() {
-        return device;
-    }
-
-    public Rectangle getBounds() {
-        return device.getBounds();
-    }
-
-    int getCompatibleImageType() {
-        return BufferedImage.TYPE_INT_ARGB;
+        super(device);
     }
 
     public java.awt.geom.AffineTransform getNormalizingTransform() {
@@ -55,29 +41,6 @@ class BDGraphicsConfiguration extends GraphicsConfiguration {
     }
     public java.awt.image.ColorModel getColorModel(int transparency) {
         org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "getColorModel");
-        return null;
-    }
-
-    public synchronized ColorModel getColorModel() {
-        return new DirectColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB),
-                                    32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000, true,
-                                    DataBuffer.TYPE_INT);
-    }
-
-    public BufferedImage createCompatibleImage(int width, int height, int trans) {
-        if (width <= 0 || height <= 0)
-            return null;
-        return BDImage.getBuffededImage(width, height, this);
-    }
-
-    public BufferedImage createCompatibleImage(int width, int height) {
-        if (width <= 0 || height <= 0)
-            return null;
-        return BDImage.getBuffededImage(width, height, this);
-    }
-
-    public VolatileImage createCompatibleVolatileImage(int width, int height) {
-        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "createCompatibleVolatileImage");
         return null;
     }
 
