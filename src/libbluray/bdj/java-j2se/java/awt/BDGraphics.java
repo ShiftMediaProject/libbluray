@@ -368,32 +368,121 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         return (Ad << 24) | (R << 16) | (G << 8) | B;
     }
 
-    private void drawPointN(int x, int y, int rgb) {
+    private int applyComposite(int rgb) {
+        return ((int)((rgb >>> 24) * composite.getAlpha()) << 24) | (rgb & 0x00FFFFFF);
+    }
 
-        dirty.add(x, y);
+    private void drawSpanN(int x, int y, int length, int rgb) {
 
-        if (xorColor != null) {
-            backBuffer[y * width + x] ^= xorColor.getRGB() ^ rgb;
+        Rectangle rect = new Rectangle(x, y, length, 1);
+        rect = actualClip.intersection(rect);
+
+        if (rect.width <= 0 || rect.height <= 0 || rect.x < 0 || rect.y < 0) {
             return;
         }
+
+        x      = rect.x;
+        length = rect.width;
+
+        dirty.add(rect);
+
+        if (xorColor != null) {
+            for (int i = 0; i < length; i++) {
+                backBuffer[y * width + x + i] ^= xorColor.getRGB() ^ rgb;
+            }
+            return;
+        }
+
         int rule;
         if (composite != null) {
             rule = composite.getRule();
-            rgb = ((int)((rgb >>> 24) * composite.getAlpha()) << 24) | (rgb & 0x00FFFFFF);
         } else {
             rule = AlphaComposite.SRC_OVER;
         }
+
         switch (rule) {
             case AlphaComposite.CLEAR:
-                backBuffer[y * width + x] = 0;
+                for (int i = 0; i < length; i++) {
+                    backBuffer[y * width + x + i] = 0;
+                }
                 break;
             case AlphaComposite.SRC:
-                backBuffer[y * width + x] = rgb;
+                rgb = applyComposite(rgb);
+                for (int i = 0; i < length; i++) {
+                    backBuffer[y * width + x + i] = rgb;
+                }
                 break;
             case AlphaComposite.SRC_OVER:
-                backBuffer[y * width + x] = alphaBlend(backBuffer[y * width + x], rgb);
+                rgb = applyComposite(rgb);
+                for (int i = 0; i < length; i++) {
+                    backBuffer[y * width + x + i] = alphaBlend(backBuffer[y * width + x + i], rgb);
+                }
                 break;
         }
+    }
+
+    private void drawSpanN(int x, int y, int length, int src[], int srcOffset) {
+
+        Rectangle rect = new Rectangle(x, y, length, 1);
+        rect = actualClip.intersection(rect);
+
+        if (rect.width <= 0 || rect.height <= 0 || rect.x < 0 || rect.y < 0) {
+            return;
+        }
+
+        srcOffset += rect.x - x;
+        x          = rect.x;
+        length     = rect.width;
+
+        dirty.add(rect);
+
+        if (xorColor != null) {
+            for (int i = 0; i < length; i++) {
+                backBuffer[y * width + x + i] ^= xorColor.getRGB() ^ src[srcOffset + i];
+            }
+            return;
+        }
+
+        int rule;
+        if (composite != null) {
+            rule = composite.getRule();
+        } else {
+            rule = AlphaComposite.SRC_OVER;
+        }
+
+        switch (rule) {
+            case AlphaComposite.CLEAR:
+                for (int i = 0; i < length; i++) {
+                    backBuffer[y * width + x + i] = 0;
+                }
+                break;
+            case AlphaComposite.SRC:
+                for (int i = 0; i < length; i++) {
+                    backBuffer[y * width + x + i] = applyComposite(src[srcOffset + i]);
+                }
+                break;
+            case AlphaComposite.SRC_OVER:
+                for (int i = 0; i < length; i++) {
+                    backBuffer[y * width + x + i] = alphaBlend(backBuffer[y * width + x + i], applyComposite(src[srcOffset + i]));
+                }
+                break;
+        }
+    }
+
+    private void drawSpan(int x, int y, int length, int rgb) {
+        x += originX;
+        y += originY;
+        drawSpanN(x, y, length, rgb);
+    }
+
+    private void drawSpan(int x, int y, int length, int src[], int srcOffset) {
+        x += originX;
+        y += originY;
+        drawSpanN(x, y, length, src, srcOffset);
+    }
+
+    private void drawPointN(int x, int y, int rgb) {
+        drawSpanN(x, y, 1, rgb);
     }
 
     private void drawPoint(int x, int y, int rgb) {
@@ -773,12 +862,16 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
             bgColor = bg.getRGB();
         else
             bgColor = 0;
-        for (int y = dy; y < (dy + bdImage.height); y++)
-            for (int x = dx; x < (dx + bdImage.width); x++) {
-                if (bg != null)
-                    drawPoint(x, y, bgColor);
-                drawPoint(x, y, rgbArray[(y - dy) * bdImage.width + (x - dx)]);
+
+        for (int y = dy; y < (dy + bdImage.height); y++) {
+
+            if (bg != null) {
+                drawSpan(dx, y, bdImage.width, bgColor);
             }
+
+            drawSpan(dx, y, bdImage.width, rgbArray, (y - dy) * bdImage.width);
+        }
+
         return true;
     }
 
