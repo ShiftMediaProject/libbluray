@@ -131,10 +131,12 @@ public class BDJClassLoader extends URLClassLoader {
         return super.getResource(name);
     }
 
+    /* final in J2ME
     public Enumeration getResources(String name) throws IOException {
         name = name.replace('\\', '/');
         return super.getResources(name);
     }
+    */
 
     public URL findResource(String name) {
         name = name.replace('\\', '/');

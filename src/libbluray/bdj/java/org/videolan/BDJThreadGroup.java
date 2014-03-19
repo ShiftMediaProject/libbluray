@@ -100,7 +100,9 @@ public class BDJThreadGroup extends ThreadGroup {
             if (threads[i] == null)
                 continue;
             logger.info("    " + threads[i]);
+            /* no getState() in J2ME
             logger.info("   state " + threads[i].getState().toString());
+            */
             logger.info("    at " + PortingHelper.dumpStack(threads[i]));
         }
     }
