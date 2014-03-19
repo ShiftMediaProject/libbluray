@@ -601,10 +601,34 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
      * @param dx the horizontal distance to copy the pixels.
      * @param dy the vertical distance to copy the pixels.
      */
-    public void copyArea(int X, int Y, int W, int H, int dx, int dy) {
-        X += originX;
-        Y += originY;
-        logger.unimplemented("copyArea");
+    public void copyArea(int x, int y, int w, int h, int dx, int dy) {
+
+        x += originX;
+        y += originY;
+
+        Rectangle rect = new Rectangle(x, y, w, h);
+        rect = actualClip.intersection(rect);
+
+        if (rect.width <= 0 || rect.height <= 0) {
+            return;
+        }
+
+        x = rect.x;
+        y = rect.y;
+        w = rect.width;
+        h = rect.height;
+
+        int subImage[] = new int[w * h];
+
+        // copy back buffer
+        for (int i = 0; i < h; i++) {
+            System.arraycopy(backBuffer, ((y + i) * width) + x, subImage, w * i, w);
+        }
+
+        // draw sub image
+        for (int i = 0; i < h; i++) {
+            drawSpanN(x + dx, y + i + dy, w, subImage, w * i);
+        }
     }
 
     /** Draws lines defined by an array of x points and y points */
