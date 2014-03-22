@@ -266,7 +266,10 @@ public class Libbluray {
     }
 
     public static boolean selectRate(float rate) {
-        return selectRateN(nativePointer, rate) == 1 ? true : false;
+        return selectRateN(nativePointer, rate, 0) == 1 ? true : false;
+    }
+    public static boolean selectRate(float rate, boolean start) {
+        return selectRateN(nativePointer, rate, start ? 1 : 2) == 1 ? true : false;
     }
 
     public static void writeGPR(int num, int value) {
@@ -473,7 +476,7 @@ public class Libbluray {
     private static native int getCurrentAngleN(long np);
     private static native long tellN(long np);
     private static native long tellTimeN(long np);
-    private static native int selectRateN(long np, float rate);
+    private static native int selectRateN(long np, float rate, int reason);
     private static native int writeGPRN(long np, int num, int value);
     private static native int writePSRN(long np, int num, int value);
     private static native int readGPRN(long np, int num);

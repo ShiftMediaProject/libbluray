@@ -137,7 +137,7 @@ public class Handler extends BDHandler {
             }
 
             try {
-                Libbluray.selectRate(rate);
+                Libbluray.selectRate(rate, true);
             } catch (Throwable e) {
                 return new ConnectionErrorEvent(this);
             }
@@ -148,7 +148,7 @@ public class Handler extends BDHandler {
     }
 
     protected ControllerErrorEvent doStop() {
-        Libbluray.selectRate(0.0f);
+        Libbluray.selectRate(0.0f, false);
         return super.doStop();
     }
 

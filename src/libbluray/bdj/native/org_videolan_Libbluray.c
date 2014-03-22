@@ -329,7 +329,7 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellTimeN(JNIEnv * env,
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectRateN(JNIEnv * env,
-        jclass cls, jlong np, jfloat rate) {
+        jclass cls, jlong np, jfloat rate, jint reason) {
     return 1;
 }
 
@@ -617,7 +617,7 @@ Java_org_videolan_Libbluray_methods[] =
     },
     {
         CC("selectRateN"),
-        CC("(JF)I"),
+        CC("(JFI)I"),
         VC(Java_org_videolan_Libbluray_selectRateN),
     },
     {

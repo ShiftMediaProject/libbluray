@@ -263,10 +263,10 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellTimeN
 /*
  * Class:     org_videolan_Libbluray
  * Method:    selectRateN
- * Signature: (JF)I
+ * Signature: (JFI)I
  */
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectRateN
-  (JNIEnv *, jclass, jlong, jfloat);
+  (JNIEnv *, jclass, jlong, jfloat, jint);
 
 /*
  * Class:     org_videolan_Libbluray
