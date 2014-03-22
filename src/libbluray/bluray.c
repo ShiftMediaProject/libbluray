@@ -1018,6 +1018,20 @@ uint64_t bd_get_uo_mask(BLURAY *bd)
 
     return mask.u64;
 }
+
+void bd_select_rate(BLURAY *bd, float rate, int reason)
+{
+    if (reason == 2) {
+        /* playback stop. Might want to wait for buffers empty here. */
+        return;
+    }
+    if (rate < 0.5) {
+        _queue_event(bd, BD_EVENT_STILL, 1);
+    } else {
+        _queue_event(bd, BD_EVENT_STILL, 0);
+    }
+}
+
 #endif
 
 #ifdef USING_BDJAVA

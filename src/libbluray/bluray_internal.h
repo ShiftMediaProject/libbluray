@@ -34,4 +34,6 @@ BD_PRIVATE int bd_play_title_internal(BLURAY *bd, unsigned title);
 BD_PRIVATE uint32_t bd_reg_read(BLURAY *bd, int psr, int reg);
 BD_PRIVATE int bd_reg_write(BLURAY *bd, int psr, int reg, uint32_t value);
 
+BD_PRIVATE void bd_select_rate(BLURAY *bd, float rate, int reason);
+
 #endif  /* _BLURAY_INTERNAL_H_ */

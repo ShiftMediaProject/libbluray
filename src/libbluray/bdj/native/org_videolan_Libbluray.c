@@ -330,6 +330,8 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellTimeN(JNIEnv * env,
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectRateN(JNIEnv * env,
         jclass cls, jlong np, jfloat rate, jint reason) {
+    BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
+    bd_select_rate(bdj->bd, (float)rate, reason);
     return 1;
 }
 
