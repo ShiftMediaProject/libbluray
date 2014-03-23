@@ -65,13 +65,13 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
 
     /** The current user clip rectangle or null if no clip has been set. This is stored in the
      native coordinate system and not the (possibly) translated Java coordinate system. */
-    private Rectangle clip;
+    private Rectangle clip = null;
 
     /** The rectangle this graphics object has been constrained too. This is stored in the
      native coordinate system and not the (possibly) translated Java coordinate system.
      If it is null then this graphics has not been constrained. The constrained rectangle
      is another layer of clipping independant of the user clip. */
-    private Rectangle constrainedRect;
+    private Rectangle constrainedRect = null;
 
     BDGraphics(BDGraphics g) {
         backBuffer = g.backBuffer;
@@ -89,9 +89,6 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         actualClip = g.actualClip;
         if (g.clip != null) {
             clip = new Rectangle(g.clip);
-        }
-        if (g.constrainedRect != null) {
-            constrainedRect = new Rectangle(g.constrainedRect);
         }
         setupClip();
     }
