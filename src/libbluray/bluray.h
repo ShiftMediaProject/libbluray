@@ -505,6 +505,14 @@ typedef struct {
     uint8_t  bdplus_gen;
     /* BD+ content code relese date */
     uint32_t bdplus_date;      /* (year << 16) | (month << 8) | day */
+
+    /* disc application info */
+    uint8_t video_format;             /* bd_video_format_e */
+    uint8_t frame_rate;               /* bd_frame_rate_e */
+    uint8_t content_exist_3D;
+    uint8_t initial_output_mode_preference;   /* 0 - 2D, 1 - 3D */
+    uint8_t provider_data[32];
+
 } BLURAY_DISC_INFO;
 
 /**

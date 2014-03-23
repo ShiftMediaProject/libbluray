@@ -953,6 +953,13 @@ static void _fill_disc_info(BLURAY *bd)
 
         bd->disc_info.bluray_detected = 1;
 
+        /* application info */
+        bd->disc_info.video_format     = bd->index->app_info.video_format;
+        bd->disc_info.frame_rate       = bd->index->app_info.frame_rate;
+        bd->disc_info.content_exist_3D = bd->index->app_info.content_exist_flag;
+        bd->disc_info.initial_output_mode_preference = bd->index->app_info.initial_output_mode_preference;
+        memcpy(bd->disc_info.provider_data, bd->index->app_info.user_data, sizeof(bd->disc_info.provider_data));
+
         /* count titles */
 
         for (ii = 0; ii < bd->index->num_titles; ii++) {

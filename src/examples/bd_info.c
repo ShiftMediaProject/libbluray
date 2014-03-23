@@ -120,6 +120,31 @@ static void _print_meta(const META_DL *meta)
     }
 }
 
+static void _print_app_info(const BLURAY_DISC_INFO *info)
+{
+    static const char video_format_str[16][8] = {
+        "ignored", "480i", "576i", "480p", "1080i", "720p", "1080p", "576p"
+    };
+
+    static const char frame_rate_str[16][16] = {
+        "ignored",
+        "23.976 Hz",
+        "24 Hz",
+        "25 Hz",
+        "29.97 Hz",
+        "reserved",
+        "50 Hz",
+        "59.94 Hz"
+    };
+
+    printf("Application info:\n");
+    printf("  initial mode preference : %s\n",        info->initial_output_mode_preference ? "3D"  : "2D");
+    printf("  3D content exists       : %s\n",        info->content_exist_3D               ? "Yes" : "No");
+    printf("  video format            : %s (0x%x)\n", video_format_str[info->video_format & 0xf], info->video_format);
+    printf("  frame rate              : %s (0x%x)\n", frame_rate_str[info->frame_rate & 0xf],     info->frame_rate);
+    printf("  provider data           : \'%32s\'\n",  info->provider_data);
+}
+
 int main(int argc, char *argv[])
 {
     const char *disc_root = (argc > 1) ? argv[1] : NULL;
@@ -191,6 +216,8 @@ int main(int argc, char *argv[])
             printf("BD+ handled         : %s\n", _yes_no(info->bdplus_handled));
         }
     }
+
+    _print_app_info(info);
 
     _print_meta(bd_get_meta(bd));
 
