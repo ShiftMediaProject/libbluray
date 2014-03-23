@@ -223,6 +223,7 @@ abstract class BDToolkitBase extends Toolkit {
             } while (component != null);
 
             logger.warning("getEventQueue() failed: no context");
+            return null;
         }
 
         logger.warning("getEventQueue() failed: no component");
