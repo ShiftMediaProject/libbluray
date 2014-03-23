@@ -2,7 +2,7 @@
 LIBBLURAY INSTALLATION INSTRUCTIONS
 ===================================
 
-1. Build the source code (dependancies - full OpenSSL):
+1. Build the source code:
 
 	make
 
