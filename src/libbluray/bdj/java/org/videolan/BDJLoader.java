@@ -93,7 +93,7 @@ public class BDJLoader {
     public static void shutdown() {
         unload();
         try {
-            queue.finalize();
+            queue.shutdown();
         } catch (Throwable e) {
             logger.error("shutdown() failed: " + e);
             e.printStackTrace();

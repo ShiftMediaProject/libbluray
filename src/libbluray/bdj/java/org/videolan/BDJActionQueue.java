@@ -32,14 +32,17 @@ class BDJActionQueue implements Runnable {
         thread.start();
     }
 
-    protected void finalize() throws Throwable {
+    protected void shutdown() {
         synchronized (actions) {
             terminated = true;
             actions.addLast(null);
             actions.notifyAll();
         }
-        thread.join();
-        super.finalize();
+        try {
+            thread.join();
+        } catch (Throwable t) {
+            Logger.getLogger(BDJActionQueue.class.getName()).error("Error joining thread: " + t);
+        }
     }
 
     public void run() {

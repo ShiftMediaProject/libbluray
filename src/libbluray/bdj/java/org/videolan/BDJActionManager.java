@@ -32,7 +32,7 @@ public class BDJActionManager {
     }
 
     protected void finalize() throws Throwable {
-        commandQueue.finalize();
+        commandQueue.shutdown();
         synchronized (BDJActionManager.class) {
             instance = null;
         }

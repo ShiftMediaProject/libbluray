@@ -296,10 +296,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             sceneFactory = null;
         }
 
-        try {
-            callbackQueue.finalize();
-        } catch (Throwable t) {
-        }
+        callbackQueue.shutdown();
 
         EventQueue eq = eventQueue;
         eventQueue = null;
