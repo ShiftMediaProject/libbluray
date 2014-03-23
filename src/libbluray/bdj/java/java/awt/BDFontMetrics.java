@@ -255,7 +255,12 @@ public class BDFontMetrics extends FontMetrics {
     }
 
     protected void finalize() throws Throwable {
-        destroy();
-        super.finalize();
+        try {
+            destroy();
+        } catch (Throwable t) {
+            throw t;
+        } finally {
+            super.finalize();
+        }
     }
 }
