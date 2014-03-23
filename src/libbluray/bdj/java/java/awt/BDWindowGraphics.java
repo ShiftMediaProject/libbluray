@@ -136,7 +136,7 @@ public class BDWindowGraphics extends BDGraphics {
         }
     }
 
-    public void drawStringN(long ftFace, String string, int x, int y, int rgb) {
+    protected void drawStringN(long ftFace, String string, int x, int y, int rgb) {
         synchronized (window) {
             super.drawStringN(ftFace, string, x, y, rgb);
             window.notifyChanged();
