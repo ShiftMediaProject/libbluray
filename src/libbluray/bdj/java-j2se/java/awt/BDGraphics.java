@@ -483,6 +483,9 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         y += originY;
         Rectangle rect = new Rectangle(x, y, w, h);
         rect = actualClip.intersection(rect);
+        if (rect.isEmpty()) {
+            return;
+        }
         x = rect.x;
         y = rect.y;
         w = rect.width;
