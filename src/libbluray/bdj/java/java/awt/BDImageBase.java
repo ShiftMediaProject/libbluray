@@ -142,16 +142,16 @@ class BDImageBase extends Image {
         return component;
     }
 
-    public int[] getBdBackBuffer() {
+    protected int[] getBdBackBuffer() {
         return backBuffer;
     }
 
-    public int[] getBackBuffer() {
+    protected int[] getBackBuffer() {
         System.err.println("**** BDIMAGE GETBACKBUFFER ****");
         return backBuffer;
     }
 
-    public Area getDirtyArea() {
+    protected Area getDirtyArea() {
         return dirty;
     }
 
