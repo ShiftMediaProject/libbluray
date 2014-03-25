@@ -630,31 +630,77 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
     /** Draws an oval to fit in the given rectangle */
     public void drawOval(int x, int y, int w, int h) {
 
-        float angleIncriment = 180 / h;
-        int   rgb = foreground.getRGB();
+        int     startX;
+        int     endX;
+        int     offset;
+        int[]   xList;
+        int[]   yList;
+        int     numPoints;
+        int     count;
+        float   as;
+        float   bs;
 
-        for (int i = 0; i < h; i++) {
-            int offset = (int) (w/2 * Math.sin(angleIncriment*i));
-            int startX = x + w/2 - offset;
-            int endX   = x + w/2 + offset;
-
-            drawPoint(startX, y + i, rgb);
-            drawPoint(endX, y + i, rgb);
+        if (w <= 0 || h <=0 ) {
+            return;
         }
+
+        count = 0;
+        numPoints = ((h/2) + (h/2) + 1) * 2;
+        numPoints += 1; // to close
+        xList = new int[numPoints];
+        yList = new int[numPoints];
+
+        as = (w/2.0f) * (w/2.0f);
+        bs = (h/2.0f) * (h/2.0f);
+
+        for (int i = -h/2; i <= h/2; i++) {
+            offset = (int) Math.sqrt( (1.0 - ((i*i)/bs)) * as );
+            startX  = x - offset + w/2;
+
+            xList[count] = startX;
+            yList[count] = y + i + h/2;
+            count++;
+        }
+
+        for (int i = h/2; i >= -h/2; i--) {
+            offset = (int) Math.sqrt( (1.0 - ((i*i)/bs)) * as );
+            endX    = x + offset + w/2;
+
+            xList[count] = endX;
+            yList[count] = y + i + h/2;
+            count++;
+        }
+
+        xList[count] = xList[0];        // close the loop
+        yList[count] = yList[0];        // close the loop
+
+        drawPolyline(xList, yList, numPoints);
     }
 
     /** Fills an oval to fit in the given rectangle */
     public void fillOval(int x, int y, int w, int h) {
 
-        float angleIncriment = angleIncriment = 180 / h;
-        int   rgb = foreground.getRGB();
+        int     startX;
+        int     endX;
+        int     offset;
+        int     colour;
+        float   as;
+        float   bs;
 
-        for (int i = 0; i < h; i++) {
-            int offset = (int) (w/2 * Math.sin(angleIncriment*i));
-            int startX = x + w/2 - offset;
-            int endX   = x + w/2 + offset;
+        if (w <= 0 || h <= 0) {
+            return;
+        }
 
-            drawSpan(startX, y + i, endX - startX, rgb);
+        as = (w/2.0f) * (w/2.0f);
+        bs = (h/2.0f) * (h/2.0f);
+        colour = foreground.getRGB();
+
+        for(int i=-h/2; i<=h/2; i++) {
+            offset  = (int) Math.sqrt( (1.0 - ((i*i)/bs)) * as );
+            startX  = x - offset + w/2;
+            endX    = x + offset + w/2;
+
+            drawSpan(startX, y + i + h/2, endX - startX + 1, colour);
         }
     }
 
