@@ -21,7 +21,10 @@ package java.awt;
 
 import java.lang.reflect.Field;
 import java.text.AttributedCharacterIterator;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.awt.image.AreaAveragingScaleFilter;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageConsumer;
@@ -643,7 +646,68 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
 
     /** Fills a polygon with the current fill mask */
     public void fillPolygon(int xPoints[], int yPoints[], int nPoints) {
-        logger.unimplemented("fillPolygon");
+
+        int minY = Integer.MAX_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        int colour = foreground.getRGB();
+
+        if (nPoints < 3) {
+            return;
+        }
+
+        for (int i = 0; i < nPoints; i++) {
+            if (yPoints[i] > maxY) {
+                maxY = yPoints[i];
+            }
+            if (yPoints[i] < minY) {
+                minY = yPoints[i];
+            }
+        }
+
+        // check the last point to see if its the same as the first
+        if (xPoints[0] == xPoints[nPoints - 1] && yPoints[0] == yPoints[nPoints - 1]) {
+            nPoints--;
+        }
+
+        PolyEdge[] polyEdges = new PolyEdge[nPoints];
+
+        for (int i = 0; i < nPoints - 1; i++) {
+            polyEdges[i] = new PolyEdge(xPoints[i], yPoints[i], xPoints[i + 1], yPoints[i + 1]);
+        }
+
+        // add the last one
+        polyEdges[nPoints - 1] = new PolyEdge(xPoints[nPoints - 1], yPoints[nPoints - 1], xPoints[0], yPoints[0]);
+        ArrayList xList = new ArrayList();
+        for (int i = minY; i <= maxY; i++) {
+            for (int j = 0; j < nPoints; j++) {
+                if (polyEdges[j].intersects(i)) {
+                    int x = polyEdges[j].intersectionX(i);
+                    xList.add(new Integer(x));
+                }
+            }
+
+            // probably a better way of doing this (removing duplicates);
+            HashSet hs = new HashSet();
+            hs.addAll(xList);
+            xList.clear();
+            xList.addAll(hs);
+
+            if (xList.size() % 2 > 0) {
+                xList.clear();
+                continue;                       // this should be impossible unless the poly is open somewhere
+            }
+
+            Collections.sort(xList);
+
+            for (int j = 0; j < xList.size(); j +=2 ) {
+                int x1 = ((Integer)xList.get(j)).intValue();
+                int x2 = ((Integer)xList.get(j + 1)).intValue();
+
+                drawSpan(x1, i, x2 - x1, colour);
+            }
+
+            xList.clear();
+        }
     }
 
     /** Draws an oval to fit in the given rectangle */
