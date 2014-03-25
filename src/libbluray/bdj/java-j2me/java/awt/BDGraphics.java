@@ -992,6 +992,16 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
             }
         }
 
+        if(sx + sw > bdImage.width || sy + sh > bdImage.height) {
+            logger.info("drawImageN: fixing too small src image (src " + sx + "," + sy + " " + sw + "x" + sh + " ; img " + bdImage.width + "x" + bdImage.height + ")");
+
+            BDImage subImage = new BDImage(null, sw, sh, null);
+            bdImage.getRGB(sx, sy, Math.min(sw, bdImage.width - sx), Math.min(sh, bdImage.height - sy), subImage.getBdBackBuffer(), 0, sw);
+            bdImage = subImage;
+            sx = 0;
+            sy = 0;
+        }
+        /*
         if(sx + sw > bdImage.width) {
             int n = sx + sw - bdImage.width;
             dw -= dw * n / sw;
@@ -1003,6 +1013,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
             dh -= dh * n / sh;
             sh -= n;
         }
+        */
 
         if ((sw > 0) && (sh > 0) &&
             ((sx != 0) || (sy != 0) || (sw != bdImage.width) || (sh != bdImage.height))) {
