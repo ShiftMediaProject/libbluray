@@ -721,12 +721,143 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
 
     /** Draws a rounded rectangle. */
     public void drawRoundRect(int x, int y, int w, int h, int arcWidth, int arcHeight) {
-        logger.unimplemented("drawRoundRect");
+
+        int[]   xList;
+        int[]   yList;
+        int     numPoints;
+        int     count;
+        int     startX;
+        int     endX;
+        int     offset;
+
+        if (w <= 0 || h <= 0) {
+            return;
+        }
+
+        if (arcWidth == 0 || arcHeight == 0) {
+            drawRect(x, y, w, h);
+            return;
+        }
+
+        if (arcWidth < 0) {                // matches behaviour of normal java version
+            arcWidth *= -1;
+        }
+
+        if (arcHeight < 0) {
+            arcHeight *= -1;
+        }
+
+        count = 0;
+        numPoints = ((arcHeight/2) + 1) * 2;
+        numPoints += ((arcHeight/2) + 1) * 2;
+        numPoints += 1; // last point to close the loop
+
+        xList = new int[numPoints];
+        yList = new int[numPoints];
+
+        float as = (arcWidth/2.0f)  * (arcWidth/2.0f);
+        float bs = (arcHeight/2.0f) * (arcHeight/2.0f);
+
+        // draw top curved half of box
+
+        for (int i = 0; -arcHeight/2 <= i; i--) {
+            offset = (int) Math.sqrt( (1.0 - ((i*i)/bs)) * as );
+            startX  = x - offset + arcWidth/2;
+
+            xList[count] = startX;
+            yList[count] = y+i+(arcHeight/2);
+            count++;
+        }
+
+        for (int i = -arcHeight / 2; i <= 0; i++) {
+            offset = (int) Math.sqrt( (1.0 - ((i*i)/bs)) * as );
+            endX    = x + offset + (w-arcWidth) + arcWidth/2;
+
+            xList[count] = endX;
+            yList[count] = y + i + (arcHeight/2);
+            count++;
+        }
+
+        // draw bottom box
+        for (int i = 0; i <= arcHeight / 2; i++) {
+            offset = (int) Math.sqrt( (1.0 - ((i*i)/bs)) * as );
+            startX  = x - offset + arcWidth/2;
+            endX    = x + offset + (w - arcWidth) + arcWidth/2;
+
+            xList[count] = endX;
+            yList[count] = y + i + h - arcHeight/2;
+            count++;
+        }
+
+        // draw bottom box
+        for (int i = arcHeight / 2; i >= 0; i--) {
+            offset = (int) Math.sqrt( (1.0 - ((i*i)/bs)) * as );
+            startX  = x - offset + arcWidth/2;
+            endX    = x + offset + (w-arcWidth) + arcWidth/2;
+
+            xList[count] = startX;
+            yList[count] = y+i+h-arcHeight/2;
+            count++;
+        }
+
+        xList[count] = xList[0];
+        yList[count] = yList[0];
+
+        drawPolyline(xList, yList, numPoints);
     }
 
     /** Draws a filled rounded rectangle. */
     public void fillRoundRect(int x, int y, int w, int h, int arcWidth, int arcHeight) {
-        logger.unimplemented("fillRoundRect");
+
+        int startX;
+        int endX;
+        int offset;
+        int colour;
+
+        if (w <= 0 || h <= 0) {
+            return;
+        }
+
+        if (arcWidth == 0 || arcHeight == 0) {
+            fillRect(x,y,w,h);
+            return;
+        }
+
+        if (arcWidth < 0) {                // matches behaviour of normal java version
+            arcWidth *= -1;
+        }
+
+        if (arcHeight < 0) {
+            arcHeight *= -1;
+        }
+
+        float as = (arcWidth/2.0f)  * (arcWidth/2.0f);
+        float bs = (arcHeight/2.0f) * (arcHeight/2.0f);
+
+        colour = foreground.getRGB();
+
+        // draw top curved half of box
+        for (int i = -arcHeight/2; i < 0; i++) {
+            offset = (int) Math.sqrt( (1.0 - ((i*i)/bs)) * as );
+            startX  = x - offset + arcWidth/2;
+            endX    = x + offset + (w - arcWidth) + arcWidth/2;
+
+            drawSpan(startX, y + i + (arcHeight/2), endX - startX + 1, colour);
+        }
+
+        // draw middle section
+        for (int i = 0; i < h - arcHeight; i++) {
+            drawSpan(x, y + i + arcHeight/2, w, colour);
+        }
+
+        // draw bottom box
+        for (int i = 0; i <= arcHeight/2; i++) {
+            offset = (int) Math.sqrt( (1.0 - ((i*i)/bs)) * as );
+            startX  = x - offset + arcWidth/2;
+            endX    = x + offset + (w - arcWidth) + arcWidth/2;
+
+            drawSpan(startX, y + i + h - 1 - arcHeight/2, endX - startX + 1, colour);
+        }
     }
 
     protected native void drawStringN(long ftFace, String string, int x, int y, int rgb);
