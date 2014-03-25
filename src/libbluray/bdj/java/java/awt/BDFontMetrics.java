@@ -247,7 +247,7 @@ public class BDFontMetrics extends FontMetrics {
         return newWidths;
     }
 
-    public void destroy() {
+    private void destroy() {
         if (ftFace != 0) {
             destroyFontN(ftFace);
             ftFace = 0;
