@@ -115,6 +115,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         height = image.getHeight();
         backBuffer = image.getBdBackBuffer();
         dirty = image.getDirtyArea();
+
         gc = image.getGraphicsConfiguration();
         Component component = image.getComponent();
         if (component != null) {
@@ -188,6 +189,7 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
 
     public void setPaintMode() {
         xorColor = null;
+        composite = AlphaComposite.SrcOver;
     }
 
     public void setXORMode(Color color) {
@@ -405,6 +407,9 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         y += originY;
         Rectangle rect = new Rectangle(x, y, w, h);
         rect = actualClip.intersection(rect);
+        if (rect.isEmpty()) {
+            return;
+        }
         x = rect.x;
         y = rect.y;
         w = rect.width;
@@ -1039,7 +1044,6 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
             bgColor = bg.getRGB();
         else
             bgColor = 0;
-        // TODO: optimize this
 
         for (int y = dy; y < (dy + bdImage.height); y++) {
 
