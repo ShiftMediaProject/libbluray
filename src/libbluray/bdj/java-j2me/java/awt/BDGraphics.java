@@ -84,7 +84,6 @@ class BDGraphics extends Graphics2D implements ConstrainableGraphics {
         fontMetrics = g.fontMetrics;
         originX = g.originX;
         originY = g.originY;
-        actualClip = g.clip;
         if (g.clip != null) {
             clip = new Rectangle(g.clip);
         }
