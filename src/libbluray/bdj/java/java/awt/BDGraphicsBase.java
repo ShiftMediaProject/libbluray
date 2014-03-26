@@ -302,12 +302,12 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         x      = rect.x;
         length = rect.width;
 
-        dirty.add(rect);
-
         if (xorColor != null) {
             for (int i = 0; i < length; i++) {
                 backBuffer[y * width + x + i] ^= xorColor.getRGB() ^ rgb;
             }
+
+            dirty.add(rect);
             return;
         }
 
@@ -330,6 +330,8 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
                 }
                 break;
         }
+
+        dirty.add(rect);
     }
 
     private void drawSpanN(int x, int y, int length, int src[], int srcOffset) {
@@ -345,12 +347,12 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         x          = rect.x;
         length     = rect.width;
 
-        dirty.add(rect);
-
         if (xorColor != null) {
             for (int i = 0; i < length; i++) {
                 backBuffer[y * width + x + i] ^= xorColor.getRGB() ^ src[srcOffset + i];
             }
+
+            dirty.add(rect);
             return;
         }
 
@@ -371,6 +373,8 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
                 }
                 break;
         }
+
+        dirty.add(rect);
     }
 
     private void drawSpan(int x, int y, int length, int rgb) {
