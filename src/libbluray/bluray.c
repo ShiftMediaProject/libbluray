@@ -968,7 +968,6 @@ static void _fill_disc_info(BLURAY *bd)
             }
             if (bd->index->titles[ii].object_type == indx_object_type_bdj) {
                 bd->disc_info.num_bdj_titles++;
-                bd->disc_info.num_unsupported_titles++;
                 bd->disc_info.bdj_detected = 1;
             }
         }
@@ -980,7 +979,7 @@ static void _fill_disc_info(BLURAY *bd)
             bd->disc_info.bdj_detected = 1;
         }
 
-        /* BD-J capability */
+        /* check for BD-J capability */
 
 #ifdef USING_BDJAVA
         if (bd->disc_info.bdj_detected) {
@@ -994,14 +993,26 @@ static void _fill_disc_info(BLURAY *bd)
         }
 #endif /* USING_BDJAVA */
 
+        /* mark supported titles */
+
+        if (bd->disc_info.bdj_detected && !bd->disc_info.bdj_handled) {
+            bd->disc_info.num_unsupported_titles = bd->disc_info.num_bdj_titles;
+        }
+
         pi = &bd->index->first_play;
         if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
             bd->disc_info.first_play_supported = 1;
+        }
+        if (pi->object_type == indx_object_type_bdj) {
+            bd->disc_info.first_play_supported = bd->disc_info.bdj_handled;
         }
 
         pi = &bd->index->top_menu;
         if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
             bd->disc_info.top_menu_supported = 1;
+        }
+        if (pi->object_type == indx_object_type_bdj) {
+            bd->disc_info.top_menu_supported = bd->disc_info.bdj_handled;
         }
     }
 }
