@@ -118,7 +118,6 @@ struct bluray {
     char             *device_path;
     BLURAY_DISC_INFO  disc_info;
     BLURAY_TITLE    **titles;  /* titles from disc index */
-    INDX_ROOT        *index;
     META_ROOT        *meta;
     NAV_TITLE_LIST   *title_list;
 
@@ -939,62 +938,63 @@ static void _fill_disc_info(BLURAY *bd)
 
     array_free((void**)&bd->titles);
 
-    if (bd->index) {
+    INDX_ROOT *index = indx_parse(bd->device_path);
+    if (index) {
         INDX_PLAY_ITEM *pi;
         unsigned        ii;
 
         bd->disc_info.bluray_detected = 1;
 
         /* application info */
-        bd->disc_info.video_format     = bd->index->app_info.video_format;
-        bd->disc_info.frame_rate       = bd->index->app_info.frame_rate;
-        bd->disc_info.content_exist_3D = bd->index->app_info.content_exist_flag;
-        bd->disc_info.initial_output_mode_preference = bd->index->app_info.initial_output_mode_preference;
-        memcpy(bd->disc_info.provider_data, bd->index->app_info.user_data, sizeof(bd->disc_info.provider_data));
+        bd->disc_info.video_format     = index->app_info.video_format;
+        bd->disc_info.frame_rate       = index->app_info.frame_rate;
+        bd->disc_info.content_exist_3D = index->app_info.content_exist_flag;
+        bd->disc_info.initial_output_mode_preference = index->app_info.initial_output_mode_preference;
+        memcpy(bd->disc_info.provider_data, index->app_info.user_data, sizeof(bd->disc_info.provider_data));
 
         /* allocate array for title info */
-        BLURAY_TITLE **titles = array_alloc(bd->index->num_titles + 2, sizeof(BLURAY_TITLE));
+        BLURAY_TITLE **titles = array_alloc(index->num_titles + 2, sizeof(BLURAY_TITLE));
         if (!titles) {
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Can't allocate memory\n");
             return;
         }
         bd->titles = titles;
         bd->disc_info.titles = (const BLURAY_TITLE * const *)titles;
-        bd->disc_info.num_titles = bd->index->num_titles;
+        bd->disc_info.num_titles = index->num_titles;
 
         /* count titles and fill title info */
 
-        for (ii = 0; ii < bd->index->num_titles; ii++) {
-            if (bd->index->titles[ii].object_type == indx_object_type_hdmv) {
+        for (ii = 0; ii < index->num_titles; ii++) {
+            if (index->titles[ii].object_type == indx_object_type_hdmv) {
                 bd->disc_info.num_hdmv_titles++;
-                titles[ii + 1]->interactive = (bd->index->titles[ii].hdmv.playback_type == indx_hdmv_playback_type_interactive);
-                titles[ii + 1]->id_ref = bd->index->titles[ii].hdmv.id_ref;
+                titles[ii + 1]->interactive = (index->titles[ii].hdmv.playback_type == indx_hdmv_playback_type_interactive);
+                titles[ii + 1]->id_ref = index->titles[ii].hdmv.id_ref;
             }
-            if (bd->index->titles[ii].object_type == indx_object_type_bdj) {
+            if (index->titles[ii].object_type == indx_object_type_bdj) {
                 bd->disc_info.num_bdj_titles++;
                 bd->disc_info.bdj_detected = 1;
                 titles[ii + 1]->bdj = 1;
-                titles[ii + 1]->interactive = (bd->index->titles[ii].bdj.playback_type == indx_bdj_playback_type_interactive);
-                titles[ii + 1]->id_ref = atoi(bd->index->titles[ii].bdj.name);
+                titles[ii + 1]->interactive = (index->titles[ii].bdj.playback_type == indx_bdj_playback_type_interactive);
+                titles[ii + 1]->id_ref = atoi(index->titles[ii].bdj.name);
             }
 
-            titles[ii + 1]->accessible =  !(bd->index->titles[ii].access_type & INDX_ACCESS_PROHIBITED_MASK);
-            titles[ii + 1]->hidden     = !!(bd->index->titles[ii].access_type & INDX_ACCESS_HIDDEN_MASK);
+            titles[ii + 1]->accessible =  !(index->titles[ii].access_type & INDX_ACCESS_PROHIBITED_MASK);
+            titles[ii + 1]->hidden     = !!(index->titles[ii].access_type & INDX_ACCESS_HIDDEN_MASK);
         }
 
-        pi = &bd->index->first_play;
+        pi = &index->first_play;
         if (pi->object_type == indx_object_type_bdj) {
             bd->disc_info.bdj_detected = 1;
-            titles[bd->index->num_titles + 1]->bdj = 1;
-            titles[bd->index->num_titles + 1]->interactive = (pi->bdj.playback_type == indx_bdj_playback_type_interactive);
-            titles[bd->index->num_titles + 1]->id_ref = atoi(pi->bdj.name);
+            titles[index->num_titles + 1]->bdj = 1;
+            titles[index->num_titles + 1]->interactive = (pi->bdj.playback_type == indx_bdj_playback_type_interactive);
+            titles[index->num_titles + 1]->id_ref = atoi(pi->bdj.name);
         }
         if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
-            titles[bd->index->num_titles + 1]->interactive = (pi->hdmv.playback_type == indx_hdmv_playback_type_interactive);
-            titles[bd->index->num_titles + 1]->id_ref = pi->hdmv.id_ref;
+            titles[index->num_titles + 1]->interactive = (pi->hdmv.playback_type == indx_hdmv_playback_type_interactive);
+            titles[index->num_titles + 1]->id_ref = pi->hdmv.id_ref;
         }
 
-        pi = &bd->index->top_menu;
+        pi = &index->top_menu;
         if (pi->object_type == indx_object_type_bdj) {
             bd->disc_info.bdj_detected = 1;
             titles[0]->bdj = 1;
@@ -1026,7 +1026,7 @@ static void _fill_disc_info(BLURAY *bd)
             bd->disc_info.num_unsupported_titles = bd->disc_info.num_bdj_titles;
         }
 
-        pi = &bd->index->first_play;
+        pi = &index->first_play;
         if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
             bd->disc_info.first_play_supported = 1;
         }
@@ -1034,7 +1034,7 @@ static void _fill_disc_info(BLURAY *bd)
             bd->disc_info.first_play_supported = bd->disc_info.bdj_handled;
         }
 
-        pi = &bd->index->top_menu;
+        pi = &index->top_menu;
         if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
             bd->disc_info.top_menu_supported = 1;
         }
@@ -1045,8 +1045,8 @@ static void _fill_disc_info(BLURAY *bd)
         /* */
 
         if (bd->disc_info.first_play_supported) {
-            titles[bd->index->num_titles + 1]->accessible = 1;
-            bd->disc_info.first_play = titles[bd->index->num_titles + 1];
+            titles[index->num_titles + 1]->accessible = 1;
+            bd->disc_info.first_play = titles[index->num_titles + 1];
         }
         if (bd->disc_info.top_menu_supported) {
             titles[0]->accessible = 1;
@@ -1055,6 +1055,8 @@ static void _fill_disc_info(BLURAY *bd)
 
         /* populate title names */
         bd_get_meta(bd);
+
+        indx_free(&index);
     }
 }
 
@@ -1353,8 +1355,6 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
     _libbdplus_init(bd);
 
-    bd->index = indx_parse(bd->device_path);
-
     _fill_disc_info(bd);
 
     bd_mutex_init(&bd->mutex);
@@ -1386,7 +1386,6 @@ void bd_close(BLURAY *bd)
     hdmv_vm_free(&bd->hdmv_vm);
 
     gc_free(&bd->graphics_controller);
-    indx_free(&bd->index);
     meta_free(&bd->meta);
     sound_free(&bd->sound_effects);
     bd_registers_free(bd->regs);
