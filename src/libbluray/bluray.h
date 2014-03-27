@@ -470,6 +470,17 @@ void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint
 #define BD_AACS_CERT_REVOKED    -5
 #define BD_AACS_MMC_FAILED      -6
 
+/* HDMV / BD-J title */
+typedef struct {
+    const char *name;         /* optional title name in preferred language */
+    uint8_t     interactive;  /* 1 if title is interactive (title length and playback position should not be shown in UI) */
+    uint8_t     accessible;   /* 1 if it is allowed to jump into this title */
+    uint8_t     hidden;       /* 1 if title number should not be shown during playback */
+
+    uint8_t     bdj;          /* 0 - HDMV title. 1 - BD-J title */
+    uint16_t    id_ref;       /* Movie Object number / bdjo file number */
+} BLURAY_TITLE;
+
 typedef struct {
     uint8_t  bluray_detected;
 
@@ -512,6 +523,12 @@ typedef struct {
     uint8_t content_exist_3D;
     uint8_t initial_output_mode_preference;   /* 0 - 2D, 1 - 3D */
     uint8_t provider_data[32];
+
+    /* HDMV / BD-J titles */
+    uint32_t             num_titles;
+    const BLURAY_TITLE * const *titles;  /* index is title number 1 ... N */
+    const BLURAY_TITLE  *first_play;     /* titles[0].   NULL if not present on the disc. */
+    const BLURAY_TITLE  *top_menu;       /* titles[N+1]. NULL if not present on the disc. */
 
 } BLURAY_DISC_INFO;
 
