@@ -241,20 +241,8 @@ clpi_dump_SOURCES = \
 	examples/util.h
 clpi_dump_LDADD = libbluray.la
 
-index_dump_CFLAGS = $(AM_CFLAGS)
-index_dump_SOURCES = \
-	examples/index_dump.c \
-	file/file.c \
-	libbluray/bdnav/index_parse.c \
-	util/bits.c \
-	util/logging.c
-if HAVE_WIN32
-index_dump_SOURCES += \
-	file/file_win32.c
-else
-index_dump_SOURCES += \
-	file/file_posix.c
-endif
+index_dump_SOURCES = examples/index_dump.c
+index_dump_LDADD = libbluray.la
 
 mobj_dump_CFLAGS = $(AM_CFLAGS)
 mobj_dump_SOURCES = \

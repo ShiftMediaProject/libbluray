@@ -17,110 +17,76 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "libbluray/bdnav/index_parse.h"
+#include "libbluray/bluray.h"
 
 #include <stdio.h>
 
-static void _indx_print_app_info(INDX_APP_INFO *app_info)
+static void _indx_print_title(const BLURAY_TITLE *title, int normal_title)
 {
-    const char video_format_str[16][8] = {
-        "ignored", "480i", "576i", "480p", "1080i", "720p", "1080p", "576p"
-    };
+    printf("    object type   : %s\n", title->bdj ? "BD-J" : "HDMV");
+    printf("    playback type : %s\n", title->interactive ? "Interactive" : "Movie");
+    printf(title->bdj ?
+           "    name          : %05d.bdjo\n" :
+           "    id_ref        : %u\n",
+           title->id_ref);
 
-    const char frame_rate_str[16][16] = {
-        "ignored",
-        "23.976 Hz",
-        "24 Hz",
-        "25 Hz",
-        "29.97 Hz",
-        "reserved",
-        "50 Hz",
-        "59.94 Hz"
-    };
-
-    printf("  initial mode  : %s\n", app_info->initial_output_mode_preference ? "3D"  : "2D");
-    printf("  content exists: %s\n", app_info->content_exist_flag             ? "Yes" : "No");
-    printf("  video format  : %s (0x%x)\n", video_format_str[app_info->video_format], app_info->video_format);
-    printf("  frame rate    : %s (0x%x)\n", frame_rate_str[app_info->frame_rate],     app_info->frame_rate);
-    printf("  provider data : %32s\n",      app_info->user_data);
-}
-
-static void _indx_print_hdmv_obj(INDX_HDMV_OBJ *hdmv)
-{
-    const char *const playback_types[] = {"Movie", "Interactive", "???", "???"};
-
-    printf("  object type     : HDMV\n");
-    printf("    playback type : %s\n", playback_types[hdmv->playback_type]);
-    printf("    id_ref        : %u\n", hdmv->id_ref);
-}
-
-static void _indx_print_bdj_obj(INDX_BDJ_OBJ *bdj)
-{
-    const char * const playback_types[] = {"???", "???", "Movie", "Interactive"};
-
-    printf("  object type     : BD-J\n");
-    printf("    playback type : %s\n", playback_types[bdj->playback_type]);
-    printf("    name          : %s\n", bdj->name);
-}
-
-static void _indx_print_play_item(INDX_PLAY_ITEM *title)
-{
-    if (title->object_type == 1) {
-        _indx_print_hdmv_obj(&title->hdmv);
-    } else {
-        _indx_print_bdj_obj(&title->bdj);
+    if (normal_title) {
+        printf("    access type   : %s%s\n", title->accessible ? "Accessible" : "Prohibited", title->hidden ? ", Hidden" : "");
     }
 }
 
-static void _indx_print_title(INDX_TITLE *title)
-{
-    if (title->object_type == 1) {
-        _indx_print_hdmv_obj(&title->hdmv);
-    } else {
-        _indx_print_bdj_obj(&title->bdj);
-    }
-    printf("    access type   : %d\n", title->access_type);
-}
-
-static void _indx_print(INDX_ROOT *index)
+static void _indx_print(const BLURAY_DISC_INFO *info)
 {
     uint32_t i;
 
-    printf("Application info:\n");
-    _indx_print_app_info(&index->app_info);
-
     printf("\nFirst playback:\n");
-    _indx_print_play_item(&index->first_play);
+    if (info->first_play) {
+        _indx_print_title(info->first_play, 0);
+    } else {
+        printf("    (not present)\n");
+    }
 
     printf("\nTop menu:\n");
-    _indx_print_play_item(&index->top_menu);
+    if (info->top_menu) {
+        _indx_print_title(info->titles[0], 0);
+    } else {
+        printf("    (not present)\n");
+    }
 
-    printf("\nTitles: %d\n", index->num_titles);
-    for (i = 0; i < index->num_titles; i++) {
-      printf("%02d", i);
-      _indx_print_title(&index->titles[i]);
+    printf("\nTitles: %d\n", info->num_titles);
+    for (i = 1; i <= info->num_titles; i++) {
+        printf("%02d %s\n", i, info->titles[i]->name ? info->titles[i]->name : "");
+        _indx_print_title(info->titles[i], 1);
     }
 }
 
 int main(int argc, const char *argv[])
 {
-    char       file[1024];
-    INDX_ROOT *index;
+    BLURAY *bd;
+    const BLURAY_DISC_INFO *info;
 
     if (argc != 2) {
         fprintf(stderr, "usage: %s <disc_root>\n", argv[0]);
         return 1;
     }
 
-    sprintf(file, "%s/BDMV/index.bdmv", argv[1]);
-
-    index = indx_parse(file);
-
-    if (index) {
-        _indx_print(index);
-
-        indx_free(&index);
+    bd = bd_open(argv[1], NULL);
+    if (!bd) {
+        fprintf(stderr, "error opening BD disc %s\n", argv[1]);
+        return -1;
     }
+
+    info = bd_get_disc_info(bd);
+
+    if (!info->bluray_detected) {
+        fprintf(stderr, "no BD disc detected in %s\n", argv[1]);
+        bd_close(bd);
+        return -1;
+    }
+
+    _indx_print(info);
+
+    bd_close(bd);
 
     return 0;
 }

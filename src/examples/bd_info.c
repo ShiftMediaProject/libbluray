@@ -137,7 +137,7 @@ static void _print_app_info(const BLURAY_DISC_INFO *info)
         "59.94 Hz"
     };
 
-    printf("Application info:\n");
+    printf("\nApplication info:\n");
     printf("  initial mode preference : %s\n",        info->initial_output_mode_preference ? "3D"  : "2D");
     printf("  3D content exists       : %s\n",        info->content_exist_3D               ? "Yes" : "No");
     printf("  video format            : %s (0x%x)\n", video_format_str[info->video_format & 0xf], info->video_format);
