@@ -897,23 +897,6 @@ static int _libbdplus_init(BLURAY *bd)
 }
 
 /*
- * index open
- */
-
-static int _index_open(BLURAY *bd)
-{
-    if (!bd->index) {
-        char *file;
-
-        file = str_printf("%s/BDMV/index.bdmv", bd->device_path);
-        bd->index = indx_parse(file);
-        X_FREE(file);
-    }
-
-    return !!bd->index;
-}
-
-/*
  * meta open
  */
 
@@ -1370,7 +1353,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
 
     _libbdplus_init(bd);
 
-    _index_open(bd);
+    bd->index = indx_parse(bd->device_path);
 
     _fill_disc_info(bd);
 

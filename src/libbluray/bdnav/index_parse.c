@@ -21,6 +21,7 @@
 #include "util/bits.h"
 #include "util/logging.h"
 #include "util/macro.h"
+#include "util/strutl.h"
 #include "index_parse.h"
 
 #include <stdlib.h>
@@ -193,24 +194,23 @@ static INDX_ROOT *_indx_parse(const char *file_name)
     return NULL;
 }
 
-INDX_ROOT *indx_parse(const char *file_name)
+INDX_ROOT *indx_parse(const char *disc_root)
 {
-    INDX_ROOT *indx = _indx_parse(file_name);
+    INDX_ROOT *index;
+    char *file;
 
-    /* if failed, try backup file */
-    if (!indx) {
-        size_t len   = strlen(file_name);
-        char *backup = malloc(len + 8);
-
-        strcpy(backup, file_name);
-        strcpy(backup + len - 10, "BACKUP/index.bdmv");
-
-        indx = _indx_parse(backup);
-
-        X_FREE(backup);
+    file = str_printf("%s/BDMV/index.bdmv", disc_root);
+    index = _indx_parse(file);
+    X_FREE(file);
+    if (index) {
+        return index;
     }
 
-    return indx;
+    /* try backup */
+    file = str_printf("%s/BDMV/BACKUP/index.bdmv", disc_root);
+    index = _indx_parse(file);
+    X_FREE(file);
+    return index;
 }
 
 void indx_free(INDX_ROOT **p)
