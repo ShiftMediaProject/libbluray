@@ -212,23 +212,48 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             ixcThreads.remove(thread);
         }
     }
-    protected void stopIxcThreads() {
-        synchronized (ixcThreads) {
-            while (!ixcThreads.isEmpty()) {
-                Thread thread = (Thread)ixcThreads.removeFirst();
-                logger.info("Stopping remote thread " + thread);
-                thread.interrupt();
-                try {
-                    thread.join(500);
-                } catch (Throwable t) {
-                }
-                if (thread.isAlive()) {
-                    PortingHelper.stopThread(thread);
-                }
-                if (thread.isAlive()) {
-                    logger.error("Error stopping remote thread " + thread);
-                }
+
+    private static boolean waitThread(Thread thread, int timeout) {
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + timeout;
+        while (thread.isAlive() && (System.currentTimeMillis() < endTime)) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) { }
+        }
+
+        boolean result = !thread.isAlive();
+        if (!result) {
+            logger.error("waitThread timeout: " + thread);
+        }
+        return result;
+    }
+
+    public static void stopThread(Thread thread, int timeout, String type) {
+        if (!waitForShutdown(thread, timeout)) {
+            thread.interrupt();
+            if (!waitForShutdown(thread, 200)) {
+                PortingHelper.stopThread(thread);
+                logger.error("killing " + type + " thread " + t);
             }
+        }
+        try {
+            thread.join();
+        } catch (Throwable t) { }
+    }
+
+    protected void stopIxcThreads() {
+        while (true) {
+            Thread thread;
+            synchronized (ixcThreads) {
+                if (ixcThreads.isEmpty()) {
+                    break;
+                }
+                thread = (Thread)ixcThreads.removeFirst();
+            }
+            logger.info("Stopping remote thread " + thread);
+            stopThread(thread, 1000, "Ixc");
+            removeIxcThread(thread);
         }
     }
 
