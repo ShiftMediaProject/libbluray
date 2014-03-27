@@ -2264,7 +2264,7 @@ uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length)
 
     /* start BD+. No real title info will be passed to BD+ VM ... */
     if (bd->libbdplus) {
-        libbdplus_event(bd->libbdplus, 0xffffffff, bd->index->num_titles, 0);
+        libbdplus_event(bd->libbdplus, 0xffffffff, bd->disc_info.num_titles, 0);
     }
 
     return bd->title_list->count;
@@ -2527,31 +2527,27 @@ void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint
 
 int bd_start_bdj(BLURAY *bd, const char *start_object)
 {
+    const BLURAY_TITLE *t;
+    int title_num = atoi(start_object);
     unsigned ii;
 
-    if (!bd || !bd->index) {
+    if (!bd) {
         return 0;
     }
 
     /* first play object ? */
-    if (bd->index->first_play.object_type == indx_object_type_bdj &&
-        !strcmp(start_object, bd->index->first_play.bdj.name)) {
-        return _start_bdj(bd, BLURAY_TITLE_FIRST_PLAY);
-    }
-
-    /* top menu ? */
-    if (bd->index->first_play.object_type == indx_object_type_bdj &&
-        !strcmp(start_object, bd->index->top_menu.bdj.name)) {
-        return _start_bdj(bd, BLURAY_TITLE_TOP_MENU);
+    if (bd->disc_info.first_play_supported) {
+        t = bd->disc_info.first_play;
+        if (t && t->bdj && t->id_ref == title_num) {
+            return _start_bdj(bd, BLURAY_TITLE_FIRST_PLAY);
+        }
     }
 
     /* valid BD-J title from disc index ? */
-    for (ii = 0; ii < bd->index->num_titles; ii++) {
-        INDX_TITLE *t = &bd->index->titles[ii];
-
-        if (t->object_type == indx_object_type_bdj &&
-            !strcmp(start_object, t->bdj.name)) {
-            return _start_bdj(bd, ii + 1);
+    for (ii = 0; ii <= bd->disc_info.num_titles; ii++) {
+        t = bd->disc_info.titles[ii];
+        if (t && t->bdj && t->id_ref == title_num) {
+            return _start_bdj(bd, ii);
         }
     }
 
@@ -2819,24 +2815,20 @@ static int _play_title(BLURAY *bd, unsigned title)
 {
     /* first play object ? */
     if (title == BLURAY_TITLE_FIRST_PLAY) {
-        INDX_PLAY_ITEM *p = &bd->index->first_play;
 
         bd_psr_write(bd->regs, PSR_TITLE_NUMBER, 0xffff); /* 5.2.3.3 */
 
-        if (p->object_type == indx_object_type_hdmv) {
-            if (p->hdmv.id_ref == 0xffff) {
-                /* no first play title (5.2.3.3) */
-                bd->title_type = title_hdmv;
-                return 1;
-            }
-            return _play_hdmv(bd, p->hdmv.id_ref);
+        if (!bd->disc_info.first_play_supported) {
+            /* no first play title (5.2.3.3) */
+            bd->title_type = title_hdmv;
+            return 1;
         }
 
-        if (p->object_type == indx_object_type_bdj) {
+        if (bd->disc_info.first_play->bdj) {
             return _play_bdj(bd, title);
+        } else {
+            return _play_hdmv(bd, bd->disc_info.first_play->id_ref);
         }
-
-        return 0;
     }
 
     /* bd_play not called ? */
@@ -2847,36 +2839,32 @@ static int _play_title(BLURAY *bd, unsigned title)
 
     /* top menu ? */
     if (title == BLURAY_TITLE_TOP_MENU) {
-        INDX_PLAY_ITEM *p = &bd->index->top_menu;
 
         bd_psr_write(bd->regs, PSR_TITLE_NUMBER, 0); /* 5.2.3.3 */
 
-        if (p->object_type == indx_object_type_hdmv) {
-            if (p->hdmv.id_ref == 0xffff) {
-                /* no top menu (5.2.3.3) */
-                bd->title_type = title_hdmv;
-                return 0;
-            }
-            return _play_hdmv(bd, p->hdmv.id_ref);
+        if (!bd->disc_info.top_menu_supported) {
+            /* no top menu (5.2.3.3) */
+            bd->title_type = title_hdmv;
+            return 0;
         }
 
-        if (p->object_type == indx_object_type_bdj) {
+        if (bd->disc_info.first_play->bdj) {
             return _play_bdj(bd, title);
+        } else {
+            return _play_hdmv(bd, bd->disc_info.first_play->id_ref);
         }
 
         return 0;
     }
 
     /* valid title from disc index ? */
-    if (title > 0 && title <= bd->index->num_titles) {
-        INDX_TITLE *t = &bd->index->titles[title-1];
+    if (title > 0 && title <= bd->disc_info.num_titles) {
 
         bd_psr_write(bd->regs, PSR_TITLE_NUMBER, title); /* 5.2.3.3 */
-
-        if (t->object_type == indx_object_type_hdmv) {
-            return _play_hdmv(bd, t->hdmv.id_ref);
-        } else {
+        if (bd->disc_info.titles[title]->bdj) {
             return _play_bdj(bd, title);
+        } else {
+            return _play_hdmv(bd, bd->disc_info.titles[title]->id_ref);
         }
     }
 
