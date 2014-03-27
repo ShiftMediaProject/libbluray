@@ -953,7 +953,7 @@ static void _fill_disc_info(BLURAY *bd)
         memcpy(bd->disc_info.provider_data, index->app_info.user_data, sizeof(bd->disc_info.provider_data));
 
         /* allocate array for title info */
-        BLURAY_TITLE **titles = array_alloc(index->num_titles + 2, sizeof(BLURAY_TITLE));
+        BLURAY_TITLE **titles = (BLURAY_TITLE**)array_alloc(index->num_titles + 2, sizeof(BLURAY_TITLE));
         if (!titles) {
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Can't allocate memory\n");
             return;
