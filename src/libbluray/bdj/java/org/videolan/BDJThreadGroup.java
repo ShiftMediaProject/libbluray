@@ -53,7 +53,7 @@ public class BDJThreadGroup extends ThreadGroup {
 
     public boolean waitForShutdown(int timeout, int maxThreads) {
         long startTime = System.currentTimeMillis();
-        long endTime = startTime + 1000;
+        long endTime = startTime + timeout;
         while ((activeCount() > maxThreads) &&
                (System.currentTimeMillis() < endTime)) {
             try {
