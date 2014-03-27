@@ -230,11 +230,11 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     }
 
     public static void stopThread(Thread thread, int timeout, String type) {
-        if (!waitForShutdown(thread, timeout)) {
+        if (!waitThread(thread, timeout)) {
             thread.interrupt();
-            if (!waitForShutdown(thread, 200)) {
+            if (!waitThread(thread, 200)) {
                 PortingHelper.stopThread(thread);
-                logger.error("killing " + type + " thread " + t);
+                logger.error("killing " + type + " thread " + thread);
             }
         }
         try {

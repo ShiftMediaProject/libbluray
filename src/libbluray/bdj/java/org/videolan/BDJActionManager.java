@@ -19,7 +19,7 @@
 package org.videolan;
 
 public class BDJActionManager {
-    protected static BDJActionManager createInstance() {
+    protected static void createInstance() {
         if (running) {
             System.err.println("BDJActionManager: manager already running! " + Logger.dumpStack());
             return;
