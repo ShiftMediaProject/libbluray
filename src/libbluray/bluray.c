@@ -1204,7 +1204,7 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
-        bd->bdjava = bdj_open(bd->device_path, bd, bd->index, _bdj_osd_cb, bd->argb_buffer);
+        bd->bdjava = bdj_open(bd->device_path, bd, _bdj_osd_cb, bd->argb_buffer);
         if (!bd->bdjava) {
             return 0;
         }

@@ -49,14 +49,12 @@ typedef enum {
 typedef struct bdjava_s BDJAVA;
 
 struct bluray;
-struct indx_root_s;
 struct bd_argb_buffer_s;
 
 typedef void (*bdj_overlay_cb)(struct bluray *, const unsigned *, int, int,
                                int, int, int, int);
 
 BD_PRIVATE BDJAVA* bdj_open(const char *path, struct bluray *bd,
-                            struct indx_root_s *index,
                             bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf);
 BD_PRIVATE void bdj_close(BDJAVA *bdjava);
 BD_PRIVATE int  bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);

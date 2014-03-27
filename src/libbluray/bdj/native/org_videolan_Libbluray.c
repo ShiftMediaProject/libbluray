@@ -121,6 +121,18 @@ static jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
             ti->playlist, ti->duration, ti->angle_count, marks, clips);
 }
 
+static int _read_index(BDJAVA *bdj)
+{
+    if (!bdj) {
+        return 0;
+    }
+
+    if (!bdj->index) {
+        bdj->index = indx_parse(bdj->path);
+    }
+
+    return !!bdj->index;
+}
 
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
   (JNIEnv * env, jclass cls, jlong np, jint title)
@@ -128,6 +140,10 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
 
     BD_DEBUG(DBG_JNI, "getTitleInfoN(%d)\n", (int)title);
+
+    if (!_read_index(bdj)) {
+        return NULL;
+    }
 
     if (title == 65535) {
         if (bdj->index->first_play.object_type == indx_object_type_hdmv)
@@ -163,7 +179,7 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
                                     bdj->index->titles[title - 1].bdj.name,
                                     -1);
     }
-        return NULL;
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
@@ -214,6 +230,11 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setUOMaskN(JNIEnv * env,
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN(JNIEnv * env,
                                                               jclass cls, jlong np) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
+
+    if (!_read_index(bdj)) {
+        return 0;
+    }
+
     return bdj->index->num_titles;
 }
 
