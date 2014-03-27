@@ -23,7 +23,6 @@
 #include "hdmv_insn.h"
 #include "../register.h"
 
-#include "../bdnav/index_parse.h"
 #include "util/macro.h"
 #include "util/strutl.h"
 #include "util/logging.h"
@@ -64,8 +63,10 @@ struct hdmv_vm_s {
     MOBJ_OBJECT *suspended_object;
     uint32_t     suspended_pc;
 
-    /* disc index (used to verify CALL_TITLE/JUMP_TITLE) */
-    INDX_ROOT   *indx;
+    /* Available titles. Used to validate CALL_TITLE/JUMP_TITLE. */
+    uint8_t  have_top_menu;
+    uint8_t  have_first_play;
+    uint16_t num_titles;
 };
 
 /*
@@ -239,7 +240,8 @@ static int _queue_event(HDMV_VM *p, hdmv_event_e event, uint32_t param)
  * vm init
  */
 
-HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs, INDX_ROOT *indx)
+HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs,
+                      unsigned num_titles, unsigned first_play_available, unsigned top_menu_available)
 {
     HDMV_VM *p = calloc(1, sizeof(HDMV_VM));
     char *file;
@@ -259,7 +261,9 @@ HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs, INDX_ROOT *indx
     }
 
     p->regs         = regs;
-    p->indx         = indx;
+    p->num_titles      = num_titles;
+    p->have_top_menu   = top_menu_available;
+    p->have_first_play = first_play_available;
 
     bd_mutex_init(&p->mutex);
 
@@ -426,17 +430,14 @@ static int _resume_object(HDMV_VM *p, int psr_restore)
 
 static int _is_valid_title(HDMV_VM *p, uint32_t title)
 {
-    if (title == 0 || title == 0xffff) {
-        INDX_PLAY_ITEM *pi = (!title) ? &p->indx->top_menu : &p->indx->first_play;
-
-        if (pi->object_type == indx_object_type_hdmv &&  pi->hdmv.id_ref == 0xffff) {
-            /* no top menu or first play title (5.2.3.3) */
-            return 0;
-        }
-        return 1;
+    if (title == 0) {
+        return p->have_top_menu;
+    }
+    if (title == 0xffff) {
+        return p->have_first_play;
     }
 
-    return title > 0 && title <= p->indx->num_titles;
+    return title > 0 && title <= p->num_titles;
 }
 
 static int _jump_object(HDMV_VM *p, uint32_t object)

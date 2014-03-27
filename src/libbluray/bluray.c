@@ -2814,7 +2814,8 @@ static int _play_hdmv(BLURAY *bd, unsigned id_ref)
     bd->title_type = title_hdmv;
 
     if (!bd->hdmv_vm) {
-        bd->hdmv_vm = hdmv_vm_init(bd->device_path, bd->regs, bd->index);
+        bd->hdmv_vm = hdmv_vm_init(bd->device_path, bd->regs, bd->disc_info.num_titles,
+                                   bd->disc_info.first_play_supported, bd->disc_info.top_menu_supported);
     }
 
     if (hdmv_vm_select_object(bd->hdmv_vm, id_ref)) {
