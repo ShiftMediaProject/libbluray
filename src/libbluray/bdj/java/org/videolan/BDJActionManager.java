@@ -19,11 +19,15 @@
 package org.videolan;
 
 public class BDJActionManager {
-    public static BDJActionManager getInstance() {
-        synchronized (BDJActionManager.class) {
-            if (instance == null)
-                instance = new BDJActionManager();
+    protected static BDJActionManager createInstance() {
+        if (running) {
+            System.err.println("BDJActionManager: manager already running! " + Logger.dumpStack());
+            return;
         }
+        instance = new BDJActionManager();
+    }
+
+    public static BDJActionManager getInstance() {
         return instance;
     }
 
@@ -31,12 +35,13 @@ public class BDJActionManager {
         commandQueue = new BDJActionQueue();
     }
 
-    protected void finalize() throws Throwable {
-        commandQueue.shutdown();
-        synchronized (BDJActionManager.class) {
-            instance = null;
+    protected static void shutdown() {
+        try {
+            instance.commandQueue.shutdown();
+        } catch (Throwable t) {
+        } finally {
+            running = false;
         }
-        super.finalize();
     }
 
     public void putCommand(BDJAction action) {
@@ -46,4 +51,5 @@ public class BDJActionManager {
     private BDJActionQueue commandQueue;
 
     private static BDJActionManager instance = null;
+    private static boolean running = false;
 }

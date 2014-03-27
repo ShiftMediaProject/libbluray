@@ -47,7 +47,7 @@ public class Libbluray {
             Libbluray.nativePointer = nativePointer;
             DiscManager.getDiscManager().setCurrentDisc(discID);
 
-            BDJActionManager.getInstance();
+            BDJActionManager.createInstance();
 
             Vector prefix = new Vector();
             prefix.add("org.videolan");
@@ -129,7 +129,7 @@ public class Libbluray {
     public static void shutdown() {
         try {
             BDJLoader.shutdown();
-            BDJActionManager.getInstance().finalize();
+            BDJActionManager.shutdown();
             MountManager.unmountAll();
             GUIManager.shutdown();
             BDToolkit.shutdownDisc();
