@@ -2847,10 +2847,10 @@ static int _play_title(BLURAY *bd, unsigned title)
             return 0;
         }
 
-        if (bd->disc_info.first_play->bdj) {
+        if (bd->disc_info.top_menu->bdj) {
             return _play_bdj(bd, title);
         } else {
-            return _play_hdmv(bd, bd->disc_info.first_play->id_ref);
+            return _play_hdmv(bd, bd->disc_info.top_menu->id_ref);
         }
 
         return 0;
