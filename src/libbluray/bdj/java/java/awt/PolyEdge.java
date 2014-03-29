@@ -68,6 +68,6 @@ class PolyEdge {
             return x1;
         }
 
-        return (int)((y - c) / m);
+        return (int)(((y - c) / m) + 0.5f);
     }
 }
