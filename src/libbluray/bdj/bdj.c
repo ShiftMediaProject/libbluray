@@ -556,6 +556,8 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
 
         "START",
         "STOP",
+
+        "RATE",
     };
 
     JNIEnv* env;

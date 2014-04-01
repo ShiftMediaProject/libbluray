@@ -347,6 +347,12 @@ public class Libbluray {
         case BDJ_EVENT_PIP:
             PlayerManager.getInstance().onPiPChange(param);
             break;
+        case BDJ_EVENT_RATE:
+            float rate = (float)param / 90000.0f;
+            if (rate < 0.0f) rate = -rate;
+            if (rate < 0.01f) rate = 0.0f;
+            if (rate > 0.99f && rate < 1.01f) rate = 1.0f;
+            PlayerManager.getInstance().onRateChange(rate);
         case BDJ_EVENT_END_OF_PLAYLIST:
             PlayerManager.getInstance().onPlaylistEnd();
             break;
@@ -414,6 +420,8 @@ public class Libbluray {
 
     private static final int BDJ_EVENT_START                    = 12;
     private static final int BDJ_EVENT_STOP                     = 13;
+
+    private static final int BDJ_EVENT_RATE                     = 14;
 
     /* TODO: use org/bluray/system/RegisterAccess instead */
     public static final int PSR_IG_STREAM_ID     = 0;

@@ -183,6 +183,17 @@ public class Handler extends BDHandler {
         }
     }
 
+    /* notification from app */
+    protected void updateRate(float rate) {
+        synchronized (this) {
+            if (state == Started) {
+                baseMediaTime = getMediaNanoseconds();
+                baseTime = getTimeBase().getNanoseconds();
+            }
+            super.updateRate(rate);
+        }
+    }
+
     protected void doChapterReach(int param) {
         ((PlaybackControlImpl)controls[9]).onChapterReach(param);
     }

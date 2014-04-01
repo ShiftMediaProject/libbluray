@@ -40,6 +40,8 @@ typedef enum {
 
     BDJ_EVENT_START, /* param: title number */
     BDJ_EVENT_STOP,
+
+    BDJ_EVENT_RATE,
 } BDJ_EVENT;
 
 /* bdj_get_uo_mask() */

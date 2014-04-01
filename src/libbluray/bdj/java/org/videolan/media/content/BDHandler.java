@@ -40,6 +40,7 @@ import javax.media.NotPrefetchedError;
 import javax.media.NotRealizedError;
 import javax.media.Player;
 import javax.media.PrefetchCompleteEvent;
+import javax.media.RateChangeEvent;
 import javax.media.RealizeCompleteEvent;
 import javax.media.ResourceUnavailableEvent;
 import javax.media.StartEvent;
@@ -213,6 +214,14 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         baseTime = getTimeBase().getNanoseconds();
     }
 
+    /* notification from app */
+    protected void updateRate(float rate) {
+        if (this.rate != rate) {
+            this.rate = rate;
+            notifyListeners(new RateChangeEvent(this, rate));
+        }
+    }
+
     public float getRate() {
         return rate;
     }
@@ -326,7 +335,10 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     }
 
     protected void doSetRate(Float factor) {
-        rate = factor.floatValue();
+        if (rate != factor.floatValue()) {
+            rate = factor.floatValue();
+            notifyListeners(new RateChangeEvent(this, rate));
+        }
     }
 
     private void notifyListeners(ControllerEvent event) {

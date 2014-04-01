@@ -164,6 +164,13 @@ public class PlayerManager {
         }
     }
 
+    public void onRateChange(float rate) {
+        synchronized (playlistPlayerLock) {
+            if (playlistPlayer != null)
+                playlistPlayer.updateRate(rate);
+        }
+    }
+
     public void onSubtitleChange(int param) {
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
