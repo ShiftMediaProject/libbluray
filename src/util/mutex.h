@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  hpi1
+ * Copyright (C) 2010-2014  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -57,6 +57,9 @@ typedef CRITICAL_SECTION BD_MUTEX;
 
 #elif defined(HAVE_PTHREAD_H)
 
+#include "logging.h"
+#include "macro.h"
+
 /*
  * recursive mutex
  */
@@ -68,27 +71,8 @@ struct bd_mutex_s {
     pthread_mutex_t mutex;
 };
 
-static inline int bd_mutex_init(BD_MUTEX *p)
-{
-    p->owner      = (pthread_t)-1;
-    p->lock_count = 0;
-
-    if (pthread_mutex_init(&p->mutex, NULL)) {
-        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_mutex_init() failed !\n");
-        return -1;
-    }
-
-    return 0;
-}
-
-static inline int bd_mutex_destroy(BD_MUTEX *p)
-{
-    if (pthread_mutex_destroy(&p->mutex)) {
-        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_mutex_destroy() failed !\n");
-        return -1;
-    }
-    return 0;
-}
+BD_PRIVATE int bd_mutex_init(BD_MUTEX *p);
+BD_PRIVATE int bd_mutex_destroy(BD_MUTEX *p);
 
 static int bd_mutex_lock(BD_MUTEX *p)
 {

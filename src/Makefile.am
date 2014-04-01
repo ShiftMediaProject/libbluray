@@ -88,6 +88,7 @@ libbluray_la_SOURCES = \
 	util/strutl.h \
 	util/macro.h \
 	util/mutex.h \
+	util/mutex.c \
 	util/time.h \
 	util/logging.c \
 	util/log_control.h \
