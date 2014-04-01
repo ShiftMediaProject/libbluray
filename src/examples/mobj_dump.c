@@ -53,7 +53,6 @@ static void _mobj_print(MOBJ_OBJECTS *objects, int disasm)
 
 int main(int argc, const char *argv[])
 {
-    char          file[1024];
     int           disasm = 0;
     MOBJ_OBJECTS *mobj = NULL;
 
@@ -69,9 +68,7 @@ int main(int argc, const char *argv[])
         disasm = !strcmp(argv[1], "-d");
     }
 
-    sprintf(file, "%s/BDMV/MovieObject.bdmv", argv[argc-1]);
-
-    mobj = mobj_parse(file);
+    mobj = mobj_parse(argv[argc-1]);
 
     if (mobj) {
         _mobj_print(mobj, disasm);

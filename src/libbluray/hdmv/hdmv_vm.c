@@ -24,7 +24,6 @@
 #include "../register.h"
 
 #include "util/macro.h"
-#include "util/strutl.h"
 #include "util/logging.h"
 #include "util/mutex.h"
 
@@ -244,7 +243,6 @@ HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs,
                       unsigned num_titles, unsigned first_play_available, unsigned top_menu_available)
 {
     HDMV_VM *p = calloc(1, sizeof(HDMV_VM));
-    char *file;
 
     if (!p) {
         BD_DEBUG(DBG_CRIT, "out of memory\n");
@@ -252,9 +250,7 @@ HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs,
     }
 
     /* read movie objects */
-    file = str_printf("%s/BDMV/MovieObject.bdmv", disc_root);
-    p->movie_objects = mobj_parse(file);
-    X_FREE(file);
+    p->movie_objects = mobj_parse(disc_root);
     if (!p->movie_objects) {
         X_FREE(p);
         return NULL;

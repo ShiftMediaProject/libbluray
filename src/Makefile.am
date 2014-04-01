@@ -252,7 +252,8 @@ mobj_dump_SOURCES = \
 	libbluray/hdmv/mobj_parse.c \
 	libbluray/hdmv/mobj_print.c \
 	util/bits.c \
-	util/logging.c
+	util/logging.c \
+	util/strutl.c
 if HAVE_WIN32
 mobj_dump_SOURCES += \
 	file/file_win32.c

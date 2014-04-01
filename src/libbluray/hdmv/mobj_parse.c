@@ -21,6 +21,8 @@
 #include "util/bits.h"
 #include "util/logging.h"
 #include "util/macro.h"
+#include "util/strutl.h"
+
 #include "mobj_parse.h"
 
 #include <stdlib.h>
@@ -182,25 +184,21 @@ static MOBJ_OBJECTS *_mobj_parse(const char *file_name)
     return NULL;
 }
 
-MOBJ_OBJECTS *mobj_parse(const char *file_name)
+MOBJ_OBJECTS *mobj_parse(const char *disc_root)
 {
-    MOBJ_OBJECTS *objects = _mobj_parse(file_name);
+    MOBJ_OBJECTS *objects;
+    char *file;
 
-    /* if failed, try backup file */
-    if (!objects) {
-        size_t len    = strlen(file_name);
-        char  *backup = malloc(len + 8);
-        if (!backup) {
-            return NULL;
-        }
-
-        strcpy(backup, file_name);
-        strcpy(backup + len - 16, "BACKUP/MovieObject.bdmv");
-
-        objects = _mobj_parse(backup);
-
-        X_FREE(backup);
+    file = str_printf("%s/BDMV/MovieObject.bdmv", disc_root);
+    objects = _mobj_parse(file);
+    X_FREE(file);
+    if (objects) {
+        return objects;
     }
 
+    /* if failed, try backup file */
+    file = str_printf("%s/BDMV/BACKUP/MovieObject.bdmv", disc_root);
+    objects = _mobj_parse(file);
+    X_FREE(file);
     return objects;
 }
