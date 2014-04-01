@@ -27,9 +27,13 @@
 
 #include <stdint.h>
 
-//#ifdef __LINUX__
-#define DIR_SEP "/"
-//#endif
+#ifdef _WIN32
+# define DIR_SEP "\\"
+# define DIR_SEP_CHAR '\\'
+#else
+# define DIR_SEP "/"
+# define DIR_SEP_CHAR '/'
+#endif
 
 /*
  * file access
