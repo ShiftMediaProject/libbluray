@@ -115,7 +115,7 @@ typedef struct indx_root_s {
 } INDX_ROOT;
 
 
-BD_PRIVATE INDX_ROOT* indx_parse(const char *disc_root);  /* parse index.bdmv */
+BD_PRIVATE INDX_ROOT* indx_parse(const char *disc_root) BD_ATTR_MALLOC;  /* parse index.bdmv */
 BD_PRIVATE void       indx_free(INDX_ROOT **index);
 
 #endif // _INDX_PARSE_H_
