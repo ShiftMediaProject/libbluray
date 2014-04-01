@@ -1,5 +1,6 @@
 - Added HDMV/BDJ title information to BLURAY_DISC_INFO.
 - Added disc application info to BLURAY_DISC_INFO.
+- Added color keys (RED, GREEN, YELLOW, BLUE).
 
 2013-12-21: Version 0.5.0
 - Portability fixes.

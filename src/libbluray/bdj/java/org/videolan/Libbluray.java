@@ -383,6 +383,10 @@ public class Libbluray {
             case 14: key = KeyEvent.VK_LEFT; break;
             case 15: key = KeyEvent.VK_RIGHT; break;
             case 16: key = KeyEvent.VK_ENTER; break;
+            case 403: key = HRcEvent.VK_COLORED_KEY_0; break;
+            case 404: key = HRcEvent.VK_COLORED_KEY_1; break;
+            case 405: key = HRcEvent.VK_COLORED_KEY_2; break;
+            case 406: key = HRcEvent.VK_COLORED_KEY_3; break;
             default:
                 key = -1;
                 result = false;
