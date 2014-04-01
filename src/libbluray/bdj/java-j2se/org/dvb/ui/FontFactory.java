@@ -76,8 +76,10 @@ public class FontFactory {
 
         Font font = (Font)fonts.get(name);
 
-        if (font == null)
+        if (font == null) {
+            logger.info("Failed creating font: " + name + " " + style + " " + size);
             throw new FontNotAvailableException();
+        }
 
         return font.deriveFont(style, size);
     }
