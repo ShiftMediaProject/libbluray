@@ -1001,50 +1001,44 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
             }
         }
 
+        if (sw < 0) sw = bdImage.width;
+        if (sh < 0) sh = bdImage.height;
+        if (dw < 0) dw = bdImage.width;
+        if (dh < 0) dh = bdImage.height;
+
+        int   stride   = bdImage.width;
+        int[] rgbArray = bdImage.getBdBackBuffer();
         int   bgColor  = 0;
 
         if (bg != null) {
             bgColor = bg.getRGB();
         }
 
-        if(sx + sw > bdImage.width || sy + sh > bdImage.height) {
-            logger.info("drawImageN: fixing too small src image (src " + sx + "," + sy + " " + sw + "x" + sh + " ; img " + bdImage.width + "x" + bdImage.height + ")");
-
-            BDImage subImage = new BDImage(null, sw, sh, null);
-            bdImage.getRGB(sx, sy, Math.min(sw, bdImage.width - sx), Math.min(sh, bdImage.height - sy), subImage.getBdBackBuffer(), 0, sw);
-            bdImage = subImage;
-            sx = 0;
-            sy = 0;
-        }
-
-        if ((sw > 0) && (sh > 0) &&
-            ((sx != 0) || (sy != 0) || (sw != bdImage.width) || (sh != bdImage.height))) {
-            BDImage subImage = new BDImage(null, sw, sh, null);
-            bdImage.getRGB(sx, sy, sw, sh, subImage.getBdBackBuffer(), 0, sw);
-            bdImage = subImage;
-        }
-        if ((dw > 0) && (dh > 0) &&
-            ((dw != bdImage.width) || (dh != bdImage.height))) {
+        // resize if needed
+        if (dw != sw || dh != sh) {
             BDImageConsumer scaledImage = new BDImageConsumer(null);
             AreaAveragingScaleFilter scaleFilter =
                 new AreaAveragingScaleFilter(dw, dh);
             scaleFilter = (AreaAveragingScaleFilter)scaleFilter.getFilterInstance(scaledImage);
-            scaleFilter.setDimensions(bdImage.width, bdImage.height);
-            scaleFilter.setPixels(0, 0, bdImage.width, bdImage.height,
-                                  bdImage.getColorModel(), bdImage.getBdBackBuffer(),
-                                  0, bdImage.width);
+            scaleFilter.setDimensions(sw, sh);
+            scaleFilter.setPixels(0, 0, sw, sh,
+                                  bdImage.getColorModel(), rgbArray,
+                                  sx + sy * bdImage.width, bdImage.width);
             scaleFilter.imageComplete(ImageConsumer.STATICIMAGEDONE);
-            bdImage = scaledImage;
+            rgbArray = scaledImage.getBdBackBuffer();
+            sx = 0;
+            sy = 0;
+            stride = dw;
         }
-        int[] rgbArray = bdImage.getBdBackBuffer();
 
-        for (int y = dy; y < (dy + bdImage.height); y++) {
+        // draw background colour
+        for (int i = 0; i < dh && bg != null; i++) {
+            drawSpan(dx, dy + i, dw, bgColor);
+        }
 
-            if (bg != null) {
-                drawSpan(dx, y, bdImage.width, bgColor);
-            }
-
-            drawSpan(dx, y, bdImage.width, rgbArray, (y - dy) * bdImage.width);
+        // draw actual colour array
+        for (int i = 0; i < dh; i++) {
+            drawSpan(dx, dy + i, dw, rgbArray, (stride * (i + sy)) + sx);
         }
 
         return true;
