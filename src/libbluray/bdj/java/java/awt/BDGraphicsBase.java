@@ -976,6 +976,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         int dx, int dy, int dw, int dh,
         int sx, int sy, int sw, int sh,
         Color bg, ImageObserver observer) {
+
         if ((sx < 0) || (sy < 0) ||
             (sw == 0) || (sh == 0) || (dw == 0) || (dh == 0))
             return false;
@@ -1000,6 +1001,12 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
             }
         }
 
+        int   bgColor  = 0;
+
+        if (bg != null) {
+            bgColor = bg.getRGB();
+        }
+
         if(sx + sw > bdImage.width || sy + sh > bdImage.height) {
             logger.info("drawImageN: fixing too small src image (src " + sx + "," + sy + " " + sw + "x" + sh + " ; img " + bdImage.width + "x" + bdImage.height + ")");
 
@@ -1009,19 +1016,6 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
             sx = 0;
             sy = 0;
         }
-        /*
-        if(sx + sw > bdImage.width) {
-            int n = sx + sw - bdImage.width;
-            dw -= dw * n / sw;
-            sw -= n;
-        }
-
-        if(sy + sh > bdImage.height) {
-            int n = sy + sh - bdImage.height;
-            dh -= dh * n / sh;
-            sh -= n;
-        }
-        */
 
         if ((sw > 0) && (sh > 0) &&
             ((sx != 0) || (sy != 0) || (sw != bdImage.width) || (sh != bdImage.height))) {
@@ -1043,11 +1037,6 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
             bdImage = scaledImage;
         }
         int[] rgbArray = bdImage.getBdBackBuffer();
-        int bgColor;
-        if (bg != null)
-            bgColor = bg.getRGB();
-        else
-            bgColor = 0;
 
         for (int y = dy; y < (dy + bdImage.height); y++) {
 
