@@ -151,11 +151,13 @@ public class BDWindowGraphics extends BDGraphics {
     public boolean drawImageN(Image img,
         int dx, int dy, int dw, int dh,
         int sx, int sy, int sw, int sh,
+        boolean flipX, boolean flipY,
         Color bg, ImageObserver observer) {
 
         synchronized (window) {
             boolean complete = super.drawImageN(
                 img, dx, dy, dw, dh, sx, sy, sw, sh,
+                flipX, flipY,
                 bg, observer);
             if (complete) {
                 window.notifyChanged();

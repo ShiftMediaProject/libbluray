@@ -334,7 +334,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         dirty.add(rect);
     }
 
-    private void drawSpanN(int x, int y, int length, int src[], int srcOffset) {
+    private void drawSpanN(int x, int y, int length, int src[], int srcOffset, boolean flipX) {
 
         Rectangle rect = new Rectangle(x, y, length, 1);
         rect = actualClip.intersection(rect);
@@ -343,13 +343,23 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
             return;
         }
 
+        int dstOffset;
+
         srcOffset += rect.x - x;
         x          = rect.x;
         length     = rect.width;
+        dstOffset  = y * width + x;
 
         if (xorColor != null) {
-            for (int i = 0; i < length; i++) {
-                backBuffer[y * width + x + i] ^= xorColor.getRGB() ^ src[srcOffset + i];
+
+            if (flipX) {
+                for (int i = 0; i < length; i++) {
+                    backBuffer[dstOffset + length -1 - i] ^= xorColor.getRGB() ^ src[srcOffset + i];
+                }
+            } else {
+                for (int i = 0; i < length; i++) {
+                    backBuffer[dstOffset + i] ^= xorColor.getRGB() ^ src[srcOffset + i];
+                }
             }
 
             dirty.add(rect);
@@ -359,17 +369,29 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         switch (composite.getRule()) {
             case AlphaComposite.CLEAR:
                 for (int i = 0; i < length; i++) {
-                    backBuffer[y * width + x + i] = 0;
+                    backBuffer[dstOffset + i] = 0;
                 }
                 break;
             case AlphaComposite.SRC:
-                for (int i = 0; i < length; i++) {
-                    backBuffer[y * width + x + i] = applyComposite(src[srcOffset + i]);
+                if (flipX) {
+                    for (int i = 0; i < length; i++) {
+                        backBuffer[dstOffset + length -1 - i] = applyComposite(src[srcOffset + i]);
+                    }
+                } else {
+                    for (int i = 0; i < length; i++) {
+                        backBuffer[dstOffset + i] = applyComposite(src[srcOffset + i]);
+                    }
                 }
                 break;
             case AlphaComposite.SRC_OVER:
-                for (int i = 0; i < length; i++) {
-                    backBuffer[y * width + x + i] = alphaBlend(backBuffer[y * width + x + i], applyComposite(src[srcOffset + i]));
+                if (flipX) {
+                    for (int i = 0; i < length; i++) {
+                        backBuffer[dstOffset + length -1 - i] = alphaBlend(backBuffer[dstOffset + length -1 - i], applyComposite(src[srcOffset + i]));
+                    }
+                } else {
+                    for (int i = 0; i < length; i++) {
+                        backBuffer[dstOffset + i] = alphaBlend(backBuffer[dstOffset + i], applyComposite(src[srcOffset + i]));
+                    }
                 }
                 break;
         }
@@ -383,10 +405,10 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         drawSpanN(x, y, length, rgb);
     }
 
-    private void drawSpan(int x, int y, int length, int src[], int srcOffset) {
+    private void drawSpan(int x, int y, int length, int src[], int srcOffset, boolean flipX) {
         x += originX;
         y += originY;
-        drawSpanN(x, y, length, src, srcOffset);
+        drawSpanN(x, y, length, src, srcOffset, flipX);
     }
 
     private void drawPointN(int x, int y, int rgb) {
@@ -543,7 +565,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
 
         // draw sub image
         for (int i = 0; i < h; i++) {
-            drawSpanN(x + dx, y + i + dy, w, subImage, w * i);
+            drawSpanN(x + dx, y + i + dy, w, subImage, w * i, false);
         }
     }
 
@@ -899,7 +921,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
      */
     public boolean drawImage(Image img, int x, int y, Color bg,
         ImageObserver observer) {
-        return drawImageN(img, x, y, -1, -1, 0, 0, -1, -1, bg, observer);
+        return drawImageN(img, x, y, -1, -1, 0, 0, -1, -1, false, false, bg, observer);
     }
 
     /**
@@ -917,7 +939,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
      */
     public boolean drawImage(Image img, int x, int y, int w, int h,
         Color bg, ImageObserver observer) {
-        return drawImageN(img, x, y, w, h, 0, 0, -1, -1, bg, observer);
+        return drawImageN(img, x, y, w, h, 0, 0, -1, -1, false, false, bg, observer);
     }
 
     /**
@@ -940,32 +962,40 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         int sx1, int sy1, int sx2, int sy2,
         Color bg, ImageObserver observer) {
 
+        boolean flipX = false;
+        boolean flipY = false;
+
         if (dx1 > dx2) {
             int swap = dx1;
             dx1 = dx2;
             dx2 = swap;
+            flipX = !flipX;
         }
 
         if (dy1 > dy2) {
             int swap = dy1;
             dy1 = dy2;
             dy2 = swap;
+            flipY = !flipY;
         }
 
         if (sx1 > sx2) {
             int swap = sx1;
             sx1 = sx2;
             sx2 = swap;
+            flipX = !flipX;
         }
 
         if (sy1 > sy2) {
             int swap = sy1;
             sy1 = sy2;
             sy2 = swap;
+            flipY = !flipY;
         }
 
         return drawImageN(img, dx1, dy1, dx2 - dx1, dy2 - dy1,
-                          sx1, sy1, sx2 - sx1, sy2 - sy1, bg, observer);
+                          sx1, sy1, sx2 - sx1, sy2 - sy1,
+                          flipX, flipY, bg, observer);
     }
 
     /**
@@ -975,6 +1005,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
     protected boolean drawImageN(Image img,
         int dx, int dy, int dw, int dh,
         int sx, int sy, int sw, int sh,
+        boolean flipX, boolean flipY,
         Color bg, ImageObserver observer) {
 
         if ((sx < 0) || (sy < 0) ||
@@ -1037,8 +1068,14 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         }
 
         // draw actual colour array
-        for (int i = 0; i < dh; i++) {
-            drawSpan(dx, dy + i, dw, rgbArray, (stride * (i + sy)) + sx);
+        if (flipY) {
+            for (int i = 0; i < dh; i++) {
+                drawSpan(dx, dy + dh - 1 - i, dw, rgbArray, (stride * (i + sy)) + sx, flipX);
+            }
+        } else {
+            for (int i = 0; i < dh; i++) {
+                drawSpan(dx, dy + i, dw, rgbArray, (stride * (i + sy)) + sx, flipX);
+            }
         }
 
         return true;
