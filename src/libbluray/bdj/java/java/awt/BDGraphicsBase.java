@@ -1047,16 +1047,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
 
         // resize if needed
         if (dw != sw || dh != sh) {
-            BDImageConsumer scaledImage = new BDImageConsumer(null);
-            AreaAveragingScaleFilter scaleFilter =
-                new AreaAveragingScaleFilter(dw, dh);
-            scaleFilter = (AreaAveragingScaleFilter)scaleFilter.getFilterInstance(scaledImage);
-            scaleFilter.setDimensions(sw, sh);
-            scaleFilter.setPixels(0, 0, sw, sh,
-                                  bdImage.getColorModel(), rgbArray,
-                                  sx + sy * bdImage.width, bdImage.width);
-            scaleFilter.imageComplete(ImageConsumer.STATICIMAGEDONE);
-            rgbArray = scaledImage.getBdBackBuffer();
+            rgbArray = resizeBilinear(rgbArray, (sy * stride) + sx, stride, sw, sh, dw, dh);
             sx = 0;
             sy = 0;
             stride = dw;
@@ -1079,6 +1070,115 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         }
 
         return true;
+    }
+
+    /**
+     * Bilinear resize ARGB image.
+     *
+     * @param pixels Source image pixels.
+     * @param sw Source image width.
+     * @param sh Source image height.
+     * @param dw New width.
+     * @param dh New height.
+     * @return New array with size dw * dh.
+     */
+    private int[] resizeBilinear(int[] pixels, int offset, int scansize, int sw, int sh, int dw, int dh) {
+
+        int[] outImage = new int[dw * dh];
+
+        if (sw == 1 && sh == 1) {
+            Arrays.fill(outImage, pixels[offset]);
+            return outImage;
+        }
+
+        // a quick hack for 1D arrays, stretch them to make them 2D
+        if (sw == 1) {
+            int[] temp = new int[2 * sh];
+
+            for (int i = 0; i < sw * sh; i++) {
+                temp[(i * 2) + 0] = pixels[offset + i];
+                temp[(i * 2) + 1] = pixels[offset + i];
+            }
+
+            pixels = temp;
+            offset = 0;
+            sw = 2;
+
+        } else if (sh == 1) {
+            int[] temp = new int[sw * 2];
+
+            System.arraycopy(pixels, offset, temp,  0, sw);
+            System.arraycopy(pixels, offset, temp, sw, sw);
+
+            pixels = temp;
+            offset = 0;
+            sh = 2;
+        }
+
+        int a, b, c, d, x, y, index;
+        float x_ratio = ((float)(sw - 1)) / dw;
+        float y_ratio = ((float)(sh - 1)) / dh;
+        float x_diff, y_diff, blue, red, green, alpha;
+        int position = 0;
+        for (int i = 0; i < dh; i++) {
+            for (int j = 0; j < dw; j++) {
+                x      = (int)(x_ratio * j);
+                y      = (int)(y_ratio * i);
+                x_diff = (x_ratio * j) - x;
+                y_diff = (y_ratio * i) - y;
+                index  = (y * scansize + x);
+                index += offset;
+
+                a = pixels[index];
+                b = pixels[index + 1];
+                c = pixels[index + scansize];
+                d = pixels[index + scansize + 1];
+
+                int aA = (a >> 24) & 0xff;
+                int bA = (b >> 24) & 0xff;
+                int cA = (c >> 24) & 0xff;
+                int dA = (d >> 24) & 0xff;
+
+                // blue element
+                // Yb = Ab(1-w)(1-h) + Bb(w)(1-h) + Cb(h)(1-w) + Db(wh)
+                blue = (a & 0xff) * (1-x_diff) * (1-y_diff) * aA +
+                       (b & 0xff) * x_diff     * (1-y_diff) * bA +
+                       (c & 0xff) * (1-x_diff) * y_diff     * cA +
+                       (d & 0xff) * x_diff     * y_diff     * dA;
+
+                // green element
+                // Yg = Ag(1-w)(1-h) + Bg(w)(1-h) + Cg(h)(1-w) + Dg(wh)
+                green = ((a >> 8) & 0xff) * (1-x_diff) * (1-y_diff) * aA +
+                        ((b >> 8) & 0xff) * x_diff     * (1-y_diff) * bA +
+                        ((c >> 8) & 0xff) * (1-x_diff) * y_diff     * cA +
+                        ((d >> 8) & 0xff) * x_diff     * y_diff     * dA;
+
+                // red element
+                // Yr = Ar(1-w)(1-h) + Br(w)(1-h) + Cr(h)(1-w) + Dr(wh)
+                red = ((a >> 16) & 0xff) * (1-x_diff) * (1-y_diff) * aA +
+                      ((b >> 16) & 0xff) * x_diff     * (1-y_diff) * bA +
+                      ((c >> 16) & 0xff) * (1-x_diff) * y_diff     * cA +
+                      ((d >> 16) & 0xff) *  x_diff    * y_diff     * dA;
+
+                // alpha element
+                // Yr = Ar(1-w)(1-h) + Br(w)(1-h) + Cr(h)(1-w) + Dr(wh)
+                alpha = ((a >> 24) & 0xff) * (1-x_diff) * (1-y_diff) +
+                        ((b >> 24) & 0xff) * x_diff     * (1-y_diff) +
+                        ((c >> 24) & 0xff) * (1-x_diff) * y_diff     +
+                        ((d >> 24) & 0xff) * x_diff     * y_diff;
+
+                blue  /= alpha;
+                green /= alpha;
+                red   /= alpha;
+
+                outImage[position++] =
+                    ((((int)alpha) << 24) & 0xff000000) |
+                    ((((int)red  ) << 16) & 0x00ff0000) |
+                    ((((int)green) << 8 ) & 0x0000ff00) |
+                    ((((int)blue )      ) & 0x000000ff);
+            }
+        }
+        return outImage;
     }
 
     public Stroke getStroke() {
