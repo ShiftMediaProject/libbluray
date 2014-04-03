@@ -1136,43 +1136,46 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
                 c = pixels[index + scansize];
                 d = pixels[index + scansize + 1];
 
-                int aA = (a >> 24) & 0xff;
-                int bA = (b >> 24) & 0xff;
-                int cA = (c >> 24) & 0xff;
-                int dA = (d >> 24) & 0xff;
+                int aA = a >>> 24;
+                int bA = b >>> 24;
+                int cA = c >>> 24;
+                int dA = d >>> 24;
 
                 if (aA + bA + cA + dA < 1) {
                     outImage[position++] = 0;
                     continue;
                 }
 
-                // blue element
-                // Yb = Ab(1-w)(1-h) + Bb(w)(1-h) + Cb(h)(1-w) + Db(wh)
-                blue = (a & 0xff) * (1-x_diff) * (1-y_diff) * aA +
-                       (b & 0xff) * x_diff     * (1-y_diff) * bA +
-                       (c & 0xff) * (1-x_diff) * y_diff     * cA +
-                       (d & 0xff) * x_diff     * y_diff     * dA;
-
-                // green element
-                // Yg = Ag(1-w)(1-h) + Bg(w)(1-h) + Cg(h)(1-w) + Dg(wh)
-                green = ((a >> 8) & 0xff) * (1-x_diff) * (1-y_diff) * aA +
-                        ((b >> 8) & 0xff) * x_diff     * (1-y_diff) * bA +
-                        ((c >> 8) & 0xff) * (1-x_diff) * y_diff     * cA +
-                        ((d >> 8) & 0xff) * x_diff     * y_diff     * dA;
-
-                // red element
-                // Yr = Ar(1-w)(1-h) + Br(w)(1-h) + Cr(h)(1-w) + Dr(wh)
-                red = ((a >> 16) & 0xff) * (1-x_diff) * (1-y_diff) * aA +
-                      ((b >> 16) & 0xff) * x_diff     * (1-y_diff) * bA +
-                      ((c >> 16) & 0xff) * (1-x_diff) * y_diff     * cA +
-                      ((d >> 16) & 0xff) *  x_diff    * y_diff     * dA;
+                /* calculate areas, weighted with alpha */
+                float aFactor = (1-x_diff) * (1-y_diff) * aA;
+                float bFactor = x_diff     * (1-y_diff) * bA;
+                float cFactor = (1-x_diff) * y_diff     * cA;
+                float dFactor = x_diff     * y_diff     * dA;
 
                 // alpha element
                 // Yr = Ar(1-w)(1-h) + Br(w)(1-h) + Cr(h)(1-w) + Dr(wh)
-                alpha = ((a >> 24) & 0xff) * (1-x_diff) * (1-y_diff) +
-                        ((b >> 24) & 0xff) * x_diff     * (1-y_diff) +
-                        ((c >> 24) & 0xff) * (1-x_diff) * y_diff     +
-                        ((d >> 24) & 0xff) * x_diff     * y_diff;
+                alpha = aFactor + bFactor + cFactor + dFactor;
+
+                // blue element
+                // Yb = Ab(1-w)(1-h) + Bb(w)(1-h) + Cb(h)(1-w) + Db(wh)
+                blue = (a & 0xff) * aFactor +
+                       (b & 0xff) * bFactor +
+                       (c & 0xff) * cFactor +
+                       (d & 0xff) * dFactor;
+
+                // green element
+                // Yg = Ag(1-w)(1-h) + Bg(w)(1-h) + Cg(h)(1-w) + Dg(wh)
+                green = ((a >> 8) & 0xff) * aFactor +
+                        ((b >> 8) & 0xff) * bFactor +
+                        ((c >> 8) & 0xff) * cFactor +
+                        ((d >> 8) & 0xff) * dFactor;
+
+                // red element
+                // Yr = Ar(1-w)(1-h) + Br(w)(1-h) + Cr(h)(1-w) + Dr(wh)
+                red = ((a >> 16) & 0xff) * aFactor +
+                      ((b >> 16) & 0xff) * bFactor +
+                      ((c >> 16) & 0xff) * cFactor +
+                      ((d >> 16) & 0xff) * dFactor;
 
                 blue  /= alpha;
                 green /= alpha;
