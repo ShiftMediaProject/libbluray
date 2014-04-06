@@ -1100,6 +1100,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
                 temp[(i * 2) + 1] = pixels[offset + i];
             }
 
+            scansize = 2;
             pixels = temp;
             offset = 0;
             sw = 2;
@@ -1110,6 +1111,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
             System.arraycopy(pixels, offset, temp,  0, sw);
             System.arraycopy(pixels, offset, temp, sw, sw);
 
+            scansize = sw;
             pixels = temp;
             offset = 0;
             sh = 2;
