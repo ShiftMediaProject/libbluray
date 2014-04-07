@@ -1141,6 +1141,11 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
                 int cA = (c >> 24) & 0xff;
                 int dA = (d >> 24) & 0xff;
 
+                if (aA + bA + cA + dA < 1) {
+                    outImage[position++] = 0;
+                    continue;
+                }
+
                 // blue element
                 // Yb = Ab(1-w)(1-h) + Bb(w)(1-h) + Cb(h)(1-w) + Db(wh)
                 blue = (a & 0xff) * (1-x_diff) * (1-y_diff) * aA +
