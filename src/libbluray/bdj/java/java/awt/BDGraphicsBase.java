@@ -1045,17 +1045,16 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
             bgColor = bg.getRGB();
         }
 
-        // resize if needed
-        if (dw != sw || dh != sh) {
-            rgbArray = resizeBilinear(rgbArray, (sy * stride) + sx, stride, sw, sh, dw, dh);
-            sx = 0;
-            sy = 0;
-            stride = dw;
-        }
-
         // draw background colour
         for (int i = 0; i < dh && bg != null; i++) {
             drawSpan(dx, dy + i, dw, bgColor);
+        }
+
+        // resize if needed
+        if (dw != sw || dh != sh) {
+            drawResizeBilinear(rgbArray, (sy * stride) + sx, stride, sw, sh,
+                               dx, dy, dw, dh, flipX, flipY);
+            return true;
         }
 
         // draw actual colour array
@@ -1082,13 +1081,14 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
      * @param dh New height.
      * @return New array with size dw * dh.
      */
-    private int[] resizeBilinear(int[] pixels, int offset, int scansize, int sw, int sh, int dw, int dh) {
-
-        int[] outImage = new int[dw * dh];
+    private int[] tmpLine = null;
+    private void drawResizeBilinear(int[] pixels, int offset, int scansize, int sw, int sh,
+                                    int dx, int dy, int dw, int dh, boolean flipX, boolean flipY) {
 
         if (sw == 1 && sh == 1) {
-            Arrays.fill(outImage, pixels[offset]);
-            return outImage;
+            for (int Y = dy; Y < (dy + dh); Y++)
+                drawSpan(dx, Y, dw, pixels[offset]);
+            return;
         }
 
         // a quick hack for 1D arrays, stretch them to make them 2D
@@ -1117,6 +1117,10 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
             sh = 2;
         }
 
+        if (tmpLine == null || tmpLine.length < dw + 1) {
+            tmpLine = new int[Math.max(1920, dw + 1)];
+        }
+
         int a, b, c, d, x, y, index;
         float x_ratio = ((float)(sw - 1)) / dw;
         float y_ratio = ((float)(sh - 1)) / dh;
@@ -1142,7 +1146,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
                 int dA = d >>> 24;
 
                 if (aA + bA + cA + dA < 1) {
-                    outImage[position++] = 0;
+                    tmpLine[position++] = 0;
                     continue;
                 }
 
@@ -1181,14 +1185,21 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
                 green /= alpha;
                 red   /= alpha;
 
-                outImage[position++] =
+                tmpLine[position++] =
                     ((((int)alpha) << 24) & 0xff000000) |
                     ((((int)red  ) << 16) & 0x00ff0000) |
                     ((((int)green) << 8 ) & 0x0000ff00) |
                     ((((int)blue )      ) & 0x000000ff);
             }
+
+            if (flipY) {
+                drawSpan(dx, dy + dh - 1 - i, dw, tmpLine, 0, flipX);
+            } else {
+                drawSpan(dx, dy + i, dw, tmpLine, 0, flipX);
+            }
+
+            position = 0;
         }
-        return outImage;
     }
 
     public Stroke getStroke() {
@@ -1201,6 +1212,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
     }
 
     public void dispose() {
+        tmpLine = null;
     }
 
     public String toString() {
