@@ -239,30 +239,30 @@ static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
             bb_seek(buf, -name_data_length*8, SEEK_CUR);
         }
 
-            app_names = bdj_make_array(env, "[Ljava/lang/String;", app_name_count);
-            JNICHK(app_names);
+        app_names = bdj_make_array(env, "[Ljava/lang/String;", app_name_count);
+        JNICHK(app_names);
 
-            for (int j = 0; j < app_name_count; j++) {
-                char language[4];
-                _get_string(buf, language, 3);
-                jstring jlanguage = (*env)->NewStringUTF(env, language);
-                JNICHK(jlanguage);
+        for (int j = 0; j < app_name_count; j++) {
+            char language[4];
+            _get_string(buf, language, 3);
+            jstring jlanguage = (*env)->NewStringUTF(env, language);
+            JNICHK(jlanguage);
 
-                uint8_t name_length = bb_read(buf, 8);
-                jstring jname = _read_jstring(env, buf, name_length);
-                JNICHK(jname);
+            uint8_t name_length = bb_read(buf, 8);
+            jstring jname = _read_jstring(env, buf, name_length);
+            JNICHK(jname);
 
-                jobjectArray app_name = bdj_make_array(env, "java/lang/String", 2);
-                JNICHK(app_name);
+            jobjectArray app_name = bdj_make_array(env, "java/lang/String", 2);
+            JNICHK(app_name);
 
-                (*env)->SetObjectArrayElement(env, app_name, 0, jlanguage);
-                JNICHK(1);
-                (*env)->SetObjectArrayElement(env, app_name, 1, jname);
-                JNICHK(1);
+            (*env)->SetObjectArrayElement(env, app_name, 0, jlanguage);
+            JNICHK(1);
+            (*env)->SetObjectArrayElement(env, app_name, 1, jname);
+            JNICHK(1);
 
-                (*env)->SetObjectArrayElement(env, app_names, j, app_name);
-                JNICHK(1);
-            }
+            (*env)->SetObjectArrayElement(env, app_names, j, app_name);
+            JNICHK(1);
+        }
 
 
         // skip padding to word boundary
@@ -326,16 +326,16 @@ static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
             bb_seek(buf, -param_data_length*8, SEEK_CUR);
         }
 
-            params = bdj_make_array(env, "java/lang/String", param_count);
+        params = bdj_make_array(env, "java/lang/String", param_count);
 
-            for (int j = 0; j < param_count; j++) {
-                uint8_t param_length = bb_read(buf, 8);
-                jstring param = _read_jstring(env, buf, param_length);
-                JNICHK(param);
+        for (int j = 0; j < param_count; j++) {
+            uint8_t param_length = bb_read(buf, 8);
+            jstring param = _read_jstring(env, buf, param_length);
+            JNICHK(param);
 
-                (*env)->SetObjectArrayElement(env, params, j, param);
-                JNICHK(1);
-            }
+            (*env)->SetObjectArrayElement(env, params, j, param);
+            JNICHK(1);
+        }
 
 
         // skip padding to word boundary
