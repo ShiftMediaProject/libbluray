@@ -24,31 +24,36 @@ import java.awt.Image;
 public class HStaticIcon extends HVisible implements HNoInputPreferred {
     public HStaticIcon()
     {
-        org.videolan.Logger.unimplemented(HStaticIcon.class.getName(), "");
+        super(getDefaultLook());
     }
 
     public HStaticIcon(Image imageNormal, int x, int y, int width, int height)
     {
-        org.videolan.Logger.unimplemented(HStaticIcon.class.getName(), "");
+        super(getDefaultLook(), x, y, width, height);
+        setGraphicContent(imageNormal, NORMAL_STATE);
     }
 
     public HStaticIcon(Image imageNormal)
     {
-        org.videolan.Logger.unimplemented(HStaticIcon.class.getName(), "");
+        super(getDefaultLook());
+        setGraphicContent(imageNormal, NORMAL_STATE);
     }
 
     public void setLook(HLook hlook) throws HInvalidLookException
     {
-        throw new Error("Not implemented");
+        if ((hlook != null) && !(hlook instanceof HGraphicLook)) throw new HInvalidLookException();
+        super.setLook(hlook);
     }
 
     public static void setDefaultLook(HGraphicLook hlook)
     {
+        //TODO double check this
         DefaultLook = hlook;
     }
 
     public static HGraphicLook getDefaultLook()
     {
+        //TODO and this
         if (DefaultLook == null)
             org.videolan.Logger.unimplemented("", "getDefaultLook");
         return DefaultLook;
