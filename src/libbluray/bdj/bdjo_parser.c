@@ -220,10 +220,10 @@ static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
 
         uint16_t name_data_length = bb_read(buf, 16);
         jobjectArray app_names = NULL;
+        int app_name_count = 0;
 
         if (name_data_length > 0) {
             // first scan for the number of app names
-            int app_name_count = 0;
             uint16_t name_bytes_read = 0;
             while (name_bytes_read < name_data_length) {
                 bb_seek(buf, 24, SEEK_CUR);
@@ -237,6 +237,7 @@ static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
 
             // seek back to beginning of names
             bb_seek(buf, -name_data_length*8, SEEK_CUR);
+        }
 
             app_names = bdj_make_array(env, "[Ljava/lang/String;", app_name_count);
             JNICHK(app_names);
@@ -262,7 +263,7 @@ static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
                 (*env)->SetObjectArrayElement(env, app_names, j, app_name);
                 JNICHK(1);
             }
-        }
+
 
         // skip padding to word boundary
         if ((name_data_length & 0x1) != 0) {
@@ -309,9 +310,9 @@ static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
         uint8_t param_data_length = bb_read(buf, 8);
 
         jobjectArray params = NULL;
+        int param_count = 0;
         if (param_data_length > 0) {
             // first scan for the number of params
-            int param_count = 0;
             uint16_t param_bytes_read = 0;
             while (param_bytes_read < param_data_length) {
                 uint8_t param_length = bb_read(buf, 8);
@@ -323,6 +324,7 @@ static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
 
             // seek back to beginning of params
             bb_seek(buf, -param_data_length*8, SEEK_CUR);
+        }
 
             params = bdj_make_array(env, "java/lang/String", param_count);
 
@@ -334,7 +336,7 @@ static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
                 (*env)->SetObjectArrayElement(env, params, j, param);
                 JNICHK(1);
             }
-        }
+
 
         // skip padding to word boundary
         if ((param_data_length & 0x1) == 0) {
