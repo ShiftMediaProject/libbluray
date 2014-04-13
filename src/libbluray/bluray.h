@@ -2,7 +2,7 @@
  * This file is part of libbluray
  * Copyright (C) 2009-2010  Obliter0n
  * Copyright (C) 2009-2010  John Stebbins
- * Copyright (C) 2010       hpi1
+ * Copyright (C) 2010-2014  Petri Hintukainen
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -576,11 +576,6 @@ typedef enum {
 int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value);
 int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s);
 
-/*
- * Java
- */
-int bd_start_bdj(BLURAY *bd, const char* start_object); // start BD-J from the specified BD-J object (should be a 5 character string)
-void bd_stop_bdj(BLURAY *bd); // shutdown BD-J and clean up resources
 
 /*
  * events
@@ -886,6 +881,12 @@ void bd_free_clpi(struct clpi_cl *cl);
 struct mpls_pl;
 struct mpls_pl *bd_read_mpls(const char *mpls_file);
 void bd_free_mpls(struct mpls_pl *);
+
+
+/* BD-J testing */
+
+int  bd_start_bdj(BLURAY *bd, const char* start_object); // start BD-J from the specified BD-J object (should be a 5 character string)
+void bd_stop_bdj(BLURAY *bd); // shutdown BD-J and clean up resources
 
 
 #ifdef __cplusplus
