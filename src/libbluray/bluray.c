@@ -2169,6 +2169,44 @@ int bd_select_playlist(BLURAY *bd, uint32_t playlist)
     return result;
 }
 
+#ifdef USING_BDJAVA
+static int _play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmark, int64_t time)
+{
+    if (playlist < 0) {
+        _close_playlist(bd);
+        return 1;
+    }
+
+    if (!bd_select_playlist(bd, playlist)) {
+        return 0;
+    }
+
+    if (playitem > 0) {
+        bd_seek_playitem(bd, playitem);
+    }
+    if (playmark >= 0) {
+        bd_seek_mark(bd, playmark);
+    }
+    if (time >= 0) {
+        bd_seek_time(bd, time);
+    }
+
+    return 1;
+}
+
+int bd_play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmark, int64_t time)
+{
+    int result;
+
+    /* select + seek should be atomic (= player can't read data between select and seek to start position) */
+    bd_mutex_lock(&bd->mutex);
+    result = _play_playlist_at(bd, playlist, playitem, playmark, time);
+    bd_mutex_unlock(&bd->mutex);
+
+    return result;
+}
+#endif /* USING_BDJAVA */
+
 // Select a title for playback
 // The title index is an index into the list
 // established by bd_get_titles()

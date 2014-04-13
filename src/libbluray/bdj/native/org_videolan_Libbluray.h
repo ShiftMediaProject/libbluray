@@ -199,10 +199,10 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekPlayItemN
 /*
  * Class:     org_videolan_Libbluray
  * Method:    selectPlaylistN
- * Signature: (JI)I
+ * Signature: (JIIIJ)I
  */
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectPlaylistN
-  (JNIEnv *, jclass, jlong, jint);
+  (JNIEnv *, jclass, jlong, jint, jint, jint, jlong);
 
 /*
  * Class:     org_videolan_Libbluray

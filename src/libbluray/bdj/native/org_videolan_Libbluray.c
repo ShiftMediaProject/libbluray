@@ -296,12 +296,17 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekPlayItemN(JNIEnv * env,
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectPlaylistN(
-        JNIEnv * env, jclass cls, jlong np, jint playlist) {
+        JNIEnv * env, jclass cls, jlong np, jint playlist, jint playitem, jint playmark, jlong time) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
 
-    BD_DEBUG(DBG_JNI, "selectPlaylistN(%05d.mpls)\n", (int)playlist);
+    if (!bdj || !bdj->bd) {
+        return 0;
+    }
 
-    return bd_select_playlist(bdj->bd, playlist);
+    BD_DEBUG(DBG_JNI, "selectPlaylistN(pl=%d, pi=%d, pm=%d, time=%ld)\n",
+             (int)playlist, (int)playitem, (int)playmark, (long)time);
+
+    return bd_play_playlist_at(bdj->bd, playlist, playitem, playmark, time);
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectTitleN(JNIEnv * env,
@@ -604,7 +609,7 @@ Java_org_videolan_Libbluray_methods[] =
     },
     {
         CC("selectPlaylistN"),
-        CC("(JI)I"),
+        CC("(JIIIJ)I"),
         VC(Java_org_videolan_Libbluray_selectPlaylistN),
     },
     {

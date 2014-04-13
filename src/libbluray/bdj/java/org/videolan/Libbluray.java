@@ -206,11 +206,19 @@ public class Libbluray {
         return result;
     }
 
-    public static boolean selectPlaylist(int playlist) {
+    public static boolean selectPlaylist(int playlist, int playitem, int playmark, long time) {
         if (playlist < 0)
             throw new IllegalArgumentException("Playlist cannot be negative");
 
-        return selectPlaylistN(nativePointer, playlist) == 1 ? true : false;
+        return selectPlaylistN(nativePointer, playlist, playitem, playmark, time) == 1 ? true : false;
+    }
+
+    public static boolean selectPlaylist(int playlist) {
+        return selectPlaylist(playlist, -1, -1, -1);
+    }
+
+    public static void stopPlaylist() {
+        selectPlaylistN(nativePointer, -1, -1, -1, -1);
     }
 
     public static boolean selectTitle(TitleImpl title) {
@@ -483,7 +491,7 @@ public class Libbluray {
     private static native int getCurrentChapterN(long np);
     private static native long seekMarkN(long np, int mark);
     private static native long seekPlayItemN(long np, int clip);
-    private static native int selectPlaylistN(long np, int playlist);
+    private static native int selectPlaylistN(long np, int playlist, int playitem, int playmark, long time);
     private static native int selectTitleN(long np, int title);
     private static native int selectAngleN(long np, int angle);
     private static native void seamlessAngleChangeN(long np, int angle);

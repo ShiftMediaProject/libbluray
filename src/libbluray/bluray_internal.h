@@ -36,4 +36,6 @@ BD_PRIVATE int bd_reg_write(BLURAY *bd, int psr, int reg, uint32_t value, uint32
 
 BD_PRIVATE void bd_select_rate(BLURAY *bd, float rate, int reason);
 
+BD_PRIVATE int bd_play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmark, int64_t time);
+
 #endif  /* _BLURAY_INTERNAL_H_ */

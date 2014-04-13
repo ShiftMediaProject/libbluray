@@ -90,16 +90,22 @@ public class Handler extends BDHandler {
     protected ControllerErrorEvent doPrefetch() {
         synchronized (this) {
             try {
-                if (!Libbluray.selectPlaylist(locator.getPlayListId()))
-                    return new ConnectionErrorEvent(this);
-
+                int pl = locator.getPlayListId();
+                long time = -1;
+                int pi = -1, mark = -1;
                 if (baseMediaTime != 0) {
-                    Libbluray.seekTime((long)(baseMediaTime * FROM_NAROSECONDS));
-                } else if (locator.getMarkId() >= 0) {
-                    ((PlaybackControlImpl)controls[9]).skipToMark(locator.getMarkId());
-                } else if (locator.getPlayItemId() >= 0) {
-                    ((PlaybackControlImpl)controls[9]).skipToPlayItem(locator.getPlayItemId());
+                    time = (long)(baseMediaTime * FROM_NAROSECONDS);
+                } /*else*/ if (locator.getMarkId() > 0) {
+                    mark = locator.getMarkId();
+                } /*else*/ if (locator.getPlayItemId() > 0) {
+                    pi = locator.getPlayItemId();
                 }
+
+                if (!Libbluray.selectPlaylist(pl, pi, mark, time)) {
+                    return new ConnectionErrorEvent(this);
+                }
+
+                updateTime(new Time(Libbluray.tellTime() * TO_SECONDS));
 
                 int stream;
                 stream = locator.getPrimaryAudioStreamNumber();
