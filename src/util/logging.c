@@ -20,6 +20,8 @@
 
 #include "logging.h"
 
+#include "file/file.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -84,10 +86,11 @@ void bd_debug(const char *file, int line, uint32_t mask, const char *format, ...
     }
 
     if (mask & debug_mask) {
+        const char *f = strrchr(file, DIR_SEP_CHAR);
         char buffer[4096], *pt = buffer;
         va_list args;
 
-        pt += sprintf(buffer, "%s:%d: ", file, line);
+        pt += sprintf(buffer, "%s:%d: ", f ? f + 1 : file, line);
 
         va_start(args, format);
         vsnprintf(pt, sizeof(buffer) - (size_t)(intptr_t)(pt - buffer) - 1, format, args);
