@@ -90,6 +90,23 @@ public class Handler extends BDHandler {
     protected ControllerErrorEvent doPrefetch() {
         synchronized (this) {
             try {
+                int stream;
+                stream = locator.getPrimaryAudioStreamNumber();
+                if (stream > 0)
+                    Libbluray.writePSR(Libbluray.PSR_PRIMARY_AUDIO_ID, stream);
+                stream = locator.getPGTextStreamNumber();
+                if (stream > 0) {
+                    Libbluray.writePSR(Libbluray.PSR_PG_STREAM, stream, 0x00000fff);
+                }
+                stream = locator.getSecondaryVideoStreamNumber();
+                if (stream > 0) {
+                    Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, stream << 8, 0x0000ff00);
+                }
+                stream = locator.getSecondaryAudioStreamNumber();
+                if (stream > 0) {
+                    Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, stream, 0x000000ff);
+                }
+
                 int pl = locator.getPlayListId();
                 long time = -1;
                 int pi = -1, mark = -1;
@@ -107,22 +124,6 @@ public class Handler extends BDHandler {
 
                 updateTime(new Time(Libbluray.tellTime() * TO_SECONDS));
 
-                int stream;
-                stream = locator.getPrimaryAudioStreamNumber();
-                if (stream > 0)
-                    Libbluray.writePSR(Libbluray.PSR_PRIMARY_AUDIO_ID, stream);
-                stream = locator.getPGTextStreamNumber();
-                if (stream > 0) {
-                    Libbluray.writePSR(Libbluray.PSR_PG_STREAM, stream, 0x00000fff);
-                }
-                stream = locator.getSecondaryVideoStreamNumber();
-                if (stream > 0) {
-                    Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, stream << 8, 0x0000ff00);
-                }
-                stream = locator.getSecondaryAudioStreamNumber();
-                if (stream > 0) {
-                    Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, stream, 0x000000ff);
-                }
             } catch (Throwable e) {
                 return new ConnectionErrorEvent(this);
             }
