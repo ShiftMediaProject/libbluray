@@ -856,6 +856,12 @@ struct meta_dl;
 const struct meta_dl *bd_get_meta(BLURAY *bd);
 
 
+/*
+ * Testing and debugging
+ */
+
+/* access to internal information */
+
 struct clpi_cl;
 /**
  *
@@ -875,6 +881,12 @@ struct clpi_cl *bd_read_clpi(const char *clpi_file);
  * @param cl  CLPI_CL objects
  */
 void bd_free_clpi(struct clpi_cl *cl);
+
+
+struct mpls_pl;
+struct mpls_pl *bd_read_mpls(const char *mpls_file);
+void bd_free_mpls(struct mpls_pl *);
+
 
 #ifdef __cplusplus
 };

@@ -28,6 +28,7 @@
 #include "util/strutl.h"
 
 #include "libbluray/bdnav/mpls_parse.h"
+#include "libbluray/bluray.h"
 
 #include "util.h"
 
@@ -543,26 +544,26 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
 {
     MPLS_PL *pl;
 
-    pl = mpls_parse(name);
+    pl = bd_read_mpls(name);
     if (pl == NULL) {
         fprintf(stderr, "Parse failed: %s\n", name);
         return NULL;
     }
     if (seconds) {
         if (!_filter_short(pl, seconds)) {
-            mpls_free(pl);
+            bd_free_mpls(pl);
             return NULL;
         }
     }
     if (repeats) {
         if (!_filter_repeats(pl, repeats)) {
-            mpls_free(pl);
+            bd_free_mpls(pl);
             return NULL;
         }
     }
     if (dups) {
         if (!_filter_dup(pl_list, pl_count, pl)) {
-            mpls_free(pl);
+            bd_free_mpls(pl);
             return NULL;
         }
     }
@@ -761,7 +762,7 @@ main(int argc, char *argv[])
     }
     // Cleanup
     for (ii = 0; ii < pl_ii; ii++) {
-        mpls_free(pl_list[ii]);
+        bd_free_mpls(pl_list[ii]);
     }
     return 0;
 }

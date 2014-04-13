@@ -218,22 +218,8 @@ mpls_dump_SOURCES = \
 	examples/mpls_dump.c \
 	examples/util.c \
 	examples/util.h \
-	file/file.c \
-	libbluray/bdnav/clpi_parse.c \
-	libbluray/bdnav/extdata_parse.c \
-	libbluray/bdnav/mpls_parse.c \
-	util/bits.c \
-	util/logging.c \
 	util/strutl.c
-if HAVE_WIN32
-mpls_dump_SOURCES += \
-	file/file_win32.c \
-	file/dir_win32.c
-else
-mpls_dump_SOURCES += \
-	file/file_posix.c \
-	file/dir_posix.c
-endif
+mpls_dump_LDADD = libbluray.la
 
 clpi_dump_CFLAGS = $(AM_CFLAGS)
 clpi_dump_SOURCES = \
