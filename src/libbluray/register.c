@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  hpi1
+ * Copyright (C) 2010-2014  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -443,3 +443,21 @@ int bd_psr_write(BD_REGISTERS *p, int reg, uint32_t val)
   return bd_psr_setting_write(p, reg, val);
 }
 
+int bd_psr_write_bits(BD_REGISTERS *p, int reg, uint32_t val, uint32_t mask)
+{
+    int result;
+
+    if (mask == 0xffffffff) {
+        return bd_psr_write(p, reg, val);
+    }
+
+    bd_psr_lock(p);
+
+    uint32_t psr_value = bd_psr_read(p, reg);
+    psr_value = (psr_value & (~mask)) | (val & mask);
+    result = bd_psr_write(p, reg, psr_value);
+
+    bd_psr_unlock(p);
+
+    return result;
+}

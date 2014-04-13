@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2010      William Hahne
+ * Copyright (C) 2012-2014 Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -280,7 +281,11 @@ public class Libbluray {
     }
 
     public static void writePSR(int num, int value) {
-        int ret = writePSRN(nativePointer, num, value);
+        writePSR(num, value, 0xffffffff);
+    }
+
+    public static void writePSR(int num, int value, int psr_value_mask) {
+        int ret = writePSRN(nativePointer, num, value, psr_value_mask);
 
         if (ret == -1)
             throw new IllegalArgumentException("Invalid PSR");
@@ -490,7 +495,7 @@ public class Libbluray {
     private static native long tellTimeN(long np);
     private static native int selectRateN(long np, float rate, int reason);
     private static native int writeGPRN(long np, int num, int value);
-    private static native int writePSRN(long np, int num, int value);
+    private static native int writePSRN(long np, int num, int value, int psr_value_mask);
     private static native int readGPRN(long np, int num);
     private static native int readPSRN(long np, int num);
     private static native Bdjo getBdjoN(long np, String name);

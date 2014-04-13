@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2010      William Hahne
+ * Copyright (C) 2012-2014 Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -106,18 +107,15 @@ public class Handler extends BDHandler {
                     Libbluray.writePSR(Libbluray.PSR_PRIMARY_AUDIO_ID, stream);
                 stream = locator.getPGTextStreamNumber();
                 if (stream > 0) {
-                    int psr = Libbluray.readPSR(Libbluray.PSR_PG_STREAM) & 0xFFFFF000;
-                    Libbluray.writePSR(Libbluray.PSR_PG_STREAM, psr | stream);
+                    Libbluray.writePSR(Libbluray.PSR_PG_STREAM, stream, 0x00000fff);
                 }
                 stream = locator.getSecondaryVideoStreamNumber();
                 if (stream > 0) {
-                    int psr = Libbluray.readPSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO) & 0xFFFF00FF;
-                    Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, psr | (stream << 8));
+                    Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, stream << 8, 0x0000ff00);
                 }
                 stream = locator.getSecondaryAudioStreamNumber();
                 if (stream > 0) {
-                    int psr = Libbluray.readPSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO) & 0xFFFFFF00;
-                    Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, psr | stream);
+                    Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, stream, 0x000000ff);
                 }
             } catch (Throwable e) {
                 return new ConnectionErrorEvent(this);

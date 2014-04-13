@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  hpi1
+ * Copyright (C) 2010-2014  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -142,6 +142,22 @@ uint32_t bd_psr_read(BD_REGISTERS *, int reg);
  * @return 0 on success, -1 on error (invalid register number)
  */
 int bd_psr_write(BD_REGISTERS *, int reg, uint32_t val);
+
+/**
+ *
+ *  Atomically change bits in player status register.
+ *
+ *  Replace selected bits of player status register.
+ *  New value for PSR is (CURRENT_PSR_VALUE & ~mask) | (val & mask)
+ *  Writing to player setting registers will fail.
+ *
+ * @param registers  BD_REGISTERS object
+ * @param reg  register number
+ * @param val  new value for register
+ * @param mask  bit mask. bits to be written are set to 1.
+ * @return 0 on success, -1 on error (invalid register number)
+ */
+int bd_psr_write_bits(BD_REGISTERS *, int reg, uint32_t val, uint32_t mask);
 
 /**
  *

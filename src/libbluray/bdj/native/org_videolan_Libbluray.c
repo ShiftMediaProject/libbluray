@@ -1,7 +1,7 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  William Hahne
- * Copyright (C) 2012  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2010      William Hahne
+ * Copyright (C) 2012-2014 Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -362,7 +362,7 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writeGPRN(JNIEnv * env,
 
     BD_DEBUG(DBG_JNI, "writeGPRN(%d,%d)\n", (int)num, (int)value);
 
-    return bd_reg_write(bdj->bd, 0, num, value);
+    return bd_reg_write(bdj->bd, 0, num, value, ~0);
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readGPRN(JNIEnv * env,
@@ -376,12 +376,16 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readGPRN(JNIEnv * env,
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writePSRN(JNIEnv * env,
-        jclass cls, jlong np, jint num, jint value) {
+        jclass cls, jlong np, jint num, jint value, jint mask) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
 
-    BD_DEBUG(DBG_JNI, "writePSRN(%d,%d)\n", (int)num, (int)value);
+    if ((uint32_t)mask == 0xffffffff) {
+        BD_DEBUG(DBG_JNI, "writePSRN(%d,%d)\n", (int)num, (int)value);
+    } else {
+        BD_DEBUG(DBG_JNI, "writePSRN(%d,0x%x,0x%08x)\n", (int)num, (int)value, (int)mask);
+    }
 
-    return bd_reg_write(bdj->bd, 1, num, value);
+    return bd_reg_write(bdj->bd, 1, num, value, mask);
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN(JNIEnv * env,
@@ -650,7 +654,7 @@ Java_org_videolan_Libbluray_methods[] =
     },
     {
         CC("writePSRN"),
-        CC("(JII)I"),
+        CC("(JIII)I"),
         VC(Java_org_videolan_Libbluray_writePSRN),
     },
     {

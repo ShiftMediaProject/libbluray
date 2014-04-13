@@ -48,8 +48,7 @@ public class PiPControlImpl extends VideoControl implements PiPControl, Asynchro
     }
 
     protected void setStreamNumber(int num) {
-        int psr = Libbluray.readPSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO)& 0xFFFF00FF;
-        Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, psr | (num << 8));
+        Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, num << 8, 0x0000ff00);
     }
 
     public int getCurrentStreamNumber() {
@@ -57,10 +56,7 @@ public class PiPControlImpl extends VideoControl implements PiPControl, Asynchro
     }
 
     public void setDisplay(boolean value) {
-        int psr = Libbluray.readPSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO) & 0x7FFFFFFF;
-        if (value)
-            psr |= 0x80000000;
-        Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, psr);
+        Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, value ? 0x80000000 : 0, 0x80000000);
     }
 
     public boolean getDisplay() {

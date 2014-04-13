@@ -279,10 +279,10 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writeGPRN
 /*
  * Class:     org_videolan_Libbluray
  * Method:    writePSRN
- * Signature: (JII)I
+ * Signature: (JIII)I
  */
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_writePSRN
-  (JNIEnv *, jclass, jlong, jint, jint);
+  (JNIEnv *, jclass, jlong, jint, jint, jint);
 
 /*
  * Class:     org_videolan_Libbluray

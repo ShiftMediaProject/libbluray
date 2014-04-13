@@ -280,7 +280,6 @@ static void _update_stream_psr_by_lang(BD_REGISTERS *regs,
                                        MPLS_STREAM *streams, unsigned num_streams,
                                        uint32_t *lang, uint32_t blacklist)
 {
-    uint32_t psr_val;
     uint32_t preferred_lang;
     int      stream_idx = -1;
     unsigned ii;
@@ -322,13 +321,9 @@ static void _update_stream_psr_by_lang(BD_REGISTERS *regs,
 
     BD_DEBUG(DBG_BLURAY, "Selected stream %d (language %s)\n", stream_idx, streams[stream_idx].lang);
 
-    bd_psr_lock(regs);
-
-    psr_val = bd_psr_read(regs, psr_stream) & 0x7fff0000;
-    psr_val |= (stream_idx + 1) | enable_flag;
-    bd_psr_write(regs, psr_stream, psr_val);
-
-    bd_psr_unlock(regs);
+    bd_psr_write_bits(regs, psr_stream,
+                      (stream_idx + 1) | enable_flag,
+                      0x80000fff);
 }
 
 static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
@@ -1107,14 +1102,14 @@ uint32_t bd_reg_read(BLURAY *bd, int psr, int reg)
 #endif
 
 #ifdef USING_BDJAVA
-int bd_reg_write(BLURAY *bd, int psr, int reg, uint32_t value)
+int bd_reg_write(BLURAY *bd, int psr, int reg, uint32_t value, uint32_t psr_value_mask)
 {
     if (psr) {
         if (psr < 102) {
             /* avoid deadlocks (psr_write triggers callbacks that may lock this mutex) */
             bd_mutex_lock(&bd->mutex);
         }
-        int res = bd_psr_write(bd->regs, reg, value);
+        int res = bd_psr_write_bits(bd->regs, reg, value, psr_value_mask);
         if (psr < 102) {
             bd_mutex_unlock(&bd->mutex);
         }
@@ -2459,12 +2454,11 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
 
     if (idx == BLURAY_PLAYER_SETTING_DECODE_PG) {
         bd_mutex_lock(&bd->mutex);
-        bd->decode_pg = !!value;
 
-        bd_psr_lock(bd->regs);
-        value = (bd_psr_read(bd->regs, PSR_PG_STREAM) & (0x7fffffff)) | ((!!value)<<31);
-        result = !bd_psr_setting_write(bd->regs, PSR_PG_STREAM, value);
-        bd_psr_unlock(bd->regs);
+        bd->decode_pg = !!value;
+        result = bd_psr_write_bits(bd->regs, PSR_PG_STREAM,
+                                   (!!value) << 31,
+                                   0x80000000);
 
         bd_mutex_unlock(&bd->mutex);
         return result;
@@ -2500,15 +2494,13 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
 
 void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint32_t enable_flag)
 {
-    uint32_t val;
-
     bd_mutex_lock(&bd->mutex);
-    bd_psr_lock(bd->regs);
 
     switch (stream_type) {
         case BLURAY_PG_TEXTST_STREAM:
-            val = bd_psr_read(bd->regs, PSR_PG_STREAM);
-            bd_psr_write(bd->regs, PSR_PG_STREAM, ((!!enable_flag)<<31) | (stream_id & 0xfff) | (val & 0x7ffff000));
+            bd_psr_write_bits(bd->regs, PSR_PG_STREAM,
+                              ((!!enable_flag)<<31) | (stream_id & 0xfff),
+                              0x80000fff);
             break;
         /*
         case BLURAY_SECONDARY_VIDEO_STREAM:
@@ -2516,7 +2508,6 @@ void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint
         */
     }
 
-    bd_psr_unlock(bd->regs);
     bd_mutex_unlock(&bd->mutex);
 }
 

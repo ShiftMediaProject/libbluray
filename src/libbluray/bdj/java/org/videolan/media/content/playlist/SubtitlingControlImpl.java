@@ -53,8 +53,7 @@ public class SubtitlingControlImpl extends StreamControl implements SubtitlingCo
     }
 
     protected void setStreamNumber(int num) {
-        int psr = Libbluray.readPSR(Libbluray.PSR_PG_STREAM);
-        Libbluray.writePSR(Libbluray.PSR_PG_STREAM, (psr & 0xFFFFF000) | num);
+        Libbluray.writePSR(Libbluray.PSR_PG_STREAM, num, 0x00000fff);
     }
 
     public boolean isSubtitlingOn() {
@@ -62,14 +61,8 @@ public class SubtitlingControlImpl extends StreamControl implements SubtitlingCo
     }
 
     public boolean setSubtitling(boolean mode) {
-        int psr = Libbluray.readPSR(Libbluray.PSR_PG_STREAM);
-        boolean oldMode = (psr & 0x80000000) != 0;
-        if (mode != oldMode) {
-            if (mode)
-                Libbluray.writePSR(Libbluray.PSR_PG_STREAM, psr | 0x80000000);
-            else
-                Libbluray.writePSR(Libbluray.PSR_PG_STREAM, psr & ~0x80000000);
-        }
+        boolean oldMode = (Libbluray.readPSR(Libbluray.PSR_PG_STREAM) & 0x80000000) != 0;
+        Libbluray.writePSR(Libbluray.PSR_PG_STREAM, mode ? 0x80000000 : 0, 0x80000000);
         return oldMode;
     }
 
@@ -82,14 +75,8 @@ public class SubtitlingControlImpl extends StreamControl implements SubtitlingCo
     }
 
     public boolean setPipSubtitleMode(boolean mode) {
-        int psr = Libbluray.readPSR(Libbluray.PSR_PG_STREAM);
-        boolean oldMode = (psr & 0x40000000) != 0;
-        if (mode != oldMode) {
-            if (mode)
-                Libbluray.writePSR(Libbluray.PSR_PG_STREAM, psr | 0x40000000);
-            else
-                Libbluray.writePSR(Libbluray.PSR_PG_STREAM, psr & ~0x40000000);
-        }
+        boolean oldMode = (Libbluray.readPSR(Libbluray.PSR_PG_STREAM) & 0x40000000) != 0;
+        Libbluray.writePSR(Libbluray.PSR_PG_STREAM, mode ? 0x40000000 : 0, 0x40000000);
         return oldMode;
     }
 
