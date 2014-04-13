@@ -70,6 +70,7 @@ public class VFSManager {
             boolean initBackupRegs) throws PreparingFailedException
     {
         logger.unimplemented("requestUpdating(" + manifestfile + ")");
+        throw new PreparingFailedException();
     }
 
     private int state;
