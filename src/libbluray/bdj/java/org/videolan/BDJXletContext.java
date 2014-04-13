@@ -23,6 +23,7 @@ import java.awt.Container;
 import java.awt.EventQueue;
 import java.net.URL;
 import java.util.LinkedList;
+import java.util.HashMap;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -94,6 +95,10 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return container;
     }
 
+    /*
+     * Class loader
+     */
+
     public ClassLoader getClassLoader() {
         return loader;
     }
@@ -134,6 +139,10 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return url;
     }
 
+    /*
+     *
+     */
+
     protected AppProxy getAppProxy() {
         return AppsDatabase.getAppsDatabase().getAppProxy(appid);
     }
@@ -154,6 +163,10 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     public BDJThreadGroup getThreadGroup() {
         return threadGroup;
     }
+
+    /*
+     * Event queues
+     */
 
     protected void setEventQueue(EventQueue eq) {
         eventQueue = eq;
@@ -194,6 +207,10 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return cnt;
     }
 
+    /*
+     * HAVI
+     */
+
     public void setSceneFactory(HSceneFactory f) {
         sceneFactory = f;
     }
@@ -201,6 +218,53 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     public HSceneFactory getSceneFactory() {
         return sceneFactory;
     }
+
+    public static Object getXletDefaultLook(String key, Class defClass) {
+        BDJXletContext ctx = BDJXletContext.getCurrentContext();
+        if (ctx == null) {
+            logger.error("getDefaultLook(): no context: " + Logger.dumpStack());
+            return null;
+        }
+        return ctx.getDefaultLook(key, defClass);
+    }
+
+    public static void setXletDefaultLook(String key, Object look) {
+        BDJXletContext ctx = BDJXletContext.getCurrentContext();
+        if (ctx == null) {
+            logger.error("setDefaultLook(): no context: " + Logger.dumpStack());
+            return;
+        }
+        ctx.setDefaultLook(key, look);
+    }
+
+    private Object getDefaultLook(String key, Class defClass) {
+        Object look = null;
+        synchronized (defaultLooks) {
+            look = defaultLooks.get(key);
+            if (look == null) {
+                try {
+                    look = defClass.newInstance();
+                    setDefaultLook(key, look);
+                } catch (Throwable t) {
+                    logger.error("Error creating default look " + defClass.getName() + " for " + key + ": " + t);
+                }
+            }
+        }
+        return look;
+    }
+
+    private void setDefaultLook(String key, Object look) {
+        synchronized (defaultLooks) {
+            defaultLooks.remove(key);
+            if (look != null) {
+                defaultLooks.put(key, look);
+            }
+        }
+    }
+
+    /*
+     * Ixc
+     */
 
     protected void addIxcThread(Thread thread) {
         synchronized (ixcThreads) {
@@ -257,6 +321,10 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         }
     }
 
+    /*
+     * Frame-accurate animations
+     */
+
     public void addFAA(FrameAccurateAnimation faa) {
         synchronized (faaList) {
             faaList.add(faa);
@@ -279,6 +347,10 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             faa.destroy();
         }
     }
+
+    /*
+     *
+     */
 
     public static BDJXletContext getCurrentContext() {
         Object obj = AccessController.doPrivileged(
@@ -313,6 +385,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
         removeAllFAA();
         stopIxcThreads();
+        defaultLooks.clear();
 
         org.dvb.io.ixc.IxcRegistry.unbindAll(this);
 
@@ -336,6 +409,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             loader = null;
             container = null;
             callbackQueue = null;
+            defaultLooks = null;
             released = true;
         }
     }
@@ -350,6 +424,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     private BDJThreadGroup threadGroup = null;
     private LinkedList ixcThreads = new LinkedList();
     private LinkedList faaList = new LinkedList();
+    private HashMap defaultLooks = new HashMap();
     private BDJActionQueue callbackQueue;
     private static final Logger logger = Logger.getLogger(BDJXletContext.class.getName());
 }
