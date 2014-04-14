@@ -53,7 +53,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                                               entry.getInitialClass(),
                                               this);
 
-        callbackQueue = new BDJActionQueue(this.threadGroup);
+        callbackQueue = new BDJActionQueue(this.threadGroup, "CallbackQueue");
     }
 
     public Object getXletProperty(String key) {

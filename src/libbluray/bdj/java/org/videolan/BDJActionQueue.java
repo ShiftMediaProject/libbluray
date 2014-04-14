@@ -21,13 +21,13 @@ package org.videolan;
 import java.util.LinkedList;
 
 class BDJActionQueue implements Runnable {
-    public BDJActionQueue() {
-        this(null);
+    public BDJActionQueue(String name) {
+        this(null, name);
     }
 
-    public BDJActionQueue(BDJThreadGroup threadGroup) {
+    public BDJActionQueue(BDJThreadGroup threadGroup, String name) {
         /* run all actions in given thread group / xlet context */
-        thread = new Thread(threadGroup, this);
+        thread = new Thread(threadGroup, this, name + ".BDJActionQueue");
         thread.setDaemon(true);
         thread.start();
     }
