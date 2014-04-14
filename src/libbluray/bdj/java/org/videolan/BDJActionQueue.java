@@ -26,6 +26,12 @@ class BDJActionQueue implements Runnable {
     }
 
     public BDJActionQueue(BDJThreadGroup threadGroup, String name) {
+        if (threadGroup == null) {
+            if (BDJXletContext.getCurrentContext() != null) {
+                Logger.getLogger(BDJActionQueue.class.getName()).error("BDJActionQueue created from wrong context: " + Logger.dumpStack());
+            }
+        }
+
         /* run all actions in given thread group / xlet context */
         thread = new Thread(threadGroup, this, name + ".BDJActionQueue");
         thread.setDaemon(true);
