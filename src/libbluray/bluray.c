@@ -353,7 +353,7 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
                                        NULL, audio_lang);
         }
 
-    /* Validate selected audio and subtitle stream PSRs when using menus */
+    /* Validate selected audio, subtitle and IG stream PSRs when using menus */
     } else {
         uint32_t psr_val;
 
@@ -378,6 +378,15 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
                                            PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
                                            stn->pg, stn->num_pg,
                                            NULL, audio_lang);
+            }
+            bd_psr_unlock(bd->regs);
+        }
+        if (stn->num_ig) {
+            bd_psr_lock(bd->regs);
+            psr_val = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
+            if ((psr_val == 0) || (psr_val > stn->num_ig)) {
+                bd_psr_write(bd->regs, PSR_IG_STREAM_ID, 1);
+                BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Selected IG stream 1 (stream %d not available)\n", psr_val);
             }
             bd_psr_unlock(bd->regs);
         }
