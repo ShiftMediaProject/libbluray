@@ -219,6 +219,8 @@ public class BDJLoader {
 
     private static boolean unloadN() {
         try {
+            GUIManager.getInstance().setVisible(false);
+
             AppsDatabase db = AppsDatabase.getAppsDatabase();
 
             /* stop xlets first */
@@ -239,9 +241,6 @@ public class BDJLoader {
             ((BDJAppsDatabase)db).newDatabase(null, null);
 
             PlayerManager.getInstance().releaseAllPlayers(true);
-
-            //GUIManager.shutdown() does not work with J2ME (window can't be opened again)
-            GUIManager.getInstance().setVisible(false);
 
             return true;
         } catch (Throwable e) {
