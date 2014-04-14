@@ -1528,6 +1528,9 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
         clip = nav_time_search(bd->title, tick, &clip_pkt, &out_pkt);
 
         _seek_internal(bd, clip, out_pkt, clip_pkt);
+
+    } else {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_seek_time(%u) failed\n", (unsigned int)tick);
     }
 
     bd_mutex_unlock(&bd->mutex);
@@ -1570,6 +1573,9 @@ int64_t bd_seek_chapter(BLURAY *bd, unsigned chapter)
         clip = nav_chapter_search(bd->title, chapter, &clip_pkt, &out_pkt);
 
         _seek_internal(bd, clip, out_pkt, clip_pkt);
+
+    } else {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_seek_chapter(%u) failed\n", chapter);
     }
 
     bd_mutex_unlock(&bd->mutex);
@@ -1629,6 +1635,9 @@ int64_t bd_seek_playitem(BLURAY *bd, unsigned clip_ref)
       out_pkt  = clip->pos;
 
       _seek_internal(bd, clip, out_pkt, clip_pkt);
+
+    } else {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_seek_playitem(%u) failed\n", clip_ref);
     }
 
     bd_mutex_unlock(&bd->mutex);
@@ -1652,6 +1661,9 @@ int64_t bd_seek_mark(BLURAY *bd, unsigned mark)
         clip = nav_mark_search(bd->title, mark, &clip_pkt, &out_pkt);
 
         _seek_internal(bd, clip, out_pkt, clip_pkt);
+
+    } else {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_seek_mark(%u) failed\n", mark);
     }
 
     bd_mutex_unlock(&bd->mutex);
