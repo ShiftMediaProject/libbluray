@@ -18,11 +18,14 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "util/macro.h"
+#include "mpls_parse.h"
+
+#include "extdata_parse.h"
+
 #include "file/file.h"
 #include "util/bits.h"
-#include "extdata_parse.h"
-#include "mpls_parse.h"
+#include "util/logging.h"
+#include "util/macro.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -896,6 +899,8 @@ _parse_mpls_extension(BITSTREAM *bits, int id1, int id2, void *handle)
             return _parse_subpath_extension(bits, pl);
         }
     }
+
+    BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_mpls_extension(): unhandled extension %d.%d\n", id1, id2);
 
     return 0;
 }

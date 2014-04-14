@@ -17,12 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include "index_parse.h"
+
 #include "file/file.h"
 #include "util/bits.h"
 #include "util/logging.h"
 #include "util/macro.h"
 #include "util/strutl.h"
-#include "index_parse.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -35,6 +36,12 @@ static int _parse_hdmv_obj(BITSTREAM *bs, INDX_HDMV_OBJ *hdmv)
     hdmv->id_ref = bs_read(bs, 16);
     bs_skip(bs, 32);
 
+    if (hdmv->playback_type != indx_hdmv_playback_type_movie &&
+        hdmv->playback_type != indx_hdmv_playback_type_interactive) {
+
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: invalid HDMV playback type %d\n", hdmv->playback_type);
+    }
+
     return 1;
 }
 
@@ -46,6 +53,12 @@ static int _parse_bdj_obj(BITSTREAM *bs, INDX_BDJ_OBJ *bdj)
     bdj->name[5] = 0;
     bs_skip(bs, 8);
 
+    if (bdj->playback_type != indx_bdj_playback_type_movie &&
+        bdj->playback_type != indx_bdj_playback_type_interactive) {
+
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: invalid BD-J playback type %d\n", bdj->playback_type);
+    }
+
     return 1;
 }
 
@@ -54,11 +67,16 @@ static int _parse_playback_obj(BITSTREAM *bs, INDX_PLAY_ITEM *obj)
     obj->object_type = bs_read(bs, 2);
     bs_skip(bs, 30);
 
-    if (obj->object_type == 1) {
-        return _parse_hdmv_obj(bs, &obj->hdmv);
-    } else {
-        return _parse_bdj_obj(bs, &obj->bdj);
+    switch (obj->object_type) {
+        case indx_object_type_hdmv:
+            return _parse_hdmv_obj(bs, &obj->hdmv);
+
+        case indx_object_type_bdj:
+            return _parse_bdj_obj(bs, &obj->bdj);
     }
+
+    BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: unknown object type %d\n", obj->object_type);
+    return 0;
 }
 
 static int _parse_index(BITSTREAM *bs, INDX_ROOT *index)
@@ -89,10 +107,20 @@ static int _parse_index(BITSTREAM *bs, INDX_ROOT *index)
         index->titles[i].access_type = bs_read(bs, 2);
         bs_skip(bs, 28);
 
-        if (index->titles[i].object_type == 1) {
-            _parse_hdmv_obj(bs, &index->titles[i].hdmv);
-        } else {
-            _parse_bdj_obj(bs, &index->titles[i].bdj);
+        switch (index->titles[i].object_type) {
+            case indx_object_type_hdmv:
+                if (!_parse_hdmv_obj(bs, &index->titles[i].hdmv))
+                    return 0;
+                break;
+
+            case indx_object_type_bdj:
+                if (!_parse_bdj_obj(bs, &index->titles[i].bdj))
+                    return 0;
+                break;
+
+            default:
+                BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: unknown object type %d (#%d)\n", index->titles[i].object_type, i);
+                return 0;
         }
     }
 
@@ -140,8 +168,8 @@ static int _parse_header(BITSTREAM *bs, int *index_start, int *extension_data_st
     if (sig1 != INDX_SIG1 ||
        (sig2 != INDX_SIG2A &&
         sig2 != INDX_SIG2B)) {
-     BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv failed signature match: expected INDX0100 got %8.8s\n", bs->buf);
-     return 0;
+       BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv failed signature match: expected INDX0100 got %8.8s\n", bs->buf);
+       return 0;
     }
 
     *index_start          = bs_read(bs, 32);
@@ -170,6 +198,10 @@ static INDX_ROOT *_indx_parse(const char *file_name)
     if (!_parse_header(&bs, &indexes_start, &extension_data_start)) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: invalid header\n");
         goto error;
+    }
+
+    if (extension_data_start) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: unknown extension data at %d\n", extension_data_start);
     }
 
     if (!_parse_app_info(&bs, &index->app_info)) {

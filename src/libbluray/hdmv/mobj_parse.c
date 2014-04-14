@@ -17,13 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include "mobj_parse.h"
+
 #include "file/file.h"
 #include "util/bits.h"
 #include "util/logging.h"
 #include "util/macro.h"
 #include "util/strutl.h"
-
-#include "mobj_parse.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -140,6 +140,10 @@ static MOBJ_OBJECTS *_mobj_parse(const char *file_name)
     if (!_mobj_parse_header(&bs, &extension_data_start)) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "%s: invalid header\n", file_name);
         goto error;
+    }
+
+    if (extension_data_start) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "MovieObject.bdmv: unknown extension data at %d\n", extension_data_start);
     }
 
     bs_seek_byte(&bs, 40);

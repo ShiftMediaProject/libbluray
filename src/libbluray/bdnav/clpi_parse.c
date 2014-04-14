@@ -18,11 +18,14 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "util/macro.h"
+#include "clpi_parse.h"
+
+#include "extdata_parse.h"
+
 #include "file/file.h"
 #include "util/bits.h"
-#include "extdata_parse.h"
-#include "clpi_parse.h"
+#include "util/macro.h"
+#include "util/logging.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -598,6 +601,7 @@ static int _parse_clpi_extension(BITSTREAM *bits, int id1, int id2, void *handle
         }
     }
 
+    BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_clpi_extension(): unhandled extension %d.%d\n", id1, id2);
     return 0;
 }
 
