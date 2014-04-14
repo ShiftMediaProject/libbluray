@@ -358,6 +358,7 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
         uint32_t psr_val;
 
         if (stn->num_audio) {
+            bd_psr_lock(bd->regs);
             psr_val = bd_psr_read(bd->regs, PSR_PRIMARY_AUDIO_ID);
             if (psr_val == 0 || psr_val > stn->num_audio) {
                 _update_stream_psr_by_lang(bd->regs,
@@ -367,8 +368,10 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
             } else {
                 audio_lang = str_to_uint32((const char *)stn->audio[psr_val - 1].lang, 3);
             }
+            bd_psr_unlock(bd->regs);
         }
         if (stn->num_pg) {
+            bd_psr_lock(bd->regs);
             psr_val = bd_psr_read(bd->regs, PSR_PG_STREAM) & 0xfff;
             if ((psr_val == 0) || (psr_val > stn->num_pg)) {
                 _update_stream_psr_by_lang(bd->regs,
@@ -376,6 +379,7 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
                                            stn->pg, stn->num_pg,
                                            NULL, audio_lang);
             }
+            bd_psr_unlock(bd->regs);
         }
     }
 }
