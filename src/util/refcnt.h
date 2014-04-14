@@ -18,7 +18,7 @@
  */
 
 #ifndef BD_REFCNT_H_
-#define BD_FEFCNT_H_
+#define BD_REFCNT_H_
 
 #include "attributes.h"
 
