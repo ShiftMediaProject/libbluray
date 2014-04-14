@@ -380,10 +380,26 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
     }
 }
 
+static int _is_interactive_title(BLURAY *bd)
+{
+    if (bd->title && bd->title_type != title_undef) {
+        unsigned title = bd_psr_read(bd->regs, PSR_TITLE_NUMBER);
+        if (title == 0xffff && bd->disc_info.first_play->interactive) {
+            return 1;
+        }
+        if (title <= bd->disc_info.num_titles && bd->titles[title]) {
+            return bd->titles[title]->interactive;
+        }
+    }
+    return 0;
+}
+
 static void _update_chapter_psr(BLURAY *bd)
 {
-    uint32_t current_chapter = bd_get_current_chapter(bd);
-    bd_psr_write(bd->regs, PSR_CHAPTER,  current_chapter + 1);
+    if (!_is_interactive_title(bd)) {
+        uint32_t current_chapter = bd_get_current_chapter(bd);
+        bd_psr_write(bd->regs, PSR_CHAPTER,  current_chapter + 1);
+    }
 }
 
 /*
@@ -2093,7 +2109,12 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
 
     bd_psr_write(bd->regs, PSR_PLAYLIST, atoi(bd->title->name));
     bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
-    bd_psr_write(bd->regs, PSR_CHAPTER, 1);
+
+    if (_is_interactive_title(bd)) {
+        bd_psr_write(bd->regs, PSR_CHAPTER, 0xffff);
+    } else {
+        bd_psr_write(bd->regs, PSR_CHAPTER, 1);
+    }
 
     // Get the initial clip of the playlist
     bd->st0.clip = nav_next_clip(bd->title, NULL);
