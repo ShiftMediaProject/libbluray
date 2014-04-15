@@ -52,7 +52,7 @@ public class HGraphicLook
 
    public void widgetChanged (HVisible visible, HChangeData[] changes)
     {
-       throw new Error("Not implemented");
+        if (visible.isVisible()) visible.repaint();
     }
     
     public Dimension getMinimumSize(HVisible hvisible)
