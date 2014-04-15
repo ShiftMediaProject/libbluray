@@ -22,8 +22,8 @@
 
 #include "textst.h"
 
-#include <util/attributes.h>
-#include <util/bits.h>
+#include "util/attributes.h"
+#include "util/bits.h"
 
 #include <stdint.h>
 

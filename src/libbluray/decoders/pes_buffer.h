@@ -20,7 +20,7 @@
 #if !defined(_PES_BUFFER_H_)
 #define _PES_BUFFER_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <stdint.h>
 

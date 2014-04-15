@@ -20,7 +20,7 @@
 #ifndef BDJO_PARSER_H_
 #define BDJO_PARSER_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <jni.h>
 

@@ -20,7 +20,7 @@
 #if !defined(_HDMV_VM_H_)
 #define _HDMV_VM_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <stdint.h>
 

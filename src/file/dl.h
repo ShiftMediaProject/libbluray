@@ -21,7 +21,7 @@
 #ifndef DL_H_
 #define DL_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <stdint.h>
 

@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 
-#include "../util/attributes.h"
+#include "util/attributes.h"
 
 #if defined( __MINGW32__ )
 #   undef  lseek

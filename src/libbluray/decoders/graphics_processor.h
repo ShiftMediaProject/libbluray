@@ -24,7 +24,7 @@
 #include "ig.h"
 #include "textst.h"
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <stdint.h>
 

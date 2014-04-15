@@ -20,7 +20,7 @@
 #if !defined(_GRAPHICS_CONTROLLER_H_)
 #define _GRAPHICS_CONTROLLER_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <stdint.h>
 

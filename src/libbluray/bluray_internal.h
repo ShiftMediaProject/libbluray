@@ -20,7 +20,7 @@
 #if !defined(_BLURAY_INTERNAL_H_)
 #define _BLURAY_INTERNAL_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include "bluray.h"
 

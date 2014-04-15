@@ -20,7 +20,7 @@
 #ifndef JNIUTIL_H_
 #define JNIUTIL_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <jni.h>
 #include <stdarg.h>

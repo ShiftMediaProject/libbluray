@@ -20,9 +20,7 @@
 #ifndef BDJ_H_
 #define BDJ_H_
 
-#include "common.h"
-
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 typedef enum {
     BDJ_EVENT_NONE = 0,

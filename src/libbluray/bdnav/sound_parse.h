@@ -20,7 +20,7 @@
 #if !defined(_SOUND_PARSE_H_)
 #define _SOUND_PARSE_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <stdint.h>
 

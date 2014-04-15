@@ -20,7 +20,7 @@
 #if !defined(_MOBJ_PARSE_H_)
 #define _MOBJ_PARSE_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <stdint.h>
 
@@ -56,7 +56,7 @@ typedef struct {
     MOBJ_CMD   *cmds;
 } MOBJ_OBJECT;
 
-typedef struct {
+typedef struct mobj_objects {
     uint16_t    num_objects;
     MOBJ_OBJECT *objects;
 } MOBJ_OBJECTS;

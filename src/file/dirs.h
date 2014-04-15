@@ -20,7 +20,7 @@
 #ifndef BLURAY_DIRS_H
 #define BLURAY_DIRS_H
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #ifdef _WIN32
 BD_PRIVATE int         win32_mkdir(const char *dir);

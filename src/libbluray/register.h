@@ -20,7 +20,7 @@
 #if !defined(_BD_REGISTER_H_)
 #define _BD_REGISTER_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <stdint.h>
 

@@ -20,7 +20,7 @@
 #if !defined(_BDID_PARSE_H_)
 #define _BDID_PARSE_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <stdint.h>
 

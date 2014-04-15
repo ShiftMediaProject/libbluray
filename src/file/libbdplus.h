@@ -20,7 +20,7 @@
 #ifndef _BD_LIBBDPLUS_H_
 #define _BD_LIBBDPLUS_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <stdint.h>
 

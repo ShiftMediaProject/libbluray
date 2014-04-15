@@ -23,7 +23,7 @@
 
 #include "uo_mask_table.h"
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include <stdint.h>
 

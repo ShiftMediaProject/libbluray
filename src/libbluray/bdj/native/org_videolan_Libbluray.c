@@ -22,6 +22,7 @@
 #include "libbluray/bdj/bdj_private.h"
 #include "libbluray/bdj/bdj_util.h"
 #include "libbluray/bdj/bdjo_parser.h"
+#include "libbluray/bdj/common.h"  // BDJ_BDJO_PATH
 #include "libbluray/bluray.h"
 #include "libbluray/bluray_internal.h"
 

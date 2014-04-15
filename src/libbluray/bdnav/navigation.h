@@ -20,7 +20,7 @@
 #if !defined(_NAVIGATION_H_)
 #define _NAVIGATION_H_
 
-#include <util/attributes.h>
+#include "util/attributes.h"
 
 #include "mpls_parse.h"
 #include "clpi_parse.h"
