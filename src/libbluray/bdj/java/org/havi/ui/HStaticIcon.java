@@ -20,6 +20,7 @@
 package org.havi.ui;
 
 import java.awt.Image;
+import org.videolan.BDJXletContext;
 
 public class HStaticIcon extends HVisible implements HNoInputPreferred {
     public HStaticIcon()
@@ -41,25 +42,23 @@ public class HStaticIcon extends HVisible implements HNoInputPreferred {
 
     public void setLook(HLook hlook) throws HInvalidLookException
     {
-        if ((hlook != null) && !(hlook instanceof HGraphicLook)) throw new HInvalidLookException();
+        if ((hlook != null) && !(hlook instanceof HGraphicLook)) {
+            throw new HInvalidLookException();
+        }
         super.setLook(hlook);
     }
 
     public static void setDefaultLook(HGraphicLook hlook)
     {
-        //TODO double check this
-        DefaultLook = hlook;
+        BDJXletContext.setXletDefaultLook(PROPERTY_LOOK,hlook);
     }
 
     public static HGraphicLook getDefaultLook()
     {
-        //TODO and this
-        if (DefaultLook == null)
-            org.videolan.Logger.unimplemented("", "getDefaultLook");
-        return DefaultLook;
+        return (HGraphicLook) BDJXletContext.getXletDefaultLook(PROPERTY_LOOK,DEFAULT_LOOK);
     }
 
-    private static HGraphicLook DefaultLook = null;
-
+    private static final String PROPERTY_LOOK = "HStaticIcon";
+    static final Class DEFAULT_LOOK = HGraphicLook.class;
     private static final long serialVersionUID = 2015589998794748072L;
 }

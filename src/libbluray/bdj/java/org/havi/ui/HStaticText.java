@@ -23,6 +23,7 @@ package org.havi.ui;
 import java.awt.Color;
 import java.awt.Font;
 
+import org.videolan.BDJXletContext;
 import org.videolan.Logger;
 
 public class HStaticText extends HVisible implements HNoInputPreferred {
@@ -74,19 +75,16 @@ public class HStaticText extends HVisible implements HNoInputPreferred {
 
     public static void setDefaultLook(HTextLook hlook)
     {
-        DefaultLook = hlook;
+        BDJXletContext.setXletDefaultLook(PROPERTY_LOOK,hlook);
     }
 
     public static HTextLook getDefaultLook()
     {
-        if (DefaultLook == null)
-            DefaultLook = new HTextLook();
-        return DefaultLook;
+        return (HTextLook) BDJXletContext.getXletDefaultLook(PROPERTY_LOOK,DEFAULT_LOOK);
     }
 
-    private static HTextLook DefaultLook = null;
-
+    static final Class DEFAULT_LOOK = HGraphicLook.class;
+    private static final String PROPERTY_LOOK = HStaticText.class.getName();
     private static final Logger logger = Logger.getLogger(HStaticText.class.getName());
-
     private static final long serialVersionUID = 4352450387189482885L;
 }
