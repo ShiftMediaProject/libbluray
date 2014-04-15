@@ -22,7 +22,7 @@
 
 #include "attributes.h"
 
-#include <sys/types.h>
+#include <stddef.h>
 
 /*
  * array_alloc()

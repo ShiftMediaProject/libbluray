@@ -22,7 +22,7 @@
 
 #include "attributes.h"
 
-#include <sys/types.h>
+#include <stddef.h>
 
 #ifdef MACRO_H_
 #  error macro.h included before refcnt.h
