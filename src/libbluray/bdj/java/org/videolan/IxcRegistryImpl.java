@@ -473,7 +473,23 @@ public class IxcRegistryImpl {
         return result;
     }
 
+    public void unbindAll() {
+        if (null != BDJXletContext.getCurrentContext()) {
+            logger.error("unbindAll() from wrong thread: " + Logger.dumpStack());
+            return;
+        }
+
+        synchronized (remoteObjects) {
+            remoteObjects.clear();
+        }
+    }
+
     public void unbindAll(XletContext xc) {
+
+        if (null != BDJXletContext.getCurrentContext()) {
+            logger.error("unbindAll(ctx) from wrong thread: " + Logger.dumpStack());
+            return;
+        }
 
         Debug("IxcRegistry.removeBinding(" + xc + ")");
         String prefix = "/" + (String)xc.getXletProperty("dvb.org.id") + "/" + (String)xc.getXletProperty("dvb.app.id") + "/";

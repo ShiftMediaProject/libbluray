@@ -33,10 +33,24 @@ public class IxcRegistry {
     private static IxcRegistryImpl registry = null;
 
     private static IxcRegistryImpl getIxcRegistry() {
-        if (registry == null) {
-            registry = new IxcRegistryImpl();
+        synchronized (IxcRegistry.class) {
+            if (registry == null) {
+                registry = new IxcRegistryImpl();
+            }
+            return registry;
         }
-        return registry;
+    }
+
+    public static void shutdown() {
+        synchronized (IxcRegistry.class) {
+            try {
+                if (registry != null) {
+                    registry.unbindAll();
+                }
+            } finally {
+                registry = null;
+            }
+        }
     }
 
     public static Remote lookup(XletContext xc, String path) throws NotBoundException, RemoteException {

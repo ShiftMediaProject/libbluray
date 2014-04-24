@@ -33,6 +33,7 @@ import org.bluray.ti.TitleImpl;
 import org.bluray.ti.selection.TitleContext;
 import org.bluray.ui.event.HRcEvent;
 import org.dvb.event.EventManager;
+import org.dvb.io.ixc.IxcRegistry;
 import org.dvb.ui.FontFactory;
 import org.videolan.bdjo.Bdjo;
 import org.videolan.media.content.PlayerManager;
@@ -135,6 +136,7 @@ public class Libbluray {
             GUIManager.shutdown();
             BDToolkit.shutdownDisc();
             SIManagerImpl.shutdown();
+            IxcRegistry.shutdown();
         } catch (Throwable e) {
             e.printStackTrace();
         }
