@@ -28,6 +28,7 @@ import javax.media.PackageManager;
 import javax.tv.service.SIManagerImpl;
 import javax.tv.service.selection.ServiceContextFactory;
 
+import org.bluray.bdplus.Status;
 import org.bluray.ti.DiscManager;
 import org.bluray.ti.TitleImpl;
 import org.bluray.ti.selection.TitleContext;
@@ -137,6 +138,7 @@ public class Libbluray {
             BDToolkit.shutdownDisc();
             SIManagerImpl.shutdown();
             IxcRegistry.shutdown();
+            Status.shutdown();
         } catch (Throwable e) {
             e.printStackTrace();
         }

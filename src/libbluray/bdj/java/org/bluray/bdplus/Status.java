@@ -32,6 +32,17 @@ public class Status {
         return instance;
     }
 
+    public static void shutdown() {
+        Status s;
+        synchronized (Status.class) {
+            s = instance;
+            instance = null;
+        }
+        if (s != null) {
+            s.listeners.clear();
+        }
+    }
+
     public void addListener(StatusListener listener) {
         listeners.add(listener);
     }

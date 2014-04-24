@@ -75,6 +75,16 @@ public class BDJListeners {
         }
     }
 
+    public void clear() {
+        if (null != BDJXletContext.getCurrentContext()) {
+            logger.error("clear() from wrong thread: " + Logger.dumpStack());
+            return;
+        }
+        synchronized (listeners) {
+            listeners.clear();
+        }
+    }
+
     public void putCallback(Object event) {
         synchronized (listeners) {
             for (Iterator it = listeners.iterator(); it.hasNext(); ) {

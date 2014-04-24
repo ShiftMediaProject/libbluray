@@ -42,14 +42,13 @@ public class IxcRegistry {
     }
 
     public static void shutdown() {
+        IxcRegistryImpl r;
         synchronized (IxcRegistry.class) {
-            try {
-                if (registry != null) {
-                    registry.unbindAll();
-                }
-            } finally {
-                registry = null;
-            }
+            r = registry;
+            registry = null;
+        }
+        if (r != null) {
+            r.unbindAll();
         }
     }
 
