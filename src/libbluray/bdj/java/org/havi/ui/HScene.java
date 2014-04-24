@@ -256,6 +256,7 @@ public class HScene extends Container implements HComponentOrdering {
             Graphics g = GUIManager.getInstance().getGraphics();
             Rectangle r = getBounds();
             g.clearRect(r.x, r.y, r.width, r.height);
+            g.dispose();
 
             if (image != null) {
                 image.flush();
