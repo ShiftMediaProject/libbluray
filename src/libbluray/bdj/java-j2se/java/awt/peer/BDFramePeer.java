@@ -177,7 +177,9 @@ public class BDFramePeer extends BDComponentPeer implements FramePeer
     public void setVisible(boolean b) {
         //Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(new WindowEvent((Frame)component, WindowEvent.WINDOW_ACTIVATED));
         if (b == true) {
-            component.paint(getGraphics());
+            Graphics g = getGraphics();
+            component.paint(g);
+            g.dispose();
         }
     }
 
