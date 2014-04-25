@@ -321,7 +321,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         commandQueue.shutdown();
     }
 
-    protected void endOfMedia() {
+    protected void endOfMedia(int playlist) {
         if (isClosed) return;
 
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_END_OF_MEDIA, null);

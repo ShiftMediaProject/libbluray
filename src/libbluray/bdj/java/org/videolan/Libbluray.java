@@ -372,7 +372,7 @@ public class Libbluray {
             if (rate > 0.99f && rate < 1.01f) rate = 1.0f;
             PlayerManager.getInstance().onRateChange(rate);
         case BDJ_EVENT_END_OF_PLAYLIST:
-            PlayerManager.getInstance().onPlaylistEnd();
+            PlayerManager.getInstance().onPlaylistEnd(param);
             break;
         case BDJ_EVENT_PSR102:
             org.bluray.bdplus.Status.getInstance().receive(param);

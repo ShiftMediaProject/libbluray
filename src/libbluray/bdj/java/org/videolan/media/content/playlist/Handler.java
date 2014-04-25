@@ -226,6 +226,17 @@ public class Handler extends BDHandler {
         ((PiPControlImpl)controls[8]).onPiPChange(param);
     }
 
+    protected void endOfMedia(int playlist) {
+        synchronized (this) {
+            if (locator == null || locator.getPlayListId() != playlist) {
+                System.err.println("endOfMedia ignored: playlist does not match (" + playlist + " != " + locator.getPlayListId());
+                return;
+            }
+        }
+
+        super.endOfMedia(playlist);
+    }
+
     protected BDLocator getLocator() {
         return locator;
     }

@@ -114,10 +114,10 @@ public class PlayerManager {
      *
      */
 
-    public void onPlaylistEnd() {
+    public void onPlaylistEnd(int playlist) {
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.endOfMedia();
+                playlistPlayer.endOfMedia(playlist);
         }
     }
 

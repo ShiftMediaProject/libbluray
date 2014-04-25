@@ -3196,7 +3196,7 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
     }
 
     if (bd->bdj_end_of_playlist == 1) {
-        _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, 0);
+        _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, bd_psr_read(bd->regs, PSR_PLAYLIST));
         bd->bdj_end_of_playlist |= 2;
     }
 
