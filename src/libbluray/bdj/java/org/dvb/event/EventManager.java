@@ -48,10 +48,11 @@ public class EventManager implements ResourceServer {
         throws IllegalArgumentException {
         if (client == null)
             throw new IllegalArgumentException();
+        BDJXletContext context = BDJXletContext.getCurrentContext();
         synchronized (this) {
             if (!cleanupReservedEvents(userEvents))
                 return false;
-            exclusiveUserEventListener.add(new UserEventItem(BDJXletContext.getCurrentContext(), listener, client, userEvents));
+            exclusiveUserEventListener.add(new UserEventItem(context, listener, client, userEvents));
             sendResourceStatusEvent(new UserEventUnavailableEvent(userEvents));
             return true;
         }
@@ -60,8 +61,9 @@ public class EventManager implements ResourceServer {
     public void addUserEventListener(UserEventListener listener, UserEventRepository userEvents) {
         if (listener == null || userEvents == null)
             throw new NullPointerException();
+        BDJXletContext context = BDJXletContext.getCurrentContext();
         synchronized (this) {
-            sharedUserEventListener.add(new UserEventItem(BDJXletContext.getCurrentContext(), listener, null, userEvents));
+            sharedUserEventListener.add(new UserEventItem(context, listener, null, userEvents));
         }
     }
 
@@ -87,10 +89,11 @@ public class EventManager implements ResourceServer {
             throws IllegalArgumentException {
         if (client == null)
             throw new IllegalArgumentException();
+        BDJXletContext context = BDJXletContext.getCurrentContext();
         synchronized (this) {
             if (!cleanupReservedEvents(userEvents))
                 return false;
-            exclusiveAWTEventListener.add(new UserEventItem(BDJXletContext.getCurrentContext(), null, client, userEvents));
+            exclusiveAWTEventListener.add(new UserEventItem(context, null, client, userEvents));
             sendResourceStatusEvent(new UserEventUnavailableEvent(userEvents));
             return true;
         }
