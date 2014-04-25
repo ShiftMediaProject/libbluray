@@ -44,6 +44,20 @@ public class EventManager implements ResourceServer {
         return instance;
     }
 
+    public static void shutdown() {
+        EventManager e;
+        synchronized (EventManager.class) {
+            e = instance;
+            instance = null;
+        }
+        if (e != null) {
+            e.exclusiveUserEventListener.clear();
+            e.sharedUserEventListener.clear();
+            e.exclusiveAWTEventListener.clear();
+            e.resourceStatusEventListeners.clear();
+        }
+    }
+
     public boolean addUserEventListener(UserEventListener listener, ResourceClient client, UserEventRepository userEvents)
         throws IllegalArgumentException {
         if (client == null)

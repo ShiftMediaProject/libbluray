@@ -138,6 +138,7 @@ public class Libbluray {
             BDToolkit.shutdownDisc();
             SIManagerImpl.shutdown();
             IxcRegistry.shutdown();
+            EventManager.shutdown();
             Status.shutdown();
         } catch (Throwable e) {
             e.printStackTrace();
