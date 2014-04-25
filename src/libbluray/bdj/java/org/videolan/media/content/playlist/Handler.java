@@ -270,7 +270,8 @@ public class Handler extends BDHandler {
             throw new IllegalArgumentException();
         PlaylistPlayerAction action = new PlaylistPlayerAction(
                 this, PlaylistPlayerAction.ACTION_SEEK_MARK, mark);
-                BDJActionManager.getInstance().putCommand(action);
+        commandQueue.put(action);
+        action.waitEnd();
     }
 
     protected void seekPlayItem(int item) throws IllegalArgumentException {
@@ -278,7 +279,8 @@ public class Handler extends BDHandler {
             throw new IllegalArgumentException();
         PlaylistPlayerAction action = new PlaylistPlayerAction(
                 this, PlaylistPlayerAction.ACTION_SEEK_PLAYITEM, item);
-                BDJActionManager.getInstance().putCommand(action);
+        commandQueue.put(action);
+        action.waitEnd();
     }
 
     private class PlaylistPlayerAction extends BDJAction {

@@ -20,7 +20,7 @@ package org.videolan;
 
 import java.util.LinkedList;
 
-class BDJActionQueue implements Runnable {
+public class BDJActionQueue implements Runnable {
     public BDJActionQueue(String name) {
         this(null, name);
     }
@@ -38,7 +38,7 @@ class BDJActionQueue implements Runnable {
         thread.start();
     }
 
-    protected void shutdown() {
+    public void shutdown() {
         synchronized (actions) {
             terminated = true;
             actions.addLast(null);

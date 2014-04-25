@@ -77,9 +77,8 @@ public class PlayerManager {
         if (player instanceof org.videolan.media.content.playlist.Handler) {
             synchronized (playlistPlayerLock) {
                 if (playlistPlayer != null && player != playlistPlayer) {
-                    //playlistPlayer.stop();
-                    //playlistPlayer.deallocate();
-                    playlistPlayer.doDeallocateAction();
+                    playlistPlayer.stop();
+                    playlistPlayer.deallocate();
                 }
                 playlistPlayer = player;
             }

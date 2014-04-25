@@ -58,6 +58,7 @@ import org.bluray.net.BDLocator;
 
 import org.videolan.BDJAction;
 import org.videolan.BDJActionManager;
+import org.videolan.BDJActionQueue;
 import org.videolan.BDJListeners;
 import org.videolan.BDJXletContext;
 import org.videolan.Logger;
@@ -66,6 +67,14 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
 
     public BDHandler() {
         ownerContext = BDJXletContext.getCurrentContext();
+
+        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_INIT, null);
+        BDJActionManager.getInstance().putCommand(action);
+        action.waitEnd();
+    }
+
+    private void doInitAction() {
+        commandQueue = new BDJActionQueue("MediaPlayer");
         PlayerManager.getInstance().registerPlayer(this);
     }
 
@@ -196,8 +205,11 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
 
     public void setMediaTime(Time now) {
         checkUnrealized();
+
+        if (isClosed) return;
+
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_SEEK_TIME, now);
-        BDJActionManager.getInstance().putCommand(action);
+        commandQueue.put(action);
         action.waitEnd();
     }
 
@@ -228,8 +240,9 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
 
     public float setRate(float factor) {
         checkUnrealized();
+
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_SET_RATE, new Float(factor));
-        BDJActionManager.getInstance().putCommand(action);
+        commandQueue.put(action);
         action.waitEnd();
         return rate;
     }
@@ -243,13 +256,17 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     }
 
     public void realize() {
+        if (isClosed) return;
+
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_REALIZE, null);
-        BDJActionManager.getInstance().putCommand(action);
+        commandQueue.put(action);
     }
 
     public void prefetch() {
+        if (isClosed) return;
+
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_PREFETCH, null);
-        BDJActionManager.getInstance().putCommand(action);
+        commandQueue.put(action);
     }
 
     public void syncStart(Time at) {
@@ -257,36 +274,58 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
             if (state != Prefetched)
                 throw new NotPrefetchedError("syncStart");
         }
+        if (isClosed) return;
+
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_START, at);
-        BDJActionManager.getInstance().putCommand(action);
+        commandQueue.put(action);
     }
 
     public void start() {
+        if (isClosed) return;
+
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_START, null);
-        BDJActionManager.getInstance().putCommand(action);
+        commandQueue.put(action);
     }
 
     public void stop() {
+        if (isClosed) return;
+
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_STOP, null);
-        BDJActionManager.getInstance().putCommand(action);
+        commandQueue.put(action);
         action.waitEnd();
     }
 
     public void deallocate() {
+        if (isClosed) return;
+
+        if (state == Started) {
+        }
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_DEALLOCATE, null);
-        BDJActionManager.getInstance().putCommand(action);
+        commandQueue.put(action);
         action.waitEnd();
+
+        PlayerManager.getInstance().releaseResource(this);
     }
 
     public void close() {
+        if (isClosed) return;
+
+        stop();
+        deallocate();
+
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_CLOSE, null);
-        BDJActionManager.getInstance().putCommand(action);
+        commandQueue.put(action);
         action.waitEnd();
+
+        isClosed = true;
+        commandQueue.shutdown();
     }
 
     protected void endOfMedia() {
+        if (isClosed) return;
+
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_END_OF_MEDIA, null);
-        BDJActionManager.getInstance().putCommand(action);
+        commandQueue.put(action);
     }
 
     protected void updateTime(int time) {
@@ -444,7 +483,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         return true;
     }
 
-    protected boolean doDeallocateAction() {
+    private boolean doDeallocateAction() {
         ControllerErrorEvent error;
         switch (state) {
         case Realizing:
@@ -464,7 +503,6 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         default:
             error = doDeallocate();
             if (error == null) {
-                PlayerManager.getInstance().releaseResource(this);
                 int previous = state;
                 state = Realized;
                 notifyListeners(new DeallocateEvent(this, previous, Realized, Realized, getMediaTime()));
@@ -504,6 +542,9 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
 
         protected void doAction() {
             switch (action) {
+            case ACTION_INIT:
+                player.doInitAction();
+                break;
             case ACTION_REALIZE:
                 player.doRealizeAction();
                 break;
@@ -547,6 +588,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         public static final int ACTION_END_OF_MEDIA = 7;
         public static final int ACTION_SEEK_TIME = 8;
         public static final int ACTION_SET_RATE = 9;
+        public static final int ACTION_INIT = 10;
     }
 
     protected int state = Unrealized;
@@ -559,6 +601,9 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     protected BDLocator locator = null;
     private BDJListeners listeners = new BDJListeners();
     private BDJXletContext ownerContext;
+    boolean isClosed = false;
+
+    protected BDJActionQueue commandQueue;
 
     public static final double TO_SECONDS = 1 / 90000.0d;
     public static final double FROM_SECONDS = 90000.0d;
