@@ -168,6 +168,8 @@ public class BDRootWindow extends Frame {
         BDToolkit.setFocusedWindow(null);
 
         super.dispose();
+
+        backBuffer = null;
     }
 
     private int[] backBuffer = null;
