@@ -39,6 +39,7 @@ import org.videolan.bdjo.Bdjo;
 import org.videolan.bdjo.GraphicsResolution;
 import org.videolan.bdjo.PlayListTable;
 import org.videolan.bdjo.TerminalInfo;
+import org.videolan.media.content.PlayerManager;
 
 public class BDJLoader {
     public static boolean load(int title) {
@@ -236,6 +237,8 @@ public class BDJLoader {
             }
 
             ((BDJAppsDatabase)db).newDatabase(null, null);
+
+            PlayerManager.getInstance().releaseAllPlayers(true);
 
             //GUIManager.shutdown() does not work with J2ME (window can't be opened again)
             GUIManager.getInstance().setVisible(false);
