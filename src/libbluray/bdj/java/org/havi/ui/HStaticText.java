@@ -83,7 +83,7 @@ public class HStaticText extends HVisible implements HNoInputPreferred {
         return (HTextLook) BDJXletContext.getXletDefaultLook(PROPERTY_LOOK,DEFAULT_LOOK);
     }
 
-    static final Class DEFAULT_LOOK = HGraphicLook.class;
+    static final Class DEFAULT_LOOK = HTextLook.class;
     private static final String PROPERTY_LOOK = HStaticText.class.getName();
     private static final Logger logger = Logger.getLogger(HStaticText.class.getName());
     private static final long serialVersionUID = 4352450387189482885L;
