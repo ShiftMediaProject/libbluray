@@ -33,7 +33,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
     public BDJAppProxy(BDJXletContext context) {
         this.context = context;
         state = NOT_LOADED;
-        thread = new Thread(context.getThreadGroup(), this);
+        thread = new Thread(context.getThreadGroup(), this, "BDJAppProxy");
         thread.setDaemon(true);
         thread.start();
 
