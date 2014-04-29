@@ -89,11 +89,8 @@ public class BDJListeners {
         synchronized (listeners) {
             for (Iterator it = listeners.iterator(); it.hasNext(); ) {
                 BDJListener item = (BDJListener)it.next();
-                if (item.ctx == null) {
-                    logger.error("Listener callback: no context: " + item.listener);
-                    it.remove();
-                } else if (item.ctx.isReleased()) {
-                    logger.error("Listener terminated: " + item.ctx);
+                if (item.ctx == null || item.ctx.isReleased()) {
+                    logger.info("Listener terminated: " + item.ctx);
                     it.remove();
                 } else {
                     item.ctx.putCallback(new Callback(event, item.listener));
