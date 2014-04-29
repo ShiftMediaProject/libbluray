@@ -52,6 +52,12 @@ public class BDJThreadGroup extends ThreadGroup {
     }
 
     public boolean waitForShutdown(int timeout, int maxThreads) {
+
+        if (parentOf(Thread.currentThread().getThreadGroup()) && maxThreads < 1) {
+            logger.error("Current Thread is contained within ThreadGroup to be disposed.");
+            throw new IllegalThreadStateException("Current Thread is contained within ThreadGroup to be disposed.");
+        }
+
         long startTime = System.currentTimeMillis();
         long endTime = startTime + timeout;
         while ((activeCount() > maxThreads) &&
