@@ -586,6 +586,14 @@ static int _parse_clpi_extension(BITSTREAM *bits, int id1, int id2, void *handle
 {
     CLPI_CL *cl = (CLPI_CL*)handle;
 
+    if (id1 == 1) {
+        if (id2 == 2) {
+            // LPCM down mix coefficient
+            //_parse_lpcm_down_mix_coeff(bits, &cl->lpcm_down_mix_coeff);
+            return 0;
+        }
+    }
+
     if (id1 == 2) {
         if (id2 == 4) {
             // Extent start point

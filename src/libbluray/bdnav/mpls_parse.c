@@ -894,6 +894,9 @@ _parse_mpls_extension(BITSTREAM *bits, int id1, int id2, void *handle)
     }
 
     if (id1 == 2) {
+        if (id2 == 1) {
+            return 0;
+        }
         if (id2 == 2) {
             // SubPath entries extension
             return _parse_subpath_extension(bits, pl);
