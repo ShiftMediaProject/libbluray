@@ -58,6 +58,10 @@ public class BDFramePeer extends BDComponentPeer implements FramePeer
     public void setTitle(String title) {
     }
 
+    /* Java 8 */
+    public void emulateActivation(boolean doActivate) {
+    }
+
     //
     // ContainerPeer
     //
