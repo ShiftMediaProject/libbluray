@@ -29,6 +29,7 @@ package java.io;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import java.net.URL;
 
@@ -46,6 +47,11 @@ public abstract class BDFileSystem extends FileSystem {
         try {
             filesystem = c.getDeclaredField("fs");
             filesystem.setAccessible(true);
+
+            /* Java 8: remove "final" modifier from the field */
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(filesystem, filesystem.getModifiers() & ~Modifier.FINAL);
 
             FileSystem fs = (FileSystem)filesystem.get(null);
             if (fs instanceof BDFileSystemImpl) {
