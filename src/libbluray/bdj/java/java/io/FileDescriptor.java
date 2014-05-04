@@ -74,4 +74,8 @@ public final class FileDescriptor {
             return useCount;
         }
     }
+
+    /* Java 8 */
+    void attach(Closeable c) {
+    }
 }
