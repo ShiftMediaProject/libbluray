@@ -21,74 +21,110 @@ package org.havi.ui;
 
 import java.awt.Image;
 
+import org.videolan.BDJXletContext;
+
 public class HToggleButton extends HGraphicButton implements HSwitchable {
     public HToggleButton()
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
+        super();
+        iniz();
     }
 
     public HToggleButton(Image image, int x, int y, int width, int height)
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
+        super(image, x, y, width, height);
+        iniz();
     }
 
     public HToggleButton(Image image)
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
+        super(image);
+        iniz();
     }
 
     public HToggleButton(Image image, int x, int y, int width, int height,
             boolean state)
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
+        this(image, x, y, width, height);
+        setSwitchableState(state);
     }
 
     public HToggleButton(Image imageNormal, Image imageFocused,
             Image imageActioned, Image imageNormalActioned, int x, int y,
             int width, int height, boolean state)
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
+        super(imageNormal, imageFocused, imageActioned, x, y, width, height);
+        setGraphicContent(imageNormalActioned, ACTIONED_STATE);
+        setSwitchableState(state);
+        iniz();
     }
 
     public HToggleButton(Image imageNormal, Image imageFocused,
             Image imageActioned, Image imageNormalActioned, boolean state)
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
+        super(imageNormal, imageFocused, imageActioned);
+        setGraphicContent(imageNormalActioned, ACTIONED_STATE);
+        setSwitchableState(state);
+        iniz();
     }
 
     public HToggleButton(Image image, int x, int y, int width, int height,
             boolean state, HToggleGroup group)
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
-        toggleGroup = group;
+        this(image, x, y, width, height, state);
+        setToggleGroup(group);
     }
 
     public HToggleButton(Image image, boolean state, HToggleGroup group)
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
-        toggleGroup = group;
+        this(image);
+        setSwitchableState(state);
+        setToggleGroup(group);
     }
 
     public HToggleButton(Image imageNormal, Image imageFocused,
             Image imageActioned, Image imageNormalActioned, int x, int y,
             int width, int height, boolean state, HToggleGroup group)
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
-        toggleGroup = group;
+        this(imageNormal, imageFocused, imageActioned, imageNormalActioned, x, y, width, height, state);
+        setToggleGroup(group);
     }
 
     public HToggleButton(Image imageNormal, Image imageFocused,
             Image imageActioned, Image imageNormalActioned, boolean state,
             HToggleGroup group)
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "");
-        toggleGroup = group;
+        this(imageNormal, imageFocused, imageActioned, imageNormalActioned, state);
+        setToggleGroup(group);
+    }
+
+    private void iniz()
+    {
+        try {
+            setLook(getDefaultLook());
+        } catch (HInvalidLookException ignored) {
+        }
     }
 
     public void setToggleGroup(HToggleGroup group)
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "setToggleGroup");
+        HToggleGroup oldGroup = toggleGroup;
+
+        // Remove ourselves if already a member of a group
+        if (oldGroup != null) {
+            // If it is the same, don't do anything.
+            if (oldGroup == group)
+                return;
+
+            // Remove ourselves
+            oldGroup.remove(this);
+        }
+
+        // Assign the new toggle group
         toggleGroup = group;
+        if (group != null) {
+            group.add(this);
+        }
     }
 
     public HToggleGroup getToggleGroup()
@@ -98,30 +134,28 @@ public class HToggleButton extends HGraphicButton implements HSwitchable {
 
     public void removeToggleGroup()
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "removeToggleGroup");
+        setToggleGroup(null);
     }
 
     public static void setDefaultLook(HGraphicLook hlook)
     {
-        DefaultLook = hlook;
+        BDJXletContext.setXletDefaultLook(PROPERTY_LOOK, hlook);
     }
 
     public static HGraphicLook getDefaultLook()
     {
-        if (DefaultLook == null)
-            org.videolan.Logger.unimplemented("", "getDefaultLook");
-        return DefaultLook;
+        return (HGraphicLook) BDJXletContext.getXletDefaultLook(PROPERTY_LOOK, DEFAULT_LOOK);
     }
 
     public boolean getSwitchableState()
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "getSwitchableState");
-        return true;
+        return (getInteractionState() & ACTIONED_STATE_BIT) != 0;
     }
 
     public void setSwitchableState(boolean state)
     {
-        org.videolan.Logger.unimplemented(HToggleButton.class.getName(), "setSwitchableState");
+        int old = getInteractionState();
+        setInteractionState(state ? (old | ACTIONED_STATE_BIT) : (old & ~ACTIONED_STATE_BIT));
     }
 
     public void setUnsetActionSound(HSound sound)
@@ -134,8 +168,7 @@ public class HToggleButton extends HGraphicButton implements HSwitchable {
         return unsetActionSound;
     }
 
-    private static HGraphicLook DefaultLook = null;
-
+    private static final String PROPERTY_LOOK = "HToggleButton";
     private HToggleGroup toggleGroup = null;
     private HSound unsetActionSound = null;
 
