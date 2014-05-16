@@ -56,8 +56,7 @@ library_not_found="Could not find required library!"
 function_not_found="Could not find required function!"
 
 dnl configure options
-AC_ARG_VAR([JDK_HOME], [Path to the JDK @<:@default=/usr/lib/jvm/java-6-openjdk@:>@])
-AS_IF([test -z "$JDK_HOME"], [JDK_HOME="/usr/lib/jvm/java-6-openjdk"])
+AC_ARG_VAR([JDK_HOME], [Path to the JDK])
 
 AC_ARG_ENABLE([werror],
   [AS_HELP_STRING([--enable-werror], [set warnings as errors via -Werror @<:@default=disabled@:>@])])
@@ -187,12 +186,17 @@ if [[ $use_bdjava = "yes" ]]; then
        *)        java_os=$host_os ;;
   esac
 
-  BDJAVA_CFLAGS="-I${JDK_HOME}/include -I${JDK_HOME}/include/$java_os"
+  AS_IF([test "x${JDK_HOME}" != "x"], [
+    BDJAVA_CFLAGS="-I${JDK_HOME}/include -I${JDK_HOME}/include/$java_os"
 
-  temp_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$BDJAVA_CFLAGS $CPPFLAGS"
-  AC_CHECK_HEADERS([jni.h], [], [AC_MSG_ERROR("Could not find jni.h")])
-  CPPFLAGS="$temp_CPPFLAGS"
+    temp_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$BDJAVA_CFLAGS $CPPFLAGS"
+    AC_CHECK_HEADERS([jni.h], [], [AC_MSG_ERROR(could not find jni.h)])
+    CPPFLAGS="$temp_CPPFLAGS"
+  ], [
+    BDJAVA_CFLAGS='-I${abs_top_srcdir}/jni -I${abs_top_srcdir}/jni/'
+    BDJAVA_CFLAGS+="${java_os}"
+  ])
 
   AC_DEFINE([USING_BDJAVA], [1], ["Define to 1 if using BD-Java"])
   AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
