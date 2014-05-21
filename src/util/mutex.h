@@ -39,20 +39,31 @@
 
 typedef CRITICAL_SECTION BD_MUTEX;
 
-#define bd_mutex_lock(m) \
-  (EnterCriticalSection(m), 0)
+static inline int bd_mutex_lock(BD_MUTEX *p) {
+    EnterCriticalSection(p);
+    return 0;
+}
 
-#define bd_mutex_unlock(m) \
-  (LeaveCriticalSection(m), 0)
+static inline int bd_mutex_unlock(BD_MUTEX *p) {
+    LeaveCriticalSection(p);
+    return 0;
+}
 
-#define bd_mutex_trylock(m) \
-  (TryEnterCriticalSection(m) ? 0 : EBUSY)
+#if 0
+static int bd_mutex_trylock(BD_MUTEX *p) {
+    return TryEnterCriticalSection(p) ? 0 : EBUSY;
+}
+#endif
 
-#define bd_mutex_init(m) \
-  (InitializeCriticalSection(m), 0)
+static inline int bd_mutex_init(BD_MUTEX *p) {
+    InitializeCriticalSection(p);
+    return 0;
+}
 
-#define bd_mutex_destroy(m) \
-  (DeleteCriticalSection(m), 0)
+static inline int bd_mutex_destroy(BD_MUTEX *p) {
+    DeleteCriticalSection(p);
+    return 0;
+}
 
 
 #elif defined(HAVE_PTHREAD_H)
