@@ -194,8 +194,7 @@ if [[ $use_bdjava = "yes" ]]; then
     AC_CHECK_HEADERS([jni.h], [], [AC_MSG_ERROR(could not find jni.h)])
     CPPFLAGS="$temp_CPPFLAGS"
   ], [
-    BDJAVA_CFLAGS='-I${abs_top_srcdir}/jni -I${abs_top_srcdir}/jni/'
-    BDJAVA_CFLAGS+="${java_os}"
+    BDJAVA_CFLAGS='-I${abs_top_srcdir}/jni -I${abs_top_srcdir}/jni/'"${java_os}"
   ])
 
   AC_DEFINE([USING_BDJAVA], [1], ["Define to 1 if using BD-Java"])
