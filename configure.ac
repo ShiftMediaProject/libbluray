@@ -175,6 +175,7 @@ if [[ $use_bdjava = "yes" ]]; then
   case $host_cpu in
        x86_64) java_arch=amd64 ;;
        i?86)   java_arch=i386 ;;
+       arm*)   java_arch=arm ;;
        *)      java_arch=$host_cpu ;;
   esac
   case $host_os in
