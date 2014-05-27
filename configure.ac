@@ -37,6 +37,7 @@ case "${host_os}" in
         SYS=mingw32
         AC_DEFINE([_WIN32_WINNT], 0x0501, [Define to '0x0500' for Windows XP APIs.])
         AC_DEFINE([_WIN32_IE], 0x0501, [Define to '0x0501' for IE 5.01.])
+        CPPFLAGS="${CPPFLAGS} -D__USE_MINGW_ANSI_STDIO=1"
         ;;
     esac
     ;;
