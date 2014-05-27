@@ -694,21 +694,21 @@ struct JNINativeInterface_ {
       (JNIEnv *env, jdoubleArray array, jsize start, jsize len, jdouble *buf);
 
     void (JNICALL *SetBooleanArrayRegion)
-      (JNIEnv *env, jbooleanArray array, jsize start, jsize l, jboolean *buf);
+      (JNIEnv *env, jbooleanArray array, jsize start, jsize l, const jboolean *buf);
     void (JNICALL *SetByteArrayRegion)
-      (JNIEnv *env, jbyteArray array, jsize start, jsize len, jbyte *buf);
+      (JNIEnv *env, jbyteArray array, jsize start, jsize len, const jbyte *buf);
     void (JNICALL *SetCharArrayRegion)
-      (JNIEnv *env, jcharArray array, jsize start, jsize len, jchar *buf);
+      (JNIEnv *env, jcharArray array, jsize start, jsize len, const jchar *buf);
     void (JNICALL *SetShortArrayRegion)
-      (JNIEnv *env, jshortArray array, jsize start, jsize len, jshort *buf);
+      (JNIEnv *env, jshortArray array, jsize start, jsize len, const jshort *buf);
     void (JNICALL *SetIntArrayRegion)
-      (JNIEnv *env, jintArray array, jsize start, jsize len, jint *buf);
+      (JNIEnv *env, jintArray array, jsize start, jsize len, const jint *buf);
     void (JNICALL *SetLongArrayRegion)
-      (JNIEnv *env, jlongArray array, jsize start, jsize len, jlong *buf);
+      (JNIEnv *env, jlongArray array, jsize start, jsize len, const jlong *buf);
     void (JNICALL *SetFloatArrayRegion)
-      (JNIEnv *env, jfloatArray array, jsize start, jsize len, jfloat *buf);
+      (JNIEnv *env, jfloatArray array, jsize start, jsize len, const jfloat *buf);
     void (JNICALL *SetDoubleArrayRegion)
-      (JNIEnv *env, jdoubleArray array, jsize start, jsize len, jdouble *buf);
+      (JNIEnv *env, jdoubleArray array, jsize start, jsize len, const jdouble *buf);
 
     jint (JNICALL *RegisterNatives)
       (JNIEnv *env, jclass clazz, const JNINativeMethod *methods, 
