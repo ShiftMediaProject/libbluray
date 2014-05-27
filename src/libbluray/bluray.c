@@ -2618,10 +2618,12 @@ int bd_start_bdj(BLURAY *bd, const char *start_object)
     }
 
     /* valid BD-J title from disc index ? */
-    for (ii = 0; ii <= bd->disc_info.num_titles; ii++) {
-        t = bd->disc_info.titles[ii];
-        if (t && t->bdj && t->id_ref == title_num) {
-            return _start_bdj(bd, ii);
+    if (bd->disc_info.titles) {
+        for (ii = 0; ii <= bd->disc_info.num_titles; ii++) {
+            t = bd->disc_info.titles[ii];
+            if (t && t->bdj && t->id_ref == title_num) {
+                return _start_bdj(bd, ii);
+            }
         }
     }
 
