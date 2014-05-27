@@ -421,7 +421,8 @@ static void _update_chapter_psr(BLURAY *bd)
 
 static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigned *sub_clip_idx, uint8_t *char_code)
 {
-    MPLS_PI  *pi        = &bd->title->pl->play_item[0];
+    unsigned  main_clip_idx = bd->st0.clip->ref;
+    MPLS_PI  *pi        = &bd->title->pl->play_item[main_clip_idx];
     unsigned  pg_stream = bd_psr_read(bd->regs, PSR_PG_STREAM);
 
 #if 0
