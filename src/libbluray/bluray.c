@@ -1999,7 +1999,8 @@ static int _preload_textst_subpath(BLURAY *bd)
 
 static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigned *sub_clip_idx)
 {
-    MPLS_PI  *pi        = &bd->title->pl->play_item[0];
+    unsigned  main_clip_idx = bd->st0.clip->ref;
+    MPLS_PI  *pi        = &bd->title->pl->play_item[main_clip_idx];
     unsigned  ig_stream = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
 
     if (ig_stream > 0 && ig_stream <= pi->stn.num_ig) {
