@@ -48,8 +48,9 @@ public class Status {
     }
 
     public int get() {
-        logger.trace("get()");
-        return Libbluray.readPSR(104);
+        int val = Libbluray.readPSR(104);
+        logger.trace("get(): 0x" + Integer.toHexString(val));
+        return val;
     }
 
     public void removeListener(StatusListener listener) {
@@ -57,17 +58,17 @@ public class Status {
     }
 
     public void send(int data) {
-        logger.trace("send(" + data + ")");
+        logger.trace("send(0x" + Integer.toHexString(data) + ")");
         Libbluray.writePSR(103, data);
     }
 
     public void set(int data) {
-        logger.trace("set(" + data + ")");
+        logger.trace("set(0x" + Integer.toHexString(data) + ")");
         Libbluray.writePSR(104, data);
     }
 
     public void receive(int data) {
-        logger.trace("receive(" + data + ")");
+        logger.trace("receive(0x" + Integer.toHexString(data) + ")");
         listeners.putPSR102Callback(data);
     }
 
