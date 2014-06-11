@@ -136,6 +136,7 @@ public class Libbluray {
             MountManager.unmountAll();
             GUIManager.shutdown();
             BDToolkit.shutdownDisc();
+            java.awt.BDFontMetrics.shutdown();
             SIManagerImpl.shutdown();
             IxcRegistry.shutdown();
             EventManager.shutdown();

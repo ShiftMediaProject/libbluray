@@ -32,7 +32,7 @@ public class BDFontMetrics extends FontMetrics {
     private static native long initN();
     private static native void destroyN(long ftLib);
 
-    public static void init() {
+    public synchronized static void init() {
         //System.loadLibrary("bluray");
 
         if (ftLib != 0)
@@ -44,24 +44,6 @@ public class BDFontMetrics extends FontMetrics {
             System.err.println("freetype library not loaded");
             throw new AWTError("freetype lib not loaded");
         }
-
-        Runtime.getRuntime().addShutdownHook(
-            new Thread() {
-                public void run() {
-                    Iterator it = fontMetricsMap.values().iterator();
-                    while (it.hasNext()) {
-                        try {
-                            BDFontMetrics fm = (BDFontMetrics)it.next();
-                            it.remove();
-                            fm.destroy();
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    BDFontMetrics.destroyN(BDFontMetrics.ftLib);
-                }
-            }
-        );
 
         String javaHome = (String) AccessController.doPrivileged(new PrivilegedAction() {
                 public Object run() {
@@ -99,6 +81,21 @@ public class BDFontMetrics extends FontMetrics {
         fontNameMap.put("default.3", dir + "LucidaSansDemiOblique.ttf");
     }
 
+    public synchronized static void shutdown() {
+        Iterator it = fontMetricsMap.values().iterator();
+        while (it.hasNext()) {
+            try {
+                BDFontMetrics fm = (BDFontMetrics)it.next();
+                it.remove();
+                fm.destroy();
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+        destroyN(BDFontMetrics.ftLib);
+        ftLib = 0;
+    }
+
     /** A map which maps a native font name and size to a font metrics object. This is used
      as a cache to prevent loading the same fonts multiple times. */
     private static Map fontMetricsMap = new HashMap();
@@ -124,7 +121,7 @@ public class BDFontMetrics extends FontMetrics {
         return fm;
     }
 
-    static String[] getFontList() {
+    static synchronized String[] getFontList() {
         init();
 
         ArrayList fontNames = new ArrayList();
@@ -151,13 +148,13 @@ public class BDFontMetrics extends FontMetrics {
         }
     }
 
-    public static boolean registerFont(File f) {
+    public synchronized static boolean registerFont(File f) {
         //TODO
         org.videolan.Logger.unimplemented("BDFontMetrics", "registerFont");
         return false;
     }
 
-    public static void unregisterFont(String name, int style) {
+    public synchronized static void unregisterFont(String name, int style) {
         name = name.toLowerCase() + "." + style;
         fontNameMap.remove(name);
     }
