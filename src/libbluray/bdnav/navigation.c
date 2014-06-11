@@ -32,33 +32,45 @@
 #include <stdlib.h>
 #include <string.h>
 
+static int _pi_cmp(MPLS_PI *pi1, MPLS_PI *pi2)
+{
+    if (memcmp(pi1->clip[0].clip_id, pi2->clip[0].clip_id, 5) != 0 ||
+        pi1->in_time != pi2->in_time ||
+        pi1->out_time != pi2->out_time) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int _pl_cmp(MPLS_PL *pl1, MPLS_PL *pl2)
+{
+    unsigned ii;
+
+    if (pl1->list_count != pl2->list_count) {
+        return 1;
+    }
+    if (pl1->mark_count != pl2->mark_count) {
+        return 1;
+    }
+    for (ii = 0; ii < pl1->list_count; ii++) {
+        if (_pi_cmp(&pl1->play_item[ii], &pl2->play_item[ii])) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+/* return 0 if duplicate playlist */
 static int _filter_dup(MPLS_PL *pl_list[], unsigned count, MPLS_PL *pl)
 {
-    unsigned ii, jj;
+    unsigned ii;
 
     for (ii = 0; ii < count; ii++) {
-        if (pl->list_count != pl_list[ii]->list_count) {
-            continue;
+        if (!_pl_cmp(pl, pl_list[ii])) {
+            return 0;
         }
-        if (pl->mark_count != pl_list[ii]->mark_count) {
-            continue;
-        }
-        for (jj = 0; jj < pl->list_count; jj++) {
-            MPLS_PI *pi1, *pi2;
-
-            pi1 = &pl->play_item[jj];
-            pi2 = &pl_list[ii]->play_item[jj];
-
-            if (memcmp(pi1->clip[0].clip_id, pi2->clip[0].clip_id, 5) != 0 ||
-                pi1->in_time != pi2->in_time ||
-                pi1->out_time != pi2->out_time) {
-                break;
-            }
-        }
-        if (jj != pl->list_count) {
-            continue;
-        }
-        return 0;
     }
     return 1;
 }
