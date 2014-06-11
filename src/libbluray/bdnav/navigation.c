@@ -32,11 +32,56 @@
 #include <stdlib.h>
 #include <string.h>
 
+static int _stream_cmp(MPLS_STREAM *a, MPLS_STREAM *b)
+{
+    if (a->stream_type == b->stream_type &&
+        a->coding_type == b->coding_type &&
+        a->pid         == b->pid         &&
+        a->subpath_id  == b->subpath_id  &&
+        a->subclip_id  == b->subclip_id  &&
+        a->format      == b->format      &&
+        a->rate        == b->rate        &&
+        a->char_code   == b->char_code   &&
+        memcmp(a->lang, b->lang, 4) == 0) {
+        return 0;
+    }
+    return 1;
+}
+
+static int _streams_cmp(MPLS_STREAM *s1, MPLS_STREAM *s2, unsigned count)
+{
+    unsigned ii;
+    for (ii = 0; ii < count; ii++) {
+        if (_stream_cmp(&s1[ii], &s2[ii])) {
+          return 1;
+        }
+    }
+    return 0;
+}
+
 static int _pi_cmp(MPLS_PI *pi1, MPLS_PI *pi2)
 {
     if (memcmp(pi1->clip[0].clip_id, pi2->clip[0].clip_id, 5) != 0 ||
         pi1->in_time != pi2->in_time ||
         pi1->out_time != pi2->out_time) {
+        return 1;
+    }
+
+    if (pi1->stn.num_video           != pi2->stn.num_video  ||
+        pi1->stn.num_audio           != pi2->stn.num_audio  ||
+        pi1->stn.num_pg              != pi2->stn.num_pg   ||
+        pi1->stn.num_ig              != pi2->stn.num_ig   ||
+        pi1->stn.num_secondary_audio != pi2->stn.num_secondary_audio ||
+        pi1->stn.num_secondary_video != pi2->stn.num_secondary_video) {
+        return 1;
+    }
+
+    if (_streams_cmp(pi1->stn.video,           pi2->stn.video,           pi1->stn.num_video) ||
+        _streams_cmp(pi1->stn.audio,           pi2->stn.audio,           pi1->stn.num_audio) ||
+        _streams_cmp(pi1->stn.pg,              pi2->stn.pg,              pi1->stn.num_pg) ||
+        _streams_cmp(pi1->stn.ig,              pi2->stn.ig,              pi1->stn.num_ig) ||
+        _streams_cmp(pi1->stn.secondary_audio, pi2->stn.secondary_audio, pi1->stn.num_secondary_audio) ||
+        _streams_cmp(pi1->stn.secondary_video, pi2->stn.secondary_video, pi1->stn.num_secondary_video)) {
         return 1;
     }
 
