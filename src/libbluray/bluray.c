@@ -421,7 +421,7 @@ static void _update_chapter_psr(BLURAY *bd)
 
 static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigned *sub_clip_idx, uint8_t *char_code)
 {
-    unsigned  main_clip_idx = bd->st0.clip->ref;
+    unsigned  main_clip_idx = bd->st0.clip ? bd->st0.clip->ref : 0;
     MPLS_PI  *pi        = &bd->title->pl->play_item[main_clip_idx];
     unsigned  pg_stream = bd_psr_read(bd->regs, PSR_PG_STREAM);
 
@@ -1999,7 +1999,7 @@ static int _preload_textst_subpath(BLURAY *bd)
 
 static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigned *sub_clip_idx)
 {
-    unsigned  main_clip_idx = bd->st0.clip->ref;
+    unsigned  main_clip_idx = bd->st0.clip ? bd->st0.clip->ref : 0;
     MPLS_PI  *pi        = &bd->title->pl->play_item[main_clip_idx];
     unsigned  ig_stream = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
 
@@ -2762,10 +2762,12 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
             }
 
             bd_mutex_lock(&bd->mutex);
+            if (bd->st0.clip) {
             _init_pg_stream(bd);
             if (bd->st_textst.clip) {
                 BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Changing TextST stream\n");
                 _preload_textst_subpath(bd);
+            }
             }
             bd_mutex_unlock(&bd->mutex);
 
