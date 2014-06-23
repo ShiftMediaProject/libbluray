@@ -1,7 +1,7 @@
 SET_FEATURES = -D_ISOC99_SOURCE -D_POSIX_C_SOURCE=200112L -D_REENTRANT
 SET_INCLUDES = -I$(top_srcdir) -Ifile -Ilibbluray -Ilibbluray/bdnav $(BDJAVA_CFLAGS)
 
-AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_INCLUDES) $(LIBXML2_CFLAGS) $(FT2_CFLAGS)
+AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_INCLUDES) $(LIBXML2_CFLAGS) $(FT2_CFLAGS) $(FONTCONFIG_CFLAGS)
 
 EXTRA_DIST = \
        libbluray/bdj/build.xml \
@@ -121,7 +121,7 @@ endif
 
 
 libbluray_la_LDFLAGS= -version-info $(LT_VERSION_INFO)
-libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS)
+libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS) $(FONTCONFIG_LIBS)
 
 pkginclude_HEADERS = \
 	file/filesystem.h \

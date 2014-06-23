@@ -89,6 +89,9 @@ AC_ARG_WITH([libxml2],
 AC_ARG_WITH([freetype],
   [AS_HELP_STRING([--without-freetype], [build without freetype support @<:@default=with@:>@])])
 
+AC_ARG_WITH([fontconfig],
+  [AS_HELP_STRING([--without-fontconfig], [build without fontconfig support @<:@default=with@:>@])])
+
 AC_ARG_WITH([bdj-type],
   [AS_HELP_STRING([--with-bdj-type=TYPE],
   [Specify the type of BD-J implementation (j2se, j2me). Default is j2se.])],
@@ -148,6 +151,14 @@ dnl FreeType2
 AS_IF([test "x$with_freetype" != "xno"], [
   PKG_CHECK_MODULES([FT2], [freetype2],
     [with_freetype=yes; AC_DEFINE([HAVE_FT2], 1, [Define this if you have FreeType2 library])])
+
+  dnl fontconfig support
+  AS_IF([test "${SYS}" != "mingw32"], [
+    AS_IF([test "x$with_fontconfig" != "xno"], [
+      PKG_CHECK_MODULES([FONTCONFIG], [fontconfig],
+        [with_fontconfig=yes; AC_DEFINE([HAVE_FONTCONFIG], 1, [Define this if you have fontconfig library])])
+    ])
+  ])
 ])
 
 CC_CHECK_CFLAGS_APPEND([-Wall -Wdisabled-optimization -Wpointer-arith ]dnl
@@ -259,6 +270,15 @@ echo "  BD-J bootclasspath:            $BDJ_BOOTCLASSPATH"
 fi
 fi
 echo "  Font support (freetype2):      $with_freetype"
+if [[ $with_freetype = "yes" ]]; then
+if [[ $use_bdjava = "yes" ]]; then
+if test "${SYS}" != "mingw32"; then
+echo "  Use system fonts (fontconfig): $with_fontconfig"
+else
+echo "  Use system fonts:              no"
+fi
+fi
+fi
 echo "  Metadata support (libxml2):    $with_libxml2"
 echo "  Build examples:                $use_examples"
 

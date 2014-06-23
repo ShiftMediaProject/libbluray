@@ -32,6 +32,22 @@ JNIEXPORT void JNICALL Java_java_awt_BDFontMetrics_destroyN
 
 /*
  * Class:     java_awt_BDFontMetrics
+ * Method:    resolveFontN
+ * Signature: (Ljava/lang/String;I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_java_awt_BDFontMetrics_resolveFontN
+  (JNIEnv *, jclass, jstring, jint);
+
+/*
+ * Class:     java_awt_BDFontMetrics
+ * Method:    unloadFontConfigN
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_java_awt_BDFontMetrics_unloadFontConfigN
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     java_awt_BDFontMetrics
  * Method:    loadFontN
  * Signature: (JLjava/lang/String;I)J
  */

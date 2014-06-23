@@ -30,6 +30,10 @@
 #include FT_FREETYPE_H
 #endif
 
+#ifdef HAVE_FONTCONFIG
+#include <fontconfig/fontconfig.h>
+#endif
+
 #include "java_awt_BDFontMetrics.h"
 
 /* Disable some warnings */
@@ -42,6 +46,112 @@
 #else
 #define CPP_EXTERN
 #endif
+
+/*
+ * fontconfig
+ */
+
+#ifdef HAVE_FONTCONFIG
+static FcConfig *getFcLib(JNIEnv * env, jclass cls)
+{
+    jfieldID fid   = (*env)->GetStaticFieldID(env, cls, "fcLib", "J");
+    jlong    fcLib = (*env)->GetStaticLongField (env, cls, fid);
+    FcConfig *lib  = (FcConfig *)(intptr_t)fcLib;
+
+    if (lib) {
+        return lib;
+    }
+
+    lib = FcInitLoadConfigAndFonts();
+    (*env)->SetStaticLongField (env, cls, fid, (jlong)(intptr_t)lib);
+
+    if (!lib) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Loading fontconfig failed\n");
+    }
+
+    return lib;
+}
+#endif
+
+JNIEXPORT void JNICALL
+Java_java_awt_BDFontMetrics_unloadFontConfigN(JNIEnv * env, jclass cls)
+{
+#ifdef HAVE_FONTCONFIG
+    jfieldID fid   = (*env)->GetStaticFieldID(env, cls, "fcLib", "J");
+    jlong    fcLib = (*env)->GetStaticLongField (env, cls, fid);
+
+    if (fcLib) {
+        FcConfig *lib  = (FcConfig *)(intptr_t)fcLib;
+        (*env)->SetStaticLongField (env, cls, fid, 0);
+        FcConfigDestroy(lib);
+    }
+#endif
+}
+
+#ifdef HAVE_FONTCONFIG
+static void _fill_fc_pattern(JNIEnv *env, FcPattern *pat, jstring fontFamily, jint fontStyle)
+{
+    const char *family = (*env)->GetStringUTFChars(env, fontFamily, NULL);
+    int         weight = (fontStyle & 1) ? FC_WEIGHT_EXTRABOLD : FC_WEIGHT_NORMAL;
+    int         slant  = (fontStyle & 2) ? FC_SLANT_ITALIC     : FC_SLANT_ROMAN;
+
+    if (strncmp(family, "mono", 4)) { /* mono, monospace, monospaced */
+        FcPatternAddString(pat, FC_FAMILY, (const FcChar8*)family);
+    } else {
+        FcPatternAddString(pat, FC_FAMILY, (const FcChar8*)"monospace");
+    }
+    FcPatternAddBool   (pat, FC_OUTLINE, FcTrue);
+    FcPatternAddInteger(pat, FC_SLANT,   slant);
+    FcPatternAddInteger(pat, FC_WEIGHT,  weight);
+
+    (*env)->ReleaseStringUTFChars(env, fontFamily, family);
+}
+#endif
+
+JNIEXPORT jstring JNICALL
+Java_java_awt_BDFontMetrics_resolveFontN(JNIEnv * env, jclass cls, jstring fontFamily, jint fontStyle)
+{
+    jstring file = NULL;
+#ifdef HAVE_FONTCONFIG
+    FcConfig *lib = getFcLib(env, cls);
+
+    if (lib) {
+        FcResult result = FcResultMatch;
+        FcPattern *pat, *font;
+        FcChar8 *filename = NULL;
+
+        pat = FcPatternCreate();
+        if (!pat) return NULL;
+
+        _fill_fc_pattern(env, pat, fontFamily, fontStyle);
+
+        FcDefaultSubstitute(pat);
+        if (!FcConfigSubstitute(lib, pat, FcMatchPattern)) {
+            FcPatternDestroy(pat);
+            return NULL;
+        }
+
+        font = FcFontMatch(lib, pat, &result);
+        FcPatternDestroy(pat);
+        if (!font || result == FcResultNoMatch) {
+            return NULL;
+        }
+
+        if (FcResultMatch == FcPatternGetString(font, FC_FILE, 0, &filename)) {
+            file = (*env)->NewStringUTF(env, (const char*)filename);
+        }
+
+        FcPatternDestroy(font);
+    }
+#else
+    BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J font config support not compiled in\n");
+#endif
+    return file;
+}
+
+/*
+ *
+ */
 
 JNIEXPORT jlong JNICALL
 Java_java_awt_BDFontMetrics_initN(JNIEnv * env, jclass cls)
@@ -69,6 +179,8 @@ Java_java_awt_BDFontMetrics_destroyN(JNIEnv * env, jclass cls, jlong ftLib)
     }
 
     FT_Done_FreeType(lib);
+
+    Java_java_awt_BDFontMetrics_unloadFontConfigN(env, cls);
 #endif
 }
 
@@ -229,6 +341,16 @@ Java_java_awt_BDFontMetrics_methods[] =
         CC("destroyN"),
         CC("(J)V"),
         VC(Java_java_awt_BDFontMetrics_destroyN),
+    },
+    {
+        CC("resolveFontN"),
+        CC("(Ljava/lang/String;I)Ljava/lang/String;"),
+        VC(Java_java_awt_BDFontMetrics_resolveFontN),
+    },
+    {
+        CC("unloadFontConfigN"),
+        CC("()V"),
+        VC(Java_java_awt_BDFontMetrics_unloadFontConfigN),
     },
     {
         CC("loadFontN"),
