@@ -1037,6 +1037,14 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         if (dw < 0) dw = bdImage.width;
         if (dh < 0) dh = bdImage.height;
 
+        /* limit source rectangle width / height to source image */
+        if (sx + sw > bdImage.width) {
+            sw = bdImage.width - sx;
+        }
+        if (sy + sh > bdImage.height) {
+            sh = bdImage.height - sy;
+        }
+
         int   stride   = bdImage.width;
         int[] rgbArray = bdImage.getBdBackBuffer();
         int   bgColor  = 0;
