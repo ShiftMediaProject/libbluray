@@ -655,6 +655,9 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, 
         clip = &title->clip_list.clip[ii];
         if (clip->cl != NULL) {
             *clip_pkt = clpi_access_point(clip->cl, pkt - pos + clip->start_pkt, 0, 0, out_time);
+            if (*clip_pkt < clip->start_pkt) {
+                *clip_pkt = clip->start_pkt;
+            }
         } else {
             *clip_pkt = clip->start_pkt;
         }
@@ -730,6 +733,9 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, u
         if (clip->cl != NULL) {
             *clip_pkt = clpi_lookup_spn(clip->cl, tick - pos + pi->in_time, 1,
                       title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
+            if (*clip_pkt < clip->start_pkt) {
+                *clip_pkt = clip->start_pkt;
+            }
         } else {
             *clip_pkt = clip->start_pkt;
         }
