@@ -34,7 +34,7 @@ typedef struct bd_uo_mask_table_s
     unsigned int stop : 1;
     unsigned int pause_on : 1;
     unsigned int pause_off : 1;
-    unsigned int still : 1;
+    unsigned int still_off : 1;
     unsigned int forward : 1;
     unsigned int backward : 1;
     unsigned int resume : 1;
