@@ -62,17 +62,16 @@ typedef struct bd_uo_mask_table_s
 
 static inline BD_UO_MASK bd_uo_mask_combine(BD_UO_MASK a, BD_UO_MASK b)
 {
-    BD_UO_MASK o;
-    unsigned int   *pa = (unsigned int*)&a;
-    unsigned int   *pb = (unsigned int*)&b;
-    unsigned int   *po = (unsigned int*)&o;
-    unsigned   i;
+    union {
+        BD_UO_MASK mask;
+        uint64_t   u64;
+    } mask_a, mask_b, result;
 
-    for (i = 0; i < sizeof(BD_UO_MASK) / sizeof(unsigned int); i++) {
-        po[i] = pa[i] | pb[i];
-    }
+    mask_a.mask = a;
+    mask_b.mask = b;
+    result.u64 = mask_a.u64 | mask_b.u64;
 
-    return o;
+    return result.mask;
 }
 
 #endif // _BD_UO_MASK_TABLE_H_
