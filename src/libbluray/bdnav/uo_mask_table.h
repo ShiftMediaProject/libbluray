@@ -74,4 +74,13 @@ static inline BD_UO_MASK bd_uo_mask_combine(BD_UO_MASK a, BD_UO_MASK b)
     return result.mask;
 }
 
+#define EMPTY_UO_MASK  {0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0}
+
+static inline BD_UO_MASK bd_empty_uo_mask(void)
+{
+    const BD_UO_MASK empty = EMPTY_UO_MASK;
+    return empty;
+}
+
+
 #endif // _BD_UO_MASK_TABLE_H_

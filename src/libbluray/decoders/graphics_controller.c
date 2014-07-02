@@ -73,6 +73,7 @@ struct graphics_controller_s {
     unsigned        auto_action_triggered;
     BOG_DATA       *bog_data;
     BOG_DATA       *saved_bog_data;
+    BD_UO_MASK      page_uo_mask;
 
     /* page effects */
     int                    effect_idx;
@@ -686,6 +687,7 @@ static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id, int out_effe
     _select_button(gc, button_id);
 
     gc->valid_mouse_position = 0;
+    gc->page_uo_mask = bd_empty_uo_mask();
 
     if (out_effects) {
         page = _find_page(&gc->igs->ics->interactive_composition, cur_page_id);
@@ -717,6 +719,7 @@ static void _gc_reset(GRAPHICS_CONTROLLER *gc)
 
     gc->popup_visible = 0;
     gc->valid_mouse_position = 0;
+    gc->page_uo_mask = bd_empty_uo_mask();
 
     graphics_processor_free(&gc->igp);
     graphics_processor_free(&gc->pgp);
@@ -1401,6 +1404,7 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
                   s->ics->video_descriptor.video_height);
     }
 
+    gc->page_uo_mask = page->uo_mask_table;
 
     for (ii = 0; ii < page->num_bogs; ii++) {
         BD_IG_BOG    *bog      = &page->bog[ii];
@@ -1898,6 +1902,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         cmds->nav_cmds     = NULL;
         cmds->sound_id_ref = -1;
         cmds->status       = GC_STATUS_NONE;
+        cmds->page_uo_mask = bd_empty_uo_mask();
     }
 
     if (!gc) {
@@ -2032,6 +2037,10 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
                 /* user input is still not handled, but user "sees" the menu. */
                 cmds->status |= GC_STATUS_MENU_OPEN;
             }
+        }
+
+        if (gc->ig_open && !gc->out_effects) {
+            cmds->page_uo_mask = gc->page_uo_mask;
         }
     }
 

@@ -490,7 +490,7 @@ static void _update_textst_timer(BLURAY *bd)
 {
     if (bd->st_textst.clip) {
         if (bd->st0.clip_block_pos >= bd->gc_wakeup_pos) {
-            GC_NAV_CMDS cmds = {-1, NULL, -1, 0, 0};
+            GC_NAV_CMDS cmds = {-1, NULL, -1, 0, 0, EMPTY_UO_MASK};
 
             gc_run(bd->graphics_controller, GC_CTRL_PG_UPDATE, bd->gc_wakeup_time, &cmds);
 
@@ -787,7 +787,7 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
     int result = -1;
 
     if (bd && bd->graphics_controller && bd->hdmv_vm) {
-        GC_NAV_CMDS cmds = {-1, NULL, -1, 0, 0};
+        GC_NAV_CMDS cmds = {-1, NULL, -1, 0, 0, EMPTY_UO_MASK};
 
         result = gc_run(bd->graphics_controller, msg, param, &cmds);
 
