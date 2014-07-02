@@ -578,7 +578,7 @@ NAV_CLIP* nav_chapter_search(NAV_TITLE *title, unsigned chapter, uint32_t *clip_
     return clip;
 }
 
-uint32_t nav_chapter_get_current(NAV_CLIP *clip, uint32_t pkt)
+uint32_t nav_chapter_get_current(NAV_CLIP *clip, uint32_t clip_pkt)
 {
     NAV_MARK * mark;
     NAV_TITLE *title;
@@ -598,12 +598,12 @@ uint32_t nav_chapter_get_current(NAV_CLIP *clip, uint32_t pkt)
             else
                 return 0;
         }
-        if (mark->clip_ref == clip->ref && mark->clip_pkt <= pkt) {
+        if (mark->clip_ref == clip->ref && mark->clip_pkt <= clip_pkt) {
             if ( ii == title->chap_list.count - 1 ) {
                 return ii;
             }
             mark = &title->chap_list.mark[ii+1];
-            if (mark->clip_ref != clip->ref || mark->clip_pkt > pkt) {
+            if (mark->clip_ref != clip->ref || mark->clip_pkt > clip_pkt) {
                 return ii;
             }
         }
