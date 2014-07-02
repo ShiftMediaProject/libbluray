@@ -569,7 +569,7 @@ NAV_CLIP* nav_chapter_search(NAV_TITLE *title, unsigned chapter, uint32_t *clip_
     if (chapter > title->chap_list.count) {
         clip = &title->clip_list.clip[0];
         *clip_pkt = clip->start_pkt;
-        *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+        *out_pkt = clip->pos;
         return clip;
     }
     clip = &title->clip_list.clip[title->chap_list.mark[chapter].clip_ref];
