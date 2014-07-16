@@ -203,6 +203,11 @@ if [[ $use_bdjava = "yes" ]]; then
     BDJAVA_CFLAGS='-I${abs_top_srcdir}/jni -I${abs_top_srcdir}/jni/'"${java_os}"
   ])
 
+  AC_CHECK_PROG(HAVE_ANT, [ant], yes, no)
+  if test "x$HAVE_ANT" = "xno"; then
+      AC_MSG_ERROR([BD-J requires ANT, but ant was not found. Please install it.])
+  fi
+
   AC_DEFINE([USING_BDJAVA], [1], ["Define to 1 if using BD-Java"])
   AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
   AC_DEFINE_UNQUOTED([JDK_HOME], ["$JDK_HOME"], [""])
