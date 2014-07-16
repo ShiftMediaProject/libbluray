@@ -1,7 +1,7 @@
 - Fix bd_seek() jumping outside of clip/playlist.
 - Fix out of array bounds exception in some BD-J menus
 
-2013-05-27: Version 0.6.0
+2014-05-27: Version 0.6.0
 - Improved BD-J support (Most BD-J discs are correctly played).
 - Mark BD-J titles supported in BLURAY_DISC_INFO if BD-J is functional.
 - Install .jar files to datadir (/usr/share/java/) instead of libdir.
