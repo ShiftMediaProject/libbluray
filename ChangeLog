@@ -1,3 +1,5 @@
+2014-xx-xx: Version 0.6.1
+- Fix Mac OS X jni compilation
 - Fix bd_seek() jumping outside of clip/playlist.
 - Fix out of array bounds exception in some BD-J menus
 
