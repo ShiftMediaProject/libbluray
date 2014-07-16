@@ -188,6 +188,7 @@ if [[ $use_bdjava = "yes" ]]; then
        mingw*)   java_os=win32 ;;
        freebsd*) java_os=freebsd ;;
        solaris*) java_os=solaris ;;
+       darwin*)  java_os=darwin ;;
        *)        java_os=$host_os ;;
   esac
 
