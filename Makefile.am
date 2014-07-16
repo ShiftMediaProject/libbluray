@@ -10,7 +10,7 @@ noinst_HEADERS=\
 	jni/jni.h \
 	jni/linux/jni_md.h \
 	jni/win32/jni_md.h \
-	jni/macosx/jni_md.h
+	jni/darwin/jni_md.h
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
