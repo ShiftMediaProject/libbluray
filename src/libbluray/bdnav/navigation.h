@@ -66,13 +66,11 @@ struct nav_clip_s
     char     name[11];
     uint32_t clip_id;
     unsigned ref;
-    uint32_t pos;
     uint32_t start_pkt;
     uint32_t end_pkt;
     uint8_t  connection;
     uint8_t  angle;
 
-    uint32_t start_time;
     uint32_t duration;
 
     uint32_t in_time;

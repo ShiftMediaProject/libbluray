@@ -443,9 +443,9 @@ static void _fill_clip(NAV_TITLE *title,
                                     mpls_clip[clip->angle].stc_id);
     clip->in_time = in_time;
     clip->out_time = out_time;
-    clip->pos = *pos;
+    clip->title_pkt = *pos;
     *pos += clip->end_pkt - clip->start_pkt;
-    clip->start_time = *time;
+    clip->title_time = *time;
     *time += clip->out_time - clip->in_time;
 }
 
@@ -569,12 +569,12 @@ NAV_CLIP* nav_chapter_search(NAV_TITLE *title, unsigned chapter, uint32_t *clip_
     if (chapter > title->chap_list.count) {
         clip = &title->clip_list.clip[0];
         *clip_pkt = clip->start_pkt;
-        *out_pkt = clip->pos;
+        *out_pkt = clip->title_pkt;
         return clip;
     }
     clip = &title->clip_list.clip[title->chap_list.mark[chapter].clip_ref];
     *clip_pkt = title->chap_list.mark[chapter].clip_pkt;
-    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
     return clip;
 }
 
@@ -620,12 +620,12 @@ NAV_CLIP* nav_mark_search(NAV_TITLE *title, unsigned mark, uint32_t *clip_pkt, u
     if (mark > title->mark_list.count) {
         clip = &title->clip_list.clip[0];
         *clip_pkt = clip->start_pkt;
-        *out_pkt = clip->pos;
+        *out_pkt = clip->title_pkt;
         return clip;
     }
     clip = &title->clip_list.clip[title->mark_list.mark[mark].clip_ref];
     *clip_pkt = title->mark_list.mark[mark].clip_pkt;
-    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
     return clip;
 }
 
@@ -666,7 +666,7 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, 
         *out_time = 0;
     else
         *out_time -= clip->in_time;
-    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
     return clip;
 }
 
@@ -740,7 +740,7 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, u
             *clip_pkt = clip->start_pkt;
         }
     }
-    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
     return clip;
 }
 
@@ -758,7 +758,7 @@ void nav_clip_time_search(NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uin
             *clip_pkt = clip->start_pkt;
         }
     }
-    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
 }
 
 /*

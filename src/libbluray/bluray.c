@@ -1549,7 +1549,7 @@ uint64_t bd_tell_time(BLURAY *bd)
     if (bd && bd->title) {
         clip = nav_packet_search(bd->title, SPN(bd->s_pos), &clip_pkt, &out_pkt, &out_time);
         if (clip) {
-            out_time += clip->start_time;
+            out_time += clip->title_time;
         }
     }
 
@@ -1633,7 +1633,7 @@ int64_t bd_seek_playitem(BLURAY *bd, unsigned clip_ref)
 
       clip     = &bd->title->clip_list.clip[clip_ref];
       clip_pkt = clip->start_pkt;
-      out_pkt  = clip->pos;
+      out_pkt  = clip->title_pkt;
 
       _seek_internal(bd, clip, out_pkt, clip_pkt);
 
@@ -1768,7 +1768,7 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                         if (!_open_m2ts(bd, st)) {
                             return -1;
                         }
-                        bd->s_pos = st->clip->pos * 192;
+                        bd->s_pos = st->clip->title_pkt * 192;
                     } else {
                         _change_angle(bd);
                         _clip_seek_time(bd, bd->angle_change_time);
@@ -2420,7 +2420,7 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
         NAV_CLIP *nc = &title->clip_list.clip[ii];
 
         ci->pkt_count = nc->end_pkt - nc->start_pkt;
-        ci->start_time = (uint64_t)nc->start_time * 2;
+        ci->start_time = (uint64_t)nc->title_time * 2;
         ci->in_time = (uint64_t)pi->in_time * 2;
         ci->out_time = (uint64_t)pi->out_time * 2;
         ci->still_mode = pi->still_mode;
