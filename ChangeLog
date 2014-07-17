@@ -1,4 +1,5 @@
 2014-xx-xx: Version 0.6.1
+- Fix stream position when seamless angle change point is at clip boundary.
 - Fix Mac OS X jni compilation
 - Fix bd_seek() jumping outside of clip/playlist.
 - Fix out of array bounds exception in some BD-J menus

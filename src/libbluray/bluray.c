@@ -1768,7 +1768,7 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                         if (!_open_m2ts(bd, st)) {
                             return -1;
                         }
-                        bd->s_pos = st->clip->pos;
+                        bd->s_pos = st->clip->pos * 192;
                     } else {
                         _change_angle(bd);
                         _clip_seek_time(bd, bd->angle_change_time);
