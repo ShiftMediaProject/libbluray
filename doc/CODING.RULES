@@ -1,0 +1,102 @@
+=== Coding Rules ===
+
+The project CodingStyle must be adhered to unless there is a reasonable reason for doing otherwise (to be discussed
+with dev lead beforehand).
+
+
+
+== Coding Style ==
+
+This project uses the '''K&R''' variant '''1TBS''' (One True Base Style) which is the standard of the linux kernel
+and many open source projects.
+
+This style can be described as follows (adapted from wikipedia):
+
+The K&R style keeps the first opening brace on the same line as the control statement, indents the statements within
+the braces, and puts the closing brace on the same indentation level as the control statement (on a line of its own).
+Functions, however, are braced distinctly from statements; an opening function brace is placed on the line following
+the declaration, at the same indentation level as the declaration. The opening brace for function declarations is an
+exception on the basic rule.
+
+The 1TBS variant expects that the constructs that allow insertions of new code lines are on separate lines, and
+constructs that prohibit insertions are on a single line. This principle is amplified by bracing every if, else,
+while, etc. -even single-line conditionals- so that insertion of a new line of code anywhere is always "safe".
+
+Advantages of this style are that the beginning brace does not require an extra line by itself; and the ending brace
+lines up with the statement it conceptually belongs to. One disadvantage of this style is that the ending brace of a
+block takes up an entire line by itself, which can be partially resolved in if/else blocks and do/while blocks.
+
+E.g.:
+
+int main(int argc, char *argv[])
+{
+    ...
+    while (x == y) {
+        something();
+        something_else();
+        if (x < 0) {
+            printf("Negative");
+            negative(x);
+        } else {
+            printf("Positive");
+            positive(x);
+        }
+        something_more();
+        if (x == 1) {
+            x_eq_1(x, y);
+	} else {
+            x_neq_1(x, y);
+	}
+    }
+    final_thing();
+    ...
+}
+
+We use 4-space indentation (which is popular amoungst many media projects) so please make sure your code editor
+is configured accordingly. No TABs, no trailing white space !
+
+
+
+== Function naming ==
+
+ * all lowercase as in linux kernel code
+
+ * functions that might be called by other sections of code to be put in section header
+
+ * functions that will only be called by code within their own section to be prefixed with an underscore and forward
+   declared within the .c itself
+
+
+
+== Memory allocation and pointers ==
+
+All pointers bust be defined as NULL in their declaration if possible (and if not - e.g. when present in a struct -
+immediately in the first function to use the struct).
+
+All allocated memory must be freed with the X_FREE() macro. This is to make sure that we never have double-free
+runtime issues.
+
+So:
+
+struct a {
+    char *x, *y;
+};
+
+void foo()
+{
+    struct a a;
+    char *z = NULL;
+
+    a.x = NULL;
+    a.y = NULL;
+
+    ...
+    a.x = malloc(10);
+    z = malloc(10);
+    ...
+
+    X_FREE(a.x);
+    X_FREE(a.y);    // this won't throw an error because we stuck to the NULL definition rule!
+    X_FREE(z);
+}
+
