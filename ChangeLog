@@ -1,7 +1,12 @@
-2014-xx-xx: Version 0.6.1
+2014-08-03: Version 0.6.1
 - Fix stream position when seamless angle change point is at clip boundary.
 - Fix Mac OS X jni compilation
 - Fix bd_seek() jumping outside of clip/playlist.
+- Fix crash when stream selection is changed after playlist end.
+- Fix J2ME build.
+- Fix seamless angle change.
+- Fix freetype2 resource leaks on shutdown.
+- Improve duplicate playlist detection.
 
 2014-05-27: Version 0.6.0
 - Improved BD-J support (Most BD-J discs are correctly played).
