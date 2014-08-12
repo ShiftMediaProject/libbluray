@@ -421,7 +421,7 @@ static void _update_chapter_psr(BLURAY *bd)
 
 static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigned *sub_clip_idx, uint8_t *char_code)
 {
-    unsigned  main_clip_idx = bd->st0.clip->ref;
+    unsigned  main_clip_idx = bd->st0.clip ? bd->st0.clip->ref : 0;
     MPLS_PI  *pi        = &bd->title->pl->play_item[main_clip_idx];
     unsigned  pg_stream = bd_psr_read(bd->regs, PSR_PG_STREAM);
 
@@ -490,7 +490,7 @@ static void _update_textst_timer(BLURAY *bd)
 {
     if (bd->st_textst.clip) {
         if (bd->st0.clip_block_pos >= bd->gc_wakeup_pos) {
-            GC_NAV_CMDS cmds = {-1, NULL, -1, 0, 0};
+            GC_NAV_CMDS cmds = {-1, NULL, -1, 0, 0, EMPTY_UO_MASK};
 
             gc_run(bd->graphics_controller, GC_CTRL_PG_UPDATE, bd->gc_wakeup_time, &cmds);
 
@@ -787,7 +787,7 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
     int result = -1;
 
     if (bd && bd->graphics_controller && bd->hdmv_vm) {
-        GC_NAV_CMDS cmds = {-1, NULL, -1, 0, 0};
+        GC_NAV_CMDS cmds = {-1, NULL, -1, 0, 0, EMPTY_UO_MASK};
 
         result = gc_run(bd->graphics_controller, msg, param, &cmds);
 
@@ -1549,7 +1549,7 @@ uint64_t bd_tell_time(BLURAY *bd)
     if (bd && bd->title) {
         clip = nav_packet_search(bd->title, SPN(bd->s_pos), &clip_pkt, &out_pkt, &out_time);
         if (clip) {
-            out_time += clip->start_time;
+            out_time += clip->title_time;
         }
     }
 
@@ -1633,7 +1633,7 @@ int64_t bd_seek_playitem(BLURAY *bd, unsigned clip_ref)
 
       clip     = &bd->title->clip_list.clip[clip_ref];
       clip_pkt = clip->start_pkt;
-      out_pkt  = clip->pos;
+      out_pkt  = clip->title_pkt;
 
       _seek_internal(bd, clip, out_pkt, clip_pkt);
 
@@ -1768,7 +1768,7 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                         if (!_open_m2ts(bd, st)) {
                             return -1;
                         }
-                        bd->s_pos = st->clip->pos;
+                        bd->s_pos = st->clip->title_pkt * 192;
                     } else {
                         _change_angle(bd);
                         _clip_seek_time(bd, bd->angle_change_time);
@@ -1999,7 +1999,7 @@ static int _preload_textst_subpath(BLURAY *bd)
 
 static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigned *sub_clip_idx)
 {
-    unsigned  main_clip_idx = bd->st0.clip->ref;
+    unsigned  main_clip_idx = bd->st0.clip ? bd->st0.clip->ref : 0;
     MPLS_PI  *pi        = &bd->title->pl->play_item[main_clip_idx];
     unsigned  ig_stream = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
 
@@ -2420,7 +2420,7 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
         NAV_CLIP *nc = &title->clip_list.clip[ii];
 
         ci->pkt_count = nc->end_pkt - nc->start_pkt;
-        ci->start_time = (uint64_t)nc->start_time * 2;
+        ci->start_time = (uint64_t)nc->title_time * 2;
         ci->in_time = (uint64_t)pi->in_time * 2;
         ci->out_time = (uint64_t)pi->out_time * 2;
         ci->still_mode = pi->still_mode;
@@ -2762,10 +2762,12 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
             }
 
             bd_mutex_lock(&bd->mutex);
+            if (bd->st0.clip) {
             _init_pg_stream(bd);
             if (bd->st_textst.clip) {
                 BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Changing TextST stream\n");
                 _preload_textst_subpath(bd);
+            }
             }
             bd_mutex_unlock(&bd->mutex);
 

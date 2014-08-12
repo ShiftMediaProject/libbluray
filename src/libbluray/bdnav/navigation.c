@@ -32,33 +32,90 @@
 #include <stdlib.h>
 #include <string.h>
 
+static int _stream_cmp(MPLS_STREAM *a, MPLS_STREAM *b)
+{
+    if (a->stream_type == b->stream_type &&
+        a->coding_type == b->coding_type &&
+        a->pid         == b->pid         &&
+        a->subpath_id  == b->subpath_id  &&
+        a->subclip_id  == b->subclip_id  &&
+        a->format      == b->format      &&
+        a->rate        == b->rate        &&
+        a->char_code   == b->char_code   &&
+        memcmp(a->lang, b->lang, 4) == 0) {
+        return 0;
+    }
+    return 1;
+}
+
+static int _streams_cmp(MPLS_STREAM *s1, MPLS_STREAM *s2, unsigned count)
+{
+    unsigned ii;
+    for (ii = 0; ii < count; ii++) {
+        if (_stream_cmp(&s1[ii], &s2[ii])) {
+          return 1;
+        }
+    }
+    return 0;
+}
+
+static int _pi_cmp(MPLS_PI *pi1, MPLS_PI *pi2)
+{
+    if (memcmp(pi1->clip[0].clip_id, pi2->clip[0].clip_id, 5) != 0 ||
+        pi1->in_time != pi2->in_time ||
+        pi1->out_time != pi2->out_time) {
+        return 1;
+    }
+
+    if (pi1->stn.num_video           != pi2->stn.num_video  ||
+        pi1->stn.num_audio           != pi2->stn.num_audio  ||
+        pi1->stn.num_pg              != pi2->stn.num_pg   ||
+        pi1->stn.num_ig              != pi2->stn.num_ig   ||
+        pi1->stn.num_secondary_audio != pi2->stn.num_secondary_audio ||
+        pi1->stn.num_secondary_video != pi2->stn.num_secondary_video) {
+        return 1;
+    }
+
+    if (_streams_cmp(pi1->stn.video,           pi2->stn.video,           pi1->stn.num_video) ||
+        _streams_cmp(pi1->stn.audio,           pi2->stn.audio,           pi1->stn.num_audio) ||
+        _streams_cmp(pi1->stn.pg,              pi2->stn.pg,              pi1->stn.num_pg) ||
+        _streams_cmp(pi1->stn.ig,              pi2->stn.ig,              pi1->stn.num_ig) ||
+        _streams_cmp(pi1->stn.secondary_audio, pi2->stn.secondary_audio, pi1->stn.num_secondary_audio) ||
+        _streams_cmp(pi1->stn.secondary_video, pi2->stn.secondary_video, pi1->stn.num_secondary_video)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int _pl_cmp(MPLS_PL *pl1, MPLS_PL *pl2)
+{
+    unsigned ii;
+
+    if (pl1->list_count != pl2->list_count) {
+        return 1;
+    }
+    if (pl1->mark_count != pl2->mark_count) {
+        return 1;
+    }
+    for (ii = 0; ii < pl1->list_count; ii++) {
+        if (_pi_cmp(&pl1->play_item[ii], &pl2->play_item[ii])) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+/* return 0 if duplicate playlist */
 static int _filter_dup(MPLS_PL *pl_list[], unsigned count, MPLS_PL *pl)
 {
-    unsigned ii, jj;
+    unsigned ii;
 
     for (ii = 0; ii < count; ii++) {
-        if (pl->list_count != pl_list[ii]->list_count) {
-            continue;
+        if (!_pl_cmp(pl, pl_list[ii])) {
+            return 0;
         }
-        if (pl->mark_count != pl_list[ii]->mark_count) {
-            continue;
-        }
-        for (jj = 0; jj < pl->list_count; jj++) {
-            MPLS_PI *pi1, *pi2;
-
-            pi1 = &pl->play_item[jj];
-            pi2 = &pl_list[ii]->play_item[jj];
-
-            if (memcmp(pi1->clip[0].clip_id, pi2->clip[0].clip_id, 5) != 0 ||
-                pi1->in_time != pi2->in_time ||
-                pi1->out_time != pi2->out_time) {
-                break;
-            }
-        }
-        if (jj != pl->list_count) {
-            continue;
-        }
-        return 0;
     }
     return 1;
 }
@@ -386,9 +443,9 @@ static void _fill_clip(NAV_TITLE *title,
                                     mpls_clip[clip->angle].stc_id);
     clip->in_time = in_time;
     clip->out_time = out_time;
-    clip->pos = *pos;
+    clip->title_pkt = *pos;
     *pos += clip->end_pkt - clip->start_pkt;
-    clip->start_time = *time;
+    clip->title_time = *time;
     *time += clip->out_time - clip->in_time;
 }
 
@@ -512,16 +569,16 @@ NAV_CLIP* nav_chapter_search(NAV_TITLE *title, unsigned chapter, uint32_t *clip_
     if (chapter > title->chap_list.count) {
         clip = &title->clip_list.clip[0];
         *clip_pkt = clip->start_pkt;
-        *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+        *out_pkt = clip->title_pkt;
         return clip;
     }
     clip = &title->clip_list.clip[title->chap_list.mark[chapter].clip_ref];
     *clip_pkt = title->chap_list.mark[chapter].clip_pkt;
-    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
     return clip;
 }
 
-uint32_t nav_chapter_get_current(NAV_CLIP *clip, uint32_t pkt)
+uint32_t nav_chapter_get_current(NAV_CLIP *clip, uint32_t clip_pkt)
 {
     NAV_MARK * mark;
     NAV_TITLE *title;
@@ -541,12 +598,12 @@ uint32_t nav_chapter_get_current(NAV_CLIP *clip, uint32_t pkt)
             else
                 return 0;
         }
-        if (mark->clip_ref == clip->ref && mark->clip_pkt <= pkt) {
+        if (mark->clip_ref == clip->ref && mark->clip_pkt <= clip_pkt) {
             if ( ii == title->chap_list.count - 1 ) {
                 return ii;
             }
             mark = &title->chap_list.mark[ii+1];
-            if (mark->clip_ref != clip->ref || mark->clip_pkt > pkt) {
+            if (mark->clip_ref != clip->ref || mark->clip_pkt > clip_pkt) {
                 return ii;
             }
         }
@@ -563,12 +620,12 @@ NAV_CLIP* nav_mark_search(NAV_TITLE *title, unsigned mark, uint32_t *clip_pkt, u
     if (mark > title->mark_list.count) {
         clip = &title->clip_list.clip[0];
         *clip_pkt = clip->start_pkt;
-        *out_pkt = clip->pos;
+        *out_pkt = clip->title_pkt;
         return clip;
     }
     clip = &title->clip_list.clip[title->mark_list.mark[mark].clip_ref];
     *clip_pkt = title->mark_list.mark[mark].clip_pkt;
-    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
     return clip;
 }
 
@@ -598,6 +655,9 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, 
         clip = &title->clip_list.clip[ii];
         if (clip->cl != NULL) {
             *clip_pkt = clpi_access_point(clip->cl, pkt - pos + clip->start_pkt, 0, 0, out_time);
+            if (*clip_pkt < clip->start_pkt) {
+                *clip_pkt = clip->start_pkt;
+            }
         } else {
             *clip_pkt = clip->start_pkt;
         }
@@ -606,7 +666,7 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, 
         *out_time = 0;
     else
         *out_time -= clip->in_time;
-    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
     return clip;
 }
 
@@ -673,11 +733,14 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, u
         if (clip->cl != NULL) {
             *clip_pkt = clpi_lookup_spn(clip->cl, tick - pos + pi->in_time, 1,
                       title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
+            if (*clip_pkt < clip->start_pkt) {
+                *clip_pkt = clip->start_pkt;
+            }
         } else {
             *clip_pkt = clip->start_pkt;
         }
     }
-    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
     return clip;
 }
 
@@ -695,7 +758,7 @@ void nav_clip_time_search(NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uin
             *clip_pkt = clip->start_pkt;
         }
     }
-    *out_pkt = clip->pos + *clip_pkt - clip->start_pkt;
+    *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
 }
 
 /*

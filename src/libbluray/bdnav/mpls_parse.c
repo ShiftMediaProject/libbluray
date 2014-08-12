@@ -64,7 +64,7 @@ mpls_parse_uo(uint8_t *buf, BD_UO_MASK *uo)
     uo->stop                            = bb_read(&bb, 1);
     uo->pause_on                        = bb_read(&bb, 1);
     uo->pause_off                       = bb_read(&bb, 1);
-    uo->still                           = bb_read(&bb, 1);
+    uo->still_off                       = bb_read(&bb, 1);
     uo->forward                         = bb_read(&bb, 1);
     uo->backward                        = bb_read(&bb, 1);
     uo->resume                          = bb_read(&bb, 1);

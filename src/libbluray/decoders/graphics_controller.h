@@ -22,6 +22,8 @@
 
 #include "util/attributes.h"
 
+#include "libbluray/bdnav/uo_mask_table.h"
+
 #include <stdint.h>
 
 /*
@@ -85,6 +87,9 @@ typedef struct {
 
     /* */
     uint32_t wakeup_time;
+
+    BD_UO_MASK page_uo_mask;
+
 } GC_NAV_CMDS;
 
 /*

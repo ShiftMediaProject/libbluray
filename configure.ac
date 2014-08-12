@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([bluray_major], 0)
 m4_define([bluray_minor], 6)
-m4_define([bluray_micro], 0)
+m4_define([bluray_micro], 1)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
 dnl shared library version (.so version)
@@ -13,7 +13,7 @@ dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
 m4_define([lt_current],  7)
-m4_define([lt_revision], 0)
+m4_define([lt_revision], 1)
 m4_define([lt_age],      6)
 
 dnl initilization
@@ -23,6 +23,9 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
 AM_INIT_AUTOMAKE([foreign tar-ustar dist-bzip2 no-dist-gzip subdir-objects])
 AC_CONFIG_HEADERS(config.h)
+
+dnl Enable silent rules only when available (automake 1.11 or later).
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 case "${host_os}" in
   "")
@@ -185,6 +188,7 @@ if [[ $use_bdjava = "yes" ]]; then
        mingw*)   java_os=win32 ;;
        freebsd*) java_os=freebsd ;;
        solaris*) java_os=solaris ;;
+       darwin*)  java_os=darwin ;;
        *)        java_os=$host_os ;;
   esac
 
@@ -198,6 +202,11 @@ if [[ $use_bdjava = "yes" ]]; then
   ], [
     BDJAVA_CFLAGS='-I${abs_top_srcdir}/jni -I${abs_top_srcdir}/jni/'"${java_os}"
   ])
+
+  AC_CHECK_PROG(HAVE_ANT, [ant], yes, no)
+  if test "x$HAVE_ANT" = "xno"; then
+      AC_MSG_ERROR([BD-J requires ANT, but ant was not found. Please install it.])
+  fi
 
   AC_DEFINE([USING_BDJAVA], [1], ["Define to 1 if using BD-Java"])
   AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
