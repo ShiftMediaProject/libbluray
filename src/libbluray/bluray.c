@@ -2846,17 +2846,13 @@ static void _queue_initial_psr_events(BLURAY *bd)
 
 static int _play_bdj(BLURAY *bd, unsigned title)
 {
-    if (!bd->disc_info.bdj_handled) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Can't play BD-J title %d\n", title);
-        return 0;
-    }
-
     int result;
 
     bd->title_type = title_bdj;
 
     result = _start_bdj(bd, title);
     if (result <= 0) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Can't play BD-J title %d\n", title);
         bd->title_type = title_undef;
         _queue_event(bd, BD_EVENT_ERROR, BD_ERROR_BDJ);
     }
