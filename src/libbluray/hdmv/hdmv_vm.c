@@ -852,7 +852,7 @@ static void _hdmv_trace_cmd(int pc, MOBJ_CMD *cmd)
 
         dst += sprintf(dst, "%04d:  ", pc);
 
-        dst += mobj_sprint_cmd(dst, cmd);
+        /*dst +=*/ mobj_sprint_cmd(dst, cmd);
 
         BD_DEBUG(DBG_HDMV, "%s\n", buf);
     }
@@ -872,7 +872,7 @@ static void _hdmv_trace_res(uint32_t new_src, uint32_t new_dst, uint32_t orig_sr
             if (new_src != orig_src) {
                 dst += sprintf(dst, " src 0x%x <== 0x%x ", orig_src, new_src);
             }
-            dst += sprintf(dst, "]");
+            /*dst +=*/ sprintf(dst, "]");
 
             BD_DEBUG(DBG_HDMV, "%s\n", buf);
         }
