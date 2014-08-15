@@ -129,7 +129,7 @@ static void _join_fragments(PES_BUFFER *p1, PES_BUFFER *p2, int data_pos)
 /* return 1 if segment is ready for decoding, 0 if more data is needed */
 static int _join_segment_fragments(struct pes_buffer_s *p)
 {
-    uint8_t type = p->buf[0];
+    uint8_t type;
     unsigned id_pos = 0, id_len = 3, sd_pos = 6, data_pos = 0;
 
     if (p->len < 3) {
@@ -138,6 +138,7 @@ static int _join_segment_fragments(struct pes_buffer_s *p)
 
     /* check segment type */
 
+    type = p->buf[0];
     if (type == PGS_OBJECT) {
         id_pos = 3;
         sd_pos = 6;
