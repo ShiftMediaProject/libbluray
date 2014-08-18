@@ -23,6 +23,8 @@
 
 #include "m2ts_filter.h"
 
+#include "hdmv_pids.h"
+
 #include "util/logging.h"
 #include "util/macro.h"
 

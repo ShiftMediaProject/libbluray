@@ -20,6 +20,7 @@
 #include "graphics_controller.h"
 
 #include "graphics_processor.h"
+#include "hdmv_pids.h"
 #include "ig.h"
 #include "overlay.h"
 #include "textst_render.h"
