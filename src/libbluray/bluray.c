@@ -2407,11 +2407,11 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
     title_info->marks = calloc(title_info->mark_count, sizeof(BLURAY_TITLE_MARK));
     for (ii = 0; ii < title_info->mark_count; ii++) {
         title_info->marks[ii].idx = ii;
-		title_info->marks[ii].type = title->mark_list.mark[ii].mark_type;
+        title_info->marks[ii].type = title->mark_list.mark[ii].mark_type;
         title_info->marks[ii].start = (uint64_t)title->mark_list.mark[ii].title_time * 2;
         title_info->marks[ii].duration = (uint64_t)title->mark_list.mark[ii].duration * 2;
         title_info->marks[ii].offset = (uint64_t)title->mark_list.mark[ii].title_pkt * 192L;
-		title_info->marks[ii].clip_ref = title->mark_list.mark[ii].clip_ref;
+        title_info->marks[ii].clip_ref = title->mark_list.mark[ii].clip_ref;
     }
     title_info->clip_count = title->clip_list.count;
     title_info->clips = calloc(title_info->clip_count, sizeof(BLURAY_CLIP_INFO));
