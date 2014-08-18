@@ -127,6 +127,12 @@ const VALUE_MAP playback_type_map[] = {
   {0, NULL}
 };
 
+const VALUE_MAP connection_type_map[] = {
+  {0, "Non-seamless"},
+  {1, "Seamless"},
+  {0, NULL}
+};
+
 static const char*
 _lookup_str(const VALUE_MAP *map, int val)
 {
@@ -223,8 +229,9 @@ _show_details(MPLS_PL *pl, int level)
         pi = &pl->play_item[ii];
         indent_printf(level, "Clip Id %s", pi->clip[0].clip_id);
         indent_printf(level+1, "Stc Id: %02x", pi->clip[0].stc_id);
-        indent_printf(level+1, "Connection Condition: %02x", 
-                        pi->connection_condition);
+        indent_printf(level+1, "Connection Condition: %s (%02x)",
+                      _lookup_str(connection_type_map, pi->connection_condition),
+                      pi->connection_condition);
         indent_printf(level+1, "In-Time: %d", pi->in_time);
         indent_printf(level+1, "Out-Time: %d", pi->out_time);
         if (pi->still_mode == 1) {
@@ -369,7 +376,9 @@ _show_sub_path(MPLS_SUB *sub, int level)
             indent_printf(level+2, "Clip Id %s", pi->clip[0].clip_id);
             indent_printf(level+2, "Multi clip: %d", pi->is_multi_clip);
             indent_printf(level+2, "Clip count: %d", pi->clip_count);
-            indent_printf(level+2, "Connection Condition: %02x", pi->connection_condition);
+            indent_printf(level+2, "Connection Condition: %s (%02x)",
+                          _lookup_str(connection_type_map, pi->connection_condition),
+                          pi->connection_condition);
             indent_printf(level+2, "In-Time: %d", pi->in_time);
             indent_printf(level+2, "Out-Time: %d", pi->out_time);
             indent_printf(level+2, "Sync playitem Id: %d", pi->sync_play_item_id);
