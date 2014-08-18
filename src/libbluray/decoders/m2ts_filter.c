@@ -70,16 +70,16 @@ M2TS_FILTER *m2ts_filter_init(int64_t in_pts, int64_t out_pts,
         pid = (in_pts >= 0) ? p->wipe_pid : p->pass_pid;
 
         for (ii = 0, npid = 0; ii < num_video; ii++) {
-            pid[npid++] = 0x1011 + ii;
+            pid[npid++] = HDMV_PID_VIDEO + ii;
         }
         for (ii = 0; ii < num_audio; ii++) {
-            pid[npid++] = 0x1100 + ii;
+            pid[npid++] = HDMV_PID_AUDIO_FIRST + ii;
         }
         for (ii = 0; ii < num_ig; ii++) {
-            pid[npid++] = 0x1400 + ii;
+            pid[npid++] = HDMV_PID_IG_FIRST + ii;
         }
         for (ii = 0; ii < num_pg; ii++) {
-            pid[npid++] = 0x1200 + ii;
+            pid[npid++] = HDMV_PID_PG_FIRST + ii;
         }
     }
 
@@ -238,8 +238,8 @@ static int _filter_es_pts(M2TS_FILTER *p, const uint8_t *buf, uint16_t pid)
                  * PG/IG streams are cutted before out_time (unit with pts==out_time is dropped out).
                  */
                 if (pts > p->out_pts ||
-                    (pid >= 0x1200 && pid < 0x1300 /* PG */) ||
-                    (pid >= 0x1400 && pid < 0x1500 /* IG */)) {
+                    IS_HDMV_PID_PG(pid) ||
+                    IS_HDMV_PID_IG(pid)) {
                 M2TS_TRACE("Pid 0x%04x passed OUT timestamp %"PRId64" (pts %"PRId64") -> start wiping\n", pid, p->out_pts, pts);
                 _remove_pid(p->pass_pid, pid);
                 _add_pid(p->wipe_pid, pid);
@@ -266,7 +266,7 @@ int m2ts_filter(M2TS_FILTER *p, uint8_t *buf)
     for (; buf < end; buf += 192) {
 
         uint16_t pid = ((buf[4+1] & 0x1f) << 8) | buf[4+2];
-        if (!pid) {
+        if (pid == HDMV_PID_PAT) {
             p->pat_seen = 1;
             p->pat_packets = 0;
             continue;
@@ -280,7 +280,8 @@ int m2ts_filter(M2TS_FILTER *p, uint8_t *buf)
             }
             M2TS_TRACE("NOT Wiping pid 0x%04x (inside seek buffer, PAT seen)\n", pid);
         }
-        if (pid < 0x1011) {
+        if (pid < HDMV_PID_VIDEO) {
+            /* pass PMT, PCR, SIT */
             /*M2TS_TRACE("NOT Wiping pid 0x%04x (< 0x1011)\n", pid);*/
             continue;
         }

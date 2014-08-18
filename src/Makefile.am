@@ -51,6 +51,7 @@ libbluray_la_SOURCES = \
 	libbluray/decoders/ig.h \
 	libbluray/decoders/ig_decode.h \
 	libbluray/decoders/ig_decode.c \
+	libbluray/decoders/hdmv_pids.h \
 	libbluray/decoders/rle.h \
 	libbluray/decoders/rle.c \
 	libbluray/decoders/textst.h \

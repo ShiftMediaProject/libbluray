@@ -831,7 +831,7 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
         return -1;
     }
 
-    if (pid >= 0x1400 && pid < 0x1500) {
+    if (IS_HDMV_PID_IG(pid)) {
         /* IG stream */
 
         if (!gc->igp) {
@@ -875,7 +875,7 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
         return 1;
     }
 
-    else if (pid >= 0x1200 && pid < 0x1300) {
+    else if (IS_HDMV_PID_PG(pid)) {
         /* PG stream */
         if (!gc->pgp) {
             gc->pgp = graphics_processor_init();
@@ -894,7 +894,7 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
         return 1;
     }
 
-    else if (pid == 0x1800) {
+    else if (IS_HDMV_PID_TEXTST(pid)) {
         /* TextST stream */
         if (!gc->tgp) {
             gc->tgp = graphics_processor_init();
