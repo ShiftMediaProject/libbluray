@@ -1,3 +1,4 @@
+- Fix some main path embedded HDMV menus.
 - Fix missing BD_EVENT_ERROR when BD-J is not supported.
 
 2014-08-03: Version 0.6.1

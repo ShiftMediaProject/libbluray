@@ -580,7 +580,8 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
 
                 st->m2ts_filter = m2ts_filter_init((int64_t)st->clip->in_time << 1,
                                                    (int64_t)st->clip->out_time << 1,
-                                                   stn->num_video, stn->num_audio);
+                                                   stn->num_video, stn->num_audio,
+                                                   stn->num_ig, stn->num_pg);
 
                 _update_clip_psrs(bd, st->clip);
 
