@@ -411,7 +411,7 @@ static int _resume_object(HDMV_VM *p, int psr_restore)
     p->suspended_object = NULL;
 
     BD_DEBUG(DBG_HDMV, "resuming object %ld at %d\n",
-             (long)((p->movie_objects->objects - p->object) / sizeof(p->movie_objects->objects[0])),
+             (long)(p->object - p->movie_objects->objects),
              p->pc);
 
     _queue_event(p, HDMV_EVENT_PLAY_STOP, 0);
