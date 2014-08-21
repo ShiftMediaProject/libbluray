@@ -55,6 +55,7 @@ static int _dir_read_posix(BD_DIR_H *dir, BD_DIRENT *entry)
         return 1;
     }
     strncpy(entry->d_name, e.d_name, 256);
+    entry->d_name[sizeof(entry->d_name) - 1] = 0;
 
     return 0;
 }
