@@ -504,7 +504,7 @@ static void _update_textst_timer(BLURAY *bd)
                 uint32_t spn = clpi_lookup_spn(clip->cl, cmds.wakeup_time, /*before=*/1,
                                                bd->title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
                 if (spn) {
-                    bd->gc_wakeup_pos = spn * 192;
+                    bd->gc_wakeup_pos = (uint64_t)spn * 192L;
                 }
             }
         }
@@ -1769,7 +1769,7 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                         if (!_open_m2ts(bd, st)) {
                             return -1;
                         }
-                        bd->s_pos = st->clip->title_pkt * 192;
+                        bd->s_pos = (uint64_t)st->clip->title_pkt * 192L;
                     } else {
                         _change_angle(bd);
                         _clip_seek_time(bd, bd->angle_change_time);
@@ -1778,7 +1778,7 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                 } else {
                     uint64_t angle_pos;
 
-                    angle_pos = bd->angle_change_pkt * 192;
+                    angle_pos = (uint64_t)bd->angle_change_pkt * 192L;
                     if (angle_pos - st->clip_pos < size)
                     {
                         size = angle_pos - st->clip_pos;
