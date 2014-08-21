@@ -759,7 +759,7 @@ main(int argc, char *argv[])
                 if (pl != NULL) {
                     pl_list[pl_ii++] = pl;
                 }
-            } while (ent != NULL);
+            }
             free(dirlist);
             free(path);
         } else {
