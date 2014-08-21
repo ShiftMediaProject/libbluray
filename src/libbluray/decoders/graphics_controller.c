@@ -1067,9 +1067,9 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
             }
 
             TEXTST_BITMAP bmp = {NULL, style->text_box.width, style->text_box.height, style->text_box.width, 0};
-            bmp.mem = malloc(bmp.width * bmp.height);
+            bmp.mem = malloc((size_t)bmp.width * bmp.height);
             if (bmp.mem) {
-                memset(bmp.mem, style->region_info.background_color, bmp.width * bmp.height);
+                memset(bmp.mem, style->region_info.background_color, (size_t)bmp.width * bmp.height);
 
                 textst_render(p->textst_render, &bmp, style, region);
 
