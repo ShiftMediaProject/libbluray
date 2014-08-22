@@ -1,0 +1,1347 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugDLLStaticDeps|Win32">
+      <Configuration>DebugDLLStaticDeps</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugDLLStaticDeps|x64">
+      <Configuration>DebugDLLStaticDeps</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugDLL|Win32">
+      <Configuration>DebugDLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugDLL|x64">
+      <Configuration>DebugDLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseDLLStaticDeps|Win32">
+      <Configuration>ReleaseDLLStaticDeps</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseDLLStaticDeps|x64">
+      <Configuration>ReleaseDLLStaticDeps</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseDLL|Win32">
+      <Configuration>ReleaseDLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseDLL|x64">
+      <Configuration>ReleaseDLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseLTO|Win32">
+      <Configuration>ReleaseLTO</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseLTO|x64">
+      <Configuration>ReleaseLTO</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\file\dirs.h" />
+    <ClInclude Include="..\src\file\dl.h" />
+    <ClInclude Include="..\src\file\file.h" />
+    <ClInclude Include="..\src\file\filesystem.h" />
+    <ClInclude Include="..\src\file\libaacs.h" />
+    <ClInclude Include="..\src\file\libbdplus.h" />
+    <ClInclude Include="..\src\libbluray\bdj\bdj.h" />
+    <ClInclude Include="..\src\libbluray\bdj\bdjo_parser.h" />
+    <ClInclude Include="..\src\libbluray\bdj\bdj_private.h" />
+    <ClInclude Include="..\src\libbluray\bdj\bdj_util.h" />
+    <ClInclude Include="..\src\libbluray\bdj\common.h" />
+    <ClInclude Include="..\src\libbluray\bdj\native\java_awt_BDFontMetrics.h" />
+    <ClInclude Include="..\src\libbluray\bdj\native\java_awt_BDGraphics.h" />
+    <ClInclude Include="..\src\libbluray\bdj\native\org_videolan_Libbluray.h" />
+    <ClInclude Include="..\src\libbluray\bdj\native\org_videolan_Logger.h" />
+    <ClInclude Include="..\src\libbluray\bdj\native\register_native.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\bdid_parse.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\bdparse.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\clpi_parse.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\extdata_parse.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\index_parse.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\meta_data.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\meta_parse.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\mpls_parse.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\navigation.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\sound_parse.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\uo_mask_table.h" />
+    <ClInclude Include="..\src\libbluray\bluray.h" />
+    <ClInclude Include="..\src\libbluray\bluray_internal.h" />
+    <ClInclude Include="..\src\libbluray\decoders\graphics_controller.h" />
+    <ClInclude Include="..\src\libbluray\decoders\graphics_processor.h" />
+    <ClInclude Include="..\src\libbluray\decoders\ig.h" />
+    <ClInclude Include="..\src\libbluray\decoders\ig_decode.h" />
+    <ClInclude Include="..\src\libbluray\decoders\m2ts_demux.h" />
+    <ClInclude Include="..\src\libbluray\decoders\m2ts_filter.h" />
+    <ClInclude Include="..\src\libbluray\decoders\overlay.h" />
+    <ClInclude Include="..\src\libbluray\decoders\pes_buffer.h" />
+    <ClInclude Include="..\src\libbluray\decoders\pg.h" />
+    <ClInclude Include="..\src\libbluray\decoders\pg_decode.h" />
+    <ClInclude Include="..\src\libbluray\decoders\rle.h" />
+    <ClInclude Include="..\src\libbluray\decoders\textst.h" />
+    <ClInclude Include="..\src\libbluray\decoders\textst_decode.h" />
+    <ClInclude Include="..\src\libbluray\decoders\textst_render.h" />
+    <ClInclude Include="..\src\libbluray\hdmv\hdmv_insn.h" />
+    <ClInclude Include="..\src\libbluray\hdmv\hdmv_vm.h" />
+    <ClInclude Include="..\src\libbluray\hdmv\mobj_parse.h" />
+    <ClInclude Include="..\src\libbluray\keys.h" />
+    <ClInclude Include="..\src\libbluray\register.h" />
+    <ClInclude Include="..\src\util\array.h" />
+    <ClInclude Include="..\src\util\attributes.h" />
+    <ClInclude Include="..\src\util\bits.h" />
+    <ClInclude Include="..\src\util\logging.h" />
+    <ClInclude Include="..\src\util\log_control.h" />
+    <ClInclude Include="..\src\util\macro.h" />
+    <ClInclude Include="..\src\util\mutex.h" />
+    <ClInclude Include="..\src\util\refcnt.h" />
+    <ClInclude Include="..\src\util\strutl.h" />
+    <ClInclude Include="..\src\util\time.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="src\libbluray\bluray-version.h" />
+    <ClInclude Include="version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\file\dirs_win32.c" />
+    <ClCompile Include="..\src\file\dir_win32.c" />
+    <ClCompile Include="..\src\file\dl_win32.c" />
+    <ClCompile Include="..\src\file\file.c" />
+    <ClCompile Include="..\src\file\filesystem.c" />
+    <ClCompile Include="..\src\file\file_win32.c" />
+    <ClCompile Include="..\src\file\libaacs.c" />
+    <ClCompile Include="..\src\file\libbdplus.c" />
+    <ClCompile Include="..\src\libbluray\bdj\bdj.c" />
+    <ClCompile Include="..\src\libbluray\bdj\bdjo_parser.c" />
+    <ClCompile Include="..\src\libbluray\bdj\bdj_util.c" />
+    <ClCompile Include="..\src\libbluray\bdj\native\java_awt_BDFontMetrics.c" />
+    <ClCompile Include="..\src\libbluray\bdj\native\java_awt_BDGraphics.c" />
+    <ClCompile Include="..\src\libbluray\bdj\native\org_videolan_Libbluray.c" />
+    <ClCompile Include="..\src\libbluray\bdj\native\org_videolan_Logger.c" />
+    <ClCompile Include="..\src\libbluray\bdj\native\register_native.c" />
+    <ClCompile Include="..\src\libbluray\bdnav\bdid_parse.c" />
+    <ClCompile Include="..\src\libbluray\bdnav\clpi_parse.c" />
+    <ClCompile Include="..\src\libbluray\bdnav\extdata_parse.c" />
+    <ClCompile Include="..\src\libbluray\bdnav\index_parse.c" />
+    <ClCompile Include="..\src\libbluray\bdnav\meta_parse.c" />
+    <ClCompile Include="..\src\libbluray\bdnav\mpls_parse.c" />
+    <ClCompile Include="..\src\libbluray\bdnav\navigation.c" />
+    <ClCompile Include="..\src\libbluray\bdnav\sound_parse.c" />
+    <ClCompile Include="..\src\libbluray\bluray.c" />
+    <ClCompile Include="..\src\libbluray\decoders\graphics_controller.c" />
+    <ClCompile Include="..\src\libbluray\decoders\graphics_processor.c" />
+    <ClCompile Include="..\src\libbluray\decoders\ig_decode.c" />
+    <ClCompile Include="..\src\libbluray\decoders\m2ts_demux.c" />
+    <ClCompile Include="..\src\libbluray\decoders\m2ts_filter.c" />
+    <ClCompile Include="..\src\libbluray\decoders\pes_buffer.c" />
+    <ClCompile Include="..\src\libbluray\decoders\pg_decode.c" />
+    <ClCompile Include="..\src\libbluray\decoders\rle.c" />
+    <ClCompile Include="..\src\libbluray\decoders\textst_decode.c" />
+    <ClCompile Include="..\src\libbluray\decoders\textst_render.c" />
+    <ClCompile Include="..\src\libbluray\hdmv\hdmv_vm.c" />
+    <ClCompile Include="..\src\libbluray\hdmv\mobj_parse.c" />
+    <ClCompile Include="..\src\libbluray\hdmv\mobj_print.c" />
+    <ClCompile Include="..\src\libbluray\register.c" />
+    <ClCompile Include="..\src\util\array.c" />
+    <ClCompile Include="..\src\util\bits.c" />
+    <ClCompile Include="..\src\util\logging.c" />
+    <ClCompile Include="..\src\util\mutex.c" />
+    <ClCompile Include="..\src\util\refcnt.c" />
+    <ClCompile Include="..\src\util\strutl.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="libbluray.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B67554E5-6253-4C94-8BCD-B8F87479970B}</ProjectGuid>
+    <RootNamespace>libbluray</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLStaticDeps|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLStaticDeps|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLStaticDeps|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLStaticDeps|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\..\..\msvc32\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libblurayd</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libblurayd</TargetName>
+    <OutDir>..\..\..\msvc64\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+    <OutDir>..\..\..\msvc32\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libblurayd</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLStaticDeps|Win32'">
+    <OutDir>..\..\..\msvc32\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libblurayd</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libblurayd</TargetName>
+    <OutDir>..\..\..\msvc64\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLStaticDeps|x64'">
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libblurayd</TargetName>
+    <OutDir>..\..\..\msvc64\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\..\..\msvc32\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libbluray</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|Win32'">
+    <OutDir>..\..\..\msvc32\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libbluray</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libbluray</TargetName>
+    <OutDir>..\..\..\msvc64\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|x64'">
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libbluray</TargetName>
+    <OutDir>..\..\..\msvc64\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+    <OutDir>..\..\..\msvc32\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libbluray</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'">
+    <OutDir>..\..\..\msvc32\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libbluray</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libbluray</TargetName>
+    <OutDir>..\..\..\msvc64\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|x64'">
+    <IntDir>$(SolutionDir)\obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>libbluray</TargetName>
+    <OutDir>..\..\..\msvc64\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <OutputFile>$(OutDir)\lib\$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>libiconvd.lib;libfreetyped.lib;libxml2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <OutputFile>$(OutDir)\lib\$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>libiconvd.lib;libfreetyped.lib;libxml2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
+      <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
+      <AdditionalDependencies>libiconvd.lib;libfreetyped.lib;libxml2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLStaticDeps|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
+      <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
+      <AdditionalDependencies>libiconvd.lib;libfreetyped.lib;libxml2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
+      <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
+      <AdditionalDependencies>libiconvd.lib;libfreetyped.lib;libxml2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLStaticDeps|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
+      <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
+      <AdditionalDependencies>libiconvd.lib;libfreetyped.lib;libxml2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <OutputFile>$(OutDir)\lib\$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <OutputFile>$(OutDir)\lib\$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <OutputFile>$(OutDir)\lib\$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <OutputFile>$(OutDir)\lib\$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
+      <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
+      <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
+      <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
+      <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
+      <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
+      <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>false</ExceptionHandling>
+      <DisableSpecificWarnings>4996;4244;4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)\bin\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
+      <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
+      <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>mkdir $(OutDir)\include
+mkdir $(OutDir)\include\libbluray
+copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
+copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
+copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
+copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+mkdir $(OutDir)\licenses
+copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+copy .\src\*.jar $(OutDir)\bin</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\src\libbluray\bluray-version.h (
+del ..\src\libbluray\bluray-version.h
+)
+if exist $(OutDir)\include\libbluray (
+rd /s /q $(OutDir)\include\libbluray
+cd ../
+cd $(ProjectDir)
+)
+if not exist .\src\libbluray-j2se-0.6.1.jar (
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.1
+rd /s /q $(IntDir)\jar
+cd ../
+cd $(ProjectDir)
+)
+if exist $(OutDir)\bin\*.jar (
+del $(OutDir)\bin\*.jar
+)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
