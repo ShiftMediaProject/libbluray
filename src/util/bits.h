@@ -25,6 +25,7 @@
 
 #include "file/file.h"
 
+#include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
 
