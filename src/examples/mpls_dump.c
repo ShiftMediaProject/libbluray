@@ -737,9 +737,7 @@ main(int argc, char *argv[])
             struct dirent *ent;
             int jj = 0;
             for (ent = readdir(dir); ent != NULL; ent = readdir(dir)) {
-                if (ent->d_name != NULL) {
                     dirlist[jj++] = str_dup(ent->d_name);
-                }
             }
             qsort(dirlist, jj, sizeof(char*), _qsort_str_cmp);
             for (jj = 0; dirlist[jj] != NULL; jj++) {
