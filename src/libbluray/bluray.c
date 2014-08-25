@@ -787,7 +787,11 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
 {
     int result = -1;
 
-    if (bd && bd->graphics_controller && bd->hdmv_vm) {
+    if (!bd) {
+        return -1;
+    }
+
+    if (bd->graphics_controller && bd->hdmv_vm) {
         GC_NAV_CMDS cmds = {-1, NULL, -1, 0, 0, EMPTY_UO_MASK};
 
         result = gc_run(bd->graphics_controller, msg, param, &cmds);
@@ -1545,9 +1549,13 @@ uint64_t bd_tell_time(BLURAY *bd)
     uint32_t clip_pkt = 0, out_pkt = 0, out_time = 0;
     NAV_CLIP *clip;
 
+    if (!bd) {
+        return 0;
+    }
+
     bd_mutex_lock(&bd->mutex);
 
-    if (bd && bd->title) {
+    if (bd->title) {
         clip = nav_packet_search(bd->title, SPN(bd->s_pos), &clip_pkt, &out_pkt, &out_time);
         if (clip) {
             out_time += clip->title_time;
@@ -1702,9 +1710,13 @@ uint64_t bd_get_title_size(BLURAY *bd)
 {
     uint64_t ret = 0;
 
+    if (!bd) {
+        return 0;
+    }
+
     bd_mutex_lock(&bd->mutex);
 
-    if (bd && bd->title) {
+    if (bd->title) {
         ret = (uint64_t)bd->title->packets * 192;
     }
 
@@ -1717,11 +1729,13 @@ uint64_t bd_tell(BLURAY *bd)
 {
     uint64_t ret = 0;
 
+    if (!bd) {
+        return 0;
+    }
+
     bd_mutex_lock(&bd->mutex);
 
-    if (bd) {
-        ret = bd->s_pos;
-    }
+    ret = bd->s_pos;
 
     bd_mutex_unlock(&bd->mutex);
 
