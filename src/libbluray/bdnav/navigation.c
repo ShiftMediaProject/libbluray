@@ -639,6 +639,7 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, 
     NAV_CLIP *clip;
     unsigned ii;
 
+    *out_time = 0;
     pos = 0;
     for (ii = 0; ii < title->pl->list_count; ii++) {
         clip = &title->clip_list.clip[ii];
