@@ -44,7 +44,7 @@ struct hdmv_vm_s {
     /* state */
     uint32_t       pc;            /* program counter */
     BD_REGISTERS  *regs;          /* player registers */
-    MOBJ_OBJECT   *object;        /* currently running object code */
+    const MOBJ_OBJECT *object;    /* currently running object code */
 
     HDMV_EVENT     event[5];      /* pending events to return */
 
@@ -55,11 +55,11 @@ struct hdmv_vm_s {
     MOBJ_OBJECT   *ig_object;     /* current object from IG stream */
 
     /* object currently playing playlist */
-    MOBJ_OBJECT *playing_object;
+    const MOBJ_OBJECT *playing_object;
     uint32_t     playing_pc;
 
     /* suspended object */
-    MOBJ_OBJECT *suspended_object;
+    const MOBJ_OBJECT *suspended_object;
     uint32_t     suspended_pc;
 
     /* Available titles. Used to validate CALL_TITLE/JUMP_TITLE. */
@@ -1177,7 +1177,7 @@ int hdmv_vm_running(HDMV_VM *p)
 uint32_t hdmv_vm_get_uo_mask(HDMV_VM *p)
 {
     uint32_t     mask = 0;
-    MOBJ_OBJECT *o    = NULL;
+    const MOBJ_OBJECT *o = NULL;
 
     if (!p) {
         return 0;
