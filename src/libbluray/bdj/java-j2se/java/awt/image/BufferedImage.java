@@ -96,7 +96,7 @@ public class BufferedImage extends java.awt.Image
         return peer.getWidth(observer);
     }
 
-    public synchronized void setRGB(int x, int y, int rgb) {
+    public void setRGB(int x, int y, int rgb) {
         peer.setRGB(x, y, rgb);
     }
 
