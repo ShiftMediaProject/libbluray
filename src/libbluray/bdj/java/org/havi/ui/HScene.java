@@ -181,15 +181,11 @@ public class HScene extends Container implements HComponentOrdering {
     }
 
     public void addWindowListener(WindowListener listener) {
-        synchronized (windowListener) {
-            windowListener = HEventMulticaster.add(windowListener, listener);
-        }
+        windowListener = HEventMulticaster.add(windowListener, listener);
     }
 
     public void removeWindowListener(WindowListener listener) {
-        synchronized (windowListener) {
-            windowListener = HEventMulticaster.remove(windowListener, listener);
-        }
+        windowListener = HEventMulticaster.remove(windowListener, listener);
     }
 
     protected void processWindowEvent(WindowEvent event) {
