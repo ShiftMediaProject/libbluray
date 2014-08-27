@@ -96,5 +96,5 @@ public class HEventGroup {
         return arr;
     }
 
-    private LinkedList keys;
+    private LinkedList keys = new LinkedList();
 }
