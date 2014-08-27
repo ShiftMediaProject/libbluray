@@ -30,10 +30,12 @@ public class BDJThreadGroup extends ThreadGroup {
     public void uncaughtException(Thread t, Throwable e) {
 
         String stack = "";
-        StackTraceElement elems[] = e.getStackTrace();
         if (e != null) {
-            for (int i = 0; i < elems.length; i++)
-                stack += "\n\t" + elems[i].toString();
+            StackTraceElement elems[] = e.getStackTrace();
+            if (elems != null) {
+                for (int i = 0; i < elems.length; i++)
+                    stack += "\n\t" + elems[i].toString();
+            }
         }
 
         if (e instanceof ThreadDeath) {
