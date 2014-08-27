@@ -65,7 +65,7 @@ public class TitleImpl implements Title {
         case TitleInfo.BDJ_PLAYBACK_TYPE_INTERACTIVE:
             return TitleType.BDJ_INTERACTIVE;
         }
-        return null;
+        return TitleType.UNKNOWN;
     }
 
     public boolean hasMultipleInstances() {
