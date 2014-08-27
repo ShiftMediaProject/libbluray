@@ -27,17 +27,25 @@ public class ContentAttribute {
     }
 
     public byte[] getContentCertID() {
+        FileInputStream is = null;
         try {
-            FileInputStream is = new FileInputStream(
+            is = new FileInputStream(
                 System.getProperty("bluray.vfs.root") + File.separator + "AACS/Content000.cer");
             is.skip(14);
             byte[] bytes = new byte[6];
             is.read(bytes, 0, 6);
-            is.close();
             return bytes;
         } catch (Throwable e) {
             e.printStackTrace();
             return null;
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
