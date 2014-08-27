@@ -177,14 +177,16 @@ public class FileInputStream extends InputStream
 
         available = 0;
 
-        if (fd != null && fd.slave != null) {
-            fd.slave.close();
-            return;
-        }
+        if (fd != null) {
+            if (fd.slave != null) {
+                fd.slave.close();
+                return;
+            }
 
-        int n = fd.decrementAndGetUseCount();
-        if (n > 0 && !force) {
-            return;
+            int n = fd.decrementAndGetUseCount();
+            if (n > 0 && !force) {
+                return;
+            }
         }
 
         close0();
