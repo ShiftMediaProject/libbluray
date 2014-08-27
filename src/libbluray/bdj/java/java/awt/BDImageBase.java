@@ -218,7 +218,7 @@ class BDImageBase extends Image {
         return rgbArray;
     }
 
-    public synchronized void setRGB(int x, int y, int rgb) {
+    public void setRGB(int x, int y, int rgb) {
         backBuffer[y * width + x] = rgb;
 
         dirty.add(x, y);
