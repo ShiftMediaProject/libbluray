@@ -31,9 +31,11 @@ public class ContentAttribute {
         try {
             is = new FileInputStream(
                 System.getProperty("bluray.vfs.root") + File.separator + "AACS/Content000.cer");
-            is.skip(14);
+            if (is.skip(14) != 14)
+                return null;
             byte[] bytes = new byte[6];
-            is.read(bytes, 0, 6);
+            if (is.read(bytes, 0, 6) != 6)
+                return null;
             return bytes;
         } catch (Throwable e) {
             e.printStackTrace();
