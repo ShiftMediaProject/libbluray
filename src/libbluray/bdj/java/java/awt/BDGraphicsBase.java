@@ -336,6 +336,14 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
 
     private void drawSpanN(int x, int y, int length, int src[], int srcOffset, boolean flipX) {
 
+        /* avoid overreading source */
+        if (srcOffset + length > src.length) {
+            length -= srcOffset + length - src.length;
+        }
+        if (length <= 0) {
+            return;
+        }
+
         Rectangle rect = new Rectangle(x, y, length, 1);
         rect = actualClip.intersection(rect);
 
