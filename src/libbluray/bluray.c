@@ -1164,7 +1164,7 @@ static void _bdj_osd_cb(BLURAY *bd, const unsigned *img, int w, int h,
 {
     BD_ARGB_OVERLAY aov;
 
-    if (!bd || !bd->argb_overlay_proc) {
+    if (!bd->argb_overlay_proc) {
         _queue_event(bd, BD_EVENT_MENU, 0);
         return;
     }
