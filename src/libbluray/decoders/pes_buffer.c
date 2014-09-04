@@ -89,3 +89,13 @@ void pes_buffer_remove(PES_BUFFER **head, PES_BUFFER *p)
         }
     }
 }
+
+void pes_buffer_next(PES_BUFFER **head)
+{
+    if (head && *head) {
+        PES_BUFFER *p = *head;
+        *head = (*head)->next;
+        p->next = NULL;
+        pes_buffer_free(&p);
+    }
+}
