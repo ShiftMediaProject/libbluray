@@ -23,6 +23,8 @@
 
 #include "m2ts_filter.h"
 
+#include "hdmv_pids.h"
+
 #include "util/logging.h"
 #include "util/macro.h"
 
@@ -49,7 +51,8 @@ struct m2ts_filter_s
 };
 
 M2TS_FILTER *m2ts_filter_init(int64_t in_pts, int64_t out_pts,
-                              unsigned num_video, unsigned num_audio)
+                              unsigned num_video, unsigned num_audio,
+                              unsigned num_ig, unsigned num_pg)
 {
     M2TS_FILTER *p = calloc(1, sizeof(*p));
 
@@ -59,8 +62,8 @@ M2TS_FILTER *m2ts_filter_init(int64_t in_pts, int64_t out_pts,
 
         p->in_pts   = in_pts;
         p->out_pts  = out_pts;
-        p->wipe_pid = calloc(num_audio + num_video + 1, sizeof(uint16_t));
-        p->pass_pid = calloc(num_audio + num_video + 1, sizeof(uint16_t));
+        p->wipe_pid = calloc(num_audio + num_video + num_ig + num_pg + 1, sizeof(uint16_t));
+        p->pass_pid = calloc(num_audio + num_video + num_ig + num_pg + 1, sizeof(uint16_t));
         if (!p->pass_pid || !p->wipe_pid) {
             m2ts_filter_close(&p);
             return NULL;
@@ -69,10 +72,16 @@ M2TS_FILTER *m2ts_filter_init(int64_t in_pts, int64_t out_pts,
         pid = (in_pts >= 0) ? p->wipe_pid : p->pass_pid;
 
         for (ii = 0, npid = 0; ii < num_video; ii++) {
-            pid[npid++] = 0x1011 + ii;
+            pid[npid++] = HDMV_PID_VIDEO + ii;
         }
         for (ii = 0; ii < num_audio; ii++) {
-            pid[npid++] = 0x1100 + ii;
+            pid[npid++] = HDMV_PID_AUDIO_FIRST + ii;
+        }
+        for (ii = 0; ii < num_ig; ii++) {
+            pid[npid++] = HDMV_PID_IG_FIRST + ii;
+        }
+        for (ii = 0; ii < num_pg; ii++) {
+            pid[npid++] = HDMV_PID_PG_FIRST + ii;
         }
     }
 
@@ -218,14 +227,25 @@ static int _filter_es_pts(M2TS_FILTER *p, const uint8_t *buf, uint16_t pid)
         }
     }
     if (p->out_pts >= 0) {
-
+        /*
+         * Note: we can't compare against in_pts here (after passing it once):
+         * PG / IG streams can have timestamps before in_time (except for composition segments), and those are valid.
+         */
         if (_pid_in_list(p->pass_pid, pid)) {
 
             int64_t pts = _es_timestamp(buf + 4 + payload_offset, 188 - payload_offset);
-            if (pts > p->out_pts) {
+            if (pts >= p->out_pts) {
+                /*
+                 * audio/video streams are cutted after out_time (unit with pts==out_time is included in the clip).
+                 * PG/IG streams are cutted before out_time (unit with pts==out_time is dropped out).
+                 */
+                if (pts > p->out_pts ||
+                    IS_HDMV_PID_PG(pid) ||
+                    IS_HDMV_PID_IG(pid)) {
                 M2TS_TRACE("Pid 0x%04x passed OUT timestamp %"PRId64" (pts %"PRId64") -> start wiping\n", pid, p->out_pts, pts);
                 _remove_pid(p->pass_pid, pid);
                 _add_pid(p->wipe_pid, pid);
+                }
             }
         }
     }
@@ -248,7 +268,7 @@ int m2ts_filter(M2TS_FILTER *p, uint8_t *buf)
     for (; buf < end; buf += 192) {
 
         uint16_t pid = ((buf[4+1] & 0x1f) << 8) | buf[4+2];
-        if (!pid) {
+        if (pid == HDMV_PID_PAT) {
             p->pat_seen = 1;
             p->pat_packets = 0;
             continue;
@@ -262,7 +282,8 @@ int m2ts_filter(M2TS_FILTER *p, uint8_t *buf)
             }
             M2TS_TRACE("NOT Wiping pid 0x%04x (inside seek buffer, PAT seen)\n", pid);
         }
-        if (pid < 0x1011) {
+        if (pid < HDMV_PID_VIDEO) {
+            /* pass PMT, PCR, SIT */
             /*M2TS_TRACE("NOT Wiping pid 0x%04x (< 0x1011)\n", pid);*/
             continue;
         }

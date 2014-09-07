@@ -50,19 +50,35 @@ public class FontFactory {
         fonts = new HashMap(fontIndexData.length);
         for (int i = 0; i < fontIndexData.length; i++) {
             FontIndexData data = fontIndexData[i];
-            FileInputStream inStream = new FileInputStream(BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/" + data.getFileName()));
+            FileInputStream inStream = null;
 
-            Font font = Font.createFont(Font.TRUETYPE_FONT, inStream);
-            font = font.deriveFont(data.getStyle(), data.getMaxSize());
+            try {
+                inStream = new FileInputStream(BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/" + data.getFileName()));
+                Font font = Font.createFont(Font.TRUETYPE_FONT, inStream);
+                font = font.deriveFont(data.getStyle(), data.getMaxSize());
 
-            fonts.put(data.getName(), font);
+                fonts.put(data.getName(), font);
+
+            } finally {
+                if (inStream != null) {
+                    inStream.close();
+                }
+            }
         }
     }
 
     public FontFactory(URL u) throws IOException, FontFormatException {
-        FileInputStream inStream = new FileInputStream(u.getPath());
+        FileInputStream inStream = null;
 
-        urlFont = Font.createFont(Font.TRUETYPE_FONT, inStream);
+        try {
+            inStream = new FileInputStream(u.getPath());
+            urlFont = Font.createFont(Font.TRUETYPE_FONT, inStream);
+
+        } finally {
+            if (inStream != null) {
+                inStream.close();
+            }
+        }
     }
 
     public Font createFont(String name, int style, int size)

@@ -129,7 +129,7 @@ static void _join_fragments(PES_BUFFER *p1, PES_BUFFER *p2, int data_pos)
 /* return 1 if segment is ready for decoding, 0 if more data is needed */
 static int _join_segment_fragments(struct pes_buffer_s *p)
 {
-    uint8_t type = p->buf[0];
+    uint8_t type;
     unsigned id_pos = 0, id_len = 3, sd_pos = 6, data_pos = 0;
 
     if (p->len < 3) {
@@ -138,6 +138,7 @@ static int _join_segment_fragments(struct pes_buffer_s *p)
 
     /* check segment type */
 
+    type = p->buf[0];
     if (type == PGS_OBJECT) {
         id_pos = 3;
         sd_pos = 6;
@@ -200,6 +201,11 @@ static int _decode_wds(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 
     (void)p;
 
+    if (!s->decoding) {
+        BD_DEBUG(DBG_DECODE, "skipping orphan window definition segment\n");
+        return 0;
+    }
+
     s->num_window = 0;
 
     if (pg_decode_windows(bb, &w)) {
@@ -216,6 +222,11 @@ static int _decode_wds(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 
 static int _decode_ods(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 {
+    if (!s->decoding) {
+        BD_DEBUG(DBG_DECODE, "skipping orphan object definition segment\n");
+        return 0;
+    }
+
     /* search for object to be updated */
 
     if (s->object) {
@@ -258,6 +269,11 @@ static int _decode_ods(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 
 static int _decode_pds(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 {
+    if (!s->decoding) {
+        BD_DEBUG(DBG_DECODE, "skipping orphan palette definition segment\n");
+        return 0;
+    }
+
     /* search for palette to be updated */
 
     if (s->palette) {
@@ -327,6 +343,11 @@ static void _check_epoch_start(PG_DISPLAY_SET *s)
 
 static int _decode_pcs(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 {
+    if (s->complete) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "ERROR: updating complete (non-consumed) PG composition\n");
+        s->complete = 0;
+    }
+
     pg_free_composition(&s->pcs);
     s->pcs = calloc(1, sizeof(*s->pcs));
     if (!s->pcs) {
@@ -344,11 +365,18 @@ static int _decode_pcs(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 
     _check_epoch_start(s);
 
+    s->decoding = 1;
+
     return 1;
 }
 
 static int _decode_ics(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 {
+    if (s->complete) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "ERROR: updating complete (non-consumed) IG composition\n");
+        s->complete = 0;
+    }
+
     ig_free_interactive(&s->ics);
     s->ics = calloc(1, sizeof(*s->ics));
     if (!s->ics) {
@@ -366,12 +394,16 @@ static int _decode_ics(PG_DISPLAY_SET *s, BITBUFFER *bb, PES_BUFFER *p)
 
     _check_epoch_start(s);
 
+    s->decoding = 1;
+
     return 1;
 }
 
 static int _decode_dialog_style(PG_DISPLAY_SET *s, BITBUFFER *bb)
 {
     _free_dialogs(s);
+
+    s->complete = 0;
 
     s->style = calloc(1, sizeof(*s->style));
     if (!s->style) {
@@ -457,7 +489,13 @@ static int _decode_segment(PG_DISPLAY_SET *s, PES_BUFFER *p)
             return _decode_ics(s, &bb, p);
 
         case PGS_END_OF_DISPLAY:
+            if (!s->decoding) {
+                /* avoid duplicate initialization / presenataton */
+                BD_DEBUG(DBG_DECODE, "skipping orphan end of display segment\n");
+                return 0;
+            }
             s->complete = 1;
+            s->decoding = 0;
             return 1;
 
         case TGS_DIALOG_STYLE:
@@ -522,8 +560,6 @@ static int graphics_processor_decode_pes(PG_DISPLAY_SET **s, PES_BUFFER **p, int
 
         GP_TRACE("Decoding segment, dts %010"PRId64" pts %010"PRId64" len %d\n",
                  (*p)->dts, (*p)->pts, (*p)->len);
-
-        (*s)->complete = 0;
 
         _decode_segment(*s, *p);
 

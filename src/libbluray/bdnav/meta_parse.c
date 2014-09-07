@@ -121,7 +121,7 @@ static void _findMetaXMLfiles(META_ROOT *meta, const char *device_path)
     for (res = dir_read(dir, &ent); !res; res = dir_read(dir, &ent)) {
         if (ent.d_name[0] == '.')
             continue;
-        else if (ent.d_name != NULL && strncasecmp(ent.d_name, "bdmt_", 5) == 0) {
+        else if (strncasecmp(ent.d_name, "bdmt_", 5) == 0) {
             uint8_t i = meta->dl_count;
             meta->dl_count++;
             meta->dl_entries = realloc(meta->dl_entries, (meta->dl_count*sizeof(META_DL)));

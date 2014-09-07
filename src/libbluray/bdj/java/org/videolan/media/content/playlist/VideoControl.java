@@ -37,10 +37,10 @@ public abstract class VideoControl extends StreamControl implements VideoPresent
     protected HScreenRectangle getNormalizedRectangle(Dimension dimension, Rectangle rectangle) {
         if ((dimension.width == 0) || (dimension.height == 0))
             return new HScreenRectangle(0, 0, 0, 0);
-        float x = rectangle.x / dimension.width;
-        float y = rectangle.y / dimension.height;
-        float w = rectangle.width / dimension.width;
-        float h = rectangle.height / dimension.height;
+        float x = (float)rectangle.x / dimension.width;
+        float y = (float)rectangle.y / dimension.height;
+        float w = (float)rectangle.width / dimension.width;
+        float h = (float)rectangle.height / dimension.height;
         return new HScreenRectangle(x, y, w, h);
     }
 

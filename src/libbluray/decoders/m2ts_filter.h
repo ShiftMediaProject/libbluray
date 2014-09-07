@@ -32,7 +32,8 @@
 typedef struct m2ts_filter_s M2TS_FILTER;
 
 BD_PRIVATE M2TS_FILTER *m2ts_filter_init(int64_t in_pts, int64_t out_pts,
-                                         unsigned num_video, unsigned num_audio);
+                                         unsigned num_video, unsigned num_audio,
+                                         unsigned num_ig, unsigned num_pg);
 BD_PRIVATE void         m2ts_filter_close(M2TS_FILTER **);
 
 /*

@@ -140,11 +140,13 @@ public class BDRootWindow extends Frame {
 
     /* called when new title starts (window is "created" again) */
     public void clearOverlay() {
-        if (overlay_open) {
-            logger.error("clearOverlay() ignored (overlay is visible)");
-        } else {
-            Arrays.fill(backBuffer, 0);
-            dirty.clear();
+        synchronized (this) {
+            if (overlay_open) {
+                logger.error("clearOverlay() ignored (overlay is visible)");
+            } else {
+                Arrays.fill(backBuffer, 0);
+                dirty.clear();
+            }
         }
     }
 

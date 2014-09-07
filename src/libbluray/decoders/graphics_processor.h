@@ -56,6 +56,8 @@ typedef struct {
     BD_PG_COMPOSITION   *pcs;
     BD_TEXTST_DIALOG_STYLE *style;
 
+    uint8_t decoding; /* internal flag: PCS/ICS decoded, but no end of presentation seen yet */
+
 } PG_DISPLAY_SET;
 
 BD_PRIVATE void pg_display_set_free(PG_DISPLAY_SET **s);

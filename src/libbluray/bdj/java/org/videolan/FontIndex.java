@@ -36,8 +36,9 @@ public class FontIndex extends DefaultHandler {
     }
 
     private FontIndex(String path) {
+        FileInputStream stream = null;
         try {
-            FileInputStream stream = new FileInputStream(path);
+            stream = new FileInputStream(path);
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             parser.parse(stream, this);
         } catch (FileNotFoundException e) {
@@ -46,6 +47,12 @@ public class FontIndex extends DefaultHandler {
             e.printStackTrace();
         } finally {
             fontData = null;
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (Exception e) {
+                }
+            }
         }
     }
 

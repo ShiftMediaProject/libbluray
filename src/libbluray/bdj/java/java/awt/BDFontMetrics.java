@@ -139,7 +139,7 @@ public class BDFontMetrics extends FontMetrics {
         return (String[])fontNames.toArray(new String[fontNames.size()]);
     }
 
-    public static void registerFont(String name, int style, String path) {
+    public synchronized static void registerFont(String name, int style, String path) {
         File f = new File(path);
         path = f.getAbsolutePath();
         if (path != null) {

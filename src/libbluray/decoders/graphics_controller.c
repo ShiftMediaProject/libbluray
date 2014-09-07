@@ -20,6 +20,7 @@
 #include "graphics_controller.h"
 
 #include "graphics_processor.h"
+#include "hdmv_pids.h"
 #include "ig.h"
 #include "overlay.h"
 #include "textst_render.h"
@@ -831,7 +832,7 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
         return -1;
     }
 
-    if (pid >= 0x1400 && pid < 0x1500) {
+    if (IS_HDMV_PID_IG(pid)) {
         /* IG stream */
 
         if (!gc->igp) {
@@ -875,7 +876,7 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
         return 1;
     }
 
-    else if (pid >= 0x1200 && pid < 0x1300) {
+    else if (IS_HDMV_PID_PG(pid)) {
         /* PG stream */
         if (!gc->pgp) {
             gc->pgp = graphics_processor_init();
@@ -894,7 +895,7 @@ int gc_decode_ts(GRAPHICS_CONTROLLER *gc, uint16_t pid, uint8_t *block, unsigned
         return 1;
     }
 
-    else if (pid == 0x1800) {
+    else if (IS_HDMV_PID_TEXTST(pid)) {
         /* TextST stream */
         if (!gc->tgp) {
             gc->tgp = graphics_processor_init();
@@ -1004,9 +1005,11 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
 
         /* next dialog too far in future ? */
         if (now < 1 || dialog[ii].start_pts >= now + 90000) {
-            cmds->wakeup_time = dialog[ii].start_pts / 2;
             GC_TRACE("_render_textst(): next event #%d in %"PRId64" seconds (pts %"PRId64")\n",
                      ii, (dialog[ii].start_pts - now)/90000, dialog[ii].start_pts);
+            if (cmds) {
+                cmds->wakeup_time = dialog[ii].start_pts / 2;
+            }
             return 1;
         }
 
@@ -1066,9 +1069,9 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
             }
 
             TEXTST_BITMAP bmp = {NULL, style->text_box.width, style->text_box.height, style->text_box.width, 0};
-            bmp.mem = malloc(bmp.width * bmp.height);
+            bmp.mem = malloc((size_t)bmp.width * bmp.height);
             if (bmp.mem) {
-                memset(bmp.mem, style->region_info.background_color, bmp.width * bmp.height);
+                memset(bmp.mem, style->region_info.background_color, (size_t)bmp.width * bmp.height);
 
                 textst_render(p->textst_render, &bmp, style, region);
 
@@ -1457,11 +1460,13 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
         /* do not trigger auto action before single-loop animations have been terminated */
         if (gc->button_effect_running) {
             GC_TRACE("   auto-activate #%d not triggered (ANIMATING)\n", auto_activate_button->id);
-        } else {
+        } else if (cmds) {
             cmds->num_nav_cmds = auto_activate_button->num_nav_cmds;
             cmds->nav_cmds     = auto_activate_button->nav_cmds;
 
             gc->auto_action_triggered = 1;
+        } else {
+            GC_ERROR("_render_page(): auto-activate ignored (missing result buffer)\n");
         }
     }
 
@@ -1564,9 +1569,13 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, uint32_t key, GC_NAV_CMDS *cmds)
                     case BD_VK_ENTER:
                         activated_btn_id = cur_btn_id;
 
-                        cmds->num_nav_cmds = button->num_nav_cmds;
-                        cmds->nav_cmds     = button->nav_cmds;
-                        cmds->sound_id_ref = button->activated_sound_id_ref;
+                        if (cmds) {
+                            cmds->num_nav_cmds = button->num_nav_cmds;
+                            cmds->nav_cmds     = button->nav_cmds;
+                            cmds->sound_id_ref = button->activated_sound_id_ref;
+                        } else {
+                            GC_ERROR("_user_input(): VD_VK_ENTER action ignored (missing result buffer)\n");
+                        }
                         break;
                     default:;
                 }
@@ -1574,7 +1583,7 @@ static int _user_input(GRAPHICS_CONTROLLER *gc, uint32_t key, GC_NAV_CMDS *cmds)
 
             if (new_btn_id != cur_btn_id) {
                 BD_IG_BUTTON *new_button = _find_button_page(page, new_btn_id, NULL);
-                if (new_button) {
+                if (new_button && cmds) {
                     cmds->sound_id_ref = new_button->selected_sound_id_ref;
                 }
             }

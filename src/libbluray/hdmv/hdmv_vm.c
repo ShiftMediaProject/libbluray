@@ -44,7 +44,7 @@ struct hdmv_vm_s {
     /* state */
     uint32_t       pc;            /* program counter */
     BD_REGISTERS  *regs;          /* player registers */
-    MOBJ_OBJECT   *object;        /* currently running object code */
+    const MOBJ_OBJECT *object;    /* currently running object code */
 
     HDMV_EVENT     event[5];      /* pending events to return */
 
@@ -55,11 +55,11 @@ struct hdmv_vm_s {
     MOBJ_OBJECT   *ig_object;     /* current object from IG stream */
 
     /* object currently playing playlist */
-    MOBJ_OBJECT *playing_object;
+    const MOBJ_OBJECT *playing_object;
     uint32_t     playing_pc;
 
     /* suspended object */
-    MOBJ_OBJECT *suspended_object;
+    const MOBJ_OBJECT *suspended_object;
     uint32_t     suspended_pc;
 
     /* Available titles. Used to validate CALL_TITLE/JUMP_TITLE. */
@@ -411,7 +411,7 @@ static int _resume_object(HDMV_VM *p, int psr_restore)
     p->suspended_object = NULL;
 
     BD_DEBUG(DBG_HDMV, "resuming object %ld at %d\n",
-             (long)((p->movie_objects->objects - p->object) / sizeof(p->movie_objects->objects[0])),
+             (long)(p->object - p->movie_objects->objects),
              p->pc);
 
     _queue_event(p, HDMV_EVENT_PLAY_STOP, 0);
@@ -852,7 +852,7 @@ static void _hdmv_trace_cmd(int pc, MOBJ_CMD *cmd)
 
         dst += sprintf(dst, "%04d:  ", pc);
 
-        dst += mobj_sprint_cmd(dst, cmd);
+        /*dst +=*/ mobj_sprint_cmd(dst, cmd);
 
         BD_DEBUG(DBG_HDMV, "%s\n", buf);
     }
@@ -872,7 +872,7 @@ static void _hdmv_trace_res(uint32_t new_src, uint32_t new_dst, uint32_t orig_sr
             if (new_src != orig_src) {
                 dst += sprintf(dst, " src 0x%x <== 0x%x ", orig_src, new_src);
             }
-            dst += sprintf(dst, "]");
+            /*dst +=*/ sprintf(dst, "]");
 
             BD_DEBUG(DBG_HDMV, "%s\n", buf);
         }
@@ -1177,7 +1177,7 @@ int hdmv_vm_running(HDMV_VM *p)
 uint32_t hdmv_vm_get_uo_mask(HDMV_VM *p)
 {
     uint32_t     mask = 0;
-    MOBJ_OBJECT *o    = NULL;
+    const MOBJ_OBJECT *o = NULL;
 
     if (!p) {
         return 0;

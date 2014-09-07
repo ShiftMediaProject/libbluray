@@ -275,7 +275,7 @@ BD_PRIVATE const uint8_t *libaacs_get_aacs_data(BD_AACS *p, int type)
 
     switch (type) {
         case BD_AACS_DISC_ID:
-            return p ? p->disc_id : NULL;
+            return p->disc_id;
 
         case BD_AACS_MEDIA_VID:
             return _get_vid(p);

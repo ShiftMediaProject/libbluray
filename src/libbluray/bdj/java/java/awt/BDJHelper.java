@@ -78,8 +78,12 @@ public class BDJHelper {
                     event = new KeyEvent(focusOwner, id, when, modifiers, KeyEvent.VK_UNDEFINED, (char)keyCode);
                 else
                     event = new KeyEvent(focusOwner, id, when, modifiers, keyCode, KeyEvent.CHAR_UNDEFINED);
-                BDToolkit.getEventQueue(focusOwner).postEvent(event);
-                return true;
+
+                EventQueue eq = BDToolkit.getEventQueue(focusOwner);
+                if (eq != null) {
+                    eq.postEvent(event);
+                    return true;
+                }
             } catch (Throwable e) {
                 org.videolan.Logger.getLogger("BDJHelper").error("postKeyEvent failed: " + e);
             }
