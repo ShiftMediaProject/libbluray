@@ -340,6 +340,12 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         if (srcOffset + length > src.length) {
             length -= srcOffset + length - src.length;
         }
+        /* avoid underreading source */
+        if (srcOffset < 0) {
+            length += srcOffset;
+            x -= srcOffset;
+            srcOffset = 0;
+        }
         if (length <= 0) {
             return;
         }
