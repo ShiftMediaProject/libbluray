@@ -37,6 +37,7 @@ public class ServiceDomain {
             throws ServiceXFRException, InterruptedIOException,
             MPEGDeliveryException
     {
+        org.videolan.Logger.unimplemented("ServiceDomain", "attach");
         throw new Error("Not implemented");
     }
 
@@ -52,6 +53,7 @@ public class ServiceDomain {
        
         try {
             this.mountPoint = new DSMCCObject(MountManager.mount(bdl.getJarFileId()));
+            this.locator = locator;
         } catch (MountException e) {
             e.printStackTrace();
             throw new DSMCCException("couldn't mount jar");
@@ -62,6 +64,7 @@ public class ServiceDomain {
             InterruptedIOException, InvalidAddressException,
             MPEGDeliveryException
     {
+        org.videolan.Logger.unimplemented("ServiceDomain", "attach");
         throw new Error("Not implemented");
     }
 
@@ -73,6 +76,7 @@ public class ServiceDomain {
 
     public byte[] getNSAPAddress() throws NotLoadedException
     {
+        org.videolan.Logger.unimplemented("ServiceDomain", "getNSAPAddress");
         throw new Error("Not implemented");
     }
 
@@ -108,6 +112,7 @@ public class ServiceDomain {
 
     public boolean isNetworkConnectionAvailable()
     {
+        org.videolan.Logger.unimplemented("ServiceDomain", "isNetworkConnectionAvailable");
         return false;
     }
 
