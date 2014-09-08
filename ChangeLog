@@ -1,3 +1,5 @@
+- Fix animations in some BD-J menus.
+
 2014-09-03: Version 0.6.2
 - Fix possible subtitle corruption after seek.
 - Fix some main path embedded HDMV menus.

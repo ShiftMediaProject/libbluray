@@ -1022,8 +1022,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         boolean flipX, boolean flipY,
         Color bg, ImageObserver observer) {
 
-        if ((sx < 0) || (sy < 0) ||
-            (sw == 0) || (sh == 0) || (dw == 0) || (dh == 0))
+        if ((sw == 0) || (sh == 0) || (dw == 0) || (dh == 0))
             return false;
 
         BDImage bdImage;
