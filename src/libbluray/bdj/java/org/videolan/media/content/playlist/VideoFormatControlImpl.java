@@ -43,10 +43,12 @@ public class VideoFormatControlImpl implements VideoFormatControl {
         if ((ci == null) ||(ci.getVideoStreamCount() <= 0))
             return ASPECT_RATIO_UNKNOWN;
         Dimension aspect = ci.getVideoStreams()[0].getVideoAspectRatio();
-        if ((aspect.width == 4) && (aspect.height == 3))
-            return ASPECT_RATIO_4_3;
-        if ((aspect.width == 16) && (aspect.height == 9))
-            return ASPECT_RATIO_16_9;
+        if (aspect != null) {
+            if ((aspect.width == 4) && (aspect.height == 3))
+                return ASPECT_RATIO_4_3;
+            if ((aspect.width == 16) && (aspect.height == 9))
+                return ASPECT_RATIO_16_9;
+        }
         return ASPECT_RATIO_UNKNOWN;
     }
 
