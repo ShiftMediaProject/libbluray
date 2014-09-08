@@ -351,9 +351,9 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
 
     protected ControllerErrorEvent doStart(Time at) {
         if (at != null)
-                baseMediaTime = at.getNanoseconds();
-                baseTime = getTimeBase().getNanoseconds();
-                return null;
+            baseMediaTime = at.getNanoseconds();
+        baseTime = getTimeBase().getNanoseconds();
+        return null;
     }
 
     protected ControllerErrorEvent doStop() {
