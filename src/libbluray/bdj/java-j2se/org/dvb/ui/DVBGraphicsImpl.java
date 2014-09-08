@@ -225,10 +225,12 @@ public class DVBGraphicsImpl extends DVBGraphics {
         gfx.fillRoundRect(x, y, width, height, arcWidth, arcHeight);
     }
 
+    /*
     public void finalize()
     {
         gfx.finalize();
     }
+    */
 
     public Shape getClip()
     {
