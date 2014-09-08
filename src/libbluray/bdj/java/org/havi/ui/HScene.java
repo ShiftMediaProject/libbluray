@@ -318,11 +318,11 @@ public class HScene extends Container implements HComponentOrdering {
     }
 
     public int[] getAllShortcutKeycodes() {
-        Integer[] src = (Integer[]) shortcuts.keySet().toArray();
+        Object[] src = shortcuts.keySet().toArray();
         int[] dest = new int[src.length];
 
         for (int i = 0; i < src.length; i++)
-            dest[i] = src[i].intValue();
+            dest[i] = ((Integer)src[i]).intValue();
 
         return dest;
     }
