@@ -169,7 +169,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 (AppID)context.getXletProperty("org.dvb.application.appid"),
                 fromState, toState, this, hasFailed);
         for (int i = 0; i < list.size(); i++)
-            ((AppStateChangeEventListener)listeners.get(i)).stateChange(event);
+            ((AppStateChangeEventListener)list.get(i)).stateChange(event);
     }
 
     protected BDJXletContext getXletContext() {
