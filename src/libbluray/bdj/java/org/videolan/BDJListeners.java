@@ -110,7 +110,7 @@ public class BDJListeners {
         putCallback(new PSR102Status(value));
     }
 
-    private class BDJListener {
+    private static class BDJListener {
         public BDJXletContext ctx;
         public Object listener;
 
@@ -120,7 +120,7 @@ public class BDJListeners {
         }
     }
 
-    private class Callback extends BDJAction {
+    private static class Callback extends BDJAction {
         private Callback(Object event, Object listener) {
             this.event = event;
             this.listener = listener;
