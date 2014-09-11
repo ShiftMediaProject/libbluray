@@ -66,4 +66,5 @@ public class DSMCCStreamEvent extends DSMCCStream {
         throw new Error("Not implemented");
     }
 
+    private static final long serialVersionUID = 1L;
 }

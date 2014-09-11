@@ -19,9 +19,10 @@
 package org.dvb.dsmcc;
 
 import java.io.IOException;
+import java.io.Serializable;
 import org.davic.net.Locator;
 
-public class DSMCCStream {
+public class DSMCCStream implements Serializable {
     public DSMCCStream(DSMCCObject aDSMCCObject) throws NotLoadedException,
             IllegalObjectTypeException
     {
@@ -89,4 +90,6 @@ public class DSMCCStream {
     {
         throw new Error("Not implemented");
     }
+
+    private static final long serialVersionUID = 1L;
 }

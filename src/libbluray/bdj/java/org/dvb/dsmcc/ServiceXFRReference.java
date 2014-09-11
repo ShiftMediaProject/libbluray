@@ -19,9 +19,11 @@
 
 package org.dvb.dsmcc;
 
+import java.io.Serializable;
+
 import org.davic.net.Locator;
 
-public class ServiceXFRReference {
+public class ServiceXFRReference implements Serializable {
     public ServiceXFRReference(Locator serviceLocator, int carouselId,
             String pathName)
     {
@@ -52,4 +54,6 @@ public class ServiceXFRReference {
     {
         throw new Error("Not implemented");
     }
+
+    private static final long serialVersionUID = 1L;
 }
