@@ -34,7 +34,6 @@ import org.videolan.PlaylistInfo;
 
 public class UOMaskTableControlImpl implements UOMaskTableControl {
     protected UOMaskTableControlImpl(Handler player) {
-        this.player = player;
     }
 
     public Component getControlComponent() {
@@ -72,5 +71,4 @@ public class UOMaskTableControlImpl implements UOMaskTableControl {
     }
 
     private BDJListeners listeners = new BDJListeners();
-    private Handler player;
 }
