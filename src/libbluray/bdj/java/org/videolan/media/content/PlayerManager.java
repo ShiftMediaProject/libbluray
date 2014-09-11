@@ -36,11 +36,11 @@ public class PlayerManager {
 
     private BDHandler playlistPlayer = null;
     private BDHandler videoDripPlayer = null;
-    private ArrayList audioPlayerList = new ArrayList(8);
+    //private ArrayList audioPlayerList = new ArrayList(8);
 
     private Object playlistPlayerLock = new Object();
     private Object videoDripPlayerLock = new Object();
-    private Object audioPlayerLock = new Object();
+    //private Object audioPlayerLock = new Object();
 
     public void releaseAllPlayers(boolean unconditional) {
         BDHandler[] players = null;
