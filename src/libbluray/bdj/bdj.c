@@ -444,7 +444,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaV
     X_FREE(option);
 
     if (result != JNI_OK || !*env) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM.\n");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM. JNI_CreateJavaVM result: %d\n", result);
         return 0;
     }
 
