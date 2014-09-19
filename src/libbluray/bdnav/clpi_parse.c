@@ -743,7 +743,7 @@ clpi_parse(const char *path)
         char *backup = malloc(len + 8);
 
         strncpy(backup, path, len - 18);
-        strcpy(backup + len - 18, "BACKUP/");
+        strcpy(backup + len - 18, "BACKUP" DIR_SEP);
         strcpy(backup + len - 18 + 7, path + len - 18);
 
         cl = _clpi_parse(backup);

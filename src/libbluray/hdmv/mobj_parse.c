@@ -193,7 +193,7 @@ MOBJ_OBJECTS *mobj_parse(const char *disc_root)
     MOBJ_OBJECTS *objects;
     char *file;
 
-    file = str_printf("%s/BDMV/MovieObject.bdmv", disc_root);
+    file = str_printf("%s"DIR_SEP "BDMV" DIR_SEP "MovieObject.bdmv", disc_root);
     objects = _mobj_parse(file);
     X_FREE(file);
     if (objects) {
@@ -201,7 +201,7 @@ MOBJ_OBJECTS *mobj_parse(const char *disc_root)
     }
 
     /* if failed, try backup file */
-    file = str_printf("%s/BDMV/BACKUP/MovieObject.bdmv", disc_root);
+    file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "BACKUP" DIR_SEP "MovieObject.bdmv", disc_root);
     objects = _mobj_parse(file);
     X_FREE(file);
     return objects;

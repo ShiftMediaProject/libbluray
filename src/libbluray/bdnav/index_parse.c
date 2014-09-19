@@ -231,7 +231,7 @@ INDX_ROOT *indx_parse(const char *disc_root)
     INDX_ROOT *index;
     char *file;
 
-    file = str_printf("%s/BDMV/index.bdmv", disc_root);
+    file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "index.bdmv", disc_root);
     index = _indx_parse(file);
     X_FREE(file);
     if (index) {
@@ -239,7 +239,7 @@ INDX_ROOT *indx_parse(const char *disc_root)
     }
 
     /* try backup */
-    file = str_printf("%s/BDMV/BACKUP/index.bdmv", disc_root);
+    file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "BACKUP" DIR_SEP "index.bdmv", disc_root);
     index = _indx_parse(file);
     X_FREE(file);
     return index;

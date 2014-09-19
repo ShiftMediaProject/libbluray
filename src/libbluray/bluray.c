@@ -2011,7 +2011,7 @@ static int _preload_textst_subpath(BLURAY *bd)
     /* set fonts and encoding from clip info */
     gc_add_font(bd->graphics_controller, NULL);
     for (ii = 0; ii < bd->st_textst.clip->cl->font_info.font_count; ii++) {
-        char *file = str_printf("%s/BDMV/AUXDATA/%s.otf", bd->device_path, bd->st_textst.clip->cl->font_info.font[ii].file_id);
+        char *file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "AUXDATA" DIR_SEP "%s.otf", bd->device_path, bd->st_textst.clip->cl->font_info.font[ii].file_id);
         gc_add_font(bd->graphics_controller, file);
         X_FREE(file);
     }
@@ -3411,7 +3411,7 @@ int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, BLURAY_SOUND_EFFECT *effe
 
     if (!bd->sound_effects) {
 
-        char *file = str_printf("%s/BDMV/AUXDATA/sound.bdmv", bd->device_path);
+        char *file = str_printf("%s"DIR_SEP "BDMV" DIR_SEP "AUXDATA" DIR_SEP "sound.bdmv", bd->device_path);
         bd->sound_effects = sound_parse(file);
         X_FREE(file);
 

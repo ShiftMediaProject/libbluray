@@ -103,7 +103,7 @@ BDID_DATA *bdid_parse(const char *file_name)
         char *backup = malloc(len + 8);
 
         strcpy(backup, file_name);
-        strcpy(backup + len - 7, "BACKUP/id.bdmv");
+        strcpy(backup + len - 7, "BACKUP" DIR_SEP "id.bdmv");
 
         bdid = _bdid_parse(backup);
 

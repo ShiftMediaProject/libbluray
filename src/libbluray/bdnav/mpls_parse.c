@@ -965,7 +965,7 @@ mpls_parse(const char *path)
         char *backup = malloc(len + 8);
 
         strncpy(backup, path, len - 19);
-        strcpy(backup + len - 19, "BACKUP/");
+        strcpy(backup + len - 19, "BACKUP" DIR_SEP);
         strcpy(backup + len - 19 + 7, path + len - 19);
 
         pl = _mpls_parse(backup);

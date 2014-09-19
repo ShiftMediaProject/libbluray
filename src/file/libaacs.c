@@ -72,18 +72,18 @@ int libaacs_required(const char *device_path)
     BD_FILE_H *fd;
     char      *tmp;
 
-    tmp = str_printf("%s/AACS/Unit_Key_RO.inf", device_path);
+    tmp = str_printf("%s" DIR_SEP "AACS" DIR_SEP "Unit_Key_RO.inf", device_path);
     fd = file_open(tmp, "rb");
     X_FREE(tmp);
 
     if (fd) {
         file_close(fd);
 
-        BD_DEBUG(DBG_BLURAY, "AACS/Unit_Key_RO.inf found. Disc seems to be AACS protected.\n");
+        BD_DEBUG(DBG_BLURAY, "AACS" DIR_SEP "Unit_Key_RO.inf found. Disc seems to be AACS protected.\n");
         return 1;
     }
 
-    BD_DEBUG(DBG_BLURAY, "AACS/Unit_Key_RO.inf not found. No AACS protection.\n");
+    BD_DEBUG(DBG_BLURAY, "AACS" DIR_SEP "Unit_Key_RO.inf not found. No AACS protection.\n");
     return 0;
 }
 
