@@ -561,6 +561,8 @@ typedef enum {
     BLURAY_PLAYER_SETTING_PLAYER_PROFILE = 31,  /* Profile1: 0, Profile1+: 1, Profile2: 3, Profile3: 8 */
 
     BLURAY_PLAYER_SETTING_DECODE_PG      = 0x100, /* enable/disable PG (subtitle) decoder */
+    BLURAY_PLAYER_PERSISTENT_ROOT        = 400,   /* Root path (string) to the BD_J persistent storage location */
+    BLURAY_PLAYER_CACHE_ROOT             = 401,   /* Root path (string) to the BD_J cache storage location */
 } bd_player_setting;
 
 /**

@@ -159,6 +159,7 @@ struct bluray {
     uint8_t        hdmv_suspended;
 #ifdef USING_BDJAVA
     BDJAVA         *bdjava;
+    BDJ_STORAGE    *bdjstorage;
 #endif
     /* delayed sending of BDJ_EVENT_END_OF_PLAYLIST:
      * 1 - message pending. 3 - message sent. */
@@ -1236,7 +1237,7 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
-        bd->bdjava = bdj_open(bd->device_path, bd, _bdj_osd_cb, bd->argb_buffer);
+        bd->bdjava = bdj_open(bd->device_path, bd, _bdj_osd_cb, bd->argb_buffer, bd->bdjstorage);
         if (!bd->bdjava) {
             return 0;
         }
@@ -1281,6 +1282,19 @@ static void _close_bdj(BLURAY *bd)
 }
 #else
 #define _close_bdj(bd) do{}while(0)
+#endif
+
+#ifdef USING_BDJAVA
+static void _storage_free(BLURAY *bd)
+{
+  if (bd->bdjstorage){
+    X_FREE(bd->bdjstorage->cache_root);
+    X_FREE(bd->bdjstorage->persistent_root);
+    X_FREE(bd->bdjstorage);
+  }
+}
+#else
+#define _storage_free(bd) do{}while(0)
 #endif
 
 #ifdef HAVE_MNTENT_H
@@ -1423,6 +1437,7 @@ void bd_close(BLURAY *bd)
     _free_event_queue(bd);
     X_FREE(bd->device_path);
     array_free((void**)&bd->titles);
+    _storage_free(bd);
 
     bd_mutex_destroy(&bd->mutex);
 
@@ -2588,6 +2603,34 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
         case BLURAY_PLAYER_SETTING_COUNTRY_CODE:
             return bd_set_player_setting(bd, idx, str_to_uint32(s, 2));
 
+#ifdef USING_BDJAVA
+        case BLURAY_PLAYER_CACHE_ROOT:
+        case BLURAY_PLAYER_PERSISTENT_ROOT:
+            if (!bd->bdjstorage) {
+                bd->bdjstorage = calloc(1, sizeof(BDJ_STORAGE));
+            }
+            switch (idx) {
+                case BLURAY_PLAYER_CACHE_ROOT:
+                    if (bd->bdjstorage) {
+                        X_FREE(bd->bdjstorage->cache_root);
+                        bd->bdjstorage->cache_root = str_dup(s);
+                        BD_DEBUG(DBG_BDJ, "Cache root dir set to %s\n", bd->bdjstorage->cache_root);
+                        return 1;
+                    }
+                    else
+                        return 0;
+
+                case BLURAY_PLAYER_PERSISTENT_ROOT:
+                    if (bd->bdjstorage) {
+                        X_FREE(bd->bdjstorage->persistent_root);
+                        bd->bdjstorage->persistent_root = str_dup(s);
+                        BD_DEBUG(DBG_BDJ, "Persistent root dir set to %s\n", bd->bdjstorage->persistent_root);
+                        return 1;
+                    }
+                    else
+                        return 0;
+            }
+#endif /* USING_BDJAVA */
         default:
             return 0;
     }

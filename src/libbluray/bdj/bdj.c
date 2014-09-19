@@ -254,9 +254,13 @@ static const char *_find_libbluray_jar(void)
     return classpath;
 }
 
-static const char *_bdj_persistent_root(void)
+static const char *_bdj_persistent_root(BDJ_STORAGE *storage)
 {
     static const char *root = NULL;
+
+    if (storage && storage->persistent_root) {
+        return storage->persistent_root;
+    }
 
     if (root) {
         return root;
@@ -278,9 +282,13 @@ static const char *_bdj_persistent_root(void)
     return root;
 }
 
-static const char *_bdj_buda_root(void)
+static const char *_bdj_buda_root(BDJ_STORAGE *storage)
 {
     static const char *root = NULL;
+
+    if (storage && storage->cache_root) {
+        return storage->cache_root;
+    }
 
     if (root) {
         return root;
@@ -383,7 +391,7 @@ static int _find_jvm(void *jvm_lib, JNIEnv **env, JavaVM **jvm)
     return 0;
 }
 
-static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaVM **jvm)
+static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaVM **jvm, BDJ_STORAGE *storage)
 {
     (void)java_home;  /* used only with J2ME */
 
@@ -396,8 +404,8 @@ static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaV
     JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 20);
     int n = 0;
     JavaVMInitArgs args;
-    option[n++].optionString = str_printf("-Ddvb.persistent.root=%s", _bdj_persistent_root());
-    option[n++].optionString = str_printf("-Dbluray.bindingunit.root=%s", _bdj_buda_root());
+    option[n++].optionString = str_printf("-Ddvb.persistent.root=%s", _bdj_persistent_root(storage));
+    option[n++].optionString = str_printf("-Dbluray.bindingunit.root=%s", _bdj_buda_root(storage));
 
     option[n++].optionString = str_dup   ("-Dawt.toolkit=java.awt.BDToolkit");
     option[n++].optionString = str_dup   ("-Djava.awt.graphicsenv=java.awt.BDGraphicsEnvironment");
@@ -452,7 +460,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaV
 }
 
 BDJAVA* bdj_open(const char *path, struct bluray *bd,
-                 bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf)
+                 bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf, BDJ_STORAGE *storage)
 {
     BD_DEBUG(DBG_BDJ, "bdj_open()\n");
 
@@ -467,7 +475,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 
     JNIEnv* env = NULL;
     JavaVM *jvm = NULL;
-    if (!_find_jvm(jvm_lib, &env, &jvm) && !_create_jvm(jvm_lib, java_home, &env, &jvm)) {
+    if (!_find_jvm(jvm_lib, &env, &jvm) && !_create_jvm(jvm_lib, java_home, &env, &jvm, storage)) {
         dl_dlclose(jvm_lib);
         return NULL;
     }

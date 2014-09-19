@@ -42,6 +42,11 @@ typedef enum {
     BDJ_EVENT_RATE,
 } BDJ_EVENT;
 
+typedef struct {
+    char *persistent_root;
+    char *cache_root;
+} BDJ_STORAGE;
+
 /* bdj_get_uo_mask() */
 #define BDJ_MENU_CALL_MASK     0x01
 #define BDJ_TITLE_SEARCH_MASK  0x02
@@ -55,7 +60,8 @@ typedef void (*bdj_overlay_cb)(struct bluray *, const unsigned *, int, int,
                                int, int, int, int);
 
 BD_PRIVATE BDJAVA* bdj_open(const char *path, struct bluray *bd,
-                            bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf);
+                            bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf,
+                            BDJ_STORAGE *storage);
 BD_PRIVATE void bdj_close(BDJAVA *bdjava);
 BD_PRIVATE int  bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
 BD_PRIVATE int  bdj_get_uo_mask(BDJAVA *bdjava);
