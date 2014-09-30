@@ -27,7 +27,6 @@
 #include "bdj_private.h"
 #include "bdjo_parser.h"
 #include "bdj_util.h"
-#include "common.h"
 #include "libbluray/register.h"
 #include "file/dirs.h"
 #include "file/dl.h"
@@ -46,6 +45,13 @@
 #include <windows.h>
 #include <winreg.h>
 #endif
+
+#ifdef HAVE_BDJ_J2ME
+#define BDJ_JARFILE "libbluray-j2me-" VERSION ".jar"
+#else
+#define BDJ_JARFILE "libbluray-j2se-" VERSION ".jar"
+#endif
+
 
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
 typedef jint (JNICALL * fptr_JNI_GetCreatedJavaVMs) (JavaVM **vmBuf, jsize bufLen, jsize *nVMs);

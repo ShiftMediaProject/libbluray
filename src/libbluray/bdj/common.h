@@ -22,11 +22,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_BDJ_J2ME
-#define BDJ_JARFILE   "libbluray-j2me-" VERSION ".jar"
-#else
-#define BDJ_JARFILE   "libbluray-j2se-" VERSION ".jar"
-#endif
 #define BDJ_BDJO_PATH "/BDMV/BDJO"
 
 #endif /* BDJ_COMMON_H_ */
