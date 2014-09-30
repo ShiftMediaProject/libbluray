@@ -18,7 +18,6 @@
  */
 
 #include "bdjo_parser.h"
-#include "common.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,7 +47,7 @@ static int _get_version(const uint8_t* str)
     else if (strcmp((const char*) str, "0200") != 0)
         return 200;
     else
-        return BDJ_ERROR;
+        return 0;
 }
 
 // use when string is already allocated, out should be length + 1
@@ -371,7 +370,7 @@ static jobject _parse_bdjo(JNIEnv* env, BITBUFFER* buf)
     // get version string
     uint8_t version[4];
     bb_read_bytes(buf, version, 4);
-    if (_get_version(version) == BDJ_ERROR) {
+    if (!_get_version(version)) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Invalid version of BDJO.\n");
         return NULL;
     }

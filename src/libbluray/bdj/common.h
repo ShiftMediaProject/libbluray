@@ -31,9 +31,6 @@
 #define BDJ_BDJO_PATH "/BDMV/BDJO"
 #define BDJ_JAR_PATH "/BDMV/JAR"
 
-#define BDJ_ERROR 0
-#define BDJ_SUCCESS 1
-
 // input events
 #define BDJ_KEY_PRESSED 401
 #define BDJ_KEY_RELEASED 402
