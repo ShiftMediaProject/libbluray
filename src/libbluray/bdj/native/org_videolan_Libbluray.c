@@ -22,7 +22,6 @@
 #include "libbluray/bdj/bdj_private.h"
 #include "libbluray/bdj/bdj_util.h"
 #include "libbluray/bdj/bdjo_parser.h"
-#include "libbluray/bdj/common.h"  // BDJ_BDJO_PATH
 #include "libbluray/bluray.h"
 #include "libbluray/bluray_internal.h"
 
@@ -412,7 +411,7 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
 
   BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
   const char *bdjo_name = (*env)->GetStringUTFChars(env, name, NULL);;
-  char* bdjo_path = str_printf("%s%s/%s.bdjo", bdj->path, BDJ_BDJO_PATH, bdjo_name);
+  char* bdjo_path = str_printf("%s/BDMV/BDJO/%s.bdjo", bdj->path, bdjo_name);
   (*env)->ReleaseStringUTFChars(env, name, bdjo_name);
   jobject bdjo = bdjo_read(env, bdjo_path);
   X_FREE(bdjo_path);

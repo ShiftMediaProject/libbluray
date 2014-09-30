@@ -22,6 +22,4 @@
 
 #include "config.h"
 
-#define BDJ_BDJO_PATH "/BDMV/BDJO"
-
 #endif /* BDJ_COMMON_H_ */
