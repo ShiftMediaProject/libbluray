@@ -147,7 +147,6 @@ libbluray_la_SOURCES += \
 	libbluray/bdj/bdj.c \
 	libbluray/bdj/bdjo_parser.h \
 	libbluray/bdj/bdjo_parser.c \
-	libbluray/bdj/common.h \
 	libbluray/bdj/native/java_awt_BDGraphics.h \
 	libbluray/bdj/native/java_awt_BDGraphics.c \
 	libbluray/bdj/native/java_awt_BDFontMetrics.h \
