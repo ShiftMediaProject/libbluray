@@ -26,6 +26,7 @@
 
 #include "file/file.h"
 #include "util/bits.h"
+#include "util/logging.h"
 #include "util/macro.h"
 #include "bdj_util.h"
 

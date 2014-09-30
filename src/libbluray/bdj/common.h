@@ -34,8 +34,6 @@
 #define BDJ_ERROR 0
 #define BDJ_SUCCESS 1
 
-#include "util/logging.h"
-
 // input events
 #define BDJ_KEY_PRESSED 401
 #define BDJ_KEY_RELEASED 402
