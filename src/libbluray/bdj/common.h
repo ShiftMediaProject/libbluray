@@ -27,7 +27,6 @@
 #else
 #define BDJ_JARFILE   "libbluray-j2se-" VERSION ".jar"
 #endif
-#define BDJ_CLASSPATH BDJ_JARFILE
 #define BDJ_BDJO_PATH "/BDMV/BDJO"
 
 #endif /* BDJ_COMMON_H_ */

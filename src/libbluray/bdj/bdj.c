@@ -249,7 +249,7 @@ static const char *_find_libbluray_jar(void)
         }
     }
 
-    classpath = BDJ_CLASSPATH;
+    classpath = BDJ_JARFILE;
     BD_DEBUG(DBG_BDJ | DBG_CRIT, BDJ_JARFILE" not found.\n");
     return classpath;
 }
