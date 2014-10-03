@@ -51,14 +51,20 @@ public class FontFactory {
         for (int i = 0; i < fontIndexData.length; i++) {
             FontIndexData data = fontIndexData[i];
             FileInputStream inStream = null;
-
+            String file = BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/" + data.getFileName());
             try {
-                inStream = new FileInputStream(BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/" + data.getFileName()));
+                inStream = new FileInputStream(file);
                 Font font = Font.createFont(Font.TRUETYPE_FONT, inStream);
                 font = font.deriveFont(data.getStyle(), data.getMaxSize());
 
                 fonts.put(data.getName(), font);
 
+            } catch (IOException ex) {
+                logger.error("Failed reading font " + data.getName() + " from " + file + ": " + ex);
+                throw ex;
+            } catch (FontFormatException ex) {
+                logger.error("Failed reading font " + data.getName() + " from " + file + ": " + ex);
+                throw ex;
             } finally {
                 if (inStream != null) {
                     inStream.close();
@@ -74,6 +80,12 @@ public class FontFactory {
             inStream = new FileInputStream(u.getPath());
             urlFont = Font.createFont(Font.TRUETYPE_FONT, inStream);
 
+        } catch (IOException ex) {
+            logger.error("Failed reading font from " + u.getPath() + ": " + ex);
+            throw ex;
+        } catch (FontFormatException ex) {
+            logger.error("Failed reading font from " + u.getPath() + ": " + ex);
+            throw ex;
         } finally {
             if (inStream != null) {
                 inStream.close();
