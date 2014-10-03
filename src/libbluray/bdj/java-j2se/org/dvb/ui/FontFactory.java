@@ -61,10 +61,16 @@ public class FontFactory {
 
             } catch (IOException ex) {
                 logger.error("Failed reading font " + data.getName() + " from " + file + ": " + ex);
-                throw ex;
+                if (i == fontIndexData.length - 1 && fonts.size() < 1) {
+                    logger.error("didn't load any fonts !");
+                    throw ex;
+                }
             } catch (FontFormatException ex) {
                 logger.error("Failed reading font " + data.getName() + " from " + file + ": " + ex);
-                throw ex;
+                if (i == fontIndexData.length - 1 && fonts.size() < 1) {
+                    logger.error("didn't load any fonts !");
+                    throw ex;
+                }
             } finally {
                 if (inStream != null) {
                     inStream.close();
