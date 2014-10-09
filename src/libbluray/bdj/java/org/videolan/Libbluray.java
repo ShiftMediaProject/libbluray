@@ -25,10 +25,11 @@ import java.awt.event.KeyEvent;
 import java.util.Vector;
 
 import javax.media.PackageManager;
+import javax.tv.service.SIManager;
 import javax.tv.service.SIManagerImpl;
 import javax.tv.service.selection.ServiceContextFactory;
-
 import org.bluray.bdplus.Status;
+import org.bluray.net.BDLocator;
 import org.bluray.ti.DiscManager;
 import org.bluray.ti.TitleImpl;
 import org.bluray.ti.selection.TitleContext;
@@ -131,6 +132,7 @@ public class Libbluray {
 
     public static void shutdown() {
         try {
+            stopTitle();
             BDJLoader.shutdown();
             BDJActionManager.shutdown();
             MountManager.unmountAll();
@@ -334,6 +336,37 @@ public class Libbluray {
                        x0, y0, x1, y1);
     }
 
+    private static boolean startTitle(int titleNumber) {
+
+        TitleContext titleContext = null;
+        try {
+            BDLocator locator = new BDLocator(null, titleNumber, -1);
+            TitleImpl title   = (TitleImpl)SIManager.createInstance().getService(locator);
+
+            titleContext = (TitleContext)ServiceContextFactory.getInstance().getServiceContext(null);
+            titleContext.start(title, true);
+            return true;
+
+        } catch (Throwable e) {
+            System.err.println("startTitle() failed: " + e);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private static boolean stopTitle() {
+        TitleContext titleContext = null;
+        try {
+            titleContext = (TitleContext)ServiceContextFactory.getInstance().getServiceContext(null);
+            titleContext.destroy();
+            return true;
+        } catch (Throwable e) {
+            System.err.println("stopTitle() failed: " + e);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public static boolean processEvent(int event, int param) {
         boolean result = true;
         int key = 0;
@@ -341,9 +374,9 @@ public class Libbluray {
         switch (event) {
 
         case BDJ_EVENT_START:
-            return BDJLoader.load(param);
+            return startTitle(param);
         case BDJ_EVENT_STOP:
-            return BDJLoader.unload();
+            return stopTitle();
 
         case BDJ_EVENT_CHAPTER:
             PlayerManager.getInstance().onChapterReach(param);

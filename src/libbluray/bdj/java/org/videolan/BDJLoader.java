@@ -32,7 +32,6 @@ import org.dvb.application.CurrentServiceFilter;
 
 import javax.media.Manager;
 import javax.tv.locator.Locator;
-import javax.tv.service.SIManager;
 
 import org.videolan.bdjo.AppEntry;
 import org.videolan.bdjo.Bdjo;
@@ -42,32 +41,10 @@ import org.videolan.bdjo.TerminalInfo;
 import org.videolan.media.content.PlayerManager;
 
 public class BDJLoader {
-    public static boolean load(int title) {
-        return load(title, true, null);
-    }
-
-    public static boolean load(int title, boolean restart, BDJLoaderCallback callback) {
-        try {
-            BDLocator locator = new BDLocator(null, title, -1);
-            return load((TitleImpl)(SIManager.createInstance().getService(locator)), restart, callback);
-        } catch (Throwable e) {
-            logger.error("load() failed: " + e);
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public static boolean load(Locator locator, boolean restart, BDJLoaderCallback callback) {
-        try {
-            return load((TitleImpl)(SIManager.createInstance().getService(locator)), restart, callback);
-        } catch (Throwable e) {
-            logger.error("load() failed: " + e);
-            e.printStackTrace();
-            return false;
-        }
-    }
 
     public static boolean load(TitleImpl title, boolean restart, BDJLoaderCallback callback) {
+        // This method should be called only from ServiceContextFactory
+
         if (title == null)
             return false;
         synchronized (BDJLoader.class) {
@@ -78,11 +55,9 @@ public class BDJLoader {
         return true;
     }
 
-    public static boolean unload() {
-        return unload(null);
-    }
-
     public static boolean unload(BDJLoaderCallback callback) {
+        // This method should be called only from ServiceContextFactory
+
         synchronized (BDJLoader.class) {
             if (queue == null)
                 queue = new BDJActionQueue(null, "BDJLoader");
@@ -92,7 +67,6 @@ public class BDJLoader {
     }
 
     public static void shutdown() {
-        unload();
         try {
             queue.shutdown();
         } catch (Throwable e) {
