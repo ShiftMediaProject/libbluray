@@ -231,6 +231,7 @@ public final class Manager {
                 continue;
             }
         }
+        logger.error("No player found for " + contentType + " / " + source.getLocator());
         throw new NoPlayerException("No player found for " + source.getLocator());
     }
     
