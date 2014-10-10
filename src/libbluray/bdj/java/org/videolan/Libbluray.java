@@ -28,6 +28,7 @@ import javax.media.PackageManager;
 import javax.tv.service.SIManager;
 import javax.tv.service.SIManagerImpl;
 import javax.tv.service.selection.ServiceContextFactory;
+import javax.tv.service.selection.ServiceContextFactoryImpl;
 import org.bluray.bdplus.Status;
 import org.bluray.net.BDLocator;
 import org.bluray.ti.DiscManager;
@@ -132,7 +133,7 @@ public class Libbluray {
 
     public static void shutdown() {
         try {
-            stopTitle();
+            stopTitle(true);
             BDJLoader.shutdown();
             BDJActionManager.shutdown();
             MountManager.unmountAll();
@@ -143,6 +144,7 @@ public class Libbluray {
             IxcRegistry.shutdown();
             EventManager.shutdown();
             Status.shutdown();
+            ServiceContextFactoryImpl.shutdown();
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -354,11 +356,15 @@ public class Libbluray {
         }
     }
 
-    private static boolean stopTitle() {
+    private static boolean stopTitle(boolean shutdown) {
         TitleContext titleContext = null;
         try {
             titleContext = (TitleContext)ServiceContextFactory.getInstance().getServiceContext(null);
-            titleContext.destroy();
+            if (shutdown) {
+                titleContext.destroy();
+            } else {
+                titleContext.stop();
+            }
             return true;
         } catch (Throwable e) {
             System.err.println("stopTitle() failed: " + e);
@@ -376,7 +382,7 @@ public class Libbluray {
         case BDJ_EVENT_START:
             return startTitle(param);
         case BDJ_EVENT_STOP:
-            return stopTitle();
+            return stopTitle(false);
 
         case BDJ_EVENT_CHAPTER:
             PlayerManager.getInstance().onChapterReach(param);
