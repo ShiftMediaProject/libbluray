@@ -217,8 +217,7 @@ mpls_dump_CFLAGS = $(AM_CFLAGS)
 mpls_dump_SOURCES = \
 	examples/mpls_dump.c \
 	examples/util.c \
-	examples/util.h \
-	util/strutl.c
+	examples/util.h
 mpls_dump_LDADD = libbluray.la
 
 clpi_dump_CFLAGS = $(AM_CFLAGS)

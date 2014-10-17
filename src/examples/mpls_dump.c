@@ -25,12 +25,19 @@
 #include <string.h>
 #include <libgen.h>
 
-#include "util/strutl.h"
-
 #include "libbluray/bdnav/mpls_parse.h"
 #include "libbluray/bluray.h"
 
 #include "util.h"
+
+#ifdef _WIN32
+# define DIR_SEP "\\"
+# define PLAYLIST_DIR "\\BDMV\\PLAYLIST"
+#else
+# define DIR_SEP "/"
+# define PLAYLIST_DIR "/BDMV/PLAYLIST"
+#endif
+
 
 static int verbose;
 
@@ -144,6 +151,19 @@ _lookup_str(const VALUE_MAP *map, int val)
         }
     }
     return "?";
+}
+
+static char *
+_mk_path(const char *base, const char *sub)
+{
+    size_t n1 = strlen(base);
+    size_t n2 = strlen(sub);
+    char *result = malloc(n1 + n2 + 1);
+    strcpy(result, base);
+    strcat(result, DIR_SEP);
+    strcat(result, sub);
+
+    return result;
 }
 
 static void
@@ -720,7 +740,7 @@ main(int argc, char *argv[])
         if (S_ISDIR(st.st_mode)) {
 
             printf("Directory: %s:\n", argv[ii]);
-            path = str_printf("%s/BDMV/PLAYLIST", argv[ii]);
+            path = _mk_path(argv[ii], PLAYLIST_DIR);
             if (path == NULL) {
                 fprintf(stderr, "Failed to find playlist path: %s\n", argv[ii]);
                 continue;
@@ -737,12 +757,12 @@ main(int argc, char *argv[])
             struct dirent *ent;
             int jj = 0;
             for (ent = readdir(dir); ent != NULL; ent = readdir(dir)) {
-                    dirlist[jj++] = str_dup(ent->d_name);
+                  dirlist[jj++] = strcpy(malloc(strlen(ent->d_name)), ent->d_name);
             }
             qsort(dirlist, jj, sizeof(char*), _qsort_str_cmp);
             for (jj = 0; dirlist[jj] != NULL; jj++) {
                 char *name = NULL;
-                name = str_printf("%s/%s", path, dirlist[jj]);
+                name = _mk_path(path, dirlist[jj]);
                 free(dirlist[jj]);
                 if (stat(name, &st)) {
                     free(name);
