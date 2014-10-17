@@ -18,16 +18,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#if HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "libbluray/bluray.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+
+#include "libbluray/bluray.h"
 
 int main(int argc, char *argv[])
 {

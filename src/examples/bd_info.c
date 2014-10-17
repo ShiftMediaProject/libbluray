@@ -17,17 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#if HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "libbluray/bdnav/meta_data.h"
-#include "libbluray/bluray.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
 #include <unistd.h>
+
+#include "libbluray/bdnav/meta_data.h"
+#include "libbluray/bluray.h"
 
 static const char *_yes_no(int i)
 {

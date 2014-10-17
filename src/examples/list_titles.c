@@ -17,10 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#if HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "libbluray/bluray.h"
 
 #include <stdio.h>
@@ -32,7 +28,7 @@
 
 static void _usage(char *cmd)
 {
-    fprintf(stderr, 
+    fprintf(stderr,
 "%s <BD base dir> [-s <seconds>]\n"
 "   List the titles and title info of a BD\n"
 "   -s #    - Filter out titles shorter than # seconds\n"

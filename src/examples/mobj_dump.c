@@ -17,9 +17,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "util/macro.h"
 #include "libbluray/hdmv/mobj_parse.h"
 
+#include <stdio.h>
 #include <string.h>
 
 static void _mobj_print(MOBJ_OBJECTS *objects, int disasm)
