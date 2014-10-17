@@ -158,7 +158,7 @@ _mk_path(const char *base, const char *sub)
 {
     size_t n1 = strlen(base);
     size_t n2 = strlen(sub);
-    char *result = malloc(n1 + n2 + 1);
+    char *result = malloc(n1 + n2 + strlen(DIR_SEP) + 1);
     strcpy(result, base);
     strcat(result, DIR_SEP);
     strcat(result, sub);
