@@ -54,7 +54,7 @@ _parse_stream_attr(BITSTREAM *bits, CLPI_PROG_STREAM *ss)
     int len, pos;
 
     if (!bs_is_align(bits, 0x07)) {
-        fprintf(stderr, "_parse_stream_attr: Stream alignment error\n");
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_stream_attr(): Stream alignment error\n");
     }
 
     len = bs_read(bits, 8);
@@ -104,7 +104,7 @@ _parse_stream_attr(BITSTREAM *bits, CLPI_PROG_STREAM *ss)
             break;
 
         default:
-            fprintf(stderr, "stream attr: unrecognized coding type %02x\n", ss->coding_type);
+            BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_stream_attr(): unrecognized coding type %02x\n", ss->coding_type);
             break;
     };
     ss->lang[3] = '\0';
@@ -129,7 +129,7 @@ _parse_header(BITSTREAM *bits, CLPI_CL *cl)
 
         _human_readable_sig(sig, cl->type_indicator, cl->type_indicator2);
         _human_readable_sig(expect, CLPI_SIG1, CLPI_SIG2A);
-        fprintf(stderr, "failed signature match expected (%s) got (%s)\n", 
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "failed signature match expected (%s) got (%s)\n",
                 expect, sig);
         return 0;
     }
@@ -689,7 +689,7 @@ _clpi_parse(const char *path)
 
     fp = file_open(path, "rb");
     if (fp == NULL) {
-        fprintf(stderr, "Failed to open %s\n", path);
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "Failed to open %s\n", path);
         X_FREE(cl);
         return NULL;
     }
