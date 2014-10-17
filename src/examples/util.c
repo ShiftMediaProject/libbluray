@@ -23,24 +23,6 @@
 #include "util.h"
 
 void
-hex_dump(uint8_t *buf, int count)
-{
-    int ii;
-
-    for (ii = 0; ii < count; ii++)
-    {
-        if ((ii & 0xF) == 0xF)
-            fprintf(stderr, "%02x\n", buf[ii]);
-        else if ((ii & 0x7) == 0x7)
-            fprintf(stderr, "%02x  ", buf[ii]);
-        else
-            fprintf(stderr, "%02x ", buf[ii]);
-    }
-    if ((ii & 0xF) != 0x0)
-        fprintf(stderr, "\n");
-}
-
-void
 indent_printf(int level, const char *fmt, ...)
 {
     va_list ap;
