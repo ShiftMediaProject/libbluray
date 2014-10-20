@@ -1461,6 +1461,7 @@ static void _find_next_playmark(BLURAY *bd)
         if (pos > bd->s_pos) {
             bd->next_mark = ii;
             bd->next_mark_pos = pos;
+            _update_chapter_psr(bd);
             return;
         }
     }
