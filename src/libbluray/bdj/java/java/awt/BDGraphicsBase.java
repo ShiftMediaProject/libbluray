@@ -1098,6 +1098,21 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
     private void drawResizeBilinear(int[] pixels, int offset, int scansize, int sw, int sh,
                                     int dx, int dy, int dw, int dh, boolean flipX, boolean flipY) {
 
+        if (sh == 1) {
+            // crop source width if needed for 1d arrays
+            if (offset + sw > pixels.length) {
+                sw = (pixels.length - offset);
+            }
+        } else {
+            // crop source height to prevent possible over reads
+            if (offset + (scansize*sh) > pixels.length) {
+                sh = (pixels.length - offset) / scansize;
+            }
+        }
+        if (sw < 1 || sh < 1 || pixels.length < 1) {
+            return;
+        }
+
         if (sw == 1 && sh == 1) {
             for (int Y = dy; Y < (dy + dh); Y++)
                 drawSpan(dx, Y, dw, pixels[offset]);
