@@ -83,7 +83,7 @@ public class FileInputStream extends InputStream
         }
 
         /* J2SE URL.getPath() returns file:/xxx.jar!/... for jar resource urls ... */
-        if (name.indexOf("file:/") == 0 && name.indexOf(".jar!/") > 0) {
+        if (name.indexOf("file:") == 0 && name.indexOf(".jar!/") > 0) {
             logger.error("Fixing invalid resource url: " + name);
             name = name.substring(name.indexOf(".jar!") + 6);
         }
