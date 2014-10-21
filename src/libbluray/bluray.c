@@ -2949,6 +2949,11 @@ static int _play_hdmv(BLURAY *bd, unsigned id_ref)
 
 static int _play_title(BLURAY *bd, unsigned title)
 {
+    if (!bd->disc_info.titles) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_play_title(#%d): No disc index\n", title);
+        return 0;
+    }
+
     /* first play object ? */
     if (title == BLURAY_TITLE_FIRST_PLAY) {
 
@@ -3461,7 +3466,7 @@ const struct meta_dl *bd_get_meta(BLURAY *bd)
     }
 
     /* assign title names to disc_info */
-    if (meta) {
+    if (meta && bd->titles) {
         unsigned ii;
         for (ii = 0; ii < meta->toc_count; ii++) {
             if (meta->toc_entries[ii].title_number > 0 && meta->toc_entries[ii].title_number <= bd->disc_info.num_titles) {
