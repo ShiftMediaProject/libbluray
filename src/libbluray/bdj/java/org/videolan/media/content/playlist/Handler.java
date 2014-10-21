@@ -30,10 +30,12 @@ import javax.media.IncompatibleSourceException;
 import javax.media.Time;
 import javax.media.protocol.DataSource;
 import javax.tv.locator.InvalidLocatorException;
+import javax.tv.service.selection.ServiceContextFactory;
 
 import org.bluray.media.InvalidPlayListException;
 import org.bluray.net.BDLocator;
 import org.bluray.system.RegisterAccess;
+import org.bluray.ti.selection.TitleContextImpl;
 import org.videolan.BDJAction;
 import org.videolan.BDJActionManager;
 import org.videolan.Libbluray;
@@ -212,6 +214,12 @@ public class Handler extends BDHandler {
     protected void doPlayItemReach(int param) {
         ((PlaybackControlImpl)controls[9]).onPlayItemReach(param);
         ((UOMaskTableControlImpl)controls[16]).onPlayItemReach(param);
+
+        try {
+            ((TitleContextImpl)ServiceContextFactory.getInstance().getServiceContext(null)).presentationChanged();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected void doAngleChange(int param) {

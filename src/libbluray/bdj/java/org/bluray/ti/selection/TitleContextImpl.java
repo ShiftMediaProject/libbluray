@@ -26,6 +26,7 @@ import javax.tv.service.SIManager;
 import javax.tv.service.Service;
 import javax.tv.service.selection.InvalidServiceComponentException;
 import javax.tv.service.selection.NormalContentEvent;
+import javax.tv.service.selection.PresentationChangedEvent;
 import javax.tv.service.selection.PresentationTerminatedEvent;
 import javax.tv.service.selection.SelectionFailedEvent;
 import javax.tv.service.selection.ServiceContentHandler;
@@ -102,6 +103,12 @@ public class TitleContextImpl implements TitleContext {
             synchronized (handlers) {
                 handlers.remove(handler);
             }
+        }
+    }
+
+    public void presentationChanged() {
+        if (state == STATE_STARTED) {
+            postEvent(new PresentationChangedEvent(this));
         }
     }
 
