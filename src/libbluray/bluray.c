@@ -1266,6 +1266,7 @@ static void _stop_bdj(BLURAY *bd)
 {
     if (bd->bdjava != NULL) {
         bdj_process_event(bd->bdjava, BDJ_EVENT_STOP, 0);
+        _queue_event(bd, BD_EVENT_STILL, 0);
     }
 }
 #else
