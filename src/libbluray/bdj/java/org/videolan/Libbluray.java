@@ -145,6 +145,7 @@ public class Libbluray {
             EventManager.shutdown();
             Status.shutdown();
             ServiceContextFactoryImpl.shutdown();
+            CacheDir.remove();
         } catch (Throwable e) {
             e.printStackTrace();
         }

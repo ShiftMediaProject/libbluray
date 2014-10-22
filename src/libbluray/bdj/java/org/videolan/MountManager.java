@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2014  Petri Hintukainen
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,7 +32,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import org.videolan.Logger;
 
 /**
  * This class handle mounting jar files so that their contents can be accessed.
@@ -61,15 +61,11 @@ public class MountManager {
         File tmpDir = null;
         try {
             jar = new JarFile(path);
-            tmpDir = File.createTempFile("bdj-", "");
+            tmpDir = CacheDir.create("mount", jarStr);
         } catch (IOException e) {
             e.printStackTrace();
             throw new MountException();
         }
-
-        // create temporary directory
-        tmpDir.delete();
-        tmpDir.mkdir();
 
         try {
             byte[] buffer = new byte[32*1024];
@@ -100,7 +96,7 @@ public class MountManager {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            recursiveDelete(tmpDir);
+            CacheDir.remove(tmpDir);
             throw new MountException();
         }
 
@@ -121,7 +117,7 @@ public class MountManager {
             mountPoint = (File)mountPoints.remove(id);
         }
         if (mountPoint != null) {
-            recursiveDelete(mountPoint);
+            CacheDir.remove(mountPoint);
         } else {
             logger.info("JAR " + jarId + " not mounted");
         }
@@ -138,7 +134,7 @@ public class MountManager {
         }
         if (dirs != null) {
             for (int i = 0; i < dirs.length; i++) {
-                recursiveDelete((File)dirs[i]);
+                CacheDir.remove((File)dirs[i]);
             }
         }
     }
@@ -162,20 +158,6 @@ public class MountManager {
         if (jarId < 0 || jarId > 99999)
             return null;
         return BDJUtil.makeFiveDigitStr(jarId);
-    }
-
-    private static void recursiveDelete(File dir) {
-        File[] files = dir.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File file = files[i];
-            if (file.isDirectory()) {
-                recursiveDelete(file);
-            } else {
-                file.delete();
-            }
-        }
-
-        dir.delete();
     }
 
     private static Map mountPoints = new HashMap();
