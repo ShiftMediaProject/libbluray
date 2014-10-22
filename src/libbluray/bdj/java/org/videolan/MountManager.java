@@ -40,6 +40,7 @@ import java.util.jar.JarFile;
  *
  */
 public class MountManager {
+
     public static String mount(int jarId) throws MountException {
         String jarStr = jarIdToString(jarId);
 
@@ -49,19 +50,21 @@ public class MountManager {
             throw new IllegalArgumentException();
 
         synchronized (mountPoints) {
-        String oldPath = getMount(jarId);
-        if (oldPath != null) {
-            logger.error("JAR " + jarId + " already mounted");
-            return oldPath;
-        }
+
+            // already mounted ?
+            MountPoint mountPoint = (MountPoint)mountPoints.get(new Integer(jarId));
+            if (mountPoint != null) {
+                logger.info("JAR " + jarId + " already mounted");
+                mountPoint.incRefCount();
+                return mountPoint.getMountPoint();
+            }
 
         String path = System.getProperty("bluray.vfs.root") + "/BDMV/JAR/" + jarStr + ".jar";
 
         JarFile jar = null;
-        File tmpDir = null;
         try {
             jar = new JarFile(path);
-            tmpDir = CacheDir.create("mount", jarStr);
+            mountPoint = new MountPoint(jarStr);
         } catch (IOException e) {
             e.printStackTrace();
             throw new MountException();
@@ -72,7 +75,7 @@ public class MountManager {
             Enumeration entries = jar.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = (JarEntry)entries.nextElement();
-                File out = new File(tmpDir + File.separator + entry.getName());
+                File out = new File(mountPoint.getMountPoint() + File.separator + entry.getName());
 
                 logger.info("   mount: " + entry.getName());
 
@@ -96,14 +99,14 @@ public class MountManager {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            CacheDir.remove(tmpDir);
+            mountPoint.remove();
             throw new MountException();
         }
 
         logger.info("Mounting JAR " + jarId + " complete.");
 
-        mountPoints.put(new Integer(jarId), tmpDir);
-        return tmpDir.getAbsolutePath();
+        mountPoints.put(new Integer(jarId), mountPoint);
+        return mountPoint.getMountPoint();
         }
     }
 
@@ -111,15 +114,18 @@ public class MountManager {
         logger.info("Unmounting JAR: " + jarId);
 
         Integer id = new Integer(jarId);
-        File mountPoint;
+        MountPoint mountPoint;
 
         synchronized (mountPoints) {
-            mountPoint = (File)mountPoints.remove(id);
-        }
-        if (mountPoint != null) {
-            CacheDir.remove(mountPoint);
-        } else {
-            logger.info("JAR " + jarId + " not mounted");
+            mountPoint = (MountPoint)mountPoints.get(id);
+            if (mountPoint == null) {
+                logger.info("JAR " + jarId + " not mounted");
+                return;
+            }
+
+            if (mountPoint.decRefCount() < 1) {
+                mountPoints.remove(id);
+            }
         }
     }
 
@@ -134,20 +140,20 @@ public class MountManager {
         }
         if (dirs != null) {
             for (int i = 0; i < dirs.length; i++) {
-                CacheDir.remove((File)dirs[i]);
+                ((MountPoint)dirs[i]).remove();
             }
         }
     }
 
     public static String getMount(int jarId) {
         Integer id = new Integer(jarId);
-        File mountPoint;
+        MountPoint mountPoint;
 
         synchronized (mountPoints) {
-            mountPoint = (File)mountPoints.get(id);
+            mountPoint = (MountPoint)mountPoints.get(id);
         }
         if (mountPoint != null) {
-            return mountPoint.getAbsolutePath();
+            return mountPoint.getMountPoint();
         } else {
             logger.info("JAR " + jarId + " not mounted");
         }
@@ -162,4 +168,41 @@ public class MountManager {
 
     private static Map mountPoints = new HashMap();
     private static final Logger logger = Logger.getLogger(MountManager.class.getName());
+
+    private static class MountPoint {
+        public MountPoint(String id) throws IOException {
+            this.dir      = CacheDir.create("mount", id);
+            this.refCount = 1;
+        }
+
+        public synchronized String getMountPoint() {
+            if (dir != null) {
+                return dir.getAbsolutePath();
+            }
+            return null;
+        }
+
+        public synchronized void remove() {
+            if (dir != null) {
+                CacheDir.remove(dir);
+                dir = null;
+                refCount = 0;
+            }
+        }
+
+        public synchronized int incRefCount() {
+            return ++refCount;
+        }
+
+        public synchronized int decRefCount() {
+            refCount--;
+            if (refCount < 1) {
+                remove();
+            }
+            return refCount;
+        }
+
+        private File dir;
+        private int  refCount;
+    };
 }
