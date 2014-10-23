@@ -78,4 +78,7 @@ public final class FileDescriptor {
     /* Java 8 */
     void attach(Closeable c) {
     }
+
+    synchronized void closeAll(Closeable releaser) throws IOException {
+    }
 }
