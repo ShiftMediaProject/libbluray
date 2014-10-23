@@ -2696,9 +2696,11 @@ int bd_start_bdj(BLURAY *bd, const char *start_object)
                 return _start_bdj(bd, ii);
             }
         }
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No %s.bdjo in disc index\n", start_object);
+    } else {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No disc index\n");
     }
 
-    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No %s.bdjo in disc index\n", start_object);
     return 0;
  }
 
@@ -2970,6 +2972,7 @@ static int _play_title(BLURAY *bd, unsigned title)
 
         if (!bd->disc_info.first_play_supported) {
             /* no first play title (5.2.3.3) */
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_play_title(): No first play title\n");
             bd->title_type = title_hdmv;
             return 1;
         }
@@ -2994,6 +2997,7 @@ static int _play_title(BLURAY *bd, unsigned title)
 
         if (!bd->disc_info.top_menu_supported) {
             /* no top menu (5.2.3.3) */
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_play_title(): No top menu title\n");
             bd->title_type = title_hdmv;
             return 0;
         }
@@ -3016,6 +3020,8 @@ static int _play_title(BLURAY *bd, unsigned title)
         } else {
             return _play_hdmv(bd, bd->disc_info.titles[title]->id_ref);
         }
+    } else {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_play_title(#%d): Title not found\n", title);
     }
 
     return 0;
