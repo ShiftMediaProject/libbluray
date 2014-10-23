@@ -34,6 +34,11 @@ BD_PRIVATE int bd_play_title_internal(BLURAY *bd, unsigned title);
 BD_PRIVATE uint32_t bd_reg_read(BLURAY *bd, int psr, int reg);
 BD_PRIVATE int bd_reg_write(BLURAY *bd, int psr, int reg, uint32_t value, uint32_t psr_value_mask);
 
+enum bd_select_rate_reason {
+    BDJ_RATE_SET       = 0,
+    BDJ_PLAYBACK_START = 1,
+    BDJ_PLAYBACK_STOP  = 2,
+};
 BD_PRIVATE void bd_select_rate(BLURAY *bd, float rate, int reason);
 
 BD_PRIVATE int bd_play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmark, int64_t time);
