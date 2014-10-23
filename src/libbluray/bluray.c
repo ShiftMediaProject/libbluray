@@ -3271,18 +3271,18 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
         return 0;
     }
 
-    if (bd->bdj_end_of_playlist == 1) {
-        _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, bd_psr_read(bd->regs, PSR_PLAYLIST));
-        bd->bdj_end_of_playlist |= 2;
-    }
-
-    if (!bd->title && bd->title_type == title_bdj) {
-        /* BD-J title running but no playlist playing */
-        _queue_event(bd, BD_EVENT_IDLE, 0);
-        return 0;
-    }
-
     if (bd->title_type == title_bdj) {
+        if (bd->bdj_end_of_playlist == 1) {
+            _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, bd_psr_read(bd->regs, PSR_PLAYLIST));
+            bd->bdj_end_of_playlist |= 2;
+        }
+
+        if (!bd->title) {
+            /* BD-J title running but no playlist playing */
+            _queue_event(bd, BD_EVENT_IDLE, 0);
+            return 0;
+        }
+
         if (bd->bdj_wait_start) {
             /* BD-J playlist prefethed but not yet playing */
             _queue_event(bd, BD_EVENT_IDLE, 1);
