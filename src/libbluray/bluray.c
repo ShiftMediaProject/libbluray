@@ -397,7 +397,7 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
 
 static int _is_interactive_title(BLURAY *bd)
 {
-    if (bd->title && bd->title_type != title_undef) {
+    if (bd->titles && bd->title_type != title_undef) {
         unsigned title = bd_psr_read(bd->regs, PSR_TITLE_NUMBER);
         if (title == 0xffff && bd->disc_info.first_play->interactive) {
             return 1;
