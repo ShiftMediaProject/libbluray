@@ -164,6 +164,7 @@ struct bluray {
     /* delayed sending of BDJ_EVENT_END_OF_PLAYLIST:
      * 1 - message pending. 3 - message sent. */
     uint8_t         bdj_end_of_playlist;
+    uint8_t         bdj_wait_start;  /* BD-J has selected playlist (prefetch) but not yet started playback */
 
     /* HDMV graphics */
     GRAPHICS_CONTROLLER *graphics_controller;
@@ -1113,10 +1114,16 @@ uint64_t bd_get_uo_mask(BLURAY *bd)
 
 void bd_select_rate(BLURAY *bd, float rate, int reason)
 {
-    if (reason == 2) {
+    if (reason == BDJ_PLAYBACK_STOP) {
         /* playback stop. Might want to wait for buffers empty here. */
         return;
     }
+
+    if (reason == BDJ_PLAYBACK_START) {
+        /* playback is triggered by bd_select_rate() */
+        bd->bdj_wait_start = 0;
+    }
+
     if (rate < 0.5) {
         _queue_event(bd, BD_EVENT_STILL, 1);
     } else {
@@ -2227,6 +2234,8 @@ static int _play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmar
         return 0;
     }
 
+    bd->bdj_wait_start = 1;  /* playback is triggered by bd_select_rate() */
+
     if (playitem > 0) {
         bd_seek_playitem(bd, playitem);
     }
@@ -3271,6 +3280,14 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
         /* BD-J title running but no playlist playing */
         _queue_event(bd, BD_EVENT_IDLE, 0);
         return 0;
+    }
+
+    if (bd->title_type == title_bdj) {
+        if (bd->bdj_wait_start) {
+            /* BD-J playlist prefethed but not yet playing */
+            _queue_event(bd, BD_EVENT_IDLE, 1);
+            return 0;
+        }
     }
 
     int bytes = _bd_read(bd, buf, len);
