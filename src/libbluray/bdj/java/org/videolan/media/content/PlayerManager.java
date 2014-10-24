@@ -69,6 +69,9 @@ public class PlayerManager {
         if (player instanceof org.videolan.media.content.sound.Handler) {
             return;
         }
+        if (player instanceof org.videolan.media.content.audio.Handler) {
+            return;
+        }
 
         System.err.println("unknown player type: " + player.getClass().getName());
     }
