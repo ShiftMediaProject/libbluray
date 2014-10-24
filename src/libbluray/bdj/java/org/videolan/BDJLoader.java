@@ -42,6 +42,14 @@ import org.videolan.media.content.PlayerManager;
 
 public class BDJLoader {
 
+    public static String getCachedFile(String path) {
+        VFSCache localCache = vfsCache;
+        if (localCache != null) {
+            return localCache.map(path);
+        }
+        return path;
+    }
+
     public static boolean load(TitleImpl title, boolean restart, BDJLoaderCallback callback) {
         // This method should be called only from ServiceContextFactory
 
@@ -74,9 +82,15 @@ public class BDJLoader {
             e.printStackTrace();
         }
         queue = null;
+        vfsCache = null;
     }
 
     private static boolean loadN(TitleImpl title, boolean restart) {
+
+        if (vfsCache == null) {
+            vfsCache = VFSCache.createInstance();
+        }
+
         TitleInfo ti = title.getTitleInfo();
         if (!ti.isBdj()) {
             logger.info("Not BD-J title - requesting HDMV title start");
@@ -90,6 +104,11 @@ public class BDJLoader {
             if (bdjo == null)
                 throw new InvalidObjectException("bdjo not loaded");
             AppEntry[] appTable = bdjo.getAppTable();
+
+            // initialize AppCaches
+            if (vfsCache != null) {
+                vfsCache.add(bdjo.getAppCaches());
+            }
 
             // reuse appProxys
             BDJAppProxy[] proxys = new BDJAppProxy[appTable.length];
@@ -249,4 +268,5 @@ public class BDJLoader {
     private static final Logger logger = Logger.getLogger(BDJLoader.class.getName());
 
     private static BDJActionQueue queue = null;
+    private static VFSCache       vfsCache = null;
 }

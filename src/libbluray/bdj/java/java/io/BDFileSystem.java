@@ -33,6 +33,7 @@ import java.lang.reflect.Modifier;
 
 import java.net.URL;
 
+import org.videolan.BDJLoader;
 import org.videolan.BDJXletContext;
 import org.videolan.Logger;
 
@@ -85,7 +86,12 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public String resolve(String parent, String child) {
-        return fs.resolve(parent, child);
+        String resolvedPath = fs.resolve(parent, child);
+        String cachePath = BDJLoader.getCachedFile(resolvedPath);
+        if (cachePath != resolvedPath) {
+            logger.info("resolve(p,c): using cached " + cachePath + " (" + resolvedPath + ")");
+        }
+        return cachePath;
     }
 
     public String getDefaultParent() {
@@ -104,11 +110,22 @@ public abstract class BDFileSystem extends FileSystem {
         if (!f.isAbsolute()) {
             System.err.println("***** resolve " + f + " -> " + fs.resolve(f));
         }
-        return fs.resolve(f);
+
+        String resolvedPath = fs.resolve(f);
+        String cachePath = BDJLoader.getCachedFile(resolvedPath);
+        if (cachePath != resolvedPath) {
+            logger.info("resolve(f): using cached " + cachePath + " (" + resolvedPath + ")");
+        }
+        return cachePath;
     }
 
     public String canonicalize(String path) throws IOException {
-        return fs.canonicalize(path);
+        String canonPath = fs.canonicalize(path);
+        String cachePath = BDJLoader.getCachedFile(canonPath);
+        if (cachePath != canonPath) {
+            logger.info("canonicalize(): Using cached " + cachePath + " for " + canonPath + "(" + path + ")");
+        }
+        return cachePath;
     }
 
     public int getBooleanAttributes(File f) {

@@ -21,6 +21,7 @@ package java.io;
 import java.net.URL;
 //import java.nio.channels.FileChannel;
 
+import org.videolan.BDJLoader;
 import org.videolan.BDJXletContext;
 import org.videolan.Logger;
 
@@ -50,6 +51,14 @@ public class FileInputStream extends InputStream
         fd.incrementAndGetUseCount();
 
         if (file.isAbsolute()) {
+            String cachedName = BDJLoader.getCachedFile(name);
+            if (cachedName != name) {
+                if (logger == null) {
+                    logger = Logger.getLogger(FileInputStream.class.getName());
+                }
+                logger.error("Using cached " + cachedName + " for " + name);
+                name = cachedName;
+            }
             open(name);
         } else {
             /* relative paths are problematic ... */
