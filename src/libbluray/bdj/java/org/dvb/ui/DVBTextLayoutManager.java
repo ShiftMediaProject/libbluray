@@ -33,6 +33,7 @@ public class DVBTextLayoutManager implements org.havi.ui.HTextLayoutManager {
 
     public DVBTextLayoutManager()
     {
+        org.videolan.Logger.unimplemented(DVBTextLayoutManager.class.getName(), "");
         throw new Error("Not implemented");
     }
 
@@ -40,6 +41,7 @@ public class DVBTextLayoutManager implements org.havi.ui.HTextLayoutManager {
             int lineOrientation, int startCorner, boolean wrap, int linespace,
             int letterspace, int horizontalTabSpace)
     {
+        org.videolan.Logger.unimplemented(DVBTextLayoutManager.class.getName(), "");
         throw new Error("Not implemented");
     }
 

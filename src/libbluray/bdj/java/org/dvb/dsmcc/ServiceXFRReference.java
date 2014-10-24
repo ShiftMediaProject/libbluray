@@ -27,11 +27,13 @@ public class ServiceXFRReference implements Serializable {
     public ServiceXFRReference(Locator serviceLocator, int carouselId,
             String pathName)
     {
+        org.videolan.Logger.unimplemented(ServiceXFRReference.class.getName(), "");
         throw new Error("Not implemented");
     }
 
     public ServiceXFRReference(byte[] nsapAddress, String pathName)
     {
+        org.videolan.Logger.unimplemented(ServiceXFRReference.class.getName(), "");
         throw new Error("Not implemented");
     }
 

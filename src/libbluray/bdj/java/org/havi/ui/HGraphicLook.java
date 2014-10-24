@@ -32,21 +32,25 @@ public class HGraphicLook
 
     public void fillBackground(Graphics g, HVisible visible, int state)
     {
+        org.videolan.Logger.unimplemented(HGraphicLook.class.getName(), "fillBackground");
         throw new Error("Not implemented");
     }
 
     public void renderBorders(Graphics g, HVisible visible, int state)
     {
+        org.videolan.Logger.unimplemented(HGraphicLook.class.getName(), "renderBorders");
         throw new Error("Not implemented");
     }
 
     public void renderVisible(Graphics g, HVisible visible, int state)
     {
+        org.videolan.Logger.unimplemented(HGraphicLook.class.getName(), "renderVisible");
         throw new Error("Not implemented");
     }
     
     public void showLook(Graphics g, HVisible visible, int state)
     {
+        org.videolan.Logger.unimplemented(HGraphicLook.class.getName(), "showLook");
         throw new Error("Not implemented");
     }
 
@@ -57,26 +61,31 @@ public class HGraphicLook
     
     public Dimension getMinimumSize(HVisible hvisible)
     {
+        org.videolan.Logger.unimplemented(HGraphicLook.class.getName(), "getMinimumSize");
         throw new Error("Not implemented");
     }
 
     public Dimension getPreferredSize(HVisible hvisible)
     {
+        org.videolan.Logger.unimplemented(HGraphicLook.class.getName(), "getPreferredSize");
         throw new Error("Not implemented");
     }
 
     public Dimension getMaximumSize(HVisible hvisible)
     {
+        org.videolan.Logger.unimplemented(HGraphicLook.class.getName(), "getMaximumSize");
         throw new Error("Not implemented");
     }
 
     public boolean isOpaque(HVisible visible)
     {
+        org.videolan.Logger.unimplemented(HGraphicLook.class.getName(), "isOpaque");
         throw new Error("Not implemented");
     }
 
     public Insets getInsets(HVisible hvisible)
     {
+        org.videolan.Logger.unimplemented(HGraphicLook.class.getName(), "getInsets");
         throw new Error("Not implemented");
     }
 }

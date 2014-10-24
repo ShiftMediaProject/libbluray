@@ -26,18 +26,21 @@ public class DSMCCStream implements Serializable {
     public DSMCCStream(DSMCCObject aDSMCCObject) throws NotLoadedException,
             IllegalObjectTypeException
     {
+        org.videolan.Logger.unimplemented(DSMCCStream.class.getName(), "");
         throw new Error("Not implemented");
     }
 
     public DSMCCStream(String path) throws IOException,
             IllegalObjectTypeException
     {
+        org.videolan.Logger.unimplemented(DSMCCStream.class.getName(), "");
         throw new Error("Not implemented");
     }
 
     public DSMCCStream(String path, String name) throws IOException,
             IllegalObjectTypeException
     {
+        org.videolan.Logger.unimplemented(DSMCCStream.class.getName(), "");
         throw new Error("Not implemented");
     }
 
