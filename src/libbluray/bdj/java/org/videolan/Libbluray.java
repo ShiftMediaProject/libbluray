@@ -111,8 +111,8 @@ public class Libbluray {
 
             System.setProperty("bluray.jmf.subtitlestyle", "YES");
 
-            System.setProperty("bluray.rccapability.release", "No");
-            System.setProperty("bluray.rccapability.holdandrelease", "NO");
+            System.setProperty("bluray.rccapability.release", "YES");
+            System.setProperty("bluray.rccapability.holdandrelease", "YES");
             System.setProperty("bluray.rccapability.repeatonhold", "NO");
 
             System.setProperty("bluray.localstorage.level", "5");
@@ -423,9 +423,6 @@ public class Libbluray {
             PlayerManager.getInstance().onPlaylistTime(param);
             break;
         case BDJ_EVENT_VK_KEY:
-            //case KeyEvent.KEY_TYPED:
-            //case KeyEvent.KEY_PRESSED:
-            //case KeyEvent.KEY_RELEASED:
             switch (param) {
             case  0: key = KeyEvent.VK_0; break;
             case  1: key = KeyEvent.VK_1; break;
@@ -453,10 +450,10 @@ public class Libbluray {
                 break;
             }
             if (key > 0) {
-                result =
-                    EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_PRESSED, 0, key) ||
-                    EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_RELEASED, 0, key) ||
-                    EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_TYPED, 0, key);
+                boolean r1 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_PRESSED, 0, key);
+                boolean r2 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_TYPED, 0, key);
+                boolean r3 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_RELEASED, 0, key);
+                result = r1 || r2 || r3;
             }
             break;
         default:
