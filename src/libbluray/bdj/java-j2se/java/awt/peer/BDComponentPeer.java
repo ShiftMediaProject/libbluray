@@ -114,7 +114,10 @@ public abstract class BDComponentPeer implements ComponentPeer
     public Graphics getGraphics() {
         Component parent = component.getParent();
         if (parent != null) {
-            return parent.getGraphics().create(location.x, location.y, size.width, size.height);
+            Graphics g = parent.getGraphics();
+            if (g != null) {
+                return g.create(location.x, location.y, size.width, size.height);
+            }
         }
         logger.error("getGraphics(): no parent !");
         throw new Error();
