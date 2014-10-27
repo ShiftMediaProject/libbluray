@@ -40,7 +40,7 @@ typedef struct
     uint8_t         format;
     uint8_t         rate;
     uint8_t         char_code;
-    uint8_t         lang[4];
+    char            lang[4];
     // Secondary audio specific fields
     uint8_t         sa_num_primary_audio_ref;
     uint8_t        *sa_primary_audio_ref;
