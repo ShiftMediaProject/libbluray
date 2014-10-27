@@ -50,6 +50,10 @@
 #define CPP_EXTERN
 #endif
 
+/*
+ * build org.videolan.TitleInfo
+ */
+
 static jobject _make_title_info(JNIEnv* env, int title, int objType, int playbackType, const char* bdjoName, int hdmvOID)
 {
     jstring name = bdjoName ? (*env)->NewStringUTF(env, bdjoName) : NULL;
@@ -60,6 +64,49 @@ static jobject _make_title_info(JNIEnv* env, int title, int objType, int playbac
         (*env)->DeleteLocalRef(env, name);
     return ti;
 }
+
+static jobject _get_title_info(JNIEnv * env, BDJAVA *bdj, jint title)
+{
+    if (title == 65535) {
+        if (bdj->index->first_play.object_type == indx_object_type_hdmv)
+            return _make_title_info(env, 65535, indx_object_type_hdmv,
+                                    bdj->index->first_play.hdmv.playback_type,
+                                    NULL,
+                                    bdj->index->first_play.hdmv.id_ref);
+        else
+            return _make_title_info(env, 65535, indx_object_type_bdj,
+                                    bdj->index->first_play.bdj.playback_type,
+                                    bdj->index->first_play.bdj.name,
+                                    -1);
+    } else if (title == 0) {
+        if (bdj->index->top_menu.object_type == indx_object_type_hdmv)
+            return _make_title_info(env, 0, indx_object_type_hdmv,
+                                    bdj->index->top_menu.hdmv.playback_type,
+                                    NULL,
+                                    bdj->index->top_menu.hdmv.id_ref);
+        else
+            return _make_title_info(env, 0, indx_object_type_bdj,
+                                    bdj->index->top_menu.bdj.playback_type,
+                                    bdj->index->top_menu.bdj.name,
+                                    -1);
+    } else if ((title > 0) && (title <= bdj->index->num_titles)) {
+        if (bdj->index->titles[title - 1].object_type == indx_object_type_hdmv)
+            return _make_title_info(env, title, indx_object_type_hdmv,
+                                    bdj->index->titles[title - 1].hdmv.playback_type,
+                                    NULL,
+                                    bdj->index->titles[title - 1].hdmv.id_ref);
+        else
+            return _make_title_info(env, title, indx_object_type_bdj,
+                                    bdj->index->titles[title - 1].bdj.playback_type,
+                                    bdj->index->titles[title - 1].bdj.name,
+                                    -1);
+    }
+    return NULL;
+}
+
+/*
+ * build org.videolan.PlaylistInfo
+ */
 
 static jobjectArray _make_stream_array(JNIEnv* env, int count, BLURAY_STREAM_INFO* streams)
 {
@@ -125,6 +172,10 @@ static jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
             ti->playlist, ti->duration, ti->angle_count, marks, clips);
 }
 
+/*
+ *
+ */
+
 static int _read_index(BDJAVA *bdj)
 {
     if (!bdj) {
@@ -138,6 +189,10 @@ static int _read_index(BDJAVA *bdj)
     return !!bdj->index;
 }
 
+/*
+ *
+ */
+
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
   (JNIEnv * env, jclass cls, jlong np, jint title)
 {
@@ -149,41 +204,7 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
         return NULL;
     }
 
-    if (title == 65535) {
-        if (bdj->index->first_play.object_type == indx_object_type_hdmv)
-            return _make_title_info(env, 65535, indx_object_type_hdmv,
-                                    bdj->index->first_play.hdmv.playback_type,
-                                    NULL,
-                                    bdj->index->first_play.hdmv.id_ref);
-        else
-            return _make_title_info(env, 65535, indx_object_type_bdj,
-                                    bdj->index->first_play.bdj.playback_type,
-                                    bdj->index->first_play.bdj.name,
-                                    -1);
-    } else if (title == 0) {
-        if (bdj->index->top_menu.object_type == indx_object_type_hdmv)
-            return _make_title_info(env, 0, indx_object_type_hdmv,
-                                    bdj->index->top_menu.hdmv.playback_type,
-                                    NULL,
-                                    bdj->index->top_menu.hdmv.id_ref);
-        else
-            return _make_title_info(env, 0, indx_object_type_bdj,
-                                    bdj->index->top_menu.bdj.playback_type,
-                                    bdj->index->top_menu.bdj.name,
-                                    -1);
-    } else if ((title > 0) && (title <= bdj->index->num_titles)) {
-        if (bdj->index->titles[title - 1].object_type == indx_object_type_hdmv)
-            return _make_title_info(env, title, indx_object_type_hdmv,
-                                    bdj->index->titles[title - 1].hdmv.playback_type,
-                                    NULL,
-                                    bdj->index->titles[title - 1].hdmv.id_ref);
-        else
-            return _make_title_info(env, title, indx_object_type_bdj,
-                                    bdj->index->titles[title - 1].bdj.playback_type,
-                                    bdj->index->titles[title - 1].bdj.name,
-                                    -1);
-    }
-    return NULL;
+    return _get_title_info(env, bdj, title);
 }
 
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
