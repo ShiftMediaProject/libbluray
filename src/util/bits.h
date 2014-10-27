@@ -119,6 +119,11 @@ static inline void bs_read_bytes( BITSTREAM *s, uint8_t *buf, int i_count )
         buf[ii] = bs_read(s, 8);
     }
 }
+static inline void bs_read_string( BITSTREAM *s, char *buf, int i_count )
+{
+    bs_read_bytes(s, (uint8_t*)buf, i_count);
+    buf[i_count] = '\0';
+}
 
 static inline uint32_t bb_show( BITBUFFER *bb, int i_count )
 {
