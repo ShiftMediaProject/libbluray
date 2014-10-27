@@ -49,8 +49,7 @@ static int _parse_bdj_obj(BITSTREAM *bs, INDX_BDJ_OBJ *bdj)
 {
     bdj->playback_type = bs_read(bs, 2);
     bs_skip(bs, 14);
-    bs_read_bytes(bs, (uint8_t*)bdj->name, 5);
-    bdj->name[5] = 0;
+    bs_read_string(bs, bdj->name, 5);
     bs_skip(bs, 8);
 
     if (bdj->playback_type != indx_bdj_playback_type_movie &&

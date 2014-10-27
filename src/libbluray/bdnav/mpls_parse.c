@@ -233,17 +233,17 @@ _parse_stream(BITSTREAM *bits, MPLS_STREAM *s)
         case 0xa2:
             s->format = bs_read(bits, 4);
             s->rate   = bs_read(bits, 4);
-            bs_read_bytes(bits, s->lang, 3);
+            bs_read_string(bits, s->lang, 3);
             break;
 
         case 0x90:
         case 0x91:
-            bs_read_bytes(bits, s->lang, 3);
+            bs_read_string(bits, s->lang, 3);
             break;
 
         case 0x92:
             s->char_code = bs_read(bits, 8);
-            bs_read_bytes(bits, s->lang, 3);
+            bs_read_string(bits, s->lang, 3);
             break;
 
         default:
@@ -446,11 +446,9 @@ _parse_playitem(BITSTREAM *bits, MPLS_PI *pi)
     pos = bs_pos(bits) >> 3;
 
     // Primary Clip identifer
-    bs_read_bytes(bits, (uint8_t*)clip_id, 5);
-    clip_id[5] = '\0';
+    bs_read_string(bits, clip_id, 5);
 
-    bs_read_bytes(bits, (uint8_t*)codec_id, 4);
-    codec_id[4] = '\0';
+    bs_read_string(bits, codec_id, 4);
     if (memcmp(codec_id, "M2TS", 4) != 0) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "Incorrect CodecIdentifier (%s)\n", codec_id);
     }
@@ -498,11 +496,9 @@ _parse_playitem(BITSTREAM *bits, MPLS_PI *pi)
     strcpy(pi->clip[0].codec_id, codec_id);
     pi->clip[0].stc_id = stc_id;
     for (ii = 1; ii < pi->angle_count; ii++) {
-        bs_read_bytes(bits, (uint8_t*)pi->clip[ii].clip_id, 5);
-        pi->clip[ii].clip_id[5] = '\0';
+        bs_read_string(bits, pi->clip[ii].clip_id, 5);
 
-        bs_read_bytes(bits, (uint8_t*)pi->clip[ii].codec_id, 4);
-        pi->clip[ii].codec_id[4] = '\0';
+        bs_read_string(bits, pi->clip[ii].codec_id, 4);
         if (memcmp(pi->clip[ii].codec_id, "M2TS", 4) != 0) {
             BD_DEBUG(DBG_NAV | DBG_CRIT, "Incorrect CodecIdentifier (%s)\n", pi->clip[ii].codec_id);
         }
@@ -540,11 +536,9 @@ _parse_subplayitem(BITSTREAM *bits, MPLS_SUB_PI *spi)
     pos = bs_pos(bits) >> 3;
 
     // Primary Clip identifer
-    bs_read_bytes(bits, (uint8_t*)clip_id, 5);
-    clip_id[5] = '\0';
+    bs_read_string(bits, clip_id, 5);
 
-    bs_read_bytes(bits, (uint8_t*)codec_id, 4);
-    codec_id[4] = '\0';
+    bs_read_string(bits, codec_id, 4);
     if (memcmp(codec_id, "M2TS", 4) != 0) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "Incorrect CodecIdentifier (%s)\n", codec_id);
     }
@@ -579,11 +573,9 @@ _parse_subplayitem(BITSTREAM *bits, MPLS_SUB_PI *spi)
     spi->clip[0].stc_id = stc_id;
     for (ii = 1; ii < spi->clip_count; ii++) {
         // Primary Clip identifer
-        bs_read_bytes(bits, (uint8_t*)spi->clip[ii].clip_id, 5);
-        spi->clip[ii].clip_id[5] = '\0';
+        bs_read_string(bits, spi->clip[ii].clip_id, 5);
 
-        bs_read_bytes(bits, (uint8_t*)spi->clip[ii].codec_id, 4);
-        spi->clip[ii].codec_id[4] = '\0';
+        bs_read_string(bits, spi->clip[ii].codec_id, 4);
         if (memcmp(spi->clip[ii].codec_id, "M2TS", 4) != 0) {
             BD_DEBUG(DBG_NAV | DBG_CRIT, "Incorrect CodecIdentifier (%s)\n", spi->clip[ii].codec_id);
         }

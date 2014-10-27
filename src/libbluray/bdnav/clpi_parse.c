@@ -89,18 +89,18 @@ _parse_stream_attr(BITSTREAM *bits, CLPI_PROG_STREAM *ss)
         case 0xa2:
             ss->format = bs_read(bits, 4);
             ss->rate   = bs_read(bits, 4);
-            bs_read_bytes(bits, ss->lang, 3);
+            bs_read_string(bits, ss->lang, 3);
             break;
 
         case 0x90:
         case 0x91:
         case 0xa0:
-            bs_read_bytes(bits, ss->lang, 3);
+            bs_read_string(bits, ss->lang, 3);
             break;
 
         case 0x92:
             ss->char_code = bs_read(bits, 8);
-            bs_read_bytes(bits, ss->lang, 3);
+            bs_read_string(bits, ss->lang, 3);
             break;
 
         default:
@@ -168,8 +168,7 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
     pos = bs_pos(bits) >> 3;
     if (len) {
         cl->clip.ts_type_info.validity = bs_read(bits, 8);
-        bs_read_bytes(bits, cl->clip.ts_type_info.format_id, 4);
-        cl->clip.ts_type_info.format_id[4] = '\0';
+        bs_read_string(bits, cl->clip.ts_type_info.format_id, 4);
         // Seek past the stuff we don't know anything about
         bs_seek_byte(bits, pos + len);
     }
@@ -181,10 +180,8 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
             malloc(cl->clip.atc_delta_count * sizeof(CLPI_ATC_DELTA));
         for (ii = 0; ii < cl->clip.atc_delta_count; ii++) {
             cl->clip.atc_delta[ii].delta = bs_read(bits, 32);
-            bs_read_bytes(bits, cl->clip.atc_delta[ii].file_id, 5);
-            cl->clip.atc_delta[ii].file_id[5] = '\0';
-            bs_read_bytes(bits, cl->clip.atc_delta[ii].file_code, 4);
-            cl->clip.atc_delta[ii].file_code[4] = '\0';
+            bs_read_string(bits, cl->clip.atc_delta[ii].file_id, 5);
+            bs_read_string(bits, cl->clip.atc_delta[ii].file_code, 4);
             bs_skip(bits, 8);
         }
     }
@@ -196,8 +193,7 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
         if (cl->font_info.font_count) {
             cl->font_info.font = malloc(cl->font_info.font_count * sizeof(CLPI_FONT));
             for (ii = 0; ii < cl->font_info.font_count; ii++) {
-                bs_read_bytes(bits, cl->font_info.font[ii].file_id, 5);
-                cl->font_info.font[ii].file_id[5] = '\0';
+                bs_read_string(bits, cl->font_info.font[ii].file_id, 5);
                 bs_skip(bits, 8);
             }
         }
