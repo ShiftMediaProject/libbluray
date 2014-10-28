@@ -35,9 +35,4 @@ BD_PRIVATE jobjectArray bdj_make_array(JNIEnv* env, const char* name, int count)
 BD_PRIVATE int bdj_get_method(JNIEnv *env, jclass *cls, jmethodID *method_id,
                               const char *class_name, const char *method_name, const char *method_sig);
 
-// register native methods for class
-BD_PRIVATE int bdj_register_methods(JNIEnv *env, const char *class_name,
-                                    const JNINativeMethod *methods, int methods_count);
-BD_PRIVATE int bdj_unregister_methods(JNIEnv *env, const char *class_name);
-
 #endif

@@ -19,7 +19,74 @@
 
 #include "libbluray/bdj/native/register_native.h"
 
-#include "libbluray/bdj/bdj_util.h"
+#include "util/logging.h"
+
+#include <jni.h>
+
+static int _register_methods(JNIEnv *env, const char *class_name,
+                               const JNINativeMethod *methods, int methods_count)
+{
+    jclass cls;
+    int error;
+
+    (*env)->ExceptionClear(env);
+
+    cls = (*env)->FindClass(env, class_name);
+
+    if (!cls) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate class %s\n", class_name);
+        (*env)->ExceptionDescribe(env);
+        (*env)->ExceptionClear(env);
+        return 0;
+    }
+
+    error =  (*env)->RegisterNatives(env, cls, methods, methods_count);
+
+    if ((*env)->ExceptionOccurred(env)) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to register native methods for class %s\n", class_name);
+        (*env)->ExceptionDescribe(env);
+        (*env)->ExceptionClear(env);
+        return 0;
+    }
+
+    if (error) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to register native methods for class %s\n", class_name);
+    }
+
+    return !error;
+}
+
+static int _unregister_methods(JNIEnv *env, const char *class_name)
+{
+    jclass cls;
+    int error;
+
+    (*env)->ExceptionClear(env);
+
+    cls = (*env)->FindClass(env, class_name);
+
+    if (!cls) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate class %s\n", class_name);
+        (*env)->ExceptionDescribe(env);
+        (*env)->ExceptionClear(env);
+        return 0;
+    }
+
+    error =  (*env)->UnregisterNatives(env, cls);
+
+    if ((*env)->ExceptionOccurred(env)) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to unregister native methods for class %s\n", class_name);
+        (*env)->ExceptionDescribe(env);
+        (*env)->ExceptionClear(env);
+        return 0;
+    }
+
+    if (error) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to runegister native methods for class %s\n", class_name);
+    }
+
+    return !error;
+}
 
 int bdj_register_native_methods(JNIEnv *env)
 {
@@ -33,20 +100,20 @@ int bdj_register_native_methods(JNIEnv *env)
     extern const int Java_java_awt_BDFontMetrics_methods_count;
 
     return
-      bdj_register_methods(env, "org/videolan/Logger",
+      _register_methods(env, "org/videolan/Logger",
                            Java_org_videolan_Logger_methods,
                            Java_org_videolan_Logger_methods_count)
       *
-      bdj_register_methods(env, "org/videolan/Libbluray",
+      _register_methods(env, "org/videolan/Libbluray",
                            Java_org_videolan_Libbluray_methods,
                            Java_org_videolan_Libbluray_methods_count)
       *
       /* BDFontMetrics must be registered before BDGraphics */
-      bdj_register_methods(env, "java/awt/BDFontMetrics",
+      _register_methods(env, "java/awt/BDFontMetrics",
                            Java_java_awt_BDFontMetrics_methods,
                            Java_java_awt_BDFontMetrics_methods_count)
       *
-      bdj_register_methods(env, "java/awt/BDGraphicsBase",
+      _register_methods(env, "java/awt/BDGraphicsBase",
                            Java_java_awt_BDGraphics_methods,
                            Java_java_awt_BDGraphics_methods_count)
       ;
@@ -54,8 +121,8 @@ int bdj_register_native_methods(JNIEnv *env)
 
 void bdj_unregister_native_methods(JNIEnv *env)
 {
-    bdj_unregister_methods(env, "java/awt/BDGraphicsBase");
-    bdj_unregister_methods(env, "java/awt/BDFontMetrics");
-    bdj_unregister_methods(env, "org/videolan/Libbluray");
-    bdj_unregister_methods(env, "org/videolan/Logger");
+    _unregister_methods(env, "java/awt/BDGraphicsBase");
+    _unregister_methods(env, "java/awt/BDFontMetrics");
+    _unregister_methods(env, "org/videolan/Libbluray");
+    _unregister_methods(env, "org/videolan/Logger");
 }
