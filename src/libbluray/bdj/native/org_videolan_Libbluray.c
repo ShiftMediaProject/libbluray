@@ -22,15 +22,15 @@
 #include "config.h"
 #endif
 
+#include "bdjo.h"
+
 #include "libbluray/bdj/bdj.h"
 #include "libbluray/bdj/bdj_private.h"
 #include "libbluray/bdj/bdj_util.h"
-#include "libbluray/bdj/bdjo_parser.h"
+
 #include "libbluray/bluray.h"
 #include "libbluray/bluray_internal.h"
 
-#include "util/strutl.h"
-#include "util/macro.h"
 #include "util/logging.h"
 
 #include <string.h>
@@ -436,7 +436,7 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
 
   (void)np;
   const char *path = (*env)->GetStringUTFChars(env, jpath, NULL);
-  jobject bdjo = bdjo_read(env, path);
+  jobject bdjo = bdjo_get(env, path);
   (*env)->ReleaseStringUTFChars(env, jpath, path);
 
   return bdjo;

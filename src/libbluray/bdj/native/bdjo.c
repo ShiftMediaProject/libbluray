@@ -17,12 +17,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "bdjo_parser.h"
+#include "bdjo.h"
 
-#include "bdjo_data.h"
-#include "bdjo_parse.h"
-
-#include "bdj_util.h"
+#include "libbluray/bdj/bdjo_data.h"
+#include "libbluray/bdj/bdjo_parse.h"
+#include "libbluray/bdj/bdj_util.h"
 
 #include "util/logging.h"
 
@@ -226,13 +225,13 @@ static jobject _make_bdjo(JNIEnv* env, BDJO *p)
     return result;
 }
 
-jobject bdjo_read(JNIEnv* env, const char* file)
+jobject bdjo_get(JNIEnv* env, const char* bdjo_path)
 {
     jobject    result = NULL;
-    BDJO      *bdjo   = bdjo_parse(file);
+    BDJO      *bdjo   = bdjo_parse(bdjo_path);
 
     if (!bdjo) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to read bdjo file (%s)\n", file);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to read bdjo file (%s)\n", bdjo_path);
         return NULL;
     }
 

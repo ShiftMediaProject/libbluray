@@ -17,13 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BDJO_PARSER_H_
-#define BDJO_PARSER_H_
+#ifndef BDJO_H_
+#define BDJO_H_
 
 #include "util/attributes.h"
 
 #include <jni.h>
 
-BD_PRIVATE jobject bdjo_read(JNIEnv* env, const char* file);
+BD_PRIVATE jobject bdjo_get(JNIEnv* env, const char *bdjo_path);
 
-#endif /* BDJO_PARSER_H_ */
+#endif /* BDJO_H_ */
