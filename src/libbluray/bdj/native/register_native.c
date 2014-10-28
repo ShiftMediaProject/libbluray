@@ -17,7 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "libbluray/bdj/native/register_native.h"
+#include "register_native.h"
 
 #include "util/logging.h"
 

@@ -17,14 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include <jni.h>
-
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include "util/logging.h"
 
+#include <jni.h>
 #include <stdint.h>
 
 #include "org_videolan_Logger.h"

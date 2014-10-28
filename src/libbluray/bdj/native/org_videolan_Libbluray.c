@@ -30,6 +30,8 @@
 
 #include "libbluray/bluray.h"
 #include "libbluray/bluray_internal.h"
+#include "libbluray/decoders/overlay.h"
+#include "libbluray/bdnav/index_parse.h"
 
 #include "util/logging.h"
 

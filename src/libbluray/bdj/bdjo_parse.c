@@ -29,7 +29,6 @@
 #include "util/bits.h"
 #include "util/logging.h"
 #include "util/macro.h"
-#include "util/strutl.h"
 
 
 static char *_read_string(BITSTREAM* bs, uint32_t length)

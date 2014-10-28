@@ -35,6 +35,7 @@
 
 #include "libbluray/register.h"
 #include "libbluray/bdnav/bdid_parse.h"
+#include "libbluray/bdnav/index_parse.h"
 
 #include <jni.h>
 #include <stdio.h>

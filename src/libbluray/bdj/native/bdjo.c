@@ -26,6 +26,8 @@
 
 #include "util/logging.h"
 
+#include <jni.h>
+
 /* Documentation: HD Cookbook
  * https://hdcookbook.dev.java.net/
  */

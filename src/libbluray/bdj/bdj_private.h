@@ -20,25 +20,28 @@
 #ifndef BDJ_PRIVATE_H_
 #define BDJ_PRIVATE_H_
 
-#include "libbluray/bluray.h"
-#include "libbluray/bdnav/index_parse.h"
-#include "libbluray/decoders/overlay.h"
+#include "bdj.h"
+
 #include <jni.h>
 
-struct bdjava_s {
-    BLURAY       *bd;
-    INDX_ROOT    *index;
+struct bluray;
+struct bd_argb_buffer_s;
+struct indx_root_s;
 
-    bdj_overlay_cb  osd_cb;
-    BD_ARGB_BUFFER *buf;
+struct bdjava_s {
+    struct bluray      *bd;
+
+    const char         *path;
+    struct indx_root_s *index;
+
+    bdj_overlay_cb           osd_cb;
+    struct bd_argb_buffer_s *buf;
 
     // JVM library
     void *h_libjvm;
 
     // JNI
     JavaVM* jvm;
-
-    const char *path;
 
     unsigned uo_mask; /* UO masks from bdjo */
 };
