@@ -19,9 +19,10 @@
 
 #include "bdjo.h"
 
+#include "util.h"
+
 #include "libbluray/bdj/bdjo_data.h"
 #include "libbluray/bdj/bdjo_parse.h"
-#include "libbluray/bdj/bdj_util.h"
 
 #include "util/logging.h"
 

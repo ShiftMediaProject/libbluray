@@ -142,8 +142,6 @@ $(top_builddir)/src/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar: all-local
 libbluray_la_SOURCES += \
 	libbluray/bdj/bdj.h \
 	libbluray/bdj/bdj_private.h \
-	libbluray/bdj/bdj_util.h \
-	libbluray/bdj/bdj_util.c \
 	libbluray/bdj/bdj.c \
 	libbluray/bdj/bdjo_data.h \
 	libbluray/bdj/bdjo_parse.h \
@@ -159,7 +157,9 @@ libbluray_la_SOURCES += \
 	libbluray/bdj/native/org_videolan_Logger.h \
 	libbluray/bdj/native/org_videolan_Logger.c \
 	libbluray/bdj/native/register_native.h \
-	libbluray/bdj/native/register_native.c
+	libbluray/bdj/native/register_native.c \
+	libbluray/bdj/native/util.h \
+	libbluray/bdj/native/util.c
 
 AM_CFLAGS += $(BDJAVA_CFLAGS)
 

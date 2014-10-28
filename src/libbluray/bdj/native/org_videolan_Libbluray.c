@@ -23,10 +23,10 @@
 #endif
 
 #include "bdjo.h"
+#include "util.h"
 
 #include "libbluray/bdj/bdj.h"
 #include "libbluray/bdj/bdj_private.h"
-#include "libbluray/bdj/bdj_util.h"
 
 #include "libbluray/bluray.h"
 #include "libbluray/bluray_internal.h"

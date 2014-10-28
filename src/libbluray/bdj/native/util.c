@@ -18,9 +18,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include "util.h"
+
 #include "util/logging.h"
 
-#include "bdj_util.h"
+#include <stdarg.h>
 
 jobject bdj_make_object(JNIEnv* env, const char* name, const char* sig, ...)
 {

@@ -23,7 +23,6 @@
 #include "util/attributes.h"
 
 #include <jni.h>
-#include <stdarg.h>
 
 // makes an object from the specified class name and constructor signature
 BD_PRIVATE jobject bdj_make_object(JNIEnv* env, const char* name, const char* sig, ...);
