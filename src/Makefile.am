@@ -195,6 +195,7 @@ if USING_EXAMPLES
 #AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_INCLUDES)
 
 noinst_PROGRAMS = \
+	bdjo_dump \
 	bdsplice \
 	clpi_dump \
 	hdmv_test \
@@ -247,6 +248,22 @@ mobj_dump_SOURCES += \
 	file/file_win32.c
 else
 mobj_dump_SOURCES += \
+	file/file_posix.c
+endif
+
+bdjo_dump_CFLAGS = $(AM_CFLAGS)
+bdjo_dump_SOURCES = \
+	examples/bdjo_dump.c \
+	file/file.c \
+	libbluray/bdj/bdjo_parse.c \
+	util/bits.c \
+	util/logging.c \
+	util/strutl.c
+if HAVE_WIN32
+bdjo_dump_SOURCES += \
+	file/file_win32.c
+else
+bdjo_dump_SOURCES += \
 	file/file_posix.c
 endif
 
