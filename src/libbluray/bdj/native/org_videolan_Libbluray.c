@@ -432,14 +432,12 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN(JNIEnv * env,
 }
 
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
-                                                               jclass cls, jlong np, jstring name) {
+                                                               jclass cls, jlong np, jstring jpath) {
 
-  BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
-  const char *bdjo_name = (*env)->GetStringUTFChars(env, name, NULL);;
-  char* bdjo_path = str_printf("%s/BDMV/BDJO/%s.bdjo", bdj->path, bdjo_name);
-  (*env)->ReleaseStringUTFChars(env, name, bdjo_name);
-  jobject bdjo = bdjo_read(env, bdjo_path);
-  X_FREE(bdjo_path);
+  (void)np;
+  const char *path = (*env)->GetStringUTFChars(env, jpath, NULL);
+  jobject bdjo = bdjo_read(env, path);
+  (*env)->ReleaseStringUTFChars(env, jpath, path);
 
   return bdjo;
 }

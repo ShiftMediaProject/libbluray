@@ -22,6 +22,7 @@ package org.videolan;
 
 import java.awt.BDToolkit;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.Vector;
 
 import javax.media.PackageManager;
@@ -325,7 +326,11 @@ public class Libbluray {
     }
 
     public static Bdjo getBdjo(String name) {
-        return getBdjoN(nativePointer, name);
+        return getBdjoN(nativePointer,
+                        System.getProperty("bluray.vfs.root") + File.separator +
+                        "BDMV" + File.separator +
+                        "BDJO" + File.separator +
+                        name + ".bdjo");
     }
 
     public static void updateGraphic(int width, int height, int[] rgbArray) {
