@@ -19,17 +19,12 @@
 
 #include "bdjo_parser.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "bdjo_data.h"
+#include "bdjo_parse.h"
 
-#include "file/file.h"
-#include "util/bits.h"
-#include "util/logging.h"
-#include "util/macro.h"
 #include "bdj_util.h"
 
-#define MAX_BDJO_FILE_SIZE 0xffff
+#include "util/logging.h"
 
 /* Documentation: HD Cookbook
  * https://hdcookbook.dev.java.net/
@@ -40,404 +35,210 @@
     (*env)->ExceptionDescribe(env); \
     } if (!a) return NULL;
 
-static int _get_version(const uint8_t* str)
+/*
+ *
+ */
+
+static jobject _make_terminal_info(JNIEnv* env, BDJO_TERMINAL_INFO *p)
 {
-    if (strcmp((const char*) str, "0100") != 0)
-        return 100;
-    else if (strcmp((const char*) str, "0200") != 0)
-        return 200;
-    else
-        return 0;
-}
-
-// use when string is already allocated, out should be length + 1
-static void _get_string(BITBUFFER* buf, char* out, uint32_t length)
-{
-    bb_read_bytes(buf, (uint8_t*)out, length);
-    out[length] = 0; // add null termination
-}
-
-static void _make_string(BITBUFFER* buf, char** out, uint32_t length)
-{
-    *out = malloc(length + 1);
-    bb_read_bytes(buf, (uint8_t*)*out, length);
-    (*out)[length] = 0; // add null termination
-}
-
-static jstring _read_jstring(JNIEnv* env, BITBUFFER* buf, uint32_t length)
-{
-    char* str;
-    _make_string(buf, &str, length);
-    jstring jstr = (*env)->NewStringUTF(env, str);
-    X_FREE(str);
-    return jstr;
-}
-
-static jobject _parse_terminal_info(JNIEnv* env, BITBUFFER* buf)
-{
-    // skip length specifier
-    bb_seek(buf, 32, SEEK_CUR);
-
-    char default_font[6];
-    _get_string(buf, default_font, 5);
-    jstring jdefault_font = (*env)->NewStringUTF(env, default_font);
-
-    jint havi_config = bb_read(buf, 4);
-    jboolean menu_call_mask = bb_read(buf, 1);
-    jboolean title_search_mask = bb_read(buf, 1);
-
-    bb_seek(buf, 34, SEEK_CUR);
-
+    jstring jdefault_font = (*env)->NewStringUTF(env, p->default_font);
     return bdj_make_object(env, "org/videolan/bdjo/TerminalInfo", "(Ljava/lang/String;IZZ)V",
-            jdefault_font, havi_config, menu_call_mask, title_search_mask);
+                           jdefault_font, (jint)p->initial_havi_config_id,
+                           (jint)p->menu_call_mask, (jint)p->title_search_mask);
 }
 
-static jobject _parse_app_cache_info(JNIEnv* env, BITBUFFER* buf)
+static jobject _make_app_cache_info(JNIEnv* env, BDJO_APP_CACHE_INFO *p)
 {
-    // skip length specifier
-    bb_seek(buf, 32, SEEK_CUR);
+    unsigned ii;
 
-    int count = bb_read(buf, 8);
-
-    jobjectArray app_cache_array = bdj_make_array(env, "org/videolan/bdjo/AppCache", count);
+    jobjectArray app_cache_array = bdj_make_array(env, "org/videolan/bdjo/AppCache", p->num_item);
     JNICHK(app_cache_array);
 
-    // skip padding
-    bb_seek(buf, 8, SEEK_CUR);
-
-
-    for (int i = 0; i < count; i++) {
-        jint type = bb_read(buf, 8);
-
-        char ref_to_name[6];
-        _get_string(buf, ref_to_name, 5);
-        jstring jref_to_name = (*env)->NewStringUTF(env, ref_to_name);
+    for (ii = 0; ii < p->num_item; ii++) {
+        jstring jref_to_name = (*env)->NewStringUTF(env, p->item[ii].ref_to_name);
+        jstring jlang_code = (*env)->NewStringUTF(env, p->item[ii].lang_code);
         JNICHK(jref_to_name);
-
-        char language_code[4];
-        _get_string(buf, language_code, 3);
-        jstring jlanguage_code = (*env)->NewStringUTF(env, language_code);
-        JNICHK(jlanguage_code);
+        JNICHK(jlang_code);
 
         jobject entry = bdj_make_object(env, "org/videolan/bdjo/AppCache",
-                "(ILjava/lang/String;Ljava/lang/String;)V", type, jref_to_name, jlanguage_code);
+                                        "(ILjava/lang/String;Ljava/lang/String;)V",
+                                        (jint)p->item[ii].type,
+                                        jref_to_name, jlang_code);
         JNICHK(entry);
 
-        (*env)->SetObjectArrayElement(env, app_cache_array, i, entry);
-
-        // skip padding
-        bb_seek(buf, 24, SEEK_CUR);
+        (*env)->SetObjectArrayElement(env, app_cache_array, ii, entry);
     }
 
     return app_cache_array;
 }
 
-static jobject _parse_accessible_playlists(JNIEnv* env, BITBUFFER* buf)
+static jobject _make_accessible_playlists(JNIEnv* env, BDJO_ACCESSIBLE_PLAYLISTS *p)
 {
-    // skip length specifier
-    bb_seek(buf, 32, SEEK_CUR);
+    unsigned ii;
 
-    int count = bb_read(buf, 11);
-    jobjectArray playlists = bdj_make_array(env, "java/lang/String", count);
+    jobjectArray playlists = bdj_make_array(env, "java/lang/String", p->num_pl);
+    JNICHK(playlists);
 
-    jboolean access_to_all_flag = bb_read(buf, 1);
-    jboolean autostart_first_playlist = bb_read(buf, 1);
-
-    // skip padding
-    bb_seek(buf, 19, SEEK_CUR);
-
-    for (int i = 0; i < count; i++) {
-        char playlist_name[6];
-        _get_string(buf, playlist_name, 5);
-        jstring jplaylist_name = (*env)->NewStringUTF(env, playlist_name);
+    for (ii = 0; ii < p->num_pl; ii++) {
+        jstring jplaylist_name = (*env)->NewStringUTF(env, p->pl[ii].name);
         JNICHK(jplaylist_name);
 
-        (*env)->SetObjectArrayElement(env, playlists, i, jplaylist_name);
-
-        // skip padding
-        bb_seek(buf, 8, SEEK_CUR);
+        (*env)->SetObjectArrayElement(env, playlists, ii, jplaylist_name);
     }
 
     return bdj_make_object(env, "org/videolan/bdjo/PlayListTable", "(ZZ[Ljava/lang/String;)V",
-            access_to_all_flag, autostart_first_playlist, playlists);
+                           (jboolean)p->access_to_all_flag, (jboolean)p->autostart_first_playlist_flag,
+                           playlists);
 }
 
-static jobjectArray _parse_app_management_table(JNIEnv* env, BITBUFFER* buf)
+static jobject _make_app(JNIEnv* env, BDJO_APP *p)
 {
-    // skip length specifier
-    bb_seek(buf, 32, SEEK_CUR);
+    unsigned ii;
 
-    int count = bb_read(buf, 8);
+    jobjectArray profiles = bdj_make_array(env, "org/videolan/bdjo/AppProfile", p->num_profile);
+    JNICHK(profiles);
 
-    jclass entries = bdj_make_array(env, "org/videolan/bdjo/AppEntry", count);
+    for (ii = 0; ii < p->num_profile; ii++) {
+        jobject profile = bdj_make_object(env, "org/videolan/bdjo/AppProfile", "(SBBB)V",
+                                          (jshort)p->profile[ii].profile_number,
+                                          (jbyte)p->profile[ii].major_version,
+                                          (jbyte)p->profile[ii].minor_version,
+                                          (jbyte)p->profile[ii].micro_version);
+        JNICHK(profile);
 
-    // skip padding
-    bb_seek(buf, 8, SEEK_CUR);
+        (*env)->SetObjectArrayElement(env, profiles, ii, profile);
+        JNICHK(1);
+    }
 
-    for (int i = 0; i < count; i++) {
-        jint control_code = bb_read(buf, 8);
-        jint type = bb_read(buf, 4);
+    jobjectArray app_names = bdj_make_array(env, "[Ljava/lang/String;", p->num_name);
+    JNICHK(app_names);
 
-        // skip padding
-        bb_seek(buf, 4, SEEK_CUR);
+    for (ii = 0; ii < p->num_name; ii++) {
+        jstring jlang = (*env)->NewStringUTF(env, p->name[ii].lang);
+        JNICHK(jlang);
 
-        jint organization_id = bb_read(buf, 32);
-        jshort application_id = bb_read(buf, 16);
+        jstring jname = (*env)->NewStringUTF(env, p->name[ii].name);
+        JNICHK(jname);
 
-        // skip padding
-        bb_seek(buf, 80, SEEK_CUR);
+        jobjectArray app_name = bdj_make_array(env, "java/lang/String", 2);
+        JNICHK(app_name);
 
-        int profiles_count = bb_read(buf, 4);
-        jobjectArray profiles = bdj_make_array(env, "org/videolan/bdjo/AppProfile", profiles_count);
-        JNICHK(profiles);
+        (*env)->SetObjectArrayElement(env, app_name, 0, jlang);
+        JNICHK(1);
+        (*env)->SetObjectArrayElement(env, app_name, 1, jname);
+        JNICHK(1);
 
-        // skip padding
-        bb_seek(buf, 12, SEEK_CUR);
-
-        for (int j = 0; j < profiles_count; j++) {
-            jshort profile_num = bb_read(buf, 16);
-            jbyte major_version = bb_read(buf, 8);
-            jbyte minor_version = bb_read(buf, 8);
-            jbyte micro_version = bb_read(buf, 8);
-
-            jobject profile = bdj_make_object(env, "org/videolan/bdjo/AppProfile", "(SBBB)V",
-                    profile_num, major_version, minor_version, micro_version);
-            JNICHK(profile);
-
-            (*env)->SetObjectArrayElement(env, profiles, j, profile);
-            JNICHK(1);
-
-            // skip padding
-            bb_seek(buf, 8, SEEK_CUR);
-        }
-
-        jint priority = bb_read(buf, 8);
-        jint binding = bb_read(buf, 2);
-        jint visibility = bb_read(buf, 2);
-
-        // skip padding
-        bb_seek(buf, 4, SEEK_CUR);
-
-        uint16_t name_data_length = bb_read(buf, 16);
-        jobjectArray app_names = NULL;
-        int app_name_count = 0;
-
-        if (name_data_length > 0) {
-            // first scan for the number of app names
-            uint16_t name_bytes_read = 0;
-            while (name_bytes_read < name_data_length) {
-                bb_seek(buf, 24, SEEK_CUR);
-
-                uint8_t name_length = bb_read(buf, 8);
-                bb_seek(buf, 8*name_length, SEEK_CUR);
-
-                app_name_count++;
-                name_bytes_read += 4 + name_length;
-            }
-
-            // seek back to beginning of names
-            bb_seek(buf, -name_data_length*8, SEEK_CUR);
-        }
-
-        app_names = bdj_make_array(env, "[Ljava/lang/String;", app_name_count);
-        JNICHK(app_names);
-
-        for (int j = 0; j < app_name_count; j++) {
-            char language[4];
-            _get_string(buf, language, 3);
-            jstring jlanguage = (*env)->NewStringUTF(env, language);
-            JNICHK(jlanguage);
-
-            uint8_t name_length = bb_read(buf, 8);
-            jstring jname = _read_jstring(env, buf, name_length);
-            JNICHK(jname);
-
-            jobjectArray app_name = bdj_make_array(env, "java/lang/String", 2);
-            JNICHK(app_name);
-
-            (*env)->SetObjectArrayElement(env, app_name, 0, jlanguage);
-            JNICHK(1);
-            (*env)->SetObjectArrayElement(env, app_name, 1, jname);
-            JNICHK(1);
-
-            (*env)->SetObjectArrayElement(env, app_names, j, app_name);
-            JNICHK(1);
-        }
+        (*env)->SetObjectArrayElement(env, app_names, ii, app_name);
+        JNICHK(1);
+    }
 
 
-        // skip padding to word boundary
-        if ((name_data_length & 0x1) != 0) {
-            bb_seek(buf, 8, SEEK_CUR);
-        }
+    jstring icon_locator = (*env)->NewStringUTF(env, p->icon_locator);
+    JNICHK(icon_locator);
 
-        uint8_t icon_locator_length = bb_read(buf, 8);
-        jstring icon_locator = _read_jstring(env, buf, icon_locator_length);
-        JNICHK(icon_locator);
+    jstring base_dir = (*env)->NewStringUTF(env, p->base_dir);
+    JNICHK(base_dir);
 
-        // skip padding to word boundary
-        if ((icon_locator_length & 0x1) == 0) {
-            bb_seek(buf, 8, SEEK_CUR);
-        }
+    jstring classpath_extension = (*env)->NewStringUTF(env, p->classpath_extension);
+    JNICHK(classpath_extension);
 
-        jshort icon_flags = bb_read(buf, 16);
+    jstring initial_class = (*env)->NewStringUTF(env, p->initial_class);
+    JNICHK(initial_class);
 
-        uint8_t base_dir_length = bb_read(buf, 8);
-        jstring base_dir = _read_jstring(env, buf, base_dir_length);
-        JNICHK(base_dir);
+    jobjectArray params = bdj_make_array(env, "java/lang/String", p->num_param);
+    JNICHK(params);
 
-        // skip padding to word boundary
-        if ((base_dir_length & 0x1) == 0) {
-            bb_seek(buf, 8, SEEK_CUR);
-        }
+    for (ii = 0; ii < p->num_param; ii++) {
+        jstring param = (*env)->NewStringUTF(env, p->param[ii].param);
+        JNICHK(param);
 
-        uint8_t classpath_length = bb_read(buf, 8);
-        jstring classpath_extension = _read_jstring(env, buf, classpath_length);
-        JNICHK(classpath_extension);
+        (*env)->SetObjectArrayElement(env, params, ii, param);
+        JNICHK(1);
+    }
 
-        // skip padding to word boundary
-        if ((classpath_length & 0x1) == 0) {
-            bb_seek(buf, 8, SEEK_CUR);
-        }
+    jobject entry = bdj_make_object(env, "org/videolan/bdjo/AppEntry",
+                                    "(IIIS[Lorg/videolan/bdjo/AppProfile;SII[[Ljava/lang/String;Ljava/lang/String;"
+                                    "SLjava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V",
+                                    (jint)p->control_code, (jint)p->type,
+                                    (jint)p->org_id, (jshort)p->app_id,
+                                    profiles,
+                                    (jshort)p->priority, (jint)p->binding, (jint)p->visibility,
+                                    app_names, icon_locator,
+                                    (jshort)p->icon_flags,
+                                    base_dir, classpath_extension, initial_class, params);
 
-        uint8_t initial_class_length = bb_read(buf, 8);
-        jstring initial_class = _read_jstring(env, buf, initial_class_length);
+    return entry;
+}
 
-        // skip padding to word boundary
-        if ((initial_class_length & 0x1) == 0) {
-            bb_seek(buf, 8, SEEK_CUR);
-        }
+static jobjectArray _make_app_management_table(JNIEnv* env, BDJO_APP_MANAGEMENT_TABLE *p)
+{
+    unsigned ii;
 
-        uint8_t param_data_length = bb_read(buf, 8);
+    jclass entries = bdj_make_array(env, "org/videolan/bdjo/AppEntry", p->num_app);
+    JNICHK(entries);
 
-        jobjectArray params = NULL;
-        int param_count = 0;
-        if (param_data_length > 0) {
-            // first scan for the number of params
-            uint16_t param_bytes_read = 0;
-            while (param_bytes_read < param_data_length) {
-                uint8_t param_length = bb_read(buf, 8);
-                bb_seek(buf, 8*param_length, SEEK_CUR);
-
-                param_count++;
-                param_bytes_read += 1 + param_length;
-            }
-
-            // seek back to beginning of params
-            bb_seek(buf, -param_data_length*8, SEEK_CUR);
-        }
-
-        params = bdj_make_array(env, "java/lang/String", param_count);
-
-        for (int j = 0; j < param_count; j++) {
-            uint8_t param_length = bb_read(buf, 8);
-            jstring param = _read_jstring(env, buf, param_length);
-            JNICHK(param);
-
-            (*env)->SetObjectArrayElement(env, params, j, param);
-            JNICHK(1);
-        }
-
-
-        // skip padding to word boundary
-        if ((param_data_length & 0x1) == 0) {
-            bb_seek(buf, 8, SEEK_CUR);
-        }
-
-        jobject entry = bdj_make_object(env, "org/videolan/bdjo/AppEntry",
-                "(IIIS[Lorg/videolan/bdjo/AppProfile;SII[[Ljava/lang/String;Ljava/lang/String;SLjava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V",
-                control_code, type, organization_id, application_id, profiles,
-                priority, binding, visibility, app_names, icon_locator,
-                icon_flags, base_dir, classpath_extension, initial_class, params);
+    for (ii = 0; ii < p->num_app; ii++) {
+        jobject entry = _make_app(env, &p->app[ii]);
         JNICHK(entry);
 
-        (*env)->SetObjectArrayElement(env, entries, i, entry);
+        (*env)->SetObjectArrayElement(env, entries, ii, entry);
     }
 
     return entries;
 }
 
-static jobject _parse_bdjo(JNIEnv* env, BITBUFFER* buf)
+static jobject _make_bdjo(JNIEnv* env, BDJO *p)
 {
-    // first check magic number
-    uint8_t magic[4];
-    bb_read_bytes(buf, magic, 4);
-
-    if (strncmp((const char*) magic, "BDJO", 4) != 0) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Invalid magic number in BDJO.\n");
-        return NULL;
-    }
-
-    // get version string
-    uint8_t version[4];
-    bb_read_bytes(buf, version, 4);
-    if (!_get_version(version)) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Invalid version of BDJO.\n");
-        return NULL;
-    }
-    BD_DEBUG(DBG_BDJ, "[bdj] BDJO > Version: %.4s\n", version);
-
-    // skip some unnecessary data
-    bb_seek(buf, 8*0x28, SEEK_CUR);
-
-    jobject terminal_info = _parse_terminal_info(env, buf);
+    jobject terminal_info = _make_terminal_info(env, &p->terminal_info);
     JNICHK(terminal_info);
 
-    jobjectArray app_cache_info = _parse_app_cache_info(env, buf);
+    jobjectArray app_cache_info = _make_app_cache_info(env, &p->app_cache_info);
     JNICHK(app_cache_info);
 
-    jobject accessible_playlists = _parse_accessible_playlists(env, buf);
+    jobject accessible_playlists = _make_accessible_playlists(env, &p->accessible_playlists);
     JNICHK(accessible_playlists);
 
-    jobjectArray app_table = _parse_app_management_table(env, buf);
+    jobjectArray app_table = _make_app_management_table(env, &p->app_table);
     JNICHK(app_table);
 
-    jint key_interest_table = bb_read(buf, 32);
-
-    uint16_t file_access_length = bb_read(buf, 16);
-    jstring file_access_info = _read_jstring(env, buf, file_access_length);
+    jstring file_access_info = (*env)->NewStringUTF(env, p->file_access_info.path);
     JNICHK(file_access_info);
 
-    return bdj_make_object(env, "org/videolan/bdjo/Bdjo",
-            "(Lorg/videolan/bdjo/TerminalInfo;[Lorg/videolan/bdjo/AppCache;Lorg/videolan/bdjo/PlayListTable;[Lorg/videolan/bdjo/AppEntry;ILjava/lang/String;)V",
-            terminal_info, app_cache_info, accessible_playlists, app_table, key_interest_table, file_access_info);
+    jint key_interest_table =
+      (p->key_interest_table.vk_play                   ) |
+      (p->key_interest_table.vk_stop              << 1 ) |
+      (p->key_interest_table.vk_ffw               << 2 ) |
+      (p->key_interest_table.vk_rew               << 3 ) |
+      (p->key_interest_table.vk_track_next        << 4 ) |
+      (p->key_interest_table.vk_track_prev        << 5 ) |
+      (p->key_interest_table.vk_pause             << 6 ) |
+      (p->key_interest_table.vk_still_off         << 7 ) |
+      (p->key_interest_table.vk_sec_audio_ena_dis << 8 ) |
+      (p->key_interest_table.vk_sec_video_ena_dis << 9 ) |
+      (p->key_interest_table.pg_textst_ena_dis    << 10);
+
+    jobject result = bdj_make_object(env, "org/videolan/bdjo/Bdjo",
+                                     "(Lorg/videolan/bdjo/TerminalInfo;[Lorg/videolan/bdjo/AppCache;"
+                                     "Lorg/videolan/bdjo/PlayListTable;[Lorg/videolan/bdjo/AppEntry;ILjava/lang/String;)V",
+                                     terminal_info, app_cache_info, accessible_playlists, app_table,
+                                     key_interest_table, file_access_info);
+
+    return result;
 }
 
 jobject bdjo_read(JNIEnv* env, const char* file)
 {
     jobject    result = NULL;
-    BD_FILE_H *handle = file_open(file, "rb");
+    BDJO      *bdjo   = bdjo_parse(file);
 
-    if (handle == NULL) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to open bdjo file (%s)\n", file);
+    if (!bdjo) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to read bdjo file (%s)\n", file);
         return NULL;
     }
 
-    int64_t length = file_size(handle);
+    result = _make_bdjo(env, bdjo);
 
-    if (length <= 0 || length > MAX_BDJO_FILE_SIZE) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error reading %s\n", file);
-
-    } else {
-        size_t size = (size_t)length;
-        uint8_t *data = malloc(size);
-        size_t size_read = file_read(handle, data, size);
-
-        if (size_read != size) {
-            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error reading %s\n", file);
-
-        } else {
-            BITBUFFER *buf = malloc(sizeof(BITBUFFER));
-            bb_init(buf, data, size);
-
-            result = _parse_bdjo(env, buf);
-
-            X_FREE(buf);
-        }
-
-        X_FREE(data);
-    }
-
-    file_close(handle);
+    bdjo_free(&bdjo);
 
     return result;
 }
