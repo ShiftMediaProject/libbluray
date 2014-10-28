@@ -25,16 +25,16 @@
 #include "bdj.h"
 
 #include "bdj_private.h"
-#include "bdjo_parser.h"
-#include "bdj_util.h"
-#include "libbluray/register.h"
+#include "native/register_native.h"
+
 #include "file/dirs.h"
 #include "file/dl.h"
 #include "util/strutl.h"
 #include "util/macro.h"
 #include "util/logging.h"
+
+#include "libbluray/register.h"
 #include "libbluray/bdnav/bdid_parse.h"
-#include "libbluray/bdj/native/register_native.h"
 
 #include <jni.h>
 #include <stdio.h>
@@ -316,6 +316,32 @@ static const char *_bdj_buda_root(BDJ_STORAGE *storage)
     return root;
 }
 
+static int _get_method(JNIEnv *env, jclass *cls, jmethodID *method_id,
+                       const char *class_name, const char *method_name, const char *method_sig)
+{
+    *method_id = NULL;
+    *cls = (*env)->FindClass(env, class_name);
+    if (!*cls) {
+        (*env)->ExceptionDescribe(env);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate class %s\n", class_name);
+        (*env)->ExceptionClear(env);
+        return 0;
+    }
+
+    *method_id = (*env)->GetStaticMethodID(env, *cls, method_name, method_sig);
+    if (!*method_id) {
+        (*env)->ExceptionDescribe(env);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate class %s method %s %s\n",
+                 class_name, method_name, method_sig);
+        (*env)->DeleteLocalRef(env, *cls);
+        *cls = NULL;
+        (*env)->ExceptionClear(env);
+        return 0;
+    }
+
+    return 1;
+}
+
 static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
 {
     if (!bdj_register_native_methods(env)) {
@@ -325,7 +351,7 @@ static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
     // initialize class org.videolan.Libbluray
     jclass init_class;
     jmethodID init_id;
-    if (!bdj_get_method(env, &init_class, &init_id,
+    if (!_get_method(env, &init_class, &init_id,
                         "org/videolan/Libbluray", "init", "(JLjava/lang/String;Ljava/lang/String;)V")) {
         return 0;
     }
@@ -529,7 +555,7 @@ void bdj_close(BDJAVA *bdjava)
             attach = 1;
         }
 
-        if (bdj_get_method(env, &shutdown_class, &shutdown_id,
+        if (_get_method(env, &shutdown_class, &shutdown_id,
                            "org/videolan/Libbluray", "shutdown", "()V")) {
             (*env)->CallStaticVoidMethod(env, shutdown_class, shutdown_id);
 
@@ -595,7 +621,7 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         attach = 1;
     }
 
-    if (bdj_get_method(env, &event_class, &event_id,
+    if (_get_method(env, &event_class, &event_id,
                        "org/videolan/Libbluray", "processEvent", "(II)Z")) {
         if ((*env)->CallStaticBooleanMethod(env, event_class, event_id, ev, param)) {
             result = 0;

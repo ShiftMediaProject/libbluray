@@ -45,30 +45,3 @@ jobjectArray bdj_make_array(JNIEnv* env, const char* name, int count)
     jclass arr_class = (*env)->FindClass(env, name);
     return (*env)->NewObjectArray(env, count, arr_class, NULL);
 }
-
-int bdj_get_method(JNIEnv *env, jclass *cls, jmethodID *method_id,
-                   const char *class_name, const char *method_name, const char *method_sig)
-{
-    *method_id = NULL;
-    *cls = (*env)->FindClass(env, class_name);
-    if (!*cls) {
-        (*env)->ExceptionDescribe(env);
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate class %s\n", class_name);
-        (*env)->ExceptionClear(env);
-        return 0;
-    }
-
-    *method_id = (*env)->GetStaticMethodID(env, *cls, method_name, method_sig);
-    if (!*method_id) {
-        (*env)->ExceptionDescribe(env);
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate class %s method %s %s\n",
-                 class_name, method_name, method_sig);
-        (*env)->DeleteLocalRef(env, *cls);
-        *cls = NULL;
-        (*env)->ExceptionClear(env);
-        return 0;
-    }
-
-    return 1;
-}
-
