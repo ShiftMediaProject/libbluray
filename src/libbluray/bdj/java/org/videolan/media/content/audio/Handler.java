@@ -48,12 +48,15 @@ public class Handler extends BDHandler {
         this.source = new org.videolan.media.protocol.dripfeed.DataSource(source.getLocator());
         if (source.getLocator() == null)
             throw new IncompatibleSourceException();
+        /*
+          can be ex. file:/mnt/bluray/BDMV/JAR/00000/Sub_switch.pcm
 
-            try {
-                locator = new BDLocator(source.getLocator().toExternalForm());
-            } catch (org.davic.net.InvalidLocatorException e) {
-                throw new IncompatibleSourceException();
-            }
+        try {
+            locator = new BDLocator(source.getLocator().toExternalForm());
+        } catch (org.davic.net.InvalidLocatorException e) {
+            throw new IncompatibleSourceException();
+        }
+        */
     }
 
     public Time getDuration() {
