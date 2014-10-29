@@ -130,6 +130,8 @@ public class Libbluray {
             System.setProperty("bluray.memory.font_cache", "4096");
 
             System.setProperty("bluray.network.connected", "YES");
+
+            BDJSocketFactory.init();
     }
 
     public static void shutdown() {

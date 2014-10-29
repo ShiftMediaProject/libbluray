@@ -263,6 +263,18 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     }
 
     /*
+     * sockets
+     */
+
+    protected void addSocket(Object socket) {
+        sockets.add(socket);
+    }
+
+    protected void closeSockets() {
+        sockets.closeAll();
+    }
+
+    /*
      * Ixc
      */
 
@@ -383,6 +395,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
     protected void release() {
 
+        closeSockets();
         removeAllFAA();
         stopIxcThreads();
         defaultLooks.clear();
@@ -424,6 +437,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     private BDJThreadGroup threadGroup = null;
     private LinkedList ixcThreads = new LinkedList();
     private LinkedList faaList = new LinkedList();
+    private BDJSockets sockets = new BDJSockets();
     private HashMap defaultLooks = new HashMap();
     private BDJActionQueue callbackQueue;
     private static final Logger logger = Logger.getLogger(BDJXletContext.class.getName());
