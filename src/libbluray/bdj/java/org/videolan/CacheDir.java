@@ -65,6 +65,7 @@ class CacheDir {
 
     private static void removeImpl(File dir) {
         File[] files = dir.listFiles();
+        if (files != null) {
         for (int i = 0; i < files.length; i++) {
             File file = files[i];
             if (file.isDirectory()) {
@@ -74,6 +75,7 @@ class CacheDir {
                     logger.error("Error removing " + file.getPath());
                 }
             }
+        }
         }
 
         if (!dir.delete()) {
