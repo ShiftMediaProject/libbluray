@@ -77,10 +77,12 @@ public class Handler extends BDHandler {
         return super.doStop();
     }
 
+    /*
     protected BDLocator getLocator() {
         return locator;
     }
 
     private BDLocator locator;
+    */
     private org.videolan.media.protocol.dripfeed.DataSource source = null;
 }
