@@ -395,31 +395,18 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
   return bdjo;
 }
 
-JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
-        jclass cls, jlong np, jint width, jint height, jintArray rgbArray,
-        jint x0, jint y0, jint x1, jint y1) {
-
-    BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
-
-    BD_DEBUG(DBG_JNI, "updateGraphicN(%ld,%ld-%ld,%ld)\n", (long)x0, (long)y0, (long)x1, (long)y1);
-
-    /* app callback not initialized ? */
-    if (!bdj) {
-        return;
-    }
+static void _updateGraphic(JNIEnv * env,
+        BLURAY *bd, jint width, jint height, jintArray rgbArray,
+        jint x0, jint y0, jint x1, jint y1,
+        BD_ARGB_BUFFER *buf) {
 
     /* close ? */
     if (!rgbArray) {
-        bd_bdj_osd_cb(bdj->bd, NULL, (int)width, (int)height, 0, 0, 0, 0);
+        bd_bdj_osd_cb(bd, NULL, (int)width, (int)height, 0, 0, 0, 0);
         return;
     }
 
-    /* nothing to draw ? */
-    if (x1 < x0 || y1 < y0 || (x1 | y1) < 0) {
-        return;
-    }
-
-    if (bdj->buf) {
+    if (buf) {
 
         /* copy to application-allocated buffer */
 
@@ -427,52 +414,52 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
         jsize offset;
 
         /* set dirty area before lock() */
-        bdj->buf->dirty[BD_OVERLAY_IG].x0 = x0;
-        bdj->buf->dirty[BD_OVERLAY_IG].x1 = x1;
-        bdj->buf->dirty[BD_OVERLAY_IG].y0 = y0;
-        bdj->buf->dirty[BD_OVERLAY_IG].y1 = y1;
+        buf->dirty[BD_OVERLAY_IG].x0 = x0;
+        buf->dirty[BD_OVERLAY_IG].x1 = x1;
+        buf->dirty[BD_OVERLAY_IG].y0 = y0;
+        buf->dirty[BD_OVERLAY_IG].y1 = y1;
 
         /* get buffer */
-        if (bdj->buf->lock) {
-            bdj->buf->lock(bdj->buf);
+        if (buf->lock) {
+            buf->lock(buf);
         }
-        if (!bdj->buf->buf[BD_OVERLAY_IG]) {
+        if (!buf->buf[BD_OVERLAY_IG]) {
             BD_DEBUG(DBG_BDJ | DBG_CRIT, "ARGB frame buffer missing\n");
-            if (bdj->buf->unlock) {
-                bdj->buf->unlock(bdj->buf);
+            if (buf->unlock) {
+                buf->unlock(buf);
             }
             return;
         }
 
         /* check buffer size */
 
-        if (bdj->buf->width < width || bdj->buf->height < height) {
+        if (buf->width < width || buf->height < height) {
             /* assume buffer is only for the dirty arrea */
             BD_DEBUG(DBG_BDJ, "ARGB frame buffer size is smaller than BD-J frame buffer size (app: %dx%d BD-J: %ldx%ld)\n",
-                     bdj->buf->width, bdj->buf->height, (long)width, (long)height);
+                     buf->width, buf->height, (long)width, (long)height);
 
-            if (bdj->buf->width < (x1 - x0 + 1) || bdj->buf->height < (y1 - y0 + 1)) {
+            if (buf->width < (x1 - x0 + 1) || buf->height < (y1 - y0 + 1)) {
                 BD_DEBUG(DBG_BDJ | DBG_CRIT, "ARGB frame buffer size is smaller than dirty area\n");
-                if (bdj->buf->unlock) {
-                    bdj->buf->unlock(bdj->buf);
+                if (buf->unlock) {
+                    buf->unlock(buf);
                 }
                 return;
             }
 
-            dst = (jint*)bdj->buf->buf[BD_OVERLAY_IG];
+            dst = (jint*)buf->buf[BD_OVERLAY_IG];
 
         } else {
 
-            dst = (jint*)bdj->buf->buf[BD_OVERLAY_IG] + y0 * bdj->buf->width + x0;
+            dst = (jint*)buf->buf[BD_OVERLAY_IG] + y0 * buf->width + x0;
 
             /* clip */
-            if (y1 >= bdj->buf->height) {
-              BD_DEBUG(DBG_BDJ | DBG_CRIT, "Cropping %ld rows from bottom\n", (long)(y1 - bdj->buf->height));
-                y1 = bdj->buf->height - 1;
+            if (y1 >= buf->height) {
+                BD_DEBUG(DBG_BDJ | DBG_CRIT, "Cropping %ld rows from bottom\n", (long)(y1 - buf->height));
+                y1 = buf->height - 1;
             }
-            if (x1 >= bdj->buf->width) {
-              BD_DEBUG(DBG_BDJ | DBG_CRIT, "Cropping %ld pixels from right\n", (long)(x1 - bdj->buf->width));
-                x1 = bdj->buf->width - 1;
+            if (x1 >= buf->width) {
+                BD_DEBUG(DBG_BDJ | DBG_CRIT, "Cropping %ld pixels from right\n", (long)(x1 - buf->width));
+                x1 = buf->width - 1;
             }
         }
 
@@ -483,21 +470,21 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
         for (y = y0; y <= y1; y++) {
             (*env)->GetIntArrayRegion(env, rgbArray, offset, x1 - x0 + 1, dst);
             offset += width;
-            dst += bdj->buf->width;
+            dst += buf->width;
         }
 
         /* check for errors */
         if ((*env)->ExceptionOccurred(env)) {
-          BD_DEBUG(DBG_BDJ | DBG_CRIT, "Array access error at %ld (+%ld)\n", (long)offset, (long)(x1 - x0 + 1));
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Array access error at %ld (+%ld)\n", (long)offset, (long)(x1 - x0 + 1));
             (*env)->ExceptionDescribe(env);
             (*env)->ExceptionClear(env);
         }
 
-        if (bdj->buf->unlock) {
-            bdj->buf->unlock(bdj->buf);
+        if (buf->unlock) {
+            buf->unlock(buf);
         }
 
-        bd_bdj_osd_cb(bdj->bd, bdj->buf->buf[BD_OVERLAY_IG], (int)width, (int)height,
+        bd_bdj_osd_cb(bd, buf->buf[BD_OVERLAY_IG], (int)width, (int)height,
                       x0, y0, x1, y1);
 
     } else {
@@ -506,13 +493,34 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
 
         jint *image = (jint *)(*env)->GetPrimitiveArrayCritical(env, rgbArray, NULL);
         if (image) {
-            bd_bdj_osd_cb(bdj->bd, (const unsigned *)image, (int)width, (int)height,
+            bd_bdj_osd_cb(bd, (const unsigned *)image, (int)width, (int)height,
                           x0, y0, x1, y1);
             (*env)->ReleasePrimitiveArrayCritical(env, rgbArray, image, JNI_ABORT);
         } else {
             BD_DEBUG(DBG_BDJ | DBG_CRIT, "GetPrimitiveArrayCritical() failed\n");
         }
     }
+}
+
+JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
+        jclass cls, jlong np, jint width, jint height, jintArray rgbArray,
+        jint x0, jint y0, jint x1, jint y1) {
+
+    BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
+
+    BD_DEBUG(DBG_JNI, "updateGraphicN(%ld,%ld-%ld,%ld)\n", (long)x0, (long)y0, (long)x1, (long)y1);
+
+    /* app callback not initialized ? */
+    if (!bdj || !bdj->bd) {
+        return;
+    }
+
+    /* nothing to draw ? */
+    if (rgbArray && (x1 < x0 || y1 < y0 || (x1 | y1) < 0)) {
+        return;
+    }
+
+    _updateGraphic(env, bdj->bd, width, height, rgbArray, x0, y0, x1, y1, bdj->buf);
 }
 
 #define CC (char*)(uintptr_t)  /* cast a literal from (const char*) */
