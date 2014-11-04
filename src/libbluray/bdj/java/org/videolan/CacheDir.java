@@ -100,6 +100,7 @@ class CacheDir {
     public static synchronized void remove() {
         if (cacheRoot != null) {
             remove(cacheRoot);
+            cacheRoot = null;
         }
     }
 
