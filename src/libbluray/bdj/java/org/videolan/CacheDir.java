@@ -69,10 +69,10 @@ class CacheDir {
         for (int i = 0; i < files.length; i++) {
             File file = files[i];
             if (file.isDirectory()) {
-                remove(file);
+                removeImpl(file);
             } else {
                 if (!file.delete()) {
-                    logger.error("Error removing " + file.getPath());
+                    logger.info("Error removing " + file.getPath());
                 }
             }
         }
