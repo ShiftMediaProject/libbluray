@@ -133,15 +133,16 @@ public abstract class BDFileSystem extends FileSystem {
             return fs.getBooleanAttributes(f);
         }
 
-        /* try to locate file in Xlet home directory (inside JAR file) */
-        URL url = BDJXletContext.getCurrentResource(f.getPath());
-        if (url == null) {
+        /* try to locate file in Xlet home directory */
+        String home = BDJXletContext.getCurrentXletHome();
+        if (home == null) {
+            logger.error("no home found for " + f.getPath() + " at " + logger.dumpStack());
             return 0;
         }
 
-        logger.info("Relative path " + f.getPath() + " translated to " + url);
-
-        return FileSystem.BA_EXISTS; //|BA_REGULAR
+        String path = home + f.getPath();
+        logger.info("Relative path " + f.getPath() + " translated to " + path);
+        return fs.getBooleanAttributes(new File(path));
     }
 
     /*

@@ -63,7 +63,16 @@ public class FileInputStream extends InputStream
         } else {
             /* relative paths are problematic ... */
             /* Those should be mapped to xlet home directory, which is inside .jar file. */
-            openResource(name);
+
+            String home = BDJXletContext.getCurrentXletHome();
+            if (home == null) {
+                if (logger == null) {
+                    logger = Logger.getLogger(FileInputStream.class.getName());
+                }
+                logger.error("no home found for " + name + " at " + logger.dumpStack());
+                throw new FileNotFoundException(name);
+            }
+            open(home + name);
         }
 
         available = 1024;
@@ -85,43 +94,6 @@ public class FileInputStream extends InputStream
         fd = fdObj;
         available = 1024;
     }
-
-    private void openResource(String name) throws FileNotFoundException {
-        if (logger == null) {
-            logger = Logger.getLogger(FileInputStream.class.getName());
-        }
-
-        /* J2SE URL.getPath() returns file:/xxx.jar!/... for jar resource urls ... */
-        if (name.indexOf("file:") == 0 && name.indexOf(".jar!/") > 0) {
-            logger.error("Fixing invalid resource url: " + name);
-            name = name.substring(name.indexOf(".jar!") + 6);
-        }
-
-        /* try to locate file in Xlet home directory (inside JAR file) */
-
-        ClassLoader cldr = (ClassLoader)BDJXletContext.getCurrentClassLoader();
-        if (cldr == null) {
-            throw new FileNotFoundException(name);
-        }
-
-        if (name.startsWith("./") || name.startsWith(".\\")) {
-            name = name.substring(2);
-        }
-
-        URL url = cldr.getResource(name);
-        if (url == null) {
-            logger.error("Resource not found: " + name);
-            throw new FileNotFoundException(name);
-        }
-        logger.info(name + " translated to " + url);
-
-        fd.slave = cldr.getResourceAsStream(name);
-        if (fd.slave == null) {
-            logger.error("Error getting resource as stream");
-            throw new FileNotFoundException(name);
-        }
-    }
-
 
     private native void open(String name) throws FileNotFoundException;
     private native int  readBytes(byte b[], int off, int len) throws IOException;
