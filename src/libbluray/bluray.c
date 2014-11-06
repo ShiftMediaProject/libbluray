@@ -2707,7 +2707,7 @@ void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint
 int bd_start_bdj(BLURAY *bd, const char *start_object)
 {
     const BLURAY_TITLE *t;
-    int title_num = atoi(start_object);
+    unsigned int title_num = atoi(start_object);
     unsigned ii;
 
     if (!bd) {
