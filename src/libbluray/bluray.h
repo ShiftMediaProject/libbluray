@@ -530,6 +530,9 @@ typedef struct {
     const BLURAY_TITLE  *first_play;     /* titles[N+1].   NULL if not present on the disc. */
     const BLURAY_TITLE  *top_menu;       /* titles[0]. NULL if not present on the disc. */
 
+    char bdj_org_id[9];      /* (BD-J) disc organization ID */
+    char bdj_disc_id[33];    /* (BD-J) disc ID */
+
 } BLURAY_DISC_INFO;
 
 /**

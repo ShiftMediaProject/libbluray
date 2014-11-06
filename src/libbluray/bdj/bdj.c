@@ -33,8 +33,6 @@
 #include "util/macro.h"
 #include "util/logging.h"
 
-#include "libbluray/register.h"
-#include "libbluray/bdnav/bdid_parse.h"
 #include "libbluray/bdnav/index_parse.h"
 
 #include <jni.h>
@@ -343,7 +341,7 @@ static int _get_method(JNIEnv *env, jclass *cls, jmethodID *method_id,
     return 1;
 }
 
-static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
+static int _bdj_init(BDJAVA *bdjava, JNIEnv *env, const char *bdj_disc_id)
 {
     if (!bdj_register_native_methods(env)) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't register native methods.\n");
@@ -357,11 +355,9 @@ static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
         return 0;
     }
 
-    char* id_path = str_printf("%s/CERTIFICATE/id.bdmv", bdjava->path);
-    BDID_DATA *id  = bdid_parse(id_path);
+    const char *disc_id = (bdj_disc_id && bdj_disc_id[0]) ? bdj_disc_id : "00000000000000000000000000000000";
     jlong param_bdjava_ptr = (jlong)(intptr_t) bdjava;
-    jstring param_disc_id = (*env)->NewStringUTF(env,
-                                                 id ? id->disc_id : "00000000000000000000000000000000");
+    jstring param_disc_id = (*env)->NewStringUTF(env, disc_id);
     jstring param_disc_root = (*env)->NewStringUTF(env, bdjava->path);
     (*env)->CallStaticVoidMethod(env, init_class, init_id,
                                  param_bdjava_ptr, param_disc_id, param_disc_root);
@@ -374,9 +370,6 @@ static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
     (*env)->DeleteLocalRef(env, init_class);
     (*env)->DeleteLocalRef(env, param_disc_id);
     (*env)->DeleteLocalRef(env, param_disc_root);
-
-    X_FREE(id_path);
-    bdid_free(&id);
 
     return 1;
 }
@@ -493,7 +486,8 @@ static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaV
 }
 
 BDJAVA* bdj_open(const char *path, struct bluray *bd,
-                 bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf, BDJ_STORAGE *storage)
+                 bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf,
+                 const char *bdj_disc_id, BDJ_STORAGE *storage)
 {
     BD_DEBUG(DBG_BDJ, "bdj_open()\n");
 
@@ -526,7 +520,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
         BD_DEBUG(DBG_BDJ, "Java version: %d.%d\n", version >> 16, version & 0xffff);
     }
 
-    if (!_bdj_init(bdjava, env)) {
+    if (!_bdj_init(bdjava, env, bdj_disc_id)) {
         bdj_close(bdjava);
         return NULL;
     }

@@ -61,7 +61,7 @@ typedef void (*bdj_overlay_cb)(struct bluray *, const unsigned *, int, int,
 
 BD_PRIVATE BDJAVA* bdj_open(const char *path, struct bluray *bd,
                             bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf,
-                            BDJ_STORAGE *storage);
+                            const char *bdj_disc_id, BDJ_STORAGE *storage);
 BD_PRIVATE void bdj_close(BDJAVA *bdjava);
 BD_PRIVATE int  bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
 BD_PRIVATE int  bdj_get_uo_mask(BDJAVA *bdjava);

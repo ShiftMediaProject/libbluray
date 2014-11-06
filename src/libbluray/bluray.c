@@ -32,6 +32,7 @@
 #include "util/logging.h"
 #include "util/strutl.h"
 #include "util/mutex.h"
+#include "bdnav/bdid_parse.h"
 #include "bdnav/navigation.h"
 #include "bdnav/index_parse.h"
 #include "bdnav/meta_parse.h"
@@ -971,6 +972,9 @@ static void _fill_disc_info(BLURAY *bd)
 
     array_free((void**)&bd->titles);
 
+    memset(bd->disc_info.bdj_org_id,  0, sizeof(bd->disc_info.bdj_org_id));
+    memset(bd->disc_info.bdj_disc_id, 0, sizeof(bd->disc_info.bdj_disc_id));
+
     INDX_ROOT *index = indx_parse(bd->device_path);
     if (index) {
         INDX_PLAY_ITEM *pi;
@@ -1090,6 +1094,15 @@ static void _fill_disc_info(BLURAY *bd)
         bd_get_meta(bd);
 
         indx_free(&index);
+    }
+
+    if (bd->disc_info.bdj_detected) {
+        BDID_DATA *bdid = bdid_parse(bd->device_path); /* parse id.bdmv */
+        if (bdid) {
+            memcpy(bd->disc_info.bdj_org_id,  bdid->org_id,  sizeof(bd->disc_info.bdj_org_id));
+            memcpy(bd->disc_info.bdj_disc_id, bdid->disc_id, sizeof(bd->disc_info.bdj_disc_id));
+            bdid_free(&bdid);
+        }
     }
 }
 
@@ -1245,7 +1258,7 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
-        bd->bdjava = bdj_open(bd->device_path, bd, _bdj_osd_cb, bd->argb_buffer, bd->bdjstorage);
+        bd->bdjava = bdj_open(bd->device_path, bd, _bdj_osd_cb, bd->argb_buffer, bd->disc_info.bdj_disc_id, bd->bdjstorage);
         if (!bd->bdjava) {
             return 0;
         }
