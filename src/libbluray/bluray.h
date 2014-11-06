@@ -526,9 +526,9 @@ typedef struct {
 
     /* HDMV / BD-J titles */
     uint32_t             num_titles;
-    const BLURAY_TITLE * const *titles;  /* index is title number 1 ... N */
-    const BLURAY_TITLE  *first_play;     /* titles[0].   NULL if not present on the disc. */
-    const BLURAY_TITLE  *top_menu;       /* titles[N+1]. NULL if not present on the disc. */
+    const BLURAY_TITLE  *const *titles;  /* index is title number 1 ... N */
+    const BLURAY_TITLE  *first_play;     /* titles[N+1].   NULL if not present on the disc. */
+    const BLURAY_TITLE  *top_menu;       /* titles[0]. NULL if not present on the disc. */
 
 } BLURAY_DISC_INFO;
 
