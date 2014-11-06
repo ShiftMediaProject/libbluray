@@ -49,6 +49,7 @@
 #include "file/libbdplus.h"
 #include "file/libaacs.h"
 
+#include <stdio.h> // SEEK_
 #include <stdlib.h>
 #include <inttypes.h>
 #include <string.h>
