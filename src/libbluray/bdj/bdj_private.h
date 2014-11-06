@@ -26,13 +26,11 @@
 
 struct bluray;
 struct bd_argb_buffer_s;
-struct indx_root_s;
 
 struct bdjava_s {
     struct bluray      *bd;
 
     const char         *path;
-    struct indx_root_s *index;
 
     bdj_overlay_cb           osd_cb;
     struct bd_argb_buffer_s *buf;

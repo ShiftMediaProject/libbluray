@@ -33,7 +33,6 @@
 #include "util/macro.h"
 #include "util/logging.h"
 
-#include "libbluray/bdnav/index_parse.h"
 
 #include <jni.h>
 #include <stdio.h>
@@ -573,7 +572,6 @@ void bdj_close(BDJAVA *bdjava)
         dl_dlclose(bdjava->h_libjvm);
     }
 
-    indx_free(&bdjava->index);
     X_FREE(bdjava);
 }
 
