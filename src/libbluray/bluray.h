@@ -478,7 +478,7 @@ typedef struct {
     uint8_t     hidden;       /* 1 if title number should not be shown during playback */
 
     uint8_t     bdj;          /* 0 - HDMV title. 1 - BD-J title */
-    uint16_t    id_ref;       /* Movie Object number / bdjo file number */
+    uint32_t    id_ref;       /* Movie Object number / bdjo file number */
 } BLURAY_TITLE;
 
 typedef struct {
