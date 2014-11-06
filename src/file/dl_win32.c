@@ -29,7 +29,7 @@
 #include "util/strutl.h"
 
 #include <windows.h>
-
+#include <stdio.h>
 #include <string.h>
 
 static const char *dlerror(char *buf, int buf_size)
