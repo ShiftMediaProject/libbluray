@@ -31,7 +31,7 @@ public class PanningControlImpl implements PanningControl {
     }
 
     public void addPanningChangeListener(PanningChangeListener listener) {
-        org.videolan.Logger.unimplemented("PanningControlImpl", "addPanningVChangeListener");
+        org.videolan.Logger.unimplemented("PanningControlImpl", "addPanningChangeListener");
         // TODO Not implemented
     }
 
@@ -40,22 +40,27 @@ public class PanningControlImpl implements PanningControl {
     }
 
     public float getLeftRight() {
+        org.videolan.Logger.unimplemented("PanningControlImpl", "getLeftRight");
         return 0;  // TODO Not implemented
     }
 
     public float getFrontRear() {
+        org.videolan.Logger.unimplemented("PanningControlImpl", "getFrontRear");
         return 0;  // TODO Not implemented
     }
 
     public void setLeftRight(float balance) {
+        org.videolan.Logger.unimplemented("PanningControlImpl", "setLeftRight");
         // TODO Not implemented
     }
 
     public void setFrontRear(float fade) {
+        org.videolan.Logger.unimplemented("PanningControlImpl", "setFrontRear");
         // TODO Not implemented
     }
 
     public void setPosition(float x, float y) {
+        org.videolan.Logger.unimplemented("PanningControlImpl", "setPosition");
         // TODO Not implemented
     }
 

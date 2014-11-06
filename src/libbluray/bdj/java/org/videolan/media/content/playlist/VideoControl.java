@@ -74,6 +74,7 @@ public abstract class VideoControl extends StreamControl implements VideoPresent
     }
 
     protected void setVideoArea(HScreenRectangle rectangle) {
+        org.videolan.Logger.unimplemented("VideoControl", "setVideoArea");
         dstArea = rectangle;
         // TODO
     }

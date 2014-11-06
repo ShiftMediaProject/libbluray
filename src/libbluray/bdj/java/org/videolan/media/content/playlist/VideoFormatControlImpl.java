@@ -61,6 +61,7 @@ public class VideoFormatControlImpl implements VideoFormatControl {
     }
 
     public VideoTransformation getVideoTransformation(int dfc) {
+        org.videolan.Logger.unimplemented("VideoFormatControlImpl", "getVideoTransformation");
         return null; // TODO: implement
     }
 

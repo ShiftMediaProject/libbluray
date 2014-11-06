@@ -25,27 +25,35 @@ import org.bluray.media.OverallGainControl;
 
 public class OverallGainControlImpl implements OverallGainControl {
     public void setMute(boolean mute) {
-        // TODO Not implemented
+        org.videolan.Logger.unimplemented("OverallGainControlImpl", "setMute");
+        this.mute = mute;
     }
 
     public boolean getMute() {
-        return false; // TODO Not implemented
+        org.videolan.Logger.unimplemented("OverallGainControlImpl", "getMute");
+        return this.mute;
     }
 
     public float setDB(float gain) {
-        return 0;  // TODO Not implemented
+        org.videolan.Logger.unimplemented("OverallGainControlImpl", "setDB");
+        this.gain = gain;
+        return this.gain;
     }
 
     public float getDB() {
-        return 0;  // TODO Not implemented
+        org.videolan.Logger.unimplemented("OverallGainControlImpl", "getDB");
+        return gain;
     }
 
     public float setLevel(float level) {
-        return 0;
+        org.videolan.Logger.unimplemented("OverallGainControlImpl", "setLevel");
+        this.level = level;
+        return this.level;
     }
 
     public float getLevel() {
-        return 0;  // TODO Not implemented
+        org.videolan.Logger.unimplemented("OverallGainControlImpl", "getLevel");
+        return level;
     }
 
     public void addGainChangeListener(GainChangeListener listener) {
@@ -61,4 +69,7 @@ public class OverallGainControlImpl implements OverallGainControl {
         return null;
     }
 
+    private boolean mute = false;
+    private float level = 0.0f;
+    private float gain = 0.0f;
 }
