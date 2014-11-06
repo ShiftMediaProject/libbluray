@@ -54,10 +54,8 @@ typedef struct {
 typedef struct bdjava_s BDJAVA;
 
 struct bluray;
-struct bd_argb_buffer_s;
 
 BD_PRIVATE BDJAVA* bdj_open(const char *path, struct bluray *bd,
-                            struct bd_argb_buffer_s *buf,
                             const char *bdj_disc_id, BDJ_STORAGE *storage);
 BD_PRIVATE void bdj_close(BDJAVA *bdjava);
 BD_PRIVATE int  bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);

@@ -25,12 +25,9 @@
 #include <jni.h>
 
 struct bluray;
-struct bd_argb_buffer_s;
 
 struct bdjava_s {
     struct bluray      *bd;
-
-    struct bd_argb_buffer_s *buf;
 
     // JVM library
     void *h_libjvm;

@@ -179,9 +179,12 @@ struct bluray {
     uint64_t gc_wakeup_pos;   /* stream position of gc_wakeup_time */
 
     /* ARGB overlay output */
+#ifdef USING_BDJAVA
     void                *argb_overlay_proc_handle;
     bd_argb_overlay_proc_f argb_overlay_proc;
     BD_ARGB_BUFFER      *argb_buffer;
+    BD_MUTEX             argb_buffer_mutex;
+#endif
 };
 
 /* Stream Packet Number = byte offset / 192. Avoid 64-bit division. */
@@ -1178,6 +1181,17 @@ int bd_reg_write(BLURAY *bd, int psr, int reg, uint32_t value, uint32_t psr_valu
 #endif
 
 #ifdef USING_BDJAVA
+BD_ARGB_BUFFER *bd_lock_osd_buffer(BLURAY *bd)
+{
+    bd_mutex_lock(&bd->argb_buffer_mutex);
+    return bd->argb_buffer;
+}
+
+void bd_unlock_osd_buffer(BLURAY *bd)
+{
+    bd_mutex_unlock(&bd->argb_buffer_mutex);
+}
+
 /*
  * handle graphics updates from BD-J layer
  */
@@ -1258,7 +1272,7 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
-        bd->bdjava = bdj_open(bd->device_path, bd, bd->argb_buffer, bd->disc_info.bdj_disc_id, bd->bdjstorage);
+        bd->bdjava = bdj_open(bd->device_path, bd, bd->disc_info.bdj_disc_id, bd->bdjstorage);
         if (!bd->bdjava) {
             return 0;
         }
@@ -1424,6 +1438,9 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
     _fill_disc_info(bd);
 
     bd_mutex_init(&bd->mutex);
+#ifdef USING_BDJAVA
+    bd_mutex_init(&bd->argb_buffer_mutex);
+#endif
 
     BD_DEBUG(DBG_BLURAY, "BLURAY initialized!\n");
 
@@ -1462,6 +1479,9 @@ void bd_close(BLURAY *bd)
     _storage_free(bd);
 
     bd_mutex_destroy(&bd->mutex);
+#ifdef USING_BDJAVA
+    bd_mutex_destroy(&bd->argb_buffer_mutex);
+#endif
 
     BD_DEBUG(DBG_BLURAY, "BLURAY destroyed!\n");
 
@@ -3425,26 +3445,19 @@ void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func)
 
 void bd_register_argb_overlay_proc(BLURAY *bd, void *handle, bd_argb_overlay_proc_f func, BD_ARGB_BUFFER *buf)
 {
+#ifdef USING_BDJAVA
     if (!bd) {
         return;
     }
 
-    bd_mutex_lock(&bd->mutex);
-
-    if (bd->argb_overlay_proc && bd->title_type == title_bdj) {
-        /* function can't be changed when BD-J is running */
-        bd_mutex_unlock(&bd->mutex);
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_register_argb_overlay_proc(): ARGB handler already registered and BD-J running !\n");
-        return;
-    }
-
-    _close_bdj(bd);
+    bd_mutex_lock(&bd->argb_buffer_mutex);
 
     bd->argb_overlay_proc        = func;
     bd->argb_overlay_proc_handle = handle;
     bd->argb_buffer              = buf;
 
-    bd_mutex_unlock(&bd->mutex);
+    bd_mutex_unlock(&bd->argb_buffer_mutex);
+#endif
 }
 
 int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, BLURAY_SOUND_EFFECT *effect)

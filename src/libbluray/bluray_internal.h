@@ -45,6 +45,10 @@ BD_PRIVATE int bd_play_playlist_at(BLURAY *bd, int playlist, int playitem, int p
 
 /* BD-J overlay */
 
+struct bd_argb_buffer_s;
+BD_PRIVATE struct bd_argb_buffer_s *bd_lock_osd_buffer(struct bluray *bd);
+BD_PRIVATE void                     bd_unlock_osd_buffer(struct bluray *bd);
+
 BD_PRIVATE void  bd_bdj_osd_cb(struct bluray *bd, const unsigned *img, int w, int h,
                                int x0, int y0, int x1, int y1);
 

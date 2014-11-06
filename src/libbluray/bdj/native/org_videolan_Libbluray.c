@@ -520,7 +520,11 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
         return;
     }
 
-    _updateGraphic(env, bdj->bd, width, height, rgbArray, x0, y0, x1, y1, bdj->buf);
+    BD_ARGB_BUFFER *buf = bd_lock_osd_buffer(bdj->bd);
+
+    _updateGraphic(env, bdj->bd, width, height, rgbArray, x0, y0, x1, y1, buf);
+
+    bd_unlock_osd_buffer(bdj->bd);
 }
 
 #define CC (char*)(uintptr_t)  /* cast a literal from (const char*) */
