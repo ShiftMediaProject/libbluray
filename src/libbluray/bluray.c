@@ -1181,8 +1181,8 @@ int bd_reg_write(BLURAY *bd, int psr, int reg, uint32_t value, uint32_t psr_valu
 /*
  * handle graphics updates from BD-J layer
  */
-static void _bdj_osd_cb(BLURAY *bd, const unsigned *img, int w, int h,
-                        int x0, int y0, int x1, int y1)
+void bd_bdj_osd_cb(BLURAY *bd, const unsigned *img, int w, int h,
+                   int x0, int y0, int x1, int y1)
 {
     BD_ARGB_OVERLAY aov;
 
@@ -1258,7 +1258,7 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
-        bd->bdjava = bdj_open(bd->device_path, bd, _bdj_osd_cb, bd->argb_buffer, bd->disc_info.bdj_disc_id, bd->bdjstorage);
+        bd->bdjava = bdj_open(bd->device_path, bd, bd->argb_buffer, bd->disc_info.bdj_disc_id, bd->bdjstorage);
         if (!bd->bdjava) {
             return 0;
         }

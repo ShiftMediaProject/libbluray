@@ -404,13 +404,13 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
     BD_DEBUG(DBG_JNI, "updateGraphicN(%ld,%ld-%ld,%ld)\n", (long)x0, (long)y0, (long)x1, (long)y1);
 
     /* app callback not initialized ? */
-    if (!bdj || !bdj->osd_cb) {
+    if (!bdj) {
         return;
     }
 
     /* close ? */
     if (!rgbArray) {
-        bdj->osd_cb(bdj->bd, NULL, (int)width, (int)height, 0, 0, 0, 0);
+        bd_bdj_osd_cb(bdj->bd, NULL, (int)width, (int)height, 0, 0, 0, 0);
         return;
     }
 
@@ -497,8 +497,8 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
             bdj->buf->unlock(bdj->buf);
         }
 
-        bdj->osd_cb(bdj->bd, bdj->buf->buf[BD_OVERLAY_IG], (int)width, (int)height,
-                    x0, y0, x1, y1);
+        bd_bdj_osd_cb(bdj->bd, bdj->buf->buf[BD_OVERLAY_IG], (int)width, (int)height,
+                      x0, y0, x1, y1);
 
     } else {
 
@@ -506,8 +506,8 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_updateGraphicN(JNIEnv * env,
 
         jint *image = (jint *)(*env)->GetPrimitiveArrayCritical(env, rgbArray, NULL);
         if (image) {
-            bdj->osd_cb(bdj->bd, (const unsigned *)image, (int)width, (int)height,
-                        x0, y0, x1, y1);
+            bd_bdj_osd_cb(bdj->bd, (const unsigned *)image, (int)width, (int)height,
+                          x0, y0, x1, y1);
             (*env)->ReleasePrimitiveArrayCritical(env, rgbArray, image, JNI_ABORT);
         } else {
             BD_DEBUG(DBG_BDJ | DBG_CRIT, "GetPrimitiveArrayCritical() failed\n");

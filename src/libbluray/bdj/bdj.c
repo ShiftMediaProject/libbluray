@@ -485,7 +485,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaV
 }
 
 BDJAVA* bdj_open(const char *path, struct bluray *bd,
-                 bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf,
+                 struct bd_argb_buffer_s *buf,
                  const char *bdj_disc_id, BDJ_STORAGE *storage)
 {
     BD_DEBUG(DBG_BDJ, "bdj_open()\n");
@@ -509,7 +509,6 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     BDJAVA* bdjava = calloc(1, sizeof(BDJAVA));
     bdjava->bd = bd;
     bdjava->h_libjvm = jvm_lib;
-    bdjava->osd_cb = osd_cb;
     bdjava->buf = buf;
     bdjava->jvm = jvm;
 
