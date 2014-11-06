@@ -266,10 +266,23 @@ uint32_t libaacs_get_mkbv(BD_AACS *p)
     return p ? p->mkbv : 0;
 }
 
+static const char *_type2str(int type)
+{
+    switch (type) {
+    case BD_AACS_DISC_ID:            return "DISC_ID";
+    case BD_AACS_MEDIA_VID:          return "MEDIA_VID";
+    case BD_AACS_MEDIA_PMSN:         return "MEDIA_PMSN";
+    case BD_AACS_DEVICE_BINDING_ID:  return "DEVICE_BINDING_ID";
+    case BD_AACS_DEVICE_NONCE:       return "DEVICE_NONCE";
+    case BD_AACS_MEDIA_KEY:          return "MEDIA_KEY";
+    default: return "???";
+    }
+}
+
 BD_PRIVATE const uint8_t *libaacs_get_aacs_data(BD_AACS *p, int type)
 {
     if (!p || !p->aacs) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "get_aacs_data(): libaacs not initialized!\n");
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "get_aacs_data(%s): libaacs not initialized!\n", _type2str(type));
         return NULL;
     }
 
