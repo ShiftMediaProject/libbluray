@@ -30,8 +30,6 @@ struct bd_argb_buffer_s;
 struct bdjava_s {
     struct bluray      *bd;
 
-    const char         *path;
-
     bdj_overlay_cb           osd_cb;
     struct bd_argb_buffer_s *buf;
 
