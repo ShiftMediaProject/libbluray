@@ -1580,7 +1580,7 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
     NAV_CLIP *clip;
 
     if (tick >> 33) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_seek_time("PRIu64") failed: invalid timestamp\n", tick);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_seek_time(%"PRIu64") failed: invalid timestamp\n", tick);
         return bd->s_pos;
     }
 
