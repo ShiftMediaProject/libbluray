@@ -51,7 +51,8 @@ _human_readable_sig(char *sig, uint32_t s1, uint32_t s2)
 static int
 _parse_stream_attr(BITSTREAM *bits, CLPI_PROG_STREAM *ss)
 {
-    int len, pos;
+    off_t pos;
+    int len;
 
     if (!bs_is_align(bits, 0x07)) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_stream_attr(): Stream alignment error\n");
@@ -144,7 +145,8 @@ _parse_header(BITSTREAM *bits, CLPI_CL *cl)
 static int
 _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
 {
-    int len, pos;
+    off_t pos;
+    int len;
     int ii;
 
     bs_seek_byte(bits, 40);
@@ -320,7 +322,7 @@ _parse_cpi(BITSTREAM *bits, CLPI_CPI *cpi)
 
     bs_skip(bits, 12);
     cpi->type = bs_read(bits, 4);
-    ep_map_pos = bs_pos(bits) >> 3;
+    ep_map_pos = (uint32_t)(bs_pos(bits) >> 3);
 
     // EP Map starts here
     bs_skip(bits, 8);
