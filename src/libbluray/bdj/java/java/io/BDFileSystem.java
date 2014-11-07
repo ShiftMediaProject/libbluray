@@ -85,7 +85,27 @@ public abstract class BDFileSystem extends FileSystem {
         return fs.prefixLength(pathname);
     }
 
+    private boolean isAbsolutePath(String path) {
+        return path.startsWith("/") || path.indexOf(":\\") == 1 ||
+            path.startsWith("\\");
+    }
+
+    private String getHomeDir() {
+        String home = BDJXletContext.getCurrentXletHome();
+        if (home == null)
+            return "";
+        return home;
+    }
+
     public String resolve(String parent, String child) {
+        if (parent == null || parent.equals("") || parent.equals(".")) {
+            parent = getHomeDir();
+        }
+        else if (!isAbsolutePath(parent)) {
+            logger.info("resolve relative file at " + parent);
+            parent = getHomeDir() + parent;
+        }
+
         String resolvedPath = fs.resolve(parent, child);
         String cachePath = BDJLoader.getCachedFile(resolvedPath);
         if (cachePath != resolvedPath) {
@@ -108,7 +128,8 @@ public abstract class BDFileSystem extends FileSystem {
 
     public String resolve(File f) {
         if (!f.isAbsolute()) {
-            System.err.println("***** resolve " + f + " -> " + fs.resolve(f));
+            logger.info("resolve relative file " + f.getPath());
+            return resolve(BDJXletContext.getCurrentXletHome(), f.getPath());
         }
 
         String resolvedPath = fs.resolve(f);
