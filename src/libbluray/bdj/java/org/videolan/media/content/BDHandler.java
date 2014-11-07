@@ -226,14 +226,6 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         baseTime = getTimeBase().getNanoseconds();
     }
 
-    /* notification from app */
-    protected void updateRate(float rate) {
-        if (this.rate != rate) {
-            this.rate = rate;
-            notifyListeners(new RateChangeEvent(this, rate));
-        }
-    }
-
     public float getRate() {
         return rate;
     }
@@ -321,25 +313,113 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         commandQueue.shutdown();
     }
 
-    protected void endOfMedia(int playlist) {
-        if (isClosed) return;
+    /*
+     * notifications from app
+     */
 
-        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_END_OF_MEDIA, null);
+    protected void timeChanged(int time) {
+        if (isClosed) return;
+        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_TIME_CHANGED, new Integer(time));
         commandQueue.put(action);
     }
 
-    protected void updateTime(int time) {
-        //System.out.println("current time = " + time * TO_SECONDS);
-        //currentTime = new Time(time * TO_SECONDS);
+    protected void playlistEndReached(int playlist) {
+        if (isClosed) return;
+        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_END_OF_MEDIA_REACHED, new Integer(playlist));
+        commandQueue.put(action);
     }
 
-    protected void doPlaylistStart(int param) {};
-    protected void doChapterReach(int param) {};
-    protected void doMarkReach(int param) {};
-    protected void doPlayItemReach(int param) {};
-    protected void doAngleChange(int param) {};
-    protected void doSubtitleChange(int param) {};
-    protected void doPiPChange(int param) {};
+    protected void rateChanged(float rate) {
+        if (isClosed) return;
+        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_RATE_CHANGED, new Float(rate));
+        commandQueue.put(action);
+    }
+
+    protected void playlistStarted(int param) {
+        if (isClosed) return;
+        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_PLAYLIST_STARTED, new Integer(param));
+        commandQueue.put(action);
+    }
+
+    protected void chapterReached(int param) {
+        if (isClosed) return;
+        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_CHAPTER_REACHED, new Integer(param));
+        commandQueue.put(action);
+    }
+
+    protected void markReached(int param) {
+        if (isClosed) return;
+        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_MARK_REACHED, new Integer(param));
+        commandQueue.put(action);
+    }
+
+    protected void playItemReached(int param) {
+        if (isClosed) return;
+        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_PLAYITEM_REACHED, new Integer(param));
+        commandQueue.put(action);
+    }
+
+    protected void angleChanged(int param) {
+        if (isClosed) return;
+        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_ANGLE_CHANGED, new Integer(param));
+        commandQueue.put(action);
+    }
+
+    protected void subtitleChanged(int param) {
+        if (isClosed) return;
+        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_SUBTITLE_CHANGED, new Integer(param));
+        commandQueue.put(action);
+    }
+
+    protected void pipChanged(int param) {
+        if (isClosed) return;
+        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_PIP_CHANGED, new Integer(param));
+        commandQueue.put(action);
+    }
+
+    /*
+     * handling of notifications from app
+     */
+
+    /* handle notification from app */
+    protected void doRateChanged(float rate) {
+        if (this.rate != rate) {
+            this.rate = rate;
+            notifyListeners(new RateChangeEvent(this, rate));
+        }
+    }
+
+    protected void doTimeChanged(int time) {
+        //System.out.println("current time = " + time * TO_SECONDS);
+        //currentTime = new Time(time * TO_SECONDS);
+        //
+        // TODO - not handled !
+    }
+
+    protected void doEndOfMediaReached(int playlist) {
+        if (state == Started) {
+            ControllerErrorEvent error = doStop();
+            if (error == null) {
+                state = Prefetched;
+                notifyListeners(new EndOfMediaEvent(this, Started, Prefetched, Prefetched, getMediaTime()));
+            } else {
+                notifyListeners(error);
+            }
+        }
+    }
+
+
+    protected void doPlaylistStarted(int playlist) {};
+    protected void doChapterReached(int chapter) {};
+    protected void doMarkReached(int playmark) {};
+    protected void doPlayItemReached(int playitem) {};
+    protected void doAngleChanged(int angle) {};
+    protected void doSubtitleChanged(int param) {};
+    protected void doPiPChanged(int param) {};
+
+    /*
+     *
+     */
 
     protected ControllerErrorEvent doRealize() {
         return null;
@@ -379,6 +459,10 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
             notifyListeners(new RateChangeEvent(this, rate));
         }
     }
+
+    /*
+     *
+     */
 
     private void notifyListeners(ControllerEvent event) {
         listeners.putCallback(event);
@@ -521,18 +605,6 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         PlayerManager.getInstance().unregisterPlayer(this);
     }
 
-    private void doEndOfMediaAction() {
-        if (state == Started) {
-            ControllerErrorEvent error = doStop();
-            if (error == null) {
-                state = Prefetched;
-                notifyListeners(new EndOfMediaEvent(this, Started, Prefetched, Prefetched, getMediaTime()));
-            } else {
-                notifyListeners(error);
-            }
-        }
-    }
-
     private class PlayerAction extends BDJAction {
         private PlayerAction(BDHandler player, int action, Object param) {
             this.player = player;
@@ -563,14 +635,43 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
             case ACTION_CLOSE:
                 player.doCloseAction();
                 break;
-            case ACTION_END_OF_MEDIA:
-                player.doEndOfMediaAction();
-                break;
+
             case ACTION_SEEK_TIME:
                 player.doSeekTime((Time)param);
                 break;
             case ACTION_SET_RATE:
                 player.doSetRate((Float)param);
+                break;
+
+            case ACTION_END_OF_MEDIA_REACHED:
+                player.doEndOfMediaReached(((Integer)param).intValue());
+                break;
+            case ACTION_TIME_CHANGED:
+                player.doTimeChanged(((Integer)param).intValue());
+                break;
+            case ACTION_RATE_CHANGED:
+                player.doRateChanged(((Float)param).floatValue());
+                break;
+            case ACTION_PLAYLIST_STARTED:
+                player.doPlaylistStarted(((Integer)param).intValue());
+                break;
+            case ACTION_PLAYITEM_REACHED:
+                player.doPlayItemReached(((Integer)param).intValue());
+                break;
+            case ACTION_CHAPTER_REACHED:
+                player.doChapterReached(((Integer)param).intValue());
+                break;
+            case ACTION_MARK_REACHED:
+                player.doMarkReached(((Integer)param).intValue());
+                break;
+            case ACTION_ANGLE_CHANGED:
+                player.doAngleChanged(((Integer)param).intValue());
+                break;
+            case ACTION_SUBTITLE_CHANGED:
+                player.doSubtitleChanged(((Integer)param).intValue());
+                break;
+            case ACTION_PIP_CHANGED:
+                player.doPiPChanged(((Integer)param).intValue());
                 break;
             }
         }
@@ -579,16 +680,27 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         private int action;
         private Object param;
 
-        public static final int ACTION_REALIZE = 1;
-        public static final int ACTION_PREFETCH = 2;
-        public static final int ACTION_START = 3;
-        public static final int ACTION_STOP = 4;
-        public static final int ACTION_DEALLOCATE = 5;
-        public static final int ACTION_CLOSE = 6;
-        public static final int ACTION_END_OF_MEDIA = 7;
+        public static final int ACTION_INIT = 1;
+        public static final int ACTION_REALIZE = 2;
+        public static final int ACTION_PREFETCH = 3;
+        public static final int ACTION_START = 4;
+        public static final int ACTION_STOP = 5;
+        public static final int ACTION_DEALLOCATE = 6;
+        public static final int ACTION_CLOSE = 7;
+
         public static final int ACTION_SEEK_TIME = 8;
         public static final int ACTION_SET_RATE = 9;
-        public static final int ACTION_INIT = 10;
+
+        public static final int ACTION_END_OF_MEDIA_REACHED = 10;
+        public static final int ACTION_RATE_CHANGED = 11;
+        public static final int ACTION_TIME_CHANGED = 12;
+        public static final int ACTION_PLAYLIST_STARTED = 13;
+        public static final int ACTION_PLAYITEM_REACHED = 14;
+        public static final int ACTION_CHAPTER_REACHED = 15;
+        public static final int ACTION_MARK_REACHED = 16;
+        public static final int ACTION_ANGLE_CHANGED = 17;
+        public static final int ACTION_SUBTITLE_CHANGED = 18;
+        public static final int ACTION_PIP_CHANGED = 19;
     }
 
     protected int state = Unrealized;

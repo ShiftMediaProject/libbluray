@@ -41,7 +41,7 @@ public class PlayerManager {
     private Object playlistPlayerLock = new Object();
     private Object videoDripPlayerLock = new Object();
     //private Object audioPlayerLock = new Object();
-    private stoppingLock = new Object();
+    private Object  stoppingLock = new Object();
     private boolean stopping = false;
 
     public void releaseAllPlayers(boolean unconditional) {
@@ -133,7 +133,7 @@ public class PlayerManager {
             if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.endOfMedia(playlist);
+                playlistPlayer.playlistEndReached(playlist);
         }
         }
     }
@@ -143,7 +143,7 @@ public class PlayerManager {
             if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.updateTime(pts);
+                playlistPlayer.timeChanged(pts);
         }
         }
     }
@@ -153,7 +153,7 @@ public class PlayerManager {
             if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doChapterReach(param);
+                playlistPlayer.chapterReached(param);
         }
         }
     }
@@ -163,7 +163,7 @@ public class PlayerManager {
             if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doMarkReach(param);
+                playlistPlayer.markReached(param);
         }
         }
     }
@@ -173,7 +173,7 @@ public class PlayerManager {
             if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doPlaylistStart(param);
+                playlistPlayer.playlistStarted(param);
         }
         }
     }
@@ -183,7 +183,7 @@ public class PlayerManager {
             if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doPlayItemReach(param);
+                playlistPlayer.playItemReached(param);
         }
         }
     }
@@ -193,7 +193,7 @@ public class PlayerManager {
             if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doAngleChange(param);
+                playlistPlayer.angleChanged(param);
         }
         }
     }
@@ -203,7 +203,7 @@ public class PlayerManager {
             if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.updateRate(rate);
+                playlistPlayer.rateChanged(rate);
         }
         }
     }
@@ -213,7 +213,7 @@ public class PlayerManager {
             if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doSubtitleChange(param);
+                playlistPlayer.subtitleChanged(param);
         }
         }
     }
@@ -223,7 +223,7 @@ public class PlayerManager {
             if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doPiPChange(param);
+                playlistPlayer.pipChanged(param);
         }
         }
     }
