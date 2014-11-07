@@ -522,7 +522,7 @@ static void _init_textst_timer(BLURAY *bd)
 {
     if (bd->st_textst.clip) {
         uint32_t clip_time;
-        clpi_access_point(bd->st0.clip->cl, bd->st0.clip_block_pos/192, /*next=*/0, /*angle_change=*/0, &clip_time);
+        clpi_access_point(bd->st0.clip->cl, SPN(bd->st0.clip_block_pos), /*next=*/0, /*angle_change=*/0, &clip_time);
         bd->gc_wakeup_time = clip_time;
         bd->gc_wakeup_pos = 0;
         _update_textst_timer(bd);
