@@ -359,7 +359,7 @@ uint32_t bd_gpr_read(BD_REGISTERS *p, int reg)
 {
     if (reg < 0 || reg >= BD_GPR_COUNT) {
         BD_DEBUG(DBG_BLURAY, "bd_gpr_read(%d): invalid register\n", reg);
-        return -1;
+        return 0;
     }
 
     return p->gpr[reg];
