@@ -41,6 +41,8 @@ public class PlayerManager {
     private Object playlistPlayerLock = new Object();
     private Object videoDripPlayerLock = new Object();
     //private Object audioPlayerLock = new Object();
+    private stoppingLock = new Object();
+    private boolean stopping = false;
 
     public void releaseAllPlayers(boolean unconditional) {
         BDHandler[] players = null;
@@ -78,12 +80,18 @@ public class PlayerManager {
 
     protected boolean allocateResource(BDHandler player) {
         if (player instanceof org.videolan.media.content.playlist.Handler) {
+            synchronized (stoppingLock) {
+                stopping = true;
+            }
             synchronized (playlistPlayerLock) {
                 if (playlistPlayer != null && player != playlistPlayer) {
                     playlistPlayer.stop();
                     playlistPlayer.deallocate();
                 }
                 playlistPlayer = player;
+            }
+            synchronized (stoppingLock) {
+                stopping = false;
             }
             return true;
         }
@@ -121,72 +129,102 @@ public class PlayerManager {
      */
 
     public void onPlaylistEnd(int playlist) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
                 playlistPlayer.endOfMedia(playlist);
         }
+        }
     }
 
     public void onPlaylistTime(int pts) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
                 playlistPlayer.updateTime(pts);
         }
+        }
     }
 
     public void onChapterReach(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
                 playlistPlayer.doChapterReach(param);
         }
+        }
     }
 
     public void onMarkReach(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
                 playlistPlayer.doMarkReach(param);
         }
+        }
     }
 
     public void onPlaylistStart(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
                 playlistPlayer.doPlaylistStart(param);
         }
+        }
     }
 
     public void onPlayItemReach(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
                 playlistPlayer.doPlayItemReach(param);
         }
+        }
     }
 
     public void onAngleChange(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
                 playlistPlayer.doAngleChange(param);
         }
+        }
     }
 
     public void onRateChange(float rate) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
                 playlistPlayer.updateRate(rate);
         }
+        }
     }
 
     public void onSubtitleChange(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
                 playlistPlayer.doSubtitleChange(param);
         }
+        }
     }
 
     public void onPiPChange(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
                 playlistPlayer.doPiPChange(param);
+        }
         }
     }
 }
