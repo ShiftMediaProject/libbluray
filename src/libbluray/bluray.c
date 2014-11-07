@@ -1579,6 +1579,11 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
     uint32_t clip_pkt, out_pkt;
     NAV_CLIP *clip;
 
+    if (tick >> 33) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_seek_time("PRIu64") failed: invalid timestamp\n", tick);
+        return bd->s_pos;
+    }
+
     tick /= 2;
 
     bd_mutex_lock(&bd->mutex);
@@ -1589,7 +1594,7 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
         _change_angle(bd);
 
         // Find the closest access unit to the requested position
-        clip = nav_time_search(bd->title, tick, &clip_pkt, &out_pkt);
+        clip = nav_time_search(bd->title, (uint32_t)tick, &clip_pkt, &out_pkt);
 
         _seek_internal(bd, clip, out_pkt, clip_pkt);
 
