@@ -22,6 +22,7 @@ package org.dvb.ui;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -80,10 +81,11 @@ public class FontFactory {
     }
 
     public FontFactory(URL u) throws IOException, FontFormatException {
-        FileInputStream inStream = null;
+        InputStream inStream = null;
 
         try {
-            inStream = new FileInputStream(u.getPath());
+
+            inStream = u.openStream();
             urlFont = Font.createFont(Font.TRUETYPE_FONT, inStream);
 
         } catch (IOException ex) {
