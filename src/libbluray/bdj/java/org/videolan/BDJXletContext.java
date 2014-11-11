@@ -21,6 +21,8 @@ package org.videolan;
 
 import java.awt.Container;
 import java.awt.EventQueue;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.HashMap;
@@ -429,6 +431,16 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         }
 
         threadGroup.stopAll(1000);
+
+        try {
+            Method m;
+            m = loader.getClass().getMethod("close", new Class[0]);
+            m.invoke(loader, new Object[0]);
+        } catch (NoSuchMethodException e) {
+        } catch (IllegalAccessException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (InvocationTargetException e) {
+        }
 
         synchronized (this) {
             threadGroup = null;
