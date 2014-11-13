@@ -37,16 +37,19 @@ import org.videolan.FontIndexData;
 import org.videolan.Logger;
 
 public class FontFactory {
-    public static void loadDiscFonts() {
+    public static synchronized void loadDiscFonts() {
         unloadDiscFonts();
     }
 
-    public static void unloadDiscFonts() {
+    public static synchronized void unloadDiscFonts() {
+        fonts = null;
     }
 
-    public FontFactory() throws FontFormatException, IOException {
-        String path = BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/dvb.fontindex");
+    private static synchronized void readDiscFonts() throws FontFormatException, IOException {
+        if (fonts != null)
+            return;
 
+        String path = BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/dvb.fontindex");
         FontIndexData fontIndexData[] = FontIndex.parseIndex(path);
 
         fonts = new HashMap(fontIndexData.length);
@@ -77,6 +80,11 @@ public class FontFactory {
                 }
             }
         }
+
+    }
+
+    public FontFactory() throws FontFormatException, IOException {
+        readDiscFonts();
     }
 
     public FontFactory(URL u) throws IOException, FontFormatException {
@@ -114,7 +122,10 @@ public class FontFactory {
             return urlFont.deriveFont(style, size);
         }
 
-        Font font = (Font)fonts.get(name);
+        Font font = null;
+        synchronized (FontFactory.class) {
+            font = (Font)fonts.get(name);
+        }
 
         if (font == null) {
             logger.info("Failed creating font: " + name + " " + style + " " + size);
@@ -125,7 +136,8 @@ public class FontFactory {
     }
 
     private Font urlFont = null;
-    private Map fonts = null;
+
+    private static Map fonts = null;
 
     private static final Logger logger = Logger.getLogger(FontFactory.class.getName());
 }
