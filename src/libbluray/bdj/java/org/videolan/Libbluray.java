@@ -63,7 +63,6 @@ public class Libbluray {
             PackageManager.commitProtocolPrefixList();
 
             java.awt.BDFontMetrics.init();
-            FontFactory.loadDiscFonts();
 
             System.setProperty("mhp.profile.enhanced_broadcast", "YES");
             System.setProperty("mhp.profile.interactive_broadcast", "YES");
@@ -148,6 +147,7 @@ public class Libbluray {
             EventManager.shutdown();
             Status.shutdown();
             ServiceContextFactoryImpl.shutdown();
+            FontFactory.unloadDiscFonts();
             CacheDir.remove();
         } catch (Throwable e) {
             e.printStackTrace();

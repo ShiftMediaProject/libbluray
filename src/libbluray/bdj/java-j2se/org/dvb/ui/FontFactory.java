@@ -21,6 +21,7 @@ package org.dvb.ui;
 
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
@@ -51,30 +52,28 @@ public class FontFactory {
         fonts = new HashMap(fontIndexData.length);
         for (int i = 0; i < fontIndexData.length; i++) {
             FontIndexData data = fontIndexData[i];
-            FileInputStream inStream = null;
-            String file = BDJUtil.discRootToFilesystem("/BDMV/AUXDATA/" + data.getFileName());
             try {
-                inStream = new FileInputStream(file);
-                Font font = Font.createFont(Font.TRUETYPE_FONT, inStream);
+                File fontFile = org.videolan.BDJLoader.addFont(data.getFileName());
+                if (fontFile == null) {
+                    throw new IOException("error caching font");
+                }
+
+                Font font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
                 font = font.deriveFont(data.getStyle(), data.getMaxSize());
 
                 fonts.put(data.getName(), font);
 
             } catch (IOException ex) {
-                logger.error("Failed reading font " + data.getName() + " from " + file + ": " + ex);
+                logger.error("Failed reading font " + data.getName() + " from " + data.getFileName() + ": " + ex);
                 if (i == fontIndexData.length - 1 && fonts.size() < 1) {
                     logger.error("didn't load any fonts !");
                     throw ex;
                 }
             } catch (FontFormatException ex) {
-                logger.error("Failed reading font " + data.getName() + " from " + file + ": " + ex);
+                logger.error("Failed reading font " + data.getName() + " from " + data.getFileName() + ": " + ex);
                 if (i == fontIndexData.length - 1 && fonts.size() < 1) {
                     logger.error("didn't load any fonts !");
                     throw ex;
-                }
-            } finally {
-                if (inStream != null) {
-                    inStream.close();
                 }
             }
         }
@@ -84,9 +83,14 @@ public class FontFactory {
         InputStream inStream = null;
 
         try {
-
             inStream = u.openStream();
-            urlFont = Font.createFont(Font.TRUETYPE_FONT, inStream);
+
+            File fontFile = org.videolan.BDJLoader.addFont(inStream);
+            if (fontFile == null) {
+                throw new IOException("error caching font");
+            }
+
+            urlFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
 
         } catch (IOException ex) {
             logger.error("Failed reading font from " + u.getPath() + ": " + ex);

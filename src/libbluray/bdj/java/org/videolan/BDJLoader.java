@@ -19,6 +19,8 @@
 
 package org.videolan;
 
+import java.io.File;
+import java.io.InputStream;
 import java.io.InvalidObjectException;
 import java.util.Enumeration;
 import org.videolan.Logger;
@@ -41,6 +43,22 @@ import org.videolan.bdjo.TerminalInfo;
 import org.videolan.media.content.PlayerManager;
 
 public class BDJLoader {
+
+    public static File addFont(InputStream is) {
+        VFSCache localCache = vfsCache;
+        if (localCache != null) {
+            return localCache.addFont(is);
+        }
+        return null;
+    }
+
+    public static File addFont(String fontFile) {
+        VFSCache localCache = vfsCache;
+        if (localCache != null) {
+            return localCache.addFont(fontFile);
+        }
+        return null;
+    }
 
     public static String getCachedFile(String path) {
         VFSCache localCache = vfsCache;

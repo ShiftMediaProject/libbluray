@@ -51,6 +51,7 @@ class VFSCache {
         }
 
         cacheRoot = CacheDir.create("VFSCache").getPath() + File.separator;
+        fontRoot  = CacheDir.create("Font").getPath() + File.separator;
         vfsRoot   = System.getProperty("bluray.vfs.root");
         if (!vfsRoot.endsWith(File.separator)) {
             vfsRoot = vfsRoot + File.separator;
@@ -64,15 +65,13 @@ class VFSCache {
      *
      */
 
-    private boolean copyFile(String srcPath, String dstPath) {
-        InputStream inStream = null;
+    private boolean copyStream(InputStream inStream, String dstPath) {
         OutputStream outStream = null;
         byte[] buffer = new byte[64*1024];
         IOException exception = null;
 
         try {
             int length;
-            inStream = new /*BD*/FileInputStream(srcPath);
             outStream = new FileOutputStream(dstPath);
             while ((length = inStream.read(buffer)) > 0) {
                 outStream.write(buffer, 0, length);
@@ -82,17 +81,42 @@ class VFSCache {
             exception = e;
 
         } finally {
-            if (inStream != null) {
+            if (outStream != null) {
                 try {
-                    inStream.close();
+                    outStream.close();
                 } catch (IOException e) {
                     if (exception == null)
                         exception = e;
                 }
             }
-            if (outStream != null) {
+        }
+
+        if (exception != null) {
+            logger.error("Error caching to " + dstPath + ": " + exception);
+            new File(dstPath).delete();
+            return false;
+        }
+
+        //logger.info("Cached file " + srcPath + " to " + dstPath);
+        return true;
+    }
+
+    private boolean copyFile(String srcPath, String dstPath) {
+        InputStream inStream = null;
+        IOException exception = null;
+        boolean result = false;
+
+        try {
+            inStream = new /*BD*/FileInputStream(srcPath);
+            result = copyStream(inStream, dstPath);
+
+        } catch (IOException e) {
+            exception = e;
+
+        } finally {
+            if (inStream != null) {
                 try {
-                    outStream.close();
+                    inStream.close();
                 } catch (IOException e) {
                     if (exception == null)
                         exception = e;
@@ -107,7 +131,7 @@ class VFSCache {
         }
 
         //logger.info("Cached file " + srcPath + " to " + dstPath);
-        return true;
+        return result;
     }
 
     private void copyJarFile(String name) {
@@ -162,6 +186,57 @@ class VFSCache {
         }
     }
 
+    protected synchronized File addFont(String fontFile) {
+
+        new File(fontRoot + fontDir).mkdirs();
+
+        String srcPath = vfsRoot + fontDir + fontFile;
+        String dstPath = fontRoot + fontDir + fontFile;
+        File   dstFile = new File(dstPath);
+        if (dstFile.exists()) {
+            //logger.info(dstPath + " already cached");
+            return dstFile;
+        }
+
+        if (!copyFile(srcPath, dstPath)) {
+            return null;
+        }
+
+        logger.info("cached font " + fontFile);
+        return dstFile;
+    }
+
+    protected synchronized File addFont(InputStream is) {
+
+        new File(fontRoot).mkdirs();
+
+        // copy stream to tmp file in fontRoot. freetype can not read streams.
+        File tmpFile = null;
+        for (int i = 0; i < 100; i++) {
+            tmpFile = new File(fontRoot + System.nanoTime() + ".otf");
+            try {
+                tmpFile = new File(tmpFile.getCanonicalPath());
+                if (!tmpFile.exists()) {
+                    break;
+                }
+            } catch (IOException ex) {
+                logger.error("got " + ex);
+            }
+            tmpFile = null;
+        }
+        if (tmpFile == null) {
+            logger.error("error creating temporary font file");
+            return null;
+        }
+
+        if (!copyStream(is, tmpFile.getPath())) {
+            return null;
+        }
+
+        logger.info("cached font stream to file " + tmpFile.getPath());
+        return tmpFile;
+    }
+
     /*
      * Add file from binding unit data area to cache
      */
@@ -198,9 +273,11 @@ class VFSCache {
 
     private String cacheRoot = null;
     private String vfsRoot = null;
+    private String fontRoot = null;
     private int    vfsRootLength = 0;
 
     private static final String jarDir = "BDMV" + File.separator + "JAR" + File.separator;
+    private static final String fontDir = "BDMV" + File.separator + "AUXDATA" + File.separator;
 
     private static final Logger logger = Logger.getLogger(VFSCache.class.getName());
 }
