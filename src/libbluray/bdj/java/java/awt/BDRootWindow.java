@@ -39,6 +39,25 @@ public class BDRootWindow extends Frame {
         return dirty;
     }
 
+    public Font getDefaultFont() {
+        return defaultFont;
+    }
+
+    public void setDefaultFont(String fontId) {
+        if (fontId == null || fontId.equals("*****")) {
+            defaultFont = null;
+        } else {
+            try {
+                defaultFont = (new org.dvb.ui.FontFactory()).createFont(fontId);
+            } catch (Exception ex) {
+                logger.error("Failed setting default font " + fontId + ".otf: " + ex);
+            }
+        }
+        logger.info("setting default font to " + fontId + ".otf (" + defaultFont + ")");
+        setFont(defaultFont);
+    }
+
+
     public void setBounds(int x, int y, int width, int height) {
         if (!isVisible()) {
             if ((width > 0) && (height > 0)) {
@@ -182,6 +201,7 @@ public class BDRootWindow extends Frame {
     private Timer timer = new Timer();
     private TimerTask timerTask = null;
     private boolean overlay_open = false;
+    private Font defaultFont = null;
 
     private static final Logger logger = Logger.getLogger(BDRootWindow.class.getName());
 

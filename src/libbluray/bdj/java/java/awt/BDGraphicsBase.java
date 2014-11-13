@@ -34,6 +34,7 @@ import org.dvb.ui.DVBBufferedImage;
 
 import sun.awt.ConstrainableGraphics;
 
+import org.videolan.GUIManager;
 import org.videolan.Logger;
 
 abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphics {
@@ -103,9 +104,15 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
             foreground = DEFAULT_COLOR;
         if (background == null)
             background = DEFAULT_COLOR;
-        if (font == null)
-            font = DEFAULT_FONT;
+
+        if (font == null) {
+            font = GUIManager.getInstance().getDefaultFont();
+            if (font == null) {
+                font = DEFAULT_FONT;
+            }
+        }
         fontMetrics = BDFontMetrics.getFontMetrics(font);
+
         composite = AlphaComposite.SrcOver;
         setupClip();
     }
@@ -127,9 +134,15 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
             foreground = DEFAULT_COLOR;
         if (background == null)
             background = new Color(0, 0, 0, 0);
-        if (font == null)
-            font = DEFAULT_FONT;
+
+        if (font == null) {
+            font = GUIManager.getInstance().getDefaultFont();
+            if (font == null) {
+                font = DEFAULT_FONT;
+            }
+        }
         fontMetrics = BDFontMetrics.getFontMetrics(font);
+
         composite = AlphaComposite.SrcOver;
         setupClip();
     }

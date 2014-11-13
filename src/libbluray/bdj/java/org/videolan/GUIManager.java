@@ -35,6 +35,7 @@ public class GUIManager extends BDRootWindow {
             instance = new GUIManager();
         } else {
             instance.clearOverlay();
+            instance.setDefaultFont(null);
         }
         return instance;
     }

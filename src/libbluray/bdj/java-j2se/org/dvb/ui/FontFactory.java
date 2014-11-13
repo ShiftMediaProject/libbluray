@@ -43,6 +43,7 @@ public class FontFactory {
 
     public static synchronized void unloadDiscFonts() {
         fonts = null;
+        fontIds = null;
     }
 
     private static synchronized void readDiscFonts() throws FontFormatException, IOException {
@@ -53,6 +54,7 @@ public class FontFactory {
         FontIndexData fontIndexData[] = FontIndex.parseIndex(path);
 
         fonts = new HashMap(fontIndexData.length);
+        fontIds = new HashMap(fontIndexData.length);
         for (int i = 0; i < fontIndexData.length; i++) {
             FontIndexData data = fontIndexData[i];
             try {
@@ -65,6 +67,7 @@ public class FontFactory {
                 font = font.deriveFont(data.getStyle(), data.getMaxSize());
 
                 fonts.put(data.getName(), font);
+                fontIds.put(data.getFileName().substring(0, 5), font);
 
             } catch (IOException ex) {
                 logger.error("Failed reading font " + data.getName() + " from " + data.getFileName() + ": " + ex);
@@ -113,6 +116,17 @@ public class FontFactory {
         }
     }
 
+    public Font createFont(String fontId) {
+        Font font = null;
+        synchronized (FontFactory.class) {
+            font = (Font)fontIds.get(fontId);
+        }
+        if (font != null) {
+            return font.deriveFont(0, 12);
+        }
+        return null;
+    }
+
     public Font createFont(String name, int style, int size)
             throws FontNotAvailableException, FontFormatException, IOException {
         logger.info("Creating font: " + name + " " + style + " " + size);
@@ -138,6 +152,7 @@ public class FontFactory {
     private Font urlFont = null;
 
     private static Map fonts = null;
+    private static Map fontIds = null;
 
     private static final Logger logger = Logger.getLogger(FontFactory.class.getName());
 }

@@ -161,6 +161,7 @@ public class BDJLoader {
             GUIManager gui = GUIManager.createInstance();
             TerminalInfo terminfo = bdjo.getTerminalInfo();
             GraphicsResolution res = terminfo.getResolution();
+            gui.setDefaultFont(terminfo.getDefaultFont());
             gui.setResizable(true);
             gui.setSize(res.getWidth(), res.getHeight());
             gui.setVisible(true);
