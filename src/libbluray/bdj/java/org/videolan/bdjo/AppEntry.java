@@ -81,6 +81,7 @@ public class AppEntry implements AppAttributes {
     }
 
     public Locator getServiceLocator() {
+        org.videolan.Logger.unimplemented("AppEntry","getServiceLocator");
         /*
         try {
             String discID = BDJTitleInfoHelper.getCurrent32LengthDiscIDFromC();
