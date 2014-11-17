@@ -141,7 +141,6 @@ $(top_builddir)/src/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar: all-local
 
 libbluray_la_SOURCES += \
 	libbluray/bdj/bdj.h \
-	libbluray/bdj/bdj_private.h \
 	libbluray/bdj/bdj.c \
 	libbluray/bdj/bdjo_data.h \
 	libbluray/bdj/bdjo_parse.h \

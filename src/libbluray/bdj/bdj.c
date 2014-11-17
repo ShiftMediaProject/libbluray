@@ -24,7 +24,6 @@
 
 #include "bdj.h"
 
-#include "bdj_private.h"
 #include "native/register_native.h"
 
 #include "file/dirs.h"
@@ -50,6 +49,10 @@
 #define BDJ_JARFILE "libbluray-j2se-" VERSION ".jar"
 #endif
 
+struct bdjava_s {
+    void   *h_libjvm;
+    JavaVM *jvm;
+};
 
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
 typedef jint (JNICALL * fptr_JNI_GetCreatedJavaVMs) (JavaVM **vmBuf, jsize bufLen, jsize *nVMs);
