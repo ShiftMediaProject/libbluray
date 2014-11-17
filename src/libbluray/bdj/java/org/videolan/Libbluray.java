@@ -251,7 +251,7 @@ public class Libbluray {
     }
 
     public static boolean selectAngle(int angle) {
-        if (angle < 0)
+        if (angle < 1)
             throw new IllegalArgumentException("Angle cannot be negative");
 
         return selectAngleN(nativePointer, angle) == 1 ? true : false;

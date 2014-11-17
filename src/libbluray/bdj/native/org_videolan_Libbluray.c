@@ -295,13 +295,13 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectTitleN(JNIEnv * env,
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectAngleN(JNIEnv * env,
         jclass cls, jlong np, jint angle) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
-    return bd_select_angle(bd, angle);
+    return bd_select_angle(bd, angle - 1);
 }
 
 JNIEXPORT void JNICALL Java_org_videolan_Libbluray_seamlessAngleChangeN(
         JNIEnv * env, jclass cls, jlong np, jint angle) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
-    bd_seamless_angle_change(bd, angle);
+    bd_seamless_angle_change(bd, angle - 1);
 }
 
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getTitleSizeN(JNIEnv * env,
