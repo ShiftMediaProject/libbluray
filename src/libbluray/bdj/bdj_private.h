@@ -27,8 +27,6 @@
 struct bluray;
 
 struct bdjava_s {
-    struct bluray      *bd;
-
     // JVM library
     void *h_libjvm;
 
