@@ -56,7 +56,7 @@ public class FileInputStream extends InputStream
                 if (logger == null) {
                     logger = Logger.getLogger(FileInputStream.class.getName());
                 }
-                logger.error("Using cached " + cachedName + " for " + name);
+                logger.info("Using cached " + cachedName + " for " + name);
                 name = cachedName;
             }
             open(name);
