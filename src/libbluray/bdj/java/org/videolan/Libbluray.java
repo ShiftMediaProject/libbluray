@@ -174,30 +174,8 @@ public class Libbluray {
         return getPlaylistInfoN(nativePointer, playlist);
     }
 
-    public static long seek(long pos) {
-        return seekN(nativePointer, pos);
-    }
-
     public static long seekTime(long tick) {
         return seekTimeN(nativePointer, tick);
-    }
-
-    public static long seekChapter(int chapter) {
-        if (chapter < 0)
-            throw new IllegalArgumentException("Chapter cannot be negative");
-
-        return seekChapterN(nativePointer, chapter);
-    }
-
-    public static long chapterPos(int chapter) {
-        if (chapter < 0)
-            throw new IllegalArgumentException("Chapter cannot be negative");
-
-        return chapterPosN(nativePointer, chapter);
-    }
-
-    public static int getCurrentChapter(){
-        return getCurrentChapterN(nativePointer);
     }
 
     public static long seekMark(int mark) {
@@ -257,17 +235,6 @@ public class Libbluray {
         return selectAngleN(nativePointer, angle) == 1 ? true : false;
     }
 
-    public static void seamlessAngleChange(int angle) {
-        if (angle < 0)
-            throw new IllegalArgumentException("Angle cannot be negative");
-
-        seamlessAngleChangeN(nativePointer, angle);
-    }
-
-    public static long getTitleSize() {
-        return getTitleSizeN(nativePointer);
-    }
-
     public static int getCurrentTitle() {
         return readPSR(PSR_TITLE_NUMBER);
     }
@@ -278,10 +245,6 @@ public class Libbluray {
 
     public static long getUOMask() {
         return getUOMaskN(nativePointer);
-    }
-
-    public static long tell() {
-        return tellN(nativePointer);
     }
 
     public static long tellTime() {
@@ -535,22 +498,14 @@ public class Libbluray {
     private static native TitleInfo getTitleInfoN(long np, int title);
     private static native PlaylistInfo getPlaylistInfoN(long np, int playlist);
     private static native int getTitlesN(long np);
-    private static native long seekN(long np, long pos);
     private static native long seekTimeN(long np, long tick);
-    private static native long seekChapterN(long np, int chapter);
-    private static native long chapterPosN(long np, int chapter);
-    private static native int getCurrentChapterN(long np);
     private static native long seekMarkN(long np, int mark);
     private static native long seekPlayItemN(long np, int clip);
     private static native int selectPlaylistN(long np, int playlist, int playitem, int playmark, long time);
     private static native int selectTitleN(long np, int title);
     private static native int selectAngleN(long np, int angle);
-    private static native void seamlessAngleChangeN(long np, int angle);
-    private static native long getTitleSizeN(long np);
     private static native long getUOMaskN(long np);
     private static native void setUOMaskN(long np, boolean menuCallMask, boolean titleSearchMask);
-    private static native int getCurrentAngleN(long np);
-    private static native long tellN(long np);
     private static native long tellTimeN(long np);
     private static native int selectRateN(long np, float rate, int reason);
     private static native int writeGPRN(long np, int num, int value);

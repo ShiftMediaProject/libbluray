@@ -212,15 +212,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN(JNIEnv * env,
     return disc_info->num_titles;
 }
 
-JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN(JNIEnv * env,
-        jclass cls, jlong np, jlong pos) {
-    BLURAY* bd = (BLURAY*)(intptr_t)np;
-
-    BD_DEBUG(DBG_JNI, "seekN(%"PRId64")\n", (int64_t)pos);
-
-    return bd_seek(bd, pos);
-}
-
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekTimeN(JNIEnv * env,
         jclass cls, jlong np, jlong tick) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
@@ -228,27 +219,6 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekTimeN(JNIEnv * env,
     BD_DEBUG(DBG_JNI, "seekTimeN(%"PRId64")\n", (int64_t)tick);
 
     return bd_seek_time(bd, tick);
-}
-
-JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekChapterN(JNIEnv * env,
-        jclass cls, jlong np, jint chapter) {
-    BLURAY* bd = (BLURAY*)(intptr_t)np;
-
-    BD_DEBUG(DBG_JNI, "seekChapterN(%d)\n", (int)chapter);
-
-    return bd_seek_chapter(bd, chapter);
-}
-
-JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_chapterPosN(JNIEnv * env,
-        jclass cls, jlong np, jint chapter) {
-    BLURAY* bd = (BLURAY*)(intptr_t)np;
-    return bd_chapter_pos(bd, chapter);
-}
-
-JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentChapterN(
-        JNIEnv * env, jclass cls, jlong np) {
-    BLURAY* bd = (BLURAY*)(intptr_t)np;
-    return bd_get_current_chapter(bd);
 }
 
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekMarkN(JNIEnv * env,
@@ -296,30 +266,6 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectAngleN(JNIEnv * env,
         jclass cls, jlong np, jint angle) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
     return bd_select_angle(bd, angle - 1);
-}
-
-JNIEXPORT void JNICALL Java_org_videolan_Libbluray_seamlessAngleChangeN(
-        JNIEnv * env, jclass cls, jlong np, jint angle) {
-    BLURAY* bd = (BLURAY*)(intptr_t)np;
-    bd_seamless_angle_change(bd, angle - 1);
-}
-
-JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getTitleSizeN(JNIEnv * env,
-        jclass cls, jlong np) {
-    BLURAY* bd = (BLURAY*)(intptr_t)np;
-    return bd_get_title_size(bd);
-}
-
-JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getCurrentAngleN(
-        JNIEnv * env, jclass cls, jlong np) {
-    BLURAY* bd = (BLURAY*)(intptr_t)np;
-    return bd_get_current_angle(bd);
-}
-
-JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellN(JNIEnv * env,
-        jclass cls, jlong np) {
-    BLURAY* bd = (BLURAY*)(intptr_t)np;
-    return bd_tell(bd);
 }
 
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellTimeN(JNIEnv * env,
@@ -560,29 +506,9 @@ Java_org_videolan_Libbluray_methods[] =
         VC(Java_org_videolan_Libbluray_getTitlesN),
     },
     {
-        CC("seekN"),
-        CC("(JJ)J"),
-        VC(Java_org_videolan_Libbluray_seekN),
-    },
-    {
         CC("seekTimeN"),
         CC("(JJ)J"),
         VC(Java_org_videolan_Libbluray_seekTimeN),
-    },
-    {
-        CC("seekChapterN"),
-        CC("(JI)J"),
-        VC(Java_org_videolan_Libbluray_seekChapterN),
-    },
-    {
-        CC("chapterPosN"),
-        CC("(JI)J"),
-        VC(Java_org_videolan_Libbluray_chapterPosN),
-    },
-    {
-        CC("getCurrentChapterN"),
-        CC("(J)I"),
-        VC(Java_org_videolan_Libbluray_getCurrentChapterN),
     },
     {
         CC("seekMarkN"),
@@ -608,26 +534,6 @@ Java_org_videolan_Libbluray_methods[] =
         CC("selectAngleN"),
         CC("(JI)I"),
         VC(Java_org_videolan_Libbluray_selectAngleN),
-    },
-    {
-        CC("seamlessAngleChangeN"),
-        CC("(JI)V"),
-        VC(Java_org_videolan_Libbluray_seamlessAngleChangeN),
-    },
-    {
-        CC("getTitleSizeN"),
-        CC("(J)J"),
-        VC(Java_org_videolan_Libbluray_getTitleSizeN),
-    },
-    {
-        CC("getCurrentAngleN"),
-        CC("(J)I"),
-        VC(Java_org_videolan_Libbluray_getCurrentAngleN),
-    },
-    {
-        CC("tellN"),
-        CC("(J)J"),
-        VC(Java_org_videolan_Libbluray_tellN),
     },
     {
         CC("tellTimeN"),
