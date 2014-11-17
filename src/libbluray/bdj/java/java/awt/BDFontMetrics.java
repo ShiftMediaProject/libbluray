@@ -207,11 +207,11 @@ public class BDFontMetrics extends FontMetrics {
         discFontNameMap.remove(name);
     }
 
-    private long ftFace;
-    private int ascent;
-    private int descent;
-    private int leading;
-    private int maxAdvance;
+    private long ftFace = 0;
+    private int ascent = 0;
+    private int descent = 0;
+    private int leading = 0;
+    private int maxAdvance = 0;
 
     /** Cache of first 256 Unicode characters as these map to ASCII characters and are often used. */
     private int[] widths;
