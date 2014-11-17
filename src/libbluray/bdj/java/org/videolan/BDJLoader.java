@@ -171,7 +171,7 @@ public class BDJLoader {
             // initialize appProxys
             for (int i = 0; i < appTable.length; i++) {
                 if (proxys[i] == null) {
-                    proxys[i] = new BDJAppProxy(
+                    proxys[i] = BDJAppProxy.newInstance(
                                                 new BDJXletContext(
                                                                    appTable[i],
                                                                    bdjo.getAppCaches(),
