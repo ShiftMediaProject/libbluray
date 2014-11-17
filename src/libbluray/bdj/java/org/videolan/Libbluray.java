@@ -273,7 +273,7 @@ public class Libbluray {
     }
 
     public static int getCurrentAngle() {
-        return getCurrentAngleN(nativePointer);
+        return readPSR(PSR_ANGLE_NUMBER);
     }
 
     public static long getUOMask() {
