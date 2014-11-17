@@ -50,7 +50,7 @@ public class AngleControlImpl implements AngleControl {
     }
 
     public void selectDefaultAngle() {
-        Libbluray.selectAngle(0);
+        Libbluray.selectAngle(1);
     }
 
     public void selectAngle(int angle) throws InvalidAngleException {
