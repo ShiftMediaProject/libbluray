@@ -184,6 +184,7 @@ struct bluray {
     bd_argb_overlay_proc_f argb_overlay_proc;
     BD_ARGB_BUFFER      *argb_buffer;
     BD_MUTEX             argb_buffer_mutex;
+    BD_UO_MASK           bdj_uo_mask;
 #endif
 };
 
@@ -1112,6 +1113,14 @@ static void _fill_disc_info(BLURAY *bd)
 /*
  * bdj
  */
+
+#ifdef USING_BDJAVA
+void bd_set_bdj_uo_mask(BLURAY *bd, unsigned mask)
+{
+    bd->bdj_uo_mask.title_search = !!(mask & BDJ_TITLE_SEARCH_MASK);
+    bd->bdj_uo_mask.menu_call    = !!(mask & BDJ_MENU_CALL_MASK);
+}
+#endif
 
 #ifdef USING_BDJAVA
 uint64_t bd_get_uo_mask(BLURAY *bd)
@@ -2959,6 +2968,7 @@ static int _play_bdj(BLURAY *bd, unsigned title)
     int result;
 
     bd->title_type = title_bdj;
+    memset(&bd->bdj_uo_mask, 0, sizeof(BD_UO_MASK));
 
     result = _start_bdj(bd, title);
     if (result <= 0) {
@@ -3132,7 +3142,7 @@ static int _try_play_title(BLURAY *bd, unsigned title)
 
 #ifdef USING_BDJAVA
     if (bd->title_type == title_bdj) {
-        if (bdj_get_uo_mask(bd->bdjava) & BDJ_TITLE_SEARCH_MASK) {
+        if (bd->bdj_uo_mask.title_search) {
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by BD-J\n");
             return 0;
         }
@@ -3180,7 +3190,7 @@ static int _try_menu_call(BLURAY *bd, int64_t pts)
 
 #ifdef USING_BDJAVA
     if (bd->title_type == title_bdj) {
-        if (bdj_get_uo_mask(bd->bdjava) & BDJ_MENU_CALL_MASK) {
+        if (bd->bdj_uo_mask.menu_call) {
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by BD-J\n");
             return 0;
         }

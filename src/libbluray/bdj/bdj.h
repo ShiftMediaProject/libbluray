@@ -47,10 +47,6 @@ typedef struct {
     char *cache_root;
 } BDJ_STORAGE;
 
-/* bdj_get_uo_mask() */
-#define BDJ_MENU_CALL_MASK     0x01
-#define BDJ_TITLE_SEARCH_MASK  0x02
-
 typedef struct bdjava_s BDJAVA;
 
 struct bluray;
@@ -59,7 +55,6 @@ BD_PRIVATE BDJAVA* bdj_open(const char *path, struct bluray *bd,
                             const char *bdj_disc_id, BDJ_STORAGE *storage);
 BD_PRIVATE void bdj_close(BDJAVA *bdjava);
 BD_PRIVATE int  bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
-BD_PRIVATE int  bdj_get_uo_mask(BDJAVA *bdjava);
 
 BD_PRIVATE int  bdj_jvm_available(void); /* 0: no. 1: only jvm. 2: jvm + libbluray.jar. */
 

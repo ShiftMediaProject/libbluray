@@ -28,7 +28,13 @@
 
 BD_PRIVATE const uint8_t *bd_get_aacs_data(BLURAY *bd, int type);
 
+/* bd_set_bdj_uo_mask() */
+#define BDJ_MENU_CALL_MASK     0x01
+#define BDJ_TITLE_SEARCH_MASK  0x02
+
 BD_PRIVATE uint64_t bd_get_uo_mask(BLURAY *bd);
+BD_PRIVATE void     bd_set_bdj_uo_mask(struct bluray *bd, unsigned mask);
+
 BD_PRIVATE int bd_play_title_internal(BLURAY *bd, unsigned title);
 
 BD_PRIVATE uint32_t bd_reg_read(BLURAY *bd, int psr, int reg);

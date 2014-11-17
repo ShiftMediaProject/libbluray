@@ -205,7 +205,7 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getUOMaskN(JNIEnv * env,
 JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setUOMaskN(JNIEnv * env,
         jclass cls, jlong np, jboolean menuCallMask, jboolean titleSearchMask) {
     BDJAVA* bdj = (BDJAVA*)(intptr_t)np;
-    bdj->uo_mask = ((!!menuCallMask) * BDJ_MENU_CALL_MASK) | ((!!titleSearchMask) * BDJ_TITLE_SEARCH_MASK);
+    bd_set_bdj_uo_mask(bdj->bd, ((!!menuCallMask) * BDJ_MENU_CALL_MASK) | ((!!titleSearchMask) * BDJ_TITLE_SEARCH_MASK));
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN(JNIEnv * env,
