@@ -216,13 +216,13 @@ public class Libbluray {
     public static boolean selectTitle(TitleImpl title) {
         TitleInfo ti = title.getTitleInfo();
         if (ti.isBdj()) {
-                try {
-                        ((TitleContext)ServiceContextFactory.getInstance().getServiceContext(null)).select(title);
-                        return true;
-                } catch (Exception e) {
-                        e.printStackTrace();
-                        return false;
-                }
+            try {
+                ((TitleContext)ServiceContextFactory.getInstance().getServiceContext(null)).select(title);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
 
         return selectTitleN(nativePointer, title.getTitleNum()) == 1 ? true : false;
