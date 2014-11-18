@@ -55,6 +55,8 @@ static const char *dlerror(char *buf, int buf_size)
 
 void *dl_dlopen(const char *path, const char *version)
 {
+    (void)version;
+
     wchar_t wname[MAX_PATH];
     char *name;
     void *result;

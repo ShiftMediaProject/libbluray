@@ -1291,6 +1291,7 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 
     return !bdj_process_event(bd->bdjava, BDJ_EVENT_START, title);
 #else
+    (void)bd;
     BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title %d: BD-J not compiled in\n", title);
     return 0;
 #endif
@@ -1305,7 +1306,7 @@ static int _bdj_event(BLURAY *bd, unsigned ev, unsigned param)
     return -1;
 }
 #else
-#define _bdj_event(bd, ev, param) (bd=bd, -1)
+#define _bdj_event(bd, ev, param) do{}while(0)
 #endif
 
 #ifdef USING_BDJAVA
@@ -3434,8 +3435,10 @@ int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
 
     if (bd->title_type == title_hdmv) {
         result = _run_gc(bd, GC_CTRL_VK_KEY, key);
+#ifdef USING_BDJAVA
     } else if (bd->title_type == title_bdj) {
         result = _bdj_event(bd, BDJ_EVENT_VK_KEY, key);
+#endif
     }
 
     bd_mutex_unlock(&bd->mutex);
@@ -3474,6 +3477,11 @@ void bd_register_argb_overlay_proc(BLURAY *bd, void *handle, bd_argb_overlay_pro
     bd->argb_buffer              = buf;
 
     bd_mutex_unlock(&bd->argb_buffer_mutex);
+#else
+    (void)bd;
+    (void)handle;
+    (void)func;
+    (void)buf;
 #endif
 }
 
