@@ -1286,6 +1286,9 @@ static int _start_bdj(BLURAY *bd, unsigned title)
             return 0;
         }
     }
+
+    memset(&bd->bdj_uo_mask, 0, sizeof(BD_UO_MASK));
+
     return !bdj_process_event(bd->bdjava, BDJ_EVENT_START, title);
 #else
     BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title %d: BD-J not compiled in\n", title);
@@ -2968,7 +2971,6 @@ static int _play_bdj(BLURAY *bd, unsigned title)
     int result;
 
     bd->title_type = title_bdj;
-    memset(&bd->bdj_uo_mask, 0, sizeof(BD_UO_MASK));
 
     result = _start_bdj(bd, title);
     if (result <= 0) {
