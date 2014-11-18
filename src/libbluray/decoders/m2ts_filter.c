@@ -32,6 +32,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <stdio.h>
+#endif
+
 #define M2TS_TRACE(...) BD_DEBUG(DBG_STREAM,__VA_ARGS__)
 //#define M2TS_TRACE(...) do {} while(0)
 
