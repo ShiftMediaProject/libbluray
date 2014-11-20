@@ -1449,6 +1449,10 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
 
     public void dispose() {
         tmpLine = null;
+        font = null;
+        fontMetrics = null;
+        gc = null;
+        backBuffer = null;
     }
 
     public String toString() {
