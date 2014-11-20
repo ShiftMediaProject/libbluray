@@ -111,7 +111,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
                 font = DEFAULT_FONT;
             }
         }
-        fontMetrics = BDFontMetrics.getFontMetrics(font);
+        fontMetrics = null;
 
         composite = AlphaComposite.SrcOver;
         setupClip();
@@ -141,7 +141,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
                 font = DEFAULT_FONT;
             }
         }
-        fontMetrics = BDFontMetrics.getFontMetrics(font);
+        fontMetrics = null;
 
         composite = AlphaComposite.SrcOver;
         setupClip();
@@ -159,7 +159,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
     public void setFont(Font font) {
         if (font != null && !font.equals(this.font)) {
             this.font = font;
-            fontMetrics = BDFontMetrics.getFontMetrics(font);
+            fontMetrics = null;
         }
     }
 
@@ -168,6 +168,9 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
     }
 
     public FontMetrics getFontMetrics() {
+        if (font != null && fontMetrics == null) {
+            fontMetrics = BDFontMetrics.getFontMetrics(font);
+        }
         return fontMetrics;
     }
 
@@ -1115,8 +1118,11 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
 
     /** Draws the given string. */
     public void drawString(String string, int x, int y) {
+        getFontMetrics();
         if (fontMetrics != null) {
             fontMetrics.drawString((BDGraphics)this, string, x, y, foreground.getRGB());
+        } else {
+            logger.error("drawString skipped: no font metrics. string=\"" + string + "\"");
         }
     }
 
