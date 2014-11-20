@@ -100,21 +100,8 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         foreground = window.getForeground();
         background = window.getBackground();
         font = window.getFont();
-        if (foreground == null)
-            foreground = DEFAULT_COLOR;
-        if (background == null)
-            background = DEFAULT_COLOR;
 
-        if (font == null) {
-            font = GUIManager.getInstance().getDefaultFont();
-            if (font == null) {
-                font = DEFAULT_FONT;
-            }
-        }
-        fontMetrics = null;
-
-        composite = AlphaComposite.SrcOver;
-        setupClip();
+        postInit();
     }
 
     BDGraphicsBase(BDImage image) {
@@ -130,11 +117,19 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
             background = component.getBackground();
             font = component.getFont();
         }
-        if (foreground == null)
-            foreground = DEFAULT_COLOR;
         if (background == null)
             background = new Color(0, 0, 0, 0);
 
+        postInit();
+    }
+
+    private void postInit() {
+        if (foreground == null)
+            foreground = DEFAULT_COLOR;
+        if (background == null)
+            background = DEFAULT_COLOR;
+
+        /* if font is not set, use AWT default font from BDJO */
         if (font == null) {
             font = GUIManager.getInstance().getDefaultFont();
             if (font == null) {
