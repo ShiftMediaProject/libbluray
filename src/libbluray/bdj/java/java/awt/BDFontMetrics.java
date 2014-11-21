@@ -37,6 +37,11 @@ public class BDFontMetrics extends FontMetrics {
 
     private static native long initN();
     private static native void destroyN(long ftLib);
+    private static native String[] getFontFamilyAndStyleN(long ftLib, String fontName);
+
+    protected synchronized static String[] getFontFamilyAndStyle(String fontFile) {
+        return getFontFamilyAndStyleN(ftLib, fontFile);
+    }
 
     private native static String resolveFontN(String fontFamily, int fontStyle);
     private native static void   unloadFontConfigN();

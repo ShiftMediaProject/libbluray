@@ -178,7 +178,20 @@ public class Font implements java.io.Serializable {
         if (type != TRUETYPE_FONT) {
             throw new FontFormatException("unsupported font format");
         }
-        return new Font(null, -1, 1, fontFile, null);
+
+        if (fontFile == null) {
+            throw new NullPointerException("fontFile is null");
+        }
+
+        String data[] = BDFontMetrics.getFontFamilyAndStyle(fontFile.getPath());
+        if (data == null || data.length < 2) {
+            throw new FontFormatException("error loading font " + fontFile.getPath());
+        }
+
+        String family = data[0];
+        int    style  = parseStyle(data[1]);
+
+        return new Font(family, style, 1, fontFile, family);
     }
 
     /* used by org.dvb.ui.FontFacrtory */
@@ -213,6 +226,36 @@ public class Font implements java.io.Serializable {
         throws java.lang.ClassNotFoundException, java.io.IOException {
         s.defaultReadObject();
         setFamily();
+    }
+
+    private static void parseStyle(String styleName) {
+        int style = PLAIN;
+
+        if (styleName != null && styleName.length() > 0) {
+            String[] styles = org.videolan.StrUtil.split(styleName, ' ');
+            if (styles.length == 1) {
+                styles = org.videolan.StrUtil.split(styles[0], ',');
+            }
+
+            for (int i = 0; i < styles.length; i++) {
+                styleName = styles[i].toLowerCase();
+                if (styleName.equals("bolditalic")) {
+                    style |= BOLD | ITALIC;
+                } else if (styleName.equals("italic")) {
+                    style |= ITALIC;
+                } else if (styleName.equals("bold")) {
+                    style |= BOLD;
+                } else if (styleName.equals("plain")) {
+                } else if (styleName.equals("serif")) {
+                } else if (styleName.equals("regular")) {
+                } else if (styleName.equals("roman")) {
+                } else {
+                    org.videolan.Logger.getLogger("Font").info("unregonized style: " + styleName);
+                }
+            }
+        }
+
+        return style;
     }
 
     private void setFamily() {

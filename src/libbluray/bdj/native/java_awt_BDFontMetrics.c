@@ -23,6 +23,8 @@
 
 #include <jni.h>
 
+#include "util.h"
+
 #include "util/logging.h"
 
 #ifdef HAVE_FT2
@@ -184,6 +186,41 @@ Java_java_awt_BDFontMetrics_destroyN(JNIEnv * env, jclass cls, jlong ftLib)
 #endif
 }
 
+JNIEXPORT jobjectArray JNICALL
+Java_java_awt_BDFontMetrics_getFontFamilyAndStyleN(JNIEnv * env, jclass cls, jlong ftLib, jstring fontName)
+{
+    jobjectArray array = bdj_make_array(env, "java/lang/String", 2);
+
+#ifdef HAVE_FT2
+    const char *name;
+    FT_Face ftFace;
+    FT_Error result;
+    FT_Library lib = (FT_Library)(intptr_t)ftLib;
+    jstring jfamily, jstyle;
+
+    if (!lib) {
+        return NULL;
+    }
+
+    name = (*env)->GetStringUTFChars(env, fontName, NULL);
+    result = FT_New_Face(lib, name, 0, &ftFace);
+    (*env)->ReleaseStringUTFChars(env, fontName, name);
+    if (result) {
+        return NULL;
+    }
+
+    jfamily = (*env)->NewStringUTF(env, ftFace->family_name);
+    jstyle  = (*env)->NewStringUTF(env, ftFace->style_name);
+
+    FT_Done_Face(ftFace);
+
+    (*env)->SetObjectArrayElement(env, array, 0, jfamily);
+    (*env)->SetObjectArrayElement(env, array, 1, jstyle);
+#endif
+
+    return array;
+}
+
 JNIEXPORT jlong JNICALL
 Java_java_awt_BDFontMetrics_loadFontN(JNIEnv * env, jobject obj, jlong ftLib, jstring fontName, jint size)
 {
@@ -204,6 +241,7 @@ Java_java_awt_BDFontMetrics_loadFontN(JNIEnv * env, jobject obj, jlong ftLib, js
     (*env)->ReleaseStringUTFChars(env, fontName, name);
     if (result)
         return 0;
+
     FT_Set_Char_Size(ftFace, 0, size << 6, 0, 0);
 
     cls = (*env)->GetObjectClass(env, obj);
@@ -351,6 +389,11 @@ Java_java_awt_BDFontMetrics_methods[] =
         CC("unloadFontConfigN"),
         CC("()V"),
         VC(Java_java_awt_BDFontMetrics_unloadFontConfigN),
+    },
+    {
+        CC("getFontFamilyAndStyleN"),
+        CC("(JLjava/lang/String;)[Ljava/lang/String;"),
+        VC(Java_java_awt_BDFontMetrics_getFontFamilyAndStyleN),
     },
     {
         CC("loadFontN"),
