@@ -63,6 +63,10 @@ public class FontFactory {
                     throw new IOException("error caching font");
                 }
 
+                if (data.getStyle() == -1) {
+                    logger.unimplemented("readDiscFonts(): font with all styles not supported");
+                }
+
                 Font font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
                 font = font.deriveFont(data.getStyle(), data.getMaxSize());
 
