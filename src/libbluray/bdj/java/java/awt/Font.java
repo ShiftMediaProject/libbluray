@@ -167,6 +167,7 @@ public class Font implements java.io.Serializable {
      * libbluray implementation-specific extensions
      */
 
+    transient FontMetrics metrics = null;
     private transient String family = null;
     protected transient File fontFile = null;
 

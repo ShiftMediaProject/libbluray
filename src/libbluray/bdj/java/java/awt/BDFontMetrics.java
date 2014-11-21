@@ -136,9 +136,8 @@ public class BDFontMetrics extends FontMetrics {
      to ensure native fonts are not loaded twice for the same font. */
     static synchronized BDFontMetrics getFontMetrics(Font font) {
         /* See if metrics has been stored in font already. */
-        BDFontMetrics fm = null;
-        //BDFontMetrics fm = (BDFontMetrics)font.metrics;
-        //if (fm == null) {
+        BDFontMetrics fm = (BDFontMetrics)font.metrics;
+        if (fm == null || fm.ftFace == 0) {
             /* See if a font metrics of the same native name and size has already been loaded.
              If it has then we use that one. */
             String nativeName = (String)discFontNameMap.get(font.getName().toLowerCase() + "." + font.getStyle());
@@ -153,8 +152,8 @@ public class BDFontMetrics extends FontMetrics {
             if (fm == null) {
                 fontMetricsMap.put(key, fm = new BDFontMetrics(font, nativeName));
             }
-            //font.metrics = fm;
-        //}
+            font.metrics = fm;
+        }
         return fm;
     }
 
