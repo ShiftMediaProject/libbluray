@@ -228,7 +228,7 @@ public class Font implements java.io.Serializable {
         setFamily();
     }
 
-    private static void parseStyle(String styleName) {
+    private static int parseStyle(String styleName) {
         int style = PLAIN;
 
         if (styleName != null && styleName.length() > 0) {

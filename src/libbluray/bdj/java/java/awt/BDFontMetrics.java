@@ -31,7 +31,6 @@ public class BDFontMetrics extends FontMetrics {
     private static long ftLib = 0;
     private static long fcLib = 0;
     private static Map  systemFontNameMap = null;
-    private static Map  discFontNameMap = new HashMap();
 
     private static final Logger logger = Logger.getLogger(BDFontMetrics.class.getName());
 
@@ -114,8 +113,6 @@ public class BDFontMetrics extends FontMetrics {
         if (systemFontNameMap == null) {
             initSystemFonts();
         }
-
-        discFontNameMap = new HashMap();
     }
 
     public synchronized static void shutdown() {
@@ -145,8 +142,10 @@ public class BDFontMetrics extends FontMetrics {
         if (fm == null || fm.ftFace == 0) {
             /* See if a font metrics of the same native name and size has already been loaded.
              If it has then we use that one. */
-            String nativeName = (String)discFontNameMap.get(font.getName().toLowerCase() + "." + font.getStyle());
-            if (nativeName == null) {
+            String nativeName;
+            if (font.fontFile != null) {
+                nativeName = font.fontFile.getPath();
+            } else {
                 nativeName = (String)systemFontNameMap.get(font.getName().toLowerCase() + "." + font.getStyle());
                 if (nativeName == null) {
                     nativeName = (String)systemFontNameMap.get("default." + font.getStyle());
@@ -181,34 +180,7 @@ public class BDFontMetrics extends FontMetrics {
                 fontNames.add(fontname);
         }
 
-        fonts = discFontNameMap.keySet().iterator();
-        while (fonts.hasNext()) {
-            String fontname = stripAttributes((String)fonts.next());
-            if (!fontNames.contains(fontname))
-                fontNames.add(fontname);
-        }
-
         return (String[])fontNames.toArray(new String[fontNames.size()]);
-    }
-
-    public synchronized static void registerFont(String name, int style, String path) {
-        File f = new File(path);
-        path = f.getAbsolutePath();
-        if (path != null) {
-            name = name.toLowerCase() + "." + style;
-            discFontNameMap.put(name, path);
-        }
-    }
-
-    public synchronized static boolean registerFont(File f) {
-        //TODO
-        logger.unimplemented("registerFont");
-        return false;
-    }
-
-    public synchronized static void unregisterFont(String name, int style) {
-        name = name.toLowerCase() + "." + style;
-        discFontNameMap.remove(name);
     }
 
     private long ftFace = 0;
