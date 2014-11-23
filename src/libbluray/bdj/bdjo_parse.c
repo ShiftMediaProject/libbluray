@@ -161,7 +161,7 @@ static int _count_app_strings(BITSTREAM *bs, uint16_t data_length, uint16_t pref
 {
     int      count = 0;
     uint32_t bytes_read = 0;
-    off_t    pos = bs_pos(bs) >> 3;
+    int64_t  pos = bs_pos(bs) >> 3;
 
     while (bytes_read < data_length) {
         bs_skip(bs, prefix_bytes * 8);

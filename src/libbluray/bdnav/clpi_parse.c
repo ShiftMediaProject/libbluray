@@ -51,7 +51,7 @@ _human_readable_sig(char *sig, uint32_t s1, uint32_t s2)
 static int
 _parse_stream_attr(BITSTREAM *bits, CLPI_PROG_STREAM *ss)
 {
-    off_t pos;
+    int64_t pos;
     int len;
 
     if (!bs_is_align(bits, 0x07)) {
@@ -145,7 +145,7 @@ _parse_header(BITSTREAM *bits, CLPI_CL *cl)
 static int
 _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
 {
-    off_t pos;
+    int64_t pos;
     int len;
     int ii;
 

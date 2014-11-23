@@ -54,9 +54,9 @@ void bs_init( BITSTREAM *bs, BD_FILE_H *fp )
     bb_init(&bs->bb, bs->buf, bs->size);
 }
 
-void bb_seek( BITBUFFER *bb, off_t off, int whence)
+void bb_seek( BITBUFFER *bb, int64_t off, int whence)
 {
-    off_t b;
+    int64_t b;
 
     switch (whence) {
         case SEEK_CUR:
@@ -81,9 +81,9 @@ void bb_seek( BITBUFFER *bb, off_t off, int whence)
     }
 }
 
-void bs_seek( BITSTREAM *bs, off_t off, int whence)
+void bs_seek( BITSTREAM *bs, int64_t off, int whence)
 {
-    off_t b;
+    int64_t b;
 
     switch (whence) {
         case SEEK_CUR:

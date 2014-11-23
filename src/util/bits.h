@@ -47,31 +47,31 @@ typedef struct {
     BD_FILE_H *fp;
     uint8_t    buf[BF_BUF_SIZE];
     BITBUFFER  bb;
-    off_t      pos;
-    off_t      end;
+    int64_t    pos;
+    int64_t    end;
     size_t     size;
 } BITSTREAM;
 
 BD_PRIVATE void bb_init( BITBUFFER *bb, uint8_t *p_data, size_t i_data );
 BD_PRIVATE void bs_init( BITSTREAM *bs, BD_FILE_H *fp );
-BD_PRIVATE void bb_seek( BITBUFFER *bb, off_t off, int whence);
-BD_PRIVATE void bs_seek( BITSTREAM *bs, off_t off, int whence);
+BD_PRIVATE void bb_seek( BITBUFFER *bb, int64_t off, int whence);
+BD_PRIVATE void bs_seek( BITSTREAM *bs, int64_t off, int whence);
 BD_PRIVATE void bb_skip( BITBUFFER *bb, ssize_t i_count );
 BD_PRIVATE void bs_skip( BITSTREAM *bs, ssize_t i_count );
 BD_PRIVATE uint32_t bb_read( BITBUFFER *bb, int i_count );
 BD_PRIVATE uint32_t bs_read( BITSTREAM *bs, int i_count );
 
-static inline off_t bb_pos( const BITBUFFER *bb )
+static inline int64_t bb_pos( const BITBUFFER *bb )
 {
     return 8 * ( bb->p - bb->p_start ) + 8 - bb->i_left;
 }
 
-static inline off_t bs_pos( const BITSTREAM *bs )
+static inline int64_t bs_pos( const BITSTREAM *bs )
 {
     return bs->pos * 8 + bb_pos(&bs->bb);
 }
 
-static inline off_t bs_end( const BITSTREAM *bs )
+static inline int64_t bs_end( const BITSTREAM *bs )
 {
     return bs->end * 8;
 }
@@ -87,17 +87,17 @@ static inline int bs_eof( const BITSTREAM *bs )
 }
 */
 
-static inline off_t bs_avail( const BITSTREAM *bs )
+static inline int64_t bs_avail( const BITSTREAM *bs )
 {
     return bs_end(bs) - bs_pos(bs);
 }
 
-static inline void bb_seek_byte( BITBUFFER *bb, off_t off)
+static inline void bb_seek_byte( BITBUFFER *bb, int64_t off)
 {
     bb_seek(bb, off << 3, SEEK_SET);
 }
 
-static inline void bs_seek_byte( BITSTREAM *s, off_t off)
+static inline void bs_seek_byte( BITSTREAM *s, int64_t off)
 {
     bs_seek(s, off << 3, SEEK_SET);
 }
@@ -133,14 +133,14 @@ static inline uint32_t bb_show( BITBUFFER *bb, int i_count )
 
 static inline int bb_is_align( BITBUFFER *bb, uint32_t mask )
 {
-    off_t off = bb_pos(bb);
+    int64_t off = bb_pos(bb);
 
     return !(off & mask);
 }
 
 static inline int bs_is_align( BITSTREAM *s, uint32_t mask )
 {
-    off_t off = bs_pos(s);
+    int64_t off = bs_pos(s);
 
     return !(off & mask);
 }

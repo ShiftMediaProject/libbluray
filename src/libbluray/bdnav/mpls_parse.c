@@ -103,7 +103,7 @@ _parse_uo(BITSTREAM *bits, BD_UO_MASK *uo)
 static int
 _parse_appinfo(BITSTREAM *bits, MPLS_AI *ai)
 {
-    off_t pos, len;
+    int64_t pos, len;
 
     if (!bs_is_align(bits, 0x07)) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_appinfo: alignment error\n");
@@ -173,7 +173,7 @@ static int
 _parse_stream(BITSTREAM *bits, MPLS_STREAM *s)
 {
     int len;
-    off_t pos;
+    int64_t pos;
 
     if (!bs_is_align(bits, 0x07)) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_stream: Stream alignment error\n");
@@ -260,7 +260,7 @@ static int
 _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
 {
     int len;
-    off_t pos;
+    int64_t pos;
     MPLS_STREAM    *ss;
     int ii,jj;
 
@@ -433,7 +433,7 @@ static int
 _parse_playitem(BITSTREAM *bits, MPLS_PI *pi)
 {
     int len, ii;
-    off_t pos;
+    int64_t pos;
     char clip_id[6], codec_id[5];
     uint8_t stc_id;
 
@@ -523,7 +523,7 @@ static int
 _parse_subplayitem(BITSTREAM *bits, MPLS_SUB_PI *spi)
 {
     int len, ii;
-    off_t pos;
+    int64_t pos;
     char clip_id[6], codec_id[5];
     uint8_t stc_id;
 
@@ -598,7 +598,7 @@ static int
 _parse_subpath(BITSTREAM *bits, MPLS_SUB *sp)
 {
     int len, ii;
-    off_t pos;
+    int64_t pos;
     MPLS_SUB_PI *spi = NULL;
 
     if (!bs_is_align(bits, 0x07)) {
@@ -645,7 +645,7 @@ _clean_subpath(MPLS_SUB *sp)
 static int
 _parse_playlistmark(BITSTREAM *bits, MPLS_PL *pl)
 {
-    off_t len;
+    int64_t len;
     int ii;
     MPLS_PLM *plm = NULL;
 
@@ -677,7 +677,7 @@ _parse_playlistmark(BITSTREAM *bits, MPLS_PL *pl)
 static int
 _parse_playlist(BITSTREAM *bits, MPLS_PL *pl)
 {
-    off_t len;
+    int64_t len;
     int ii;
     MPLS_PI *pi = NULL;
     MPLS_SUB *sub_path = NULL;
@@ -790,7 +790,7 @@ _parse_pip_metadata_block(BITSTREAM *bits, uint32_t start_address, MPLS_PIP_META
 {
     uint32_t data_address;
     int result;
-    off_t pos;
+    int64_t pos;
 
     data->clip_ref            = bs_read(bits, 16);
     data->secondary_video_ref = bs_read(bits, 8);
