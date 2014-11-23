@@ -21,7 +21,6 @@
 package org.dvb.ui;
 
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -79,11 +78,11 @@ public class FontFactory {
                     logger.error("didn't load any fonts !");
                     throw ex;
                 }
-            } catch (FontFormatException ex) {
+            } catch (java.awt.FontFormatException ex) {
                 logger.error("Failed reading font " + data.getName() + " from " + data.getFileName() + ": " + ex);
                 if (i == fontIndexData.length - 1 && fonts.size() < 1) {
                     logger.error("didn't load any fonts !");
-                    throw ex;
+                    throw new FontFormatException();
                 }
             }
         }
@@ -111,9 +110,9 @@ public class FontFactory {
         } catch (IOException ex) {
             logger.error("Failed reading font from " + u.getPath() + ": " + ex);
             throw ex;
-        } catch (FontFormatException ex) {
+        } catch (java.awt.FontFormatException ex) {
             logger.error("Failed reading font from " + u.getPath() + ": " + ex);
-            throw ex;
+            throw new FontFormatException();
         } finally {
             if (inStream != null) {
                 inStream.close();
@@ -135,6 +134,10 @@ public class FontFactory {
     public Font createFont(String name, int style, int size)
             throws FontNotAvailableException, FontFormatException, IOException {
         logger.info("Creating font: " + name + " " + style + " " + size);
+
+        if (style < 0 || size <= 0 || (style & ~3) != 0) {
+            throw new IllegalArgumentException();
+        }
 
         /* Factory created only for single font ? */
         if (urlFont != null) {
