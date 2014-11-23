@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.videolan.BDJException;
 import org.videolan.BDJUtil;
 import org.videolan.FontIndex;
 import org.videolan.FontIndexData;
