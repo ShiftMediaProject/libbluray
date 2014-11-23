@@ -67,7 +67,7 @@ public class FontFactory {
                 }
 
                 Font font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
-                font = font.deriveFont(data.getStyle(), data.getMaxSize());
+                font = font.deriveFont(data.getStyle(), 1);
 
                 fonts.put(data.getName(), font);
                 fontIds.put(data.getFileName().substring(0, 5), font);
@@ -105,6 +105,7 @@ public class FontFactory {
             }
 
             urlFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
+            urlFont = urlFont.deriveFont(urlFont.getStyle(), 1);
 
         } catch (IOException ex) {
             logger.error("Failed reading font from " + u.getPath() + ": " + ex);
