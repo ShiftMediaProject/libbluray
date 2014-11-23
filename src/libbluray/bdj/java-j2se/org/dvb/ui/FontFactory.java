@@ -69,7 +69,7 @@ public class FontFactory {
                 Font font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
                 font = font.deriveFont(data.getStyle(), 1);
 
-                fonts.put(data.getName(), font);
+                fonts.put(data.getName() + "." + font.getStyle(), font);
                 fontIds.put(data.getFileName().substring(0, 5), font);
 
             } catch (IOException ex) {
@@ -142,7 +142,7 @@ public class FontFactory {
 
         Font font = null;
         synchronized (FontFactory.class) {
-            font = (Font)fonts.get(name);
+            font = (Font)fonts.get(name + "." + style);
         }
 
         if (font == null) {
