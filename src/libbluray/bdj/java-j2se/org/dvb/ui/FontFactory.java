@@ -135,18 +135,23 @@ public class FontFactory {
             throws FontNotAvailableException, FontFormatException, IOException {
         logger.info("Creating font: " + name + " " + style + " " + size);
 
-        if (urlFont != null && name.equals(urlFont.getName()))
-        {
-            return urlFont.deriveFont(style, size);
+        /* Factory created only for single font ? */
+        if (urlFont != null) {
+            if (name.equals(urlFont.getName()) && style == urlFont.getStyle()) {
+                return urlFont.deriveFont(style, size);
+            }
+            logger.info("createFont(URL): request " + name + "." + style + " does not match with " + urlFont.getName() + "." + urlFont.getStyle());
+            throw new FontNotAvailableException();
         }
 
+        /* Factory created for fonts in dvb.fontindex */
         Font font = null;
         synchronized (FontFactory.class) {
             font = (Font)fonts.get(name + "." + style);
         }
 
         if (font == null) {
-            logger.info("Failed creating font: " + name + " " + style + " " + size);
+            logger.info("Font " + name + "." + style + " not found");
             throw new FontNotAvailableException();
         }
 
