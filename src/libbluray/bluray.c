@@ -2194,6 +2194,25 @@ int bd_select_playlist(BLURAY *bd, uint32_t playlist)
 }
 
 #ifdef USING_BDJAVA
+int bd_bdj_seek(BLURAY *bd, int playitem, int playmark, int64_t time)
+{
+    bd_mutex_lock(&bd->mutex);
+
+    if (playitem > 0) {
+        bd_seek_playitem(bd, playitem);
+    }
+    if (playmark >= 0) {
+        bd_seek_mark(bd, playmark);
+    }
+    if (time >= 0) {
+        bd_seek_time(bd, time);
+    }
+
+    bd_mutex_unlock(&bd->mutex);
+
+    return 1;
+}
+
 static int _play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmark, int64_t time)
 {
     if (playlist < 0) {
@@ -2207,15 +2226,7 @@ static int _play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmar
 
     bd->bdj_wait_start = 1;  /* playback is triggered by bd_select_rate() */
 
-    if (playitem > 0) {
-        bd_seek_playitem(bd, playitem);
-    }
-    if (playmark >= 0) {
-        bd_seek_mark(bd, playmark);
-    }
-    if (time >= 0) {
-        bd_seek_time(bd, time);
-    }
+    bd_bdj_seek(bd, playitem, playmark, time);
 
     return 1;
 }

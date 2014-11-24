@@ -175,14 +175,14 @@ public class Libbluray {
     }
 
     public static long seekTime(long tick) {
-        return seekTimeN(nativePointer, tick);
+        return seekN(nativePointer, -1, -1, tick);
     }
 
     public static long seekMark(int mark) {
         if (mark < 0)
             throw new IllegalArgumentException("Mark cannot be negative");
 
-        long result = seekMarkN(nativePointer, mark);
+        long result = seekN(nativePointer, -1, mark, -1);
         if (result == -1)
             throw new IllegalArgumentException("Seek error");
         return result;
@@ -192,7 +192,7 @@ public class Libbluray {
         if (clip < 0)
             throw new IllegalArgumentException("Mark cannot be negative");
 
-        long result = seekPlayItemN(nativePointer, clip);
+        long result = seekN(nativePointer, clip, -1, -1);
         if (result == -1)
             throw new IllegalArgumentException("Seek error");
         return result;
@@ -498,9 +498,7 @@ public class Libbluray {
     private static native TitleInfo getTitleInfoN(long np, int title);
     private static native PlaylistInfo getPlaylistInfoN(long np, int playlist);
     private static native int getTitlesN(long np);
-    private static native long seekTimeN(long np, long tick);
-    private static native long seekMarkN(long np, int mark);
-    private static native long seekPlayItemN(long np, int clip);
+    private static native long seekN(long np, int playitem, int playmark, long time);
     private static native int selectPlaylistN(long np, int playlist, int playitem, int playmark, long time);
     private static native int selectTitleN(long np, int title);
     private static native int selectAngleN(long np, int angle);

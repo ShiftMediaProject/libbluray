@@ -142,27 +142,11 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN
 
 /*
  * Class:     org_videolan_Libbluray
- * Method:    seekTimeN
- * Signature: (JJ)J
+ * Method:    seekN
+ * Signature: (JIIJ)J
  */
-JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekTimeN
-  (JNIEnv *, jclass, jlong, jlong);
-
-/*
- * Class:     org_videolan_Libbluray
- * Method:    seekMarkN
- * Signature: (JI)J
- */
-JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekMarkN
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     org_videolan_Libbluray
- * Method:    seekPlayItemN
- * Signature: (JI)J
- */
-JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekPlayItemN
-  (JNIEnv *, jclass, jlong, jint);
+JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN
+  (JNIEnv *, jclass, jlong, jint, jint, jlong);
 
 /*
  * Class:     org_videolan_Libbluray

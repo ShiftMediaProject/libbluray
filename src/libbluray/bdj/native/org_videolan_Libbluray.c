@@ -212,31 +212,13 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN(JNIEnv * env,
     return disc_info->num_titles;
 }
 
-JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekTimeN(JNIEnv * env,
-        jclass cls, jlong np, jlong tick) {
+JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN(JNIEnv * env,
+        jclass cls, jlong np, jint playitem, jint playmark, jlong tick) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
 
-    BD_DEBUG(DBG_JNI, "seekTimeN(%"PRId64")\n", (int64_t)tick);
+    BD_DEBUG(DBG_JNI, "seekN(tick=%"PRId64", mark=%d, playitem=%d)\n", (int64_t)tick, (int)playmark, (int)playitem);
 
-    return bd_seek_time(bd, tick);
-}
-
-JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekMarkN(JNIEnv * env,
-        jclass cls, jlong np, jint mark) {
-    BLURAY* bd = (BLURAY*)(intptr_t)np;
-
-    BD_DEBUG(DBG_JNI, "seekMarkN(%d)\n", (int)mark);
-
-    return bd_seek_mark(bd, mark);
-}
-
-JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekPlayItemN(JNIEnv * env,
-        jclass cls, jlong np, jint clip) {
-    BLURAY* bd = (BLURAY*)(intptr_t)np;
-
-    BD_DEBUG(DBG_JNI, "seekPlayItemN(%d)\n", (int)clip);
-
-    return bd_seek_playitem(bd, clip);
+    return bd_bdj_seek(bd, playitem, playmark, tick);
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectPlaylistN(
@@ -517,19 +499,9 @@ Java_org_videolan_Libbluray_methods[] =
         VC(Java_org_videolan_Libbluray_getTitlesN),
     },
     {
-        CC("seekTimeN"),
-        CC("(JJ)J"),
-        VC(Java_org_videolan_Libbluray_seekTimeN),
-    },
-    {
-        CC("seekMarkN"),
-        CC("(JI)J"),
-        VC(Java_org_videolan_Libbluray_seekMarkN),
-    },
-    {
-        CC("seekPlayItemN"),
-        CC("(JI)J"),
-        VC(Java_org_videolan_Libbluray_seekPlayItemN),
+        CC("seekN"),
+        CC("(JIIJ)J"),
+        VC(Java_org_videolan_Libbluray_seekN),
     },
     {
         CC("selectPlaylistN"),
