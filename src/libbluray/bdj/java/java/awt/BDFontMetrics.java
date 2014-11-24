@@ -207,11 +207,7 @@ public class BDFontMetrics extends FontMetrics {
         if (ftFace == 0)
             throw new AWTError("font face:" + nativeName + " not loaded");
 
-        /* Cache first 256 char widths for use by the getWidths method and for faster metric
-         calculation as they are commonly used (ASCII) characters. */
-        widths = new int[256];
-        for (int i = 0; i < 256; i++)
-            widths[i] = charWidthN(ftFace, (char)i);
+        widths = null;
     }
 
     private native long loadFontN(long ftLib, String fontName, int size);
@@ -219,6 +215,18 @@ public class BDFontMetrics extends FontMetrics {
     private native int charWidthN(long ftFace, char c);
     private native int stringWidthN(long ftFace, String string);
     private native int charsWidthN(long ftFace, char chars[], int offset, int len);
+
+    private synchronized void loadWidths() {
+        /* Cache first 256 char widths for use by the getWidths method and for faster metric
+           calculation as they are commonly used (ASCII) characters. */
+        if (widths == null) {
+            widths = new int[256];
+            for (int i = 0; i < 256; i++) {
+                widths[i] = charWidthN(ftFace, (char)i);
+            }
+        }
+    }
+
 
     protected synchronized void drawString(BDGraphics g, String string, int x, int y, int rgb) {
         g.drawStringN(ftFace, string, x, y, rgb);
@@ -244,8 +252,10 @@ public class BDFontMetrics extends FontMetrics {
      * Fast lookup of first 256 chars as these are always the same eg. ASCII charset.
      */
     public synchronized int charWidth(char c) {
-        if (c < 256)
+        if (c < 256) {
+            loadWidths();
             return widths[c];
+        }
         return charWidthN(ftFace, c);
     }
 
@@ -267,8 +277,9 @@ public class BDFontMetrics extends FontMetrics {
      * Get the widths of the first 256 characters in the font.
      */
     public int[] getWidths() {
-        int[] newWidths = new int[256];
-        System.arraycopy(widths, 0, newWidths, 0, 256);
+        loadWidths();
+        int[] newWidths = new int[widths.length];
+        System.arraycopy(widths, 0, newWidths, 0, widths.length);
         return newWidths;
     }
 
