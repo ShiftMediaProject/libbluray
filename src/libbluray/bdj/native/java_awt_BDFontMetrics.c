@@ -38,6 +38,11 @@
 #include <fontconfig/fontconfig.h>
 #endif
 
+#ifdef _WIN32
+#include "file/dirs.h"  // win32_get_font_dir
+#include <windows.h>
+#endif
+
 #include "java_awt_BDFontMetrics.h"
 
 /* Disable some warnings */
@@ -50,6 +55,104 @@
 #else
 #define CPP_EXTERN
 #endif
+
+/*
+ * Windows fonts
+ */
+
+#ifdef _WIN32
+
+typedef struct {
+    int   bold;
+    int   italic;
+    char *filename;
+} SEARCH_DATA;
+
+static int CALLBACK EnumFontCallback(const ENUMLOGFONTEXA *lpelfe, const NEWTEXTMETRICEX *metric,
+                                     DWORD type, LPARAM lParam)
+{
+    const LOGFONT *lplf = &lpelfe->elfLogFont;
+    const char    *font_name = (const char *)lpelfe->elfFullName;
+    SEARCH_DATA   *data = (SEARCH_DATA *)lParam;
+    int            index = 0;
+    HKEY           hKey;
+    wchar_t        wvalue[MAX_PATH];
+    wchar_t        wdata[256];
+
+    if (type & RASTER_FONTTYPE) {
+        return 1;
+    }
+
+    /* match attributes */
+    if (data->italic >= 0 && (!!lplf->lfItalic != !!data->italic)) {
+        return 1;
+    }
+    if (data->bold >= 0 &&
+        ((data->bold && lplf->lfWeight <= FW_MEDIUM) ||
+         (!data->bold && lplf->lfWeight >= FW_SEMIBOLD))) {
+        return 1;
+    }
+
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts",
+                     0, KEY_READ, &hKey) != ERROR_SUCCESS) {
+        return 0;
+    }
+
+    while (!data->filename) {
+        DWORD wvalue_len = MAX_PATH - 1;
+        DWORD wdata_len  = 255;
+
+        LONG result = RegEnumValueW(hKey, index++, wvalue, &wvalue_len,
+                                   NULL, NULL, (LPBYTE)wdata, &wdata_len);
+        if (result != ERROR_SUCCESS) {
+            RegCloseKey(hKey);
+            return result;
+        }
+
+        char value[MAX_PATH];
+        WideCharToMultiByte(CP_UTF8, 0, wvalue, -1, value, MAX_PATH, NULL, NULL);
+
+        if (!strcasecmp(value, font_name)) {
+            size_t len = WideCharToMultiByte(CP_UTF8, 0, wdata, -1, NULL, 0, NULL, NULL);
+            if (len != 0) {
+                data->filename = (char *)malloc(len);
+                WideCharToMultiByte(CP_UTF8, 0, wdata, -1, data->filename, len, NULL, NULL);
+                break;
+            }
+        }
+    }
+
+    RegCloseKey(hKey);
+    return 0;
+}
+
+static char *_win32_resolve_font(const char *family, int style)
+{
+    LOGFONT lf;
+    HDC     hDC;
+    SEARCH_DATA data = {style & 2, style & 1, NULL};
+
+    memset(&lf, 0, sizeof(lf));
+    lf.lfCharSet = DEFAULT_CHARSET;
+    strncpy(lf.lfFaceName, family, LF_FACESIZE);
+
+    hDC = GetDC(NULL);
+    EnumFontFamiliesExA(hDC, &lf, (FONTENUMPROCA)&EnumFontCallback, (LPARAM)&data, 0);
+    ReleaseDC(NULL, hDC);
+
+    if (!data.filename) {
+        return win32_get_font_dir("arial.ttf");
+    }
+
+    if (!strchr(data.filename, '\\')) {
+        char *tmp = win32_get_font_dir(data.filename);
+        X_FREE(data.filename);
+        return tmp;
+    }
+    return data.filename;
+}
+
+#endif /* _WIN32 */
 
 /*
  * fontconfig
@@ -168,6 +271,8 @@ Java_java_awt_BDFontMetrics_resolveFontN(JNIEnv * env, jclass cls, jstring jfont
     if (lib) {
         filename = _fontconfig_resolve_font(lib, font_family, font_style);
     }
+#elif defined(_WIN32)
+    filename = _win32_resolve_font(font_family, font_style);
 #else
     BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J font config support not compiled in\n");
 #endif

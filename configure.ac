@@ -158,6 +158,9 @@ AS_IF([test "x$with_freetype" != "xno"], [
       PKG_CHECK_MODULES([FONTCONFIG], [fontconfig],
         [with_fontconfig=yes; AC_DEFINE([HAVE_FONTCONFIG], 1, [Define this if you have fontconfig library])])
     ])
+  ],[
+    FONTCONFIG_LIBS="-lgdi32"
+    AC_SUBST([FONTCONFIG_LIBS])
   ])
 ])
 
@@ -275,7 +278,7 @@ if [[ $use_bdjava = "yes" ]]; then
 if test "${SYS}" != "mingw32"; then
 echo "  Use system fonts (fontconfig): $with_fontconfig"
 else
-echo "  Use system fonts:              no"
+echo "  Use system fonts:              yes"
 fi
 fi
 fi

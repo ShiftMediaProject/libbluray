@@ -43,6 +43,22 @@ int win32_mkdir(const char *dir)
     return _wmkdir(wdir);
 }
 
+char *win32_get_font_dir(const char *font_file)
+{
+    wchar_t wdir[MAX_PATH];
+    if (S_OK != SHGetFolderPathW(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, wdir)) {
+        GetWindowsDirectoryW(wdir, MAX_PATH);
+        wcscat(wdir, L"\\fonts");
+    }
+
+    int   len  = WideCharToMultiByte (CP_UTF8, 0, wdir, -1, NULL, 0, NULL, NULL);
+    char *path = malloc(len + strlen(font_file) + 2);
+    WideCharToMultiByte(CP_UTF8, 0, wdir, -1, path, len, NULL, NULL);
+    path[len] = '\\';
+    strcpy(path + len + 1, font_file);
+    return path;
+}
+
 const char *file_get_config_home(void)
 {
     return file_get_data_home();
