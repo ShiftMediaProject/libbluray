@@ -20,6 +20,7 @@
 package java.awt;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -123,9 +124,12 @@ public class BDFontMetrics extends FontMetrics {
         Iterator it = fontMetricsMap.values().iterator();
         while (it.hasNext()) {
             try {
-                BDFontMetrics fm = (BDFontMetrics)it.next();
+                WeakReference ref = (WeakReference)it.next();
+                BDFontMetrics fm = (BDFontMetrics)ref.get();
                 it.remove();
-                fm.destroy();
+                if (fm != null) {
+                    fm.destroy();
+                }
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -155,10 +159,16 @@ public class BDFontMetrics extends FontMetrics {
                     nativeName = (String)systemFontNameMap.get("default." + font.getStyle());
                 }
             }
+
             String key = nativeName + "." + font.getSize();
-            fm = (BDFontMetrics)fontMetricsMap.get(key);
+            WeakReference ref = (WeakReference)fontMetricsMap.get(key);
+            if (ref != null) {
+                fm = (BDFontMetrics)ref.get();
+            }
+
             if (fm == null) {
-                fontMetricsMap.put(key, fm = new BDFontMetrics(font, nativeName));
+                fm = new BDFontMetrics(font, nativeName);
+                fontMetricsMap.put(key, new WeakReference(fm));
             }
             font.metrics = fm;
         }
