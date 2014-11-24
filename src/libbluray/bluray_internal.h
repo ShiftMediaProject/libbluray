@@ -22,36 +22,54 @@
 
 #include "util/attributes.h"
 
-#include "bluray.h"
-
 #include <stdint.h>
 
-BD_PRIVATE const uint8_t *bd_get_aacs_data(BLURAY *bd, int type);
+struct bluray;
 
-/* bd_set_bdj_uo_mask() */
+BD_PRIVATE const uint8_t *bd_get_aacs_data(struct bluray *bd, int type);
+
+/*
+ * UO mask
+ */
+
 #define BDJ_MENU_CALL_MASK     0x01
 #define BDJ_TITLE_SEARCH_MASK  0x02
 
-BD_PRIVATE uint64_t bd_get_uo_mask(BLURAY *bd);
+BD_PRIVATE uint64_t bd_get_uo_mask(struct bluray *bd);
 BD_PRIVATE void     bd_set_bdj_uo_mask(struct bluray *bd, unsigned mask);
 
-BD_PRIVATE int bd_play_title_internal(BLURAY *bd, unsigned title);
+/*
+ * title selection
+ */
 
-BD_PRIVATE uint32_t bd_reg_read(BLURAY *bd, int psr, int reg);
-BD_PRIVATE int bd_reg_write(BLURAY *bd, int psr, int reg, uint32_t value, uint32_t psr_value_mask);
+BD_PRIVATE int      bd_play_title_internal(struct bluray *bd, unsigned title);
+
+/*
+ * register access
+ */
+
+BD_PRIVATE uint32_t bd_reg_read(struct bluray *bd, int psr, int reg);
+BD_PRIVATE int      bd_reg_write(struct bluray *bd, int psr, int reg, uint32_t value, uint32_t psr_value_mask);
+
+/*
+ * playback control
+ */
 
 enum bd_select_rate_reason {
     BDJ_RATE_SET       = 0,
     BDJ_PLAYBACK_START = 1,
     BDJ_PLAYBACK_STOP  = 2,
 };
-BD_PRIVATE void bd_select_rate(BLURAY *bd, float rate, int reason);
 
-BD_PRIVATE int bd_play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmark, int64_t time);
+BD_PRIVATE int      bd_play_playlist_at(struct bluray *bd, int playlist, int playitem, int playmark, int64_t time);
+BD_PRIVATE void     bd_select_rate(struct bluray *bd, float rate, int reason);
 
-/* BD-J overlay */
+/*
+ * BD-J overlay
+ */
 
 struct bd_argb_buffer_s;
+
 BD_PRIVATE struct bd_argb_buffer_s *bd_lock_osd_buffer(struct bluray *bd);
 BD_PRIVATE void                     bd_unlock_osd_buffer(struct bluray *bd);
 
