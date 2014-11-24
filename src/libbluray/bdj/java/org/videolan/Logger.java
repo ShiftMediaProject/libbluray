@@ -122,14 +122,18 @@ public class Logger {
     }
 
     public static String dumpStack() {
-        String dump = "";
         StackTraceElement e[] = new Exception("Stack trace").getStackTrace();
         if (e != null && e.length > 1) {
-            dump = "\t" + e[2].toString();
-            for (int i = 3; i < e.length; i++)
-                dump += "\n\t" + e[i].toString();
+            StringBuffer dump = new StringBuffer();
+            dump.append("\t");
+            dump.append(e[2].toString());
+            for (int i = 3; i < e.length; i++) {
+                dump.append("\n\t");
+                dump.append(e[i].toString());
+            }
+            return dump.toString();
         }
-        return dump;
+        return "";
     }
 
     public void unimplemented(String func) {
