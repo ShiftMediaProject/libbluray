@@ -19,9 +19,13 @@
 
 package java.awt;
 
-import java.io.*;
-import java.security.*;
-import java.util.*;
+import java.io.File;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.videolan.Logger;
 
