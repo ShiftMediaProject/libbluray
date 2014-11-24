@@ -26,6 +26,7 @@
 #include "util.h"
 
 #include "util/logging.h"
+#include "util/macro.h"
 
 #ifdef HAVE_FT2
 #include <ft2build.h>
@@ -33,6 +34,7 @@
 #endif
 
 #ifdef HAVE_FONTCONFIG
+#include "util/strutl.h"
 #include <fontconfig/fontconfig.h>
 #endif
 
@@ -54,7 +56,7 @@
  */
 
 #ifdef HAVE_FONTCONFIG
-static FcConfig *getFcLib(JNIEnv * env, jclass cls)
+static FcConfig *_get_fc_lib(JNIEnv * env, jclass cls)
 {
     jfieldID fid   = (*env)->GetStaticFieldID(env, cls, "fcLib", "J");
     jlong    fcLib = (*env)->GetStaticLongField (env, cls, fid);
@@ -75,10 +77,9 @@ static FcConfig *getFcLib(JNIEnv * env, jclass cls)
 }
 #endif
 
-JNIEXPORT void JNICALL
-Java_java_awt_BDFontMetrics_unloadFontConfigN(JNIEnv * env, jclass cls)
-{
 #ifdef HAVE_FONTCONFIG
+static void _unload_fc_lib(JNIEnv * env, jclass cls)
+{
     jfieldID fid   = (*env)->GetStaticFieldID(env, cls, "fcLib", "J");
     jlong    fcLib = (*env)->GetStaticLongField (env, cls, fid);
 
@@ -87,72 +88,101 @@ Java_java_awt_BDFontMetrics_unloadFontConfigN(JNIEnv * env, jclass cls)
         (*env)->SetStaticLongField (env, cls, fid, 0);
         FcConfigDestroy(lib);
     }
-#endif
 }
+#endif
 
 #ifdef HAVE_FONTCONFIG
-static void _fill_fc_pattern(JNIEnv *env, FcPattern *pat, jstring fontFamily, jint fontStyle)
+static void _fill_fc_pattern(FcPattern *pat, const char *font_family, jint fontStyle)
 {
-    const char *family = (*env)->GetStringUTFChars(env, fontFamily, NULL);
-    int         weight = (fontStyle & 1) ? FC_WEIGHT_EXTRABOLD : FC_WEIGHT_NORMAL;
-    int         slant  = (fontStyle & 2) ? FC_SLANT_ITALIC     : FC_SLANT_ROMAN;
+    int weight = (fontStyle & 1) ? FC_WEIGHT_EXTRABOLD : FC_WEIGHT_NORMAL;
+    int slant  = (fontStyle & 2) ? FC_SLANT_ITALIC     : FC_SLANT_ROMAN;
 
-    if (strncmp(family, "mono", 4)) { /* mono, monospace, monospaced */
-        FcPatternAddString(pat, FC_FAMILY, (const FcChar8*)family);
+    if (strncmp(font_family, "mono", 4)) { /* mono, monospace, monospaced */
+        FcPatternAddString(pat, FC_FAMILY, (const FcChar8*)font_family);
     } else {
         FcPatternAddString(pat, FC_FAMILY, (const FcChar8*)"monospace");
     }
     FcPatternAddBool   (pat, FC_OUTLINE, FcTrue);
     FcPatternAddInteger(pat, FC_SLANT,   slant);
     FcPatternAddInteger(pat, FC_WEIGHT,  weight);
-
-    (*env)->ReleaseStringUTFChars(env, fontFamily, family);
 }
 #endif
 
-JNIEXPORT jstring JNICALL
-Java_java_awt_BDFontMetrics_resolveFontN(JNIEnv * env, jclass cls, jstring fontFamily, jint fontStyle)
-{
-    jstring file = NULL;
 #ifdef HAVE_FONTCONFIG
-    FcConfig *lib = getFcLib(env, cls);
+static char *_fontconfig_resolve_font(FcConfig *lib, const char *font_family, jint font_style)
+{
+    FcResult   result = FcResultMatch;
+    FcPattern *pat, *font;
+    FcChar8   *fc_filename = NULL;
+    char      *filename = NULL;
 
-    if (lib) {
-        FcResult result = FcResultMatch;
-        FcPattern *pat, *font;
-        FcChar8 *filename = NULL;
+    pat = FcPatternCreate();
+    if (!pat) {
+        return NULL;
+    }
 
-        pat = FcPatternCreate();
-        if (!pat) return NULL;
+    _fill_fc_pattern(pat, font_family, font_style);
 
-        _fill_fc_pattern(env, pat, fontFamily, fontStyle);
-
-        FcDefaultSubstitute(pat);
-        if (!FcConfigSubstitute(lib, pat, FcMatchPattern)) {
-            FcPatternDestroy(pat);
-            return NULL;
-        }
-
-        font = FcFontMatch(lib, pat, &result);
+    FcDefaultSubstitute(pat);
+    if (!FcConfigSubstitute(lib, pat, FcMatchPattern)) {
         FcPatternDestroy(pat);
-        if (!font || result == FcResultNoMatch) {
-            return NULL;
-        }
+        return NULL;
+    }
 
-        if (FcResultMatch == FcPatternGetString(font, FC_FILE, 0, &filename)) {
-            file = (*env)->NewStringUTF(env, (const char*)filename);
-        }
+    font = FcFontMatch(lib, pat, &result);
+    FcPatternDestroy(pat);
+    if (!font || result == FcResultNoMatch) {
+        return NULL;
+    }
 
-        FcPatternDestroy(font);
+    if (FcResultMatch == FcPatternGetString(font, FC_FILE, 0, &fc_filename)) {
+        filename = str_dup((const char*)fc_filename);
+    }
+    FcPatternDestroy(font);
+
+    return filename;
+}
+#endif
+
+/*
+ * Font resolver
+ */
+
+JNIEXPORT void JNICALL
+Java_java_awt_BDFontMetrics_unloadFontConfigN(JNIEnv * env, jclass cls)
+{
+#ifdef HAVE_FONTCONFIG
+    _unload_fc_lib(env, cls);
+#endif
+}
+
+JNIEXPORT jstring JNICALL
+Java_java_awt_BDFontMetrics_resolveFontN(JNIEnv * env, jclass cls, jstring jfont_family, jint font_style)
+{
+    const char *font_family = (*env)->GetStringUTFChars(env, jfont_family, NULL);
+    char       *filename = NULL;
+    jstring     jfilename = NULL;
+
+#ifdef HAVE_FONTCONFIG
+    FcConfig *lib = _get_fc_lib(env, cls);
+    if (lib) {
+        filename = _fontconfig_resolve_font(lib, font_family, font_style);
     }
 #else
     BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J font config support not compiled in\n");
 #endif
-    return file;
+
+    if (filename) {
+        jfilename = (*env)->NewStringUTF(env, (const char*)filename);
+        X_FREE(filename);
+    }
+
+    (*env)->ReleaseStringUTFChars(env, jfont_family, font_family);
+    return jfilename;
 }
 
 /*
- *
+ * Font metrics (freetype)
  */
 
 JNIEXPORT jlong JNICALL
