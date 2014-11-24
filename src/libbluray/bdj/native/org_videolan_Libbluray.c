@@ -65,15 +65,19 @@ static jobject _make_title_info(JNIEnv* env, const BLURAY_TITLE *title, int titl
     return ti;
 }
 
-static jobject _get_title_info(JNIEnv * env, const BLURAY_DISC_INFO *disc_info, jint title_number)
+static jobjectArray _make_title_infos(JNIEnv * env, const BLURAY_DISC_INFO *disc_info)
 {
-    if (title_number == 65535) {
-        return _make_title_info(env, disc_info->first_play, 65535);
+    jobjectArray titleArr = bdj_make_array(env, "org/videolan/TitleInfo", disc_info->num_titles + 2);
+
+    for (unsigned i = 0; i <= disc_info->num_titles; i++) {
+        jobject titleInfo = _make_title_info(env, disc_info->titles[i], i);
+        (*env)->SetObjectArrayElement(env, titleArr, i, titleInfo);
     }
-    if (title_number >= 0 && (unsigned)title_number <= disc_info->num_titles) {
-        return _make_title_info(env, disc_info->titles[title_number], title_number);
-    }
-    return NULL;
+
+    jobject titleInfo = _make_title_info(env, disc_info->first_play, 65535);
+    (*env)->SetObjectArrayElement(env, titleArr, disc_info->num_titles + 1, titleInfo);
+
+    return titleArr;
 }
 
 /*
@@ -148,15 +152,15 @@ static jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
  *
  */
 
-JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
-  (JNIEnv * env, jclass cls, jlong np, jint title)
-{
+JNIEXPORT jobjectArray JNICALL Java_org_videolan_Libbluray_getTitleInfosN
+  (JNIEnv * env, jclass cls, jlong np)
+ {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
     const BLURAY_DISC_INFO *disc_info = bd_get_disc_info(bd);
 
-    BD_DEBUG(DBG_JNI, "getTitleInfoN(%d)\n", (int)title);
+    BD_DEBUG(DBG_JNI, "getTitleInfosN()\n");
 
-    return _get_title_info(env, disc_info, title);
+    return  _make_title_infos(env, disc_info);
 }
 
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
@@ -202,14 +206,6 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setUOMaskN(JNIEnv * env,
         jclass cls, jlong np, jboolean menuCallMask, jboolean titleSearchMask) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
     bd_set_bdj_uo_mask(bd, ((!!menuCallMask) * BDJ_MENU_CALL_MASK) | ((!!titleSearchMask) * BDJ_TITLE_SEARCH_MASK));
-}
-
-JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN(JNIEnv * env,
-                                                              jclass cls, jlong np) {
-    BLURAY* bd = (BLURAY*)(intptr_t)np;
-    const BLURAY_DISC_INFO *disc_info = bd_get_disc_info(bd);
-
-    return disc_info->num_titles;
 }
 
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN(JNIEnv * env,
@@ -484,19 +480,14 @@ Java_org_videolan_Libbluray_methods[] =
         VC(Java_org_videolan_Libbluray_setUOMaskN),
     },
     {
-        CC("getTitleInfoN"),
-        CC("(JI)Lorg/videolan/TitleInfo;"),
-        VC(Java_org_videolan_Libbluray_getTitleInfoN),
+        CC("getTitleInfosN"),
+        CC("(J)[Lorg/videolan/TitleInfo;"),
+        VC(Java_org_videolan_Libbluray_getTitleInfosN),
     },
     {
         CC("getPlaylistInfoN"),
         CC("(JI)Lorg/videolan/PlaylistInfo;"),
         VC(Java_org_videolan_Libbluray_getPlaylistInfoN),
-    },
-    {
-        CC("getTitlesN"),
-        CC("(J)I"),
-        VC(Java_org_videolan_Libbluray_getTitlesN),
     },
     {
         CC("seekN"),

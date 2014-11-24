@@ -153,22 +153,48 @@ public class Libbluray {
             e.printStackTrace();
         }
         nativePointer = 0;
+        titleInfos = null;
     }
 
     public static byte[] getAacsData(int type) {
         return getAacsDataN(nativePointer, type);
     }
 
-    public static int getTitles() {
-        return getTitlesN(nativePointer);
+    /*
+     * Disc titles
+     */
+
+    /* used by javax/tv/service/SIManagerImpl */
+    public static int numTitles() {
+        if (titleInfos == null) {
+            titleInfos = getTitleInfosN(nativePointer);
+            if (titleInfos == null) {
+                return -1;
+            }
+        }
+        return titleInfos.length - 2;
     }
 
+    /* used by org/bluray/ti/TitleImpl */
     public static TitleInfo getTitleInfo(int titleNum) {
-        if (titleNum < 0)
+        int numTitles = numTitles();
+        if (numTitles < 0)
+            return null;
+
+        if (titleNum == 0xffff) {
+            return titleInfos[titleInfos.length - 1];
+        }
+
+        if (titleNum < 0 || titleNum > numTitles)
             throw new IllegalArgumentException();
 
-        return getTitleInfoN(nativePointer, titleNum);
+        return titleInfos[titleNum];
     }
+
+    /*
+     *
+     */
+
 
     public static PlaylistInfo getPlaylistInfo(int playlist) {
         return getPlaylistInfoN(nativePointer, playlist);
@@ -495,9 +521,8 @@ public class Libbluray {
     public static final int AACS_DEVICE_NONCE      = 5;
 
     private static native byte[] getAacsDataN(long np, int type);
-    private static native TitleInfo getTitleInfoN(long np, int title);
+    private static native TitleInfo[] getTitleInfosN(long np);
     private static native PlaylistInfo getPlaylistInfoN(long np, int playlist);
-    private static native int getTitlesN(long np);
     private static native long seekN(long np, int playitem, int playmark, long time);
     private static native int selectPlaylistN(long np, int playlist, int playitem, int playmark, long time);
     private static native int selectTitleN(long np, int title);
@@ -514,5 +539,6 @@ public class Libbluray {
     private static native void updateGraphicN(long np, int width, int height, int[] rgbArray,
                                               int x0, int y0, int x1, int y1);
 
-    protected static long nativePointer = 0;
+    private static long nativePointer = 0;
+    private static TitleInfo[] titleInfos = null;
 }

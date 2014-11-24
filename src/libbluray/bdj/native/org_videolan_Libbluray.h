@@ -118,11 +118,11 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setUOMaskN
 
 /*
  * Class:     org_videolan_Libbluray
- * Method:    getTitleInfoN
- * Signature: (JI)Lorg/videolan/TitleInfo;
+ * Method:    getTitleInfosN
+ * Signature: (J)[Lorg/videolan/TitleInfo;
  */
-JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
-  (JNIEnv *, jclass, jlong, jint);
+JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfosN
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     org_videolan_Libbluray
@@ -131,14 +131,6 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getTitleInfoN
  */
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getPlaylistInfoN
   (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     org_videolan_Libbluray
- * Method:    getTitlesN
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_getTitlesN
-  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     org_videolan_Libbluray
