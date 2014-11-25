@@ -74,6 +74,7 @@ libbluray_la_SOURCES = \
 	file/file.c \
 	file/dirs.h \
 	file/dl.h \
+	file/mount.h \
 	file/filesystem.h \
 	file/filesystem.c \
 	file/libaacs.h \
@@ -102,20 +103,23 @@ libbluray_la_SOURCES+= \
 	file/file_posix.c \
 	file/dir_posix.c \
 	file/dl_posix.c \
-	file/dirs_darwin.c
+	file/dirs_darwin.c \
+	file/mount_darwin.c
 else
 if HAVE_WIN32
 libbluray_la_SOURCES+= \
 	file/file_win32.c \
 	file/dir_win32.c \
 	file/dl_win32.c \
-	file/dirs_win32.c
+	file/dirs_win32.c \
+	file/mount.c
 else
 libbluray_la_SOURCES+= \
 	file/file_posix.c \
 	file/dir_posix.c \
 	file/dl_posix.c \
-	file/dirs_xdg.c
+	file/dirs_xdg.c \
+	file/mount.c
 endif
 endif
 

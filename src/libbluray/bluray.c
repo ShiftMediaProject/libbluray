@@ -43,6 +43,7 @@
 #include "decoders/m2ts_filter.h"
 #include "decoders/overlay.h"
 #include "file/file.h"
+#include "file/mount.h"
 #ifdef USING_BDJAVA
 #include "bdj/bdj.h"
 #endif
@@ -54,19 +55,6 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <string.h>
-
-#ifdef HAVE_MNTENT_H
-#include <sys/stat.h>
-#include <mntent.h>
-#endif
-
-#ifdef __APPLE__
-#define _DARWIN_C_SOURCE
-#include <sys/stat.h>
-#include <sys/param.h>
-#include <sys/ucred.h>
-#include <sys/mount.h>
-#endif
 
 
 #define MAX_EVENTS 31  /* 2^n - 1 */
@@ -1346,71 +1334,6 @@ static void _storage_free(BLURAY *bd)
 #define _storage_free(bd) do{}while(0)
 #endif
 
-#ifdef HAVE_MNTENT_H
-/*
- * Replace device node (/dev/sr0) by mount point
- * Implemented on Linux and MacOSX
- */
-static void get_mount_point(BLURAY *bd)
-{
-    struct stat st;
-    if (stat (bd->device_path, &st) )
-        return;
-
-    /* If it's a directory, all is good */
-    if (S_ISDIR(st.st_mode))
-        return;
-
-    FILE *f = setmntent ("/proc/self/mounts", "r");
-    if (!f)
-        return;
-
-    struct mntent* m;
-#ifdef HAVE_GETMNTENT_R
-    struct mntent mbuf;
-    char buf [8192];
-    while ((m = getmntent_r (f, &mbuf, buf, sizeof(buf))) != NULL) {
-#else
-    while ((m = getmntent (f)) != NULL) {
-#endif
-        if (!strcmp (m->mnt_fsname, bd->device_path)) {
-            free(bd->device_path);
-            bd->device_path = str_dup (m->mnt_dir);
-            break;
-        }
-    }
-    endmntent (f);
-}
-#endif
-#ifdef __APPLE__
-static void get_mount_point(BLURAY *bd)
-{
-    struct stat st;
-    if (stat (bd->device_path, &st) )
-        return;
-
-    /* If it's a directory, all is good */
-    if (S_ISDIR(st.st_mode))
-        return;
-
-    struct statfs mbuf[128];
-    int fs_count;
-
-    if ( (fs_count = getfsstat (NULL, 0, MNT_NOWAIT)) == -1 ) {
-        return;
-    }
-
-    getfsstat (mbuf, fs_count * sizeof(mbuf[0]), MNT_NOWAIT);
-
-    for ( int i = 0; i < fs_count; ++i) {
-        if (!strcmp (mbuf[i].f_mntfromname, bd->device_path)) {
-            free(bd->device_path);
-            bd->device_path = str_dup (mbuf[i].f_mntonname);
-        }
-    }
-}
-#endif
-
 /*
  * open / close
  */
@@ -1438,11 +1361,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         return NULL;
     }
 
-    bd->device_path = str_dup(device_path);
-
-#if (defined HAVE_MNTENT_H || defined __APPLE__)
-    get_mount_point(bd);
-#endif
+    bd->device_path = mount_get_mountpoint(device_path);
 
     _libaacs_init(bd, keyfile_path);
 
