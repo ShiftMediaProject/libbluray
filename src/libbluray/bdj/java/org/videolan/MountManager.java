@@ -76,6 +76,13 @@ public class MountManager {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            if (jar != null) {
+                try {
+                    jar.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
             throw new MountException();
         }
 

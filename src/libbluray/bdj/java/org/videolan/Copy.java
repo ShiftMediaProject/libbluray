@@ -41,7 +41,9 @@ public class Copy {
         }
 
         ClObjectInputStream ios = new ClObjectInputStream(cl, new ByteArrayInputStream(bos.toByteArray()));
-        return (Serializable)ios.readObject();
+        Serializable s = (Serializable)ios.readObject();
+        ios.close();
+        return s;
     }
 
     /* ObjectInputStream with xlet class loader */

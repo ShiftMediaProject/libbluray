@@ -30,8 +30,9 @@ class LockFile {
 
     public static LockFile create(String path) {
 
+        RandomAccessFile os = null;
         try {
-            RandomAccessFile os = new RandomAccessFile(path, "rw");
+            os = new RandomAccessFile(path, "rw");
             if (os.getChannel().tryLock() != null) {
                 /* Test if locking works: second tryLock() should fail */
                 if (os.getChannel().tryLock() != null) {
@@ -44,9 +45,17 @@ class LockFile {
                 }
                 return new LockFile(os);
             } else {
+                os.close();
                 logger.info("Failed locking " + path);
             }
         } catch (Exception e) {
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
             logger.error("Failed creating lock file: " + e);
         }
         return null;
