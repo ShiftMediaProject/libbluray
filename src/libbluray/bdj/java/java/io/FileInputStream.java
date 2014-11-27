@@ -18,8 +18,6 @@
 
 package java.io;
 
-import java.net.URL;
-//import java.nio.channels.FileChannel;
 
 import org.videolan.BDJLoader;
 import org.videolan.BDJXletContext;

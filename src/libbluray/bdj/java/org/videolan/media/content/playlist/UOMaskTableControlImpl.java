@@ -21,7 +21,6 @@
 package org.videolan.media.content.playlist;
 
 import java.awt.Component;
-import java.util.LinkedList;
 
 import org.bluray.media.UOMaskTableControl;
 import org.bluray.media.UOMaskTableListener;

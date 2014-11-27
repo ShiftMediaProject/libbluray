@@ -23,7 +23,6 @@ import java.awt.Container;
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.security.AccessController;

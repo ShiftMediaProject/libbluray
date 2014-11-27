@@ -22,12 +22,10 @@ package org.dvb.ui;
 
 import java.awt.Font;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import org.videolan.BDJUtil;

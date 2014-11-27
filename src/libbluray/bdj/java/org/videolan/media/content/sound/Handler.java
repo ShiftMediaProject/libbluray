@@ -18,9 +18,7 @@
 
 package org.videolan.media.content.sound;
 
-import java.awt.Component;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.media.ClockStartedError;
 import javax.media.ClockStoppedException;

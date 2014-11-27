@@ -18,9 +18,7 @@
 
 package org.videolan.media.content.audio;
 
-import java.awt.Component;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.media.Control;
 import javax.media.ControllerErrorEvent;
@@ -28,7 +26,6 @@ import javax.media.IncompatibleSourceException;
 import javax.media.Time;
 import javax.media.protocol.DataSource;
 
-import org.bluray.net.BDLocator;
 
 import org.videolan.media.content.playlist.OverallGainControlImpl;
 import org.videolan.media.content.playlist.PanningControlImpl;

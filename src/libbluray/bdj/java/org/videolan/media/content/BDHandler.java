@@ -20,7 +20,6 @@ package org.videolan.media.content;
 
 import java.awt.Component;
 import java.io.IOException;
-import java.util.LinkedList;
 
 import javax.media.Clock;
 import javax.media.ClockStoppedException;
