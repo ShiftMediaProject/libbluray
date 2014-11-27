@@ -38,7 +38,7 @@ class BDJSockets {
         }
 
         if (closed) {
-            logger.error("Terminated Xlet tried to create socket at " + logger.dumpStack());
+            logger.error("Terminated Xlet tried to create socket at " + Logger.dumpStack());
             throw new Error("Terminated Xlet can not create sockets");
         }
 
@@ -77,7 +77,7 @@ class BDJSockets {
             getSocket.setAccessible(true);
             return (Socket) getSocket.invoke(socketImpl, new Object[0]);
         } catch (Exception e) {
-            logger.error("Failed to get Socket: " + e + " at " + logger.dumpStack());
+            logger.error("Failed to get Socket: " + e + " at " + Logger.dumpStack());
             return null;
         }
     }

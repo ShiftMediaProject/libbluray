@@ -69,7 +69,7 @@ public class FileInputStream extends InputStream
                 if (logger == null) {
                     logger = Logger.getLogger(FileInputStream.class.getName());
                 }
-                logger.error("no home found for " + name + " at " + logger.dumpStack());
+                logger.error("no home found for " + name + " at " + Logger.dumpStack());
                 throw new FileNotFoundException(name);
             }
             open(home + name);
@@ -192,7 +192,7 @@ public class FileInputStream extends InputStream
 
     protected void finalize() throws IOException {
         if (fd != null) {
-            if (fd != fd.in) {
+            if (fd != FileDescriptor.in) {
                 close(false);
             }
         }

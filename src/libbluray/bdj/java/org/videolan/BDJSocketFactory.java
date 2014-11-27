@@ -50,7 +50,7 @@ class BDJSocketFactory implements SocketImplFactory {
             constructor.setAccessible(true);
             return (SocketImpl) constructor.newInstance(new Object[0]);
         } catch (Exception e) {
-            logger.error("Failed to create socket: " + e + " at " + logger.dumpStack());
+            logger.error("Failed to create socket: " + e + " at " + Logger.dumpStack());
             throw new RuntimeException(e);
         }
     }
@@ -68,7 +68,7 @@ class BDJSocketFactory implements SocketImplFactory {
             logger.info("Xlet " + ctx + " created new socket");
             ctx.addSocket(socket);
         } else {
-            logger.error("New socket created outside of Xlet context: " + logger.dumpStack());
+            logger.error("New socket created outside of Xlet context: " + Logger.dumpStack());
         }
         return socket;
     }

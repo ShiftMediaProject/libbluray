@@ -157,7 +157,7 @@ public abstract class BDFileSystem extends FileSystem {
         /* try to locate file in Xlet home directory */
         String home = BDJXletContext.getCurrentXletHome();
         if (home == null) {
-            logger.error("no home found for " + f.getPath() + " at " + logger.dumpStack());
+            logger.error("no home found for " + f.getPath() + " at " + Logger.dumpStack());
             return 0;
         }
 
