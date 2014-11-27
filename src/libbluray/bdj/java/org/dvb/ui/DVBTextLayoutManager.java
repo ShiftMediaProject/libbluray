@@ -82,12 +82,12 @@ public class DVBTextLayoutManager implements org.havi.ui.HTextLayoutManager {
 
     public void setLineSpace(int lineSpace)
     {
-        this.linespace = linespace;
+        this.linespace = lineSpace;
     }
 
     public void setLetterSpace(int letterSpace)
     {
-        this.letterspace = letterspace;
+        this.letterspace = letterSpace;
     }
 
     public void setHorizontalTabSpacing(int horizontalTabSpace)
