@@ -22,7 +22,7 @@
 #if !defined(_META_PARSE_H_)
 #define _META_PARSE_H_
 
-BD_PRIVATE META_ROOT* meta_parse(const char *device_path);
+BD_PRIVATE META_ROOT* meta_parse(const char *device_path) BD_ATTR_MALLOC;
 BD_PRIVATE void       meta_free(META_ROOT **index);
 BD_PRIVATE const META_DL* meta_get(const META_ROOT *meta_root, const char *language_code);
 
