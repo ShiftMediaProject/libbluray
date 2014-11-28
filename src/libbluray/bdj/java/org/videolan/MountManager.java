@@ -86,6 +86,8 @@ public class MountManager {
                 throw new MountException();
             }
 
+            InputStream inStream = null;
+            OutputStream outStream = null;
             try {
                 byte[] buffer = new byte[32 * 1024];
                 Enumeration entries = jar.entries();
@@ -103,8 +105,8 @@ public class MountManager {
 
                         logger.info("   mount: " + entry.getName());
 
-                        InputStream inStream = jar.getInputStream(entry);
-                        OutputStream outStream = new FileOutputStream(out);
+                        inStream = jar.getInputStream(entry);
+                        outStream = new FileOutputStream(out);
 
                         int length;
                         while ((length = inStream.read(buffer)) > 0) {
@@ -119,6 +121,26 @@ public class MountManager {
                 e.printStackTrace();
                 mountPoint.remove();
                 throw new MountException();
+            } finally {
+                if (inStream != null) {
+                    try {
+                        inStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (outStream != null) {
+                    try {
+                        outStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                try {
+                    jar.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             if (mountPoint.classFiles() != classFiles) {
