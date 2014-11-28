@@ -244,21 +244,8 @@ mobj_dump_SOURCES = examples/mobj_dump.c \
 	libbluray/hdmv/mobj_print.c
 mobj_dump_LDADD = libbluray.la
 
-bdjo_dump_CFLAGS = $(AM_CFLAGS)
-bdjo_dump_SOURCES = \
-	examples/bdjo_dump.c \
-	file/file.c \
-	libbluray/bdj/bdjo_parse.c \
-	util/bits.c \
-	util/logging.c \
-	util/strutl.c
-if HAVE_WIN32
-bdjo_dump_SOURCES += \
-	file/file_win32.c
-else
-bdjo_dump_SOURCES += \
-	file/file_posix.c
-endif
+bdjo_dump_SOURCES = examples/bdjo_dump.c
+bdjo_dump_LDADD = libbluray.la
 
 sound_dump_SOURCES = examples/sound_dump.c
 sound_dump_LDADD = libbluray.la

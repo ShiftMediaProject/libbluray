@@ -891,6 +891,10 @@ struct mobj_objects;
 struct mobj_objects *bd_read_mobj(const char *mobj_file);
 void bd_free_mobj(struct mobj_objects *);
 
+struct bdjo_data;
+struct bdjo_data *bd_read_bdjo(const char *bdjo_file);
+void bd_free_bdjo(struct bdjo_data *);
+
 /* BD-J testing */
 
 int  bd_start_bdj(BLURAY *bd, const char* start_object); // start BD-J from the specified BD-J object (should be a 5 character string)

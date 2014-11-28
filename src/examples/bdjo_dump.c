@@ -17,8 +17,8 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include "libbluray/bluray.h"
 #include "libbluray/bdj/bdjo_data.h"
-#include "libbluray/bdj/bdjo_parse.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -194,10 +194,10 @@ int main(int argc, const char *argv[])
 
         printf("%s\n", argv[cnt]);
 
-        BDJO *bdjo = bdjo_parse(argv[cnt]);
+        BDJO *bdjo = bd_read_bdjo(argv[cnt]);
         if (bdjo) {
             _bdjo_print(bdjo);
-            bdjo_free(&bdjo);
+            bd_free_bdjo(bdjo);
         }
         printf("\n");
     }
