@@ -19,6 +19,8 @@
 
 #include "mobj_parse.h"
 
+#include "mobj_data.h"
+
 #include "file/file.h"
 #include "util/bits.h"
 #include "util/logging.h"

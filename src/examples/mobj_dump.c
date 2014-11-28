@@ -18,6 +18,7 @@
  */
 
 #include "libbluray/hdmv/mobj_parse.h"
+#include "libbluray/hdmv/mobj_data.h"
 
 #include <stdio.h>
 #include <string.h>

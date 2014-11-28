@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 
-struct bd_mobj_cmd_s;
+struct mobj_cmd;
 
 /*
  *
@@ -64,7 +64,7 @@ typedef struct bd_ig_button_s {
 
     /* navigation commands */
     uint16_t      num_nav_cmds;
-    struct bd_mobj_cmd_s *nav_cmds;
+    struct mobj_cmd *nav_cmds;
 
 } BD_IG_BUTTON;
 

@@ -20,6 +20,7 @@
 #include "hdmv_vm.h"
 
 #include "mobj_parse.h"
+#include "mobj_data.h"
 #include "hdmv_insn.h"
 #include "../register.h"
 
