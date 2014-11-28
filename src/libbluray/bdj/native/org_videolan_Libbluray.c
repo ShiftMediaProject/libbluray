@@ -330,8 +330,19 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
                                                                jclass cls, jlong np, jstring jpath) {
 
     (void)np;
+
     const char *path = (*env)->GetStringUTFChars(env, jpath, NULL);
+    if (!path) {
+        BD_DEBUG(DBG_JNI | DBG_CRIT, "getBdjoN() failed: no path\n");
+        return NULL;
+    }
+    BD_DEBUG(DBG_JNI, "getBdjoN(%s)\n", path);
+
     jobject bdjo = bdjo_get(env, path);
+    if (!bdjo) {
+        BD_DEBUG(DBG_JNI | DBG_CRIT, "getBdjoN(%s) failed\n", path);
+    }
+
     (*env)->ReleaseStringUTFChars(env, jpath, path);
 
     return bdjo;
