@@ -38,13 +38,3 @@ hdmv_test
 *.exe
 src/libbluray/bdj/build
 stamp-h1
-
-*.obj
-*.log
-*.tlog
-*.pdb
-*.ildb
-*.suo
-*.sdf
-[Oo]bj/
-*.exe
