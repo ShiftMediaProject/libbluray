@@ -21,13 +21,16 @@
 #include "config.h"
 #endif
 
+#include "navigation.h"
+
+#include "clpi_parse.h"
+#include "mpls_parse.h"
+
 #include "util/macro.h"
 #include "util/logging.h"
 #include "util/strutl.h"
 #include "file/file.h"
 #include "libbluray/bluray.h"
-#include "mpls_parse.h"
-#include "navigation.h"
 
 #include <stdlib.h>
 #include <string.h>
