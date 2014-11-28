@@ -33,17 +33,14 @@ class LockFile {
         try {
             RandomAccessFile os = new RandomAccessFile(path, "rw");
             if (os.getChannel().tryLock() != null) {
-                try {
-                    /* Test if locking works: second tryLock() should fail */
-                    if (os.getChannel().tryLock() != null) {
-                        try {
-                            os.close();
-                        } catch (Exception e) {
-                        }
-                        logger.error("File locking is unreliable !");
-                        return null;
+                /* Test if locking works: second tryLock() should fail */
+                if (os.getChannel().tryLock() != null) {
+                    try {
+                        os.close();
+                    } catch (Exception e) {
                     }
-                } catch (Exception e) {
+                    logger.error("File locking is unreliable !");
+                    return null;
                 }
                 return new LockFile(os);
             } else {
