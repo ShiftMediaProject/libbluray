@@ -329,12 +329,12 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN(JNIEnv * env,
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
                                                                jclass cls, jlong np, jstring jpath) {
 
-  (void)np;
-  const char *path = (*env)->GetStringUTFChars(env, jpath, NULL);
-  jobject bdjo = bdjo_get(env, path);
-  (*env)->ReleaseStringUTFChars(env, jpath, path);
+    (void)np;
+    const char *path = (*env)->GetStringUTFChars(env, jpath, NULL);
+    jobject bdjo = bdjo_get(env, path);
+    (*env)->ReleaseStringUTFChars(env, jpath, path);
 
-  return bdjo;
+    return bdjo;
 }
 
 static void _updateGraphic(JNIEnv * env,
