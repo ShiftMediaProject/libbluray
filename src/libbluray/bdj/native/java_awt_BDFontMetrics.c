@@ -72,11 +72,11 @@ typedef struct {
     char *filename;
 } SEARCH_DATA;
 
-static int CALLBACK EnumFontCallback(const ENUMLOGFONTEXA *lpelfe, const NEWTEXTMETRICEX *metric,
-                                     DWORD type, LPARAM lParam)
+static int CALLBACK EnumFontCallbackW(const ENUMLOGFONTEXW *lpelfe, const NEWTEXTMETRICEX *metric,
+                                      DWORD type, LPARAM lParam)
 {
-    const LOGFONT *lplf = &lpelfe->elfLogFont;
-    const char    *font_name = (const char *)lpelfe->elfFullName;
+    const LOGFONTW *lplf = &lpelfe->elfLogFont;
+    const wchar_t *font_name = lpelfe->elfFullName;
     SEARCH_DATA   *data = (SEARCH_DATA *)lParam;
     int            index = 0;
     HKEY           hKey;
@@ -97,7 +97,7 @@ static int CALLBACK EnumFontCallback(const ENUMLOGFONTEXA *lpelfe, const NEWTEXT
         return 1;
     }
 
-    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts",
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts",
                      0, KEY_READ, &hKey) != ERROR_SUCCESS) {
         return 0;
     }
@@ -113,10 +113,7 @@ static int CALLBACK EnumFontCallback(const ENUMLOGFONTEXA *lpelfe, const NEWTEXT
             return result;
         }
 
-        char value[MAX_PATH];
-        WideCharToMultiByte(CP_UTF8, 0, wvalue, -1, value, MAX_PATH, NULL, NULL);
-
-        if (!strcasecmp(value, font_name)) {
+        if (!_wcsicmp(wvalue, font_name)) {
             size_t len = WideCharToMultiByte(CP_UTF8, 0, wdata, -1, NULL, 0, NULL, NULL);
             if (len != 0) {
                 data->filename = (char *)malloc(len);
@@ -132,16 +129,16 @@ static int CALLBACK EnumFontCallback(const ENUMLOGFONTEXA *lpelfe, const NEWTEXT
 
 static char *_win32_resolve_font(const char *family, int style)
 {
-    LOGFONT lf;
+    LOGFONTW lf;
     HDC     hDC;
     SEARCH_DATA data = {style & 2, style & 1, NULL};
 
     memset(&lf, 0, sizeof(lf));
     lf.lfCharSet = DEFAULT_CHARSET;
-    strncpy(lf.lfFaceName, family, LF_FACESIZE);
+    MultiByteToWideChar(CP_UTF8, 0, family, -1, lf.lfFaceName, sizeof(lf.lfFaceName));
 
     hDC = GetDC(NULL);
-    EnumFontFamiliesExA(hDC, &lf, (FONTENUMPROCA)&EnumFontCallback, (LPARAM)&data, 0);
+    EnumFontFamiliesExW(hDC, &lf, (FONTENUMPROCW)&EnumFontCallbackW, (LPARAM)&data, 0);
     ReleaseDC(NULL, hDC);
 
     if (!data.filename) {
