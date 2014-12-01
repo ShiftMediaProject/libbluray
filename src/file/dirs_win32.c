@@ -54,8 +54,8 @@ char *win32_get_font_dir(const char *font_file)
     int   len  = WideCharToMultiByte (CP_UTF8, 0, wdir, -1, NULL, 0, NULL, NULL);
     char *path = malloc(len + strlen(font_file) + 2);
     WideCharToMultiByte(CP_UTF8, 0, wdir, -1, path, len, NULL, NULL);
-    path[len] = '\\';
-    strcpy(path + len + 1, font_file);
+    path[len - 1] = '\\';
+    strcpy(path + len, font_file);
     return path;
 }
 
