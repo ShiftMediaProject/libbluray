@@ -38,7 +38,11 @@
 #include <fontconfig/fontconfig.h>
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined (HAVE_FT2)
+#define NEED_WIN32_FONTS
+#endif
+
+#ifdef NEED_WIN32_FONTS
 #include "file/dirs.h"  // win32_get_font_dir
 #include <windows.h>
 #endif
@@ -60,7 +64,7 @@
  * Windows fonts
  */
 
-#ifdef _WIN32
+#ifdef NEED_WIN32_FONTS
 
 typedef struct {
     int   bold;
@@ -152,7 +156,7 @@ static char *_win32_resolve_font(const char *family, int style)
     return data.filename;
 }
 
-#endif /* _WIN32 */
+#endif /* NEED_WIN32_FONTS */
 
 /*
  * fontconfig
@@ -271,7 +275,7 @@ Java_java_awt_BDFontMetrics_resolveFontN(JNIEnv * env, jclass cls, jstring jfont
     if (lib) {
         filename = _fontconfig_resolve_font(lib, font_family, font_style);
     }
-#elif defined(_WIN32)
+#elif defined(NEED_WIN32_FONTS)
     filename = _win32_resolve_font(font_family, font_style);
 #else
     BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J font config support not compiled in\n");
