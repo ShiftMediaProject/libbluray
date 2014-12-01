@@ -343,7 +343,8 @@ static int _get_method(JNIEnv *env, jclass *cls, jmethodID *method_id,
     return 1;
 }
 
-static int _bdj_init(JNIEnv *env, struct bluray *bd, const char *disc_root, const char *bdj_disc_id)
+static int _bdj_init(JNIEnv *env, struct bluray *bd, const char *disc_root, const char *bdj_disc_id,
+                     BDJ_STORAGE *storage)
 {
     if (!bdj_register_native_methods(env)) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't register native methods.\n");
@@ -353,7 +354,8 @@ static int _bdj_init(JNIEnv *env, struct bluray *bd, const char *disc_root, cons
     jclass init_class;
     jmethodID init_id;
     if (!_get_method(env, &init_class, &init_id,
-                        "org/videolan/Libbluray", "init", "(JLjava/lang/String;Ljava/lang/String;)V")) {
+                     "org/videolan/Libbluray", "init",
+                     "(JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V")) {
         return 0;
     }
 
@@ -361,8 +363,12 @@ static int _bdj_init(JNIEnv *env, struct bluray *bd, const char *disc_root, cons
     jlong param_bdjava_ptr = (jlong)(intptr_t) bd;
     jstring param_disc_id = (*env)->NewStringUTF(env, disc_id);
     jstring param_disc_root = (*env)->NewStringUTF(env, disc_root);
+    jstring param_persistent_root = (*env)->NewStringUTF(env, _bdj_persistent_root(storage));
+    jstring param_buda_root = (*env)->NewStringUTF(env, _bdj_buda_root(storage));
+
     (*env)->CallStaticVoidMethod(env, init_class, init_id,
-                                 param_bdjava_ptr, param_disc_id, param_disc_root);
+                                 param_bdjava_ptr, param_disc_id, param_disc_root,
+                                 param_persistent_root, param_buda_root);
 
     if ((*env)->ExceptionOccurred(env)) {
         (*env)->ExceptionDescribe(env);
@@ -419,7 +425,7 @@ static int _find_jvm(void *jvm_lib, JNIEnv **env, JavaVM **jvm)
     return 0;
 }
 
-static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaVM **jvm, BDJ_STORAGE *storage)
+static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaVM **jvm)
 {
     (void)java_home;  /* used only with J2ME */
 
@@ -432,9 +438,6 @@ static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaV
     JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 20);
     int n = 0;
     JavaVMInitArgs args;
-    option[n++].optionString = str_printf("-Ddvb.persistent.root=%s", _bdj_persistent_root(storage));
-    option[n++].optionString = str_printf("-Dbluray.bindingunit.root=%s", _bdj_buda_root(storage));
-
     option[n++].optionString = str_dup   ("-Dawt.toolkit=java.awt.BDToolkit");
     option[n++].optionString = str_dup   ("-Djava.awt.graphicsenv=java.awt.BDGraphicsEnvironment");
     option[n++].optionString = str_printf("-Xbootclasspath/p:%s", _find_libbluray_jar());
@@ -503,7 +506,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 
     JNIEnv* env = NULL;
     JavaVM *jvm = NULL;
-    if (!_find_jvm(jvm_lib, &env, &jvm) && !_create_jvm(jvm_lib, java_home, &env, &jvm, storage)) {
+    if (!_find_jvm(jvm_lib, &env, &jvm) && !_create_jvm(jvm_lib, java_home, &env, &jvm)) {
         dl_dlclose(jvm_lib);
         return NULL;
     }
@@ -517,7 +520,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
         BD_DEBUG(DBG_BDJ, "Java version: %d.%d\n", version >> 16, version & 0xffff);
     }
 
-    if (!_bdj_init(env, bd, path, bdj_disc_id)) {
+    if (!_bdj_init(env, bd, path, bdj_disc_id, storage)) {
         bdj_close(bdjava);
         return NULL;
     }
