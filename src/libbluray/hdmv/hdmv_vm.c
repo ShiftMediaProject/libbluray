@@ -253,7 +253,7 @@ HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs,
     }
 
     /* read movie objects */
-    p->movie_objects = mobj_parse(disc_root);
+    p->movie_objects = mobj_get(disc_root);
     if (!p->movie_objects) {
         X_FREE(p);
         return NULL;

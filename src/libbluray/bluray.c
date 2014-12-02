@@ -39,6 +39,7 @@
 #include "bdnav/clpi_parse.h"
 #include "bdnav/sound_parse.h"
 #include "hdmv/hdmv_vm.h"
+#include "hdmv/mobj_parse.h"
 #include "decoders/graphics_controller.h"
 #include "decoders/m2ts_filter.h"
 #include "decoders/overlay.h"
@@ -3510,4 +3511,14 @@ struct mpls_pl *bd_read_mpls(const char *mpls_file)
 void bd_free_mpls(struct mpls_pl *pl)
 {
     mpls_free(pl);
+}
+
+struct mobj_objects *bd_read_mobj(const char *mobj_file)
+{
+    return mobj_parse(mobj_file);
+}
+
+void bd_free_mobj(struct mobj_objects *obj)
+{
+    mobj_free(&obj);
 }

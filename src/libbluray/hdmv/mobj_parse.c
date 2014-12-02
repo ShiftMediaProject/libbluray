@@ -122,7 +122,7 @@ void mobj_free(MOBJ_OBJECTS **p)
     }
 }
 
-static MOBJ_OBJECTS *_mobj_parse(const char *file_name)
+MOBJ_OBJECTS *mobj_parse(const char *file_name)
 {
     BITSTREAM     bs;
     BD_FILE_H    *fp;
@@ -190,13 +190,13 @@ static MOBJ_OBJECTS *_mobj_parse(const char *file_name)
     return NULL;
 }
 
-MOBJ_OBJECTS *mobj_parse(const char *disc_root)
+MOBJ_OBJECTS *mobj_get(const char *disc_root)
 {
     MOBJ_OBJECTS *objects;
     char *file;
 
     file = str_printf("%s"DIR_SEP "BDMV" DIR_SEP "MovieObject.bdmv", disc_root);
-    objects = _mobj_parse(file);
+    objects = mobj_parse(file);
     X_FREE(file);
     if (objects) {
         return objects;
@@ -204,7 +204,7 @@ MOBJ_OBJECTS *mobj_parse(const char *disc_root)
 
     /* if failed, try backup file */
     file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "BACKUP" DIR_SEP "MovieObject.bdmv", disc_root);
-    objects = _mobj_parse(file);
+    objects = mobj_parse(file);
     X_FREE(file);
     return objects;
 }

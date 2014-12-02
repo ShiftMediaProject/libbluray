@@ -887,6 +887,9 @@ struct mpls_pl;
 struct mpls_pl *bd_read_mpls(const char *mpls_file);
 void bd_free_mpls(struct mpls_pl *);
 
+struct mobj_objects;
+struct mobj_objects *bd_read_mobj(const char *mobj_file);
+void bd_free_mobj(struct mobj_objects *);
 
 /* BD-J testing */
 
