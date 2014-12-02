@@ -70,6 +70,7 @@ libbluray_la_SOURCES = \
 	libbluray/hdmv/mobj_data.h \
 	libbluray/hdmv/mobj_parse.h \
 	libbluray/hdmv/mobj_parse.c \
+	libbluray/hdmv/mobj_print.h \
 	libbluray/hdmv/mobj_print.c \
 	file/file.h \
 	file/file.c \

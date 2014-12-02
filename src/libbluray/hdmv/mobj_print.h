@@ -17,18 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#if !defined(_MOBJ_PARSE_H_)
-#define _MOBJ_PARSE_H_
+#if !defined(_MOBJ_PRINT_H_)
+#define _MOBJ_PRINT_H_
 
 #include "util/attributes.h"
 
-#include <stdint.h>
-
-struct mobj_objects;
 struct mobj_cmd;
 
-BD_PRIVATE struct mobj_objects* mobj_parse(const char *disc_root) BD_ATTR_MALLOC; /* parse MovieObject.bdmv */
-BD_PRIVATE void                 mobj_parse_cmd(uint8_t *buf, struct mobj_cmd *cmd);
-BD_PRIVATE void                 mobj_free(struct mobj_objects **index);
+BD_PRIVATE int mobj_sprint_cmd(char *buf, struct mobj_cmd *cmd); /* print MOBJ_CMD to string. buf is expected to be 256 bytes. */
 
-#endif // _MOBJ_PARSE_H_
+#endif // _MOBJ_PRINT_H_

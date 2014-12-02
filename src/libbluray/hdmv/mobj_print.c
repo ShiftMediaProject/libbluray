@@ -17,8 +17,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include "mobj_print.h"
+
 #include "mobj_data.h"
-#include "mobj_parse.h"
 #include "hdmv_insn.h"
 
 #include "util/macro.h"
