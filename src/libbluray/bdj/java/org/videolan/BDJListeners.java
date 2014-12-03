@@ -44,6 +44,8 @@ import org.bluray.media.UOMaskedEvent;
 import org.davic.resources.ResourceStatusEvent;
 import org.davic.resources.ResourceStatusListener;
 
+import org.dvb.application.AppsDatabaseEvent;
+import org.dvb.application.AppsDatabaseEventListener;
 import org.dvb.media.SubtitleListener;
 import java.util.EventObject;
 
@@ -149,6 +151,24 @@ public class BDJListeners {
 
             } else if (event instanceof ResourceStatusEvent) {
                 ((ResourceStatusListener)listener).statusChanged((ResourceStatusEvent)event);
+
+            } else if (event instanceof AppsDatabaseEvent) {
+                AppsDatabaseEvent dbevent = (AppsDatabaseEvent)event;
+                AppsDatabaseEventListener dblistener = (AppsDatabaseEventListener)listener;
+                switch (dbevent.getEventId()) {
+                case AppsDatabaseEvent.APP_ADDED:
+                    dblistener.entryAdded(dbevent);
+                    break;
+                case AppsDatabaseEvent.APP_CHANGED:
+                    dblistener.entryChanged(dbevent);
+                    break;
+                case AppsDatabaseEvent.APP_DELETED:
+                    dblistener.entryRemoved(dbevent);
+                    break;
+                case AppsDatabaseEvent.NEW_DATABASE:
+                    dblistener.newDatabase(dbevent);
+                    break;
+                }
 
             /* need to use wrapper if some other callback uses EventObject */
             } else if (event instanceof EventObject &&
