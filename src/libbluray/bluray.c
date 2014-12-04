@@ -3529,6 +3529,7 @@ struct bdjo_data *bd_read_bdjo(const char *bdjo_file)
 #ifdef USING_BDJAVA
     return bdjo_parse(bdjo_file);
 #else
+    (void)bdjo_file;
     return NULL;
 #endif
 }
@@ -3537,5 +3538,7 @@ void bd_free_bdjo(struct bdjo_data *obj)
 {
 #ifdef USING_BDJAVA
     bdjo_free(&obj);
+#else
+    (void)obj;
 #endif
 }
