@@ -29,9 +29,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BD_PSR_COUNT 128
-#define BD_GPR_COUNT 4096
-
 /*
  * Initial values for player status/setting registers (5.8.2).
  *
