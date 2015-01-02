@@ -18,6 +18,9 @@
  */
 
 #include "register.h"
+
+#include "player_settings.h"
+
 #include "util/attributes.h"
 #include "util/macro.h"
 #include "util/logging.h"
@@ -51,13 +54,24 @@ static const uint32_t bd_psr_init[BD_PSR_COUNT] = {
     0xff,        /*     PSR12: User style number */
     0xff,        /* PS: PSR13: User age */
     0xffff,      /*     PSR14: Secondary audio stream number and secondary video stream number */
-    0xffff,      /* PS: PSR15: player capability for audio */
+                 /* PS: PSR15: player capability for audio */
+    BLURAY_ACAP_LPCM_48_96_SURROUND |
+    BLURAY_ACAP_LPCM_192_SURROUND   |
+    BLURAY_ACAP_DDPLUS_SURROUND     |
+    BLURAY_ACAP_DDPLUS_DEP_SURROUND |
+    BLURAY_ACAP_DTSHD_CORE_SURROUND |
+    BLURAY_ACAP_DTSHD_EXT_SURROUND  |
+    BLURAY_ACAP_DD_SURROUND         |
+    BLURAY_ACAP_MLP_SURROUND,
+
     0xffffff,    /* PS: PSR16: Language code for audio */
     0xffffff,    /* PS: PSR17: Language code for PG and Text subtitles */
     0xffffff,    /* PS: PSR18: Menu description language code */
     0xffff,      /* PS: PSR19: Country code */
-    0x02,        /* PS: PSR20: Region code */ /* 1 - A, 2 - B, 4 - C */
-    0,           /* PS: PSR21: Output mode preference */
+                 /* PS: PSR20: Region code */ /* 1 - A, 2 - B, 4 - C */
+    BLURAY_REGION_B,
+                 /* PS: PSR21: Output mode preference */
+    BLURAY_OUTPUT_PREFER_2D,
     0,           /*     PSR22: Stereoscopic status */
     0,           /* PS: PSR23: Display capability */
     0,           /* PS: PSR24: 3D capability */
@@ -65,10 +79,13 @@ static const uint32_t bd_psr_init[BD_PSR_COUNT] = {
     0,           /*     PSR26 */
     0,           /*     PSR27 */
     0,           /*     PSR28 */
-    0x03,        /* PS: PSR29: player capability for video */
+                 /* PS: PSR29: player capability for video */
+    BLURAY_VCAP_SECONDARY_HD |
+    BLURAY_VCAP_25Hz_50Hz,
+
     0x1ffff,     /* PS: PSR30: player capability for text subtitle */
-    0x030200,    /* PS: PSR31: Player profile and version */
-                 /*            BD-RO Profile 2 version 2.0 */
+                 /* PS: PSR31: Player profile and version */
+    BLURAY_PLAYER_PROFILE_2_v2_0,
     0,           /*     PSR32 */
     0,           /*     PSR33 */
     0,           /*     PSR34 */

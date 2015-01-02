@@ -549,37 +549,39 @@ const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY*);
  */
 
 typedef enum {
-    BLURAY_PLAYER_SETTING_PARENTAL       = 13,  /* Age for parental control (years) */
-    BLURAY_PLAYER_SETTING_AUDIO_CAP      = 15,  /* Player capability for audio (bit mask) */
-    BLURAY_PLAYER_SETTING_AUDIO_LANG     = 16,  /* Initial audio language: ISO 639-2 string, ex. "eng" */
-    BLURAY_PLAYER_SETTING_PG_LANG        = 17,  /* Initial PG/SPU language: ISO 639-2 string, ex. "eng" */
-    BLURAY_PLAYER_SETTING_MENU_LANG      = 18,  /* Initial menu language: ISO 639-2 string, ex. "eng" */
-    BLURAY_PLAYER_SETTING_COUNTRY_CODE   = 19,  /* Player country code: ISO 3166-1 string, ex. "de" */
-    BLURAY_PLAYER_SETTING_REGION_CODE    = 20,  /* Player region code: 1 - region A, 2 - B, 4 - C */
-    BLURAY_PLAYER_SETTING_OUTPUT_PREFER  = 21,  /* output mode preference: 0 - 2D, 1 - 3D */
-    BLURAY_PLAYER_SETTING_DISPLAY_CAP    = 23,  /* Display capability (bit mask) */
-    BLURAY_PLAYER_SETTING_3D_CAP         = 24,  /* 3D capability (bit mask) */
-    BLURAY_PLAYER_SETTING_VIDEO_CAP      = 29,  /* Player capability for video (bit mask) */
-    BLURAY_PLAYER_SETTING_TEXT_CAP       = 30,  /* Player capability for text subtitle (bit mask) */
-    BLURAY_PLAYER_SETTING_PLAYER_PROFILE = 31,  /* Profile1: 0, Profile1+: 1, Profile2: 3, Profile3: 8 */
+    BLURAY_PLAYER_SETTING_AUDIO_LANG     = 16,    /* Initial audio language.      String (ISO 639-2/T). */
+    BLURAY_PLAYER_SETTING_PG_LANG        = 17,    /* Initial PG/SPU language.     String (ISO 639-2/T). */
+    BLURAY_PLAYER_SETTING_MENU_LANG      = 18,    /* Initial menu language.       String (ISO 639-2/T). */
+    BLURAY_PLAYER_SETTING_COUNTRY_CODE   = 19,    /* Player country code.         String (ISO 3166-1/alpha-2). */
+    BLURAY_PLAYER_SETTING_REGION_CODE    = 20,    /* Player region code.          Integer. */
+    BLURAY_PLAYER_SETTING_OUTPUT_PREFER  = 21,    /* Output mode preference.      Integer. */
+    BLURAY_PLAYER_SETTING_PARENTAL       = 13,    /* Age for parental control.    Integer. */
+    BLURAY_PLAYER_SETTING_AUDIO_CAP      = 15,    /* Audio capability.            Bit mask. */
+    BLURAY_PLAYER_SETTING_VIDEO_CAP      = 29,    /* Video capability.            Bit mask. */
+    BLURAY_PLAYER_SETTING_DISPLAY_CAP    = 23,    /* Display capability.          Bit mask. */
+    BLURAY_PLAYER_SETTING_3D_CAP         = 24,    /* 3D capability.               Bit mask. */
+    BLURAY_PLAYER_SETTING_TEXT_CAP       = 30,    /* Text Subtitle capability.    Bit mask. */
+    BLURAY_PLAYER_SETTING_PLAYER_PROFILE = 31,    /* Player profile and version. */
 
-    BLURAY_PLAYER_SETTING_DECODE_PG      = 0x100, /* enable/disable PG (subtitle) decoder */
-    BLURAY_PLAYER_PERSISTENT_ROOT        = 400,   /* Root path (string) to the BD_J persistent storage location */
-    BLURAY_PLAYER_CACHE_ROOT             = 401,   /* Root path (string) to the BD_J cache storage location */
+    BLURAY_PLAYER_SETTING_DECODE_PG      = 0x100, /* Enable/disable PG (subtitle) decoder. Integer. */
+    BLURAY_PLAYER_PERSISTENT_ROOT        = 400,   /* Root path to the BD_J persistent storage location. String. */
+    BLURAY_PLAYER_CACHE_ROOT             = 401,   /* Root path to the BD_J cache storage location. String. */
 } bd_player_setting;
 
 /**
  *
- *  Update player setting registers
+ *  Update player setting
+ *
+ *  Bit masks and enumeration values are defined in player_settings.h.
  *
  * @param bd  BLURAY object
- * @param idx Player setting register
- * @param value New value for player setting register
+ * @param idx Player setting to update
+ * @param value New value for player setting
  * @return 1 on success, 0 on error (invalid setting)
  */
 
 int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value);
-int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s);
+int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *value);
 
 
 /*

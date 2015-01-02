@@ -137,6 +137,7 @@ pkginclude_HEADERS = \
 	libbluray/bluray.h \
 	libbluray/decoders/overlay.h \
 	libbluray/keys.h \
+	libbluray/player_settings.h \
 	util/log_control.h
 
 if USING_BDJAVA
