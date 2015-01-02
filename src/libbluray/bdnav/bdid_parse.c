@@ -80,10 +80,10 @@ static BDID_DATA *_bdid_parse(const char *file_name)
     bs_seek_byte(&bs, 40);
 
     bs_read_bytes(&bs, tmp, 4);
-    print_hex(bdid->org_id, tmp, 4);
+    str_print_hex(bdid->org_id, tmp, 4);
 
     bs_read_bytes(&bs, tmp, 16);
-    print_hex(bdid->disc_id, tmp, 16);
+    str_print_hex(bdid->disc_id, tmp, 16);
 
     file_close(fp);
     return bdid;
