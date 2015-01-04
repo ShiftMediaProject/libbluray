@@ -44,7 +44,7 @@
 #define file_tell(X) X->tell(X)
 //#define file_eof(X) X->eof(X)
 #define file_read(X,Y,Z) (size_t)X->read(X,Y,Z)
-#define file_write(X,Y,Z) (size_t)X->write(X,Y,Z)
+//#define file_write(X,Y,Z) (size_t)X->write(X,Y,Z)
 BD_PRIVATE int64_t file_size(BD_FILE_H *fp);
 
 BD_PRIVATE extern BD_FILE_H* (*file_open)(const char* filename, const char *mode);
