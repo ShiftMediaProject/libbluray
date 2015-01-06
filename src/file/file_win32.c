@@ -100,7 +100,7 @@ static BD_FILE_H *_file_open(const char* filename, const char *mode)
         MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, mode, -1, wmode, 8) &&
         (fp = _wfopen(wfilename, wmode))) {
 
-        BD_FILE_H *file = malloc(sizeof(BD_FILE_H));
+        BD_FILE_H *file = calloc(1, sizeof(BD_FILE_H));
         file->internal = fp;
         file->close    = _file_close;
         file->seek     = _file_seek;

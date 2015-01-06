@@ -79,7 +79,7 @@ static int64_t file_write_linux(BD_FILE_H *file, const uint8_t *buf, int64_t siz
 static BD_FILE_H *file_open_linux(const char* filename, const char *mode)
 {
     FILE *fp = NULL;
-    BD_FILE_H *file = malloc(sizeof(BD_FILE_H));
+    BD_FILE_H *file = calloc(1, sizeof(BD_FILE_H));
 
     BD_DEBUG(DBG_FILE, "Opening LINUX file %s... (%p)\n", filename, (void*)file);
     file->close = file_close_linux;
