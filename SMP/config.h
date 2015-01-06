@@ -96,25 +96,6 @@
 /* "" */
 #define JDK_HOME ""
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
-#define LT_OBJDIR ".libs/"
-
-/* Name of package */
-#define PACKAGE "libbluray"
-
-/* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "http://www.videolan.org/developers/libbluray.html"
-
-/* Define to the full name of this package. */
-#define PACKAGE_NAME "libbluray"
-
-/* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "libbluray"
-
-/* Define to the home page for this package. */
-#define PACKAGE_URL ""
-
 #include "version.h"
 
 /* Define as the return type of signal handlers (`int' or `void'). */
@@ -126,19 +107,16 @@
 /* "Define to 1 if using BD-Java" */
 #define USING_BDJAVA 1
 
-/* Enable large inode numbers on Mac OS X 10.5.  */
-#ifndef _DARWIN_USE_64_BIT_INODE
-# define _DARWIN_USE_64_BIT_INODE 1
-#endif
-
-/* Number of bits in a file offset, on hosts where this is settable. */
-#define _FILE_OFFSET_BITS 64
-
-/* Define for large files, on AIX-style hosts. */
-/* #undef _LARGE_FILES */
-
+#ifdef _M_IX86
 /* Define to '0x0501' for IE 5.01. */
 #define _WIN32_IE 0x0501
 
-/* Define to '0x0502' for Windows XP SP2 APIs. */
-#define _WIN32_WINNT 0x0502
+/* Define to '0x0500' for Windows XP APIs. */
+#define _WIN32_WINNT 0x0501
+#else
+/* Define to '0x0600' for IE 6.0. */
+#define _WIN32_IE 0x0600
+
+/* Define to '0x0600' for Windows Vista APIs. */
+#define _WIN32_WINNT 0x0600
+#endif
