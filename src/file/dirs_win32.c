@@ -59,24 +59,20 @@ char *win32_get_font_dir(const char *font_file)
     return path;
 }
 
-const char *file_get_config_home(void)
+char *file_get_config_home(void)
 {
     return file_get_data_home();
 }
 
-const char *file_get_data_home(void)
+char *file_get_data_home(void)
 {
-    static char *appdir = NULL;
     wchar_t wdir[MAX_PATH];
-
-    if (appdir)
-        return appdir;
 
     /* Get the "Application Data" folder for the user */
     if (S_OK == SHGetFolderPathW(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE,
                                  NULL, SHGFP_TYPE_CURRENT, wdir)) {
         int len = WideCharToMultiByte (CP_UTF8, 0, wdir, -1, NULL, 0, NULL, NULL);
-        appdir = malloc(len);
+        char *appdir = malloc(len);
         WideCharToMultiByte (CP_UTF8, 0, wdir, -1, appdir, len, NULL, NULL);
         return appdir;
     }
@@ -85,7 +81,7 @@ const char *file_get_data_home(void)
     return NULL;
 }
 
-const char *file_get_cache_home(void)
+char *file_get_cache_home(void)
 {
     return file_get_data_home();
 }

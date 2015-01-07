@@ -264,6 +264,7 @@ static const char *_find_libbluray_jar(void)
 static const char *_bdj_persistent_root(BDJ_STORAGE *storage)
 {
     const char *root;
+    char       *data_home;
 
     if (storage->persistent_root) {
         return storage->persistent_root;
@@ -274,11 +275,9 @@ static const char *_bdj_persistent_root(BDJ_STORAGE *storage)
         return root;
     }
 
-    root = file_get_data_home();
-    if (!root) {
-        root = "";
-    }
-        storage->persistent_root = str_printf("%s/bluray/dvb.persistent.root/", root);
+        data_home = file_get_data_home();
+        storage->persistent_root = str_printf("%s/bluray/dvb.persistent.root/", data_home ? data_home : "");
+        X_FREE(data_home);
 
         BD_DEBUG(DBG_BDJ, "LIBBLURAY_PERSISTENT_ROOT not set, using %s\n", storage->persistent_root);
 
@@ -288,6 +287,7 @@ static const char *_bdj_persistent_root(BDJ_STORAGE *storage)
 static const char *_bdj_buda_root(BDJ_STORAGE *storage)
 {
     const char *root;
+    char       *cache_home;
 
     if (storage->cache_root) {
         return storage->cache_root;
@@ -298,11 +298,9 @@ static const char *_bdj_buda_root(BDJ_STORAGE *storage)
         return root;
     }
 
-    root = file_get_cache_home();
-    if (!root) {
-        root = "";
-    }
-        storage->cache_root = str_printf("%s/bluray/bluray.bindingunit.root/", root);
+        cache_home = file_get_cache_home();
+        storage->cache_root = str_printf("%s/bluray/bluray.bindingunit.root/", cache_home ? cache_home : "");
+        X_FREE(cache_home);
 
         BD_DEBUG(DBG_BDJ, "LIBBLURAY_CACHE_ROOT not set, using %s\n", storage->cache_root);
 
