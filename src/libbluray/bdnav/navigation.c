@@ -185,9 +185,6 @@ NAV_TITLE_LIST* nav_get_title_list(const char *root, uint32_t flags, uint32_t mi
     NAV_TITLE_LIST *title_list;
     unsigned int title_info_alloc = 100;
 
-    title_list = calloc(1, sizeof(NAV_TITLE_LIST));
-    title_list->title_info = calloc(title_info_alloc, sizeof(NAV_TITLE_INFO));
-
     BD_DEBUG(DBG_NAV, "Root: %s:\n", root);
     path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST", root);
 
@@ -195,11 +192,12 @@ NAV_TITLE_LIST* nav_get_title_list(const char *root, uint32_t flags, uint32_t mi
     if (dir == NULL) {
         BD_DEBUG(DBG_NAV, "Failed to open dir: %s\n", path);
         X_FREE(path);
-        X_FREE(title_list->title_info);
-        X_FREE(title_list);
         return NULL;
     }
     X_FREE(path);
+
+    title_list = calloc(1, sizeof(NAV_TITLE_LIST));
+    title_list->title_info = calloc(title_info_alloc, sizeof(NAV_TITLE_INFO));
 
     ii = 0;
     for (res = dir_read(dir, &ent); !res; res = dir_read(dir, &ent)) {
