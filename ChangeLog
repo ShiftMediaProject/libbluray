@@ -1,5 +1,14 @@
+- Add player setting for BD-J persistent storage and cache paths.
+- Add support for system fonts. BD-J fonts in jre/lib/fonts/ are not required anymore.
+- Add BD-J organization ID and disc ID to BLURAY_DISC_INFO.
+- Release still mode when BD-J terminates.
+- Implement BD-J caching.
+- Improve BD-J compability.
+- Java 8 compability fixes.
+- Fix storage size for bdjo object reference in BLURAY_DISC_INFO.
+- Fix BD-J on-disc font usage.
 - Fix animations in some BD-J menus.
-- Add player setting for persistent/cache root path.
+- Fix BD-J storage path charset issues in Windows.
 
 2014-09-03: Version 0.6.2
 - Fix possible subtitle corruption after seek.
