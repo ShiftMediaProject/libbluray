@@ -263,14 +263,10 @@ static const char *_find_libbluray_jar(void)
 
 static const char *_bdj_persistent_root(BDJ_STORAGE *storage)
 {
-    static const char *root = NULL;
+    const char *root;
 
-    if (storage && storage->persistent_root) {
+    if (storage->persistent_root) {
         return storage->persistent_root;
-    }
-
-    if (root) {
-        return root;
     }
 
     root = getenv("LIBBLURAY_PERSISTENT_ROOT");
@@ -282,23 +278,19 @@ static const char *_bdj_persistent_root(BDJ_STORAGE *storage)
     if (!root) {
         root = "";
     }
-    root = str_printf("%s/bluray/dvb.persistent.root/", root);
+        storage->persistent_root = str_printf("%s/bluray/dvb.persistent.root/", root);
 
-    BD_DEBUG(DBG_BDJ, "LIBBLURAY_PERSISTENT_ROOT not set, using %s\n", root);
+        BD_DEBUG(DBG_BDJ, "LIBBLURAY_PERSISTENT_ROOT not set, using %s\n", storage->persistent_root);
 
-    return root;
+    return storage->persistent_root;
 }
 
 static const char *_bdj_buda_root(BDJ_STORAGE *storage)
 {
-    static const char *root = NULL;
+    const char *root;
 
-    if (storage && storage->cache_root) {
+    if (storage->cache_root) {
         return storage->cache_root;
-    }
-
-    if (root) {
-        return root;
     }
 
     root = getenv("LIBBLURAY_CACHE_ROOT");
@@ -310,11 +302,11 @@ static const char *_bdj_buda_root(BDJ_STORAGE *storage)
     if (!root) {
         root = "";
     }
-    root = str_printf("%s/bluray/bluray.bindingunit.root/", root);
+        storage->cache_root = str_printf("%s/bluray/bluray.bindingunit.root/", root);
 
-    BD_DEBUG(DBG_BDJ, "LIBBLURAY_CACHE_ROOT not set, using %s\n", root);
+        BD_DEBUG(DBG_BDJ, "LIBBLURAY_CACHE_ROOT not set, using %s\n", storage->cache_root);
 
-    return root;
+    return storage->cache_root;
 }
 
 static int _get_method(JNIEnv *env, jclass *cls, jmethodID *method_id,
