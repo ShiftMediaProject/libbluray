@@ -27,7 +27,6 @@
 #include "util/macro.h"
 #include "util/strutl.h"
 #include "meta_parse.h"
-#include "libbluray/register.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -42,6 +41,9 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/tree.h>
 #endif
+
+#define DEFAULT_LANGUAGE  "eng"
+
 
 #define BAD_CAST_CONST (const xmlChar *)
 #define XML_FREE(p) (xmlFree(p), p = NULL)
