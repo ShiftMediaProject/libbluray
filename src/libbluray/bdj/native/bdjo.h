@@ -24,6 +24,8 @@
 
 #include <jni.h>
 
-BD_PRIVATE jobject bdjo_get(JNIEnv* env, const char *bdjo_path);
+struct bdjo_data;
+
+BD_PRIVATE jobject bdjo_make_jobj(JNIEnv* env, struct bdjo_data *bdjo);
 
 #endif /* BDJO_H_ */

@@ -27,9 +27,11 @@
 
 typedef struct bd_bdplus BD_BDPLUS;
 
-BD_PRIVATE int  libbdplus_required(const char *device_path);
+struct bd_disc;
+
+BD_PRIVATE int  libbdplus_required(struct bd_disc *disc);
 BD_PRIVATE BD_BDPLUS *libbdplus_load(void);
-BD_PRIVATE int  libbdplus_init(BD_BDPLUS *p, const char *device_path, const uint8_t *vid, const uint8_t *mk);
+BD_PRIVATE int  libbdplus_init(BD_BDPLUS *p, struct bd_disc *disc, const uint8_t *vid, const uint8_t *mk);
 BD_PRIVATE void libbdplus_unload(BD_BDPLUS **p);
 
 BD_PRIVATE int  libbdplus_get_gen(BD_BDPLUS *p);

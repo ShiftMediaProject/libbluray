@@ -131,6 +131,6 @@ BD_PRIVATE int                  gc_run(GRAPHICS_CONTROLLER *p,
  */
 
 BD_PRIVATE int                  gc_add_font(GRAPHICS_CONTROLLER *p,
-                                            const char *font_file);
+                                            void *data, int64_t size);
 
 #endif // _GRAPHICS_CONTROLLER_H_

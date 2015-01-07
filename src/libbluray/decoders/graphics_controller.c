@@ -929,13 +929,13 @@ static int _textst_style_select(GRAPHICS_CONTROLLER *p, int user_style_idx)
     return -1;
 }
 
-int gc_add_font(GRAPHICS_CONTROLLER *p, const char *font_file)
+int gc_add_font(GRAPHICS_CONTROLLER *p, void *data, int64_t size)
 {
     if (!p) {
         return -1;
     }
 
-    if (!font_file) {
+    if (!data) {
         textst_render_free(&p->textst_render);
         return 0;
     }
@@ -947,7 +947,7 @@ int gc_add_font(GRAPHICS_CONTROLLER *p, const char *font_file)
         }
     }
 
-    return textst_render_add_font(p->textst_render, font_file);
+    return textst_render_add_font(p->textst_render, data, size);
 }
 
 static int _render_textst_region(GRAPHICS_CONTROLLER *p, int64_t pts, BD_TEXTST_REGION_STYLE *style, TEXTST_BITMAP *bmp,

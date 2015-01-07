@@ -22,6 +22,8 @@
 
 #include "extdata_parse.h"
 
+#include "disc/disc.h"
+
 #include "file/file.h"
 #include "util/bits.h"
 #include "util/logging.h"
@@ -901,40 +903,32 @@ _parse_mpls_extension(BITSTREAM *bits, int id1, int id2, void *handle)
 }
 
 static MPLS_PL*
-_mpls_parse(const char *path)
+_mpls_parse(BD_FILE_H *fp)
 {
     BITSTREAM  bits;
-    BD_FILE_H *fp;
     MPLS_PL   *pl = NULL;
 
     pl = calloc(1, sizeof(MPLS_PL));
     if (pl == NULL) {
-        return NULL;
-    }
-
-    fp = file_open(path, "rb");
-    if (fp == NULL) {
-        BD_DEBUG(DBG_NAV | DBG_CRIT, "Failed to open %s\n", path);
-        X_FREE(pl);
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
         return NULL;
     }
 
     bs_init(&bits, fp);
+
     if (!_parse_header(&bits, pl)) {
-        file_close(fp);
         _clean_playlist(pl);
         return NULL;
     }
     if (!_parse_playlist(&bits, pl)) {
-        file_close(fp);
         _clean_playlist(pl);
         return NULL;
     }
     if (!_parse_playlistmark(&bits, pl)) {
-        file_close(fp);
         _clean_playlist(pl);
         return NULL;
     }
+
     if (pl->ext_pos > 0) {
         bdmv_parse_extension_data(&bits,
                                   pl->ext_pos,
@@ -942,28 +936,53 @@ _mpls_parse(const char *path)
                                   pl);
     }
 
-    file_close(fp);
     return pl;
 }
 
 MPLS_PL*
 mpls_parse(const char *path)
 {
-    MPLS_PL *pl = _mpls_parse(path);
+    MPLS_PL   *pl;
+    BD_FILE_H *fp;
 
-    /* if failed, try backup file */
-    if (!pl) {
-        size_t len   = strlen(path);
-        char *backup = malloc(len + 8);
-
-        strncpy(backup, path, len - 19);
-        strcpy(backup + len - 19, "BACKUP" DIR_SEP);
-        strcpy(backup + len - 19 + 7, path + len - 19);
-
-        pl = _mpls_parse(backup);
-
-        X_FREE(backup);
+    fp = file_open(path, "rb");
+    if (!fp) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "Failed to open %s\n", path);
+        return NULL;
     }
 
+    pl = _mpls_parse(fp);
+    file_close(fp);
+    return pl;
+}
+
+static MPLS_PL*
+_mpls_get(BD_DISC *disc, const char *dir, const char *file)
+{
+    MPLS_PL   *pl;
+    BD_FILE_H *fp;
+
+    fp = disc_open_file(disc, dir, file);
+    if (!fp) {
+        return NULL;
+    }
+
+    pl = _mpls_parse(fp);
+    file_close(fp);
+    return pl;
+}
+
+MPLS_PL*
+mpls_get(BD_DISC *disc, const char *file)
+{
+    MPLS_PL *pl;
+
+    pl = _mpls_get(disc, "BDMV" DIR_SEP "PLAYLIST", file);
+    if (pl) {
+        return pl;
+    }
+
+    /* if failed, try backup file */
+    pl = _mpls_get(disc, "BDMV" DIR_SEP "BACKUP" DIR_SEP "PLAYLIST", file);
     return pl;
 }

@@ -242,7 +242,7 @@ static int _queue_event(HDMV_VM *p, hdmv_event_e event, uint32_t param)
  * vm init
  */
 
-HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs,
+HDMV_VM *hdmv_vm_init(struct bd_disc *disc, BD_REGISTERS *regs,
                       unsigned num_titles, unsigned first_play_available, unsigned top_menu_available)
 {
     HDMV_VM *p = calloc(1, sizeof(HDMV_VM));
@@ -253,7 +253,7 @@ HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs,
     }
 
     /* read movie objects */
-    p->movie_objects = mobj_get(disc_root);
+    p->movie_objects = mobj_get(disc);
     if (!p->movie_objects) {
         X_FREE(p);
         return NULL;

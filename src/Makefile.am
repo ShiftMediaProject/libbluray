@@ -1,5 +1,5 @@
 SET_FEATURES = -D_ISOC99_SOURCE -D_POSIX_C_SOURCE=200112L -D_REENTRANT
-SET_INCLUDES = -I$(top_srcdir) -Ifile -Ilibbluray -Ilibbluray/bdnav $(BDJAVA_CFLAGS)
+SET_INCLUDES = -I$(top_srcdir) -Ifile -Ilibbluray -Ilibbluray/bdnav -I$(top_srcdir)/src/libbluray $(BDJAVA_CFLAGS)
 
 AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_INCLUDES) $(LIBXML2_CFLAGS) $(FT2_CFLAGS) $(FONTCONFIG_CFLAGS)
 
@@ -61,6 +61,8 @@ libbluray_la_SOURCES = \
 	libbluray/decoders/graphics_processor.c \
 	libbluray/decoders/graphics_controller.h \
 	libbluray/decoders/graphics_controller.c \
+	libbluray/disc/disc.h \
+	libbluray/disc/disc.c \
 	libbluray/hdmv/hdmv_insn.h \
 	libbluray/hdmv/hdmv_vm.h \
 	libbluray/hdmv/hdmv_vm.c \

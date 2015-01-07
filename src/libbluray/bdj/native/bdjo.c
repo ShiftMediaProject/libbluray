@@ -22,7 +22,6 @@
 #include "util.h"
 
 #include "libbluray/bdj/bdjo_data.h"
-#include "libbluray/bdj/bdjo_parse.h"
 
 #include "util/logging.h"
 
@@ -189,7 +188,7 @@ static jobjectArray _make_app_management_table(JNIEnv* env, BDJO_APP_MANAGEMENT_
     return entries;
 }
 
-static jobject _make_bdjo(JNIEnv* env, BDJO *p)
+jobject bdjo_make_jobj(JNIEnv* env, BDJO *p)
 {
     jobject terminal_info = _make_terminal_info(env, &p->terminal_info);
     JNICHK(terminal_info);
@@ -224,23 +223,6 @@ static jobject _make_bdjo(JNIEnv* env, BDJO *p)
                                      "Lorg/videolan/bdjo/PlayListTable;[Lorg/videolan/bdjo/AppEntry;ILjava/lang/String;)V",
                                      terminal_info, app_cache_info, accessible_playlists, app_table,
                                      key_interest_table, file_access_info);
-
-    return result;
-}
-
-jobject bdjo_get(JNIEnv* env, const char* bdjo_path)
-{
-    jobject    result = NULL;
-    BDJO      *bdjo   = bdjo_parse(bdjo_path);
-
-    if (!bdjo) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to read bdjo file (%s)\n", bdjo_path);
-        return NULL;
-    }
-
-    result = _make_bdjo(env, bdjo);
-
-    bdjo_free(&bdjo);
 
     return result;
 }

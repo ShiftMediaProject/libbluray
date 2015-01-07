@@ -305,25 +305,29 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN(JNIEnv * env,
 }
 
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
-                                                               jclass cls, jlong np, jstring jpath) {
+                                                               jclass cls, jlong np, jstring jfile) {
 
-    (void)np;
+    BLURAY           *bd = (BLURAY*)(intptr_t)np;
+    struct bdjo_data *bdjo;
+    jobject           jbdjo = NULL;
 
-    const char *path = (*env)->GetStringUTFChars(env, jpath, NULL);
-    if (!path) {
+    const char *file = (*env)->GetStringUTFChars(env, jfile, NULL);
+    if (!file) {
         BD_DEBUG(DBG_JNI | DBG_CRIT, "getBdjoN() failed: no path\n");
         return NULL;
     }
-    BD_DEBUG(DBG_JNI, "getBdjoN(%s)\n", path);
+    BD_DEBUG(DBG_JNI, "getBdjoN(%s)\n", file);
 
-    jobject bdjo = bdjo_get(env, path);
-    if (!bdjo) {
-        BD_DEBUG(DBG_JNI | DBG_CRIT, "getBdjoN(%s) failed\n", path);
+    bdjo = bd_bdjo_get(bd, file);
+    if (bdjo) {
+        jbdjo = bdjo_make_jobj(env, bdjo);
+    } else {
+        BD_DEBUG(DBG_JNI | DBG_CRIT, "getBdjoN(%s) failed\n", file);
     }
 
-    (*env)->ReleaseStringUTFChars(env, jpath, path);
+    (*env)->ReleaseStringUTFChars(env, jfile, file);
 
-    return bdjo;
+    return jbdjo;
 }
 
 static void _updateGraphic(JNIEnv * env,

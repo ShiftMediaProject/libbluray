@@ -320,11 +320,7 @@ public class Libbluray {
     }
 
     public static Bdjo getBdjo(String name) {
-        return getBdjoN(nativePointer,
-                        System.getProperty("bluray.vfs.root") + File.separator +
-                        "BDMV" + File.separator +
-                        "BDJO" + File.separator +
-                        name + ".bdjo");
+        return getBdjoN(nativePointer, name + ".bdjo");
     }
 
     public static void updateGraphic(int width, int height, int[] rgbArray) {

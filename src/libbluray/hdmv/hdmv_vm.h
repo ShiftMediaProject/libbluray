@@ -65,6 +65,7 @@ typedef struct hdmv_vm_event_s {
  */
 
 struct bd_registers_s;
+struct bd_disc;
 
 /*
  *
@@ -72,7 +73,7 @@ struct bd_registers_s;
 
 typedef struct hdmv_vm_s HDMV_VM;
 
-BD_PRIVATE HDMV_VM *hdmv_vm_init(const char *disc_root, struct bd_registers_s *regs,
+BD_PRIVATE HDMV_VM *hdmv_vm_init(struct bd_disc *disc, struct bd_registers_s *regs,
                                  unsigned num_titles, unsigned first_play_available, unsigned top_menu_available);
 BD_PRIVATE void     hdmv_vm_free(HDMV_VM **p);
 

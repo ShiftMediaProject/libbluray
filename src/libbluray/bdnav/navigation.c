@@ -26,6 +26,8 @@
 #include "clpi_parse.h"
 #include "mpls_parse.h"
 
+#include "disc/disc.h"
+
 #include "util/macro.h"
 #include "util/logging.h"
 #include "util/strutl.h"
@@ -173,11 +175,10 @@ _pl_duration(MPLS_PL *pl)
     return duration;
 }
 
-NAV_TITLE_LIST* nav_get_title_list(const char *root, uint32_t flags, uint32_t min_title_length)
+NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_title_length)
 {
     BD_DIR_H *dir;
     BD_DIRENT ent;
-    char *path = NULL;
     MPLS_PL **pl_list = NULL;
     MPLS_PL *pl = NULL;
     unsigned int ii, pl_list_size = 0;
@@ -185,16 +186,10 @@ NAV_TITLE_LIST* nav_get_title_list(const char *root, uint32_t flags, uint32_t mi
     NAV_TITLE_LIST *title_list;
     unsigned int title_info_alloc = 100;
 
-    BD_DEBUG(DBG_NAV, "Root: %s:\n", root);
-    path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST", root);
-
-    dir = dir_open(path);
+    dir = disc_open_dir(disc, "BDMV" DIR_SEP "PLAYLIST");
     if (dir == NULL) {
-        BD_DEBUG(DBG_NAV, "Failed to open dir: %s\n", path);
-        X_FREE(path);
         return NULL;
     }
-    X_FREE(path);
 
     title_list = calloc(1, sizeof(NAV_TITLE_LIST));
     title_list->title_info = calloc(title_info_alloc, sizeof(NAV_TITLE_INFO));
@@ -205,22 +200,17 @@ NAV_TITLE_LIST* nav_get_title_list(const char *root, uint32_t flags, uint32_t mi
         if (ent.d_name[0] == '.') {
             continue;
         }
-        path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST" DIR_SEP "%s",
-                          root, ent.d_name);
-
         if (ii >= pl_list_size) {
             MPLS_PL **tmp = NULL;
 
             pl_list_size += 100;
             tmp = realloc(pl_list, pl_list_size * sizeof(MPLS_PL*));
             if (tmp == NULL) {
-                X_FREE(path);
                 break;
             }
             pl_list = tmp;
         }
-        pl = mpls_parse(path);
-        X_FREE(path);
+        pl = mpls_get(disc, ent.d_name);
         if (pl != NULL) {
             if ((flags & TITLES_FILTER_DUP_TITLE) &&
                 !_filter_dup(pl_list, ii, pl)) {
@@ -399,7 +389,7 @@ static void _fill_clip(NAV_TITLE *title,
                        unsigned ref, uint32_t *pos, uint32_t *time)
 
 {
-    char *path;
+    char *file;
 
     clip->title = title;
     clip->ref   = ref;
@@ -414,11 +404,10 @@ static void _fill_clip(NAV_TITLE *title,
     strncpy(&clip->name[5], ".m2ts", 6);
     clip->clip_id = atoi(mpls_clip[clip->angle].clip_id);
 
-    path = str_printf("%s"DIR_SEP"BDMV"DIR_SEP"CLIPINF"DIR_SEP"%s.clpi",
-                      title->root, mpls_clip[clip->angle].clip_id);
+    file = str_printf("%s.clpi", mpls_clip[clip->angle].clip_id);
     clpi_free(clip->cl);
-    clip->cl = clpi_parse(path);
-    X_FREE(path);
+    clip->cl = clpi_get(title->disc, file);
+    X_FREE(file);
     if (clip->cl == NULL) {
         clip->start_pkt = 0;
         clip->end_pkt = 0;
@@ -450,10 +439,9 @@ static void _fill_clip(NAV_TITLE *title,
     *time += clip->out_time - clip->in_time;
 }
 
-NAV_TITLE* nav_title_open(const char *root, const char *playlist, unsigned angle)
+NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
 {
     NAV_TITLE *title = NULL;
-    char *path;
     unsigned ii, ss, chapters = 0;
     uint32_t pos = 0;
     uint32_t time = 0;
@@ -462,21 +450,18 @@ NAV_TITLE* nav_title_open(const char *root, const char *playlist, unsigned angle
     if (title == NULL) {
         return NULL;
     }
-    title->root = str_dup(root);
+    title->disc = disc;
     strncpy(title->name, playlist, 11);
     title->name[10] = '\0';
-    path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "PLAYLIST" DIR_SEP "%s",
-                      root, playlist);
     title->angle_count = 0;
     title->angle = angle;
-    title->pl = mpls_parse(path);
+    title->pl = mpls_get(disc, playlist);
     if (title->pl == NULL) {
-        BD_DEBUG(DBG_NAV, "Fail: Playlist parse %s\n", path);
+        BD_DEBUG(DBG_NAV, "Fail: Playlist parse %s\n", playlist);
         X_FREE(title);
-        X_FREE(path);
         return NULL;
     }
-    X_FREE(path);
+
     // Find length in packets and end_pkt for each clip
     title->clip_list.count = title->pl->list_count;
     title->clip_list.clip = calloc(title->pl->list_count, sizeof(NAV_CLIP));
@@ -555,7 +540,6 @@ void nav_title_close(NAV_TITLE *title)
     }
     mpls_free(title->pl);
     X_FREE(title->clip_list.clip);
-    X_FREE(title->root);
     X_FREE(title->chap_list.mark);
     X_FREE(title->mark_list.mark);
     X_FREE(title);

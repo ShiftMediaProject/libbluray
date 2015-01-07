@@ -21,6 +21,9 @@
 
 #include "dl.h"
 #include "file.h"
+
+#include "disc/disc.h"
+
 #include "util/logging.h"
 #include "util/macro.h"
 #include "util/strutl.h"
@@ -66,18 +69,9 @@ void libbdplus_unload(BD_BDPLUS **p)
     }
 }
 
-int libbdplus_required(const char *device_path)
+int libbdplus_required(BD_DISC *disc)
 {
-    BD_FILE_H *fd;
-    char      *tmp;
-
-    tmp = str_printf("%s" DIR_SEP "BDSVM" DIR_SEP "00000.svm", device_path);
-    fd = file_open(tmp, "rb");
-    X_FREE(tmp);
-
-    if (fd) {
-        file_close(fd);
-
+    if (disc_have_file(disc, "BDSVM", "00000.svm")) {
         BD_DEBUG(DBG_BLURAY, "BDSVM" DIR_SEP "00000.svm found. Disc seems to be BD+ protected.\n");
         return 1;
     }
@@ -152,20 +146,28 @@ BD_BDPLUS *libbdplus_load(void)
     return p;
 }
 
-int libbdplus_init(BD_BDPLUS *p, const char *device_path, const uint8_t *vid, const uint8_t *mk)
+int libbdplus_init(BD_BDPLUS *p, BD_DISC *disc, const uint8_t *vid, const uint8_t *mk)
 {
     fptr_p_void    bdplus_init;
+    fptr_void      set_fopen;
 
     _libbdplus_close(p);
 
     *(void **)(&bdplus_init) = dl_dlsym(p->h_libbdplus, "bdplus_init");
+    *(void **)(&set_fopen)   = dl_dlsym(p->h_libbdplus, "bdplus_set_fopen");
 
     if (!bdplus_init) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "libbdplus dlsym(bdplus_init) failed! (%p)\n", p->h_libbdplus);
         return -1;
     }
 
-    p->bdplus = bdplus_init(device_path, NULL, vid);
+    if (set_fopen) {
+        p->bdplus = bdplus_init(NULL, NULL, vid);
+        set_fopen(p->bdplus, disc, disc_open_path);
+    } else {
+        p->bdplus = bdplus_init(disc_root(disc), NULL, vid);
+    }
+
     if (!p->bdplus) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bdplus_init() failed! (%p)\n", p->h_libbdplus);
         return -1;

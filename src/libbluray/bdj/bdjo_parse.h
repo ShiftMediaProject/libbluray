@@ -23,8 +23,10 @@
 #include "util/attributes.h"
 
 struct bdjo_data;
+struct bd_disc;
 
 BD_PRIVATE struct bdjo_data *bdjo_parse(const char *path);
+BD_PRIVATE struct bdjo_data *bdjo_get(struct bd_disc *disc, const char *file);
 BD_PRIVATE void              bdjo_free(struct bdjo_data **pp);
 
 #endif // _BDJO_PARSE_H_

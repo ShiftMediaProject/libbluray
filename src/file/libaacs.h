@@ -27,9 +27,11 @@
 
 typedef struct bd_aacs BD_AACS;
 
-BD_PRIVATE int  libaacs_required(const char *device_path);
+struct bd_disc;
+
+BD_PRIVATE int  libaacs_required(struct bd_disc *disc);
 BD_PRIVATE BD_AACS *libaacs_load(void);
-BD_PRIVATE int  libaacs_open(BD_AACS *p, const char *device_path, const char *keyfile_path);
+BD_PRIVATE int  libaacs_open(BD_AACS *p, struct bd_disc *disc, const char *keyfile_path);
 BD_PRIVATE void libaacs_unload(BD_AACS **p);
 
 BD_PRIVATE void libaacs_select_title(BD_AACS *p, uint32_t title);

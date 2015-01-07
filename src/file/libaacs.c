@@ -21,6 +21,9 @@
 
 #include "dl.h"
 #include "file.h"
+
+#include "disc/disc.h"
+
 #include "util/logging.h"
 #include "util/macro.h"
 #include "util/strutl.h"
@@ -67,18 +70,9 @@ void libaacs_unload(BD_AACS **p)
     }
 }
 
-int libaacs_required(const char *device_path)
+int libaacs_required(BD_DISC *disc)
 {
-    BD_FILE_H *fd;
-    char      *tmp;
-
-    tmp = str_printf("%s" DIR_SEP "AACS" DIR_SEP "Unit_Key_RO.inf", device_path);
-    fd = file_open(tmp, "rb");
-    X_FREE(tmp);
-
-    if (fd) {
-        file_close(fd);
-
+    if (disc_have_file(disc, "AACS", "Unit_Key_RO.inf")) {
         BD_DEBUG(DBG_BLURAY, "AACS" DIR_SEP "Unit_Key_RO.inf found. Disc seems to be AACS protected.\n");
         return 1;
     }
@@ -145,12 +139,14 @@ BD_AACS *libaacs_load(void)
     return p;
 }
 
-int libaacs_open(BD_AACS *p, const char *device_path, const char *keyfile_path)
+int libaacs_open(BD_AACS *p, BD_DISC *disc, const char *keyfile_path)
 {
     int error_code = 0;
 
     fptr_p_void open;
     fptr_p_void open2;
+    fptr_p_void init;
+    fptr_int    open_device;
     fptr_int    aacs_get_mkb_version;
     fptr_p_void aacs_get_disc_id;
 
@@ -158,14 +154,21 @@ int libaacs_open(BD_AACS *p, const char *device_path, const char *keyfile_path)
 
     *(void **)(&open)  = dl_dlsym(p->h_libaacs, "aacs_open");
     *(void **)(&open2) = dl_dlsym(p->h_libaacs, "aacs_open2");
+    *(void **)(&init)  = dl_dlsym(p->h_libaacs, "aacs_init");
     *(void **)(&aacs_get_mkb_version) = dl_dlsym(p->h_libaacs, "aacs_get_mkb_version");
     *(void **)(&aacs_get_disc_id)     = dl_dlsym(p->h_libaacs, "aacs_get_disc_id");
+    *(void **)(&open_device)          = dl_dlsym(p->h_libaacs, "aacs_open_device");
 
-    if (open2) {
-        p->aacs = open2(device_path, keyfile_path, &error_code);
+    if (init && open_device) {
+        p->aacs = init();
+        DL_CALL(p->h_libaacs, aacs_set_fopen, p->aacs, disc, disc_open_path);
+        error_code = open_device(p->aacs, disc_device(disc), keyfile_path);
+    } else if (open2) {
+        BD_DEBUG(DBG_BLURAY, "Using old aacs_open2(), no UDF support available\n");
+        p->aacs = open2(disc_root(disc), keyfile_path, &error_code);
     } else if (open) {
         BD_DEBUG(DBG_BLURAY, "Using old aacs_open(), no verbose error reporting available\n");
-        p->aacs = open(device_path, keyfile_path);
+        p->aacs = open(disc_root(disc), keyfile_path);
     } else {
         BD_DEBUG(DBG_BLURAY, "aacs_open() not found\n");
     }

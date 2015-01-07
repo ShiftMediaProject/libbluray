@@ -36,6 +36,7 @@
 #include "bdnav/navigation.h"
 #include "bdnav/index_parse.h"
 #include "bdnav/meta_parse.h"
+#include "bdnav/meta_data.h"
 #include "bdnav/clpi_parse.h"
 #include "bdnav/sound_parse.h"
 #include "hdmv/hdmv_vm.h"
@@ -43,15 +44,15 @@
 #include "decoders/graphics_controller.h"
 #include "decoders/m2ts_filter.h"
 #include "decoders/overlay.h"
+#include "disc/disc.h"
 #include "file/file.h"
-#include "file/mount.h"
 #ifdef USING_BDJAVA
 #include "bdj/bdj.h"
 #include "bdj/bdjo_parse.h"
 #endif
 
-#include "file/libbdplus.h"
 #include "file/libaacs.h"
+#include "file/libbdplus.h"
 
 #include <stdio.h> // SEEK_
 #include <stdlib.h>
@@ -107,7 +108,7 @@ struct bluray {
     BD_MUTEX          mutex;  /* protect API function access to internal data */
 
     /* current disc */
-    char             *device_path;
+    BD_DISC          *disc;
     BLURAY_DISC_INFO  disc_info;
     BLURAY_TITLE    **titles;  /* titles from disc index */
     META_ROOT        *meta;
@@ -543,14 +544,9 @@ static void _close_m2ts(BD_STREAM *st)
 
 static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
 {
-    char *f_name;
-
     _close_m2ts(st);
 
-    f_name = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "STREAM" DIR_SEP "%s",
-                        bd->device_path, st->clip->name);
-    st->fp = file_open(f_name, "rb");
-    X_FREE(f_name);
+    st->fp = disc_open_file(bd->disc, "BDMV" DIR_SEP "STREAM", st->clip->name);
 
     st->clip_size = 0;
     st->clip_pos = (uint64_t)st->clip->start_pkt * 192;
@@ -840,7 +836,7 @@ static int _libaacs_init(BLURAY *bd, const char *keyfile_path)
 
     libaacs_unload(&bd->libaacs);
 
-    bd->disc_info.aacs_detected = libaacs_required(bd->device_path);
+    bd->disc_info.aacs_detected = libaacs_required(bd->disc);
     if (!bd->disc_info.aacs_detected) {
         /* no AACS */
         return 1; /* no error if libaacs is not needed */
@@ -853,7 +849,7 @@ static int _libaacs_init(BLURAY *bd, const char *keyfile_path)
         return 0;
     }
 
-    result = libaacs_open(bd->libaacs, bd->device_path, keyfile_path);
+    result = libaacs_open(bd->libaacs, bd->disc, keyfile_path);
 
     bd->disc_info.aacs_error_code = result;
     bd->disc_info.aacs_handled    = !result;
@@ -883,7 +879,7 @@ static int _libbdplus_init(BLURAY *bd)
 {
     libbdplus_unload(&bd->libbdplus);
 
-    bd->disc_info.bdplus_detected = libbdplus_required(bd->device_path);
+    bd->disc_info.bdplus_detected = libbdplus_required(bd->disc);
     if (!bd->disc_info.bdplus_detected) {
         return 0;
     }
@@ -902,7 +898,7 @@ static int _libbdplus_init(BLURAY *bd)
         return 0;
     }
 
-    if (libbdplus_init(bd->libbdplus, bd->device_path, vid, mk)) {
+    if (libbdplus_init(bd->libbdplus, bd->disc, vid, mk)) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bdplus_init() failed\n");
 
         bd->disc_info.bdplus_handled = 0;
@@ -932,7 +928,7 @@ static int _libbdplus_init(BLURAY *bd)
 static int _meta_open(BLURAY *bd)
 {
     if (!bd->meta) {
-        bd->meta = meta_parse(bd->device_path);
+        bd->meta = meta_parse(bd->disc);
     }
 
     return !!bd->meta;
@@ -971,7 +967,7 @@ static void _fill_disc_info(BLURAY *bd)
     memset(bd->disc_info.bdj_org_id,  0, sizeof(bd->disc_info.bdj_org_id));
     memset(bd->disc_info.bdj_disc_id, 0, sizeof(bd->disc_info.bdj_disc_id));
 
-    INDX_ROOT *index = indx_parse(bd->device_path);
+    INDX_ROOT *index = indx_get(bd->disc);
     if (index) {
         INDX_PLAY_ITEM *pi;
         unsigned        ii;
@@ -1093,7 +1089,7 @@ static void _fill_disc_info(BLURAY *bd)
     }
 
     if (bd->disc_info.bdj_detected) {
-        BDID_DATA *bdid = bdid_parse(bd->device_path); /* parse id.bdmv */
+        BDID_DATA *bdid = bdid_get(bd->disc); /* parse id.bdmv */
         if (bdid) {
             memcpy(bd->disc_info.bdj_org_id,  bdid->org_id,  sizeof(bd->disc_info.bdj_org_id));
             memcpy(bd->disc_info.bdj_disc_id, bdid->disc_id, sizeof(bd->disc_info.bdj_disc_id));
@@ -1129,7 +1125,17 @@ uint64_t bd_get_uo_mask(BLURAY *bd)
 
     return mask.u64;
 }
+#endif
 
+#ifdef USING_BDJAVA
+struct bdjo_data *bd_bdjo_get(struct bluray *bd, const char *file)
+{
+    return bdjo_get(bd->disc, file);
+}
+#endif
+
+
+#ifdef USING_BDJAVA
 void bd_select_rate(BLURAY *bd, float rate, int reason)
 {
     if (reason == BDJ_PLAYBACK_STOP) {
@@ -1273,7 +1279,7 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
-        bd->bdjava = bdj_open(bd->device_path, bd, bd->disc_info.bdj_disc_id, &bd->bdjstorage);
+        bd->bdjava = bdj_open(disc_root(bd->disc), bd, bd->disc_info.bdj_disc_id, &bd->bdjstorage);
         if (!bd->bdjava) {
             return 0;
         }
@@ -1362,7 +1368,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         return NULL;
     }
 
-    bd->device_path = mount_get_mountpoint(device_path);
+    bd->disc = disc_open(device_path);
 
     _libaacs_init(bd, keyfile_path);
 
@@ -1407,9 +1413,10 @@ void bd_close(BLURAY *bd)
     bd_registers_free(bd->regs);
 
     _free_event_queue(bd);
-    X_FREE(bd->device_path);
     array_free((void**)&bd->titles);
     _storage_free(bd);
+
+    disc_close(&bd->disc);
 
     bd_mutex_destroy(&bd->mutex);
 #ifdef USING_BDJAVA
@@ -1990,10 +1997,14 @@ static int _preload_textst_subpath(BLURAY *bd)
     gc_decode_ts(bd->graphics_controller, 0x1800, bd->st_textst.buf, SPN(bd->st_textst.clip_size) / 32, -1);
 
     /* set fonts and encoding from clip info */
-    gc_add_font(bd->graphics_controller, NULL);
+    gc_add_font(bd->graphics_controller, NULL, -1);
     for (ii = 0; ii < bd->st_textst.clip->cl->font_info.font_count; ii++) {
-        char *file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "AUXDATA" DIR_SEP "%s.otf", bd->device_path, bd->st_textst.clip->cl->font_info.font[ii].file_id);
-        gc_add_font(bd->graphics_controller, file);
+        char *file = str_printf("%s.otf", bd->st_textst.clip->cl->font_info.font[ii].file_id);
+        uint8_t *data = NULL;
+        int64_t size = disc_read_file(bd->disc, "BDMV" DIR_SEP "AUXDATA", file, &data);
+        if (data && gc_add_font(bd->graphics_controller, data, size) < 0) {
+            X_FREE(data);
+        }
         X_FREE(file);
     }
     gc_run(bd->graphics_controller, GC_CTRL_PG_CHARCODE, char_code, NULL);
@@ -2135,7 +2146,7 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
 {
     _close_playlist(bd);
 
-    bd->title = nav_title_open(bd->device_path, f_name, angle);
+    bd->title = nav_title_open(bd->disc, f_name, angle);
     if (bd->title == NULL) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s!\n", f_name);
         return 0;
@@ -2359,10 +2370,10 @@ uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length)
     if (bd->title_list != NULL) {
         nav_free_title_list(bd->title_list);
     }
-    bd->title_list = nav_get_title_list(bd->device_path, flags, min_title_length);
+    bd->title_list = nav_get_title_list(bd->disc, flags, min_title_length);
 
     if (!bd->title_list) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "nav_get_title_list(%s) failed\n", bd->device_path);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "nav_get_title_list(%s) failed\n", disc_root(bd->disc));
         return 0;
     }
 
@@ -2478,7 +2489,7 @@ static BLURAY_TITLE_INFO *_get_title_info(BLURAY *bd, uint32_t title_idx, uint32
     NAV_TITLE *title;
     BLURAY_TITLE_INFO *title_info;
 
-    title = nav_title_open(bd->device_path, mpls_name, angle);
+    title = nav_title_open(bd->disc, mpls_name, angle);
     if (title == NULL) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s!\n", mpls_name);
         return NULL;
@@ -2916,7 +2927,7 @@ static int _play_hdmv(BLURAY *bd, unsigned id_ref)
     bd->title_type = title_hdmv;
 
     if (!bd->hdmv_vm) {
-        bd->hdmv_vm = hdmv_vm_init(bd->device_path, bd->regs, bd->disc_info.num_titles,
+        bd->hdmv_vm = hdmv_vm_init(bd->disc, bd->regs, bd->disc_info.num_titles,
                                    bd->disc_info.first_play_supported, bd->disc_info.top_menu_supported);
     }
 
@@ -3417,10 +3428,7 @@ int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, BLURAY_SOUND_EFFECT *effe
 
     if (!bd->sound_effects) {
 
-        char *file = str_printf("%s"DIR_SEP "BDMV" DIR_SEP "AUXDATA" DIR_SEP "sound.bdmv", bd->device_path);
-        bd->sound_effects = sound_parse(file);
-        X_FREE(file);
-
+        bd->sound_effects = sound_get(bd->disc);
         if (!bd->sound_effects) {
             return -1;
         }
