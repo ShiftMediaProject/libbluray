@@ -104,7 +104,7 @@ typedef struct {
 
 struct bluray {
 
-    BD_MUTEX          mutex;  /* protect API function access to internal data (must be first element in struct) */
+    BD_MUTEX          mutex;  /* protect API function access to internal data */
 
     /* current disc */
     char             *device_path;
