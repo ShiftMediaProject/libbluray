@@ -146,6 +146,11 @@ struct bluray {
     BD_REGISTERS   *regs;       // player registers
     BD_EVENT_QUEUE *event_queue; // navigation mode event queue
     BD_TITLE_TYPE  title_type;  // type of current title (in navigation mode)
+    /* Pending action after playlist end
+     * BD-J: delayed sending of BDJ_EVENT_END_OF_PLAYLIST
+     *       1 - message pending. 3 - message sent.
+     */
+    uint8_t         end_of_playlist; /* 1 - reached. 3 - processed . */
 
     HDMV_VM        *hdmv_vm;
     uint8_t        hdmv_suspended;
@@ -153,9 +158,6 @@ struct bluray {
     BDJAVA         *bdjava;
     BDJ_STORAGE     bdjstorage;
 #endif
-    /* delayed sending of BDJ_EVENT_END_OF_PLAYLIST:
-     * 1 - message pending. 3 - message sent. */
-    uint8_t         bdj_end_of_playlist;
     uint8_t         bdj_wait_start;  /* BD-J has selected playlist (prefetch) but not yet started playback */
 
     /* HDMV graphics */
@@ -1797,7 +1799,7 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                 // We previously reached the last clip.  Nothing
                 // else to read.
                 _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
-                bd->bdj_end_of_playlist |= 1;
+                bd->end_of_playlist |= 1;
                 return 0;
             }
             if (st->int_buf_off == 6144 || clip_pkt >= st->clip->end_pkt) {
@@ -1829,7 +1831,7 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                     if (st->clip == NULL) {
                         BD_DEBUG(DBG_BLURAY | DBG_STREAM, "End of title\n");
                         _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
-                        bd->bdj_end_of_playlist |= 1;
+                        bd->end_of_playlist |= 1;
                         return 0;
                     }
                     if (!_open_m2ts(bd, st)) {
@@ -2141,7 +2143,7 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
 
     bd->seamless_angle_change = 0;
     bd->s_pos = 0;
-    bd->bdj_end_of_playlist = 0;
+    bd->end_of_playlist = 0;
 
     bd_psr_write(bd->regs, PSR_PLAYLIST, atoi(bd->title->name));
     bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
@@ -3252,9 +3254,9 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
     }
 
     if (bd->title_type == title_bdj) {
-        if (bd->bdj_end_of_playlist == 1) {
+        if (bd->end_of_playlist == 1) {
             _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, bd_psr_read(bd->regs, PSR_PLAYLIST));
-            bd->bdj_end_of_playlist |= 2;
+            bd->end_of_playlist |= 2;
         }
 
         if (!bd->title) {
