@@ -17,7 +17,6 @@ libbluray_la_SOURCES = \
 	libbluray/register.h \
 	libbluray/register.c \
 	libbluray/keys.h \
-	libbluray/bdnav \
 	libbluray/bdnav/bdparse.h \
 	libbluray/bdnav/uo_mask_table.h \
 	libbluray/bdnav/navigation.h \
@@ -37,7 +36,6 @@ libbluray_la_SOURCES = \
 	libbluray/bdnav/extdata_parse.c \
 	libbluray/bdnav/bdid_parse.h \
 	libbluray/bdnav/bdid_parse.c \
-	libbluray/decoders \
 	libbluray/decoders/pes_buffer.h \
 	libbluray/decoders/pes_buffer.c \
 	libbluray/decoders/m2ts_demux.h \
@@ -63,7 +61,6 @@ libbluray_la_SOURCES = \
 	libbluray/decoders/graphics_processor.c \
 	libbluray/decoders/graphics_controller.h \
 	libbluray/decoders/graphics_controller.c \
-	libbluray/hdmv \
 	libbluray/hdmv/hdmv_insn.h \
 	libbluray/hdmv/hdmv_vm.h \
 	libbluray/hdmv/hdmv_vm.c \
