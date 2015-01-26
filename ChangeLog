@@ -1,3 +1,4 @@
+2015-01-26: Version 0.7.0
 - Add player setting for BD-J persistent storage and cache paths.
 - Add support for system fonts. BD-J fonts in jre/lib/fonts/ are not required anymore.
 - Add BD-J organization ID and disc ID to BLURAY_DISC_INFO.
