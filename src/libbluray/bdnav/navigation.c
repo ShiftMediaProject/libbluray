@@ -32,7 +32,6 @@
 #include "util/logging.h"
 #include "util/strutl.h"
 #include "file/file.h"
-#include "libbluray/bluray.h"
 
 #include <stdlib.h>
 #include <string.h>
