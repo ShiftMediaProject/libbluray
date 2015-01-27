@@ -98,7 +98,7 @@ void *dl_dlsym(void *handle, const char *symbol)
     void *result = dlsym(handle, symbol);
 
     if (!result) {
-        BD_DEBUG(DBG_FILE | DBG_CRIT, "dlsym(%p, '%s') failed: %s\n", handle, symbol, dlerror());
+        BD_DEBUG(DBG_FILE, "dlsym(%p, '%s') failed: %s\n", handle, symbol, dlerror());
     }
 
     return result;
