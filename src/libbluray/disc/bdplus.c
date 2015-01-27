@@ -17,13 +17,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "libbdplus.h"
+#include "bdplus.h"
 
-#include "dl.h"
-#include "file.h"
+#include "disc.h"
 
-#include "disc/disc.h"
-
+#include "file/dl.h"
+#include "file/file.h"
 #include "util/logging.h"
 #include "util/macro.h"
 #include "util/strutl.h"

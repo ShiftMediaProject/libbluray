@@ -61,6 +61,10 @@ libbluray_la_SOURCES = \
 	libbluray/decoders/graphics_processor.c \
 	libbluray/decoders/graphics_controller.h \
 	libbluray/decoders/graphics_controller.c \
+	libbluray/disc/aacs.h \
+	libbluray/disc/aacs.c \
+	libbluray/disc/bdplus.h \
+	libbluray/disc/bdplus.c \
 	libbluray/disc/disc.h \
 	libbluray/disc/disc.c \
 	libbluray/hdmv/hdmv_insn.h \
@@ -78,10 +82,6 @@ libbluray_la_SOURCES = \
 	file/mount.h \
 	file/filesystem.h \
 	file/filesystem.c \
-	file/libaacs.h \
-	file/libaacs.c \
-	file/libbdplus.h \
-	file/libbdplus.c \
 	util/array.h \
 	util/array.c \
 	util/attributes.h \

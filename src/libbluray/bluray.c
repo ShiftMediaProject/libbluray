@@ -44,15 +44,14 @@
 #include "decoders/graphics_controller.h"
 #include "decoders/m2ts_filter.h"
 #include "decoders/overlay.h"
+#include "disc/aacs.h"
+#include "disc/bdplus.h"
 #include "disc/disc.h"
 #include "file/file.h"
 #ifdef USING_BDJAVA
 #include "bdj/bdj.h"
 #include "bdj/bdjo_parse.h"
 #endif
-
-#include "file/libaacs.h"
-#include "file/libbdplus.h"
 
 #include <stdio.h> // SEEK_
 #include <stdlib.h>
