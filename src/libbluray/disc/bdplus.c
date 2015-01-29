@@ -136,12 +136,6 @@ BD_BDPLUS *libbdplus_load(void)
     }
 
     BD_DEBUG(DBG_BLURAY, "Loaded libbdplus (%p)\n", p->h_libbdplus);
-
-    if (file_open != file_open_default()) {
-        BD_DEBUG(DBG_BLURAY, "Registering libbdplus filesystem handler %p (%p)\n", (void *)(intptr_t)file_open, p->h_libbdplus);
-        DL_CALL(p->h_libbdplus, bdplus_register_file, file_open);
-    }
-
     return p;
 }
 
