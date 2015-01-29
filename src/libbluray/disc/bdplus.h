@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2013       VideoLAN
+ * Copyright (C) 2013-2015  VideoLAN
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,11 +27,11 @@
 
 typedef struct bd_bdplus BD_BDPLUS;
 
-struct bd_disc;
-
-BD_PRIVATE int  libbdplus_required(struct bd_disc *disc);
+BD_PRIVATE int  libbdplus_required(void *have_file_handle, int (*have_file)(void *, const char *, const char *));
 BD_PRIVATE BD_BDPLUS *libbdplus_load(void);
-BD_PRIVATE int  libbdplus_init(BD_BDPLUS *p, struct bd_disc *disc, const uint8_t *vid, const uint8_t *mk);
+BD_PRIVATE int  libbdplus_init(BD_BDPLUS *p, const char *root,
+                               void *open_file_handle, void *open_file_fp,
+                               const uint8_t *vid, const uint8_t *mk);
 BD_PRIVATE void libbdplus_unload(BD_BDPLUS **p);
 
 BD_PRIVATE int  libbdplus_get_gen(BD_BDPLUS *p);

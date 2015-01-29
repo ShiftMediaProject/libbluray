@@ -23,6 +23,8 @@
 
 #include "disc.h"
 
+#include "dec.h"
+
 #include "util/logging.h"
 #include "util/macro.h"
 #include "util/strutl.h"
@@ -34,9 +36,35 @@
 struct bd_disc {
     char     *disc_root;
     char     *disc_device;
+
+    BD_DEC   *dec;
 };
 
-BD_DISC *disc_open(const char *device_path)
+static int _disc_have_file(BD_DISC *p, const char *dir, const char *file)
+{
+    BD_FILE_H *fp;
+    char *full_path;
+
+    full_path = str_printf("%s%s" DIR_SEP "%s", p->disc_root, dir, file );
+    fp = file_open(full_path, "r");
+    X_FREE(full_path);
+
+    if (fp) {
+        file_close(fp);
+        return 1;
+    }
+
+    return 0;
+}
+
+/*
+ *
+ */
+
+BD_DISC *disc_open(const char *device_path,
+                   struct bd_enc_info *enc_info,
+                   const char *keyfile_path,
+                   void *regs, void *psr_read, void *psr_write)
 {
     BD_DISC *p = calloc(1, sizeof(BD_DISC));
     if (p) {
@@ -46,14 +74,15 @@ BD_DISC *disc_open(const char *device_path)
         p->disc_device = str_dup(device_path);
 
         /* make sure path ends to slash */
-        const char *slash  = strrchr(disc_root, DIR_SEP_CHAR);
-        const char *lastch = disc_root + strlen(disc_root) - 1;
-        if (slash == lastch) {
+        if (disc_root[0] && disc_root[strlen(disc_root) - 1] == DIR_SEP_CHAR) {
             p->disc_root = disc_root;
         } else {
             p->disc_root = str_printf("%s%c", disc_root, DIR_SEP_CHAR);
             X_FREE(disc_root);
         }
+
+        struct dec_dev dev = { p, (void *)_disc_have_file, (void*)disc_open_path, p->disc_root, p->disc_device };
+        p->dec = dec_init(&dev, enc_info, keyfile_path, regs, psr_read, psr_write);
     }
 
     return p;
@@ -63,6 +92,9 @@ void disc_close(BD_DISC **pp)
 {
     if (pp && *pp) {
         BD_DISC *p = *pp;
+
+        dec_close(&p->dec);
+
         X_FREE(p->disc_root);
         X_FREE(p->disc_device);
         X_FREE(*pp);
@@ -81,23 +113,6 @@ BD_PRIVATE const char *disc_root(BD_DISC *p)
 BD_PRIVATE const char *disc_device(BD_DISC *p)
 {
     return p->disc_device;
-}
-
-int disc_have_file(BD_DISC *p, const char *dir, const char *file)
-{
-    BD_FILE_H *fp;
-    char *path;
-
-    path = str_printf("%s%s%c%s", p->disc_root, dir, DIR_SEP_CHAR, file);
-    fp = file_open(path, "r");
-    X_FREE(path);
-
-    if (fp) {
-        file_close(fp);
-        return 1;
-    }
-
-    return 0;
 }
 
 BD_FILE_H *disc_open_path(BD_DISC *p, const char *rel_path)
@@ -182,3 +197,50 @@ int64_t disc_read_file(BD_DISC *disc, const char *dir, const char *file,
     file_close(fp);
     return size;
 }
+
+/*
+ *
+ */
+
+BD_FILE_H *disc_open_stream(BD_DISC *disc, const char *file)
+{
+  BD_FILE_H *fp = disc_open_file(disc, "BDMV" DIR_SEP "STREAM", file);
+  if (!fp) {
+      return NULL;
+  }
+
+  if (disc->dec) {
+      BD_FILE_H *st = dec_open_stream(disc->dec, fp, atoi(file));
+      if (st) {
+          return st;
+      }
+  }
+
+  return fp;
+}
+
+const uint8_t *disc_get_data(BD_DISC *disc, int type)
+{
+    if (disc->dec) {
+        return dec_data(disc->dec, type);
+    }
+    return NULL;
+}
+
+void disc_event(BD_DISC *disc, uint32_t event, uint32_t param)
+{
+    if (disc->dec) {
+        switch (event) {
+            case DISC_EVENT_START:
+                dec_start(disc->dec, param);
+                return;
+            case DISC_EVENT_TITLE:
+                dec_title(disc->dec, param);
+                return;
+            case DISC_EVENT_APPLICATION:
+                dec_application(disc->dec, param);
+                return;
+        }
+    }
+}
+

@@ -44,9 +44,8 @@
 #include "decoders/graphics_controller.h"
 #include "decoders/m2ts_filter.h"
 #include "decoders/overlay.h"
-#include "disc/aacs.h"
-#include "disc/bdplus.h"
 #include "disc/disc.h"
+#include "disc/enc_info.h"
 #include "file/file.h"
 #ifdef USING_BDJAVA
 #include "bdj/bdj.h"
@@ -91,9 +90,6 @@ typedef struct {
     uint16_t        pg_pid; /* pid of currently selected PG stream */
 
     M2TS_FILTER    *m2ts_filter;
-
-    /* BD+ */
-    BD_BDPLUS_ST   *bdplus;
 } BD_STREAM;
 
 typedef struct {
@@ -135,12 +131,6 @@ struct bluray {
     /* mark tracking */
     uint64_t       next_mark_pos;
     int            next_mark;
-
-    /* AACS */
-    BD_AACS       *libaacs;
-
-    /* BD+ */
-    BD_BDPLUS     *libbdplus;
 
     /* player state */
     BD_REGISTERS   *regs;       // player registers
@@ -535,8 +525,6 @@ static void _close_m2ts(BD_STREAM *st)
 
     m2ts_filter_close(&st->m2ts_filter);
 
-    libbdplus_m2ts_close(&st->bdplus);
-
     /* reset UO mask */
     memset(&st->uo_mask, 0, sizeof(st->uo_mask));
 }
@@ -545,7 +533,7 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
 {
     _close_m2ts(st);
 
-    st->fp = disc_open_file(bd->disc, "BDMV" DIR_SEP "STREAM", st->clip->name);
+    st->fp = disc_open_stream(bd->disc, st->clip->name);
 
     st->clip_size = 0;
     st->clip_pos = (uint64_t)st->clip->start_pkt * 192;
@@ -563,8 +551,6 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
 
             st->clip_size   = clip_size;
             st->int_buf_off = 6144;
-
-            libaacs_select_title(bd->libaacs, bd_psr_read(bd->regs, PSR_TITLE_NUMBER));
 
             if (st == &bd->st0) {
                 MPLS_PL *pl = st->clip->title->pl;
@@ -584,8 +570,6 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
 
                 _init_textst_timer(bd);
             }
-
-            st->bdplus = libbdplus_m2ts(bd->libbdplus, st->clip->clip_id, st->clip_block_pos);
 
             return 1;
         }
@@ -613,14 +597,6 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
                 if (read_len != len) {
                     BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d !\n", (int)read_len, st->clip_block_pos, (int)len);
                 }
-                if (bd->libaacs && libaacs_decrypt_unit(bd->libaacs, buf)) {
-                    _queue_event(bd, BD_EVENT_ENCRYPTED, BD_ERROR_AACS);
-                    return -1;
-                }
-                if (st->bdplus && (libbdplus_fixup(st->bdplus, buf, len) < 0)) {
-                    _queue_event(bd, BD_EVENT_ENCRYPTED, BD_ERROR_BDPLUS);
-                }
-
                 st->clip_block_pos += len;
 
                 /* Check TP_extra_header Copy_permission_indicator. If != 0, unit is still encrypted. */
@@ -825,102 +801,6 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
 }
 
 /*
- * libaacs and libbdplus open / close
- */
-
-static int _libaacs_init(BLURAY *bd, const char *keyfile_path)
-{
-    int result;
-    const uint8_t *disc_id;
-
-    libaacs_unload(&bd->libaacs);
-
-    bd->disc_info.aacs_detected = libaacs_required(bd->disc);
-    if (!bd->disc_info.aacs_detected) {
-        /* no AACS */
-        return 1; /* no error if libaacs is not needed */
-    }
-
-    bd->libaacs = libaacs_load();
-    bd->disc_info.libaacs_detected = !!bd->libaacs;
-    if (!bd->libaacs) {
-        /* no libaacs */
-        return 0;
-    }
-
-    result = libaacs_open(bd->libaacs, bd->disc, keyfile_path);
-
-    bd->disc_info.aacs_error_code = result;
-    bd->disc_info.aacs_handled    = !result;
-    bd->disc_info.aacs_mkbv       = libaacs_get_mkbv(bd->libaacs);
-    disc_id = libaacs_get_aacs_data(bd->libaacs, BD_AACS_DISC_ID);
-    if (disc_id) {
-        memcpy(bd->disc_info.disc_id, disc_id, 20);
-    }
-
-    if (result) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "aacs_open() failed!\n");
-        libaacs_unload(&bd->libaacs);
-        return 0;
-    }
-
-    BD_DEBUG(DBG_BLURAY, "Opened libaacs\n");
-    return 1;
-}
-
-const uint8_t *bd_get_aacs_data(BLURAY *bd, int type)
-{
-    /* internal function. Used by BD-J and libbdplus loader. */
-    return libaacs_get_aacs_data(bd->libaacs, type);
-}
-
-static int _libbdplus_init(BLURAY *bd)
-{
-    libbdplus_unload(&bd->libbdplus);
-
-    bd->disc_info.bdplus_detected = libbdplus_required(bd->disc);
-    if (!bd->disc_info.bdplus_detected) {
-        return 0;
-    }
-
-    bd->libbdplus = libbdplus_load();
-    bd->disc_info.libbdplus_detected = !!bd->libbdplus;
-    if (!bd->libbdplus) {
-        return 0;
-    }
-
-    const uint8_t *vid = libaacs_get_aacs_data(bd->libaacs, BD_AACS_MEDIA_VID);
-    const uint8_t *mk  = libaacs_get_aacs_data(bd->libaacs, BD_AACS_MEDIA_KEY);
-    if (!vid) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "BD+ initialization failed (no AACS ?)\n");
-        libaacs_unload(&bd->libaacs);
-        return 0;
-    }
-
-    if (libbdplus_init(bd->libbdplus, bd->disc, vid, mk)) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bdplus_init() failed\n");
-
-        bd->disc_info.bdplus_handled = 0;
-        libbdplus_unload(&bd->libbdplus);
-        return 0;
-    }
-
-    BD_DEBUG(DBG_BLURAY, "libbdplus initialized\n");
-
-    /* map player memory regions */
-    libbdplus_mmap(bd->libbdplus, 0, (void*)bd->regs);
-    libbdplus_mmap(bd->libbdplus, 1, (void*)((uint8_t *)bd->regs + sizeof(uint32_t) * 128));
-
-    /* connect registers */
-    libbdplus_psr(bd->libbdplus, (void*)bd->regs, (void*)bd_psr_read, (void*)bd_psr_write);
-
-    bd->disc_info.bdplus_gen     = libbdplus_get_gen(bd->libbdplus);
-    bd->disc_info.bdplus_date    = libbdplus_get_date(bd->libbdplus);
-    bd->disc_info.bdplus_handled = 1;
-    return 1;
-}
-
-/*
  * meta open
  */
 
@@ -942,8 +822,20 @@ const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd)
     return &bd->disc_info;
 }
 
-static void _fill_disc_info(BLURAY *bd)
+static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
 {
+    bd->disc_info.aacs_detected      = enc_info->aacs_detected;
+    bd->disc_info.libaacs_detected   = enc_info->libaacs_detected;
+    bd->disc_info.aacs_error_code    = enc_info->aacs_error_code;
+    bd->disc_info.aacs_handled       = enc_info->aacs_handled;
+    bd->disc_info.aacs_mkbv          = enc_info->aacs_mkbv;
+    memcpy(bd->disc_info.disc_id, enc_info->disc_id, 20);
+    bd->disc_info.bdplus_detected    = enc_info->bdplus_detected;
+    bd->disc_info.libbdplus_detected = enc_info->libbdplus_detected;
+    bd->disc_info.bdplus_handled     = enc_info->bdplus_handled;
+    bd->disc_info.bdplus_gen         = enc_info->bdplus_gen;
+    bd->disc_info.bdplus_date        = enc_info->bdplus_date;
+
     bd->disc_info.bluray_detected        = 0;
     bd->disc_info.top_menu_supported     = 0;
     bd->disc_info.first_play_supported   = 0;
@@ -1100,6 +992,13 @@ static void _fill_disc_info(BLURAY *bd)
 /*
  * bdj
  */
+
+#ifdef USING_BDJAVA
+const uint8_t *bd_get_aacs_data(BLURAY *bd, int type)
+{
+    return disc_get_data(bd->disc, type);
+}
+#endif
 
 #ifdef USING_BDJAVA
 void bd_set_bdj_uo_mask(BLURAY *bd, unsigned mask)
@@ -1344,8 +1243,10 @@ static void _storage_free(BLURAY *bd)
  * open / close
  */
 
-BLURAY *bd_open(const char* device_path, const char* keyfile_path)
+BLURAY *bd_open(const char *device_path, const char *keyfile_path)
 {
+    BD_ENC_INFO enc_info;
+
     BD_DEBUG(DBG_BLURAY, "libbluray version "BLURAY_VERSION_STRING"\n");
 
     if (!device_path) {
@@ -1367,13 +1268,11 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         return NULL;
     }
 
-    bd->disc = disc_open(device_path);
+    bd->disc = disc_open(device_path,
+                         &enc_info, keyfile_path,
+                         (void*)bd->regs, (void*)bd_psr_read, (void*)bd_psr_write);
 
-    _libaacs_init(bd, keyfile_path);
-
-    _libbdplus_init(bd);
-
-    _fill_disc_info(bd);
+    _fill_disc_info(bd, &enc_info);
 
     bd_mutex_init(&bd->mutex);
 #ifdef USING_BDJAVA
@@ -1389,13 +1288,9 @@ void bd_close(BLURAY *bd)
 {
     _close_bdj(bd);
 
-    libaacs_unload(&bd->libaacs);
-
     _close_m2ts(&bd->st0);
     _close_preload(&bd->st_ig);
     _close_preload(&bd->st_textst);
-
-    libbdplus_unload(&bd->libbdplus);
 
     if (bd->title_list != NULL) {
         nav_free_title_list(bd->title_list);
@@ -1495,8 +1390,6 @@ static void _seek_internal(BLURAY *bd,
         }
 
         BD_DEBUG(DBG_BLURAY, "Seek to %"PRIu64"\n", bd->s_pos);
-
-        libbdplus_seek(bd->st0.bdplus, bd->st0.clip_block_pos);
     }
 }
 
@@ -2376,10 +2269,7 @@ uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length)
         return 0;
     }
 
-    /* start BD+. No real title info will be passed to BD+ VM ... */
-    if (bd->libbdplus) {
-        libbdplus_event(bd->libbdplus, 0xffffffff, bd->disc_info.num_titles, 0);
-    }
+    disc_event(bd->disc, DISC_EVENT_START, bd->disc_info.num_titles);
 
     return bd->title_list->count;
 }
@@ -2764,7 +2654,6 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
             break;
         case PSR_TITLE_NUMBER:
             _queue_event(bd, BD_EVENT_TITLE,    ev->new_val);
-            libbdplus_event(bd->libbdplus, 0x110, ev->new_val, 0);
             break;
         case PSR_PLAYLIST:
             _bdj_event  (bd, BDJ_EVENT_PLAYLIST,ev->new_val);
@@ -2786,7 +2675,7 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
             _bdj_event  (bd, BDJ_EVENT_PSR102,  ev->new_val);
             break;
         case 103:
-            libbdplus_event(bd->libbdplus, 0x210, ev->new_val, 0);
+            disc_event(bd->disc, DISC_EVENT_APPLICATION, ev->new_val);
             break;
 
         default:;
@@ -2800,6 +2689,12 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
     _process_psr_write_event(bd, ev);
 
     switch (ev->psr_idx) {
+
+        /* current playback position */
+
+        case PSR_TITLE_NUMBER:
+            disc_event(bd->disc, DISC_EVENT_TITLE, ev->new_val);
+            break;
 
         /* stream selection */
 
@@ -3039,15 +2934,16 @@ int bd_play(BLURAY *bd)
         hdmv_vm_free(&bd->hdmv_vm);
     }
 
-    _init_event_queue(bd);
+    if (!bd->event_queue) {
+        _init_event_queue(bd);
 
-    bd_psr_lock(bd->regs);
-    bd_psr_register_cb(bd->regs, _process_psr_event, bd);
-    _queue_initial_psr_events(bd);
-    bd_psr_unlock(bd->regs);
+        bd_psr_lock(bd->regs);
+        bd_psr_register_cb(bd->regs, _process_psr_event, bd);
+        _queue_initial_psr_events(bd);
+        bd_psr_unlock(bd->regs);
+    }
 
-    /* start BD+ VM */
-    libbdplus_start(bd->libbdplus);
+    disc_event(bd->disc, DISC_EVENT_START, 0);
 
     /* start playback from FIRST PLAY title */
 

@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2013       VideoLAN
+ * Copyright (C) 2013-2015  VideoLAN
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,8 +18,6 @@
  */
 
 #include "bdplus.h"
-
-#include "disc.h"
 
 #include "file/dl.h"
 #include "file/file.h"
@@ -68,9 +66,9 @@ void libbdplus_unload(BD_BDPLUS **p)
     }
 }
 
-int libbdplus_required(BD_DISC *disc)
+int libbdplus_required(void *have_file_handle, int (*have_file)(void *, const char *, const char *))
 {
-    if (disc_have_file(disc, "BDSVM", "00000.svm")) {
+    if (have_file(have_file_handle, "BDSVM", "00000.svm")) {
         BD_DEBUG(DBG_BLURAY, "BDSVM" DIR_SEP "00000.svm found. Disc seems to be BD+ protected.\n");
         return 1;
     }
@@ -139,7 +137,9 @@ BD_BDPLUS *libbdplus_load(void)
     return p;
 }
 
-int libbdplus_init(BD_BDPLUS *p, BD_DISC *disc, const uint8_t *vid, const uint8_t *mk)
+int libbdplus_init(BD_BDPLUS *p, const char *root,
+                   void *file_open_handle, void *file_open_fp,
+                   const uint8_t *vid, const uint8_t *mk)
 {
     fptr_p_void    bdplus_init;
     fptr_void      set_fopen;
@@ -156,9 +156,9 @@ int libbdplus_init(BD_BDPLUS *p, BD_DISC *disc, const uint8_t *vid, const uint8_
 
     if (set_fopen) {
         p->bdplus = bdplus_init(NULL, NULL, vid);
-        set_fopen(p->bdplus, disc, disc_open_path);
+        set_fopen(p->bdplus, file_open_handle, file_open_fp);
     } else {
-        p->bdplus = bdplus_init(disc_root(disc), NULL, vid);
+        p->bdplus = bdplus_init(root, NULL, vid);
     }
 
     if (!p->bdplus) {

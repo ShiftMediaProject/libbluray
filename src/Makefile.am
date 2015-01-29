@@ -67,6 +67,9 @@ libbluray_la_SOURCES = \
 	libbluray/disc/bdplus.c \
 	libbluray/disc/disc.h \
 	libbluray/disc/disc.c \
+	libbluray/disc/dec.h \
+	libbluray/disc/dec.c \
+	libbluray/disc/enc_info.h \
 	libbluray/hdmv/hdmv_insn.h \
 	libbluray/hdmv/hdmv_vm.h \
 	libbluray/hdmv/hdmv_vm.c \

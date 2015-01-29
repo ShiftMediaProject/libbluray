@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2013       VideoLAN
+ * Copyright (C) 2013-2015  VideoLAN
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,8 +18,6 @@
  */
 
 #include "aacs.h"
-
-#include "disc.h"
 
 #include "file/dl.h"
 #include "file/file.h"
@@ -69,9 +67,9 @@ void libaacs_unload(BD_AACS **p)
     }
 }
 
-int libaacs_required(BD_DISC *disc)
+int libaacs_required(void *have_file_handle, int (*have_file)(void *, const char *, const char *))
 {
-    if (disc_have_file(disc, "AACS", "Unit_Key_RO.inf")) {
+    if (have_file(have_file_handle, "AACS", "Unit_Key_RO.inf")) {
         BD_DEBUG(DBG_BLURAY, "AACS" DIR_SEP "Unit_Key_RO.inf found. Disc seems to be AACS protected.\n");
         return 1;
     }
@@ -138,7 +136,10 @@ BD_AACS *libaacs_load(void)
     return p;
 }
 
-int libaacs_open(BD_AACS *p, BD_DISC *disc, const char *keyfile_path)
+int libaacs_open(BD_AACS *p, const char *device,
+                   void *file_open_handle, void *file_open_fp,
+                   const char *keyfile_path)
+
 {
     int error_code = 0;
 
@@ -160,14 +161,14 @@ int libaacs_open(BD_AACS *p, BD_DISC *disc, const char *keyfile_path)
 
     if (init && open_device) {
         p->aacs = init();
-        DL_CALL(p->h_libaacs, aacs_set_fopen, p->aacs, disc, disc_open_path);
-        error_code = open_device(p->aacs, disc_device(disc), keyfile_path);
+        DL_CALL(p->h_libaacs, aacs_set_fopen, p->aacs, file_open_handle, file_open_fp);
+        error_code = open_device(p->aacs, device, keyfile_path);
     } else if (open2) {
         BD_DEBUG(DBG_BLURAY, "Using old aacs_open2(), no UDF support available\n");
-        p->aacs = open2(disc_root(disc), keyfile_path, &error_code);
+        p->aacs = open2(device, keyfile_path, &error_code);
     } else if (open) {
         BD_DEBUG(DBG_BLURAY, "Using old aacs_open(), no verbose error reporting available\n");
-        p->aacs = open(disc_root(disc), keyfile_path);
+        p->aacs = open(device, keyfile_path);
     } else {
         BD_DEBUG(DBG_BLURAY, "aacs_open() not found\n");
     }
