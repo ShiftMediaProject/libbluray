@@ -31,13 +31,16 @@
 struct bd_file_s;
 struct bd_enc_info;
 
+typedef struct bd_file_s * (*file_openFp)(void *, const char *);
+typedef int (*have_fileFp)(void *, const char *, const char *);
+
 /* device to use */
 struct dec_dev {
-    void                *file_open_handle;
-    int                (*have_file)(void *, const char *, const char *);
-    struct bd_file_s * (*file_open)(void *, const char *);
-    const char          *root;   /* may be NULL if disc is not mounted */
-    const char          *device; /* may be null if not reading from real device */
+    void          *file_open_handle;
+    have_fileFp   have_file;
+    file_openFp   file_open;
+    const char    *root;   /* may be NULL if disc is not mounted */
+    const char    *device; /* may be null if not reading from real device */
 };
 
 typedef struct bd_dec BD_DEC;

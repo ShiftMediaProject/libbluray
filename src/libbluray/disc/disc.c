@@ -81,7 +81,7 @@ BD_DISC *disc_open(const char *device_path,
             X_FREE(disc_root);
         }
 
-        struct dec_dev dev = { p, (void *)_disc_have_file, (void*)disc_open_path, p->disc_root, p->disc_device };
+        struct dec_dev dev = { p, (have_fileFp)_disc_have_file, (file_openFp)disc_open_path, p->disc_root, p->disc_device };
         p->dec = dec_init(&dev, enc_info, keyfile_path, regs, psr_read, psr_write);
     }
 
