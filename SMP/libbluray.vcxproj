@@ -65,18 +65,20 @@
     <ClInclude Include="..\src\file\filesystem.h" />
     <ClInclude Include="..\src\file\libaacs.h" />
     <ClInclude Include="..\src\file\libbdplus.h" />
+    <ClInclude Include="..\src\file\mount.h" />
     <ClInclude Include="..\src\libbluray\bdj\bdj.h" />
-    <ClInclude Include="..\src\libbluray\bdj\bdjo_parser.h" />
-    <ClInclude Include="..\src\libbluray\bdj\bdj_private.h" />
-    <ClInclude Include="..\src\libbluray\bdj\bdj_util.h" />
-    <ClInclude Include="..\src\libbluray\bdj\common.h" />
+    <ClInclude Include="..\src\libbluray\bdj\bdjo_data.h" />
+    <ClInclude Include="..\src\libbluray\bdj\bdjo_parse.h" />
+    <ClInclude Include="..\src\libbluray\bdj\native\bdjo.h" />
     <ClInclude Include="..\src\libbluray\bdj\native\java_awt_BDFontMetrics.h" />
     <ClInclude Include="..\src\libbluray\bdj\native\java_awt_BDGraphics.h" />
     <ClInclude Include="..\src\libbluray\bdj\native\org_videolan_Libbluray.h" />
     <ClInclude Include="..\src\libbluray\bdj\native\org_videolan_Logger.h" />
     <ClInclude Include="..\src\libbluray\bdj\native\register_native.h" />
+    <ClInclude Include="..\src\libbluray\bdj\native\util.h" />
     <ClInclude Include="..\src\libbluray\bdnav\bdid_parse.h" />
     <ClInclude Include="..\src\libbluray\bdnav\bdparse.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\clpi_data.h" />
     <ClInclude Include="..\src\libbluray\bdnav\clpi_parse.h" />
     <ClInclude Include="..\src\libbluray\bdnav\extdata_parse.h" />
     <ClInclude Include="..\src\libbluray\bdnav\index_parse.h" />
@@ -90,6 +92,7 @@
     <ClInclude Include="..\src\libbluray\bluray_internal.h" />
     <ClInclude Include="..\src\libbluray\decoders\graphics_controller.h" />
     <ClInclude Include="..\src\libbluray\decoders\graphics_processor.h" />
+    <ClInclude Include="..\src\libbluray\decoders\hdmv_pids.h" />
     <ClInclude Include="..\src\libbluray\decoders\ig.h" />
     <ClInclude Include="..\src\libbluray\decoders\ig_decode.h" />
     <ClInclude Include="..\src\libbluray\decoders\m2ts_demux.h" />
@@ -104,8 +107,11 @@
     <ClInclude Include="..\src\libbluray\decoders\textst_render.h" />
     <ClInclude Include="..\src\libbluray\hdmv\hdmv_insn.h" />
     <ClInclude Include="..\src\libbluray\hdmv\hdmv_vm.h" />
+    <ClInclude Include="..\src\libbluray\hdmv\mobj_data.h" />
     <ClInclude Include="..\src\libbluray\hdmv\mobj_parse.h" />
+    <ClInclude Include="..\src\libbluray\hdmv\mobj_print.h" />
     <ClInclude Include="..\src\libbluray\keys.h" />
+    <ClInclude Include="..\src\libbluray\player_settings.h" />
     <ClInclude Include="..\src\libbluray\register.h" />
     <ClInclude Include="..\src\util\array.h" />
     <ClInclude Include="..\src\util\attributes.h" />
@@ -130,14 +136,16 @@
     <ClCompile Include="..\src\file\file_win32.c" />
     <ClCompile Include="..\src\file\libaacs.c" />
     <ClCompile Include="..\src\file\libbdplus.c" />
+    <ClCompile Include="..\src\file\mount.c" />
     <ClCompile Include="..\src\libbluray\bdj\bdj.c" />
-    <ClCompile Include="..\src\libbluray\bdj\bdjo_parser.c" />
-    <ClCompile Include="..\src\libbluray\bdj\bdj_util.c" />
+    <ClCompile Include="..\src\libbluray\bdj\bdjo_parse.c" />
+    <ClCompile Include="..\src\libbluray\bdj\native\bdjo.c" />
     <ClCompile Include="..\src\libbluray\bdj\native\java_awt_BDFontMetrics.c" />
     <ClCompile Include="..\src\libbluray\bdj\native\java_awt_BDGraphics.c" />
     <ClCompile Include="..\src\libbluray\bdj\native\org_videolan_Libbluray.c" />
     <ClCompile Include="..\src\libbluray\bdj\native\org_videolan_Logger.c" />
     <ClCompile Include="..\src\libbluray\bdj\native\register_native.c" />
+    <ClCompile Include="..\src\libbluray\bdj\native\util.c" />
     <ClCompile Include="..\src\libbluray\bdnav\bdid_parse.c" />
     <ClCompile Include="..\src\libbluray\bdnav\clpi_parse.c" />
     <ClCompile Include="..\src\libbluray\bdnav\extdata_parse.c" />
@@ -435,9 +443,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -496,9 +504,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -561,9 +569,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -625,9 +633,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -687,9 +695,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -749,9 +757,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -824,9 +832,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -899,9 +907,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -973,9 +981,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1047,9 +1055,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1122,9 +1130,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1196,9 +1204,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1269,9 +1277,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1342,9 +1350,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.6.2.jar (
+if not exist .\src\libbluray-j2se-0.7.0.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.6.2
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.7.0
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
