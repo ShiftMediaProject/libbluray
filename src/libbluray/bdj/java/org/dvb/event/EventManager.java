@@ -213,7 +213,7 @@ public class EventManager implements ResourceServer {
                             return false;
                     } catch (Exception e) {
                         logger.error("requestRelease() failed: " + e.getClass());
-                        logger.info("" + e.getStackTrace());
+                        e.printStackTrace();
                         return false;
                     }
                     sendResourceStatusEvent(new UserEventAvailableEvent(item.userEvents));
@@ -230,7 +230,7 @@ public class EventManager implements ResourceServer {
                         return false;
                 } catch (Exception e) {
                     logger.error("requestRelease() failed: " + e.getClass());
-                    logger.info("" + e.getStackTrace());
+                    e.printStackTrace();
                     return false;
                 }
                 sendResourceStatusEvent(new UserEventAvailableEvent(item.userEvents));

@@ -45,6 +45,8 @@ public class HDefaultTextLayoutManager implements HTextLayoutManager {
                 String[] lines = StrUtil.split(text, '\n');
 
                 Graphics g = hvisible.getGraphics();
+                if (g == null)
+                    continue;
                 FontMetrics fontMetrics = g.getFontMetrics(hvisible.getFont());
                 g.dispose();
 

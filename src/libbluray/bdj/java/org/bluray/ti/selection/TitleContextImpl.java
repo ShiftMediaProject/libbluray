@@ -26,7 +26,9 @@ import javax.tv.service.SIManager;
 import javax.tv.service.Service;
 import javax.tv.service.selection.InvalidServiceComponentException;
 import javax.tv.service.selection.NormalContentEvent;
+import javax.tv.service.selection.PresentationChangedEvent;
 import javax.tv.service.selection.PresentationTerminatedEvent;
+import javax.tv.service.selection.SelectionFailedEvent;
 import javax.tv.service.selection.ServiceContentHandler;
 import javax.tv.service.selection.ServiceContextDestroyedEvent;
 import javax.tv.service.selection.ServiceContextEvent;
@@ -104,6 +106,12 @@ public class TitleContextImpl implements TitleContext {
         }
     }
 
+    public void presentationChanged() {
+        if (state == STATE_STARTED) {
+            postEvent(new PresentationChangedEvent(this));
+        }
+    }
+
     private void postEvent(ServiceContextEvent event)
     {
         listeners.putCallback(event);
@@ -120,6 +128,8 @@ public class TitleContextImpl implements TitleContext {
                 context.title = title;
                 context.state = STATE_STARTED;
                 context.postEvent(new NormalContentEvent(context));
+            } else {
+                context.postEvent(new SelectionFailedEvent(context, SelectionFailedEvent.OTHER));
             }
         }
 
@@ -139,6 +149,8 @@ public class TitleContextImpl implements TitleContext {
                     context.postEvent(new ServiceContextDestroyedEvent(context));
                 else
                     context.state = STATE_STOPPED;
+            } else {
+                context.postEvent(new SelectionFailedEvent(context, SelectionFailedEvent.OTHER));
             }
         }
 

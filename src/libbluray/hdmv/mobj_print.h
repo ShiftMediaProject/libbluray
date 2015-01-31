@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2010  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,13 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BDJO_PARSER_H_
-#define BDJO_PARSER_H_
+#if !defined(_MOBJ_PRINT_H_)
+#define _MOBJ_PRINT_H_
 
 #include "util/attributes.h"
 
-#include <jni.h>
+struct mobj_cmd;
 
-BD_PRIVATE jobject bdjo_read(JNIEnv* env, const char* file);
+BD_PRIVATE int mobj_sprint_cmd(char *buf, struct mobj_cmd *cmd); /* print MOBJ_CMD to string. buf is expected to be 256 bytes. */
 
-#endif /* BDJO_PARSER_H_ */
+#endif // _MOBJ_PRINT_H_

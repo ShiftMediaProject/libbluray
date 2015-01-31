@@ -40,7 +40,7 @@ typedef struct
     uint8_t         format;
     uint8_t         rate;
     uint8_t         char_code;
-    uint8_t         lang[4];
+    char            lang[4];
     // Secondary audio specific fields
     uint8_t         sa_num_primary_audio_ref;
     uint8_t        *sa_primary_audio_ref;
@@ -177,7 +177,7 @@ typedef struct mpls_pl
 } MPLS_PL;
 
 
-BD_PRIVATE MPLS_PL* mpls_parse(const char *path);
+BD_PRIVATE MPLS_PL* mpls_parse(const char *path) BD_ATTR_MALLOC;
 BD_PRIVATE void mpls_free(MPLS_PL *pl);
 
 BD_PRIVATE int  mpls_parse_uo(uint8_t *buf, BD_UO_MASK *uo);

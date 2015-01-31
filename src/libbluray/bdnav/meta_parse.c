@@ -195,6 +195,7 @@ META_ROOT *meta_parse(const char *device_path)
     xmlCleanupParser();
     return root;
 #else
+    (void)device_path;
     BD_DEBUG(DBG_DIR, "configured without libxml2 - can't parse meta info\n");
     return NULL;
 #endif
@@ -229,12 +230,15 @@ const META_DL *meta_get(const META_ROOT *meta_root, const char *language_code)
     BD_DEBUG(DBG_DIR, "requested disclib language '%s' or default '"DEFAULT_LANGUAGE"' not found, using '%s' instead\n", language_code, meta_root->dl_entries[0].language_code);
     return &meta_root->dl_entries[0];
 #else
+    (void)meta_root;
+    (void)language_code;
     return NULL;
 #endif
 }
 
 void meta_free(META_ROOT **p)
 {
+    (void)p;
 #ifdef HAVE_LIBXML2
     if (p && *p)
     {

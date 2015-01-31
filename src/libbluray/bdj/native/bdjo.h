@@ -17,30 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BDJ_PRIVATE_H_
-#define BDJ_PRIVATE_H_
+#ifndef BDJO_H_
+#define BDJO_H_
 
-#include "libbluray/bluray.h"
-#include "libbluray/bdnav/index_parse.h"
-#include "libbluray/decoders/overlay.h"
+#include "util/attributes.h"
+
 #include <jni.h>
 
-struct bdjava_s {
-    BLURAY       *bd;
-    INDX_ROOT    *index;
+BD_PRIVATE jobject bdjo_get(JNIEnv* env, const char *bdjo_path);
 
-    bdj_overlay_cb  osd_cb;
-    BD_ARGB_BUFFER *buf;
-
-    // JVM library
-    void *h_libjvm;
-
-    // JNI
-    JavaVM* jvm;
-
-    const char *path;
-
-    unsigned uo_mask; /* UO masks from bdjo */
-};
-
-#endif
+#endif /* BDJO_H_ */

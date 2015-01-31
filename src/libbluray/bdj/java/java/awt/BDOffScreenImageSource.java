@@ -20,7 +20,6 @@
 package java.awt;
 
 import java.util.Hashtable;
-import java.awt.Component;
 import java.awt.color.ColorSpace;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;

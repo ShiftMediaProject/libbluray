@@ -32,39 +32,31 @@
 #include "util/logging.h"
 #include "util/strutl.h"
 #include "util/mutex.h"
+#include "bdnav/bdid_parse.h"
 #include "bdnav/navigation.h"
 #include "bdnav/index_parse.h"
 #include "bdnav/meta_parse.h"
 #include "bdnav/clpi_parse.h"
 #include "bdnav/sound_parse.h"
 #include "hdmv/hdmv_vm.h"
+#include "hdmv/mobj_parse.h"
 #include "decoders/graphics_controller.h"
 #include "decoders/m2ts_filter.h"
 #include "decoders/overlay.h"
 #include "file/file.h"
+#include "file/mount.h"
 #ifdef USING_BDJAVA
 #include "bdj/bdj.h"
+#include "bdj/bdjo_parse.h"
 #endif
 
 #include "file/libbdplus.h"
 #include "file/libaacs.h"
 
+#include <stdio.h> // SEEK_
 #include <stdlib.h>
 #include <inttypes.h>
 #include <string.h>
-
-#ifdef HAVE_MNTENT_H
-#include <sys/stat.h>
-#include <mntent.h>
-#endif
-
-#ifdef __APPLE__
-#define _DARWIN_C_SOURCE
-#include <sys/stat.h>
-#include <sys/param.h>
-#include <sys/ucred.h>
-#include <sys/mount.h>
-#endif
 
 
 #define MAX_EVENTS 31  /* 2^n - 1 */
@@ -112,7 +104,7 @@ typedef struct {
 
 struct bluray {
 
-    BD_MUTEX          mutex;  /* protect API function access to internal data (must be first element in struct) */
+    BD_MUTEX          mutex;  /* protect API function access to internal data */
 
     /* current disc */
     char             *device_path;
@@ -154,15 +146,19 @@ struct bluray {
     BD_REGISTERS   *regs;       // player registers
     BD_EVENT_QUEUE *event_queue; // navigation mode event queue
     BD_TITLE_TYPE  title_type;  // type of current title (in navigation mode)
+    /* Pending action after playlist end
+     * BD-J: delayed sending of BDJ_EVENT_END_OF_PLAYLIST
+     *       1 - message pending. 3 - message sent.
+     */
+    uint8_t         end_of_playlist; /* 1 - reached. 3 - processed . */
 
     HDMV_VM        *hdmv_vm;
     uint8_t        hdmv_suspended;
 #ifdef USING_BDJAVA
     BDJAVA         *bdjava;
+    BDJ_STORAGE     bdjstorage;
 #endif
-    /* delayed sending of BDJ_EVENT_END_OF_PLAYLIST:
-     * 1 - message pending. 3 - message sent. */
-    uint8_t         bdj_end_of_playlist;
+    uint8_t         bdj_wait_start;  /* BD-J has selected playlist (prefetch) but not yet started playback */
 
     /* HDMV graphics */
     GRAPHICS_CONTROLLER *graphics_controller;
@@ -175,9 +171,13 @@ struct bluray {
     uint64_t gc_wakeup_pos;   /* stream position of gc_wakeup_time */
 
     /* ARGB overlay output */
+#ifdef USING_BDJAVA
     void                *argb_overlay_proc_handle;
     bd_argb_overlay_proc_f argb_overlay_proc;
     BD_ARGB_BUFFER      *argb_buffer;
+    BD_MUTEX             argb_buffer_mutex;
+    BD_UO_MASK           bdj_uo_mask;
+#endif
 };
 
 /* Stream Packet Number = byte offset / 192. Avoid 64-bit division. */
@@ -395,7 +395,7 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
 
 static int _is_interactive_title(BLURAY *bd)
 {
-    if (bd->title && bd->title_type != title_undef) {
+    if (bd->titles && bd->title_type != title_undef) {
         unsigned title = bd_psr_read(bd->regs, PSR_TITLE_NUMBER);
         if (title == 0xffff && bd->disc_info.first_play->interactive) {
             return 1;
@@ -515,7 +515,7 @@ static void _init_textst_timer(BLURAY *bd)
 {
     if (bd->st_textst.clip) {
         uint32_t clip_time;
-        clpi_access_point(bd->st0.clip->cl, bd->st0.clip_block_pos/192, /*next=*/0, /*angle_change=*/0, &clip_time);
+        clpi_access_point(bd->st0.clip->cl, SPN(bd->st0.clip_block_pos), /*next=*/0, /*angle_change=*/0, &clip_time);
         bd->gc_wakeup_time = clip_time;
         bd->gc_wakeup_pos = 0;
         _update_textst_timer(bd);
@@ -968,6 +968,9 @@ static void _fill_disc_info(BLURAY *bd)
 
     array_free((void**)&bd->titles);
 
+    memset(bd->disc_info.bdj_org_id,  0, sizeof(bd->disc_info.bdj_org_id));
+    memset(bd->disc_info.bdj_disc_id, 0, sizeof(bd->disc_info.bdj_disc_id));
+
     INDX_ROOT *index = indx_parse(bd->device_path);
     if (index) {
         INDX_PLAY_ITEM *pi;
@@ -1088,11 +1091,28 @@ static void _fill_disc_info(BLURAY *bd)
 
         indx_free(&index);
     }
+
+    if (bd->disc_info.bdj_detected) {
+        BDID_DATA *bdid = bdid_parse(bd->device_path); /* parse id.bdmv */
+        if (bdid) {
+            memcpy(bd->disc_info.bdj_org_id,  bdid->org_id,  sizeof(bd->disc_info.bdj_org_id));
+            memcpy(bd->disc_info.bdj_disc_id, bdid->disc_id, sizeof(bd->disc_info.bdj_disc_id));
+            bdid_free(&bdid);
+        }
+    }
 }
 
 /*
  * bdj
  */
+
+#ifdef USING_BDJAVA
+void bd_set_bdj_uo_mask(BLURAY *bd, unsigned mask)
+{
+    bd->bdj_uo_mask.title_search = !!(mask & BDJ_TITLE_SEARCH_MASK);
+    bd->bdj_uo_mask.menu_call    = !!(mask & BDJ_MENU_CALL_MASK);
+}
+#endif
 
 #ifdef USING_BDJAVA
 uint64_t bd_get_uo_mask(BLURAY *bd)
@@ -1112,10 +1132,16 @@ uint64_t bd_get_uo_mask(BLURAY *bd)
 
 void bd_select_rate(BLURAY *bd, float rate, int reason)
 {
-    if (reason == 2) {
+    if (reason == BDJ_PLAYBACK_STOP) {
         /* playback stop. Might want to wait for buffers empty here. */
         return;
     }
+
+    if (reason == BDJ_PLAYBACK_START) {
+        /* playback is triggered by bd_select_rate() */
+        bd->bdj_wait_start = 0;
+    }
+
     if (rate < 0.5) {
         _queue_event(bd, BD_EVENT_STILL, 1);
     } else {
@@ -1156,15 +1182,26 @@ int bd_reg_write(BLURAY *bd, int psr, int reg, uint32_t value, uint32_t psr_valu
 #endif
 
 #ifdef USING_BDJAVA
+BD_ARGB_BUFFER *bd_lock_osd_buffer(BLURAY *bd)
+{
+    bd_mutex_lock(&bd->argb_buffer_mutex);
+    return bd->argb_buffer;
+}
+
+void bd_unlock_osd_buffer(BLURAY *bd)
+{
+    bd_mutex_unlock(&bd->argb_buffer_mutex);
+}
+
 /*
  * handle graphics updates from BD-J layer
  */
-static void _bdj_osd_cb(BLURAY *bd, const unsigned *img, int w, int h,
-                        int x0, int y0, int x1, int y1)
+void bd_bdj_osd_cb(BLURAY *bd, const unsigned *img, int w, int h,
+                   int x0, int y0, int x1, int y1)
 {
     BD_ARGB_OVERLAY aov;
 
-    if (!bd || !bd->argb_overlay_proc) {
+    if (!bd->argb_overlay_proc) {
         _queue_event(bd, BD_EVENT_MENU, 0);
         return;
     }
@@ -1236,13 +1273,17 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
-        bd->bdjava = bdj_open(bd->device_path, bd, _bdj_osd_cb, bd->argb_buffer);
+        bd->bdjava = bdj_open(bd->device_path, bd, bd->disc_info.bdj_disc_id, &bd->bdjstorage);
         if (!bd->bdjava) {
             return 0;
         }
     }
+
+    memset(&bd->bdj_uo_mask, 0, sizeof(BD_UO_MASK));
+
     return !bdj_process_event(bd->bdjava, BDJ_EVENT_START, title);
 #else
+    (void)bd;
     BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title %d: BD-J not compiled in\n", title);
     return 0;
 #endif
@@ -1257,7 +1298,7 @@ static int _bdj_event(BLURAY *bd, unsigned ev, unsigned param)
     return -1;
 }
 #else
-#define _bdj_event(bd, ev, param) (bd=bd, -1)
+#define _bdj_event(bd, ev, param) do{}while(0)
 #endif
 
 #ifdef USING_BDJAVA
@@ -1265,6 +1306,7 @@ static void _stop_bdj(BLURAY *bd)
 {
     if (bd->bdjava != NULL) {
         bdj_process_event(bd->bdjava, BDJ_EVENT_STOP, 0);
+        _queue_event(bd, BD_EVENT_STILL, 0);
     }
 }
 #else
@@ -1283,69 +1325,14 @@ static void _close_bdj(BLURAY *bd)
 #define _close_bdj(bd) do{}while(0)
 #endif
 
-#ifdef HAVE_MNTENT_H
-/*
- * Replace device node (/dev/sr0) by mount point
- * Implemented on Linux and MacOSX
- */
-static void get_mount_point(BLURAY *bd)
+#ifdef USING_BDJAVA
+static void _storage_free(BLURAY *bd)
 {
-    struct stat st;
-    if (stat (bd->device_path, &st) )
-        return;
-
-    /* If it's a directory, all is good */
-    if (S_ISDIR(st.st_mode))
-        return;
-
-    FILE *f = setmntent ("/proc/self/mounts", "r");
-    if (!f)
-        return;
-
-    struct mntent* m;
-#ifdef HAVE_GETMNTENT_R
-    struct mntent mbuf;
-    char buf [8192];
-    while ((m = getmntent_r (f, &mbuf, buf, sizeof(buf))) != NULL) {
+    X_FREE(bd->bdjstorage.cache_root);
+    X_FREE(bd->bdjstorage.persistent_root);
+}
 #else
-    while ((m = getmntent (f)) != NULL) {
-#endif
-        if (!strcmp (m->mnt_fsname, bd->device_path)) {
-            free(bd->device_path);
-            bd->device_path = str_dup (m->mnt_dir);
-            break;
-        }
-    }
-    endmntent (f);
-}
-#endif
-#ifdef __APPLE__
-static void get_mount_point(BLURAY *bd)
-{
-    struct stat st;
-    if (stat (bd->device_path, &st) )
-        return;
-
-    /* If it's a directory, all is good */
-    if (S_ISDIR(st.st_mode))
-        return;
-
-    struct statfs mbuf[128];
-    int fs_count;
-
-    if ( (fs_count = getfsstat (NULL, 0, MNT_NOWAIT)) == -1 ) {
-        return;
-    }
-
-    getfsstat (mbuf, fs_count * sizeof(mbuf[0]), MNT_NOWAIT);
-
-    for ( int i = 0; i < fs_count; ++i) {
-        if (!strcmp (mbuf[i].f_mntfromname, bd->device_path)) {
-            free(bd->device_path);
-            bd->device_path = str_dup (mbuf[i].f_mntonname);
-        }
-    }
-}
+#define _storage_free(bd) do{}while(0)
 #endif
 
 /*
@@ -1375,11 +1362,7 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
         return NULL;
     }
 
-    bd->device_path = str_dup(device_path);
-
-#if (defined HAVE_MNTENT_H || defined __APPLE__)
-    get_mount_point(bd);
-#endif
+    bd->device_path = mount_get_mountpoint(device_path);
 
     _libaacs_init(bd, keyfile_path);
 
@@ -1388,6 +1371,9 @@ BLURAY *bd_open(const char* device_path, const char* keyfile_path)
     _fill_disc_info(bd);
 
     bd_mutex_init(&bd->mutex);
+#ifdef USING_BDJAVA
+    bd_mutex_init(&bd->argb_buffer_mutex);
+#endif
 
     BD_DEBUG(DBG_BLURAY, "BLURAY initialized!\n");
 
@@ -1423,8 +1409,12 @@ void bd_close(BLURAY *bd)
     _free_event_queue(bd);
     X_FREE(bd->device_path);
     array_free((void**)&bd->titles);
+    _storage_free(bd);
 
     bd_mutex_destroy(&bd->mutex);
+#ifdef USING_BDJAVA
+    bd_mutex_destroy(&bd->argb_buffer_mutex);
+#endif
 
     BD_DEBUG(DBG_BLURAY, "BLURAY destroyed!\n");
 
@@ -1446,6 +1436,7 @@ static void _find_next_playmark(BLURAY *bd)
         if (pos > bd->s_pos) {
             bd->next_mark = ii;
             bd->next_mark_pos = pos;
+            _update_chapter_psr(bd);
             return;
         }
     }
@@ -1521,6 +1512,11 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
     uint32_t clip_pkt, out_pkt;
     NAV_CLIP *clip;
 
+    if (tick >> 33) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_seek_time(%"PRIu64") failed: invalid timestamp\n", tick);
+        return bd->s_pos;
+    }
+
     tick /= 2;
 
     bd_mutex_lock(&bd->mutex);
@@ -1531,7 +1527,7 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
         _change_angle(bd);
 
         // Find the closest access unit to the requested position
-        clip = nav_time_search(bd->title, tick, &clip_pkt, &out_pkt);
+        clip = nav_time_search(bd->title, (uint32_t)tick, &clip_pkt, &out_pkt);
 
         _seek_internal(bd, clip, out_pkt, clip_pkt);
 
@@ -1803,7 +1799,7 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                 // We previously reached the last clip.  Nothing
                 // else to read.
                 _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
-                bd->bdj_end_of_playlist |= 1;
+                bd->end_of_playlist |= 1;
                 return 0;
             }
             if (st->int_buf_off == 6144 || clip_pkt >= st->clip->end_pkt) {
@@ -1835,7 +1831,7 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                     if (st->clip == NULL) {
                         BD_DEBUG(DBG_BLURAY | DBG_STREAM, "End of title\n");
                         _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
-                        bd->bdj_end_of_playlist |= 1;
+                        bd->end_of_playlist |= 1;
                         return 0;
                     }
                     if (!_open_m2ts(bd, st)) {
@@ -1996,7 +1992,7 @@ static int _preload_textst_subpath(BLURAY *bd)
     /* set fonts and encoding from clip info */
     gc_add_font(bd->graphics_controller, NULL);
     for (ii = 0; ii < bd->st_textst.clip->cl->font_info.font_count; ii++) {
-        char *file = str_printf("%s/BDMV/AUXDATA/%s.otf", bd->device_path, bd->st_textst.clip->cl->font_info.font[ii].file_id);
+        char *file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "AUXDATA" DIR_SEP "%s.otf", bd->device_path, bd->st_textst.clip->cl->font_info.font[ii].file_id);
         gc_add_font(bd->graphics_controller, file);
         X_FREE(file);
     }
@@ -2147,7 +2143,7 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
 
     bd->seamless_angle_change = 0;
     bd->s_pos = 0;
-    bd->bdj_end_of_playlist = 0;
+    bd->end_of_playlist = 0;
 
     bd_psr_write(bd->regs, PSR_PLAYLIST, atoi(bd->title->name));
     bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
@@ -2199,6 +2195,25 @@ int bd_select_playlist(BLURAY *bd, uint32_t playlist)
 }
 
 #ifdef USING_BDJAVA
+int bd_bdj_seek(BLURAY *bd, int playitem, int playmark, int64_t time)
+{
+    bd_mutex_lock(&bd->mutex);
+
+    if (playitem > 0) {
+        bd_seek_playitem(bd, playitem);
+    }
+    if (playmark >= 0) {
+        bd_seek_mark(bd, playmark);
+    }
+    if (time >= 0) {
+        bd_seek_time(bd, time);
+    }
+
+    bd_mutex_unlock(&bd->mutex);
+
+    return 1;
+}
+
 static int _play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmark, int64_t time)
 {
     if (playlist < 0) {
@@ -2210,15 +2225,9 @@ static int _play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmar
         return 0;
     }
 
-    if (playitem > 0) {
-        bd_seek_playitem(bd, playitem);
-    }
-    if (playmark >= 0) {
-        bd_seek_mark(bd, playmark);
-    }
-    if (time >= 0) {
-        bd_seek_time(bd, time);
-    }
+    bd->bdj_wait_start = 1;  /* playback is triggered by bd_select_rate() */
+
+    bd_bdj_seek(bd, playitem, playmark, time);
 
     return 1;
 }
@@ -2588,6 +2597,27 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
         case BLURAY_PLAYER_SETTING_COUNTRY_CODE:
             return bd_set_player_setting(bd, idx, str_to_uint32(s, 2));
 
+#ifdef USING_BDJAVA
+        case BLURAY_PLAYER_CACHE_ROOT:
+        case BLURAY_PLAYER_PERSISTENT_ROOT:
+            switch (idx) {
+                case BLURAY_PLAYER_CACHE_ROOT:
+                    bd_mutex_lock(&bd->mutex);
+                    X_FREE(bd->bdjstorage.cache_root);
+                    bd->bdjstorage.cache_root = str_dup(s);
+                    bd_mutex_unlock(&bd->mutex);
+                    BD_DEBUG(DBG_BDJ, "Cache root dir set to %s\n", bd->bdjstorage.cache_root);
+                    return 1;
+
+                case BLURAY_PLAYER_PERSISTENT_ROOT:
+                    bd_mutex_lock(&bd->mutex);
+                    X_FREE(bd->bdjstorage.persistent_root);
+                    bd->bdjstorage.persistent_root = str_dup(s);
+                    bd_mutex_unlock(&bd->mutex);
+                    BD_DEBUG(DBG_BDJ, "Persistent root dir set to %s\n", bd->bdjstorage.persistent_root);
+                    return 1;
+            }
+#endif /* USING_BDJAVA */
         default:
             return 0;
     }
@@ -2619,7 +2649,7 @@ void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint
 int bd_start_bdj(BLURAY *bd, const char *start_object)
 {
     const BLURAY_TITLE *t;
-    int title_num = atoi(start_object);
+    unsigned int title_num = atoi(start_object);
     unsigned ii;
 
     if (!bd) {
@@ -2642,9 +2672,11 @@ int bd_start_bdj(BLURAY *bd, const char *start_object)
                 return _start_bdj(bd, ii);
             }
         }
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No %s.bdjo in disc index\n", start_object);
+    } else {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No disc index\n");
     }
 
-    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No %s.bdjo in disc index\n", start_object);
     return 0;
  }
 
@@ -2904,6 +2936,11 @@ static int _play_hdmv(BLURAY *bd, unsigned id_ref)
 
 static int _play_title(BLURAY *bd, unsigned title)
 {
+    if (!bd->disc_info.titles) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_play_title(#%d): No disc index\n", title);
+        return 0;
+    }
+
     /* first play object ? */
     if (title == BLURAY_TITLE_FIRST_PLAY) {
 
@@ -2911,6 +2948,7 @@ static int _play_title(BLURAY *bd, unsigned title)
 
         if (!bd->disc_info.first_play_supported) {
             /* no first play title (5.2.3.3) */
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_play_title(): No first play title\n");
             bd->title_type = title_hdmv;
             return 1;
         }
@@ -2935,6 +2973,7 @@ static int _play_title(BLURAY *bd, unsigned title)
 
         if (!bd->disc_info.top_menu_supported) {
             /* no top menu (5.2.3.3) */
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_play_title(): No top menu title\n");
             bd->title_type = title_hdmv;
             return 0;
         }
@@ -2957,6 +2996,8 @@ static int _play_title(BLURAY *bd, unsigned title)
         } else {
             return _play_hdmv(bd, bd->disc_info.titles[title]->id_ref);
         }
+    } else {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_play_title(#%d): Title not found\n", title);
     }
 
     return 0;
@@ -3028,7 +3069,7 @@ static int _try_play_title(BLURAY *bd, unsigned title)
 
 #ifdef USING_BDJAVA
     if (bd->title_type == title_bdj) {
-        if (bdj_get_uo_mask(bd->bdjava) & BDJ_TITLE_SEARCH_MASK) {
+        if (bd->bdj_uo_mask.title_search) {
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by BD-J\n");
             return 0;
         }
@@ -3076,7 +3117,7 @@ static int _try_menu_call(BLURAY *bd, int64_t pts)
 
 #ifdef USING_BDJAVA
     if (bd->title_type == title_bdj) {
-        if (bdj_get_uo_mask(bd->bdjava) & BDJ_MENU_CALL_MASK) {
+        if (bd->bdj_uo_mask.menu_call) {
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by BD-J\n");
             return 0;
         }
@@ -3212,15 +3253,23 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
         return 0;
     }
 
-    if (bd->bdj_end_of_playlist == 1) {
-        _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, bd_psr_read(bd->regs, PSR_PLAYLIST));
-        bd->bdj_end_of_playlist |= 2;
-    }
+    if (bd->title_type == title_bdj) {
+        if (bd->end_of_playlist == 1) {
+            _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, bd_psr_read(bd->regs, PSR_PLAYLIST));
+            bd->end_of_playlist |= 2;
+        }
 
-    if (!bd->title && bd->title_type == title_bdj) {
-        /* BD-J title running but no playlist playing */
-        _queue_event(bd, BD_EVENT_IDLE, 0);
-        return 0;
+        if (!bd->title) {
+            /* BD-J title running but no playlist playing */
+            _queue_event(bd, BD_EVENT_IDLE, 0);
+            return 0;
+        }
+
+        if (bd->bdj_wait_start) {
+            /* BD-J playlist prefethed but not yet playing */
+            _queue_event(bd, BD_EVENT_IDLE, 1);
+            return 0;
+        }
     }
 
     int bytes = _bd_read(bd, buf, len);
@@ -3310,8 +3359,10 @@ int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
 
     if (bd->title_type == title_hdmv) {
         result = _run_gc(bd, GC_CTRL_VK_KEY, key);
+#ifdef USING_BDJAVA
     } else if (bd->title_type == title_bdj) {
         result = _bdj_event(bd, BDJ_EVENT_VK_KEY, key);
+#endif
     }
 
     bd_mutex_unlock(&bd->mutex);
@@ -3338,26 +3389,24 @@ void bd_register_overlay_proc(BLURAY *bd, void *handle, bd_overlay_proc_f func)
 
 void bd_register_argb_overlay_proc(BLURAY *bd, void *handle, bd_argb_overlay_proc_f func, BD_ARGB_BUFFER *buf)
 {
+#ifdef USING_BDJAVA
     if (!bd) {
         return;
     }
 
-    bd_mutex_lock(&bd->mutex);
-
-    if (bd->argb_overlay_proc && bd->title_type == title_bdj) {
-        /* function can't be changed when BD-J is running */
-        bd_mutex_unlock(&bd->mutex);
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_register_argb_overlay_proc(): ARGB handler already registered and BD-J running !\n");
-        return;
-    }
-
-    _close_bdj(bd);
+    bd_mutex_lock(&bd->argb_buffer_mutex);
 
     bd->argb_overlay_proc        = func;
     bd->argb_overlay_proc_handle = handle;
     bd->argb_buffer              = buf;
 
-    bd_mutex_unlock(&bd->mutex);
+    bd_mutex_unlock(&bd->argb_buffer_mutex);
+#else
+    (void)bd;
+    (void)handle;
+    (void)func;
+    (void)buf;
+#endif
 }
 
 int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, BLURAY_SOUND_EFFECT *effect)
@@ -3368,7 +3417,7 @@ int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, BLURAY_SOUND_EFFECT *effe
 
     if (!bd->sound_effects) {
 
-        char *file = str_printf("%s/BDMV/AUXDATA/sound.bdmv", bd->device_path);
+        char *file = str_printf("%s"DIR_SEP "BDMV" DIR_SEP "AUXDATA" DIR_SEP "sound.bdmv", bd->device_path);
         bd->sound_effects = sound_parse(file);
         X_FREE(file);
 
@@ -3416,7 +3465,7 @@ const struct meta_dl *bd_get_meta(BLURAY *bd)
     }
 
     /* assign title names to disc_info */
-    if (meta) {
+    if (meta && bd->titles) {
         unsigned ii;
         for (ii = 0; ii < meta->toc_count; ii++) {
             if (meta->toc_entries[ii].title_number > 0 && meta->toc_entries[ii].title_number <= bd->disc_info.num_titles) {
@@ -3455,4 +3504,33 @@ struct mpls_pl *bd_read_mpls(const char *mpls_file)
 void bd_free_mpls(struct mpls_pl *pl)
 {
     mpls_free(pl);
+}
+
+struct mobj_objects *bd_read_mobj(const char *mobj_file)
+{
+    return mobj_parse(mobj_file);
+}
+
+void bd_free_mobj(struct mobj_objects *obj)
+{
+    mobj_free(&obj);
+}
+
+struct bdjo_data *bd_read_bdjo(const char *bdjo_file)
+{
+#ifdef USING_BDJAVA
+    return bdjo_parse(bdjo_file);
+#else
+    (void)bdjo_file;
+    return NULL;
+#endif
+}
+
+void bd_free_bdjo(struct bdjo_data *obj)
+{
+#ifdef USING_BDJAVA
+    bdjo_free(&obj);
+#else
+    (void)obj;
+#endif
 }

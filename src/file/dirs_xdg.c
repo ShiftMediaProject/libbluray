@@ -41,76 +41,52 @@
 #define SYSTEM_CFG_DIR "/etc/xdg"
 
 
-const char *file_get_config_home(void)
+char *file_get_config_home(void)
 {
-    static char *dir       = NULL;
-    static int   init_done = 0;
-
-    if (!init_done) {
-        init_done = 1;
-
-        const char *xdg_home = getenv("XDG_CONFIG_HOME");
-        if (xdg_home && *xdg_home) {
-            return dir = str_printf("%s", xdg_home);
-        }
-
-        const char *user_home = getenv("HOME");
-        if (user_home && *user_home) {
-            return dir = str_printf("%s/%s", user_home, USER_CFG_DIR);
-        }
-
-        BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    const char *xdg_home = getenv("XDG_CONFIG_HOME");
+    if (xdg_home && *xdg_home) {
+        return str_printf("%s", xdg_home);
     }
 
-    return dir;
+    const char *user_home = getenv("HOME");
+    if (user_home && *user_home) {
+        return str_printf("%s/%s", user_home, USER_CFG_DIR);
+    }
+
+    BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    return  NULL;
 }
 
-const char *file_get_data_home(void)
+char *file_get_data_home(void)
 {
-    static char *dir       = NULL;
-    static int   init_done = 0;
-
-    if (!init_done) {
-        init_done = 1;
-
-        const char *xdg_home = getenv("XDG_DATA_HOME");
-        if (xdg_home && *xdg_home) {
-            return dir = str_printf("%s", xdg_home);
-        }
-
-        const char *user_home = getenv("HOME");
-        if (user_home && *user_home) {
-            return dir = str_printf("%s/%s", user_home, USER_DATA_DIR);
-        }
-
-        BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    const char *xdg_home = getenv("XDG_DATA_HOME");
+    if (xdg_home && *xdg_home) {
+        return str_printf("%s", xdg_home);
     }
 
-    return dir;
+    const char *user_home = getenv("HOME");
+    if (user_home && *user_home) {
+        return str_printf("%s/%s", user_home, USER_DATA_DIR);
+    }
+
+    BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    return NULL;
 }
 
-const char *file_get_cache_home(void)
+char *file_get_cache_home(void)
 {
-    static char *dir       = NULL;
-    static int   init_done = 0;
-
-    if (!init_done) {
-        init_done = 1;
-
-        const char *xdg_cache = getenv("XDG_CACHE_HOME");
-        if (xdg_cache && *xdg_cache) {
-            return dir = str_printf("%s", xdg_cache);
-        }
-
-        const char *user_home = getenv("HOME");
-        if (user_home && *user_home) {
-            return dir = str_printf("%s/%s", user_home, USER_CACHE_DIR);
-        }
-
-        BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    const char *xdg_cache = getenv("XDG_CACHE_HOME");
+    if (xdg_cache && *xdg_cache) {
+        return str_printf("%s", xdg_cache);
     }
 
-    return dir;
+    const char *user_home = getenv("HOME");
+    if (user_home && *user_home) {
+        return str_printf("%s/%s", user_home, USER_CACHE_DIR);
+    }
+
+    BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    return NULL;
 }
 
 const char *file_get_config_system(const char *dir)

@@ -17,10 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "libbluray/bluray.h"
-
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "libbluray/bluray.h"
 
 
 static void _sound_print(int sound_index, BLURAY_SOUND_EFFECT *data)

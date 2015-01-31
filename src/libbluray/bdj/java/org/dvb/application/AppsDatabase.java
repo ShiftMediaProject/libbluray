@@ -22,6 +22,7 @@ package org.dvb.application;
 import java.util.LinkedList;
 import java.util.Enumeration;
 import org.videolan.BDJAppsDatabase;
+import org.videolan.BDJListeners;
 import org.videolan.Logger;
 
 public class AppsDatabase {
@@ -55,41 +56,17 @@ public class AppsDatabase {
     }
 
     public void addListener(AppsDatabaseEventListener listener) {
-        synchronized(listeners) {
-            listeners.add(listener);
-        }
+        listeners.add(listener);
     }
 
     public void removeListener(AppsDatabaseEventListener listener) {
-        synchronized(listeners) {
-            listeners.remove(listener);
-        }
+        listeners.remove(listener);
     }
 
     protected void notifyListeners(int id, AppID appid) {
-        LinkedList list;
-        synchronized(listeners) {
-            list = (LinkedList)listeners.clone();
-        }
-        AppsDatabaseEvent event = new AppsDatabaseEvent(id, appid, this);
-        for (int i = 0; i < list.size(); i++) {
-            switch (id) {
-            case AppsDatabaseEvent.APP_ADDED:
-                ((AppsDatabaseEventListener)list.get(i)).entryAdded(event);
-                break;
-            case AppsDatabaseEvent.APP_CHANGED:
-                ((AppsDatabaseEventListener)list.get(i)).entryChanged(event);
-                break;
-            case AppsDatabaseEvent.APP_DELETED:
-                ((AppsDatabaseEventListener)list.get(i)).entryRemoved(event);
-                break;
-            case AppsDatabaseEvent.NEW_DATABASE:
-                ((AppsDatabaseEventListener)list.get(i)).newDatabase(event);
-                break;
-            }
-        }
+        listeners.putCallback(new AppsDatabaseEvent(id, appid, this));
     }
 
-    private LinkedList listeners = new LinkedList();
+    private BDJListeners listeners = new BDJListeners();
     private static final Logger logger = Logger.getLogger(AppsDatabase.class.getName());
 }

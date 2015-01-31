@@ -19,6 +19,8 @@
 
 #include "mobj_parse.h"
 
+#include "mobj_data.h"
+
 #include "file/file.h"
 #include "util/bits.h"
 #include "util/logging.h"
@@ -120,7 +122,7 @@ void mobj_free(MOBJ_OBJECTS **p)
     }
 }
 
-static MOBJ_OBJECTS *_mobj_parse(const char *file_name)
+MOBJ_OBJECTS *mobj_parse(const char *file_name)
 {
     BITSTREAM     bs;
     BD_FILE_H    *fp;
@@ -150,7 +152,7 @@ static MOBJ_OBJECTS *_mobj_parse(const char *file_name)
 
     data_len = bs_read(&bs, 32);
 
-    if ((bs_end(&bs) - bs_pos(&bs))/8 < (off_t)data_len) {
+    if ((bs_end(&bs) - bs_pos(&bs))/8 < (int64_t)data_len) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "%s: invalid data_len %d !\n", file_name, data_len);
         goto error;
     }
@@ -188,21 +190,21 @@ static MOBJ_OBJECTS *_mobj_parse(const char *file_name)
     return NULL;
 }
 
-MOBJ_OBJECTS *mobj_parse(const char *disc_root)
+MOBJ_OBJECTS *mobj_get(const char *disc_root)
 {
     MOBJ_OBJECTS *objects;
     char *file;
 
-    file = str_printf("%s/BDMV/MovieObject.bdmv", disc_root);
-    objects = _mobj_parse(file);
+    file = str_printf("%s"DIR_SEP "BDMV" DIR_SEP "MovieObject.bdmv", disc_root);
+    objects = mobj_parse(file);
     X_FREE(file);
     if (objects) {
         return objects;
     }
 
     /* if failed, try backup file */
-    file = str_printf("%s/BDMV/BACKUP/MovieObject.bdmv", disc_root);
-    objects = _mobj_parse(file);
+    file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "BACKUP" DIR_SEP "MovieObject.bdmv", disc_root);
+    objects = mobj_parse(file);
     X_FREE(file);
     return objects;
 }

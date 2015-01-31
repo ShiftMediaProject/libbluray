@@ -21,7 +21,8 @@ package org.videolan;
 
 import java.awt.Container;
 import java.awt.EventQueue;
-import java.net.URL;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.security.AccessController;
@@ -54,6 +55,39 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                                               this);
 
         callbackQueue = new BDJActionQueue(this.threadGroup, "CallbackQueue");
+
+        mountHomeDir(entry);
+    }
+
+    private void mountHomeDir(AppEntry entry) {
+        String home = entry.getBasePath();
+        if (home.length() > 5) {
+            // TODO: may be located deeper inside jar, not root ?
+            logger.error("Unhandled home directory: " + home);
+        }
+        try {
+            int homeJarID = Integer.parseInt(home);
+            long time = System.currentTimeMillis();
+            homeMountPoint = MountManager.mount(homeJarID, false) + java.io.File.separator;
+            time = System.currentTimeMillis() - time;
+            logger.info("Mounted Xlet home directory from " + home + ".jar " +
+                        "to " + homeMountPoint + "(" + time + "ms)");
+        } catch (Exception ex) {
+            logger.error("Failed mounting " + home + ".jar:" + ex);
+        }
+    }
+
+    public String getXletHome() {
+        return homeMountPoint;
+    }
+
+    public static String getCurrentXletHome() {
+        BDJXletContext ctx = BDJXletContext.getCurrentContext();
+        if (ctx == null) {
+            logger.error("getCurrentXletHome(): no context: " + Logger.dumpStack());
+            return null;
+        }
+        return ctx.getXletHome();
     }
 
     public Object getXletProperty(String key) {
@@ -117,26 +151,6 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         }
 
         return cldr;
-    }
-
-    public static URL getCurrentResource(String path)
-    {
-        ClassLoader cldr = (ClassLoader)BDJXletContext.getCurrentClassLoader();
-        if (cldr == null) {
-            return null;
-        }
-
-        if (path.startsWith("./") || path.startsWith(".\\")) {
-            path = path.substring(2);
-        }
-
-        URL url = cldr.getResource(path);
-        if (url == null) {
-            logger.error("getCurrentResource(): " + path + " not found: " + Logger.dumpStack());
-            return null;
-        }
-
-        return url;
     }
 
     /*
@@ -263,6 +277,18 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     }
 
     /*
+     * sockets
+     */
+
+    protected void addSocket(Object socket) {
+        sockets.add(socket);
+    }
+
+    protected void closeSockets() {
+        sockets.closeAll();
+    }
+
+    /*
      * Ixc
      */
 
@@ -383,6 +409,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
     protected void release() {
 
+        closeSockets();
         removeAllFAA();
         stopIxcThreads();
         defaultLooks.clear();
@@ -404,6 +431,16 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
         threadGroup.stopAll(1000);
 
+        try {
+            Method m;
+            m = loader.getClass().getMethod("close", new Class[0]);
+            m.invoke(loader, new Object[0]);
+        } catch (NoSuchMethodException e) {
+        } catch (IllegalAccessException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (InvocationTargetException e) {
+        }
+
         synchronized (this) {
             threadGroup = null;
             loader = null;
@@ -412,11 +449,16 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             defaultLooks = null;
             released = true;
         }
+
+        // Do not unmount home directory here, it is likely to be used multiple times during disc playback.
+        // All .jars are unmounted at BD-J shutdown.
+        //MountManager.unmount(homeJarID);
     }
 
     private boolean released = false;
     private String[] args;
     private AppID appid;
+    private String homeMountPoint = null;
     private BDJClassLoader loader;
     private Container container;
     private EventQueue eventQueue = null;
@@ -424,6 +466,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     private BDJThreadGroup threadGroup = null;
     private LinkedList ixcThreads = new LinkedList();
     private LinkedList faaList = new LinkedList();
+    private BDJSockets sockets = new BDJSockets();
     private HashMap defaultLooks = new HashMap();
     private BDJActionQueue callbackQueue;
     private static final Logger logger = Logger.getLogger(BDJXletContext.class.getName());

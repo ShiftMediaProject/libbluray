@@ -38,61 +38,37 @@
 #define SYSTEM_CFG_DIR "/Library/Preferences"
 
 
-const char *file_get_config_home(void)
+char *file_get_config_home(void)
 {
-    static char *dir       = NULL;
-    static int   init_done = 0;
-
-    if (!init_done) {
-        init_done = 1;
-
-        const char *user_home = getenv("HOME");
-        if (user_home && *user_home) {
-            return dir = str_printf("%s/%s", user_home, USER_CFG_DIR);
-        }
-
-        BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    const char *user_home = getenv("HOME");
+    if (user_home && *user_home) {
+        return str_printf("%s/%s", user_home, USER_CFG_DIR);
     }
 
-    return dir;
+    BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    return NULL;
 }
 
-const char *file_get_data_home(void)
+char *file_get_data_home(void)
 {
-    static char *dir       = NULL;
-    static int   init_done = 0;
-
-    if (!init_done) {
-        init_done = 1;
-
-        const char *user_home = getenv("HOME");
-        if (user_home && *user_home) {
-            return dir = str_printf("%s/%s", user_home, USER_DATA_DIR);
-        }
-
-        BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    const char *user_home = getenv("HOME");
+    if (user_home && *user_home) {
+        return str_printf("%s/%s", user_home, USER_DATA_DIR);
     }
 
-    return dir;
+    BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    return NULL;
 }
 
-const char *file_get_cache_home(void)
+char *file_get_cache_home(void)
 {
-    static char *dir       = NULL;
-    static int   init_done = 0;
-
-    if (!init_done) {
-        init_done = 1;
-
-        const char *user_home = getenv("HOME");
-        if (user_home && *user_home) {
-            return dir = str_printf("%s/%s", user_home, USER_CACHE_DIR);
-        }
-
-        BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    const char *user_home = getenv("HOME");
+    if (user_home && *user_home) {
+        return str_printf("%s/%s", user_home, USER_CACHE_DIR);
     }
 
-    return dir;
+    BD_DEBUG(DBG_FILE, "Can't find user home directory ($HOME) !\n");
+    return NULL;
 }
 
 const char *file_get_config_system(const char *dir)

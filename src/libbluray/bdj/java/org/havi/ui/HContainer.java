@@ -39,6 +39,7 @@ public class HContainer extends Container implements HMatteLayer,
 
     public void setMatte(HMatte m) throws HMatteException
     {
+        org.videolan.Logger.unimplemented("HContainer", "setMatte");
         throw new HMatteException("Matte is not supported");
     }
 

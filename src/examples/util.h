@@ -39,6 +39,5 @@
 #   define wstat _wstati64
 #endif
 
-void hex_dump(uint8_t *buf, int count);
 void indent_printf(int level, const char *fmt, ...) BD_ATTR_FORMAT_PRINTF(2,3);
 

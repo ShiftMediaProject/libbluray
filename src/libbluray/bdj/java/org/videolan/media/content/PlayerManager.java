@@ -36,11 +36,13 @@ public class PlayerManager {
 
     private BDHandler playlistPlayer = null;
     private BDHandler videoDripPlayer = null;
-    private ArrayList audioPlayerList = new ArrayList(8);
+    //private ArrayList audioPlayerList = new ArrayList(8);
 
     private Object playlistPlayerLock = new Object();
     private Object videoDripPlayerLock = new Object();
-    private Object audioPlayerLock = new Object();
+    //private Object audioPlayerLock = new Object();
+    private Object  stoppingLock = new Object();
+    private boolean stopping = false;
 
     public void releaseAllPlayers(boolean unconditional) {
         BDHandler[] players = null;
@@ -69,12 +71,18 @@ public class PlayerManager {
         if (player instanceof org.videolan.media.content.sound.Handler) {
             return;
         }
+        if (player instanceof org.videolan.media.content.audio.Handler) {
+            return;
+        }
 
         System.err.println("unknown player type: " + player.getClass().getName());
     }
 
     protected boolean allocateResource(BDHandler player) {
         if (player instanceof org.videolan.media.content.playlist.Handler) {
+            synchronized (stoppingLock) {
+                stopping = true;
+            }
             synchronized (playlistPlayerLock) {
                 if (playlistPlayer != null && player != playlistPlayer) {
                     playlistPlayer.stop();
@@ -82,9 +90,15 @@ public class PlayerManager {
                 }
                 playlistPlayer = player;
             }
+            synchronized (stoppingLock) {
+                stopping = false;
+            }
             return true;
         }
         if (player instanceof org.videolan.media.content.sound.Handler) {
+            return true;
+        }
+        if (player instanceof org.videolan.media.content.audio.Handler) {
             return true;
         }
 
@@ -115,72 +129,102 @@ public class PlayerManager {
      */
 
     public void onPlaylistEnd(int playlist) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.endOfMedia(playlist);
+                playlistPlayer.playlistEndReached(playlist);
+        }
         }
     }
 
     public void onPlaylistTime(int pts) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.updateTime(pts);
+                playlistPlayer.timeChanged(pts);
+        }
         }
     }
 
     public void onChapterReach(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doChapterReach(param);
+                playlistPlayer.chapterReached(param);
+        }
         }
     }
 
     public void onMarkReach(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doMarkReach(param);
+                playlistPlayer.markReached(param);
+        }
         }
     }
 
     public void onPlaylistStart(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doPlaylistStart(param);
+                playlistPlayer.playlistStarted(param);
+        }
         }
     }
 
     public void onPlayItemReach(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doPlayItemReach(param);
+                playlistPlayer.playItemReached(param);
+        }
         }
     }
 
     public void onAngleChange(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doAngleChange(param);
+                playlistPlayer.angleChanged(param);
+        }
         }
     }
 
     public void onRateChange(float rate) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.updateRate(rate);
+                playlistPlayer.rateChanged(rate);
+        }
         }
     }
 
     public void onSubtitleChange(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doSubtitleChange(param);
+                playlistPlayer.subtitleChanged(param);
+        }
         }
     }
 
     public void onPiPChange(int param) {
+        synchronized (stoppingLock) {
+            if (stopping) return;
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
-                playlistPlayer.doPiPChange(param);
+                playlistPlayer.pipChanged(param);
+        }
         }
     }
 }

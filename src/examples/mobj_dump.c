@@ -17,9 +17,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "util/macro.h"
-#include "libbluray/hdmv/mobj_parse.h"
+#include "libbluray/bluray.h"
 
+#include "libbluray/hdmv/mobj_data.h"
+#include "libbluray/hdmv/mobj_print.h"
+
+#include <stdio.h>
 #include <string.h>
 
 static void _mobj_print(MOBJ_OBJECTS *objects, int disasm)
@@ -58,7 +61,7 @@ int main(int argc, const char *argv[])
 
     if (argc < 2) {
         fprintf(stderr,
-                "usage: %s [-d] <disc_root>\n"
+                "usage: %s [-d] <file>\n"
                 "Options:\n"
                 "    d         disassemble object code\n",
                 argv[0]);
@@ -68,12 +71,12 @@ int main(int argc, const char *argv[])
         disasm = !strcmp(argv[1], "-d");
     }
 
-    mobj = mobj_parse(argv[argc-1]);
+    mobj = bd_read_mobj(argv[argc-1]);
 
     if (mobj) {
         _mobj_print(mobj, disasm);
 
-        mobj_free(&mobj);
+        bd_free_mobj(mobj);
     }
 
     return 0;

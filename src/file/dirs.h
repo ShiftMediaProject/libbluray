@@ -24,15 +24,17 @@
 
 #ifdef _WIN32
 BD_PRIVATE int         win32_mkdir(const char *dir);
+BD_PRIVATE char       *win32_get_font_dir(const char *font_file);
 #endif
 
 /*
  * Config, cache and data dirs
  */
 
-BD_PRIVATE const char *file_get_config_home(void);
 BD_PRIVATE const char *file_get_config_system(const char *dir);
-BD_PRIVATE const char *file_get_cache_home(void);
-BD_PRIVATE const char *file_get_data_home(void);
+
+BD_PRIVATE char *file_get_config_home(void) BD_ATTR_MALLOC;
+BD_PRIVATE char *file_get_cache_home(void) BD_ATTR_MALLOC;
+BD_PRIVATE char *file_get_data_home(void) BD_ATTR_MALLOC;
 
 #endif

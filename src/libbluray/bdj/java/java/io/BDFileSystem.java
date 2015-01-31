@@ -31,8 +31,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import java.net.URL;
 
+import org.videolan.BDJLoader;
 import org.videolan.BDJXletContext;
 import org.videolan.Logger;
 
@@ -84,8 +84,33 @@ public abstract class BDFileSystem extends FileSystem {
         return fs.prefixLength(pathname);
     }
 
+    private boolean isAbsolutePath(String path) {
+        return path.startsWith("/") || path.indexOf(":\\") == 1 ||
+            path.startsWith("\\");
+    }
+
+    private String getHomeDir() {
+        String home = BDJXletContext.getCurrentXletHome();
+        if (home == null)
+            return "";
+        return home;
+    }
+
     public String resolve(String parent, String child) {
-        return fs.resolve(parent, child);
+        if (parent == null || parent.equals("") || parent.equals(".")) {
+            parent = getHomeDir();
+        }
+        else if (!isAbsolutePath(parent)) {
+            logger.info("resolve relative file at " + parent);
+            parent = getHomeDir() + parent;
+        }
+
+        String resolvedPath = fs.resolve(parent, child);
+        String cachePath = BDJLoader.getCachedFile(resolvedPath);
+        if (cachePath != resolvedPath) {
+            logger.info("resolve(p,c): using cached " + cachePath + " (" + resolvedPath + ")");
+        }
+        return cachePath;
     }
 
     public String getDefaultParent() {
@@ -102,13 +127,25 @@ public abstract class BDFileSystem extends FileSystem {
 
     public String resolve(File f) {
         if (!f.isAbsolute()) {
-            System.err.println("***** resolve " + f + " -> " + fs.resolve(f));
+            logger.info("resolve relative file " + f.getPath());
+            return resolve(BDJXletContext.getCurrentXletHome(), f.getPath());
         }
-        return fs.resolve(f);
+
+        String resolvedPath = fs.resolve(f);
+        String cachePath = BDJLoader.getCachedFile(resolvedPath);
+        if (cachePath != resolvedPath) {
+            logger.info("resolve(f): using cached " + cachePath + " (" + resolvedPath + ")");
+        }
+        return cachePath;
     }
 
     public String canonicalize(String path) throws IOException {
-        return fs.canonicalize(path);
+        String canonPath = fs.canonicalize(path);
+        String cachePath = BDJLoader.getCachedFile(canonPath);
+        if (cachePath != canonPath) {
+            logger.info("canonicalize(): Using cached " + cachePath + " for " + canonPath + "(" + path + ")");
+        }
+        return cachePath;
     }
 
     public int getBooleanAttributes(File f) {
@@ -116,15 +153,16 @@ public abstract class BDFileSystem extends FileSystem {
             return fs.getBooleanAttributes(f);
         }
 
-        /* try to locate file in Xlet home directory (inside JAR file) */
-        URL url = BDJXletContext.getCurrentResource(f.getPath());
-        if (url == null) {
+        /* try to locate file in Xlet home directory */
+        String home = BDJXletContext.getCurrentXletHome();
+        if (home == null) {
+            logger.error("no home found for " + f.getPath() + " at " + Logger.dumpStack());
             return 0;
         }
 
-        logger.info("Relative path " + f.getPath() + " translated to " + url);
-
-        return FileSystem.BA_EXISTS; //|BA_REGULAR
+        String path = home + f.getPath();
+        logger.info("Relative path " + f.getPath() + " translated to " + path);
+        return fs.getBooleanAttributes(new File(path));
     }
 
     /*

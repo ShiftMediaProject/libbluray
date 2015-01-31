@@ -24,18 +24,14 @@
 
 #include "bdj.h"
 
-#include "bdj_private.h"
-#include "bdjo_parser.h"
-#include "bdj_util.h"
-#include "common.h"
-#include "libbluray/register.h"
+#include "native/register_native.h"
+
 #include "file/dirs.h"
 #include "file/dl.h"
 #include "util/strutl.h"
 #include "util/macro.h"
 #include "util/logging.h"
-#include "libbluray/bdnav/bdid_parse.h"
-#include "libbluray/bdj/native/register_native.h"
+
 
 #include <jni.h>
 #include <stdio.h>
@@ -46,6 +42,17 @@
 #include <windows.h>
 #include <winreg.h>
 #endif
+
+#ifdef HAVE_BDJ_J2ME
+#define BDJ_JARFILE "libbluray-j2me-" VERSION ".jar"
+#else
+#define BDJ_JARFILE "libbluray-j2se-" VERSION ".jar"
+#endif
+
+struct bdjava_s {
+    void   *h_libjvm;
+    JavaVM *jvm;
+};
 
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
 typedef jint (JNICALL * fptr_JNI_GetCreatedJavaVMs) (JavaVM **vmBuf, jsize bufLen, jsize *nVMs);
@@ -249,60 +256,83 @@ static const char *_find_libbluray_jar(void)
         }
     }
 
-    classpath = BDJ_CLASSPATH;
+    classpath = BDJ_JARFILE;
     BD_DEBUG(DBG_BDJ | DBG_CRIT, BDJ_JARFILE" not found.\n");
     return classpath;
 }
 
-static const char *_bdj_persistent_root(void)
+static const char *_bdj_persistent_root(BDJ_STORAGE *storage)
 {
-    static const char *root = NULL;
+    const char *root;
+    char       *data_home;
 
-    if (root) {
-        return root;
+    if (!storage->persistent_root) {
+
+        root = getenv("LIBBLURAY_PERSISTENT_ROOT");
+        if (root) {
+            return root;
+        }
+
+        data_home = file_get_data_home();
+        storage->persistent_root = str_printf("%s/bluray/dvb.persistent.root/", data_home ? data_home : "");
+        X_FREE(data_home);
+
+        BD_DEBUG(DBG_BDJ, "LIBBLURAY_PERSISTENT_ROOT not set, using %s\n", storage->persistent_root);
     }
 
-    root = getenv("LIBBLURAY_PERSISTENT_ROOT");
-    if (root) {
-        return root;
-    }
-
-    root = file_get_data_home();
-    if (!root) {
-        root = "";
-    }
-    root = str_printf("%s/bluray/dvb.persistent.root/", root);
-
-    BD_DEBUG(DBG_BDJ, "LIBBLURAY_PERSISTENT_ROOT not set, using %s\n", root);
-
-    return root;
+    return storage->persistent_root;
 }
 
-static const char *_bdj_buda_root(void)
+static const char *_bdj_buda_root(BDJ_STORAGE *storage)
 {
-    static const char *root = NULL;
+    const char *root;
+    char       *cache_home;
 
-    if (root) {
-        return root;
+    if (!storage->cache_root) {
+
+        root = getenv("LIBBLURAY_CACHE_ROOT");
+        if (root) {
+            return root;
+        }
+
+        cache_home = file_get_cache_home();
+        storage->cache_root = str_printf("%s/bluray/bluray.bindingunit.root/", cache_home ? cache_home : "");
+        X_FREE(cache_home);
+
+        BD_DEBUG(DBG_BDJ, "LIBBLURAY_CACHE_ROOT not set, using %s\n", storage->cache_root);
     }
 
-    root = getenv("LIBBLURAY_CACHE_ROOT");
-    if (root) {
-        return root;
-    }
-
-    root = file_get_cache_home();
-    if (!root) {
-        root = "";
-    }
-    root = str_printf("%s/bluray/bluray.bindingunit.root/", root);
-
-    BD_DEBUG(DBG_BDJ, "LIBBLURAY_CACHE_ROOT not set, using %s\n", root);
-
-    return root;
+    return storage->cache_root;
 }
 
-static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
+static int _get_method(JNIEnv *env, jclass *cls, jmethodID *method_id,
+                       const char *class_name, const char *method_name, const char *method_sig)
+{
+    *method_id = NULL;
+    *cls = (*env)->FindClass(env, class_name);
+    if (!*cls) {
+        (*env)->ExceptionDescribe(env);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate class %s\n", class_name);
+        (*env)->ExceptionClear(env);
+        return 0;
+    }
+
+    *method_id = (*env)->GetStaticMethodID(env, *cls, method_name, method_sig);
+    if (!*method_id) {
+        (*env)->ExceptionDescribe(env);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to locate class %s method %s %s\n",
+                 class_name, method_name, method_sig);
+        (*env)->DeleteLocalRef(env, *cls);
+        *cls = NULL;
+        (*env)->ExceptionClear(env);
+        return 0;
+    }
+
+    return 1;
+}
+
+static int _bdj_init(JNIEnv *env, struct bluray *bd, const char *disc_root, const char *bdj_disc_id,
+                     BDJ_STORAGE *storage)
 {
     if (!bdj_register_native_methods(env)) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't register native methods.\n");
@@ -311,19 +341,22 @@ static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
     // initialize class org.videolan.Libbluray
     jclass init_class;
     jmethodID init_id;
-    if (!bdj_get_method(env, &init_class, &init_id,
-                        "org/videolan/Libbluray", "init", "(JLjava/lang/String;Ljava/lang/String;)V")) {
+    if (!_get_method(env, &init_class, &init_id,
+                     "org/videolan/Libbluray", "init",
+                     "(JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V")) {
         return 0;
     }
 
-    char* id_path = str_printf("%s/CERTIFICATE/id.bdmv", bdjava->path);
-    BDID_DATA *id  = bdid_parse(id_path);
-    jlong param_bdjava_ptr = (jlong)(intptr_t) bdjava;
-    jstring param_disc_id = (*env)->NewStringUTF(env,
-                                                 id ? id->disc_id : "00000000000000000000000000000000");
-    jstring param_disc_root = (*env)->NewStringUTF(env, bdjava->path);
+    const char *disc_id = (bdj_disc_id && bdj_disc_id[0]) ? bdj_disc_id : "00000000000000000000000000000000";
+    jlong param_bdjava_ptr = (jlong)(intptr_t) bd;
+    jstring param_disc_id = (*env)->NewStringUTF(env, disc_id);
+    jstring param_disc_root = (*env)->NewStringUTF(env, disc_root);
+    jstring param_persistent_root = (*env)->NewStringUTF(env, _bdj_persistent_root(storage));
+    jstring param_buda_root = (*env)->NewStringUTF(env, _bdj_buda_root(storage));
+
     (*env)->CallStaticVoidMethod(env, init_class, init_id,
-                                 param_bdjava_ptr, param_disc_id, param_disc_root);
+                                 param_bdjava_ptr, param_disc_id, param_disc_root,
+                                 param_persistent_root, param_buda_root);
 
     if ((*env)->ExceptionOccurred(env)) {
         (*env)->ExceptionDescribe(env);
@@ -333,9 +366,6 @@ static int _bdj_init(BDJAVA *bdjava, JNIEnv *env)
     (*env)->DeleteLocalRef(env, init_class);
     (*env)->DeleteLocalRef(env, param_disc_id);
     (*env)->DeleteLocalRef(env, param_disc_root);
-
-    X_FREE(id_path);
-    bdid_free(&id);
 
     return 1;
 }
@@ -396,9 +426,6 @@ static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaV
     JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 20);
     int n = 0;
     JavaVMInitArgs args;
-    option[n++].optionString = str_printf("-Ddvb.persistent.root=%s", _bdj_persistent_root());
-    option[n++].optionString = str_printf("-Dbluray.bindingunit.root=%s", _bdj_buda_root());
-
     option[n++].optionString = str_dup   ("-Dawt.toolkit=java.awt.BDToolkit");
     option[n++].optionString = str_dup   ("-Djava.awt.graphicsenv=java.awt.BDGraphicsEnvironment");
     option[n++].optionString = str_printf("-Xbootclasspath/p:%s", _find_libbluray_jar());
@@ -444,7 +471,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaV
     X_FREE(option);
 
     if (result != JNI_OK || !*env) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM.\n");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM. JNI_CreateJavaVM result: %d\n", result);
         return 0;
     }
 
@@ -452,7 +479,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, JNIEnv **env, JavaV
 }
 
 BDJAVA* bdj_open(const char *path, struct bluray *bd,
-                 bdj_overlay_cb osd_cb, struct bd_argb_buffer_s *buf)
+                 const char *bdj_disc_id, BDJ_STORAGE *storage)
 {
     BD_DEBUG(DBG_BDJ, "bdj_open()\n");
 
@@ -473,11 +500,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     }
 
     BDJAVA* bdjava = calloc(1, sizeof(BDJAVA));
-    bdjava->bd = bd;
-    bdjava->path = path;
     bdjava->h_libjvm = jvm_lib;
-    bdjava->osd_cb = osd_cb;
-    bdjava->buf = buf;
     bdjava->jvm = jvm;
 
     if (debug_mask & DBG_JNI) {
@@ -485,7 +508,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
         BD_DEBUG(DBG_BDJ, "Java version: %d.%d\n", version >> 16, version & 0xffff);
     }
 
-    if (!_bdj_init(bdjava, env)) {
+    if (!_bdj_init(env, bd, path, bdj_disc_id, storage)) {
         bdj_close(bdjava);
         return NULL;
     }
@@ -515,7 +538,7 @@ void bdj_close(BDJAVA *bdjava)
             attach = 1;
         }
 
-        if (bdj_get_method(env, &shutdown_class, &shutdown_id,
+        if (_get_method(env, &shutdown_class, &shutdown_id,
                            "org/videolan/Libbluray", "shutdown", "()V")) {
             (*env)->CallStaticVoidMethod(env, shutdown_class, shutdown_id);
 
@@ -538,7 +561,6 @@ void bdj_close(BDJAVA *bdjava)
         dl_dlclose(bdjava->h_libjvm);
     }
 
-    indx_free(&bdjava->index);
     X_FREE(bdjava);
 }
 
@@ -574,14 +596,17 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         return -1;
     }
 
-    BD_DEBUG(DBG_BDJ, "bdj_process_event(%s,%d)\n", ev_name[ev], param);
+    // Disable too verbose logging (PTS)
+    if (ev != BDJ_EVENT_PTS) {
+        BD_DEBUG(DBG_BDJ, "bdj_process_event(%s,%d)\n", ev_name[ev], param);
+    }
 
     if ((*bdjava->jvm)->GetEnv(bdjava->jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
         (*bdjava->jvm)->AttachCurrentThread(bdjava->jvm, (void**)&env, NULL);
         attach = 1;
     }
 
-    if (bdj_get_method(env, &event_class, &event_id,
+    if (_get_method(env, &event_class, &event_id,
                        "org/videolan/Libbluray", "processEvent", "(II)Z")) {
         if ((*env)->CallStaticBooleanMethod(env, event_class, event_id, ev, param)) {
             result = 0;
@@ -600,13 +625,4 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
     }
 
     return result;
-}
-
-int bdj_get_uo_mask(BDJAVA *bdjava)
-{
-    if (!bdjava) {
-        return 0;
-    }
-
-    return bdjava->uo_mask;
 }

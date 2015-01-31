@@ -34,6 +34,7 @@ import org.dvb.ui.DVBBufferedImage;
 
 import sun.awt.ConstrainableGraphics;
 
+import org.videolan.GUIManager;
 import org.videolan.Logger;
 
 abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphics {
@@ -99,15 +100,8 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         foreground = window.getForeground();
         background = window.getBackground();
         font = window.getFont();
-        if (foreground == null)
-            foreground = DEFAULT_COLOR;
-        if (background == null)
-            background = DEFAULT_COLOR;
-        if (font == null)
-            font = DEFAULT_FONT;
-        fontMetrics = BDFontMetrics.getFontMetrics(font);
-        composite = AlphaComposite.SrcOver;
-        setupClip();
+
+        postInit();
     }
 
     BDGraphicsBase(BDImage image) {
@@ -123,13 +117,27 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
             background = component.getBackground();
             font = component.getFont();
         }
+        if (background == null)
+            background = new Color(0, 0, 0, 0);
+
+        postInit();
+    }
+
+    private void postInit() {
         if (foreground == null)
             foreground = DEFAULT_COLOR;
         if (background == null)
-            background = new Color(0, 0, 0, 0);
-        if (font == null)
-            font = DEFAULT_FONT;
-        fontMetrics = BDFontMetrics.getFontMetrics(font);
+            background = DEFAULT_COLOR;
+
+        /* if font is not set, use AWT default font from BDJO */
+        if (font == null) {
+            font = GUIManager.getInstance().getDefaultFont();
+            if (font == null) {
+                font = DEFAULT_FONT;
+            }
+        }
+        fontMetrics = null;
+
         composite = AlphaComposite.SrcOver;
         setupClip();
     }
@@ -146,7 +154,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
     public void setFont(Font font) {
         if (font != null && !font.equals(this.font)) {
             this.font = font;
-            fontMetrics = BDFontMetrics.getFontMetrics(font);
+            fontMetrics = null;
         }
     }
 
@@ -155,6 +163,9 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
     }
 
     public FontMetrics getFontMetrics() {
+        if (font != null && fontMetrics == null) {
+            fontMetrics = BDFontMetrics.getFontMetrics(font);
+        }
         return fontMetrics;
     }
 
@@ -339,6 +350,12 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         /* avoid overreading source */
         if (srcOffset + length > src.length) {
             length -= srcOffset + length - src.length;
+        }
+        /* avoid underreading source */
+        if (srcOffset < 0) {
+            length += srcOffset;
+            x -= srcOffset;
+            srcOffset = 0;
         }
         if (length <= 0) {
             return;
@@ -742,6 +759,200 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         }
     }
 
+    private int getAngle(int centreX, int centreY, int pointX, int pointY) {
+
+        float  vStartX;
+        float  vStartY;
+        float  vEndX;
+        float  vEndY;
+        float  length;
+        double angle;
+
+        vStartX = 1;    // vector pointing right (this is where angle starts for arcs)
+        vStartY = 0;
+
+        vEndX = pointX - centreX;
+        vEndY = pointY - centreY;
+
+        length = (float) Math.sqrt(vEndX*vEndX + vEndY*vEndY);
+
+        vEndX /= length;
+        vEndY /= length;
+
+        angle = Math.acos(vStartX*vEndX + vStartY*vEndY);
+        angle = angle * 180.0 / Math.PI;
+
+        if (vEndY > 0) {
+            angle = 360 - angle;
+        }
+
+        return (int)(angle + 0.5);
+    }
+
+    private void drawArcI(boolean fill, int x, int y, int width, int height, int startAngle, int arcAngle) {
+
+        int     endAngle;
+        int     startX;
+        int     endX;
+        int     offset;
+        int[]   xList;
+        int[]   yList;
+        int     count;
+        int     numPoints;
+        int     tempX;
+        int     tempY;
+        int     angle;
+        int     widthDiv2;
+        int     heightDiv2;
+        float   as;
+        float   bs;
+        boolean addedZero;
+        boolean circle;
+
+        // sanity checks
+        if (width <= 0 || height <= 0 || arcAngle == 0) {
+            return;
+        }
+
+        // init variables
+        count           = 0;
+        addedZero       = false;
+        circle          = false;
+        widthDiv2       = (int)(width/2.0f + 0.5f);
+        heightDiv2      = (int)(height/2.0f + 0.5f);
+        numPoints       = ((height + 1/2) + (height + 1/2) + 1) * 2 + 1;
+        xList           = new int[numPoints];
+        yList           = new int[numPoints];
+
+        as = (width/2.0f)  * (width/2.0f);
+        bs = (height/2.0f) * (height/2.0f);
+
+        // check if we actually want to draw a circle
+        if (Math.abs(arcAngle) >= 360) {
+            circle = true;
+        }
+
+        if (startAngle < 0) {
+            startAngle %= 360;
+            startAngle = Math.abs(startAngle);
+            startAngle = 360 - startAngle;
+        }
+
+        if (arcAngle < 0) {
+            int temp;
+            temp = startAngle;
+            endAngle = startAngle;
+            startAngle = 360 + arcAngle + temp;
+        } else {
+            endAngle = startAngle + arcAngle;
+        }
+
+        startAngle %= 360;
+        endAngle   %= 360;
+
+        for (int i = heightDiv2; i >= -heightDiv2; i--) {
+            boolean hit = false;
+            int offsetAngle;
+            int startXAngle;
+
+            offset = (int) Math.sqrt( (1.0 - i*i/bs) * as );
+            startX = x + offset + widthDiv2;
+
+            offsetAngle = (int) Math.sqrt( (1.0 - i*i/bs) * bs );       // we calculate these as if it were a circle
+            startXAngle = x + offsetAngle + height/2;
+
+            tempX = startX;
+            tempY = y + i + height/2;
+
+            angle = getAngle(x + height/2, y + height/2, startXAngle, tempY);
+
+            if (startAngle < endAngle) {
+                if (angle < endAngle && angle >= startAngle) {
+                    xList[count] = tempX;
+                    yList[count] = tempY;
+                    count++;
+                    hit = true;
+                }
+            } else {
+                if (!(angle > endAngle && angle < startAngle)) {
+                    xList[count] = tempX;
+                    yList[count] = tempY;
+                    count++;
+                    hit = true;
+                }
+            }
+
+            if (!hit && !addedZero && !circle && fill) {
+                xList[count] = x + width/2;
+                yList[count] = y + height/2;
+                count++;
+                addedZero = true;
+            }
+
+            if (!hit && !fill && !circle && count > 1) {
+                drawPolyline(xList, yList, count);
+                count = 0;
+            }
+        }
+
+
+        for (int i = -heightDiv2; i <= heightDiv2; i++) {
+            boolean hit = false;
+            int offsetAngle;
+            int endXAngle;
+
+            offset = (int) Math.sqrt( (1.0 - i*i/bs) * as );
+            endX   = x - offset + width/2;
+
+            offsetAngle = (int) Math.sqrt( (1.0 - i*i/bs) * bs );   // we calculate these as if it were a circle
+            endXAngle   = x - offsetAngle + height/2;
+
+            tempX = endX;
+            tempY = y + i + height/2;
+
+            angle = getAngle(x + height/2, y + height/2, endXAngle, tempY);
+
+            if (startAngle < endAngle) {
+                if (angle <= endAngle && angle >= startAngle) {
+                    xList[count] = tempX;
+                    yList[count] = tempY;
+                    count++;
+                    hit = true;
+                }
+            } else {
+                if (!(angle > endAngle && angle < startAngle)) {
+                    xList[count] = tempX;
+                    yList[count] = tempY;
+                    count++;
+                    hit = true;
+                }
+            }
+
+            if (!hit && !addedZero && !circle && fill) {
+                xList[count] = x + width/2;
+                yList[count] = y + height/2;
+                count++;
+                addedZero = true;
+            }
+
+            if (!hit && !fill && !circle && count > 1) {
+                drawPolyline(xList, yList, count);
+                count = 0;
+            }
+        }
+
+        if (fill) {
+            fillPolygon(xList, yList, count);
+        } else {
+            if (circle) {
+                drawPolygon(xList, yList, count);   // we need to connect start to end in the case of 360
+            } else {
+                drawPolyline(xList, yList, count);  // shape must be open so no connection
+            }
+        }
+    }
+
+
     /**
      * Draws an arc bounded by the given rectangle from startAngle to
      * endAngle. 0 degrees is a vertical line straight up from the
@@ -749,12 +960,12 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
      * rotations, negative angle are counter-clockwise.
      */
     public void drawArc(int x, int y, int w, int h, int startAngle, int endAngle) {
-        logger.unimplemented("drawArc");
+        drawArcI(false, x, y, w, h, startAngle, endAngle);
     }
 
     /** fills an arc. arguments are the same as drawArc. */
     public void fillArc(int x, int y, int w, int h, int startAngle, int endAngle) {
-        logger.unimplemented("fillArc");
+        drawArcI(true, x, y, w, h, startAngle, endAngle);
     }
 
     /** Draws a rounded rectangle. */
@@ -902,8 +1113,11 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
 
     /** Draws the given string. */
     public void drawString(String string, int x, int y) {
+        getFontMetrics();
         if (fontMetrics != null) {
             fontMetrics.drawString((BDGraphics)this, string, x, y, foreground.getRGB());
+        } else {
+            logger.error("drawString skipped: no font metrics. string=\"" + string + "\"");
         }
     }
 
@@ -1016,8 +1230,7 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
         boolean flipX, boolean flipY,
         Color bg, ImageObserver observer) {
 
-        if ((sx < 0) || (sy < 0) ||
-            (sw == 0) || (sh == 0) || (dw == 0) || (dh == 0))
+        if ((sw == 0) || (sh == 0) || (dw == 0) || (dh == 0))
             return false;
 
         BDImage bdImage;
@@ -1092,6 +1305,21 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
     private int[] tmpLine = null;
     private void drawResizeBilinear(int[] pixels, int offset, int scansize, int sw, int sh,
                                     int dx, int dy, int dw, int dh, boolean flipX, boolean flipY) {
+
+        if (sh == 1) {
+            // crop source width if needed for 1d arrays
+            if (offset + sw > pixels.length) {
+                sw = (pixels.length - offset);
+            }
+        } else {
+            // crop source height to prevent possible over reads
+            if (offset + (scansize*sh) > pixels.length) {
+                sh = (pixels.length - offset) / scansize;
+            }
+        }
+        if (sw < 1 || sh < 1 || pixels.length < 1) {
+            return;
+        }
 
         if (sw == 1 && sh == 1) {
             for (int Y = dy; Y < (dy + dh); Y++)
@@ -1221,6 +1449,10 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
 
     public void dispose() {
         tmpLine = null;
+        font = null;
+        fontMetrics = null;
+        gc = null;
+        backBuffer = null;
     }
 
     public String toString() {

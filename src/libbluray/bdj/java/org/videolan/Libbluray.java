@@ -22,13 +22,16 @@ package org.videolan;
 
 import java.awt.BDToolkit;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.Vector;
 
 import javax.media.PackageManager;
+import javax.tv.service.SIManager;
 import javax.tv.service.SIManagerImpl;
 import javax.tv.service.selection.ServiceContextFactory;
-
+import javax.tv.service.selection.ServiceContextFactoryImpl;
 import org.bluray.bdplus.Status;
+import org.bluray.net.BDLocator;
 import org.bluray.ti.DiscManager;
 import org.bluray.ti.TitleImpl;
 import org.bluray.ti.selection.TitleContext;
@@ -43,9 +46,12 @@ import org.videolan.media.content.PlayerManager;
  * This class allows BDJ to call various libbluray functions.
  */
 public class Libbluray {
-    protected static void init(long nativePointer, String discID, String discRoot) {
+    protected static void init(long nativePointer, String discID, String discRoot,
+                               String persistentRoot, String budaRoot) {
 
         System.setProperty("bluray.vfs.root", discRoot);
+        System.setProperty("dvb.persistent.root", persistentRoot);
+        System.setProperty("bluray.bindingunit.root", budaRoot);
 
             Libbluray.nativePointer = nativePointer;
             DiscManager.getDiscManager().setCurrentDisc(discID);
@@ -60,7 +66,6 @@ public class Libbluray {
             PackageManager.commitProtocolPrefixList();
 
             java.awt.BDFontMetrics.init();
-            FontFactory.loadDiscFonts();
 
             System.setProperty("mhp.profile.enhanced_broadcast", "YES");
             System.setProperty("mhp.profile.interactive_broadcast", "YES");
@@ -109,8 +114,8 @@ public class Libbluray {
 
             System.setProperty("bluray.jmf.subtitlestyle", "YES");
 
-            System.setProperty("bluray.rccapability.release", "No");
-            System.setProperty("bluray.rccapability.holdandrelease", "NO");
+            System.setProperty("bluray.rccapability.release", "YES");
+            System.setProperty("bluray.rccapability.holdandrelease", "YES");
             System.setProperty("bluray.rccapability.repeatonhold", "NO");
 
             System.setProperty("bluray.localstorage.level", "5");
@@ -127,10 +132,13 @@ public class Libbluray {
             System.setProperty("bluray.memory.font_cache", "4096");
 
             System.setProperty("bluray.network.connected", "YES");
+
+            BDJSocketFactory.init();
     }
 
     public static void shutdown() {
         try {
+            stopTitle(true);
             BDJLoader.shutdown();
             BDJActionManager.shutdown();
             MountManager.unmountAll();
@@ -141,62 +149,69 @@ public class Libbluray {
             IxcRegistry.shutdown();
             EventManager.shutdown();
             Status.shutdown();
+            ServiceContextFactoryImpl.shutdown();
+            FontFactory.unloadDiscFonts();
+            CacheDir.remove();
         } catch (Throwable e) {
             e.printStackTrace();
         }
         nativePointer = 0;
+        titleInfos = null;
     }
 
     public static byte[] getAacsData(int type) {
         return getAacsDataN(nativePointer, type);
     }
 
-    public static int getTitles() {
-        return getTitlesN(nativePointer);
+    /*
+     * Disc titles
+     */
+
+    /* used by javax/tv/service/SIManagerImpl */
+    public static int numTitles() {
+        if (titleInfos == null) {
+            titleInfos = getTitleInfosN(nativePointer);
+            if (titleInfos == null) {
+                return -1;
+            }
+        }
+        return titleInfos.length - 2;
     }
 
+    /* used by org/bluray/ti/TitleImpl */
     public static TitleInfo getTitleInfo(int titleNum) {
-        if (titleNum < 0)
+        int numTitles = numTitles();
+        if (numTitles < 0)
+            return null;
+
+        if (titleNum == 0xffff) {
+            return titleInfos[titleInfos.length - 1];
+        }
+
+        if (titleNum < 0 || titleNum > numTitles)
             throw new IllegalArgumentException();
 
-        return getTitleInfoN(nativePointer, titleNum);
+        return titleInfos[titleNum];
     }
+
+    /*
+     *
+     */
+
 
     public static PlaylistInfo getPlaylistInfo(int playlist) {
         return getPlaylistInfoN(nativePointer, playlist);
     }
 
-    public static long seek(long pos) {
-        return seekN(nativePointer, pos);
-    }
-
     public static long seekTime(long tick) {
-        return seekTimeN(nativePointer, tick);
-    }
-
-    public static long seekChapter(int chapter) {
-        if (chapter < 0)
-            throw new IllegalArgumentException("Chapter cannot be negative");
-
-        return seekChapterN(nativePointer, chapter);
-    }
-
-    public static long chapterPos(int chapter) {
-        if (chapter < 0)
-            throw new IllegalArgumentException("Chapter cannot be negative");
-
-        return chapterPosN(nativePointer, chapter);
-    }
-
-    public static int getCurrentChapter(){
-        return getCurrentChapterN(nativePointer);
+        return seekN(nativePointer, -1, -1, tick);
     }
 
     public static long seekMark(int mark) {
         if (mark < 0)
             throw new IllegalArgumentException("Mark cannot be negative");
 
-        long result = seekMarkN(nativePointer, mark);
+        long result = seekN(nativePointer, -1, mark, -1);
         if (result == -1)
             throw new IllegalArgumentException("Seek error");
         return result;
@@ -206,7 +221,7 @@ public class Libbluray {
         if (clip < 0)
             throw new IllegalArgumentException("Mark cannot be negative");
 
-        long result = seekPlayItemN(nativePointer, clip);
+        long result = seekN(nativePointer, clip, -1, -1);
         if (result == -1)
             throw new IllegalArgumentException("Seek error");
         return result;
@@ -230,34 +245,23 @@ public class Libbluray {
     public static boolean selectTitle(TitleImpl title) {
         TitleInfo ti = title.getTitleInfo();
         if (ti.isBdj()) {
-                try {
-                        ((TitleContext)ServiceContextFactory.getInstance().getServiceContext(null)).select(title);
-                        return true;
-                } catch (Exception e) {
-                        e.printStackTrace();
-                        return false;
-                }
+            try {
+                ((TitleContext)ServiceContextFactory.getInstance().getServiceContext(null)).select(title);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
 
         return selectTitleN(nativePointer, title.getTitleNum()) == 1 ? true : false;
     }
 
     public static boolean selectAngle(int angle) {
-        if (angle < 0)
+        if (angle < 1)
             throw new IllegalArgumentException("Angle cannot be negative");
 
         return selectAngleN(nativePointer, angle) == 1 ? true : false;
-    }
-
-    public static void seamlessAngleChange(int angle) {
-        if (angle < 0)
-            throw new IllegalArgumentException("Angle cannot be negative");
-
-        seamlessAngleChangeN(nativePointer, angle);
-    }
-
-    public static long getTitleSize() {
-        return getTitleSizeN(nativePointer);
     }
 
     public static int getCurrentTitle() {
@@ -265,15 +269,11 @@ public class Libbluray {
     }
 
     public static int getCurrentAngle() {
-        return getCurrentAngleN(nativePointer);
+        return readPSR(PSR_ANGLE_NUMBER);
     }
 
     public static long getUOMask() {
         return getUOMaskN(nativePointer);
-    }
-
-    public static long tell() {
-        return tellN(nativePointer);
     }
 
     public static long tellTime() {
@@ -320,7 +320,11 @@ public class Libbluray {
     }
 
     public static Bdjo getBdjo(String name) {
-        return getBdjoN(nativePointer, name);
+        return getBdjoN(nativePointer,
+                        System.getProperty("bluray.vfs.root") + File.separator +
+                        "BDMV" + File.separator +
+                        "BDJO" + File.separator +
+                        name + ".bdjo");
     }
 
     public static void updateGraphic(int width, int height, int[] rgbArray) {
@@ -334,6 +338,41 @@ public class Libbluray {
                        x0, y0, x1, y1);
     }
 
+    private static boolean startTitle(int titleNumber) {
+
+        TitleContext titleContext = null;
+        try {
+            BDLocator locator = new BDLocator(null, titleNumber, -1);
+            TitleImpl title   = (TitleImpl)SIManager.createInstance().getService(locator);
+
+            titleContext = (TitleContext)ServiceContextFactory.getInstance().getServiceContext(null);
+            titleContext.start(title, true);
+            return true;
+
+        } catch (Throwable e) {
+            System.err.println("startTitle() failed: " + e);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private static boolean stopTitle(boolean shutdown) {
+        TitleContext titleContext = null;
+        try {
+            titleContext = (TitleContext)ServiceContextFactory.getInstance().getServiceContext(null);
+            if (shutdown) {
+                titleContext.destroy();
+            } else {
+                titleContext.stop();
+            }
+            return true;
+        } catch (Throwable e) {
+            System.err.println("stopTitle() failed: " + e);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public static boolean processEvent(int event, int param) {
         boolean result = true;
         int key = 0;
@@ -341,9 +380,9 @@ public class Libbluray {
         switch (event) {
 
         case BDJ_EVENT_START:
-            return BDJLoader.load(param);
+            return startTitle(param);
         case BDJ_EVENT_STOP:
-            return BDJLoader.unload();
+            return stopTitle(false);
 
         case BDJ_EVENT_CHAPTER:
             PlayerManager.getInstance().onChapterReach(param);
@@ -383,9 +422,6 @@ public class Libbluray {
             PlayerManager.getInstance().onPlaylistTime(param);
             break;
         case BDJ_EVENT_VK_KEY:
-            //case KeyEvent.KEY_TYPED:
-            //case KeyEvent.KEY_PRESSED:
-            //case KeyEvent.KEY_RELEASED:
             switch (param) {
             case  0: key = KeyEvent.VK_0; break;
             case  1: key = KeyEvent.VK_1; break;
@@ -413,10 +449,10 @@ public class Libbluray {
                 break;
             }
             if (key > 0) {
-                result =
-                    EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_PRESSED, 0, key) ||
-                    EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_RELEASED, 0, key) ||
-                    EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_TYPED, 0, key);
+                boolean r1 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_PRESSED, 0, key);
+                boolean r2 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_TYPED, 0, key);
+                boolean r3 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_RELEASED, 0, key);
+                result = r1 || r2 || r3;
             }
             break;
         default:
@@ -488,25 +524,14 @@ public class Libbluray {
     public static final int AACS_DEVICE_NONCE      = 5;
 
     private static native byte[] getAacsDataN(long np, int type);
-    private static native TitleInfo getTitleInfoN(long np, int title);
+    private static native TitleInfo[] getTitleInfosN(long np);
     private static native PlaylistInfo getPlaylistInfoN(long np, int playlist);
-    private static native int getTitlesN(long np);
-    private static native long seekN(long np, long pos);
-    private static native long seekTimeN(long np, long tick);
-    private static native long seekChapterN(long np, int chapter);
-    private static native long chapterPosN(long np, int chapter);
-    private static native int getCurrentChapterN(long np);
-    private static native long seekMarkN(long np, int mark);
-    private static native long seekPlayItemN(long np, int clip);
+    private static native long seekN(long np, int playitem, int playmark, long time);
     private static native int selectPlaylistN(long np, int playlist, int playitem, int playmark, long time);
     private static native int selectTitleN(long np, int title);
     private static native int selectAngleN(long np, int angle);
-    private static native void seamlessAngleChangeN(long np, int angle);
-    private static native long getTitleSizeN(long np);
     private static native long getUOMaskN(long np);
     private static native void setUOMaskN(long np, boolean menuCallMask, boolean titleSearchMask);
-    private static native int getCurrentAngleN(long np);
-    private static native long tellN(long np);
     private static native long tellTimeN(long np);
     private static native int selectRateN(long np, float rate, int reason);
     private static native int writeGPRN(long np, int num, int value);
@@ -517,5 +542,6 @@ public class Libbluray {
     private static native void updateGraphicN(long np, int width, int height, int[] rgbArray,
                                               int x0, int y0, int x1, int y1);
 
-    protected static long nativePointer = 0;
+    private static long nativePointer = 0;
+    private static TitleInfo[] titleInfos = null;
 }

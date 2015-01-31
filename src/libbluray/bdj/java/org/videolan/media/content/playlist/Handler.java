@@ -30,10 +30,12 @@ import javax.media.IncompatibleSourceException;
 import javax.media.Time;
 import javax.media.protocol.DataSource;
 import javax.tv.locator.InvalidLocatorException;
+import javax.tv.service.selection.ServiceContextFactory;
 
 import org.bluray.media.InvalidPlayListException;
 import org.bluray.net.BDLocator;
 import org.bluray.system.RegisterAccess;
+import org.bluray.ti.selection.TitleContextImpl;
 import org.videolan.BDJAction;
 import org.videolan.BDJActionManager;
 import org.videolan.Libbluray;
@@ -189,44 +191,51 @@ public class Handler extends BDHandler {
     }
 
     /* notification from app */
-    protected void updateRate(float rate) {
+
+    protected void doRateChanged(float rate) {
         synchronized (this) {
             if (state == Started) {
                 baseMediaTime = getMediaNanoseconds();
                 baseTime = getTimeBase().getNanoseconds();
             }
-            super.updateRate(rate);
+            super.doRateChanged(rate);
         }
     }
 
-    protected void doChapterReach(int param) {
+    protected void doChapterReached(int param) {
         ((PlaybackControlImpl)controls[9]).onChapterReach(param);
     }
-    protected void doMarkReach(int param) {
+    protected void doMarkReached(int param) {
         ((PlaybackControlImpl)controls[9]).onMarkReach(param);
     }
 
-    protected void doPlaylistStart(int param) {
+    protected void doPlaylistStarted(int param) {
     }
 
-    protected void doPlayItemReach(int param) {
+    protected void doPlayItemReached(int param) {
         ((PlaybackControlImpl)controls[9]).onPlayItemReach(param);
         ((UOMaskTableControlImpl)controls[16]).onPlayItemReach(param);
+
+        try {
+            ((TitleContextImpl)ServiceContextFactory.getInstance().getServiceContext(null)).presentationChanged();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    protected void doAngleChange(int param) {
+    protected void doAngleChanged(int param) {
         ((AngleControlImpl)controls[0]).onAngleChange(param);
     }
 
-    protected void doSubtitleChange(int param) {
+    protected void doSubtitleChanged(int param) {
         ((SubtitlingControlImpl)controls[15]).onSubtitleChange(param);
     }
 
-    protected void doPiPChange(int param) {
+    protected void doPiPChanged(int param) {
         ((PiPControlImpl)controls[8]).onPiPChange(param);
     }
 
-    protected void endOfMedia(int playlist) {
+    protected void doEndOfMediaReached(int playlist) {
         synchronized (this) {
             if (locator == null || locator.getPlayListId() != playlist) {
                 System.err.println("endOfMedia ignored: playlist does not match (" + playlist + " != " + locator.getPlayListId());
@@ -234,7 +243,7 @@ public class Handler extends BDHandler {
             }
         }
 
-        super.endOfMedia(playlist);
+        super.doEndOfMediaReached(playlist);
     }
 
     protected BDLocator getLocator() {

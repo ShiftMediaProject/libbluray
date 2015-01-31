@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([bluray_major], 0)
-m4_define([bluray_minor], 6)
-m4_define([bluray_micro], 2)
+m4_define([bluray_minor], 7)
+m4_define([bluray_micro], 0)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
 dnl shared library version (.so version)
@@ -12,9 +12,9 @@ dnl - If interfaces have been changed or removed, increase current and set age a
 dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
-m4_define([lt_current],  7)
-m4_define([lt_revision], 2)
-m4_define([lt_age],      6)
+m4_define([lt_current],  8)
+m4_define([lt_revision], 0)
+m4_define([lt_age],      7)
 
 dnl initilization
 AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
@@ -89,6 +89,9 @@ AC_ARG_WITH([libxml2],
 AC_ARG_WITH([freetype],
   [AS_HELP_STRING([--without-freetype], [build without freetype support @<:@default=with@:>@])])
 
+AC_ARG_WITH([fontconfig],
+  [AS_HELP_STRING([--without-fontconfig], [build without fontconfig support @<:@default=with@:>@])])
+
 AC_ARG_WITH([bdj-type],
   [AS_HELP_STRING([--with-bdj-type=TYPE],
   [Specify the type of BD-J implementation (j2se, j2me). Default is j2se.])],
@@ -148,6 +151,17 @@ dnl FreeType2
 AS_IF([test "x$with_freetype" != "xno"], [
   PKG_CHECK_MODULES([FT2], [freetype2],
     [with_freetype=yes; AC_DEFINE([HAVE_FT2], 1, [Define this if you have FreeType2 library])])
+
+  dnl fontconfig support
+  AS_IF([test "${SYS}" != "mingw32"], [
+    AS_IF([test "x$with_fontconfig" != "xno"], [
+      PKG_CHECK_MODULES([FONTCONFIG], [fontconfig],
+        [with_fontconfig=yes; AC_DEFINE([HAVE_FONTCONFIG], 1, [Define this if you have fontconfig library])])
+    ])
+  ],[
+    FONTCONFIG_LIBS="-lgdi32"
+    AC_SUBST([FONTCONFIG_LIBS])
+  ])
 ])
 
 CC_CHECK_CFLAGS_APPEND([-Wall -Wdisabled-optimization -Wpointer-arith ]dnl
@@ -259,6 +273,15 @@ echo "  BD-J bootclasspath:            $BDJ_BOOTCLASSPATH"
 fi
 fi
 echo "  Font support (freetype2):      $with_freetype"
+if [[ $with_freetype = "yes" ]]; then
+if [[ $use_bdjava = "yes" ]]; then
+if test "${SYS}" != "mingw32"; then
+echo "  Use system fonts (fontconfig): $with_fontconfig"
+else
+echo "  Use system fonts:              yes"
+fi
+fi
+fi
 echo "  Metadata support (libxml2):    $with_libxml2"
 echo "  Build examples:                $use_examples"
 

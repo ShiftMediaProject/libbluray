@@ -48,7 +48,7 @@ public class SIManagerImpl extends SIManager {
     }
 
     protected SIManagerImpl() {
-        int ntitles = Libbluray.getTitles();
+        int ntitles = Libbluray.numTitles();
         LinkedList list = new LinkedList();
         for (int i = 0; i <= ntitles; i++)
             list.add(new TitleImpl(i));

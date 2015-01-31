@@ -72,18 +72,18 @@ int libaacs_required(const char *device_path)
     BD_FILE_H *fd;
     char      *tmp;
 
-    tmp = str_printf("%s/AACS/Unit_Key_RO.inf", device_path);
+    tmp = str_printf("%s" DIR_SEP "AACS" DIR_SEP "Unit_Key_RO.inf", device_path);
     fd = file_open(tmp, "rb");
     X_FREE(tmp);
 
     if (fd) {
         file_close(fd);
 
-        BD_DEBUG(DBG_BLURAY, "AACS/Unit_Key_RO.inf found. Disc seems to be AACS protected.\n");
+        BD_DEBUG(DBG_BLURAY, "AACS" DIR_SEP "Unit_Key_RO.inf found. Disc seems to be AACS protected.\n");
         return 1;
     }
 
-    BD_DEBUG(DBG_BLURAY, "AACS/Unit_Key_RO.inf not found. No AACS protection.\n");
+    BD_DEBUG(DBG_BLURAY, "AACS" DIR_SEP "Unit_Key_RO.inf not found. No AACS protection.\n");
     return 0;
 }
 
@@ -266,10 +266,23 @@ uint32_t libaacs_get_mkbv(BD_AACS *p)
     return p ? p->mkbv : 0;
 }
 
+static const char *_type2str(int type)
+{
+    switch (type) {
+    case BD_AACS_DISC_ID:            return "DISC_ID";
+    case BD_AACS_MEDIA_VID:          return "MEDIA_VID";
+    case BD_AACS_MEDIA_PMSN:         return "MEDIA_PMSN";
+    case BD_AACS_DEVICE_BINDING_ID:  return "DEVICE_BINDING_ID";
+    case BD_AACS_DEVICE_NONCE:       return "DEVICE_NONCE";
+    case BD_AACS_MEDIA_KEY:          return "MEDIA_KEY";
+    default: return "???";
+    }
+}
+
 BD_PRIVATE const uint8_t *libaacs_get_aacs_data(BD_AACS *p, int type)
 {
     if (!p || !p->aacs) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "get_aacs_data(): libaacs not initialized!\n");
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "get_aacs_data(%s): libaacs not initialized!\n", _type2str(type));
         return NULL;
     }
 

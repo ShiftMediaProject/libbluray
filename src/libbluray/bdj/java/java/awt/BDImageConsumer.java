@@ -19,7 +19,6 @@
 
 package java.awt;
 
-import java.awt.*;
 import java.util.Hashtable;
 import java.awt.image.ImageProducer;
 import java.awt.image.ImageObserver;

@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2014  Petri Hintukainen
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,14 +25,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import org.videolan.Logger;
 
 /**
  * This class handle mounting jar files so that their contents can be accessed.
@@ -40,7 +38,12 @@ import org.videolan.Logger;
  *
  */
 public class MountManager {
+
     public static String mount(int jarId) throws MountException {
+        return mount(jarId, true);
+    }
+
+    protected static String mount(int jarId, boolean classFiles) throws MountException {
         String jarStr = jarIdToString(jarId);
 
         logger.info("Mounting JAR: " + jarStr);
@@ -49,65 +52,111 @@ public class MountManager {
             throw new IllegalArgumentException();
 
         synchronized (mountPoints) {
-        String oldPath = getMount(jarId);
-        if (oldPath != null) {
-            logger.error("JAR " + jarId + " already mounted");
-            return oldPath;
-        }
 
-        String path = System.getProperty("bluray.vfs.root") + "/BDMV/JAR/" + jarStr + ".jar";
+            // already mounted ?
+            MountPoint mountPoint = (MountPoint)mountPoints.get(new Integer(jarId));
+            if (mountPoint != null) {
+                logger.info("JAR " + jarId + " already mounted");
+                mountPoint.incRefCount();
 
-        JarFile jar = null;
-        File tmpDir = null;
-        try {
-            jar = new JarFile(path);
-            tmpDir = File.createTempFile("bdj-", "");
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new MountException();
-        }
-
-        // create temporary directory
-        tmpDir.delete();
-        tmpDir.mkdir();
-
-        try {
-            byte[] buffer = new byte[32*1024];
-            Enumeration entries = jar.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry entry = (JarEntry)entries.nextElement();
-                File out = new File(tmpDir + File.separator + entry.getName());
-
-                logger.info("   mount: " + entry.getName());
-
-                if (entry.isDirectory()) {
-                    out.mkdirs();
+                if (classFiles && !mountPoint.classFiles()) {
+                    logger.info("JAR " + jarId + " not complete, remounting");
                 } else {
-                    /* make sure path exists */
-                    out.getParentFile().mkdirs();
-
-                    InputStream inStream = jar.getInputStream(entry);
-                    OutputStream outStream = new FileOutputStream(out);
-
-                    int length;
-                    while ((length = inStream.read(buffer)) > 0) {
-                        outStream.write(buffer, 0, length);
-                    }
-
-                    inStream.close();
-                    outStream.close();
+                    return mountPoint.getMountPoint();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            recursiveDelete(tmpDir);
-            throw new MountException();
-        }
 
-        logger.info("Mounting JAR " + jarId + " complete.");
+            String path = System.getProperty("bluray.vfs.root") + "/BDMV/JAR/" + jarStr + ".jar";
 
-        mountPoints.put(new Integer(jarId), tmpDir);
-        return tmpDir.getAbsolutePath();
+            JarFile jar = null;
+            try {
+                jar = new JarFile(path);
+                if (mountPoint == null) {
+                    mountPoint = new MountPoint(jarStr, classFiles);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                if (jar != null) {
+                    try {
+                        jar.close();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                throw new MountException();
+            }
+
+            InputStream inStream = null;
+            OutputStream outStream = null;
+            try {
+                byte[] buffer = new byte[32 * 1024];
+                Enumeration entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = (JarEntry)entries.nextElement();
+                    File out = new File(mountPoint.getMountPoint() + File.separator + entry.getName());
+
+                    if (entry.isDirectory()) {
+                        out.mkdirs();
+                    } else if (!classFiles && entry.getName().endsWith(".class")) {
+                        // logger.info("skip " + entry.getName());
+                    } else {
+                        /* make sure path exists */
+                        out.getParentFile().mkdirs();
+
+                        logger.info("   mount: " + entry.getName());
+
+                        inStream = jar.getInputStream(entry);
+                        outStream = new FileOutputStream(out);
+
+                        int length;
+                        while ((length = inStream.read(buffer)) > 0) {
+                            outStream.write(buffer, 0, length);
+                        }
+
+                        inStream.close();
+                        outStream.close();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                mountPoint.remove();
+                throw new MountException();
+            } finally {
+                if (inStream != null) {
+                    try {
+                        inStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (outStream != null) {
+                    try {
+                        outStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                try {
+                    jar.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (mountPoint.classFiles() != classFiles) {
+                if (mountPoint.classFiles()) {
+                    logger.error("assertion failed");
+                } else {
+                    logger.info("Remounting FULL JAR " + jarId + " complete.");
+                    mountPoint.setClassFiles();
+                }
+            } else {
+                logger.info("Mounting " + (classFiles ? "FULL" : "PARTIAL") + " JAR " + jarId + " complete.");
+
+                mountPoints.put(new Integer(jarId), mountPoint);
+            }
+
+            return mountPoint.getMountPoint();
         }
     }
 
@@ -115,15 +164,18 @@ public class MountManager {
         logger.info("Unmounting JAR: " + jarId);
 
         Integer id = new Integer(jarId);
-        File mountPoint;
+        MountPoint mountPoint;
 
         synchronized (mountPoints) {
-            mountPoint = (File)mountPoints.remove(id);
-        }
-        if (mountPoint != null) {
-            recursiveDelete(mountPoint);
-        } else {
-            logger.info("JAR " + jarId + " not mounted");
+            mountPoint = (MountPoint)mountPoints.get(id);
+            if (mountPoint == null) {
+                logger.info("JAR " + jarId + " not mounted");
+                return;
+            }
+
+            if (mountPoint.decRefCount() < 1) {
+                mountPoints.remove(id);
+            }
         }
     }
 
@@ -138,20 +190,20 @@ public class MountManager {
         }
         if (dirs != null) {
             for (int i = 0; i < dirs.length; i++) {
-                recursiveDelete((File)dirs[i]);
+                ((MountPoint)dirs[i]).remove();
             }
         }
     }
 
     public static String getMount(int jarId) {
         Integer id = new Integer(jarId);
-        File mountPoint;
+        MountPoint mountPoint;
 
         synchronized (mountPoints) {
-            mountPoint = (File)mountPoints.get(id);
+            mountPoint = (MountPoint)mountPoints.get(id);
         }
         if (mountPoint != null) {
-            return mountPoint.getAbsolutePath();
+            return mountPoint.getMountPoint();
         } else {
             logger.info("JAR " + jarId + " not mounted");
         }
@@ -164,20 +216,53 @@ public class MountManager {
         return BDJUtil.makeFiveDigitStr(jarId);
     }
 
-    private static void recursiveDelete(File dir) {
-        File[] files = dir.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File file = files[i];
-            if (file.isDirectory()) {
-                recursiveDelete(file);
-            } else {
-                file.delete();
+    private static Map mountPoints = new HashMap();
+    private static final Logger logger = Logger.getLogger(MountManager.class.getName());
+
+    private static class MountPoint {
+        public MountPoint(String id, boolean classFiles) throws IOException {
+            this.dir = CacheDir.create("mount", id);
+            this.refCount = 1;
+            this.classFiles = classFiles;
+        }
+
+        public synchronized String getMountPoint() {
+            if (dir != null) {
+                return dir.getAbsolutePath();
+            }
+            return null;
+        }
+
+        public synchronized void remove() {
+            if (dir != null) {
+                CacheDir.remove(dir);
+                dir = null;
+                refCount = 0;
             }
         }
 
-        dir.delete();
-    }
+        public synchronized int incRefCount() {
+            return ++refCount;
+        }
 
-    private static Map mountPoints = new HashMap();
-    private static final Logger logger = Logger.getLogger(MountManager.class.getName());
+        public synchronized int decRefCount() {
+            refCount--;
+            if (refCount < 1) {
+                remove();
+            }
+            return refCount;
+        }
+
+        public boolean classFiles() {
+            return classFiles;
+        }
+
+        public boolean setClassFiles() {
+            return classFiles == true;
+        }
+
+        private File dir;
+        private int refCount;
+        private boolean classFiles;
+    };
 }

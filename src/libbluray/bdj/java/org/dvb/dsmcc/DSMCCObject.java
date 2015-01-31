@@ -128,12 +128,14 @@ public class DSMCCObject extends File {
     public void addObjectChangeEventListener(ObjectChangeEventListener listener)
             throws InsufficientResourcesException
     {
+        org.videolan.Logger.unimplemented(DSMCCObject.class.getName(), "addObjectChangeEventListener");
         throw new Error("Not implemented"); // NOTE: probably unnecessary
     }
 
     public void removeObjectChangeEventListener(
             ObjectChangeEventListener listener)
     {
+        org.videolan.Logger.unimplemented(DSMCCObject.class.getName(), "removeObjectChangeEventListener");
         throw new Error("Not implemented"); // NOTE: probably unnecessary
     }
 
@@ -148,11 +150,13 @@ public class DSMCCObject extends File {
 
     public void setRetrievalMode(int retrieval_mode)
     {
+        org.videolan.Logger.unimplemented(DSMCCObject.class.getName(), "setRetrievalMode");
         throw new Error("Not implemented");
     }
 
     public X509Certificate[][] getSigners()
     {
+        org.videolan.Logger.unimplemented(DSMCCObject.class.getName(), "getSigners");
         throw new Error("Not implemented");
     }
 
@@ -162,6 +166,7 @@ public class DSMCCObject extends File {
             InvalidPathNameException, NotEntitledException,
             ServiceXFRException, InsufficientResourcesException
     {
+        org.videolan.Logger.unimplemented(DSMCCObject.class.getName(), "getSigners");
         throw new Error("Not implemented");
     }
 

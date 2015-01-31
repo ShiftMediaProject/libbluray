@@ -1,7 +1,7 @@
 SET_FEATURES = -D_ISOC99_SOURCE -D_POSIX_C_SOURCE=200112L -D_REENTRANT
 SET_INCLUDES = -I$(top_srcdir) -Ifile -Ilibbluray -Ilibbluray/bdnav $(BDJAVA_CFLAGS)
 
-AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_INCLUDES) $(LIBXML2_CFLAGS) $(FT2_CFLAGS)
+AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_INCLUDES) $(LIBXML2_CFLAGS) $(FT2_CFLAGS) $(FONTCONFIG_CFLAGS)
 
 EXTRA_DIST = \
        libbluray/bdj/build.xml \
@@ -17,7 +17,6 @@ libbluray_la_SOURCES = \
 	libbluray/register.h \
 	libbluray/register.c \
 	libbluray/keys.h \
-	libbluray/bdnav \
 	libbluray/bdnav/bdparse.h \
 	libbluray/bdnav/uo_mask_table.h \
 	libbluray/bdnav/navigation.h \
@@ -37,7 +36,6 @@ libbluray_la_SOURCES = \
 	libbluray/bdnav/extdata_parse.c \
 	libbluray/bdnav/bdid_parse.h \
 	libbluray/bdnav/bdid_parse.c \
-	libbluray/decoders \
 	libbluray/decoders/pes_buffer.h \
 	libbluray/decoders/pes_buffer.c \
 	libbluray/decoders/m2ts_demux.h \
@@ -63,17 +61,19 @@ libbluray_la_SOURCES = \
 	libbluray/decoders/graphics_processor.c \
 	libbluray/decoders/graphics_controller.h \
 	libbluray/decoders/graphics_controller.c \
-	libbluray/hdmv \
 	libbluray/hdmv/hdmv_insn.h \
 	libbluray/hdmv/hdmv_vm.h \
 	libbluray/hdmv/hdmv_vm.c \
+	libbluray/hdmv/mobj_data.h \
 	libbluray/hdmv/mobj_parse.h \
 	libbluray/hdmv/mobj_parse.c \
+	libbluray/hdmv/mobj_print.h \
 	libbluray/hdmv/mobj_print.c \
 	file/file.h \
 	file/file.c \
 	file/dirs.h \
 	file/dl.h \
+	file/mount.h \
 	file/filesystem.h \
 	file/filesystem.c \
 	file/libaacs.h \
@@ -102,26 +102,29 @@ libbluray_la_SOURCES+= \
 	file/file_posix.c \
 	file/dir_posix.c \
 	file/dl_posix.c \
-	file/dirs_darwin.c
+	file/dirs_darwin.c \
+	file/mount_darwin.c
 else
 if HAVE_WIN32
 libbluray_la_SOURCES+= \
 	file/file_win32.c \
 	file/dir_win32.c \
 	file/dl_win32.c \
-	file/dirs_win32.c
+	file/dirs_win32.c \
+	file/mount.c
 else
 libbluray_la_SOURCES+= \
 	file/file_posix.c \
 	file/dir_posix.c \
 	file/dl_posix.c \
-	file/dirs_xdg.c
+	file/dirs_xdg.c \
+	file/mount.c
 endif
 endif
 
 
 libbluray_la_LDFLAGS= -version-info $(LT_VERSION_INFO)
-libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS)
+libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS) $(FONTCONFIG_LIBS)
 
 pkginclude_HEADERS = \
 	file/filesystem.h \
@@ -131,6 +134,7 @@ pkginclude_HEADERS = \
 	libbluray/bluray.h \
 	libbluray/decoders/overlay.h \
 	libbluray/keys.h \
+	libbluray/player_settings.h \
 	util/log_control.h
 
 if USING_BDJAVA
@@ -141,13 +145,12 @@ $(top_builddir)/src/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar: all-local
 
 libbluray_la_SOURCES += \
 	libbluray/bdj/bdj.h \
-	libbluray/bdj/bdj_private.h \
-	libbluray/bdj/bdj_util.h \
-	libbluray/bdj/bdj_util.c \
 	libbluray/bdj/bdj.c \
-	libbluray/bdj/bdjo_parser.h \
-	libbluray/bdj/bdjo_parser.c \
-	libbluray/bdj/common.h \
+	libbluray/bdj/bdjo_data.h \
+	libbluray/bdj/bdjo_parse.h \
+	libbluray/bdj/bdjo_parse.c \
+	libbluray/bdj/native/bdjo.h \
+	libbluray/bdj/native/bdjo.c \
 	libbluray/bdj/native/java_awt_BDGraphics.h \
 	libbluray/bdj/native/java_awt_BDGraphics.c \
 	libbluray/bdj/native/java_awt_BDFontMetrics.h \
@@ -157,7 +160,9 @@ libbluray_la_SOURCES += \
 	libbluray/bdj/native/org_videolan_Logger.h \
 	libbluray/bdj/native/org_videolan_Logger.c \
 	libbluray/bdj/native/register_native.h \
-	libbluray/bdj/native/register_native.c
+	libbluray/bdj/native/register_native.c \
+	libbluray/bdj/native/util.h \
+	libbluray/bdj/native/util.c
 
 AM_CFLAGS += $(BDJAVA_CFLAGS)
 
@@ -193,6 +198,7 @@ if USING_EXAMPLES
 #AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_INCLUDES)
 
 noinst_PROGRAMS = \
+	bdjo_dump \
 	bdsplice \
 	clpi_dump \
 	hdmv_test \
@@ -218,8 +224,7 @@ mpls_dump_CFLAGS = $(AM_CFLAGS)
 mpls_dump_SOURCES = \
 	examples/mpls_dump.c \
 	examples/util.c \
-	examples/util.h \
-	util/strutl.c
+	examples/util.h
 mpls_dump_LDADD = libbluray.la
 
 clpi_dump_CFLAGS = $(AM_CFLAGS)
@@ -233,21 +238,12 @@ index_dump_SOURCES = examples/index_dump.c
 index_dump_LDADD = libbluray.la
 
 mobj_dump_CFLAGS = $(AM_CFLAGS)
-mobj_dump_SOURCES = \
-	examples/mobj_dump.c \
-	file/file.c \
-	libbluray/hdmv/mobj_parse.c \
-	libbluray/hdmv/mobj_print.c \
-	util/bits.c \
-	util/logging.c \
-	util/strutl.c
-if HAVE_WIN32
-mobj_dump_SOURCES += \
-	file/file_win32.c
-else
-mobj_dump_SOURCES += \
-	file/file_posix.c
-endif
+mobj_dump_SOURCES = examples/mobj_dump.c \
+	libbluray/hdmv/mobj_print.c
+mobj_dump_LDADD = libbluray.la
+
+bdjo_dump_SOURCES = examples/bdjo_dump.c
+bdjo_dump_LDADD = libbluray.la
 
 sound_dump_SOURCES = examples/sound_dump.c
 sound_dump_LDADD = libbluray.la

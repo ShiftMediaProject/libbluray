@@ -19,32 +19,62 @@
 
 package java.awt;
 
-import java.io.*;
-import java.security.*;
-import java.util.*;
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.videolan.Logger;
 
 public class BDFontMetrics extends FontMetrics {
     static final long serialVersionUID = -4956160226949100590L;
 
     private static long ftLib = 0;
-    private static Map fontNameMap;
+    private static long fcLib = 0;
+    private static Map  systemFontNameMap = null;
+
+    private static final Logger logger = Logger.getLogger(BDFontMetrics.class.getName());
 
     private static native long initN();
     private static native void destroyN(long ftLib);
+    private static native String[] getFontFamilyAndStyleN(long ftLib, String fontName);
 
-    public synchronized static void init() {
-        //System.loadLibrary("bluray");
+    protected synchronized static String[] getFontFamilyAndStyle(String fontFile) {
+        return getFontFamilyAndStyleN(ftLib, fontFile);
+    }
 
-        if (ftLib != 0)
+    private native static String resolveFontN(String fontFamily, int fontStyle);
+    private native static void   unloadFontConfigN();
+
+    private static void addSystemFont(String alias, int style, String family, String defaultPath) {
+
+        alias = alias + "." + style;
+
+        /* default to jre fonts, if available */
+        if (new File(defaultPath).exists()) {
+            logger.info("mapping " + alias + " (" + family + ") to " + defaultPath);
+            systemFontNameMap.put(alias, defaultPath);
             return;
-
-        ftLib = initN();
-
-        if (ftLib == 0) {
-            System.err.println("freetype library not loaded");
-            throw new AWTError("freetype lib not loaded");
         }
 
+        /* try fontconfig */
+        String path = resolveFontN(family, style);
+        if (path != null) {
+            logger.info("fontconfig: mapping " + alias + " (" + family + ") to " + path);
+            systemFontNameMap.put(alias, path);
+            return;
+        }
+
+        logger.error("Can't resolve font " + alias + ": file " + defaultPath + " does not exist");
+        /* useless ? font file does not exist ... */
+        systemFontNameMap.put(alias, defaultPath);
+    }
+
+    private static void initSystemFonts() {
         String javaHome = (String) AccessController.doPrivileged(new PrivilegedAction() {
                 public Object run() {
                     return System.getProperty("java.home");
@@ -52,42 +82,54 @@ public class BDFontMetrics extends FontMetrics {
             }
         );
         File f = new File(javaHome, "lib" + File.separator + "fonts");
-        String dir = f.getAbsolutePath() + File.separator;
+        String defaultFontPath = f.getAbsolutePath() + File.separator;
 
-        fontNameMap = new HashMap(24);
-        fontNameMap.put("serif.0", dir + "LucidaBrightRegular.ttf");
-        fontNameMap.put("serif.1", dir + "LucidaBrightDemiBold.ttf");
-        fontNameMap.put("serif.2", dir + "LucidaBrightItalic.ttf");
-        fontNameMap.put("serif.3", dir + "LucidaBrightDemiItalic.ttf");
-        fontNameMap.put("sansserif.0", dir + "LucidaSansRegular.ttf");
-        fontNameMap.put("sansserif.1", dir + "LucidaSansDemiBold.ttf");
-        fontNameMap.put("sansserif.2", dir + "LucidaSansOblique.ttf");
-        fontNameMap.put("sansserif.3", dir + "LucidaSansDemiOblique.ttf");
-        fontNameMap.put("monospaced.0", dir + "LucidaTypewriterRegular.ttf");
-        fontNameMap.put("monospaced.1", dir + "LucidaTypewriterBold.ttf");
-        fontNameMap.put("monospaced.2", dir + "LucidaTypewriterOblique.ttf");
-        fontNameMap.put("monospaced.3", dir + "LucidaTypewriterBoldOblique.ttf");
-        fontNameMap.put("dialog.0", dir + "LucidaSansRegular.ttf");
-        fontNameMap.put("dialog.1", dir + "LucidaSansDemiBold.ttf");
-        fontNameMap.put("dialog.2", dir + "LucidaSansOblique.ttf");
-        fontNameMap.put("dialog.3", dir + "LucidaSansDemiOblique.ttf");
-        fontNameMap.put("dialoginput.0", dir + "LucidaTypewriterRegular.ttf");
-        fontNameMap.put("dialoginput.1", dir + "LucidaTypewriterBold.ttf");
-        fontNameMap.put("dialoginput.2", dir + "LucidaTypewriterOblique.ttf");
-        fontNameMap.put("dialoginput.3", dir + "LucidaTypewriterBoldOblique.ttf");
-        fontNameMap.put("default.0", dir + "LucidaSansRegular.ttf");
-        fontNameMap.put("default.1", dir + "LucidaSansDemiBold.ttf");
-        fontNameMap.put("default.2", dir + "LucidaSansOblique.ttf");
-        fontNameMap.put("default.3", dir + "LucidaSansDemiOblique.ttf");
+        final Object[][] sfd = {
+            { "serif",       "Arial",           new String[] {"LucidaBrightRegular.ttf",     "LucidaBrightDemiBold.ttf", "LucidaBrightItalic.ttf",      "LucidaBrightDemiItalic.ttf"}},
+            { "sansserif",   "Times New Roman", new String[] {"LucidaSansRegular.ttf",       "LucidaSansDemiBold.ttf",   "LucidaSansOblique.ttf",       "LucidaSansDemiOblique.ttf"}},
+            { "monospaced",  "Courier New",     new String[] {"LucidaTypewriterRegular.ttf", "LucidaTypewriterBold.ttf", "LucidaTypewriterOblique.ttf", "LucidaTypewriterBoldOblique.ttf"}},
+            { "dialog",      "Times New Roman", new String[] {"LucidaSansRegular.ttf",       "LucidaSansDemiBold.ttf",   "LucidaSansOblique.ttf",       "LucidaSansDemiOblique.ttf"}},
+            { "dialoginput", "Courier New",     new String[] {"LucidaTypewriterRegular.ttf", "LucidaTypewriterBold.ttf", "LucidaTypewriterOblique.ttf", "LucidaTypewriterBoldOblique.ttf"}},
+            { "default",     "Times New Roman", new String[] {"LucidaSansRegular.ttf",       "LucidaSansDemiBold.ttf",   "LucidaSansOblique.ttf",       "LucidaSansDemiOblique.ttf"}},
+        };
+
+        systemFontNameMap = new HashMap(24);
+
+        for (int type = 0; type < sfd.length; type++) {
+            for (int style = 0; style < 4; style++) {
+                addSystemFont((String)sfd[type][0], style, (String)sfd[type][1],
+                              defaultFontPath + ((String[])sfd[type][2])[style]);
+            }
+        }
+
+        unloadFontConfigN();
+    }
+
+    public synchronized static void init() {
+
+        if (ftLib == 0) {
+            ftLib = initN();
+        }
+        if (ftLib == 0) {
+            logger.error("freetype library not loaded");
+            throw new AWTError("freetype lib not loaded");
+        }
+
+        if (systemFontNameMap == null) {
+            initSystemFonts();
+        }
     }
 
     public synchronized static void shutdown() {
         Iterator it = fontMetricsMap.values().iterator();
         while (it.hasNext()) {
             try {
-                BDFontMetrics fm = (BDFontMetrics)it.next();
+                WeakReference ref = (WeakReference)it.next();
+                BDFontMetrics fm = (BDFontMetrics)ref.get();
                 it.remove();
-                fm.destroy();
+                if (fm != null) {
+                    fm.destroy();
+                }
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -104,66 +146,62 @@ public class BDFontMetrics extends FontMetrics {
      to ensure native fonts are not loaded twice for the same font. */
     static synchronized BDFontMetrics getFontMetrics(Font font) {
         /* See if metrics has been stored in font already. */
-        BDFontMetrics fm = null;
-        //BDFontMetrics fm = (BDFontMetrics)font.metrics;
-        //if (fm == null) {
+        BDFontMetrics fm = (BDFontMetrics)font.metrics;
+        if (fm == null || fm.ftFace == 0) {
             /* See if a font metrics of the same native name and size has already been loaded.
              If it has then we use that one. */
-            String nativeName = (String)fontNameMap.get(font.getName().toLowerCase() + "." + font.getStyle());
-            if (nativeName == null)
-                nativeName = (String)fontNameMap.get("default." + font.getStyle());
+            String nativeName;
+            if (font.fontFile != null) {
+                nativeName = font.fontFile.getPath();
+            } else {
+                nativeName = (String)systemFontNameMap.get(font.getName().toLowerCase() + "." + font.getStyle());
+                if (nativeName == null) {
+                    nativeName = (String)systemFontNameMap.get("default." + font.getStyle());
+                }
+            }
+
             String key = nativeName + "." + font.getSize();
-            fm = (BDFontMetrics)fontMetricsMap.get(key);
-            if (fm == null)
-                fontMetricsMap.put(key, fm = new BDFontMetrics(font, nativeName));
-            //font.metrics = fm;
-        //}
+            WeakReference ref = (WeakReference)fontMetricsMap.get(key);
+            if (ref != null) {
+                fm = (BDFontMetrics)ref.get();
+            }
+
+            if (fm == null) {
+                fm = new BDFontMetrics(font, nativeName);
+                fontMetricsMap.put(key, new WeakReference(fm));
+            }
+            font.metrics = fm;
+        }
         return fm;
+    }
+
+    static String stripAttributes(String fontname) {
+        int dotidx;
+        if ((dotidx = fontname.indexOf('.')) == -1)
+            return fontname;
+        return fontname.substring(0, dotidx);
     }
 
     static synchronized String[] getFontList() {
         init();
 
         ArrayList fontNames = new ArrayList();
-        Iterator fonts = fontNameMap.keySet().iterator();
-        int dotidx;
 
+        Iterator fonts = systemFontNameMap.keySet().iterator();
         while (fonts.hasNext()) {
-            String fontname = (String) fonts.next();
-            if ((dotidx = fontname.indexOf('.')) == -1)
-                dotidx = fontname.length();
-            fontname = fontname.substring(0, dotidx);
+            String fontname = stripAttributes((String)fonts.next());
             if (!fontNames.contains(fontname))
                 fontNames.add(fontname);
         }
+
         return (String[])fontNames.toArray(new String[fontNames.size()]);
     }
 
-    public synchronized static void registerFont(String name, int style, String path) {
-        File f = new File(path);
-        path = f.getAbsolutePath();
-        if (path != null) {
-            name = name.toLowerCase() + "." + style;
-            fontNameMap.put(name, path);
-        }
-    }
-
-    public synchronized static boolean registerFont(File f) {
-        //TODO
-        org.videolan.Logger.unimplemented("BDFontMetrics", "registerFont");
-        return false;
-    }
-
-    public synchronized static void unregisterFont(String name, int style) {
-        name = name.toLowerCase() + "." + style;
-        fontNameMap.remove(name);
-    }
-
-    private long ftFace;
-    private int ascent;
-    private int descent;
-    private int leading;
-    private int maxAdvance;
+    private long ftFace = 0;
+    private int ascent = 0;
+    private int descent = 0;
+    private int leading = 0;
+    private int maxAdvance = 0;
 
     /** Cache of first 256 Unicode characters as these map to ASCII characters and are often used. */
     private int[] widths;
@@ -179,11 +217,7 @@ public class BDFontMetrics extends FontMetrics {
         if (ftFace == 0)
             throw new AWTError("font face:" + nativeName + " not loaded");
 
-        /* Cache first 256 char widths for use by the getWidths method and for faster metric
-         calculation as they are commonly used (ASCII) characters. */
-        widths = new int[256];
-        for (int i = 0; i < 256; i++)
-            widths[i] = charWidthN(ftFace, (char)i);
+        widths = null;
     }
 
     private native long loadFontN(long ftLib, String fontName, int size);
@@ -191,6 +225,18 @@ public class BDFontMetrics extends FontMetrics {
     private native int charWidthN(long ftFace, char c);
     private native int stringWidthN(long ftFace, String string);
     private native int charsWidthN(long ftFace, char chars[], int offset, int len);
+
+    private synchronized void loadWidths() {
+        /* Cache first 256 char widths for use by the getWidths method and for faster metric
+           calculation as they are commonly used (ASCII) characters. */
+        if (widths == null) {
+            widths = new int[256];
+            for (int i = 0; i < 256; i++) {
+                widths[i] = charWidthN(ftFace, (char)i);
+            }
+        }
+    }
+
 
     protected synchronized void drawString(BDGraphics g, String string, int x, int y, int rgb) {
         g.drawStringN(ftFace, string, x, y, rgb);
@@ -216,8 +262,10 @@ public class BDFontMetrics extends FontMetrics {
      * Fast lookup of first 256 chars as these are always the same eg. ASCII charset.
      */
     public synchronized int charWidth(char c) {
-        if (c < 256)
+        if (c < 256) {
+            loadWidths();
             return widths[c];
+        }
         return charWidthN(ftFace, c);
     }
 
@@ -239,8 +287,9 @@ public class BDFontMetrics extends FontMetrics {
      * Get the widths of the first 256 characters in the font.
      */
     public int[] getWidths() {
-        int[] newWidths = new int[256];
-        System.arraycopy(widths, 0, newWidths, 0, 256);
+        loadWidths();
+        int[] newWidths = new int[widths.length];
+        System.arraycopy(widths, 0, newWidths, 0, widths.length);
         return newWidths;
     }
 

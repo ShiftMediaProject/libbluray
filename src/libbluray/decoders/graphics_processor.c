@@ -552,7 +552,7 @@ static int graphics_processor_decode_pes(PG_DISPLAY_SET **s, PES_BUFFER **p, int
 
         if ((*p)->len <= 2) {
             BD_DEBUG(DBG_DECODE, "segment too short, skipping (%d bytes)\n", (*p)->len);
-            pes_buffer_remove(p, *p);
+            pes_buffer_next(p);
             continue;
         }
 
@@ -563,7 +563,7 @@ static int graphics_processor_decode_pes(PG_DISPLAY_SET **s, PES_BUFFER **p, int
 
         _decode_segment(*s, *p);
 
-        pes_buffer_remove(p, *p);
+        pes_buffer_next(p);
 
         if ((*s)->complete) {
             return 1;

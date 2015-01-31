@@ -31,8 +31,8 @@ class BDGraphicsConfiguration extends BDGraphicsConfigurationBase {
         return null;
     }
     public java.awt.geom.AffineTransform getDefaultTransform() {
-        org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "getDefaultTransform");
-        return null;
+        // return Identity transformation
+        return new java.awt.geom.AffineTransform();
     }
     public java.awt.image.ColorModel getColorModel(int transparency) {
         org.videolan.Logger.unimplemented("BDGraphicsConfiguration", "getColorModel");

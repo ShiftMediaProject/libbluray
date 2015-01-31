@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2014  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,21 +20,27 @@
 
 package org.bluray.vfs;
 
+import org.videolan.BUMFAsset;
+import org.videolan.BUMFParser;
 import org.videolan.Logger;
 
 public class VFSManager {
+
+    private static VFSManager instance = null;
+
     public static VFSManager getInstance() throws SecurityException,
             UnsupportedOperationException
     {
-        logger.unimplemented("getInstance");
-        return new VFSManager();
-        //throw new UnsupportedOperationException();
+        if (instance == null) {
+            instance = new VFSManager();
+        }
+
+        return instance;
     }
 
     protected VFSManager()
     {
-        state = PREPARING;
-        logger.unimplemented("VFSManager");
+        state = STABLE;
     }
 
     public boolean disableClip(String streamfile)
@@ -56,8 +63,7 @@ public class VFSManager {
 
     public int getState()
     {
-        logger.unimplemented("getState");
-        return STABLE;
+        return state;
     }
 
     public boolean isEnabledClip(String clipID)
@@ -69,7 +75,16 @@ public class VFSManager {
     public void requestUpdating(String manifestfile, String signaturefile,
             boolean initBackupRegs) throws PreparingFailedException
     {
+        state = PREPARING;
+
+        BUMFAsset[] assets = BUMFParser.parse(manifestfile);
+        if (assets == null) {
+            state = STABLE;
+            throw new PreparingFailedException();
+        }
+
         logger.unimplemented("requestUpdating(" + manifestfile + ")");
+        state = STABLE;
         throw new PreparingFailedException();
     }
 

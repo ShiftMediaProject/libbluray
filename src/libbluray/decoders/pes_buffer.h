@@ -44,4 +44,6 @@ BD_PRIVATE void        pes_buffer_free(PES_BUFFER **); // free list of buffers
 BD_PRIVATE void        pes_buffer_append(PES_BUFFER **head, PES_BUFFER *buf); // append buf to list
 BD_PRIVATE void        pes_buffer_remove(PES_BUFFER **head, PES_BUFFER *buf); // remove buf from list and free it
 
+BD_PRIVATE void        pes_buffer_next(PES_BUFFER **head); // free first buffer and advance head to next buffer
+
 #endif // _PES_BUFFER_H_

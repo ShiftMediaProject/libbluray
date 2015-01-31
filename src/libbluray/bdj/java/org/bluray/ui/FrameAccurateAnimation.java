@@ -60,7 +60,7 @@ public abstract class FrameAccurateAnimation extends Component {
         if (context != null) {
             context.addFAA(this);
         } else {
-            logger.error("FrameAccurateAnimation created from wrong thread: " + logger.dumpStack());
+            logger.error("FrameAccurateAnimation created from wrong thread: " + Logger.dumpStack());
         }
 
         this.params = new AnimationParameters(params);

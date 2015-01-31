@@ -30,9 +30,15 @@ import java.util.LinkedList;
 import javax.tv.xlet.Xlet;
 
 public class BDJAppProxy implements DVBJProxy, Runnable {
-    public BDJAppProxy(BDJXletContext context) {
-        this.context = context;
-        state = NOT_LOADED;
+    protected static BDJAppProxy newInstance(BDJXletContext context) {
+        BDJAppProxy proxy = new BDJAppProxy(context);
+        /* do not create and start thread in constructor.
+           if constructor fails (exception), thread is left running without BDJAppProxy ... */
+        proxy.startThread();
+        return proxy;
+    }
+
+    private void startThread() {
         thread = new Thread(context.getThreadGroup(), this, "BDJAppProxy");
         thread.setDaemon(true);
         thread.start();
@@ -44,6 +50,11 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
         while (context.getEventQueue() == null) {
             Thread.yield();
         }
+    }
+
+    private BDJAppProxy(BDJXletContext context) {
+        this.context = context;
+        state = NOT_LOADED;
     }
 
     public int getState() {
@@ -169,7 +180,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 (AppID)context.getXletProperty("org.dvb.application.appid"),
                 fromState, toState, this, hasFailed);
         for (int i = 0; i < list.size(); i++)
-            ((AppStateChangeEventListener)listeners.get(i)).stateChange(event);
+            ((AppStateChangeEventListener)list.get(i)).stateChange(event);
     }
 
     protected BDJXletContext getXletContext() {
@@ -238,6 +249,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
             try {
                 xlet.destroyXlet(force);
 
+                context.closeSockets();
                 context.getThreadGroup().waitForShutdown(1000, 1 + context.numEventQueueThreads());
 
                 String persistent = System.getProperty("dvb.persistent.root") + File.separator +

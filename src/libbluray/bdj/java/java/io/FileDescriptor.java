@@ -18,6 +18,10 @@
 
 package java.io;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
+
 public final class FileDescriptor {
 
     /* for files used by JVM */
@@ -76,6 +80,36 @@ public final class FileDescriptor {
     }
 
     /* Java 8 */
-    void attach(Closeable c) {
+
+    private List parents = null;
+    private boolean closed = false;
+
+    synchronized void attach(Closeable c) {
+        if (parents == null) {
+            parents = new ArrayList();
+        }
+        parents.add(c);
+    }
+
+    synchronized void closeAll(Closeable releaser) throws IOException {
+        if (!closed) {
+            IOException ex = null;
+            closed = true;
+
+            for (Iterator it = parents.iterator(); it.hasNext(); ) {
+                Closeable c = (Closeable)it.next();
+                try {
+                    c.close();
+                } catch (IOException ioe) {
+                    if (ex != null)
+                        ex = ioe;
+                }
+            }
+
+            releaser.close();
+            if (ex != null) {
+                throw ex;
+            }
+        }
     }
 }

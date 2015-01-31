@@ -21,14 +21,13 @@
 #include "config.h"
 #endif
 
-#include "libbluray/bluray.h"
-#include "util/macro.h"
-#include "util/strutl.h"
-
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <libgen.h>
 #include <inttypes.h>
+
+#include "libbluray/bluray.h"
 
 #define PKT_SIZE 192
 #define BUF_SIZE (PKT_SIZE * 1024)

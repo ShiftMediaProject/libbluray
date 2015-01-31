@@ -49,8 +49,7 @@ static int _parse_bdj_obj(BITSTREAM *bs, INDX_BDJ_OBJ *bdj)
 {
     bdj->playback_type = bs_read(bs, 2);
     bs_skip(bs, 14);
-    bs_read_bytes(bs, (uint8_t*)bdj->name, 5);
-    bdj->name[5] = 0;
+    bs_read_string(bs, bdj->name, 5);
     bs_skip(bs, 8);
 
     if (bdj->playback_type != indx_bdj_playback_type_movie &&
@@ -87,7 +86,7 @@ static int _parse_index(BITSTREAM *bs, INDX_ROOT *index)
 
     /* TODO: check if goes to extension data area */
 
-    if ((bs_end(bs) - bs_pos(bs))/8 < (off_t)index_len) {
+    if ((bs_end(bs) - bs_pos(bs))/8 < (int64_t)index_len) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: invalid index_len %d !\n", index_len);
         return 0;
     }
@@ -231,7 +230,7 @@ INDX_ROOT *indx_parse(const char *disc_root)
     INDX_ROOT *index;
     char *file;
 
-    file = str_printf("%s/BDMV/index.bdmv", disc_root);
+    file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "index.bdmv", disc_root);
     index = _indx_parse(file);
     X_FREE(file);
     if (index) {
@@ -239,7 +238,7 @@ INDX_ROOT *indx_parse(const char *disc_root)
     }
 
     /* try backup */
-    file = str_printf("%s/BDMV/BACKUP/index.bdmv", disc_root);
+    file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "BACKUP" DIR_SEP "index.bdmv", disc_root);
     index = _indx_parse(file);
     X_FREE(file);
     return index;

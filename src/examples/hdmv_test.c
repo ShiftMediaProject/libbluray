@@ -17,13 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "util/log_control.h"
-#include "libbluray/bluray.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+
+#include "util/log_control.h"
+#include "libbluray/bluray.h"
 
 static void _print_event(BD_EVENT *ev)
 {

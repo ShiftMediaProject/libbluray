@@ -17,14 +17,15 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include "bdid_parse.h"
+
 #include "file/file.h"
 #include "util/bits.h"
 #include "util/logging.h"
 #include "util/macro.h"
-#include "bdid_parse.h"
+#include "util/strutl.h"
 
 #include <stdlib.h>
-#include <string.h>
 
 #define BDID_SIG1  ('B' << 24 | 'D' << 16 | 'I' << 8 | 'D')
 #define BDID_SIG2A ('0' << 24 | '2' << 16 | '0' << 8 | '0')
@@ -79,10 +80,10 @@ static BDID_DATA *_bdid_parse(const char *file_name)
     bs_seek_byte(&bs, 40);
 
     bs_read_bytes(&bs, tmp, 4);
-    print_hex(bdid->org_id, tmp, 4);
+    str_print_hex(bdid->org_id, tmp, 4);
 
     bs_read_bytes(&bs, tmp, 16);
-    print_hex(bdid->disc_id, tmp, 16);
+    str_print_hex(bdid->disc_id, tmp, 16);
 
     file_close(fp);
     return bdid;
@@ -93,23 +94,22 @@ static BDID_DATA *_bdid_parse(const char *file_name)
     return NULL;
 }
 
-BDID_DATA *bdid_parse(const char *file_name)
+BDID_DATA *bdid_parse(const char *disc_root)
 {
-    BDID_DATA *bdid = _bdid_parse(file_name);
+    BDID_DATA *bdid;
+    char *file;
 
-    /* if failed, try backup file */
-    if (!bdid) {
-        size_t len   = strlen(file_name);
-        char *backup = malloc(len + 8);
-
-        strcpy(backup, file_name);
-        strcpy(backup + len - 7, "BACKUP/id.bdmv");
-
-        bdid = _bdid_parse(backup);
-
-        X_FREE(backup);
+    file = str_printf("%s" DIR_SEP "CERTIFICATE" DIR_SEP "id.bdmv", disc_root);
+    bdid = _bdid_parse(file);
+    X_FREE(file);
+    if (bdid) {
+      return bdid;
     }
 
+    /* if failed, try backup file */
+    file = str_printf("%s" DIR_SEP "CERTIFICATE" DIR_SEP "BACKUP" DIR_SEP "bdid.bdmv", disc_root);
+    bdid = _bdid_parse(file);
+    X_FREE(file);
     return bdid;
 }
 

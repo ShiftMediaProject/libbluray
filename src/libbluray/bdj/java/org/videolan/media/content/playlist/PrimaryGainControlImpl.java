@@ -27,27 +27,36 @@ import org.bluray.media.PrimaryGainControl;
 
 public class PrimaryGainControlImpl implements PrimaryGainControl {
     public void setMute(boolean mute) {
+        org.videolan.Logger.unimplemented("PrimaryGainControlImpl", "setMute");
+        this.mute = mute;
         // TODO Not implemented
     }
 
     public boolean getMute() {
-        return false; // TODO Not implemented
+        org.videolan.Logger.unimplemented("PrimaryGainControlImpl", "getMute");
+        return this.mute; // TODO Not implemented
     }
 
     public float setDB(float gain) {
-        return 0;  // TODO Not implemented
+        org.videolan.Logger.unimplemented("PrimaryGainControlImpl", "setDB");
+        this.gain = gain;
+        return this.gain;
     }
 
     public float getDB() {
-        return 0;  // TODO Not implemented
+        org.videolan.Logger.unimplemented("PrimaryGainControlImpl", "getDB");
+        return gain;
     }
 
     public float setLevel(float level) {
-        return 0;
+        org.videolan.Logger.unimplemented("PrimaryGainControlImpl", "setLevel");
+        this.level = level;
+        return this.level;
     }
 
     public float getLevel() {
-        return 0;  // TODO Not implemented
+        org.videolan.Logger.unimplemented("PrimaryGainControlImpl", "getLevel");
+        return level;
     }
 
     public void addGainChangeListener(GainChangeListener listener) {
@@ -62,4 +71,8 @@ public class PrimaryGainControlImpl implements PrimaryGainControl {
     public Component getControlComponent() {
         return null;
     }
+
+    private boolean mute = false;
+    private float gain = 0.0f;
+    private float level = 0.0f;
 }

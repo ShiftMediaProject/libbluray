@@ -21,6 +21,7 @@ package org.videolan;
 
 import java.net.MalformedURLException;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -73,8 +74,10 @@ public class BDJClassLoader extends URLClassLoader {
         if (protocol == null)
             return null;
         url = protocol +
-            System.getProperty("bluray.vfs.root") +
-            "/BDMV/JAR/" + url + path.substring(5);
+            BDJLoader.getCachedFile(System.getProperty("bluray.vfs.root") + File.separator +
+                                    "BDMV" + File.separator +
+                                    "JAR" + File.separator +
+                                    url) + path.substring(5);
         //if (!url.endsWith("/"))
         //    url += "/";
         try {

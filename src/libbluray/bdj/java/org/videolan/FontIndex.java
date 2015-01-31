@@ -22,15 +22,19 @@ package org.videolan;
 import java.awt.Font;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class FontIndex extends DefaultHandler {
+public class FontIndex extends DefaultHandler implements EntityResolver{
     public static FontIndexData[] parseIndex(String path) {
         return new FontIndex(path).getFontIndexData();
     }
@@ -58,6 +62,15 @@ public class FontIndex extends DefaultHandler {
 
     public FontIndexData[] getFontIndexData() {
         return (FontIndexData[])fontDatas.toArray(new FontIndexData[fontDatas.size()]);
+    }
+
+    public InputSource resolveEntity(String publicId, String systemId)
+            throws SAXException, IOException {
+        if (systemId.contains("http://www.dvb.org/mhp/dtd/fontdirectory-1-0.dtd")) {
+            return new InputSource(new StringReader(""));
+        } else {
+            return null;
+        }
     }
 
     public void startElement (String uri, String localName, String qName, Attributes attributes)

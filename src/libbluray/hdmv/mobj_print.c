@@ -17,9 +17,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "util/macro.h"
+#include "mobj_print.h"
 
-#include "mobj_parse.h"
+#include "mobj_data.h"
 #include "hdmv_insn.h"
 
 #include <stdio.h>
@@ -308,12 +308,22 @@ static int _sprint_operands_hex(char *buf, MOBJ_CMD *cmd)
     return buf - start;
 }
 
+static uint32_t _cmd_to_u32(HDMV_INSN *insn)
+{
+    union {
+        HDMV_INSN insn;
+        uint8_t u8[4];
+    } tmp;
+    tmp.insn = *insn;
+    return (tmp.u8[0] << 24) | (tmp.u8[1] << 16) | (tmp.u8[2] << 8) | tmp.u8[3];
+}
+
 int mobj_sprint_cmd(char *buf, MOBJ_CMD *cmd)
 {
     char *start = buf;
     HDMV_INSN *insn = &cmd->insn;
 
-    buf += sprintf(buf, "%08x %08x,%08x  ", MKINT_BE32((uint8_t*)&cmd->insn), cmd->dst, cmd->src);
+    buf += sprintf(buf, "%08x %08x,%08x  ", _cmd_to_u32(&cmd->insn), cmd->dst, cmd->src);
 
     switch(insn->grp) {
         case INSN_GROUP_BRANCH:

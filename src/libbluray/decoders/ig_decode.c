@@ -21,6 +21,7 @@
 
 #include "pg_decode.h"           // pg_decode_*()
 #include "../hdmv/mobj_parse.h"  // mobj_parse_cmd()
+#include "../hdmv/mobj_data.h"   // MOBJ_CMD
 #include "../bdnav/mpls_parse.h" // mpls_parse_uo()
 
 #include "util/macro.h"

@@ -51,10 +51,12 @@ static int64_t file_tell_linux(BD_FILE_H *file)
     return ftello((FILE *)file->internal);
 }
 
+#if 0
 static int file_eof_linux(BD_FILE_H *file)
 {
     return feof((FILE *)file->internal);
 }
+#endif
 
 static int64_t file_read_linux(BD_FILE_H *file, uint8_t *buf, int64_t size)
 {
@@ -66,6 +68,7 @@ static int64_t file_read_linux(BD_FILE_H *file, uint8_t *buf, int64_t size)
     return 0;
 }
 
+#if 0
 static int64_t file_write_linux(BD_FILE_H *file, const uint8_t *buf, int64_t size)
 {
     if (size > 0 && size < BD_MAX_SSIZE) {
@@ -75,19 +78,20 @@ static int64_t file_write_linux(BD_FILE_H *file, const uint8_t *buf, int64_t siz
     BD_DEBUG(DBG_FILE | DBG_CRIT, "Ignoring invalid write of size %"PRId64" (%p)\n", size, (void*)file);
     return 0;
 }
+#endif
 
 static BD_FILE_H *file_open_linux(const char* filename, const char *mode)
 {
     FILE *fp = NULL;
-    BD_FILE_H *file = malloc(sizeof(BD_FILE_H));
+    BD_FILE_H *file = calloc(1, sizeof(BD_FILE_H));
 
     BD_DEBUG(DBG_FILE, "Opening LINUX file %s... (%p)\n", filename, (void*)file);
     file->close = file_close_linux;
     file->seek = file_seek_linux;
     file->read = file_read_linux;
-    file->write = file_write_linux;
+    //file->write = file_write_linux;
     file->tell = file_tell_linux;
-    file->eof = file_eof_linux;
+    //file->eof = file_eof_linux;
 
     if ((fp = fopen(filename, mode))) {
         file->internal = fp;

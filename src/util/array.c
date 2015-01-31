@@ -20,7 +20,6 @@
 #include "array.h"
 
 #include "macro.h"
-#include "logging.h"
 
 #include <stdlib.h>
 
@@ -29,13 +28,11 @@ void *array_alloc(size_t n, size_t sz)
 {
     size_t size = sizeof(void *) + sz;
     if (size < sz) {
-        BD_DEBUG(DBG_CRIT, "array_alloc(): overflow\n");
         return NULL;
     }
 
-    uint8_t *p = (uint8_t *)calloc(n, size);
+    unsigned char *p = (unsigned char *)calloc(n, size);
     if (!p) {
-        BD_DEBUG(DBG_CRIT, "array_alloc(): out of memory\n");
         return NULL;
     }
 

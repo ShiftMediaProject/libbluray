@@ -125,7 +125,12 @@ int textst_render_add_font(TEXTST_RENDER *p, const char *file)
     }
 
     TEXTST_ERROR("Loading font %s failed\n", file);
+
+#else
+    (void)p;
+    (void)file;
 #endif
+
     return -1;
 }
 
@@ -137,6 +142,10 @@ int textst_render_set_char_code(TEXTST_RENDER *p, int char_code)
         TEXTST_ERROR("WARNING: unsupported TextST coding type %d\n", char_code);
         return -1;
     }
+
+#else
+    (void)p;
+    (void)char_code;
 #endif
 
     return 0;
@@ -421,6 +430,11 @@ int textst_render(TEXTST_RENDER *p,
         ypos += s.line_space - baseline;
     }
 
+#else
+    (void)p;
+    (void)bmp;
+    (void)base_style;
+    (void)region;
 #endif /* HAVE_FT2 */
 
     return 0;

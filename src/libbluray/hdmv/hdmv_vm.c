@@ -19,14 +19,17 @@
 
 #include "hdmv_vm.h"
 
-#include "mobj_parse.h"
+#include "mobj_data.h"
 #include "hdmv_insn.h"
+#include "mobj_parse.h"
+#include "mobj_print.h"
 #include "../register.h"
 
 #include "util/macro.h"
 #include "util/logging.h"
 #include "util/mutex.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -250,7 +253,7 @@ HDMV_VM *hdmv_vm_init(const char *disc_root, BD_REGISTERS *regs,
     }
 
     /* read movie objects */
-    p->movie_objects = mobj_parse(disc_root);
+    p->movie_objects = mobj_get(disc_root);
     if (!p->movie_objects) {
         X_FREE(p);
         return NULL;

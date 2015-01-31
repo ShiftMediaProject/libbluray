@@ -45,16 +45,6 @@ uint32_t bd_get_debug_mask(void)
     return debug_mask;
 }
 
-char *print_hex(char *out, const uint8_t *buf, int count)
-{
-    int zz;
-    for(zz = 0; zz < count; zz++) {
-        sprintf(out + (zz * 2), "%02x", buf[zz]);
-    }
-
-    return out;
-}
-
 void bd_debug(const char *file, int line, uint32_t mask, const char *format, ...)
 {
     static int   debug_init = 0;

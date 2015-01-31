@@ -19,6 +19,7 @@
 
 package org.dvb.ui;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
@@ -225,10 +226,12 @@ public class DVBGraphicsImpl extends DVBGraphics {
         gfx.fillRoundRect(x, y, width, height, arcWidth, arcHeight);
     }
 
+    /*
     public void finalize()
     {
         gfx.finalize();
     }
+    */
 
     public Shape getClip()
     {
@@ -313,25 +316,43 @@ public class DVBGraphicsImpl extends DVBGraphics {
     /*
      * DVBGraphics methods
      */
+
     public int[] getAvailableCompositeRules()
     {
+        /*
         int[] rules = { DVBAlphaComposite.CLEAR, DVBAlphaComposite.SRC,
                         DVBAlphaComposite.SRC_OVER, DVBAlphaComposite.DST_OVER,
                         DVBAlphaComposite.SRC_IN, DVBAlphaComposite.DST_IN,
                         DVBAlphaComposite.SRC_OUT, DVBAlphaComposite.DST_OUT };
+        */
+        int[] rules = {
+            DVBAlphaComposite.CLEAR,
+            DVBAlphaComposite.SRC,
+            DVBAlphaComposite.SRC_OVER };
 
         return rules;
     }
 
     public DVBAlphaComposite getDVBComposite()
     {
-        return alphaComposite;
+        Composite comp = gfx.getComposite();
+        if (!(comp instanceof AlphaComposite))
+            return null;
+        return DVBAlphaComposite.getInstance(
+                        ((AlphaComposite)comp).getRule(),
+                        ((AlphaComposite)comp).getAlpha());
     }
 
     public void setDVBComposite(DVBAlphaComposite comp)
             throws UnsupportedDrawingOperationException
     {
-        this.alphaComposite = comp;
+        if ((comp.getRule() < DVBAlphaComposite.CLEAR) ||
+            (comp.getRule() > DVBAlphaComposite.SRC_OVER)) {
+            org.videolan.Logger.getLogger("DVBGraphics").error("setDVBComposite() FAILED: unsupported rule " + comp.getRule());
+            throw new UnsupportedDrawingOperationException("Unsupported composition rule: " + comp.getRule());
+        }
+
+        gfx.setComposite(AlphaComposite.getInstance(comp.getRule(), comp.getAlpha()));
     }
 
     /*
@@ -507,6 +528,4 @@ public class DVBGraphicsImpl extends DVBGraphics {
     {
         gfx.translate(tx, ty);
     }
-
-    private DVBAlphaComposite alphaComposite = DVBAlphaComposite.Clear;
 }
