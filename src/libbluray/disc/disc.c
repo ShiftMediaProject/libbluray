@@ -121,7 +121,7 @@ BD_FILE_H *disc_open_path(BD_DISC *p, const char *rel_path)
     char *path;
 
     path = str_printf("%s%s", p->disc_root, rel_path);
-    fp = file_open(path, "r");
+    fp = file_open(path, "rb");
 
     if (!fp) {
         BD_DEBUG(DBG_FILE | DBG_CRIT, "error opening file %s\n", path);
@@ -138,7 +138,7 @@ BD_FILE_H *disc_open_file(BD_DISC *p, const char *dir, const char *file)
     char *path;
 
     path = str_printf("%s%s%c%s", p->disc_root, dir, DIR_SEP_CHAR, file);
-    fp = file_open(path, "r");
+    fp = file_open(path, "rb");
 
     if (!fp) {
         BD_DEBUG(DBG_FILE | DBG_CRIT, "error opening file %s\n", path);
