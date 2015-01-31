@@ -21,5 +21,5 @@ Ant for Windows can be donwloaded from here:
 http://ant.apache.org/bindownload.cgi
 
 Pre-built windows binaries can also be found in the above link. To enable generation of new files ant should be extracted 
-and added somewhere accessible to the Visual Studio path (e.g. extract it into the Visual Studio) project folder.
+and added somewhere accessible to the Visual Studio path (e.g. extract it into JAVA_HOME) project folder.
 The Java SDK should also bee installed and available through the 'JAVA_HOME' environment variable.
