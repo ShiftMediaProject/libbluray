@@ -1052,7 +1052,34 @@ void bd_select_rate(BLURAY *bd, float rate, int reason)
         _queue_event(bd, BD_EVENT_STILL, 0);
     }
 }
+#endif
 
+#ifdef USING_BDJAVA
+int bd_set_virtual_package(BLURAY *bd, const char *vp_path, int psr_init_backup)
+{
+    bd_mutex_lock(&bd->mutex);
+
+    if (bd->title) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_set_virtual_package() failed: playlist is playing\n");
+        return -1;
+    }
+    if (bd->title_type != title_bdj) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_set_virtual_package() failed: HDMV title\n");
+        return -1;
+    }
+
+    if (psr_init_backup) {
+        bd_psr_reset_backup_registers(bd->regs);
+    }
+
+    disc_update(bd->disc, vp_path);
+
+    /* TODO: reload all cached information, update disc info, notify app */
+
+    bd_mutex_unlock(&bd->mutex);
+
+    return 0;
+}
 #endif
 
 #ifdef USING_BDJAVA

@@ -37,8 +37,9 @@ typedef int (*have_fileFp)(void *, const char *, const char *);
 /* device to use */
 struct dec_dev {
     void          *file_open_handle;
-    have_fileFp   have_file;
-    file_openFp   file_open;
+    have_fileFp   pf_file_exists_bdrom;
+    file_openFp   pf_file_open_bdrom;
+    file_openFp   pf_file_open_vfs;
     const char    *root;   /* may be NULL if disc is not mounted */
     const char    *device; /* may be null if not reading from real device */
 };

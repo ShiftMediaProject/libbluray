@@ -27,6 +27,7 @@
 
 #include "util/logging.h"
 #include "util/macro.h"
+#include "util/mutex.h"
 #include "util/strutl.h"
 #include "file/file.h"
 #include "file/mount.h"
@@ -34,20 +35,41 @@
 #include <string.h>
 
 struct bd_disc {
-    char     *disc_root;
-    char     *disc_device;
+    BD_MUTEX  ovl_mutex;     /* protect access to overlay root */
+
+    char     *disc_root;     /* disc filesystem root (if disc is mounted) */
+    char     *disc_device;   /* disc device (if using real device) */
+    char     *overlay_root;  /* overlay filesystem root (if set) */
 
     BD_DEC   *dec;
 };
 
-static int _disc_have_file(BD_DISC *p, const char *dir, const char *file)
+/*
+ * BD-ROM filesystem
+ */
+
+static BD_FILE_H *_bdrom_open_path(void *p, const char *rel_path)
+{
+    BD_DISC *disc = (BD_DISC *)p;
+    BD_FILE_H *fp;
+    char *abs_path;
+
+    abs_path = str_printf("%s%s", disc->disc_root, rel_path);
+    fp = file_open(abs_path, "rb");
+    X_FREE(abs_path);
+
+    return fp;
+}
+
+static int _bdrom_have_file(void *p, const char *dir, const char *file)
 {
     BD_FILE_H *fp;
-    char *full_path;
 
-    full_path = str_printf("%s%s" DIR_SEP "%s", p->disc_root, dir, file );
-    fp = file_open(full_path, "r");
-    X_FREE(full_path);
+    char *path;
+
+    path = str_printf("%s" DIR_SEP "%s", dir, file);
+    fp = _bdrom_open_path(p, path);
+    X_FREE(path);
 
     if (fp) {
         file_close(fp);
@@ -57,8 +79,133 @@ static int _disc_have_file(BD_DISC *p, const char *dir, const char *file)
     return 0;
 }
 
+static BD_DIR_H *_bdrom_open_dir(BD_DISC *p, const char *dir)
+{
+    BD_DIR_H *dp;
+    char *path;
+
+    path = str_printf("%s%s", p->disc_root, dir);
+    dp = dir_open(path);
+    X_FREE(path);
+
+    return dp;
+}
+
 /*
- *
+ * overlay filesystem
+ */
+
+static BD_FILE_H *_overlay_open_path(BD_DISC *p, const char *rel_path)
+{
+    BD_FILE_H *fp = NULL;
+
+    bd_mutex_lock(&p->ovl_mutex);
+
+    if (p->overlay_root) {
+        char *abs_path = str_printf("%s%s", p->overlay_root, rel_path);
+        fp = file_open_default()(abs_path, "rb");
+        X_FREE(abs_path);
+    }
+
+    bd_mutex_unlock(&p->ovl_mutex);
+
+    return fp;
+}
+
+static BD_DIR_H *_overlay_open_dir(BD_DISC *p, const char *dir)
+{
+    BD_DIR_H *dp = NULL;
+
+    bd_mutex_lock(&p->ovl_mutex);
+
+    if (p->overlay_root) {
+        char *abs_path = str_printf("%s%s", p->disc_root, dir);
+        dp = dir_open_default()(abs_path);
+        X_FREE(abs_path);
+    }
+
+    bd_mutex_unlock(&p->ovl_mutex);
+
+    return dp;
+}
+
+/*
+ * directory combining
+ */
+
+typedef struct {
+    unsigned int count;
+    unsigned int pos;
+    BD_DIRENT    entry[1]; /* VLA */
+} COMB_DIR;
+
+static void _comb_dir_close(BD_DIR_H *dp)
+{
+    X_FREE(dp->internal);
+    X_FREE(dp);
+}
+
+static int _comb_dir_read(BD_DIR_H *dp, BD_DIRENT *entry)
+{
+    COMB_DIR *priv = (COMB_DIR *)dp->internal;
+    if (priv->pos < priv->count) {
+        strcpy(entry->d_name, priv->entry[priv->pos++].d_name);
+        return 0;
+    }
+    return 1;
+}
+
+static void _comb_dir_append(BD_DIR_H *dp, BD_DIRENT *entry)
+{
+    COMB_DIR *priv = (COMB_DIR *)dp->internal;
+    unsigned int i;
+
+    if (!priv) {
+        return;
+    }
+
+    /* no duplicates */
+    for (i = 0; i < priv->count; i++) {
+        if (!strcmp(priv->entry[i].d_name, entry->d_name)) {
+            return;
+        }
+    }
+
+    /* append */
+    priv = realloc(priv, sizeof(*priv) + priv->count * sizeof(BD_DIRENT));
+    if (!priv) {
+        return;
+    }
+    strcpy(priv->entry[priv->count].d_name, entry->d_name);
+    priv->count++;
+    dp->internal = (void*)priv;
+}
+
+static BD_DIR_H *_combine_dirs(BD_DIR_H *ovl, BD_DIR_H *rom)
+{
+    BD_DIR_H *dp = calloc(1, sizeof(BD_DIR_H));
+    BD_DIRENT entry;
+
+    if (dp) {
+        dp->read     = _comb_dir_read;
+        dp->close    = _comb_dir_close;
+        dp->internal = calloc(1, sizeof(COMB_DIR));
+
+        while (!dir_read(ovl, &entry)) {
+            _comb_dir_append(dp, &entry);
+        }
+        while (!dir_read(rom, &entry)) {
+            _comb_dir_append(dp, &entry);
+        }
+    }
+    dir_close(ovl);
+    dir_close(rom);
+
+    return dp;
+}
+
+/*
+ * disc open / close
  */
 
 BD_DISC *disc_open(const char *device_path,
@@ -67,6 +214,7 @@ BD_DISC *disc_open(const char *device_path,
                    void *regs, void *psr_read, void *psr_write)
 {
     BD_DISC *p = calloc(1, sizeof(BD_DISC));
+
     if (p) {
 
         char *disc_root = mount_get_mountpoint(device_path);
@@ -81,7 +229,9 @@ BD_DISC *disc_open(const char *device_path,
             X_FREE(disc_root);
         }
 
-        struct dec_dev dev = { p, (have_fileFp)_disc_have_file, (file_openFp)disc_open_path, p->disc_root, p->disc_device };
+        bd_mutex_init(&p->ovl_mutex);
+
+        struct dec_dev dev = { p, _bdrom_have_file, _bdrom_open_path, (file_openFp)disc_open_path, p->disc_root, p->disc_device };
         p->dec = dec_init(&dev, enc_info, keyfile_path, regs, psr_read, psr_write);
     }
 
@@ -94,6 +244,8 @@ void disc_close(BD_DISC **pp)
         BD_DISC *p = *pp;
 
         dec_close(&p->dec);
+
+        bd_mutex_destroy(&p->ovl_mutex);
 
         X_FREE(p->disc_root);
         X_FREE(p->disc_device);
@@ -110,24 +262,25 @@ BD_PRIVATE const char *disc_root(BD_DISC *p)
     return p->disc_root;
 }
 
-BD_PRIVATE const char *disc_device(BD_DISC *p)
-{
-    return p->disc_device;
-}
+/*
+ * VFS
+ */
 
 BD_FILE_H *disc_open_path(BD_DISC *p, const char *rel_path)
 {
     BD_FILE_H *fp;
-    char *path;
 
-    path = str_printf("%s%s", p->disc_root, rel_path);
-    fp = file_open(path, "rb");
+    /* search file from overlay */
+    fp = _overlay_open_path(p, rel_path);
 
+    /* if not found, try BD-ROM */
     if (!fp) {
-        BD_DEBUG(DBG_FILE | DBG_CRIT, "error opening file %s\n", path);
-    }
+        fp = _bdrom_open_path((void *)p, rel_path);
 
-    X_FREE(path);
+        if (!fp) {
+            BD_DEBUG(DBG_FILE | DBG_CRIT, "error opening file %s\n", rel_path);
+        }
+    }
 
     return fp;
 }
@@ -137,13 +290,8 @@ BD_FILE_H *disc_open_file(BD_DISC *p, const char *dir, const char *file)
     BD_FILE_H *fp;
     char *path;
 
-    path = str_printf("%s%s%c%s", p->disc_root, dir, DIR_SEP_CHAR, file);
-    fp = file_open(path, "rb");
-
-    if (!fp) {
-        BD_DEBUG(DBG_FILE | DBG_CRIT, "error opening file %s\n", path);
-    }
-
+    path = str_printf("%s" DIR_SEP "%s", dir, file);
+    fp = disc_open_path(p, path);
     X_FREE(path);
 
     return fp;
@@ -151,19 +299,23 @@ BD_FILE_H *disc_open_file(BD_DISC *p, const char *dir, const char *file)
 
 BD_DIR_H *disc_open_dir(BD_DISC *p, const char *dir)
 {
-    BD_DIR_H *dp;
-    char *path;
+    BD_DIR_H *dp_rom;
+    BD_DIR_H *dp_ovl;
 
-    path = str_printf("%s%s", p->disc_root, dir);
-    dp = dir_open(path);
+    dp_rom = _bdrom_open_dir(p, dir);
+    dp_ovl = _overlay_open_dir(p, dir);
 
-    if (!dp) {
-        BD_DEBUG(DBG_FILE, "error opening dir %s\n", path);
+    if (!dp_ovl) {
+        if (!dp_rom) {
+            BD_DEBUG(DBG_FILE, "error opening dir %s\n", dir);
+        }
+        return dp_rom;
+    }
+    if (!dp_rom) {
+        return dp_ovl;
     }
 
-    X_FREE(path);
-
-    return dp;
+    return _combine_dirs(dp_ovl, dp_rom);
 }
 
 int64_t disc_read_file(BD_DISC *disc, const char *dir, const char *file,
@@ -199,7 +351,23 @@ int64_t disc_read_file(BD_DISC *disc, const char *dir, const char *file,
 }
 
 /*
- *
+ * filesystem update
+ */
+
+void disc_update(BD_DISC *p, const char *overlay_root)
+{
+    bd_mutex_lock(&p->ovl_mutex);
+
+    X_FREE(p->overlay_root);
+    if (overlay_root) {
+        p->overlay_root = str_dup(overlay_root);
+    }
+
+    bd_mutex_unlock(&p->ovl_mutex);
+}
+
+/*
+ * streams
  */
 
 BD_FILE_H *disc_open_stream(BD_DISC *disc, const char *file)

@@ -29,6 +29,12 @@ struct bluray;
 BD_PRIVATE const uint8_t *bd_get_aacs_data(struct bluray *bd, int type);
 
 /*
+ * VFS
+ */
+
+BD_PRIVATE int      bd_set_virtual_package(struct bluray *bd, const char *vp_path, int psr_init_backup);
+
+/*
  * UO mask
  */
 

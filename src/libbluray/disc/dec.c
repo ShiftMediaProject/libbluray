@@ -154,7 +154,7 @@ static int _libaacs_init(BD_DEC *dec, struct dec_dev *dev,
 
     libaacs_unload(&dec->aacs);
 
-    i->aacs_detected = libaacs_required(dev->file_open_handle, dev->have_file);
+    i->aacs_detected = libaacs_required(dev->file_open_handle, dev->pf_file_exists_bdrom);
     if (!i->aacs_detected) {
         /* no AACS */
         return 1; /* no error if libaacs is not needed */
@@ -167,7 +167,7 @@ static int _libaacs_init(BD_DEC *dec, struct dec_dev *dev,
         return 0;
     }
 
-    result = libaacs_open(dec->aacs, dev->device, dev->file_open_handle, dev->file_open, keyfile_path);
+    result = libaacs_open(dec->aacs, dev->device, dev->file_open_handle, dev->pf_file_open_vfs, keyfile_path);
 
     i->aacs_error_code = result;
     i->aacs_handled    = !result;
@@ -193,7 +193,7 @@ static int _libbdplus_init(BD_DEC *dec, struct dec_dev *dev,
 {
     libbdplus_unload(&dec->bdplus);
 
-    i->bdplus_detected = libbdplus_required(dev->file_open_handle, dev->have_file);
+    i->bdplus_detected = libbdplus_required(dev->file_open_handle, dev->pf_file_exists_bdrom);
     if (!i->bdplus_detected) {
         return 0;
     }
@@ -212,7 +212,7 @@ static int _libbdplus_init(BD_DEC *dec, struct dec_dev *dev,
         return 0;
     }
 
-    if (libbdplus_init(dec->bdplus, dev->root, dev->file_open_handle, dev->file_open, vid, mk)) {
+    if (libbdplus_init(dec->bdplus, dev->root, dev->file_open_handle, dev->pf_file_open_bdrom, vid, mk)) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bdplus_init() failed\n");
 
         i->bdplus_handled = 0;

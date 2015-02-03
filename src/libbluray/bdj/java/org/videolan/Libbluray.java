@@ -462,6 +462,10 @@ public class Libbluray {
         setUOMaskN(nativePointer, menuCallMask, titleSearchMask);
     }
 
+    protected static int setVirtualPackage(String vpPath, boolean initBackupRegs) {
+        return setVirtualPackageN(nativePointer, vpPath, initBackupRegs);
+    }
+
     private static final int BDJ_EVENT_CHAPTER                  = 1;
     private static final int BDJ_EVENT_PLAYITEM                 = 2;
     private static final int BDJ_EVENT_ANGLE                    = 3;
@@ -533,6 +537,7 @@ public class Libbluray {
     private static native int writeGPRN(long np, int num, int value);
     private static native int writePSRN(long np, int num, int value, int psr_value_mask);
     private static native int readGPRN(long np, int num);
+    private static native int setVirtualPackageN(long np, String vpPath, boolean psrBackup);
     private static native int readPSRN(long np, int num);
     private static native Bdjo getBdjoN(long np, String name);
     private static native void updateGraphicN(long np, int width, int height, int[] rgbArray,

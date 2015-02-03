@@ -208,6 +208,24 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setUOMaskN(JNIEnv * env,
     bd_set_bdj_uo_mask(bd, ((!!menuCallMask) * BDJ_MENU_CALL_MASK) | ((!!titleSearchMask) * BDJ_TITLE_SEARCH_MASK));
 }
 
+JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_setVirtualPackageN(JNIEnv * env,
+        jclass cls, jlong np, jstring vpPath, jboolean psr_init_backup) {
+    BLURAY* bd = (BLURAY*)(intptr_t)np;
+    const char *path = NULL;
+
+    if (vpPath) {
+        path = (*env)->GetStringUTFChars(env, vpPath, NULL);
+    }
+
+    BD_DEBUG(DBG_JNI|DBG_CRIT, "setVirtualPackageN(%s,%d)\n", path, (int)psr_init_backup);
+
+    bd_set_virtual_package(bd, path, (int)psr_init_backup);
+
+    if (vpPath) {
+        (*env)->ReleaseStringUTFChars(env, vpPath, path);
+    }
+}
+
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN(JNIEnv * env,
         jclass cls, jlong np, jint playitem, jint playmark, jlong tick) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
@@ -507,6 +525,11 @@ Java_org_videolan_Libbluray_methods[] =
         CC("selectTitleN"),
         CC("(JI)I"),
         VC(Java_org_videolan_Libbluray_selectTitleN),
+    },
+    {
+        CC("setVirtualPackageN"),
+        CC("(JLjava/lang/String;Z)I"),
+        VC(Java_org_videolan_Libbluray_setVirtualPackageN),
     },
     {
         CC("selectAngleN"),
