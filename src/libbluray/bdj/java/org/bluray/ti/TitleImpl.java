@@ -1,6 +1,7 @@
 package org.bluray.ti;
 
 import javax.tv.locator.Locator;
+import javax.tv.service.SIException;
 import javax.tv.service.SIRequest;
 import javax.tv.service.SIRequestor;
 import javax.tv.service.ServiceType;
@@ -12,15 +13,15 @@ import org.videolan.TitleInfo;
 import org.videolan.bdjo.Bdjo;
 
 public class TitleImpl implements Title {
-    public TitleImpl(int titleNum) {
+    public TitleImpl(int titleNum) throws SIException {
         this.titleNum = titleNum;
         this.ti = Libbluray.getTitleInfo(titleNum);
         if (ti == null)
-            throw new Error("Invalid title " + titleNum);
+            throw new SIException("Title " + titleNum + " does not exist in disc index");
         if (ti.isBdj()) {
             bdjo = Libbluray.getBdjo(ti.getBdjoName());
             if (bdjo == null)
-                throw new Error("Invalid title " + titleNum);
+                throw new SIException("title " + titleNum + ": Failed loading " + ti.getBdjoName() + ".bdjo");
         }
     }
 
