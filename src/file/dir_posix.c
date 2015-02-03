@@ -80,3 +80,8 @@ static BD_DIR_H *_dir_open_posix(const char* dirname)
 }
 
 BD_DIR_H* (*dir_open)(const char* dirname) = _dir_open_posix;
+
+BD_DIR_OPEN dir_open_default(void)
+{
+    return _dir_open_posix;
+}
