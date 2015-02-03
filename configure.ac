@@ -78,10 +78,9 @@ AC_ARG_ENABLE([examples],
   [use_examples=yes])
 
 AC_ARG_ENABLE([bdjava],
-  [AS_HELP_STRING([--enable-bdjava],
-  [enable BD-Java support (default is no)])],
+  [AS_HELP_STRING([--disable-bdjava], [disable BD-Java support @<:@default=enabled@:>@])],
   [use_bdjava=$enableval],
-  [use_bdjava=no])
+  [use_bdjava=yes])
 
 AC_ARG_WITH([libxml2],
   [AS_HELP_STRING([--without-libxml2], [build without libxml2 support @<:@default=with@:>@])])
