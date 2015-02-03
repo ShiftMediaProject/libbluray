@@ -212,6 +212,7 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_setVirtualPackageN(JNIEnv * e
         jclass cls, jlong np, jstring vpPath, jboolean psr_init_backup) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
     const char *path = NULL;
+    jint result;
 
     if (vpPath) {
         path = (*env)->GetStringUTFChars(env, vpPath, NULL);
@@ -219,11 +220,13 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_setVirtualPackageN(JNIEnv * e
 
     BD_DEBUG(DBG_JNI|DBG_CRIT, "setVirtualPackageN(%s,%d)\n", path, (int)psr_init_backup);
 
-    bd_set_virtual_package(bd, path, (int)psr_init_backup);
+    result = bd_set_virtual_package(bd, path, (int)psr_init_backup);
 
     if (vpPath) {
         (*env)->ReleaseStringUTFChars(env, vpPath, path);
     }
+
+    return result;
 }
 
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN(JNIEnv * env,
