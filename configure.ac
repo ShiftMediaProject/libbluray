@@ -254,7 +254,7 @@ AC_SUBST(LT_VERSION_INFO)
 
 dnl generate output files
 AC_SUBST(BDJAVA_CFLAGS)
-AC_CONFIG_FILES([Makefile src/Makefile src/libbluray.pc src/libbluray/bluray-version.h])
+AC_CONFIG_FILES([Makefile src/libbluray.pc src/libbluray/bluray-version.h])
 AC_OUTPUT
 
 
