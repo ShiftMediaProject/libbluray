@@ -32,12 +32,10 @@ struct bd_file_s;
 struct bd_enc_info;
 
 typedef struct bd_file_s * (*file_openFp)(void *, const char *);
-typedef int (*have_fileFp)(void *, const char *, const char *);
 
 /* device to use */
 struct dec_dev {
     void          *file_open_handle;
-    have_fileFp   pf_file_exists_bdrom;
     file_openFp   pf_file_open_bdrom;
     file_openFp   pf_file_open_vfs;
     const char    *root;   /* may be NULL if disc is not mounted */

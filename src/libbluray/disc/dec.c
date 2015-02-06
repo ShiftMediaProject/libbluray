@@ -27,9 +27,10 @@
 #include "aacs.h"
 #include "bdplus.h"
 
+#include "file/file.h"
 #include "util/logging.h"
 #include "util/macro.h"
-#include "file/file.h"
+#include "util/strutl.h"
 
 #include <string.h>
 
@@ -146,6 +147,28 @@ BD_FILE_H *dec_open_stream(BD_DEC *dec, BD_FILE_H *fp, uint32_t clip_id)
  *
  */
 
+/*
+ *
+ */
+
+static int _bdrom_have_file(void *p, const char *dir, const char *file)
+{
+    struct dec_dev *dev = (struct dec_dev *)p;
+    BD_FILE_H *fp;
+    char *path;
+
+    path = str_printf("%s" DIR_SEP "%s", dir, file);
+    fp = dev->pf_file_open_bdrom(dev->file_open_handle, path);
+    X_FREE(path);
+
+    if (fp) {
+        file_close(fp);
+        return 1;
+    }
+
+    return 0;
+}
+
 static int _libaacs_init(BD_DEC *dec, struct dec_dev *dev,
                          BD_ENC_INFO *i, const char *keyfile_path)
 {
@@ -154,7 +177,7 @@ static int _libaacs_init(BD_DEC *dec, struct dec_dev *dev,
 
     libaacs_unload(&dec->aacs);
 
-    i->aacs_detected = libaacs_required(dev->file_open_handle, dev->pf_file_exists_bdrom);
+    i->aacs_detected = libaacs_required((void*)dev, _bdrom_have_file);
     if (!i->aacs_detected) {
         /* no AACS */
         return 1; /* no error if libaacs is not needed */
@@ -193,7 +216,7 @@ static int _libbdplus_init(BD_DEC *dec, struct dec_dev *dev,
 {
     libbdplus_unload(&dec->bdplus);
 
-    i->bdplus_detected = libbdplus_required(dev->file_open_handle, dev->pf_file_exists_bdrom);
+    i->bdplus_detected = libbdplus_required((void*)dev, _bdrom_have_file);
     if (!i->bdplus_detected) {
         return 0;
     }

@@ -61,24 +61,6 @@ static BD_FILE_H *_bdrom_open_path(void *p, const char *rel_path)
     return fp;
 }
 
-static int _bdrom_have_file(void *p, const char *dir, const char *file)
-{
-    BD_FILE_H *fp;
-
-    char *path;
-
-    path = str_printf("%s" DIR_SEP "%s", dir, file);
-    fp = _bdrom_open_path(p, path);
-    X_FREE(path);
-
-    if (fp) {
-        file_close(fp);
-        return 1;
-    }
-
-    return 0;
-}
-
 static BD_DIR_H *_bdrom_open_dir(BD_DISC *p, const char *dir)
 {
     BD_DIR_H *dp;
@@ -231,7 +213,7 @@ BD_DISC *disc_open(const char *device_path,
 
         bd_mutex_init(&p->ovl_mutex);
 
-        struct dec_dev dev = { p, _bdrom_have_file, _bdrom_open_path, (file_openFp)disc_open_path, p->disc_root, p->disc_device };
+        struct dec_dev dev = { p, _bdrom_open_path, (file_openFp)disc_open_path, p->disc_root, p->disc_device };
         p->dec = dec_init(&dev, enc_info, keyfile_path, regs, psr_read, psr_write);
     }
 
