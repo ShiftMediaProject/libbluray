@@ -34,6 +34,10 @@
 
 #include <string.h>
 
+#ifdef ENABLE_UDF
+#include "udf_fs.h"
+#endif
+
 struct bd_disc {
     BD_MUTEX  ovl_mutex;     /* protect access to overlay root */
 
@@ -42,6 +46,11 @@ struct bd_disc {
     char     *overlay_root;  /* overlay filesystem root (if set) */
 
     BD_DEC   *dec;
+
+    void         *fs_handle;
+    BD_FILE_H * (*pf_file_open_bdrom)(void *, const char *);
+    BD_DIR_H *  (*pf_dir_open_bdrom)(void *, const char *);
+    void        (*pf_fs_close)(void *);
 };
 
 /*
@@ -61,12 +70,13 @@ static BD_FILE_H *_bdrom_open_path(void *p, const char *rel_path)
     return fp;
 }
 
-static BD_DIR_H *_bdrom_open_dir(BD_DISC *p, const char *dir)
+static BD_DIR_H *_bdrom_open_dir(void *p, const char *dir)
 {
+    BD_DISC *disc = (BD_DISC *)p;
     BD_DIR_H *dp;
     char *path;
 
-    path = str_printf("%s%s", p->disc_root, dir);
+    path = str_printf("%s%s", disc->disc_root, dir);
     dp = dir_open(path);
     X_FREE(path);
 
@@ -213,7 +223,34 @@ BD_DISC *disc_open(const char *device_path,
 
         bd_mutex_init(&p->ovl_mutex);
 
-        struct dec_dev dev = { p, _bdrom_open_path, (file_openFp)disc_open_path, p->disc_root, p->disc_device };
+        /* default file access functions */
+        p->fs_handle          = (void*)p;
+        p->pf_file_open_bdrom = _bdrom_open_path;
+        p->pf_dir_open_bdrom  = _bdrom_open_dir;
+
+#ifdef ENABLE_UDF
+        /* check if disc root directory can be opened. If not, treat it as device/image file. */
+        BD_DIR_H *dp_img = dir_open(device_path);
+        if (!dp_img) {
+            void *udf = udf_image_open(device_path);
+            if (!udf) {
+                BD_DEBUG(DBG_FILE | DBG_CRIT, "failed opening UDF image %s\n", device_path);
+            } else {
+                p->fs_handle          = udf;
+                p->pf_fs_close        = udf_image_close;
+                p->pf_file_open_bdrom = udf_file_open;
+                p->pf_dir_open_bdrom  = udf_dir_open;
+
+                /* root not accessible with stdio */
+                X_FREE(p->disc_root);
+            }
+        } else {
+            dir_close(dp_img);
+            BD_DEBUG(DBG_FILE | DBG_CRIT, "%s does not seem to be image file or device node\n", device_path);
+        }
+#endif
+
+        struct dec_dev dev = { p, p->pf_file_open_bdrom, (file_openFp)disc_open_path, p->disc_root, p->disc_device };
         p->dec = dec_init(&dev, enc_info, keyfile_path, regs, psr_read, psr_write);
     }
 
@@ -226,6 +263,10 @@ void disc_close(BD_DISC **pp)
         BD_DISC *p = *pp;
 
         dec_close(&p->dec);
+
+        if (p->pf_fs_close) {
+            p->pf_fs_close(p->fs_handle);
+        }
 
         bd_mutex_destroy(&p->ovl_mutex);
 
@@ -257,7 +298,7 @@ BD_FILE_H *disc_open_path(BD_DISC *p, const char *rel_path)
 
     /* if not found, try BD-ROM */
     if (!fp) {
-        fp = _bdrom_open_path((void *)p, rel_path);
+        fp = p->pf_file_open_bdrom(p->fs_handle, rel_path);
 
         if (!fp) {
             BD_DEBUG(DBG_FILE | DBG_CRIT, "error opening file %s\n", rel_path);
@@ -284,7 +325,7 @@ BD_DIR_H *disc_open_dir(BD_DISC *p, const char *dir)
     BD_DIR_H *dp_rom;
     BD_DIR_H *dp_ovl;
 
-    dp_rom = _bdrom_open_dir(p, dir);
+    dp_rom = p->pf_dir_open_bdrom(p->fs_handle, dir);
     dp_ovl = _overlay_open_dir(p, dir);
 
     if (!dp_ovl) {

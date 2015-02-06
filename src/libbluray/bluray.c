@@ -1204,7 +1204,12 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 {
 #ifdef USING_BDJAVA
     if (bd->bdjava == NULL) {
-        bd->bdjava = bdj_open(disc_root(bd->disc), bd, bd->disc_info.bdj_disc_id, &bd->bdjstorage);
+        const char *root = disc_root(bd->disc);
+        if (!root) {
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title %d: BD-J with disc images is not supported yet\n", title);
+            return 0;
+        }
+        bd->bdjava = bdj_open(root, bd, bd->disc_info.bdj_disc_id, &bd->bdjstorage);
         if (!bd->bdjava) {
             return 0;
         }
