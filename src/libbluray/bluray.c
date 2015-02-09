@@ -3169,12 +3169,23 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
     /* run HDMV VM ? */
     if (bd->title_type == title_hdmv) {
 
+        int loops = 0;
         while (!bd->hdmv_suspended) {
 
             if (_run_hdmv(bd) < 0) {
                 BD_DEBUG(DBG_BLURAY|DBG_CRIT, "bd_read_ext(): HDMV VM error\n");
                 bd->title_type = title_undef;
                 return -1;
+            }
+            if (loops++ > 100) {
+                /* Detect infinite loops.
+                 * Broken disc may cause infinite loop between graphics controller and HDMV VM.
+                 * This happens ex. with "Butterfly on a Wheel":
+                 * Triggering unmasked "Menu Call" UO in language selection menu skips
+                 * menu system initialization code, resulting in infinite loop in root menu.
+                 */
+                BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_read_ext(): detected possible HDMV mode live lock (%d loops)\n", loops);
+                _queue_event(bd, BD_EVENT_ERROR, BD_ERROR_HDMV);
             }
             if (_get_event(bd, event)) {
                 return 0;
