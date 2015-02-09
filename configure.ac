@@ -82,6 +82,9 @@ AC_ARG_ENABLE([bdjava],
   [use_bdjava=$enableval],
   [use_bdjava=yes])
 
+AC_ARG_ENABLE([udf],
+  [AS_HELP_STRING([--enable-udf], [enable UDF support @<:@default=disabled@:>@])])
+
 AC_ARG_WITH([libxml2],
   [AS_HELP_STRING([--without-libxml2], [build without libxml2 support @<:@default=with@:>@])])
 
@@ -237,6 +240,23 @@ AC_SUBST(BDJ_TYPE)
 dnl bootclasspath
 AC_SUBST(BDJ_BOOTCLASSPATH)
 
+dnl udf support (using git submodule)
+AS_IF([test "x$enable_udf" = "xyes"],
+  [ AC_CHECK_FILE([${srcdir}/contrib/libudfread/src/udfread.h],, [AC_MSG_ERROR("libudfread source tree not found")])
+
+    AC_CHECK_HEADERS([unistd.h fcntl.h])
+    AS_IF([test "${SYS}" != "mingw32"], [
+      AC_CHECK_FUNC([pread],, [AC_MSG_ERROR("Function pread not found. Try with --disable-udf.")])
+    ])
+
+    AC_DEFINE([ENABLE_UDF], [1], [Define to 1 if libudfread is to be used for disc image access])
+    UDF_CFLAGS='-I${srcdir}/contrib/libudfread/src/'
+    AC_SUBST(UDF_CFLAGS)
+    ],
+  [enable_udf=no])
+
+AM_CONDITIONAL([ENABLE_UDF], [test $enable_udf = "yes" ])
+
 dnl generate documentation
 DX_INIT_DOXYGEN(libbluray, doc/doxygen-config, [doc/doxygen])
 
@@ -282,5 +302,6 @@ fi
 fi
 fi
 echo "  Metadata support (libxml2):    $with_libxml2"
+echo "  UDF filesystem support:        $enable_udf"
 echo "  Build examples:                $use_examples"
 

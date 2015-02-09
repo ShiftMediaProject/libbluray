@@ -1,3 +1,4 @@
+- Add support for UDF image files and unmounted discs
 - Fix infinite loop with some broken HDMV menus
 
 2015-01-26: Version 0.7.0

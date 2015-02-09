@@ -1,14 +1,20 @@
 include $(top_srcdir)/doxygen-include.am
 
 ACLOCAL_AMFLAGS = -I m4
-DISTCHECK_CONFIGURE_FLAGS = --enable-bdjava
+DISTCHECK_CONFIGURE_FLAGS = --enable-bdjava --enable-udf
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
-SET_FEATURES = -D_ISOC99_SOURCE -D_POSIX_C_SOURCE=200112L -D_REENTRANT
+if ENABLE_UDF
+POSIX_C_SOURCE=200809L
+else
+POSIX_C_SOURCE=200112L
+endif
+
+SET_FEATURES = -D_ISOC99_SOURCE -D_POSIX_C_SOURCE=$(POSIX_C_SOURCE) -D_REENTRANT
 SET_INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)/src/libbluray -I$(top_builddir)/src/libbluray $(BDJAVA_CFLAGS)
 
-AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_INCLUDES) $(LIBXML2_CFLAGS) $(FT2_CFLAGS) $(FONTCONFIG_CFLAGS)
+AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_INCLUDES) $(LIBXML2_CFLAGS) $(FT2_CFLAGS) $(FONTCONFIG_CFLAGS) $(UDF_CFLAGS)
 
 EXTRA_DIST = \
 	bootstrap \
@@ -142,7 +148,7 @@ libbluray_la_SOURCES+= \
 endif
 endif
 
-libbluray_la_LDFLAGS= -version-info $(LT_VERSION_INFO)
+libbluray_la_LDFLAGS= -version-info $(LT_VERSION_INFO) -export-symbols-regex "^bd_"
 libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS) $(FONTCONFIG_LIBS)
 
 noinst_HEADERS = \
@@ -161,6 +167,21 @@ pkginclude_HEADERS = \
 	src/libbluray/bdnav/meta_data.h \
 	src/libbluray/decoders/overlay.h \
 	src/util/log_control.h
+
+if ENABLE_UDF
+libbluray_la_SOURCES += \
+	src/libbluray/disc/udf_fs.h \
+	src/libbluray/disc/udf_fs.c\
+	\
+	contrib/libudfread/src/blockinput.h \
+	contrib/libudfread/src/default_blockinput.h \
+	contrib/libudfread/src/default_blockinput.c \
+	contrib/libudfread/src/ecma167.h \
+	contrib/libudfread/src/ecma167.c \
+	contrib/libudfread/src/udfread.h \
+	contrib/libudfread/src/udfread.c
+endif
+
 
 if USING_BDJAVA
 jardir=$(datadir)/java/
