@@ -35,8 +35,9 @@ typedef struct bd_file_s * (*file_openFp)(void *, const char *);
 
 /* device to use */
 struct dec_dev {
-    void          *file_open_handle;
+    void          *file_open_bdrom_handle;
     file_openFp   pf_file_open_bdrom;
+    void          *file_open_vfs_handle;
     file_openFp   pf_file_open_vfs;
     const char    *root;   /* may be NULL if disc is not mounted */
     const char    *device; /* may be null if not reading from real device */

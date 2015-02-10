@@ -158,7 +158,7 @@ static int _bdrom_have_file(void *p, const char *dir, const char *file)
     char *path;
 
     path = str_printf("%s" DIR_SEP "%s", dir, file);
-    fp = dev->pf_file_open_bdrom(dev->file_open_handle, path);
+    fp = dev->pf_file_open_bdrom(dev->file_open_bdrom_handle, path);
     X_FREE(path);
 
     if (fp) {
@@ -190,7 +190,7 @@ static int _libaacs_init(BD_DEC *dec, struct dec_dev *dev,
         return 0;
     }
 
-    result = libaacs_open(dec->aacs, dev->device, dev->file_open_handle, dev->pf_file_open_vfs, keyfile_path);
+    result = libaacs_open(dec->aacs, dev->device, dev->file_open_vfs_handle, dev->pf_file_open_vfs, keyfile_path);
 
     i->aacs_error_code = result;
     i->aacs_handled    = !result;
@@ -235,7 +235,7 @@ static int _libbdplus_init(BD_DEC *dec, struct dec_dev *dev,
         return 0;
     }
 
-    if (libbdplus_init(dec->bdplus, dev->root, dev->file_open_handle, dev->pf_file_open_bdrom, vid, mk)) {
+    if (libbdplus_init(dec->bdplus, dev->root, dev->file_open_bdrom_handle, dev->pf_file_open_bdrom, vid, mk)) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bdplus_init() failed\n");
 
         i->bdplus_handled = 0;

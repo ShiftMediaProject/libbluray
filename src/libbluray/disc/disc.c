@@ -246,11 +246,11 @@ BD_DISC *disc_open(const char *device_path,
             }
         } else {
             dir_close(dp_img);
-            BD_DEBUG(DBG_FILE | DBG_CRIT, "%s does not seem to be image file or device node\n", device_path);
+            BD_DEBUG(DBG_FILE, "%s does not seem to be image file or device node\n", device_path);
         }
 #endif
 
-        struct dec_dev dev = { p, p->pf_file_open_bdrom, (file_openFp)disc_open_path, p->disc_root, p->disc_device };
+        struct dec_dev dev = { p->fs_handle, p->pf_file_open_bdrom, p, (file_openFp)disc_open_path, p->disc_root, p->disc_device };
         p->dec = dec_init(&dev, enc_info, keyfile_path, regs, psr_read, psr_write);
     }
 
