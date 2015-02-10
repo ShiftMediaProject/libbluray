@@ -153,7 +153,7 @@ static int _bi_close(struct udfread_block_input *bi_gen)
 static uint32_t _bi_size(struct udfread_block_input *bi_gen)
 {
     UDF_BI *bi = (UDF_BI *)bi_gen;
-    return file_size(bi->fp) / 2048;
+    return file_size(bi->fp) / UDF_BLOCK_SIZE;
 }
 
 static int _bi_read(struct udfread_block_input *bi_gen, uint32_t lba, void *buf, uint32_t nblocks, int flags)
@@ -165,10 +165,10 @@ static int _bi_read(struct udfread_block_input *bi_gen, uint32_t lba, void *buf,
     /* seek + read must be atomic */
     bd_mutex_lock(&bi->mutex);
 
-    if (file_seek(bi->fp, SEEK_SET, (int64_t)lba * 2048) >= 0) {
-        int64_t bytes = file_read(bi->fp, buf, (int64_t)nblocks * 2048);
-        if (bytes >= 2048) {
-            got = bytes / 2048;
+    if (file_seek(bi->fp, SEEK_SET, (int64_t)lba * UDF_BLOCK_SIZE) >= 0) {
+        int64_t bytes = file_read(bi->fp, buf, (int64_t)nblocks * UDF_BLOCK_SIZE);
+        if (bytes > 0) {
+            got = bytes / UDF_BLOCK_SIZE;
         }
     }
 
