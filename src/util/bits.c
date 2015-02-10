@@ -22,6 +22,7 @@
 
 #include "bits.h"
 
+#include "file/file.h"
 #include "util/logging.h"
 
 #include <stdio.h>
