@@ -51,6 +51,8 @@ struct bd_disc {
     BD_FILE_H * (*pf_file_open_bdrom)(void *, const char *);
     BD_DIR_H *  (*pf_dir_open_bdrom)(void *, const char *);
     void        (*pf_fs_close)(void *);
+
+    const char   *udf_volid;
 };
 
 /*
@@ -241,6 +243,8 @@ BD_DISC *disc_open(const char *device_path,
                 p->pf_file_open_bdrom = udf_file_open;
                 p->pf_dir_open_bdrom  = udf_dir_open;
 
+                p->udf_volid = udf_volume_id(udf);
+
                 /* root not accessible with stdio */
                 X_FREE(p->disc_root);
             }
@@ -280,9 +284,14 @@ void disc_close(BD_DISC **pp)
  *
  */
 
-BD_PRIVATE const char *disc_root(BD_DISC *p)
+const char *disc_root(BD_DISC *p)
 {
     return p->disc_root;
+}
+
+const char *disc_volume_id(BD_DISC *p)
+{
+    return p ? p->udf_volid : NULL;
 }
 
 /*

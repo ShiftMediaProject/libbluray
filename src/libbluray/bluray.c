@@ -836,6 +836,8 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
     bd->disc_info.bdplus_gen         = enc_info->bdplus_gen;
     bd->disc_info.bdplus_date        = enc_info->bdplus_date;
 
+    bd->disc_info.udf_volume_id      = disc_volume_id(bd->disc);
+
     bd->disc_info.bluray_detected        = 0;
     bd->disc_info.top_menu_supported     = 0;
     bd->disc_info.first_play_supported   = 0;

@@ -167,6 +167,9 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    if (info->udf_volume_id) {
+        printf("Volume Identifier   : %s\n", info->udf_volume_id);
+    }
     printf("BluRay detected     : %s\n", _yes_no(info->bluray_detected));
     if (info->bluray_detected) {
         printf("First Play supported: %s\n", _yes_no(info->first_play_supported));

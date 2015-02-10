@@ -1,4 +1,5 @@
 - Add support for UDF image files and unmounted discs
+- Add UDF volume identifier to DISC_INFO
 - Fix infinite loop with some broken HDMV menus
 
 2015-01-26: Version 0.7.0

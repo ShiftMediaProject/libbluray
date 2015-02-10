@@ -218,6 +218,11 @@ void *udf_image_open(const char *img_path)
     return (void*)udf;
 }
 
+const char *udf_volume_id(void *udf)
+{
+    return udfread_get_volume_id(udf);
+}
+
 void udf_image_close(void *udf)
 {
     udfread_close(udf);

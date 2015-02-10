@@ -118,6 +118,7 @@ typedef struct {
     char bdj_org_id[9];      /* (BD-J) disc organization ID */
     char bdj_disc_id[33];    /* (BD-J) disc ID */
 
+    const char *udf_volume_id; /* optional UDF volume identifier */
 } BLURAY_DISC_INFO;
 
 /*
