@@ -198,21 +198,31 @@ static struct udfread_block_input *_block_input(const char *img)
 
 void *udf_image_open(const char *img_path)
 {
-    udfread *udf = NULL;
+    udfread *udf = udfread_init();
+    int result = -1;
+
+    if (!udf) {
+        return NULL;
+    }
 
     /* app handles file I/O ? */
     if (file_open != file_open_default()) {
         struct udfread_block_input *bi = _block_input(img_path);
         if (bi) {
-            udf = udfread_open_input(bi);
-            if (!udf) {
+            result = udfread_open_input(udf, bi);
+            if (result < 0) {
                 bi->close(bi);
             }
         }
     }
 
-    if (!udf) {
-        udf = (void*)udfread_open(img_path);
+    if (result < 0) {
+        result = udfread_open(udf, img_path);
+    }
+
+    if (result < 0) {
+        udfread_close(udf);
+        return NULL;
     }
 
     return (void*)udf;
