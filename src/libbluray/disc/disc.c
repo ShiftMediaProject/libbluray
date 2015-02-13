@@ -398,6 +398,48 @@ void disc_update(BD_DISC *p, const char *overlay_root)
     bd_mutex_unlock(&p->ovl_mutex);
 }
 
+int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_path)
+{
+    BD_FILE_H *fp_in;
+    BD_FILE_H *fp_out;
+    int64_t    got;
+
+    /* input file from BD-ROM */
+    fp_in = p->pf_file_open_bdrom(p->fs_handle, rel_path);
+    if (!fp_in) {
+        BD_DEBUG(DBG_FILE | DBG_CRIT, "error caching file %s (does not exist ?)\n", rel_path);
+        return -1;
+    }
+
+    /* output file in local filesystem */
+    fp_out = file_open_default()(cache_path, "wb");
+    if (!fp_out) {
+        BD_DEBUG(DBG_FILE | DBG_CRIT, "error creating cache file %s\n", cache_path);
+        file_close(fp_in);
+        return -1;
+    }
+
+    while (1) {
+        uint8_t buf[16*2048];
+        got = file_read(fp_in, buf, sizeof(buf));
+        if (got <= 0) {
+            break;
+        }
+        if (fp_out->write(fp_out, buf, got) != got) {
+            BD_DEBUG(DBG_FILE | DBG_CRIT, "error caching file %s\n", rel_path);
+            file_close(fp_out);
+            file_close(fp_in);
+            file_unlink(cache_path);
+            return -1;
+        }
+    }
+    BD_DEBUG(DBG_FILE, "cached %s to %s\n", rel_path, cache_path);
+
+    file_close(fp_out);
+    file_close(fp_in);
+    return 0;
+}
+
 /*
  * streams
  */

@@ -63,6 +63,8 @@ BD_PRIVATE int64_t disc_read_file(BD_DISC *disc, const char *dir, const char *fi
 /* Update virtual package */
 BD_PRIVATE void disc_update(BD_DISC *disc, const char *overlay_root);
 
+BD_PRIVATE int  disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_path);
+
 /*
  * m2ts stream interface
  */

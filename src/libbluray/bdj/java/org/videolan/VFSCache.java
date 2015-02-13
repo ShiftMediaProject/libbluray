@@ -107,7 +107,7 @@ class VFSCache {
         boolean result = false;
 
         try {
-            inStream = new /*BD*/FileInputStream(srcPath);
+            inStream = new FileInputStream(srcPath);
             result = copyStream(inStream, dstPath);
 
         } catch (IOException e) {
@@ -137,8 +137,8 @@ class VFSCache {
     private void copyJarFile(String name) {
         /* copy file from BDMV/JAR/ */
 
-        String srcPath = vfsRoot + jarDir + name;
-        String dstPath = cacheRoot + jarDir + name;
+        String relPath = jarDir + name;
+        String dstPath = cacheRoot + relPath;
         File   dstFile = new File(dstPath);
 
         if (dstFile.exists()) {
@@ -146,9 +146,9 @@ class VFSCache {
             return;
         }
 
-        copyFile(srcPath, dstPath);
+        Libbluray.cacheBdRomFile(relPath, dstPath);
 
-        logger.info("cached " + name);
+        logger.info("cached " + relPath);
     }
 
     private void copyJarDir(String name) {
@@ -190,15 +190,16 @@ class VFSCache {
 
         new File(fontRoot + fontDir).mkdirs();
 
-        String srcPath = vfsRoot + fontDir + fontFile;
-        String dstPath = fontRoot + fontDir + fontFile;
-        File   dstFile = new File(dstPath);
+        String relPath = fontDir + fontFile;
+        String dstPath = fontRoot + relPath;
+        File dstFile = new File(dstPath);
+
         if (dstFile.exists()) {
             //logger.info(dstPath + " already cached");
             return dstFile;
         }
 
-        if (!copyFile(srcPath, dstPath)) {
+        if (!Libbluray.cacheBdRomFile(relPath, dstPath)) {
             return null;
         }
 

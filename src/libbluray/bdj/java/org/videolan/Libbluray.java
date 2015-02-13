@@ -323,6 +323,10 @@ public class Libbluray {
         return getBdjoN(nativePointer, name + ".bdjo");
     }
 
+    public static boolean cacheBdRomFile(String path, String cachePath) {
+        return cacheBdRomFileN(nativePointer, path, cachePath) == 0;
+    }
+
     public static void updateGraphic(int width, int height, int[] rgbArray) {
         updateGraphicN(nativePointer, width, height, rgbArray,
                        0, 0, width - 1, height - 1);
@@ -539,6 +543,7 @@ public class Libbluray {
     private static native int readGPRN(long np, int num);
     private static native int setVirtualPackageN(long np, String vpPath, boolean psrBackup);
     private static native int readPSRN(long np, int num);
+    private static native int cacheBdRomFileN(long np, String path, String cachePath);
     private static native Bdjo getBdjoN(long np, String name);
     private static native void updateGraphicN(long np, int width, int height, int[] rgbArray,
                                               int x0, int y0, int x1, int y1);

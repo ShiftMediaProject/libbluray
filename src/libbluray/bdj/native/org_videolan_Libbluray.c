@@ -28,7 +28,9 @@
 #include "libbluray/bluray.h"
 #include "libbluray/bluray_internal.h"
 #include "libbluray/decoders/overlay.h"
+#include "libbluray/disc/disc.h"
 
+#include "file/file.h"
 #include "util/logging.h"
 
 #include <string.h>
@@ -325,6 +327,35 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN(JNIEnv * env,
     return value;
 }
 
+JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_cacheBdRomFileN(JNIEnv * env,
+                                                                   jclass cls, jlong np,
+                                                                   jstring jrel_path, jstring jcache_path) {
+
+    BLURAY *bd = (BLURAY*)(intptr_t)np;
+    BD_DISC *disc = bd_get_disc(bd);
+    int result = -1;
+
+    const char *rel_path = (*env)->GetStringUTFChars(env, jrel_path, NULL);
+    const char *cache_path = (*env)->GetStringUTFChars(env, jcache_path, NULL);
+    if (!rel_path || !cache_path) {
+        BD_DEBUG(DBG_JNI | DBG_CRIT, "cacheBdRomFile() failed: no path\n");
+        goto out;
+    }
+    BD_DEBUG(DBG_JNI, "cacheBdRomFile(%s => %s)\n", rel_path, cache_path);
+
+    result = disc_cache_bdrom_file(disc, rel_path, cache_path);
+
+ out:
+    if (rel_path) {
+        (*env)->ReleaseStringUTFChars(env, jrel_path, rel_path);
+    }
+    if (cache_path) {
+        (*env)->ReleaseStringUTFChars(env, jcache_path, cache_path);
+    }
+
+    return result;
+}
+
 JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
                                                                jclass cls, jlong np, jstring jfile) {
 
@@ -568,6 +599,11 @@ Java_org_videolan_Libbluray_methods[] =
         CC("readPSRN"),
         CC("(JI)I"),
         VC(Java_org_videolan_Libbluray_readPSRN),
+    },
+    {
+        CC("cacheBdRomFileN"),
+        CC("(JLjava/lang/String;Ljava/lang/String;)I"),
+        VC(Java_org_videolan_Libbluray_cacheBdRomFileN),
     },
     {
         CC("getBdjoN"),

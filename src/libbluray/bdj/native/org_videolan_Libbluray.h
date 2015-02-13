@@ -222,6 +222,14 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN
 
 /*
  * Class:     org_videolan_Libbluray
+ * Method:    cacheBdRomFileN
+ * Signature: (JLjava/lang/String;Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_cacheBdRomFileN
+(JNIEnv *, jclass, jlong, jstring, jstring);
+
+/*
+ * Class:     org_videolan_Libbluray
  * Method:    getBdjoN
  * Signature: (JLjava/lang/String;)Lorg/videolan/bdjo/Bdjo;
  */

@@ -61,4 +61,11 @@ BD_PRIVATE extern BD_DIR_H* (*dir_open)(const char* dirname);
 
 BD_PRIVATE BD_DIR_OPEN dir_open_default(void);
 
+/*
+ * local filesystem
+ */
+
+BD_PRIVATE int file_unlink(const char *file);
+
+
 #endif /* FILE_H_ */

@@ -1085,6 +1085,13 @@ int bd_set_virtual_package(BLURAY *bd, const char *vp_path, int psr_init_backup)
 #endif
 
 #ifdef USING_BDJAVA
+BD_DISC *bd_get_disc(BLURAY *bd)
+{
+    return bd ? bd->disc : NULL;
+}
+#endif
+
+#ifdef USING_BDJAVA
 uint32_t bd_reg_read(BLURAY *bd, int psr, int reg)
 {
     if (psr) {
