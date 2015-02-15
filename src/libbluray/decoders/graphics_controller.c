@@ -953,7 +953,8 @@ int gc_add_font(GRAPHICS_CONTROLLER *p, void *data, size_t size)
 static int _render_textst_region(GRAPHICS_CONTROLLER *p, int64_t pts, BD_TEXTST_REGION_STYLE *style, TEXTST_BITMAP *bmp,
                                  BD_PG_PALETTE_ENTRY *palette)
 {
-    unsigned y, bmp_y;
+    unsigned bmp_y;
+    uint16_t y;
     RLE_ENC  rle;
 
     rle_begin(&rle);
