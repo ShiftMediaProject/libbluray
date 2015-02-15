@@ -23,6 +23,7 @@
 #include "util/attributes.h"
 
 #include <stdint.h>
+#include <stddef.h> /* size_t */
 
 struct bd_file_s;
 struct bd_dir_s;
