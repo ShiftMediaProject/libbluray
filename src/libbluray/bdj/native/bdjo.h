@@ -26,6 +26,6 @@
 
 struct bdjo_data;
 
-BD_PRIVATE jobject bdjo_make_jobj(JNIEnv* env, struct bdjo_data *bdjo);
+BD_PRIVATE jobject bdjo_make_jobj(JNIEnv* env, const struct bdjo_data *bdjo);
 
 #endif /* BDJO_H_ */

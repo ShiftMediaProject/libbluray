@@ -40,7 +40,7 @@
  *
  */
 
-static jobject _make_terminal_info(JNIEnv* env, BDJO_TERMINAL_INFO *p)
+static jobject _make_terminal_info(JNIEnv* env, const BDJO_TERMINAL_INFO *p)
 {
     jstring jdefault_font = (*env)->NewStringUTF(env, p->default_font);
     return bdj_make_object(env, "org/videolan/bdjo/TerminalInfo", "(Ljava/lang/String;IZZ)V",
@@ -48,7 +48,7 @@ static jobject _make_terminal_info(JNIEnv* env, BDJO_TERMINAL_INFO *p)
                            (jint)p->menu_call_mask, (jint)p->title_search_mask);
 }
 
-static jobject _make_app_cache_info(JNIEnv* env, BDJO_APP_CACHE_INFO *p)
+static jobject _make_app_cache_info(JNIEnv* env, const BDJO_APP_CACHE_INFO *p)
 {
     unsigned ii;
 
@@ -73,7 +73,7 @@ static jobject _make_app_cache_info(JNIEnv* env, BDJO_APP_CACHE_INFO *p)
     return app_cache_array;
 }
 
-static jobject _make_accessible_playlists(JNIEnv* env, BDJO_ACCESSIBLE_PLAYLISTS *p)
+static jobject _make_accessible_playlists(JNIEnv* env, const BDJO_ACCESSIBLE_PLAYLISTS *p)
 {
     unsigned ii;
 
@@ -92,7 +92,7 @@ static jobject _make_accessible_playlists(JNIEnv* env, BDJO_ACCESSIBLE_PLAYLISTS
                            playlists);
 }
 
-static jobject _make_app(JNIEnv* env, BDJO_APP *p)
+static jobject _make_app(JNIEnv* env, const BDJO_APP *p)
 {
     unsigned ii;
 
@@ -171,7 +171,7 @@ static jobject _make_app(JNIEnv* env, BDJO_APP *p)
     return entry;
 }
 
-static jobjectArray _make_app_management_table(JNIEnv* env, BDJO_APP_MANAGEMENT_TABLE *p)
+static jobjectArray _make_app_management_table(JNIEnv* env, const BDJO_APP_MANAGEMENT_TABLE *p)
 {
     unsigned ii;
 
@@ -188,7 +188,7 @@ static jobjectArray _make_app_management_table(JNIEnv* env, BDJO_APP_MANAGEMENT_
     return entries;
 }
 
-jobject bdjo_make_jobj(JNIEnv* env, BDJO *p)
+jobject bdjo_make_jobj(JNIEnv* env, const BDJO *p)
 {
     jobject terminal_info = _make_terminal_info(env, &p->terminal_info);
     JNICHK(terminal_info);
