@@ -241,9 +241,10 @@ dnl bootclasspath
 AC_SUBST(BDJ_BOOTCLASSPATH)
 
 dnl udf support (using git submodule)
-AS_IF([test "x$enable_udf" = "xyes"],
-  [ AC_CHECK_FILE([${srcdir}/contrib/libudfread/src/udfread.h],, [AC_MSG_ERROR("libudfread source tree not found")])
-
+AS_IF([test "x$enable_udf" = "xyes"], [
+    if test ! -f "${srcdir}/contrib/libudfread/src/udfread.h"; then
+        AC_MSG_ERROR("libudfread source tree not found")
+    fi
     AC_CHECK_HEADERS([unistd.h fcntl.h])
     AS_IF([test "${SYS}" != "mingw32"], [
       AC_CHECK_FUNC([pread],, [AC_MSG_ERROR("Function pread not found. Try with --disable-udf.")])
