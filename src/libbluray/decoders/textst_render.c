@@ -110,7 +110,7 @@ void textst_render_free(TEXTST_RENDER **pp)
  * settings
  */
 
-int textst_render_add_font(TEXTST_RENDER *p, void *data, int64_t size)
+int textst_render_add_font(TEXTST_RENDER *p, void *data, size_t size)
 {
 #ifdef HAVE_FT2
     FONT_DATA *tmp = realloc(p->font, sizeof(*(p->font)) * (p->font_count + 1));

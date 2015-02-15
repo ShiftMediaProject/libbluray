@@ -929,7 +929,7 @@ static int _textst_style_select(GRAPHICS_CONTROLLER *p, int user_style_idx)
     return -1;
 }
 
-int gc_add_font(GRAPHICS_CONTROLLER *p, void *data, int64_t size)
+int gc_add_font(GRAPHICS_CONTROLLER *p, void *data, size_t size)
 {
     if (!p) {
         return -1;
