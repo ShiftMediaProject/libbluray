@@ -401,10 +401,10 @@ static void _updateGraphic(JNIEnv * env,
         jsize offset;
 
         /* set dirty area before lock() */
-        buf->dirty[BD_OVERLAY_IG].x0 = x0;
-        buf->dirty[BD_OVERLAY_IG].x1 = x1;
-        buf->dirty[BD_OVERLAY_IG].y0 = y0;
-        buf->dirty[BD_OVERLAY_IG].y1 = y1;
+        buf->dirty[BD_OVERLAY_IG].x0 = (uint16_t)x0;
+        buf->dirty[BD_OVERLAY_IG].x1 = (uint16_t)x1;
+        buf->dirty[BD_OVERLAY_IG].y0 = (uint16_t)y0;
+        buf->dirty[BD_OVERLAY_IG].y1 = (uint16_t)y1;
 
         /* get buffer */
         if (buf->lock) {
