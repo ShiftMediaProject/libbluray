@@ -1008,7 +1008,7 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
             GC_TRACE("_render_textst(): next event #%d in %"PRId64" seconds (pts %"PRId64")\n",
                      ii, (dialog[ii].start_pts - now)/90000, dialog[ii].start_pts);
             if (cmds) {
-                cmds->wakeup_time = dialog[ii].start_pts / 2;
+                cmds->wakeup_time = (uint32_t)(dialog[ii].start_pts / 2);
             }
             return 1;
         }
