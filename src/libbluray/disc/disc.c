@@ -350,7 +350,7 @@ BD_DIR_H *disc_open_dir(BD_DISC *p, const char *dir)
     return _combine_dirs(dp_ovl, dp_rom);
 }
 
-int64_t disc_read_file(BD_DISC *disc, const char *dir, const char *file,
+size_t disc_read_file(BD_DISC *disc, const char *dir, const char *file,
                        uint8_t **data)
 {
     BD_FILE_H *fp;
@@ -360,26 +360,29 @@ int64_t disc_read_file(BD_DISC *disc, const char *dir, const char *file,
 
     fp = disc_open_file(disc, dir, file);
     if (!fp) {
-        return -1;
+        return 0;
     }
 
     size = file_size(fp);
-    if (size > 0) {
-        *data = malloc(size);
+    if (size > 0 && size < BD_MAX_SSIZE) {
+        *data = malloc((size_t)size);
         if (*data) {
             int64_t got = file_read(fp, *data, size);
             if (got != size) {
                 BD_DEBUG(DBG_FILE | DBG_CRIT, "Error reading file %s from %s\n", file, dir);
                 X_FREE(*data);
-                size = -1;
+                size = 0;
             }
         } else {
-          size = -1;
+          size = 0;
         }
+    }
+    else {
+      size = 0;
     }
 
     file_close(fp);
-    return size;
+    return (size_t)size;
 }
 
 /*

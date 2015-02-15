@@ -1934,8 +1934,8 @@ static int _preload_textst_subpath(BLURAY *bd)
     for (ii = 0; ii < bd->st_textst.clip->cl->font_info.font_count; ii++) {
         char *file = str_printf("%s.otf", bd->st_textst.clip->cl->font_info.font[ii].file_id);
         uint8_t *data = NULL;
-        int64_t size = disc_read_file(bd->disc, "BDMV" DIR_SEP "AUXDATA", file, &data);
-        if (data && gc_add_font(bd->graphics_controller, data, size) < 0) {
+        size_t size = disc_read_file(bd->disc, "BDMV" DIR_SEP "AUXDATA", file, &data);
+        if (data && size > 0 && gc_add_font(bd->graphics_controller, data, size) < 0) {
             X_FREE(data);
         }
         X_FREE(file);

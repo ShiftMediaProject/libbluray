@@ -153,11 +153,11 @@ META_ROOT *meta_parse(BD_DISC *disc)
     uint8_t i;
     for (i = 0; i < root->dl_count; i++) {
         uint8_t *data = NULL;
-        int64_t size = 0;
+        size_t size;
         size = disc_read_file(disc, "BDMV" DIR_SEP "META" DIR_SEP "DL",
                               root->dl_entries[i].filename,
                               &data);
-        if (!data) {
+        if (!data || size == 0) {
             BD_DEBUG(DBG_DIR, "Failed to read BDMV/META/DL/%s\n", root->dl_entries[i].filename);
         } else {
                 doc = xmlReadMemory((char*)data, (int)size, NULL, NULL, 0);
