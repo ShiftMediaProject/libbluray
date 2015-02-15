@@ -215,7 +215,8 @@ static int _draw_string(FT_Face face, const uint8_t *string, int length,
 {
     uint8_t  color = style->font_color;
     unsigned char_code;
-    int      ii, jj, kk;
+    int      ii;
+    unsigned jj, kk;
     unsigned flags;
 
     if (length <= 0) {
