@@ -1028,14 +1028,6 @@ uint64_t bd_get_uo_mask(BLURAY *bd)
 #endif
 
 #ifdef USING_BDJAVA
-struct bdjo_data *bd_bdjo_get(struct bluray *bd, const char *file)
-{
-    return bdjo_get(bd->disc, file);
-}
-#endif
-
-
-#ifdef USING_BDJAVA
 void bd_select_rate(BLURAY *bd, float rate, int reason)
 {
     if (reason == BDJ_PLAYBACK_STOP) {

@@ -51,9 +51,6 @@ BD_PRIVATE void     bd_set_bdj_uo_mask(struct bluray *bd, unsigned mask);
  * title selection
  */
 
-struct bdjo_data;
-BD_PRIVATE struct bdjo_data *bd_bdjo_get(struct bluray *bd, const char *file);
-
 BD_PRIVATE int      bd_play_title_internal(struct bluray *bd, unsigned title);
 
 /*

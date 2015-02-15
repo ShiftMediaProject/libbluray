@@ -25,6 +25,8 @@
 #include "bdjo.h"
 #include "util.h"
 
+#include "libbluray/bdj/bdjo_parse.h"
+
 #include "libbluray/bluray.h"
 #include "libbluray/bluray_internal.h"
 #include "libbluray/decoders/overlay.h"
@@ -370,9 +372,10 @@ JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
     }
     BD_DEBUG(DBG_JNI, "getBdjoN(%s)\n", file);
 
-    bdjo = bd_bdjo_get(bd, file);
+    bdjo = bdjo_get(bd_get_disc(bd), file);
     if (bdjo) {
         jbdjo = bdjo_make_jobj(env, bdjo);
+        bdjo_free(&bdjo);
     } else {
         BD_DEBUG(DBG_JNI | DBG_CRIT, "getBdjoN(%s) failed\n", file);
     }
