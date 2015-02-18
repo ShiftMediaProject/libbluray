@@ -23,10 +23,13 @@
 #ifndef BD_BITS_H
 #define BD_BITS_H
 
-#include "file/file.h"
+#include "util/attributes.h"
+#include "file/filesystem.h" // BD_FILE_H
 
-#include <unistd.h>
-#include <stdio.h>
+#include <stdint.h>
+#include <stdio.h>     // SEEK_*
+#include <sys/types.h> // *size_t
+
 
 /**
  * \file
