@@ -945,7 +945,7 @@ void bd_stop_bdj(BLURAY *bd); // shutdown BD-J and clean up resources
 
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif /* BLURAY_H_ */
