@@ -43,7 +43,7 @@
 static void _file_close(BD_FILE_H *file)
 {
     if (file) {
-        udfread_file_close(file->internal);
+        udfread_file_close((UDFFILE*)file->internal);
         BD_DEBUG(DBG_FILE, "Closed UDF file (%p)\n", (void*)file);
         X_FREE(file);
     }
@@ -51,17 +51,17 @@ static void _file_close(BD_FILE_H *file)
 
 static int64_t _file_seek(BD_FILE_H *file, int64_t offset, int32_t origin)
 {
-    return udfread_file_seek(file->internal, offset, origin);
+    return udfread_file_seek((UDFFILE*)file->internal, offset, origin);
 }
 
 static int64_t _file_tell(BD_FILE_H *file)
 {
-    return udfread_file_tell(file->internal);
+    return udfread_file_tell((UDFFILE*)file->internal);
 }
 
 static int64_t _file_read(BD_FILE_H *file, uint8_t *buf, int64_t size)
 {
-    return udfread_file_read(file->internal, buf, size);
+    return udfread_file_read((UDFFILE*)file->internal, buf, size);
 }
 
 BD_FILE_H *udf_file_open(void *udf, const char *filename)
@@ -77,7 +77,7 @@ BD_FILE_H *udf_file_open(void *udf, const char *filename)
     file->tell  = _file_tell;
     file->eof   = NULL;
 
-    file->internal = udfread_file_open(udf, filename);
+    file->internal = udfread_file_open((udfread*)udf, filename);
     if (!file->internal) {
         BD_DEBUG(DBG_FILE, "Error opening file %s!\n", filename);
         X_FREE(file);
@@ -93,7 +93,7 @@ BD_FILE_H *udf_file_open(void *udf, const char *filename)
 static void _dir_close(BD_DIR_H *dir)
 {
     if (dir) {
-        udfread_closedir(dir->internal);
+        udfread_closedir((UDFDIR*)dir->internal);
         BD_DEBUG(DBG_DIR, "Closed UDF dir (%p)\n", (void*)dir);
         X_FREE(dir);
     }
@@ -103,7 +103,7 @@ static int _dir_read(BD_DIR_H *dir, BD_DIRENT *entry)
 {
     struct udfread_dirent e;
 
-    if (!udfread_readdir(dir->internal, &e)) {
+    if (!udfread_readdir((UDFDIR*)dir->internal, &e)) {
         return -1;
     }
 
@@ -122,7 +122,7 @@ BD_DIR_H *udf_dir_open(void *udf, const char* dirname)
     dir->close = _dir_close;
     dir->read  = _dir_read;
 
-    dir->internal = udfread_opendir(udf, dirname);
+    dir->internal = udfread_opendir((udfread*)udf, dirname);
     if (!dir->internal) {
         BD_DEBUG(DBG_DIR, "Error opening %s\n", dirname);
         X_FREE(dir);
@@ -166,7 +166,7 @@ static int _bi_read(struct udfread_block_input *bi_gen, uint32_t lba, void *buf,
     bd_mutex_lock(&bi->mutex);
 
     if (file_seek(bi->fp, SEEK_SET, (int64_t)lba * UDF_BLOCK_SIZE) >= 0) {
-        int64_t bytes = file_read(bi->fp, buf, (int64_t)nblocks * UDF_BLOCK_SIZE);
+        int64_t bytes = file_read(bi->fp, (uint8_t*)buf, (int64_t)nblocks * UDF_BLOCK_SIZE);
         if (bytes > 0) {
             got = bytes / UDF_BLOCK_SIZE;
         }
@@ -230,10 +230,10 @@ void *udf_image_open(const char *img_path)
 
 const char *udf_volume_id(void *udf)
 {
-    return udfread_get_volume_id(udf);
+    return udfread_get_volume_id((udfread*)udf);
 }
 
 void udf_image_close(void *udf)
 {
-    udfread_close(udf);
+    udfread_close((udfread*)udf);
 }
