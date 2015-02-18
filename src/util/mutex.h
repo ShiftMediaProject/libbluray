@@ -68,8 +68,8 @@ static inline int bd_mutex_destroy(BD_MUTEX *p) {
 
 #elif defined(HAVE_PTHREAD_H)
 
+#include "attributes.h"
 #include "logging.h"
-#include "macro.h"
 
 /*
  * recursive mutex

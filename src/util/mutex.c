@@ -24,7 +24,6 @@
 #include "mutex.h"
 
 #include "logging.h"
-#include "macro.h"
 
 
 #if defined(_WIN32)
