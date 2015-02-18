@@ -1721,9 +1721,8 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                     uint64_t angle_pos;
 
                     angle_pos = (uint64_t)bd->angle_change_pkt * 192L;
-                    if (angle_pos - st->clip_pos < size)
-                    {
-                        size = angle_pos - st->clip_pos;
+                    if (angle_pos - st->clip_pos < size) {
+                        size = (unsigned int)(angle_pos - st->clip_pos);
                     }
                 }
             }

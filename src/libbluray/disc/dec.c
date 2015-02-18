@@ -72,9 +72,9 @@ static int64_t _stream_read(BD_FILE_H *fp, uint8_t *buf, int64_t size)
     }
 
     if (st->bdplus) {
-      if (libbdplus_fixup(st->bdplus, buf, size) < 0) {
+        if (libbdplus_fixup(st->bdplus, buf, (int)size) < 0) {
           /* there's no way to verify if the stream was decoded correctly */
-      }
+        }
     }
 
     return result;
