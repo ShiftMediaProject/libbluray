@@ -121,7 +121,8 @@ libbluray_la_SOURCES = \
 	src/util/refcnt.c \
 	src/util/strutl.h \
 	src/util/strutl.c \
-	src/util/time.h
+	src/util/time.h \
+	src/util/time.c
 
 if HAVE_DARWIN
 libbluray_la_SOURCES+= \
