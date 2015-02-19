@@ -660,6 +660,9 @@ typedef enum {
      * playback control
      */
 
+    /* HDMV VM or JVM stopped playlist playback. Flush all buffers. */
+    BD_EVENT_PLAYLIST_STOP          = 31,
+
     /* discontinuity in the stream (non-seamless connection). Reset demuxer PES buffers. */
     BD_EVENT_DISCONTINUITY          = 28,  /* new timestamp (45 kHz) */
 
@@ -692,7 +695,7 @@ typedef enum {
     /* 3D */
     BD_EVENT_STEREOSCOPIC_STATUS    = 27,  /* 0 - 2D, 1 - 3D */
 
-    /*BD_EVENT_LAST = 30, */
+    /*BD_EVENT_LAST = 31, */
 
 } bd_event_e;
 

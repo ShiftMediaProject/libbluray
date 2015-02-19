@@ -2052,6 +2052,23 @@ static void _close_playlist(BLURAY *bd)
         gc_run(bd->graphics_controller, GC_CTRL_RESET, 0, NULL);
     }
 
+    /* stopping playback in middle of playlist ? */
+    if (bd->title && bd->st0.clip) {
+        if (bd->st0.clip->ref < bd->title->clip_list.count - 1) {
+            /* not last clip of playlist */
+            BD_DEBUG(DBG_BLURAY, "close playlist (not last clip)\n");
+            _queue_event(bd, BD_EVENT_PLAYLIST_STOP, 0);
+        } else {
+            /* last clip of playlist */
+            int clip_pkt = SPN(bd->st0.clip_pos);
+            int skip = bd->st0.clip->end_pkt - clip_pkt;
+            BD_DEBUG(DBG_BLURAY, "close playlist (last clip), packets skipped %d\n", skip);
+            if (skip > 100) {
+                _queue_event(bd, BD_EVENT_PLAYLIST_STOP, 0);
+            }
+        }
+    }
+
     _close_m2ts(&bd->st0);
     _close_preload(&bd->st_ig);
     _close_preload(&bd->st_textst);

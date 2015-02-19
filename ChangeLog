@@ -1,6 +1,7 @@
-- Add support for UDF image files and unmounted discs
-- Add UDF volume identifier to DISC_INFO
-- Fix infinite loop with some broken HDMV menus
+- Add support for UDF image files and unmounted discs.
+- Add UDF volume identifier to DISC_INFO.
+- Fix infinite loop with some broken HDMV menus.
+- Emit BD_EVENT_PLAYLIST_STOP when playlist playback is stopped in middle.
 
 2015-01-26: Version 0.7.0
 - Add player setting for BD-J persistent storage and cache paths.
