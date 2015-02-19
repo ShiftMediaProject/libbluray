@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import java.io.BDFileSystem;
 import org.videolan.bdjo.AppCache;
 
 class VFSCache {
@@ -139,9 +140,8 @@ class VFSCache {
 
         String relPath = jarDir + name;
         String dstPath = cacheRoot + relPath;
-        File   dstFile = new File(dstPath);
 
-        if (dstFile.exists()) {
+        if (BDFileSystem.nativeFileExists(dstPath)) {
             //logger.info(dstPath + " already cached");
             return;
         }
@@ -194,7 +194,7 @@ class VFSCache {
         String dstPath = fontRoot + relPath;
         File dstFile = new File(dstPath);
 
-        if (dstFile.exists()) {
+        if (BDFileSystem.nativeFileExists(dstPath)) {
             //logger.info(dstPath + " already cached");
             return dstFile;
         }
@@ -263,7 +263,7 @@ class VFSCache {
         }
 
         String cachePath = cacheRoot + absPath.substring(vfsRootLength);
-        if (!new File(cachePath).exists()) {
+        if (!BDFileSystem.nativeFileExists(cachePath)) {
             //logger.info(cachePath + " not in VFS cache");
             return absPath;
         }

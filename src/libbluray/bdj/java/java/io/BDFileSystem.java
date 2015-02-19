@@ -64,6 +64,21 @@ public abstract class BDFileSystem extends FileSystem {
         }
     }
 
+    public static String[] nativeList(File f) {
+        return getFileSystem().list(f);
+    }
+
+    public static boolean nativeFileExists(String path) {
+        return getFileSystem().getBooleanAttributes(new File(path)) != 0;
+    }
+
+    public static boolean nativeDelete(File f) {
+        return getFileSystem().delete(f);
+    }
+
+    /*
+     */
+
     public BDFileSystem(FileSystem fs) {
         this.fs = fs;
     }

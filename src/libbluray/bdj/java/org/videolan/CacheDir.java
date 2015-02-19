@@ -22,6 +22,8 @@ package org.videolan;
 import java.io.File;
 import java.io.IOException;
 
+import java.io.BDFileSystem;
+
 class CacheDir {
 
     private static LockFile lockCache(String path) {
@@ -29,10 +31,11 @@ class CacheDir {
     }
 
     private static void cleanupCache() {
-        File[] files = new File(baseDir).listFiles();
+        File baseDirFile = new File(baseDir);
+        String[] files = BDFileSystem.nativeList(baseDirFile);
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
-                File dir = files[i];
+                File dir = new File(baseDirFile, files[i]);
                 if (dir.isDirectory()) {
                     LockFile lock = lockCache(dir.getPath());
                     if (lock != null) {
@@ -84,21 +87,21 @@ class CacheDir {
     }
 
     private static void removeImpl(File dir) {
-        File[] files = dir.listFiles();
+        String[] files = BDFileSystem.nativeList(dir);
         if (files != null) {
         for (int i = 0; i < files.length; i++) {
-            File file = files[i];
+            File file = new File(dir, files[i]);
             if (file.isDirectory()) {
                 removeImpl(file);
             } else {
-                if (!file.delete()) {
+                if (!BDFileSystem.nativeDelete(file)) {
                     logger.info("Error removing " + file.getPath());
                 }
             }
         }
         }
 
-        if (!dir.delete()) {
+        if (!BDFileSystem.nativeDelete(dir)) {
             logger.error("Error removing " + dir.getPath());
         }
     }
