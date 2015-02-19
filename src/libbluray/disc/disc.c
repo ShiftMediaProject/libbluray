@@ -294,6 +294,11 @@ const char *disc_volume_id(BD_DISC *p)
     return p ? p->udf_volid : NULL;
 }
 
+BD_DIR_H *disc_open_bdrom_dir(BD_DISC *p, const char *rel_path)
+{
+    return p->pf_dir_open_bdrom(p->fs_handle, rel_path);
+}
+
 /*
  * VFS
  */

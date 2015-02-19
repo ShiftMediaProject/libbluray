@@ -66,6 +66,9 @@ BD_PRIVATE void disc_update(BD_DISC *disc, const char *overlay_root);
 
 BD_PRIVATE int  disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_path);
 
+/* open BD-ROM directory (relative to disc root) */
+BD_PRIVATE struct bd_dir_s  *disc_open_bdrom_dir(BD_DISC *disc, const char *path);
+
 /*
  * m2ts stream interface
  */

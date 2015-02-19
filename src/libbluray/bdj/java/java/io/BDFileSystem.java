@@ -244,7 +244,21 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public String[] list(File f) {
-        return fs.list(f);
+
+        String path = f.getPath();
+        String root = System.getProperty("bluray.vfs.root");
+        if (root == null || !path.startsWith(root)) {
+            /* not inside VFS */
+            return fs.list(f);
+        }
+
+        /* path is inside VFS */
+        /* EX. HOSTEL_2 lists files in BD-ROM */
+        int rootLength = root.length();
+        path = path.substring(rootLength);
+
+        String[] names = org.videolan.Libbluray.listBdFiles(path, false);
+        return names;
     }
 
     public boolean createDirectory(File f) {

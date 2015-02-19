@@ -230,6 +230,15 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_cacheBdRomFileN
 
 /*
  * Class:     org_videolan_Libbluray
+ * Method:    listBdFilesN
+ * Signature: (JLjava/lang/String;Z)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_org_videolan_Libbluray_listBdFilesN(JNIEnv * env,
+                                                                        jclass cls, jlong np, jstring jpath,
+                                                                        jboolean onlyBdRom);
+
+/*
+ * Class:     org_videolan_Libbluray
  * Method:    getBdjoN
  * Signature: (JLjava/lang/String;)Lorg/videolan/bdjo/Bdjo;
  */
