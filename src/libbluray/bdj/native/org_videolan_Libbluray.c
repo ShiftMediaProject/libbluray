@@ -382,7 +382,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_videolan_Libbluray_listBdFilesN(JNIEnv *
         dp = disc_open_dir(disc, path);
     }
     if (!dp) {
-        BD_DEBUG(DBG_JNI | DBG_CRIT, "failed opening directory %s\n", path);
+        BD_DEBUG(DBG_JNI, "failed opening directory %s\n", path);
         (*env)->ReleaseStringUTFChars(env, jpath, path);
         return NULL;
     }

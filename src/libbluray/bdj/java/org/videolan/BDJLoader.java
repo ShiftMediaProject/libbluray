@@ -60,6 +60,13 @@ public class BDJLoader {
         return null;
     }
 
+    public static void accessFile(String file) {
+        VFSCache localCache = vfsCache;
+        if (localCache != null) {
+            localCache.accessFile(file);
+        }
+    }
+
     public static String getCachedFile(String path) {
         VFSCache localCache = vfsCache;
         if (localCache != null) {

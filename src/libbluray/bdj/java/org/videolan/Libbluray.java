@@ -49,9 +49,19 @@ public class Libbluray {
     protected static void init(long nativePointer, String discID, String discRoot,
                                String persistentRoot, String budaRoot) {
 
-        System.setProperty("bluray.vfs.root", discRoot);
         System.setProperty("dvb.persistent.root", persistentRoot);
         System.setProperty("bluray.bindingunit.root", budaRoot);
+
+        if (discRoot == null) {
+            try {
+                System.setSecurityManager(new BDJSecurityManager());
+            } catch (Exception ex) {
+                System.err.println("System.setSecurityManager() failed: " + ex);
+                System.err.println("BD-J file access won't work");
+            }
+        } else {
+            System.setProperty("bluray.vfs.root", discRoot);
+        }
 
             Libbluray.nativePointer = nativePointer;
             DiscManager.getDiscManager().setCurrentDisc(discID);
@@ -141,6 +151,13 @@ public class Libbluray {
             stopTitle(true);
             BDJLoader.shutdown();
             BDJActionManager.shutdown();
+
+            try {
+                System.setSecurityManager(null);
+            } catch (Exception ex) {
+                System.err.println("System.setSecurityManager(null) failed: " + ex);
+            }
+
             MountManager.unmountAll();
             GUIManager.shutdown();
             BDToolkit.shutdownDisc();
