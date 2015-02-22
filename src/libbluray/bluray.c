@@ -934,7 +934,7 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
         if (bd->disc_info.bdj_detected) {
             bd->disc_info.bdj_supported = 1;
             /* BD-J titles found. Check if jvm + jar can be loaded ? */
-            switch (bdj_jvm_available()) {
+            switch (bdj_jvm_available(&bd->bdjstorage)) {
                 case 2: bd->disc_info.bdj_handled     = 1;
                 case 1: bd->disc_info.libjvm_detected = 1;
                 default:;
@@ -1263,6 +1263,7 @@ static void _storage_free(BLURAY *bd)
 {
     X_FREE(bd->bdjstorage.cache_root);
     X_FREE(bd->bdjstorage.persistent_root);
+    X_FREE(bd->bdjstorage.classpath);
 }
 #else
 #define _storage_free(bd) do{}while(0)
