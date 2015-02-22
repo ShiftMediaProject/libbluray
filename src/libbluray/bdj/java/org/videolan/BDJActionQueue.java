@@ -68,7 +68,7 @@ public class BDJActionQueue implements Runnable {
             try {
                 ((BDJAction)action).process();
             } catch (Throwable e) {
-                e.printStackTrace();
+                System.err.println("action failed: " + e + "\n" + Logger.dumpStack(e));
             }
         }
     }

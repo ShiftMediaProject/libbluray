@@ -75,7 +75,7 @@ public class IxcRegistryImpl {
                 }
             }
             catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                logger.error("" + e);
             }
         }
 
@@ -125,8 +125,7 @@ public class IxcRegistryImpl {
             try {
                 return Copy.deepCopy(toContext.getClassLoader(), (Serializable)obj);
             } catch (Exception e) {
-                Debug("wrapOrCopy: failed in deepCopy: ");
-                e.printStackTrace();
+                Debug("wrapOrCopy: failed in deepCopy:\n" + Logger.dumpStack(e));
                 throw new RemoteException("serialization/deserialization failed", e);
             }
         }
@@ -333,11 +332,9 @@ public class IxcRegistryImpl {
                     }
                     TRACE("can't find method in callee");
                 } catch (SecurityException e) {
-                    TRACE("can't find method in callee: SecurityException:");
-                    e.printStackTrace();
+                    TRACE("can't find method in callee: " + e + "\n" + Logger.dumpStack(e));
                 } catch (ClassNotFoundException e) {
-                    TRACE("can't find method in callee: ClassNotFound:");
-                    e.printStackTrace();
+                    TRACE("can't find method in callee: " + e + "\n" + Logger.dumpStack(e));
                 }
 
                 return null;

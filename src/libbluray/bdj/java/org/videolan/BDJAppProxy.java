@@ -184,8 +184,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 state = LOADED;
                 return true;
             } catch (Throwable e) {
-                logger.error("doLoad() failed: " + e);
-                e.printStackTrace();
+                logger.error("doLoad() failed: " + e + "\n" + Logger.dumpStack(e));
                 state = INVALID;
             }
         }
@@ -205,8 +204,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 state = PAUSED;
                 return true;
             } catch (Throwable e) {
-                logger.error("doInit() failed: " + e);
-                e.printStackTrace();
+                logger.error("doInit() failed: " + e + "\n" + Logger.dumpStack(e));
                 state = INVALID;
             }
         }
@@ -224,8 +222,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 state = STARTED;
                 return true;
             } catch (Throwable e) {
-                logger.error("doStart() failed: " + e);
-                e.printStackTrace();
+                logger.error("doStart() failed: " + e + "\n" + Logger.dumpStack(e));
                 state = INVALID;
             }
         }
@@ -251,8 +248,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                     new File(persistent).delete();
                 }
             } catch (Throwable e) {
-                logger.error("doStop() failed: " + e);
-                e.printStackTrace();
+                logger.error("doStop() failed: " + e + "\n" + Logger.dumpStack(e));
                 state = INVALID;
                 return false;
             }
@@ -269,8 +265,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 state = PAUSED;
                 return true;
             } catch (Throwable e) {
-                logger.error("doPause() failed: " + e);
-                e.printStackTrace();
+                logger.error("doPause() failed: " + e + "\n" + Logger.dumpStack(e));
                 state = INVALID;
             }
         }
@@ -284,8 +279,7 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 state = STARTED;
                 return true;
             } catch (Throwable e) {
-                logger.error("doResume() failed: " + e);
-                e.printStackTrace();
+                logger.error("doResume() failed: " + e + "\n" + Logger.dumpStack(e));
                 state = INVALID;
             }
         }

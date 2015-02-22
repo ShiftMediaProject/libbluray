@@ -103,8 +103,7 @@ public class BDJLoader {
         try {
             queue.shutdown();
         } catch (Throwable e) {
-            logger.error("shutdown() failed: " + e);
-            e.printStackTrace();
+            logger.error("shutdown() failed: " + e + "\n" + Logger.dumpStack(e));
         }
         queue = null;
         vfsCache = null;
@@ -229,8 +228,7 @@ public class BDJLoader {
             return true;
 
         } catch (Throwable e) {
-            logger.error("loadN() failed: " + e);
-            e.printStackTrace();
+            logger.error("loadN() failed: " + e + "\n" + Logger.dumpStack(e));
             unloadN();
             return false;
         }
@@ -263,8 +261,7 @@ public class BDJLoader {
 
             return true;
         } catch (Throwable e) {
-            logger.error("unloadN() failed: " + e);
-            e.printStackTrace();
+            logger.error("unloadN() failed: " + e + "\n" + Logger.dumpStack(e));
             return false;
         }
     }

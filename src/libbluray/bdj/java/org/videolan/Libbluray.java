@@ -170,7 +170,7 @@ public class Libbluray {
             FontFactory.unloadDiscFonts();
             CacheDir.remove();
         } catch (Throwable e) {
-            e.printStackTrace();
+            System.err.println("shutdown() failed: " + e + "\n" + Logger.dumpStack(e));
         }
         nativePointer = 0;
         titleInfos = null;
@@ -266,7 +266,7 @@ public class Libbluray {
                 ((TitleContext)ServiceContextFactory.getInstance().getServiceContext(null)).select(title);
                 return true;
             } catch (Exception e) {
-                e.printStackTrace();
+                System.err.println("selectTitle() failed: " + e + "\n" + Logger.dumpStack(e));
                 return false;
             }
         }
@@ -371,8 +371,7 @@ public class Libbluray {
             return true;
 
         } catch (Throwable e) {
-            System.err.println("startTitle() failed: " + e);
-            e.printStackTrace();
+            System.err.println("startTitle() failed: " + e + "\n" + Logger.dumpStack(e));
             return false;
         }
     }
@@ -388,8 +387,7 @@ public class Libbluray {
             }
             return true;
         } catch (Throwable e) {
-            System.err.println("stopTitle() failed: " + e);
-            e.printStackTrace();
+            System.err.println("stopTitle() failed: " + e + "\n" + Logger.dumpStack(e));
             return false;
         }
     }

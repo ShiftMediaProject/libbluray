@@ -32,6 +32,7 @@ import javax.tv.service.selection.InvalidServiceComponentException;
 import org.bluray.media.AsynchronousPiPControl;
 import org.bluray.net.BDLocator;
 import org.dvb.media.DVBMediaSelectControl;
+import org.videolan.Logger;
 import org.videolan.PlaylistInfo;
 import org.videolan.TIClip;
 
@@ -55,7 +56,7 @@ public class DVBMediaSelectControlImpl implements DVBMediaSelectControl{
         try {
             control.selectStreamNumber(locator.getSecondaryVideoStreamNumber());
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("" + e + "\n" + Logger.dumpStack(e));
         }
     }
 
@@ -130,7 +131,7 @@ public class DVBMediaSelectControlImpl implements DVBMediaSelectControl{
     }
 
     public void addMediaSelectListener(MediaSelectListener listener) {
-        org.videolan.Logger.unimplemented("DVBMediaSelectControlImpl", "addMediaSelectListener");
+        Logger.unimplemented("DVBMediaSelectControlImpl", "addMediaSelectListener");
         // callback is never triggered ?
         synchronized(listeners) {
             listeners.add(listener);

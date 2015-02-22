@@ -39,6 +39,7 @@ import org.bluray.ti.selection.TitleContextImpl;
 import org.videolan.BDJAction;
 import org.videolan.BDJActionManager;
 import org.videolan.Libbluray;
+import org.videolan.Logger;
 import org.videolan.PlaylistInfo;
 import org.videolan.TIClip;
 import org.videolan.media.content.BDHandler;
@@ -219,7 +220,7 @@ public class Handler extends BDHandler {
         try {
             ((TitleContextImpl)ServiceContextFactory.getInstance().getServiceContext(null)).presentationChanged();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("" + e + "\n" + Logger.dumpStack(e));
         }
     }
 
