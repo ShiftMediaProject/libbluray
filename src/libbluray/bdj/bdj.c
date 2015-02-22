@@ -211,6 +211,7 @@ static const char *_find_libbluray_jar(void)
         "" BDJ_JARFILE,
 #else
         "/usr/share/java/" BDJ_JARFILE,
+        "/usr/share/libbluray/lib/" BDJ_JARFILE,
 #endif
     };
 
