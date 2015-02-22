@@ -203,6 +203,21 @@ static void *_load_jvm(const char **p_java_home)
     return handle;
 }
 
+static int _can_read_file(const char *fn)
+{
+    FILE *fp = fopen(fn, "rb");
+    if (fp) {
+        char b;
+        int result = (int)fread(&b, 1, 1, fp);
+        fclose(fp);
+        if (result == 1) {
+            return 1;
+        }
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error reading %s\n", fn);
+    }
+    return 0;
+}
+
 static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
 {
     // pre-defined search paths for libbluray.jar
@@ -215,7 +230,6 @@ static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
 #endif
     };
 
-    FILE *fp;
     unsigned i;
 
     if (storage->classpath) {
@@ -234,7 +248,13 @@ static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
             storage->classpath = str_dup(classpath);
         }
 
-        return storage->classpath;
+        if (_can_read_file(storage->classpath)) {
+            return storage->classpath;
+        }
+
+        X_FREE(storage->classpath);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "invalid LIBBLURAY_CP %s\n", classpath);
+        return NULL;
     }
 
     BD_DEBUG(DBG_BDJ, "LIBBLURAY_CP not set, searching for "BDJ_JARFILE" ...\n");
@@ -244,9 +264,7 @@ static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
     if (lib_path) {
         char *cp = str_printf("%s" BDJ_JARFILE, lib_path);
         BD_DEBUG(DBG_BDJ, "Checking %s ...\n", cp);
-        fp = fopen(cp, "rb");
-        if (fp) {
-            fclose(fp);
+        if (_can_read_file(cp)) {
             storage->classpath = cp;
             BD_DEBUG(DBG_BDJ, "using %s\n", cp);
             return cp;
@@ -257,17 +275,22 @@ static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
     // check pre-defined directories
     for (i = 0; i < sizeof(jar_paths) / sizeof(jar_paths[0]); i++) {
         BD_DEBUG(DBG_BDJ, "Checking %s ...\n", jar_paths[i]);
-        fp = fopen(jar_paths[i], "rb");
-        if (fp) {
-            fclose(fp);
+        if (_can_read_file(jar_paths[i])) {
             storage->classpath = str_dup(jar_paths[i]);
             BD_DEBUG(DBG_BDJ, "using %s\n", storage->classpath);
             return storage->classpath;
         }
     }
 
+    // try from current directory
+    if (_can_read_file(BDJ_JARFILE)) {
+        storage->classpath = str_dup(BDJ_JARFILE);
+        BD_DEBUG(DBG_BDJ, "using %s\n", storage->classpath);
+        return storage->classpath;
+    }
+
     BD_DEBUG(DBG_BDJ | DBG_CRIT, BDJ_JARFILE" not found.\n");
-    return BDJ_JARFILE;
+    return NULL;
 }
 
 static const char *_bdj_persistent_root(BDJ_STORAGE *storage)
@@ -389,12 +412,10 @@ int bdj_jvm_available(BDJ_STORAGE *storage)
     }
     dl_dlclose(jvm_lib);
 
-    FILE *fp = fopen(_find_libbluray_jar(storage), "rb");
-    if (!fp) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J check: Failed to load " BDJ_JARFILE "\n");
+    if (!_find_libbluray_jar(storage)) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J check: Failed to load libbluray.jar\n");
         return 1;
     }
-    fclose(fp);
 
     BD_DEBUG(DBG_BDJ, "BD-J check: OK\n");
 
@@ -494,6 +515,10 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
     BD_DEBUG(DBG_BDJ, "bdj_open()\n");
 
     const char *jar_file = _find_libbluray_jar(storage);
+    if (!jar_file) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J start failed: " BDJ_JARFILE " not found.\n");
+        return NULL;
+    }
 
     // first load the jvm using dlopen
     const char *java_home = NULL;
