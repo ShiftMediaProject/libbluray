@@ -140,10 +140,9 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
             cmds.addLast(null);
             cmds.notifyAll();
         }
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
 
+        if (!cmd.waitDone(5000)) {
+            logger.error("release(): STOP timeout, killing Xlet " + context.getThreadGroup().getName());
         }
 
         context.release();
@@ -382,16 +381,21 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
             return arg;
         }
 
-        public void waitDone() {
+        public boolean waitDone(int timeoutMs) {
             synchronized(this) {
                 while (!done) {
                     try {
-                        this.wait();
+                        if (timeoutMs < 1) {
+                            this.wait();
+                        } else {
+                            this.wait(timeoutMs);
+                            break;
+                        }
                     } catch (InterruptedException e) {
-
                     }
                 }
             }
+            return done;
         }
 
         public void release() {
