@@ -220,11 +220,20 @@ static const char *_find_libbluray_jar(void)
     FILE *fp;
     unsigned i;
 
-    // check if overriding the classpath
-    if (!classpath) {
-        classpath = getenv("LIBBLURAY_CP");
-    }
     if (classpath) {
+        return classpath;
+    }
+
+    // check if overriding the classpath
+    classpath = getenv("LIBBLURAY_CP");
+    if (classpath) {
+        size_t cp_len = strlen(classpath);
+
+        // directory or file ?
+        if (cp_len > 0 && (classpath[cp_len - 1] == '/' || classpath[cp_len - 1] == '\\')) {
+            classpath = str_printf("%s%s", classpath, BDJ_JARFILE);
+        }
+
         return classpath;
     }
 
