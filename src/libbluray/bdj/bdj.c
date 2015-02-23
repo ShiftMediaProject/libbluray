@@ -392,7 +392,9 @@ static int _bdj_init(JNIEnv *env, struct bluray *bd, const char *disc_root, cons
 
     if ((*env)->ExceptionOccurred(env)) {
         (*env)->ExceptionDescribe(env);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to initialize BD-J (uncaught exception)\n");
         (*env)->ExceptionClear(env);
+        return 0;
     }
 
     (*env)->DeleteLocalRef(env, init_class);
@@ -583,6 +585,7 @@ void bdj_close(BDJAVA *bdjava)
 
             if ((*env)->ExceptionOccurred(env)) {
                 (*env)->ExceptionDescribe(env);
+                BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to shutdown BD-J (uncaught exception)\n");
                 (*env)->ExceptionClear(env);
             }
 
@@ -653,6 +656,7 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
 
         if ((*env)->ExceptionOccurred(env)) {
             (*env)->ExceptionDescribe(env);
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "bdj_process_event(%u,%u) failed (uncaught exception)\n", ev, param);
             (*env)->ExceptionClear(env);
         }
 
