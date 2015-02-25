@@ -55,6 +55,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                                               this);
 
         callbackQueue = new BDJActionQueue(this.threadGroup, "CallbackQueue");
+        userEventQueue = new BDJActionQueue(this.threadGroup, "UserEventQueue");
 
         mountHomeDir(entry);
     }
@@ -202,6 +203,22 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                 return false;
             }
             callbackQueue.put(cb);
+            return true;
+        }
+    }
+
+    public boolean putUserEvent(BDJAction cb)
+    {
+        synchronized (this) {
+            if (isReleased()) {
+                logger.error("UE callback ignored (xlet destroyed)");
+                return false;
+            }
+            if (userEventQueue == null) {
+                logger.error("UE callback ignored (no queue)");
+                return false;
+            }
+            userEventQueue.put(cb);
             return true;
         }
     }
@@ -422,6 +439,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         }
 
         callbackQueue.shutdown();
+        userEventQueue.shutdown();
 
         EventQueue eq = eventQueue;
         eventQueue = null;
@@ -446,6 +464,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             loader = null;
             container = null;
             callbackQueue = null;
+            userEventQueue = null;
             defaultLooks = null;
             released = true;
         }
@@ -469,5 +488,6 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     private BDJSockets sockets = new BDJSockets();
     private HashMap defaultLooks = new HashMap();
     private BDJActionQueue callbackQueue;
+    private BDJActionQueue userEventQueue;
     private static final Logger logger = Logger.getLogger(BDJXletContext.class.getName());
 }
