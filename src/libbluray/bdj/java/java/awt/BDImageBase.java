@@ -21,6 +21,8 @@ package java.awt;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.awt.color.ColorSpace;
@@ -46,9 +48,16 @@ class BDImageBase extends Image {
 
     static {
         try {
-            Class c = Class.forName("java.awt.image.BufferedImage");
-            bufferedImageConstructor = c.getDeclaredConstructors()[0];
-            bufferedImageConstructor.setAccessible(true);
+            final Class c = Class.forName("java.awt.image.BufferedImage");
+            AccessController.doPrivileged(
+                new PrivilegedAction() {
+                    public Object run() {
+                        bufferedImageConstructor = c.getDeclaredConstructors()[0];
+                        bufferedImageConstructor.setAccessible(true);
+                        return null;
+                    }
+                }
+           );
         } catch (ClassNotFoundException e) {
             throw new AWTError("java.awt.image.BufferedImage not found");
         }

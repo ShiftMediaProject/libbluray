@@ -31,6 +31,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import org.videolan.BDJLoader;
 import org.videolan.BDJXletContext;
@@ -42,7 +44,17 @@ public abstract class BDFileSystem extends FileSystem {
 
     protected final FileSystem fs;
 
-    public static void init(Class c) {
+    public static void init(final Class c) {
+        AccessController.doPrivileged(
+            new PrivilegedAction() {
+                public Object run() {
+                    init0(c);
+                    return null;
+                }
+            });
+    }
+
+    private static void init0(Class c) {
         Field filesystem;
         try {
             filesystem = c.getDeclaredField("fs");
