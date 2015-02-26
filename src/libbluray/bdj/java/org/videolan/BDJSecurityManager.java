@@ -38,8 +38,24 @@ class BDJSecurityManager extends SecurityManager {
         */
     }
 
+    public void checkExec(String cmd) {
+        logger.error("Exec(" + cmd + ") denied\n" + Logger.dumpStack());
+        throw new SecurityException("exec denied");
+    }
+
+    public void checkExit(int status) {
+        logger.error("Exit(" + status + ") denied\n" + Logger.dumpStack());
+        throw new SecurityException("exit denied");
+    }
+
     public void checkRead(String file) {
         //super.checkRead(file);
         BDJLoader.accessFile(file);
     }
+
+    /*
+     *
+     */
+
+    private static final Logger logger = Logger.getLogger(BDJSecurityManager.class.getName());
 }
