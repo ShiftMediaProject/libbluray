@@ -21,12 +21,45 @@
 package org.videolan;
 
 import java.io.FilePermission;
+import java.io.File;
 import java.security.Permission;
 
 /*
  * Dummy security manager to grab all file access
  */
 class BDJSecurityManager extends SecurityManager {
+
+    private String discRoot;
+    private String cacheRoot;
+    private String budaRoot;
+    private String persistentRoot;
+    private boolean usingUdf = false;
+
+    BDJSecurityManager(String discRoot, String persistentRoot, String budaRoot) {
+        this.discRoot  = discRoot;
+        this.cacheRoot = null;
+        this.budaRoot  = budaRoot;
+        this.persistentRoot = persistentRoot;
+        if (discRoot == null) {
+            usingUdf = true;
+        }
+    }
+
+    protected void setCacheRoot(String root) {
+        if (cacheRoot != null) {
+            // limit only
+            if (!root.startsWith(cacheRoot)) {
+                logger.error("setCacheRoot(" + root + ") denied\n" + Logger.dumpStack());
+                throw new SecurityException("cache root already set");
+            }
+        }
+        cacheRoot = root;
+    }
+
+    /*
+     *
+     */
+
     public void checkPermission(Permission perm) {
         /*
         try {
@@ -50,7 +83,44 @@ class BDJSecurityManager extends SecurityManager {
 
     public void checkRead(String file) {
         //super.checkRead(file);
-        BDJLoader.accessFile(file);
+        if (usingUdf) {
+            BDJLoader.accessFile(file);
+        }
+    }
+
+    /*
+     * File write access
+     */
+
+    private boolean canReadWrite(String file) {
+        if (budaRoot != null && file.startsWith(budaRoot)) {
+            return true;
+        }
+        if (persistentRoot != null && file.startsWith(persistentRoot)) {
+            return true;
+        }
+        return false;
+    }
+
+    public void checkWrite(String file) {
+        BDJXletContext ctx = BDJXletContext.getCurrentContext();
+
+        if (ctx != null) {
+            // Xlet can write to persistent storage and binding unit
+            if (canReadWrite(file)) {
+                return;
+            }
+            logger.error("Xlet write " + file + " denied at\n" + Logger.dumpStack());
+        } else  {
+            // BD-J core can write to cache
+            if (cacheRoot != null && file.startsWith(cacheRoot)) {
+                return;
+            }
+            logger.error("BD-J write " + file + " denied at\n" + Logger.dumpStack());
+        }
+
+
+        throw new SecurityException("write access denied");
     }
 
     /*

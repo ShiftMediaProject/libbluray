@@ -53,15 +53,26 @@ class CacheDir {
             return cacheRoot;
         }
 
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null && sm instanceof BDJSecurityManager) {
+            ((BDJSecurityManager)sm).setCacheRoot(baseDir);
+        }
+
         cleanupCache();
 
         for (int i = 0; i < 100; i++) {
             File tmpDir = new File(baseDir + System.nanoTime());
             tmpDir = new File(tmpDir.getCanonicalPath());
+
             if (tmpDir.mkdirs()) {
                 cacheRoot = tmpDir;
                 lockFile  = lockCache(cacheRoot.getPath());
                 logger.info("Created cache in " + tmpDir.getPath());
+
+                if (sm != null && sm instanceof BDJSecurityManager) {
+                    ((BDJSecurityManager)sm).setCacheRoot(cacheRoot.getPath());
+                }
+
                 return cacheRoot;
             }
             logger.error("error creating " + tmpDir.getPath());

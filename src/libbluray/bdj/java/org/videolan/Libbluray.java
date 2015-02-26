@@ -54,15 +54,15 @@ public class Libbluray {
         System.setProperty("dvb.persistent.root", persistentRoot);
         System.setProperty("bluray.bindingunit.root", budaRoot);
 
-        if (discRoot == null) {
-            try {
-                System.setSecurityManager(new BDJSecurityManager());
-            } catch (Exception ex) {
-                System.err.println("System.setSecurityManager() failed: " + ex);
-                System.err.println("BD-J file access won't work");
-            }
-        } else {
+        if (discRoot != null) {
             System.setProperty("bluray.vfs.root", discRoot);
+        }
+
+        try {
+            System.setSecurityManager(new BDJSecurityManager(discRoot, persistentRoot, budaRoot));
+        } catch (Exception ex) {
+            System.err.println("System.setSecurityManager() failed: " + ex);
+            throw new SecurityException("Failed initializing SecurityManager");
         }
 
             Libbluray.nativePointer = nativePointer;
