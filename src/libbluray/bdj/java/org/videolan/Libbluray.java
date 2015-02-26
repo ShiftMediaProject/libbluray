@@ -265,7 +265,7 @@ public class Libbluray {
         selectPlaylistN(nativePointer, -1, -1, -1, -1);
     }
 
-    public static boolean selectTitle(TitleImpl title) {
+    protected static boolean selectTitle(TitleImpl title) {
         TitleInfo ti = title.getTitleInfo();
         if (ti.isBdj()) {
             try {
@@ -488,7 +488,7 @@ public class Libbluray {
         return result;
     }
 
-    public static void setUOMask(boolean menuCallMask, boolean titleSearchMask) {
+    protected static void setUOMask(boolean menuCallMask, boolean titleSearchMask) {
         setUOMaskN(nativePointer, menuCallMask, titleSearchMask);
     }
 
