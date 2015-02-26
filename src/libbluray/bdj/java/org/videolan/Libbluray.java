@@ -46,7 +46,9 @@ import org.videolan.media.content.PlayerManager;
  * This class allows BDJ to call various libbluray functions.
  */
 public class Libbluray {
-    protected static void init(long nativePointer, String discID, String discRoot,
+
+    /* called only from native code */
+    private static void init(long nativePointer, String discID, String discRoot,
                                String persistentRoot, String budaRoot) {
 
         System.setProperty("dvb.persistent.root", persistentRoot);
@@ -146,7 +148,11 @@ public class Libbluray {
             BDJSocketFactory.init();
     }
 
-    public static void shutdown() {
+    /* called only from native code */
+    private static void shutdown() {
+        if (nativePointer == 0) {
+            return;
+        }
         try {
             stopTitle(true);
             BDJLoader.shutdown();
@@ -392,7 +398,8 @@ public class Libbluray {
         }
     }
 
-    public static boolean processEvent(int event, int param) {
+    /* called only from native code */
+    private static boolean processEvent(int event, int param) {
         boolean result = true;
         int key = 0;
 
