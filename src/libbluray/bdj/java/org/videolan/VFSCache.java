@@ -25,6 +25,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import java.io.BDFileSystem;
 import org.videolan.bdjo.AppCache;
@@ -277,6 +279,17 @@ class VFSCache {
         inAccessFile = false;
     }
 
+    private void mkdirs_xletCode(String path) {
+        final File file = new File(path);
+        AccessController.doPrivileged(
+            new PrivilegedAction() {
+                public Object run() {
+                    file.mkdirs();
+                    return null;
+                }
+            });
+    }
+
     private void accessFileImp(String absPath) {
 
         if (BDFileSystem.nativeFileExists(absPath)) {
@@ -290,7 +303,7 @@ class VFSCache {
             /* this is regular file */
         } else {
             /* this is directory, make sure it exists */
-            new File(absPath).mkdirs();
+            mkdirs_xletCode(absPath);
             return;
         }
 
@@ -303,7 +316,7 @@ class VFSCache {
         int sepPos = relPath.lastIndexOf(File.separatorChar);
         if (sepPos > 0) {
             String absDir = cacheRoot + relPath.substring(0, sepPos);
-            new File(absDir).mkdirs();
+            mkdirs_xletCode(absDir);
         }
 
         /* finally, copy the file to cache */
