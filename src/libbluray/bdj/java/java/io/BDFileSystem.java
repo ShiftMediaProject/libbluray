@@ -84,10 +84,6 @@ public abstract class BDFileSystem extends FileSystem {
         return getFileSystem().getBooleanAttributes(new File(path)) != 0;
     }
 
-    public static boolean nativeDelete(File f) {
-        return getFileSystem().delete(f);
-    }
-
     /*
      */
 

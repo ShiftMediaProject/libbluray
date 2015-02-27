@@ -105,14 +105,14 @@ class CacheDir {
             if (file.isDirectory()) {
                 removeImpl(file);
             } else {
-                if (!BDFileSystem.nativeDelete(file)) {
+                if (!file.delete()) {
                     logger.info("Error removing " + file.getPath());
                 }
             }
         }
         }
 
-        if (!BDFileSystem.nativeDelete(dir)) {
+        if (!dir.delete()) {
             logger.error("Error removing " + dir.getPath());
         }
     }
