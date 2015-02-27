@@ -145,7 +145,15 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
             logger.error("release(): STOP timeout, killing Xlet " + context.getThreadGroup().getName());
         }
 
+        final String persistentOrg = System.getProperty("dvb.persistent.root") + File.separator +
+            (String)context.getXletProperty("dvb.org.id") + File.separator;
+        final String persistentApp = persistentOrg + (String)context.getXletProperty("dvb.app.id");
+
         context.release();
+
+        if (new File(persistentApp).delete()) {
+            new File(persistentOrg).delete();
+        }
     }
 
     public void addAppStateChangeEventListener(AppStateChangeEventListener listener) {
@@ -239,14 +247,6 @@ public class BDJAppProxy implements DVBJProxy, Runnable {
                 context.closeSockets();
                 context.getThreadGroup().waitForShutdown(1000, 1 + context.numEventQueueThreads());
 
-                String persistent = System.getProperty("dvb.persistent.root") + File.separator +
-                    (String)context.getXletProperty("dvb.org.id") + File.separator +
-                    (String)context.getXletProperty("dvb.app.id");
-                if (new File(persistent).delete()) {
-                    persistent = System.getProperty("dvb.persistent.root") + File.separator +
-                        (String)context.getXletProperty("dvb.org.id");
-                    new File(persistent).delete();
-                }
             } catch (Throwable e) {
                 logger.error("doStop() failed: " + e + "\n" + Logger.dumpStack(e));
                 state = INVALID;
