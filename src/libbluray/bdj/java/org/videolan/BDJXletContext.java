@@ -179,6 +179,12 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return threadGroup;
     }
 
+    public String toString() {
+        BDJThreadGroup localGroup = threadGroup;
+        String groupName = localGroup == null ? "<destroyed>" : localGroup.getName();
+        return super.toString() + "[name=" + groupName + ", released=" + released + "]";
+    }
+
     /*
      * Event queues
      */

@@ -128,6 +128,10 @@ public class BDJListeners {
             this.listener = listener;
         }
 
+        public String toString() {
+            return this.getClass().getName() + "[event=" + event + ", listener=" + listener;
+        }
+
         protected void doAction() {
             if (event instanceof PlaybackMarkEvent) {
                 ((PlaybackListener)listener).markReached((PlaybackMarkEvent)event);
