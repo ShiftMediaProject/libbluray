@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.LinkedList;
 import javax.tv.xlet.Xlet;
 
-public class BDJAppProxy implements DVBJProxy, Runnable {
+class BDJAppProxy implements DVBJProxy, Runnable {
     protected static BDJAppProxy newInstance(BDJXletContext context) {
         BDJAppProxy proxy = new BDJAppProxy(context);
         /* do not create and start thread in constructor.
