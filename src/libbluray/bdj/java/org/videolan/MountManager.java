@@ -25,6 +25,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,10 +43,24 @@ import java.util.jar.JarFile;
  */
 public class MountManager {
 
+    /* called from org/dvb/dsmcc/ServiceDomain */
     public static String mount(int jarId) throws MountException {
-        return mount(jarId, true);
+        final int id = jarId;
+        Object obj = null;
+        try {
+            obj = AccessController.doPrivileged(
+                new PrivilegedExceptionAction() {
+                    public Object run() throws MountException {
+                        return mount(id, true);
+                    }
+                });
+        } catch (PrivilegedActionException e) {
+             throw (MountException) e.getException();
+        }
+        return (String)obj;
     }
 
+    /* package private, called from BDJXletContext */
     protected static String mount(int jarId, boolean classFiles) throws MountException {
         String jarStr = jarIdToString(jarId);
 
@@ -163,8 +181,8 @@ public class MountManager {
     public static void unmount(int jarId) {
         logger.info("Unmounting JAR: " + jarId);
 
-        Integer id = new Integer(jarId);
-        MountPoint mountPoint;
+        final Integer id = new Integer(jarId);
+        final MountPoint mountPoint;
 
         synchronized (mountPoints) {
             mountPoint = (MountPoint)mountPoints.get(id);
@@ -173,9 +191,15 @@ public class MountManager {
                 return;
             }
 
-            if (mountPoint.decRefCount() < 1) {
-                mountPoints.remove(id);
-            }
+            AccessController.doPrivileged(
+                new PrivilegedAction() {
+                    public Object run() {
+                        if (mountPoint.decRefCount() < 1) {
+                            mountPoints.remove(id);
+                        }
+                        return null;
+                    }
+                });
         }
     }
 
