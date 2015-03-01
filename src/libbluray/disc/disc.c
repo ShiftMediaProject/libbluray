@@ -419,6 +419,9 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
         return -1;
     }
 
+    /* make sure path exists */
+    file_mkdirs(cache_path);
+
     /* output file in local filesystem */
     fp_out = file_open_default()(cache_path, "wb");
     if (!fp_out) {

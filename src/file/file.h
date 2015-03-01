@@ -66,6 +66,8 @@ BD_PRIVATE BD_DIR_OPEN dir_open_default(void);
  */
 
 BD_PRIVATE int file_unlink(const char *file);
-
+BD_PRIVATE int file_path_exists(const char *path);
+BD_PRIVATE int file_mkdir(const char *dir);
+BD_PRIVATE int file_mkdirs(const char *path);
 
 #endif /* FILE_H_ */

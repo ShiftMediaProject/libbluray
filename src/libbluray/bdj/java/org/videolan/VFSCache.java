@@ -68,8 +68,6 @@ class VFSCache {
             vfsRoot = vfsRoot + File.separator;
         }
         vfsRootLength = vfsRoot.length();
-
-        new File(cacheRoot + jarDir).mkdirs();
     }
 
     /*
@@ -164,8 +162,6 @@ class VFSCache {
     private void copyJarDir(String name) {
         /* copy directory from BDMV/JAR/ */
 
-        new File(cacheRoot + jarDir + name).mkdirs();
-
         File[] files = new File(vfsRoot + jarDir + name).listFiles();
         for (int i = 0; i < files.length; i++) {
             File   file    = files[i];
@@ -197,8 +193,6 @@ class VFSCache {
     }
 
     protected synchronized File addFont(String fontFile) {
-
-        new File(fontRoot + fontDir).mkdirs();
 
         String relPath = fontDir + fontFile;
         String dstPath = fontRoot + relPath;
@@ -279,17 +273,6 @@ class VFSCache {
         inAccessFile = false;
     }
 
-    private void mkdirs_xletCode(String path) {
-        final File file = new File(path);
-        AccessController.doPrivileged(
-            new PrivilegedAction() {
-                public Object run() {
-                    file.mkdirs();
-                    return null;
-                }
-            });
-    }
-
     private void accessFileImp(String absPath) {
 
         if (BDFileSystem.nativeFileExists(absPath)) {
@@ -299,24 +282,14 @@ class VFSCache {
 
         String relPath = absPath.substring(vfsRootLength);
         String[] names = org.videolan.Libbluray.listBdFiles(relPath, true);
-        if (names == null) {
-            /* this is regular file */
-        } else {
-            /* this is directory, make sure it exists */
-            mkdirs_xletCode(absPath);
+        if (names != null) {
+            /* this is directory */
             return;
         }
 
         /* do not cache .m2ts streams */
         if (relPath.startsWith("BDMV" + File.separator + "STREAM" + File.separator)) {
             return;
-        }
-
-        /* create the directory */
-        int sepPos = relPath.lastIndexOf(File.separatorChar);
-        if (sepPos > 0) {
-            String absDir = cacheRoot + relPath.substring(0, sepPos);
-            mkdirs_xletCode(absDir);
         }
 
         /* finally, copy the file to cache */

@@ -55,6 +55,8 @@ class CacheDir {
 
         SecurityManager sm = System.getSecurityManager();
         if (sm != null && sm instanceof BDJSecurityManager) {
+            ((BDJSecurityManager)sm).setCacheRoot(System.getProperty("java.io.tmpdir"));
+            new File(baseDir).mkdirs();
             ((BDJSecurityManager)sm).setCacheRoot(baseDir);
         }
 
