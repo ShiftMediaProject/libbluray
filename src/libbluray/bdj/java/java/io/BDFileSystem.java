@@ -44,6 +44,25 @@ public abstract class BDFileSystem extends FileSystem {
 
     protected final FileSystem fs;
 
+    private static FileSystem nativeFileSystem;
+
+    static {
+        /* Java 8: getFileSystem() no longer exists on java.io.FileSystem */
+        try {
+            nativeFileSystem = (FileSystem)Class.forName("java.io.DefaultFileSystem")
+                .getDeclaredMethod("getFileSystem", new Class[0])
+                .invoke(null, new Object[0]);
+        } catch (Exception e) {
+            try {
+                nativeFileSystem = (FileSystem)FileSystem.class
+                    .getDeclaredMethod("getFileSystem",new Class[0])
+                    .invoke(null, new Object[0]);
+            } catch (Exception t) {
+                System.err.print("Couldn't find native filesystem: " + t);
+            }
+        }
+    }
+
     public static void init(final Class c) {
         AccessController.doPrivileged(
             new PrivilegedAction() {
@@ -77,11 +96,11 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public static String[] nativeList(File f) {
-        return getFileSystem().list(f);
+        return nativeFileSystem.list(f);
     }
 
     public static boolean nativeFileExists(String path) {
-        return getFileSystem().getBooleanAttributes(new File(path)) != 0;
+        return nativeFileSystem.getBooleanAttributes(new File(path)) != 0;
     }
 
     /*
