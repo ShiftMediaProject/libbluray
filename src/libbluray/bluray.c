@@ -491,10 +491,12 @@ static void _update_textst_timer(BLURAY *bd)
             if (cmds.wakeup_time >= bd->st0.clip->in_time && cmds.wakeup_time < bd->st0.clip->out_time) {
                 /* find event position in main path clip */
                 NAV_CLIP *clip = bd->st0.clip;
-                uint32_t spn = clpi_lookup_spn(clip->cl, cmds.wakeup_time, /*before=*/1,
-                                               bd->title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
-                if (spn) {
-                    bd->gc_wakeup_pos = (uint64_t)spn * 192L;
+                if (clip->cl) {
+                    uint32_t spn = clpi_lookup_spn(clip->cl, cmds.wakeup_time, /*before=*/1,
+                                                   bd->title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
+                    if (spn) {
+                        bd->gc_wakeup_pos = (uint64_t)spn * 192L;
+                  }
                 }
             }
         }
@@ -503,7 +505,7 @@ static void _update_textst_timer(BLURAY *bd)
 
 static void _init_textst_timer(BLURAY *bd)
 {
-    if (bd->st_textst.clip) {
+    if (bd->st_textst.clip && bd->st0.clip->cl) {
         uint32_t clip_time;
         clpi_access_point(bd->st0.clip->cl, SPN(bd->st0.clip_block_pos), /*next=*/0, /*angle_change=*/0, &clip_time);
         bd->gc_wakeup_time = clip_time;
@@ -1909,6 +1911,11 @@ static int _preload_textst_subpath(BLURAY *bd)
     gc_run(bd->graphics_controller, GC_CTRL_PG_RESET, 0, NULL);
 
     bd->st_textst.clip = &bd->title->sub_path[textst_subpath].clip_list.clip[textst_subclip];
+    if (!bd->st0.clip->cl) {
+        /* required for fonts */
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_preload_textst_subpath(): missing clip data\n");
+        return -1;
+    }
 
     if (!_preload_m2ts(bd, &bd->st_textst)) {
         _close_preload(&bd->st_textst);
