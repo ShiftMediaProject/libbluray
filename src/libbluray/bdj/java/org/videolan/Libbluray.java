@@ -55,6 +55,9 @@ public class Libbluray {
         System.setProperty("dvb.persistent.root", persistentRoot);
         System.setProperty("bluray.bindingunit.root", budaRoot);
 
+        new File(persistentRoot).mkdirs();
+        new File(budaRoot).mkdirs();
+
         if (discRoot != null) {
             System.setProperty("bluray.vfs.root", discRoot);
         }
