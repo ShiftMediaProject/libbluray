@@ -24,10 +24,7 @@ import java.io.FilePermission;
 import java.io.File;
 import java.security.Permission;
 
-/*
- * Dummy security manager to grab all file access
- */
-class BDJSecurityManager extends SecurityManager {
+final class BDJSecurityManager extends SecurityManager {
 
     private String discRoot;
     private String cacheRoot;
@@ -60,16 +57,37 @@ class BDJSecurityManager extends SecurityManager {
      *
      */
 
+    private void deny(Permission perm) {
+        logger.error("denied " + perm + "\n" + Logger.dumpStack());
+        throw new SecurityException("denied " + perm);
+    }
+
     public void checkPermission(Permission perm) {
+        if (perm instanceof RuntimePermission) {
+            if (perm.implies(new RuntimePermission("createSecurityManager"))) {
+                deny(perm);
+            }
+            if (perm.implies(new RuntimePermission("setSecurityManager"))) {
+                if (classDepth("org.videolan.Libbluray") == 3) {
+                    return;
+                }
+                deny(perm);
+            }
+        }
+
         /*
         try {
             java.security.AccessController.checkPermission(perm);
         } catch (java.security.AccessControlException ex) {
-            System.err.println(" *** caught " + ex + " at " + Logger.dumpStack());
+            System.err.println(" *** caught " + ex + " at\n" + Logger.dumpStack());
             throw ex;
         }
         */
     }
+
+    /*
+     *
+     */
 
     public void checkExec(String cmd) {
         logger.error("Exec(" + cmd + ") denied\n" + Logger.dumpStack());
