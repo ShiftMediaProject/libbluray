@@ -81,6 +81,11 @@ class BDJSecurityManager extends SecurityManager {
         throw new SecurityException("exit denied");
     }
 
+    public void checkSetFactory() {
+        logger.error("setFactory() denied\n" + Logger.dumpStack());
+        throw new SecurityException("setFactory denied");
+    }
+
     public void checkRead(String file) {
         //super.checkRead(file);
         if (usingUdf) {

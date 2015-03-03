@@ -59,13 +59,6 @@ public class Libbluray {
             System.setProperty("bluray.vfs.root", discRoot);
         }
 
-        try {
-            System.setSecurityManager(new BDJSecurityManager(discRoot, persistentRoot, budaRoot));
-        } catch (Exception ex) {
-            System.err.println("System.setSecurityManager() failed: " + ex);
-            throw new SecurityException("Failed initializing SecurityManager");
-        }
-
             Libbluray.nativePointer = nativePointer;
             DiscManager.getDiscManager().setCurrentDisc(discID);
 
@@ -147,6 +140,13 @@ public class Libbluray {
             System.setProperty("bluray.network.connected", "YES");
 
             BDJSocketFactory.init();
+
+        try {
+            System.setSecurityManager(new BDJSecurityManager(discRoot, persistentRoot, budaRoot));
+        } catch (Exception ex) {
+            System.err.println("System.setSecurityManager() failed: " + ex);
+            throw new SecurityException("Failed initializing SecurityManager");
+        }
     }
 
     /* called only from native code */
@@ -159,6 +159,7 @@ public class Libbluray {
             BDJLoader.shutdown();
             BDJActionManager.shutdown();
 
+            /* all Xlet contexts (and threads) should be terminated now */
             try {
                 System.setSecurityManager(null);
             } catch (Exception ex) {
