@@ -122,7 +122,7 @@ public class BDJLoader {
         if (!ti.isBdj()) {
             logger.info("Not BD-J title - requesting HDMV title start");
             unloadN();
-            return Libbluray.selectTitle(title);
+            return Libbluray.selectHdmvTitle(title.getTitleNum());
         }
 
         try {

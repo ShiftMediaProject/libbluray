@@ -272,19 +272,9 @@ public class Libbluray {
         selectPlaylistN(nativePointer, -1, -1, -1, -1);
     }
 
-    protected static boolean selectTitle(TitleImpl title) {
-        TitleInfo ti = title.getTitleInfo();
-        if (ti.isBdj()) {
-            try {
-                ((TitleContext)ServiceContextFactory.getInstance().getServiceContext(null)).select(title);
-                return true;
-            } catch (Exception e) {
-                System.err.println("selectTitle() failed: " + e + "\n" + Logger.dumpStack(e));
-                return false;
-            }
-        }
-
-        return selectTitleN(nativePointer, title.getTitleNum()) == 1 ? true : false;
+    /* called by BDJLoader to select HDMV title */
+    protected static boolean selectHdmvTitle(int title) {
+        return selectTitleN(nativePointer, title) == 1 ? true : false;
     }
 
     public static boolean selectAngle(int angle) {
