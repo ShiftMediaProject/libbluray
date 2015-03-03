@@ -60,6 +60,8 @@ public class Libbluray {
 
         if (discRoot != null) {
             System.setProperty("bluray.vfs.root", discRoot);
+        } else {
+            System.getProperties().remove("bluray.vfs.root");
         }
 
             Libbluray.nativePointer = nativePointer;
