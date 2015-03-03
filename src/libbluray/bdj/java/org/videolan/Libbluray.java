@@ -20,6 +20,7 @@
 
 package org.videolan;
 
+import java.awt.BDFontMetrics;
 import java.awt.BDToolkit;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -77,7 +78,7 @@ public class Libbluray {
             PackageManager.commitContentPrefixList();
             PackageManager.commitProtocolPrefixList();
 
-            java.awt.BDFontMetrics.init();
+            BDFontMetrics.init();
 
             System.setProperty("mhp.profile.enhanced_broadcast", "YES");
             System.setProperty("mhp.profile.interactive_broadcast", "YES");
@@ -167,7 +168,7 @@ public class Libbluray {
             MountManager.unmountAll();
             GUIManager.shutdown();
             BDToolkit.shutdownDisc();
-            java.awt.BDFontMetrics.shutdown();
+            BDFontMetrics.shutdown();
             SIManagerImpl.shutdown();
             IxcRegistry.shutdown();
             EventManager.shutdown();
