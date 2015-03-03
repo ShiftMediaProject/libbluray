@@ -31,11 +31,10 @@ class CacheDir {
     }
 
     private static void cleanupCache() {
-        File baseDirFile = new File(baseDir);
-        String[] files = BDFileSystem.nativeList(baseDirFile);
+        String[] files = BDFileSystem.nativeList(baseDir);
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
-                File dir = new File(baseDirFile, files[i]);
+                File dir = new File(baseDir, files[i]);
                 if (dir.isDirectory()) {
                     LockFile lock = lockCache(dir.getPath());
                     if (lock != null) {
@@ -56,14 +55,14 @@ class CacheDir {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null && sm instanceof BDJSecurityManager) {
             ((BDJSecurityManager)sm).setCacheRoot(System.getProperty("java.io.tmpdir"));
-            new File(baseDir).mkdirs();
-            ((BDJSecurityManager)sm).setCacheRoot(baseDir);
+            baseDir.mkdirs();
+            ((BDJSecurityManager)sm).setCacheRoot(baseDir.getPath());
         }
 
         cleanupCache();
 
         for (int i = 0; i < 100; i++) {
-            File tmpDir = new File(baseDir + System.nanoTime());
+            File tmpDir = new File(baseDir, "" + System.nanoTime());
             tmpDir = new File(tmpDir.getCanonicalPath());
 
             if (tmpDir.mkdirs()) {
@@ -86,7 +85,7 @@ class CacheDir {
 
     public static synchronized File create(String domain) throws IOException {
 
-        File tmpDir = new File(getCacheRoot().getPath() + File.separator + domain);
+        File tmpDir = new File(getCacheRoot(), domain);
         if (!tmpDir.exists() && !tmpDir.mkdirs()) {
             logger.error("Error creating " + tmpDir.getPath());
             throw new IOException();
@@ -148,7 +147,6 @@ class CacheDir {
 
     private static File cacheRoot = null;
     private static LockFile lockFile = null;
-
-    private static final String baseDir = System.getProperty("java.io.tmpdir") + File.separator + "libbluray-bdj-cache" + File.separator;
+    private static final File baseDir = new File(System.getProperty("java.io.tmpdir"), "libbluray-bdj-cache");
     private static final Logger logger = Logger.getLogger(CacheDir.class.getName());
 }
