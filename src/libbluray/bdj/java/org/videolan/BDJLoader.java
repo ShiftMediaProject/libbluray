@@ -44,6 +44,7 @@ import org.videolan.media.content.PlayerManager;
 
 public class BDJLoader {
 
+    /* called by org.dvb.ui.FontFactory */
     public static File addFont(InputStream is) {
         VFSCache localCache = vfsCache;
         if (localCache != null) {
@@ -52,6 +53,7 @@ public class BDJLoader {
         return null;
     }
 
+    /* called by org.dvb.ui.FontFactory */
     public static File addFont(String fontFile) {
         VFSCache localCache = vfsCache;
         if (localCache != null) {
@@ -60,7 +62,8 @@ public class BDJLoader {
         return null;
     }
 
-    public static void accessFile(String file) {
+    /* called by BDJSecurityManager */
+    protected static void accessFile(String file) {
         VFSCache localCache = vfsCache;
         if (localCache != null) {
             localCache.accessFile(file);
@@ -99,7 +102,7 @@ public class BDJLoader {
         return true;
     }
 
-    public static void shutdown() {
+    protected static void shutdown() {
         try {
             queue.shutdown();
         } catch (Throwable e) {
