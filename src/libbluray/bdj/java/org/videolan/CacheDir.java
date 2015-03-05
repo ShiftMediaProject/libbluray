@@ -52,11 +52,11 @@ class CacheDir {
             return cacheRoot;
         }
 
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null && sm instanceof BDJSecurityManager) {
-            ((BDJSecurityManager)sm).setCacheRoot(System.getProperty("java.io.tmpdir"));
+        BDJSecurityManager sm = (BDJSecurityManager)System.getSecurityManager();
+        if (sm != null) {
+            sm.setCacheRoot(System.getProperty("java.io.tmpdir"));
             baseDir.mkdirs();
-            ((BDJSecurityManager)sm).setCacheRoot(baseDir.getPath());
+            sm.setCacheRoot(baseDir.getPath());
         }
 
         cleanupCache();
@@ -70,8 +70,8 @@ class CacheDir {
                 lockFile  = lockCache(cacheRoot.getPath());
                 logger.info("Created cache in " + tmpDir.getPath());
 
-                if (sm != null && sm instanceof BDJSecurityManager) {
-                    ((BDJSecurityManager)sm).setCacheRoot(cacheRoot.getPath());
+                if (sm != null) {
+                    sm.setCacheRoot(cacheRoot.getPath());
                 }
 
                 return cacheRoot;
