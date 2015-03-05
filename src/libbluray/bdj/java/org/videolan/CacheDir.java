@@ -101,16 +101,16 @@ class CacheDir {
     private static void removeImpl(File dir) {
         String[] files = BDFileSystem.nativeList(dir);
         if (files != null) {
-        for (int i = 0; i < files.length; i++) {
-            File file = new File(dir, files[i]);
-            if (file.isDirectory()) {
-                removeImpl(file);
-            } else {
-                if (!file.delete()) {
-                    logger.info("Error removing " + file.getPath());
+            for (int i = 0; i < files.length; i++) {
+                File file = new File(dir, files[i]);
+                if (file.isDirectory()) {
+                    removeImpl(file);
+                } else {
+                    if (!file.delete()) {
+                        logger.info("Error removing " + file.getPath());
+                    }
                 }
             }
-        }
         }
 
         if (!dir.delete()) {
