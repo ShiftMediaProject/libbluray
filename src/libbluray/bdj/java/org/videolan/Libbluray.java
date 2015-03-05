@@ -48,17 +48,32 @@ import org.videolan.media.content.PlayerManager;
  */
 public class Libbluray {
 
+    private static String canonicalize(String path, boolean create) {
+        try {
+            File dir = new File(path);
+            if (create) {
+                dir.mkdirs();
+            }
+            return dir.getCanonicalPath();
+        } catch (Exception ioe) {
+            System.err.println("error canonicalizing " + path + ": " + ioe);
+        }
+        return path;
+    }
+
     /* called only from native code */
     private static void init(long nativePointer, String discID, String discRoot,
                                String persistentRoot, String budaRoot) {
 
+        /* set up directories */
+        persistentRoot = canonicalize(persistentRoot, true);
+        budaRoot       = canonicalize(budaRoot, true);
+
         System.setProperty("dvb.persistent.root", persistentRoot);
         System.setProperty("bluray.bindingunit.root", budaRoot);
 
-        new File(persistentRoot).mkdirs();
-        new File(budaRoot).mkdirs();
-
         if (discRoot != null) {
+            discRoot = canonicalize(discRoot, false);
             System.setProperty("bluray.vfs.root", discRoot);
         } else {
             System.getProperties().remove("bluray.vfs.root");
