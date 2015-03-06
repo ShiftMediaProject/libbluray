@@ -26,6 +26,7 @@
 #include "util/macro.h"
 #include "util/logging.h"
 
+#include <errno.h>
 #include <inttypes.h>
 #include <stdio.h> // remove()
 #include <stdlib.h>
@@ -81,8 +82,11 @@ static int64_t file_read_linux(BD_FILE_H *file, uint8_t *buf, int64_t size)
     for (got = 0; got < (ssize_t)size; got += result) {
         result = read((int)(intptr_t)file->internal, buf + got, size - got);
         if (result < 0) {
-            BD_DEBUG(DBG_FILE, "read() failed (%p)\n", (void*)file);
-            break;
+            if (errno != EINTR) {
+                BD_DEBUG(DBG_FILE, "read() failed (%p)\n", (void*)file);
+                break;
+            }
+            result = 0;
         } else if (result == 0) {
             // hit EOF.
             break;
@@ -103,8 +107,11 @@ static int64_t file_write_linux(BD_FILE_H *file, const uint8_t *buf, int64_t siz
     for (written = 0; written < (ssize_t)size; written += result) {
         result = write((int)(intptr_t)file->internal, buf + written, size - written);
         if (result < 0) {
-            BD_DEBUG(DBG_FILE, "write() failed (%p)\n", (void*)file);
-            break;
+            if (errno != EINTR) {
+                BD_DEBUG(DBG_FILE, "write() failed (%p)\n", (void*)file);
+                break;
+            }
+            result = 0;
         }
     }
     return (int64_t)written;
@@ -152,7 +159,7 @@ static BD_FILE_H *file_open_linux(const char* filename, const char *cmode)
 
     file->internal = (void*)(intptr_t)fd;
 
-    BD_DEBUG(DBG_FILE, "Opened LINUX file %s... (%p)\n", filename, (void*)file);
+    BD_DEBUG(DBG_FILE, "Opened LINUX file %s (%p)\n", filename, (void*)file);
     return file;
 }
 
