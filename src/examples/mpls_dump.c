@@ -135,8 +135,9 @@ const VALUE_MAP playback_type_map[] = {
 };
 
 const VALUE_MAP connection_type_map[] = {
-  {0, "Non-seamless"},
-  {1, "Seamless"},
+  {1, "Non-seamless"},
+  {5, "Seamless"},
+  {6, "Seamless"},
   {0, NULL}
 };
 
