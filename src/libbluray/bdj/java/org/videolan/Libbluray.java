@@ -48,6 +48,30 @@ import org.videolan.media.content.PlayerManager;
  */
 public class Libbluray {
 
+    /* hook system properties: make "user.dir" point to current Xlet home directory */
+
+    private static boolean propertiesHooked = false;
+
+    private static void hookProperties() {
+        if (propertiesHooked) {
+            return;
+        }
+        propertiesHooked = true;
+
+        java.util.Properties p = new java.util.Properties(System.getProperties()) {
+                public String getProperty(String key) {
+                    if (key.equals("user.dir")) {
+                        BDJXletContext ctx = BDJXletContext.getCurrentContext();
+                        if (ctx != null) {
+                            return ctx.getXletHome();
+                        }
+                    }
+                    return super.getProperty(key);
+                }
+            };
+        System.setProperties(p);
+    }
+
     private static String canonicalize(String path, boolean create) {
         try {
             File dir = new File(path);
@@ -64,6 +88,8 @@ public class Libbluray {
     /* called only from native code */
     private static void init(long nativePointer, String discID, String discRoot,
                                String persistentRoot, String budaRoot) {
+
+        hookProperties();
 
         /* set up directories */
         persistentRoot = canonicalize(persistentRoot, true);
