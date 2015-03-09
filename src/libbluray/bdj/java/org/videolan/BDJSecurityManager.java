@@ -22,7 +22,9 @@ package org.videolan;
 
 import java.io.FilePermission;
 import java.io.File;
+import java.security.AccessController;
 import java.security.Permission;
+import java.security.PrivilegedAction;
 
 final class BDJSecurityManager extends SecurityManager {
 
@@ -100,6 +102,9 @@ final class BDJSecurityManager extends SecurityManager {
     }
 
     public void checkRead(String file) {
+
+        file = getCanonPath(file);
+
         //super.checkRead(file);
         if (usingUdf) {
             BDJLoader.accessFile(file);
@@ -123,6 +128,8 @@ final class BDJSecurityManager extends SecurityManager {
     public void checkWrite(String file) {
         BDJXletContext ctx = BDJXletContext.getCurrentContext();
 
+        file = getCanonPath(file);
+
         if (ctx != null) {
             // Xlet can write to persistent storage and binding unit
             if (canReadWrite(file)) {
@@ -139,6 +146,24 @@ final class BDJSecurityManager extends SecurityManager {
 
 
         throw new SecurityException("write access denied");
+    }
+
+    private String getCanonPath(final String path)
+    {
+        String cpath = (String)AccessController.doPrivileged(new PrivilegedAction() {
+            public Object run() {
+                try {
+                    return new File(path).getCanonicalPath();
+                } catch (Exception ioe) {
+                    logger.error("error canonicalizing " + path + ": " + ioe);
+                    return null;
+                }
+            }
+            });
+        if (cpath == null) {
+            throw new SecurityException("cant canonicalize " + path);
+        }
+        return cpath;
     }
 
     /*
