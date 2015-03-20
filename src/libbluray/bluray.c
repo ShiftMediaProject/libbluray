@@ -1300,16 +1300,20 @@ BLURAY *bd_open(const char *device_path, const char *keyfile_path)
         return NULL;
     }
 
-    bd->disc = disc_open(device_path,
-                         &enc_info, keyfile_path,
-                         (void*)bd->regs, (void*)bd_psr_read, (void*)bd_psr_write);
-
-    _fill_disc_info(bd, &enc_info);
-
     bd_mutex_init(&bd->mutex);
 #ifdef USING_BDJAVA
     bd_mutex_init(&bd->argb_buffer_mutex);
 #endif
+
+    bd->disc = disc_open(device_path,
+                         &enc_info, keyfile_path,
+                         (void*)bd->regs, (void*)bd_psr_read, (void*)bd_psr_write);
+
+    if (!bd->disc) {
+        return bd;
+    }
+
+    _fill_disc_info(bd, &enc_info);
 
     BD_DEBUG(DBG_BLURAY, "BLURAY initialized!\n");
 
