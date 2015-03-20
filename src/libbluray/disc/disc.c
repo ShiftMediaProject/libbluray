@@ -42,7 +42,6 @@ struct bd_disc {
     BD_MUTEX  ovl_mutex;     /* protect access to overlay root */
 
     char     *disc_root;     /* disc filesystem root (if disc is mounted) */
-    char     *disc_device;   /* disc device (if using real device) */
     char     *overlay_root;  /* overlay filesystem root (if set) */
 
     BD_DEC   *dec;
@@ -213,8 +212,6 @@ BD_DISC *disc_open(const char *device_path,
 
         char *disc_root = mount_get_mountpoint(device_path);
 
-        p->disc_device = str_dup(device_path);
-
         /* make sure path ends to slash */
         if (disc_root[0] && disc_root[strlen(disc_root) - 1] == DIR_SEP_CHAR) {
             p->disc_root = disc_root;
@@ -254,7 +251,7 @@ BD_DISC *disc_open(const char *device_path,
         }
 #endif
 
-        struct dec_dev dev = { p->fs_handle, p->pf_file_open_bdrom, p, (file_openFp)disc_open_path, p->disc_root, p->disc_device };
+        struct dec_dev dev = { p->fs_handle, p->pf_file_open_bdrom, p, (file_openFp)disc_open_path, p->disc_root, device_path };
         p->dec = dec_init(&dev, enc_info, keyfile_path, regs, psr_read, psr_write);
     }
 
@@ -275,7 +272,6 @@ void disc_close(BD_DISC **pp)
         bd_mutex_destroy(&p->ovl_mutex);
 
         X_FREE(p->disc_root);
-        X_FREE(p->disc_device);
         X_FREE(*pp);
     }
 }
