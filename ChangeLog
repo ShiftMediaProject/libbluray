@@ -1,5 +1,6 @@
 - Add support for UDF image files and unmounted discs.
 - Add UDF volume identifier to DISC_INFO.
+- Add bd_init() and bd_open_disc() and bd_open_stream().
 - Fix infinite loop with some broken HDMV menus.
 - Emit BD_EVENT_PLAYLIST_STOP when playlist playback is stopped in middle.
 - Accept directory name (without .jar file name) in LIBBLURAY_CP.

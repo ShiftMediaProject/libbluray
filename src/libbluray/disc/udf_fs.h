@@ -25,7 +25,9 @@
 struct bd_file_s;
 struct bd_dir_s;
 
-BD_PRIVATE void *udf_image_open(const char *img_path);
+BD_PRIVATE void *udf_image_open(const char *img_path,
+                                void *read_block_handle,
+                                 int (*read_blocks)(void *handle, void *buf, int lba, int num_blocks));
 BD_PRIVATE void  udf_image_close(void *udf);
 
 BD_PRIVATE const char       *udf_volume_id(void *udf);

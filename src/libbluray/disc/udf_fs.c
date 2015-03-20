@@ -196,7 +196,43 @@ static struct udfread_block_input *_block_input(const char *img)
 }
 
 
-void *udf_image_open(const char *img_path)
+typedef struct {
+    struct udfread_block_input i;
+    void *read_block_handle;
+    int (*read_blocks)(void *handle, void *buf, int lba, int num_blocks);
+} UDF_SI;
+
+static int _si_close(struct udfread_block_input *bi_gen)
+{
+    free(bi_gen);
+    return 0;
+}
+
+static int _si_read(struct udfread_block_input *bi_gen, uint32_t lba, void *buf, uint32_t nblocks, int flags)
+{
+    (void)flags;
+    UDF_SI *si = (UDF_SI *)bi_gen;
+    return si->read_blocks(si->read_block_handle, buf, lba, nblocks);
+}
+
+static struct udfread_block_input *_stream_input(void *read_block_handle,
+                                                 int (*read_blocks)(void *handle, void *buf, int lba, int num_blocks))
+{
+    UDF_SI *si = calloc(1, sizeof(*si));
+    if (si) {
+        si->read_block_handle = read_block_handle;
+        si->read_blocks = read_blocks;
+        si->i.close = _si_close;
+        si->i.read  = _si_read;
+        return &si->i;
+    }
+    return NULL;
+}
+
+
+void *udf_image_open(const char *img_path,
+                     void *read_block_handle,
+                     int (*read_blocks)(void *handle, void *buf, int lba, int num_blocks))
 {
     udfread *udf = udfread_init();
     int result = -1;
@@ -205,8 +241,19 @@ void *udf_image_open(const char *img_path)
         return NULL;
     }
 
+    /* stream ? */
+    if (read_blocks) {
+        struct udfread_block_input *si = _stream_input(read_block_handle, read_blocks);
+        if (si) {
+            result = udfread_open_input(udf, si);
+            if (result < 0) {
+                si->close(si);
+            }
+        }
+    } else {
+
     /* app handles file I/O ? */
-    if (file_open != file_open_default()) {
+    if (result < 0 && file_open != file_open_default()) {
         struct udfread_block_input *bi = _block_input(img_path);
         if (bi) {
             result = udfread_open_input(udf, bi);
@@ -218,6 +265,7 @@ void *udf_image_open(const char *img_path)
 
     if (result < 0) {
         result = udfread_open(udf, img_path);
+    }
     }
 
     if (result < 0) {

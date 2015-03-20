@@ -38,6 +38,8 @@ struct bd_enc_info;
 typedef struct bd_disc BD_DISC;
 
 BD_PRIVATE BD_DISC *disc_open(const char *device_path,
+                              void *read_blocks_handle,
+                              int (*read_blocks)(void *handle, void *buf, int lba, int num_blocks),
                               struct bd_enc_info *enc_info,
                               const char *keyfile_path,
                               void *regs, void *psr_read, void *psr_write);

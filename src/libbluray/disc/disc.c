@@ -231,6 +231,8 @@ static void _set_paths(BD_DISC *p, const char *device_path)
 }
 
 BD_DISC *disc_open(const char *device_path,
+                   void *read_blocks_handle,
+                   int (*read_blocks)(void *handle, void *buf, int lba, int num_blocks),
                    struct bd_enc_info *enc_info,
                    const char *keyfile_path,
                    void *regs, void *psr_read, void *psr_write)
@@ -242,9 +244,9 @@ BD_DISC *disc_open(const char *device_path,
 
 #ifdef ENABLE_UDF
         /* check if disc root directory can be opened. If not, treat it as device/image file. */
-        BD_DIR_H *dp_img = dir_open(device_path);
+        BD_DIR_H *dp_img = device_path ? dir_open(device_path) : NULL;
         if (!dp_img) {
-            void *udf = udf_image_open(device_path);
+            void *udf = udf_image_open(device_path, read_blocks_handle, read_blocks);
             if (!udf) {
                 BD_DEBUG(DBG_FILE | DBG_CRIT, "failed opening UDF image %s\n", device_path);
             } else {

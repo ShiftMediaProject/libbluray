@@ -320,6 +320,18 @@ BLURAY *bd_init(void);
 int bd_open_disc(BLURAY *bd, const char *device_path, const char *keyfile_path);
 
 /**
+ *  Open BluRay disc
+ *
+ * @param bd  BLURAY object
+ * @param handle  opaque handle for read_blocks
+ * @param read_blocks  function used to read disc blocks
+ * @return 1 on success, 0 if error
+ */
+int bd_open_stream(BLURAY *bd,
+                   void *read_blocks_handle,
+                   int (*read_blocks)(void *handle, void *buf, int lba, int num_blocks));
+
+/**
  *  Close BluRay disc
  *
  * @param bd  BLURAY object
