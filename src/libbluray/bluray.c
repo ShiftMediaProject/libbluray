@@ -1275,16 +1275,9 @@ static void _storage_free(BLURAY *bd)
  * open / close
  */
 
-BLURAY *bd_open(const char *device_path, const char *keyfile_path)
+BLURAY *bd_init(void)
 {
-    BD_ENC_INFO enc_info;
-
     BD_DEBUG(DBG_BLURAY, "libbluray version "BLURAY_VERSION_STRING"\n");
-
-    if (!device_path) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No device path provided!\n");
-        return NULL;
-    }
 
     BLURAY *bd = calloc(1, sizeof(BLURAY));
 
@@ -1305,17 +1298,52 @@ BLURAY *bd_open(const char *device_path, const char *keyfile_path)
     bd_mutex_init(&bd->argb_buffer_mutex);
 #endif
 
+    BD_DEBUG(DBG_BLURAY, "BLURAY initialized!\n");
+
+    return bd;
+}
+
+int bd_open_disc(BLURAY *bd, const char *device_path, const char *keyfile_path)
+{
+    BD_ENC_INFO enc_info;
+
+    if (!bd) {
+        return 0;
+    }
+
+    if (!device_path) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "No device path provided!\n");
+        return 0;
+    }
+
+    if (bd->disc) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Disc already open\n");
+        return 0;
+    }
+
     bd->disc = disc_open(device_path,
                          &enc_info, keyfile_path,
                          (void*)bd->regs, (void*)bd_psr_read, (void*)bd_psr_write);
 
     if (!bd->disc) {
-        return bd;
+        return 0;
     }
 
     _fill_disc_info(bd, &enc_info);
 
-    BD_DEBUG(DBG_BLURAY, "BLURAY initialized!\n");
+    return bd->disc_info.bluray_detected;
+}
+
+BLURAY *bd_open(const char *device_path, const char *keyfile_path)
+{
+    BLURAY *bd;
+
+    bd = bd_init();
+    if (!bd) {
+        return NULL;
+    }
+
+    bd_open_disc(bd, device_path, keyfile_path);
 
     return bd;
 }

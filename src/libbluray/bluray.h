@@ -285,7 +285,6 @@ typedef struct bd_sound_effect {
  */
 void bd_get_version(int *major, int *minor, int *micro);
 
-
 /*
  * Disc functions
  */
@@ -293,11 +292,32 @@ void bd_get_version(int *major, int *minor, int *micro);
 /**
  *  Open BluRay disc
  *
- * @param device_path   path to mounted Blu-ray disc or device
+ *  Shortcut for bd_open_disc(bd_init(), device_path, keyfile_path)
+ *
+ * @param device_path   path to mounted Blu-ray disc, device or image file
  * @param keyfile_path  path to KEYDB.cfg (may be NULL)
  * @return allocated BLURAY object, NULL if error
  */
 BLURAY *bd_open(const char *device_path, const char *keyfile_path);
+
+/**
+ *  Initialize BLURAY object
+ *
+ *  Resulting object can be passed to following bd_open_??? functions.
+ *
+ * @return allocated BLURAY object, NULL if error
+ */
+BLURAY *bd_init(void);
+
+/**
+ *  Open BluRay disc
+ *
+ * @param bd  BLURAY object
+ * @param device_path   path to mounted Blu-ray disc, device or image file
+ * @param keyfile_path  path to KEYDB.cfg (may be NULL)
+ * @return 1 on success, 0 if error
+ */
+int bd_open_disc(BLURAY *bd, const char *device_path, const char *keyfile_path);
 
 /**
  *  Close BluRay disc
