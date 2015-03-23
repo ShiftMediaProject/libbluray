@@ -99,6 +99,17 @@ final class BDJSecurityManager extends SecurityManager {
             }
         }
 
+        else if (perm instanceof FilePermission) {
+            /* grant delete for writable files */
+            if (perm.getActions().equals("delete")) {
+                if (canReadWrite(perm.getName())) {
+                    return;
+                }
+                checkWrite(perm.getName());
+                return;
+            }
+        }
+
         /* Networking */
         else if (perm instanceof java.net.SocketPermission) {
             if (new java.net.SocketPermission("*", "connect,resolve").implies(perm)) {
