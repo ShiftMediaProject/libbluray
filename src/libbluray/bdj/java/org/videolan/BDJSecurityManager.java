@@ -151,14 +151,12 @@ final class BDJSecurityManager extends SecurityManager {
             return;
         }
 
-        /*
         try {
             java.security.AccessController.checkPermission(perm);
         } catch (java.security.AccessControlException ex) {
             System.err.println(" *** caught " + ex + " at\n" + Logger.dumpStack());
             throw ex;
         }
-        */
     }
 
     /*
