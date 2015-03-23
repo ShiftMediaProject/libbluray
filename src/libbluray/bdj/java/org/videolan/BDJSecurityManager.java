@@ -99,6 +99,36 @@ final class BDJSecurityManager extends SecurityManager {
             }
         }
 
+        /* Java TV */
+        else if (perm instanceof javax.tv.service.ReadPermission) {
+            return;
+        }
+        else if (perm instanceof javax.tv.service.selection.ServiceContextPermission) {
+            return;
+        }
+        else if (perm instanceof javax.tv.service.selection.SelectPermission) {
+            return;
+        }
+        else if (perm instanceof javax.tv.media.MediaSelectPermission) {
+            return;
+        }
+
+        /* DVB */
+        else if (perm instanceof org.dvb.application.AppsControlPermission) {
+            return;
+        }
+        else if (perm instanceof org.dvb.media.DripFeedPermission) {
+            return;
+        }
+        else if (perm instanceof org.dvb.user.UserPreferencePermission) {
+            return;
+        }
+
+        /* bluray */
+        else if (perm instanceof org.bluray.vfs.VFSPermission) {
+            return;
+        }
+
         /*
         try {
             java.security.AccessController.checkPermission(perm);
