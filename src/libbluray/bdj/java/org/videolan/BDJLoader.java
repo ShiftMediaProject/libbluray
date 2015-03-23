@@ -104,7 +104,9 @@ public class BDJLoader {
 
     protected static void shutdown() {
         try {
-            queue.shutdown();
+            if (queue != null) {
+                queue.shutdown();
+            }
         } catch (Throwable e) {
             logger.error("shutdown() failed: " + e + "\n" + Logger.dumpStack(e));
         }
