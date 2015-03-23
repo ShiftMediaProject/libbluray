@@ -167,7 +167,7 @@ public class MountManager {
         }
     }
 
-    public static void unmount(int jarId) {
+    private static void unmount(int jarId) {
         logger.info("Unmounting JAR: " + jarId);
 
         final Integer id = new Integer(jarId);
@@ -192,7 +192,8 @@ public class MountManager {
         }
     }
 
-    public static void unmountAll() {
+    /* package private, called from Libbluray.shutdown() */
+    protected static void unmountAll() {
         logger.info("Unmounting all JARs");
 
         Object[] dirs;
@@ -208,6 +209,7 @@ public class MountManager {
         }
     }
 
+    /* called from org/dvb/dsmcc/ServiceDomain */
     public static String getMount(int jarId) {
         Integer id = new Integer(jarId);
         MountPoint mountPoint;
