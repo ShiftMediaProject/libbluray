@@ -99,6 +99,13 @@ final class BDJSecurityManager extends SecurityManager {
             }
         }
 
+        /* Networking */
+        else if (perm instanceof java.net.SocketPermission) {
+            if (new java.net.SocketPermission("*", "connect,resolve").implies(perm)) {
+                return;
+            }
+        }
+
         /* Java TV */
         else if (perm instanceof javax.tv.service.ReadPermission) {
             return;
