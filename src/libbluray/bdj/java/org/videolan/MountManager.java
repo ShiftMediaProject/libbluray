@@ -82,12 +82,11 @@ public class MountManager {
                     mountPoint = new MountPoint(jarStr, classFiles);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Error opening " + path + ": " + e);
                 if (jar != null) {
                     try {
                         jar.close();
                     } catch (IOException e1) {
-                        e1.printStackTrace();
                     }
                 }
                 throw new MountException();
@@ -125,7 +124,7 @@ public class MountManager {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Error uncompressing " + path + ": " + e);
                 mountPoint.remove();
                 throw new MountException();
             } finally {
@@ -133,20 +132,17 @@ public class MountManager {
                     try {
                         inStream.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
                     }
                 }
                 if (outStream != null) {
                     try {
                         outStream.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
                     }
                 }
                 try {
                     jar.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
 
