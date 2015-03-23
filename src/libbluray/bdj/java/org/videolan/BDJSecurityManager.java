@@ -76,6 +76,10 @@ final class BDJSecurityManager extends SecurityManager {
                 }
                 deny(perm);
             }
+            if (perm.implies(new RuntimePermission("modifyThreadGroup"))) {
+                /* do check here (no need to log failures) */
+                super.checkPermission(perm);
+            }
         }
 
         else if (perm instanceof PropertyPermission) {
