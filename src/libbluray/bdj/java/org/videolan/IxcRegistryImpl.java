@@ -30,6 +30,9 @@ import java.rmi.NotBoundException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.Remote;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -267,7 +270,7 @@ public class IxcRegistryImpl {
             boolean   finished = false;
             Object    retInCaller = null;
 
-            public RemoteMethod(Method method, BDJXletContext context, Object[] args)
+            public RemoteMethod(final Method method, BDJXletContext context, Object[] args)
                 throws RemoteException {
 
                 callerContext  = BDJXletContext.getCurrentContext();
@@ -278,7 +281,15 @@ public class IxcRegistryImpl {
                     logger.error("callee context is null");
                 }
                 calleeContext  = context;
-                methodInCallee = findMethodInCallee(method);
+
+                //methodInCallee = findMethodInCallee(method);
+                methodInCallee = (Method)AccessController.doPrivileged(
+                    new PrivilegedAction() {
+                        public Object run() {
+                            return findMethodInCallee(method);
+                        }
+                    });
+
                 if (null != args) {
                     argsInCallee = new Object[args.length];
                     for (int i = 0; i < args.length; i++) {
