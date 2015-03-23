@@ -22,6 +22,7 @@ package org.videolan;
 
 import java.io.FilePermission;
 import java.io.File;
+import java.util.PropertyPermission;
 import java.security.AccessController;
 import java.security.Permission;
 import java.security.PrivilegedAction;
@@ -73,6 +74,27 @@ final class BDJSecurityManager extends SecurityManager {
                 if (classDepth("org.videolan.Libbluray") == 3) {
                     return;
                 }
+                deny(perm);
+            }
+        }
+
+        else if (perm instanceof PropertyPermission) {
+            // allow read
+            if (perm.getActions().equals("read")) {
+                String prop = perm.getName();
+                if (prop.startsWith("bluray.") || prop.startsWith("dvb.") || prop.startsWith("mhp.")) {
+                    //logger.info(perm + " granted");
+                    return;
+                }
+                if (prop.startsWith("user.dir")) {
+                    //logger.info(perm + " granted\n" + Logger.dumpStack());
+                    return;
+                }
+            }
+            try {
+                super.checkPermission(perm);
+            } catch (Exception e) {
+                logger.error(perm + " denied by system");
                 deny(perm);
             }
         }
