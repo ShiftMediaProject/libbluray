@@ -175,14 +175,30 @@ final class BDJSecurityManager extends SecurityManager {
         throw new SecurityException("exit denied");
     }
 
+    /*
+     * file read access
+     */
+
     public void checkRead(String file) {
 
         file = getCanonPath(file);
 
-        //super.checkRead(file);
         if (usingUdf) {
             BDJLoader.accessFile(file);
         }
+
+        if (cacheRoot != null && file.startsWith(cacheRoot)) {
+            return;
+        }
+        else if (discRoot != null && file.startsWith(discRoot)) {
+            return;
+        }
+        else if (canReadWrite(file)) {
+            return;
+        }
+
+        //logger.error("Xlet read " + file + " denied at\n" + Logger.dumpStack());
+        super.checkRead(file);
     }
 
     /*
