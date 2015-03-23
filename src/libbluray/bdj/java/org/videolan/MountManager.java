@@ -45,19 +45,8 @@ public class MountManager {
 
     /* called from org/dvb/dsmcc/ServiceDomain */
     public static String mount(int jarId) throws MountException {
-        final int id = jarId;
-        Object obj = null;
-        try {
-            obj = AccessController.doPrivileged(
-                new PrivilegedExceptionAction() {
-                    public Object run() throws MountException {
-                        return mount(id, true);
-                    }
-                });
-        } catch (PrivilegedActionException e) {
-             throw (MountException) e.getException();
-        }
-        return (String)obj;
+        /* dispatch mount request to privileged thread */
+        return new MountAction(jarId).execute();
     }
 
     /* package private, called from BDJXletContext */
@@ -289,4 +278,36 @@ public class MountManager {
         private int refCount;
         private boolean classFiles;
     };
+
+    private static class MountAction extends BDJAction {
+        public MountAction(int jarId) {
+            this.jarId = jarId;
+        }
+
+        protected void doAction() {
+            try {
+                this.mountPoint = (String)AccessController.doPrivileged(
+                    new PrivilegedExceptionAction() {
+                        public Object run() throws MountException {
+                            return mount(jarId, true);
+                        }
+                    });
+            } catch (PrivilegedActionException e) {
+                this.exception = (MountException) e.getException();
+            }
+        }
+
+        public String execute() throws MountException {
+            BDJActionManager.getInstance().putCommand(this);
+            waitEnd();
+            if (exception != null) {
+                throw exception;
+            }
+            return mountPoint;
+        }
+
+        private final int jarId;
+        private String mountPoint = null;
+        private MountException exception = null;
+    }
 }
