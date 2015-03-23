@@ -28,6 +28,10 @@ import java.net.Socket;
 import java.net.SocketImpl;
 import java.net.SocketImplFactory;
 
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+
 class BDJSocketFactory implements SocketImplFactory {
 
     protected static void init() {
@@ -45,13 +49,18 @@ class BDJSocketFactory implements SocketImplFactory {
 
     private SocketImpl newSocket() {
         try {
-            Class defaultSocketImpl = Class.forName("java.net.SocksSocketImpl");
-            Constructor constructor = defaultSocketImpl.getDeclaredConstructor/*s*/(new Class[0])/*[0]*/;
-            constructor.setAccessible(true);
-            return (SocketImpl) constructor.newInstance(new Object[0]);
-        } catch (Exception e) {
-            logger.error("Failed to create socket: " + e + " at " + Logger.dumpStack());
-            throw new RuntimeException(e);
+            return (SocketImpl)AccessController.doPrivileged(
+                new PrivilegedExceptionAction() {
+                    public Object run() throws Exception {
+                        Class defaultSocketImpl = Class.forName("java.net.SocksSocketImpl");
+                        Constructor constructor = defaultSocketImpl.getDeclaredConstructor/*s*/(new Class[0])/*[0]*/;
+                        constructor.setAccessible(true);
+                        return constructor.newInstance(new Object[0]);
+                    }
+                });
+        } catch (PrivilegedActionException e) {
+            logger.error("Failed to create socket: " + e.getException() + " at " + Logger.dumpStack());
+            throw new RuntimeException(e.getException());
         }
     }
 
