@@ -47,8 +47,10 @@
  */
 
 typedef struct {
+#ifdef HAVE_FT2
   FT_Face  face;
   void    *mem;
+#endif
 } FONT_DATA;
 
 struct textst_render {
