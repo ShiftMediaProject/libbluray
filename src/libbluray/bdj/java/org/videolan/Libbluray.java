@@ -230,8 +230,25 @@ public class Libbluray {
         titleInfos = null;
     }
 
-    public static byte[] getAacsData(int type) {
-        return getAacsDataN(nativePointer, type);
+    /*
+     * Package private
+     */
+
+    /* called by BDJLoader to select HDMV title */
+    protected static boolean selectHdmvTitle(int title) {
+        return selectTitleN(nativePointer, title) == 1 ? true : false;
+    }
+
+    protected static boolean cacheBdRomFile(String path, String cachePath) {
+        return cacheBdRomFileN(nativePointer, path, cachePath) == 0;
+    }
+
+    protected static void setUOMask(boolean menuCallMask, boolean titleSearchMask) {
+        setUOMaskN(nativePointer, menuCallMask, titleSearchMask);
+    }
+
+    protected static int setVirtualPackage(String vpPath, boolean initBackupRegs) {
+        return setVirtualPackageN(nativePointer, vpPath, initBackupRegs);
     }
 
     /*
@@ -265,13 +282,49 @@ public class Libbluray {
         return titleInfos[titleNum];
     }
 
+    /* used by org/bluray/ti/PlayListImpl */
+    public static int getCurrentTitle() {
+        return readPSR(PSR_TITLE_NUMBER);
+    }
+
+
     /*
-     *
+     * Disc data
      */
 
+    public static byte[] getAacsData(int type) {
+        return getAacsDataN(nativePointer, type);
+    }
 
     public static PlaylistInfo getPlaylistInfo(int playlist) {
         return getPlaylistInfoN(nativePointer, playlist);
+    }
+
+    public static Bdjo getBdjo(String name) {
+        return getBdjoN(nativePointer, name + ".bdjo");
+    }
+
+    public static String[] listBdFiles(String path, boolean onlyBdRom) {
+        return listBdFilesN(nativePointer, path, onlyBdRom);
+    }
+
+    /*
+     * Playback control
+     */
+
+    public static boolean selectPlaylist(int playlist, int playitem, int playmark, long time) {
+        if (playlist < 0)
+            throw new IllegalArgumentException("Playlist cannot be negative");
+
+        return selectPlaylistN(nativePointer, playlist, playitem, playmark, time) == 1 ? true : false;
+    }
+
+    public static boolean selectPlaylist(int playlist) {
+        return selectPlaylist(playlist, -1, -1, -1);
+    }
+
+    public static void stopPlaylist() {
+        selectPlaylistN(nativePointer, -1, -1, -1, -1);
     }
 
     public static long seekTime(long tick) {
@@ -298,35 +351,11 @@ public class Libbluray {
         return result;
     }
 
-    public static boolean selectPlaylist(int playlist, int playitem, int playmark, long time) {
-        if (playlist < 0)
-            throw new IllegalArgumentException("Playlist cannot be negative");
-
-        return selectPlaylistN(nativePointer, playlist, playitem, playmark, time) == 1 ? true : false;
-    }
-
-    public static boolean selectPlaylist(int playlist) {
-        return selectPlaylist(playlist, -1, -1, -1);
-    }
-
-    public static void stopPlaylist() {
-        selectPlaylistN(nativePointer, -1, -1, -1, -1);
-    }
-
-    /* called by BDJLoader to select HDMV title */
-    protected static boolean selectHdmvTitle(int title) {
-        return selectTitleN(nativePointer, title) == 1 ? true : false;
-    }
-
     public static boolean selectAngle(int angle) {
         if (angle < 1)
             throw new IllegalArgumentException("Angle cannot be negative");
 
         return selectAngleN(nativePointer, angle) == 1 ? true : false;
-    }
-
-    public static int getCurrentTitle() {
-        return readPSR(PSR_TITLE_NUMBER);
     }
 
     public static int getCurrentAngle() {
@@ -347,6 +376,10 @@ public class Libbluray {
     public static boolean selectRate(float rate, boolean start) {
         return selectRateN(nativePointer, rate, start ? 1 : 2) == 1 ? true : false;
     }
+
+    /*
+     * Register access
+     */
 
     public static void writeGPR(int num, int value) {
         int ret = writeGPRN(nativePointer, num, value);
@@ -380,17 +413,9 @@ public class Libbluray {
         return readPSRN(nativePointer, num);
     }
 
-    public static Bdjo getBdjo(String name) {
-        return getBdjoN(nativePointer, name + ".bdjo");
-    }
-
-    protected static boolean cacheBdRomFile(String path, String cachePath) {
-        return cacheBdRomFileN(nativePointer, path, cachePath) == 0;
-    }
-
-    public static String[] listBdFiles(String path, boolean onlyBdRom) {
-        return listBdFilesN(nativePointer, path, onlyBdRom);
-    }
+    /*
+     * Graphics
+     */
 
     public static void updateGraphic(int width, int height, int[] rgbArray) {
         updateGraphicN(nativePointer, width, height, rgbArray,
@@ -402,6 +427,10 @@ public class Libbluray {
         updateGraphicN(nativePointer, width, height, rgbArray,
                        x0, y0, x1, y1);
     }
+
+    /*
+     * Events from native side
+     */
 
     private static boolean startTitle(int titleNumber) {
 
@@ -524,14 +553,6 @@ public class Libbluray {
         }
 
         return result;
-    }
-
-    protected static void setUOMask(boolean menuCallMask, boolean titleSearchMask) {
-        setUOMaskN(nativePointer, menuCallMask, titleSearchMask);
-    }
-
-    protected static int setVirtualPackage(String vpPath, boolean initBackupRegs) {
-        return setVirtualPackageN(nativePointer, vpPath, initBackupRegs);
     }
 
     private static final int BDJ_EVENT_CHAPTER                  = 1;
