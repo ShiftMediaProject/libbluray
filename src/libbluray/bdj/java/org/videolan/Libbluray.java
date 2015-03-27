@@ -105,87 +105,87 @@ public class Libbluray {
             System.getProperties().remove("bluray.vfs.root");
         }
 
-            Libbluray.nativePointer = nativePointer;
-            DiscManager.getDiscManager().setCurrentDisc(discID);
+        Libbluray.nativePointer = nativePointer;
+        DiscManager.getDiscManager().setCurrentDisc(discID);
 
-            BDJActionManager.createInstance();
+        BDJActionManager.createInstance();
 
-            Vector prefix = new Vector();
-            prefix.add("org.videolan");
-            PackageManager.setContentPrefixList(prefix);
-            PackageManager.setProtocolPrefixList(prefix);
-            PackageManager.commitContentPrefixList();
-            PackageManager.commitProtocolPrefixList();
+        Vector prefix = new Vector();
+        prefix.add("org.videolan");
+        PackageManager.setContentPrefixList(prefix);
+        PackageManager.setProtocolPrefixList(prefix);
+        PackageManager.commitContentPrefixList();
+        PackageManager.commitProtocolPrefixList();
 
-            BDFontMetrics.init();
+        BDFontMetrics.init();
 
-            System.setProperty("mhp.profile.enhanced_broadcast", "YES");
-            System.setProperty("mhp.profile.interactive_broadcast", "YES");
-            System.setProperty("mhp.profile.internet_access", "YES");
+        System.setProperty("mhp.profile.enhanced_broadcast", "YES");
+        System.setProperty("mhp.profile.interactive_broadcast", "YES");
+        System.setProperty("mhp.profile.internet_access", "YES");
 
-            System.setProperty("mhp.eb.version.major", "1");
-            System.setProperty("mhp.eb.version.minor", "0");
-            System.setProperty("mhp.eb.version.micro", "3");
-            System.setProperty("mhp.ia.version.major", "1");
-            System.setProperty("mhp.ia.version.minor", "0");
-            System.setProperty("mhp.ia.version.micro", "3");
-            System.setProperty("mhp.ib.version.major", "1");
-            System.setProperty("mhp.ib.version.minor", "0");
-            System.setProperty("mhp.ib.version.micro", "3");
+        System.setProperty("mhp.eb.version.major", "1");
+        System.setProperty("mhp.eb.version.minor", "0");
+        System.setProperty("mhp.eb.version.micro", "3");
+        System.setProperty("mhp.ia.version.major", "1");
+        System.setProperty("mhp.ia.version.minor", "0");
+        System.setProperty("mhp.ia.version.micro", "3");
+        System.setProperty("mhp.ib.version.major", "1");
+        System.setProperty("mhp.ib.version.minor", "0");
+        System.setProperty("mhp.ib.version.micro", "3");
 
-            System.setProperty("mhp.option.ip.multicast", "UNSUPPORTED");
-            System.setProperty("mhp.option.dsmcc.uu", "UNSUPPORTED");
-            System.setProperty("mhp.option.dvb.html", "UNSUPPORTED");
+        System.setProperty("mhp.option.ip.multicast", "UNSUPPORTED");
+        System.setProperty("mhp.option.dsmcc.uu", "UNSUPPORTED");
+        System.setProperty("mhp.option.dvb.html", "UNSUPPORTED");
 
-            System.setProperty("dvb.returnchannel.timeout", "30");
+        System.setProperty("dvb.returnchannel.timeout", "30");
 
-            System.setProperty("bluray.profile.1", "YES");
-            System.setProperty("bluray.p1.version.major", "1");
-            System.setProperty("bluray.p1.version.minor", "1");
-            System.setProperty("bluray.p1.version.micro", "0");
+        System.setProperty("bluray.profile.1", "YES");
+        System.setProperty("bluray.p1.version.major", "1");
+        System.setProperty("bluray.p1.version.minor", "1");
+        System.setProperty("bluray.p1.version.micro", "0");
 
-            System.setProperty("bluray.profile.2", "YES");
-            System.setProperty("bluray.p2.version.major", "1");
-            System.setProperty("bluray.p2.version.minor", "0");
-            System.setProperty("bluray.p2.version.micro", "0");
+        System.setProperty("bluray.profile.2", "YES");
+        System.setProperty("bluray.p2.version.major", "1");
+        System.setProperty("bluray.p2.version.minor", "0");
+        System.setProperty("bluray.p2.version.micro", "0");
 
-            System.setProperty("bluray.disc.avplayback.readcapability", "NO");
+        System.setProperty("bluray.disc.avplayback.readcapability", "NO");
 
-            System.setProperty("bluray.video.fullscreenSD", "YES");
-            System.setProperty("bluray.video.fullscreenSDPG", "YES");
+        System.setProperty("bluray.video.fullscreenSD", "YES");
+        System.setProperty("bluray.video.fullscreenSDPG", "YES");
 
-            System.setProperty("aacs.bluray.online.capability", "YES");
-            System.setProperty("aacs.bluray.mc.capability", "NO");
+        System.setProperty("aacs.bluray.online.capability", "YES");
+        System.setProperty("aacs.bluray.mc.capability", "NO");
 
-            System.setProperty("bluray.prefetchedplaylistloading", "NO");
-            System.setProperty("bluray.video.autoresume", "NO");
+        System.setProperty("bluray.prefetchedplaylistloading", "NO");
+        System.setProperty("bluray.video.autoresume", "NO");
 
-            System.setProperty("bluray.mediaselect", "NO");
+        System.setProperty("bluray.mediaselect", "NO");
 
-            System.setProperty("bluray.event.extension", "YES");
+        System.setProperty("bluray.event.extension", "YES");
 
-            System.setProperty("bluray.jmf.subtitlestyle", "YES");
+        System.setProperty("bluray.jmf.subtitlestyle", "YES");
 
-            System.setProperty("bluray.rccapability.release", "YES");
-            System.setProperty("bluray.rccapability.holdandrelease", "YES");
-            System.setProperty("bluray.rccapability.repeatonhold", "NO");
+        System.setProperty("bluray.rccapability.release", "YES");
+        System.setProperty("bluray.rccapability.holdandrelease", "YES");
+        System.setProperty("bluray.rccapability.repeatonhold", "NO");
 
-            System.setProperty("bluray.localstorage.level", "5");
-            System.setProperty("bluray.localstorage.maxlevel", "5");
+        System.setProperty("bluray.localstorage.level", "5");
+        System.setProperty("bluray.localstorage.maxlevel", "5");
 
-            System.setProperty("bluray.localstorage.removable", "NO");
-            System.setProperty("bluray.localstorage.upgradable", "NO");
-            System.setProperty("bluray.localstorage.name", "HDD");
+        System.setProperty("bluray.localstorage.removable", "NO");
+        System.setProperty("bluray.localstorage.upgradable", "NO");
+        System.setProperty("bluray.localstorage.name", "HDD");
 
-            System.setProperty("bluray.memory.images", "65536");
-            System.setProperty("bluray.memory.audio", "8192");
-            System.setProperty("bluray.memory.audio_plus_img", "73728");
-            System.setProperty("bluray.memory.java_heap", "32768");
-            System.setProperty("bluray.memory.font_cache", "4096");
+        System.setProperty("bluray.memory.images", "65536");
+        System.setProperty("bluray.memory.audio", "8192");
+        System.setProperty("bluray.memory.audio_plus_img", "73728");
+        System.setProperty("bluray.memory.java_heap", "32768");
+        System.setProperty("bluray.memory.font_cache", "4096");
 
-            System.setProperty("bluray.network.connected", "YES");
+        System.setProperty("bluray.network.connected", "YES");
 
-            BDJSocketFactory.init();
+        BDJSocketFactory.init();
 
         try {
             System.setSecurityManager(new BDJSecurityManager(discRoot, persistentRoot, budaRoot));
