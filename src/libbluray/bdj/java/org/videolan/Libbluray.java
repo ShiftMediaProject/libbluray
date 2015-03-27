@@ -384,7 +384,7 @@ public class Libbluray {
         return getBdjoN(nativePointer, name + ".bdjo");
     }
 
-    public static boolean cacheBdRomFile(String path, String cachePath) {
+    protected static boolean cacheBdRomFile(String path, String cachePath) {
         return cacheBdRomFileN(nativePointer, path, cachePath) == 0;
     }
 
