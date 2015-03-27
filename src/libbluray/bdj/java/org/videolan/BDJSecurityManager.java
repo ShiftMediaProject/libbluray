@@ -177,6 +177,21 @@ final class BDJSecurityManager extends SecurityManager {
      * file read access
      */
 
+    private boolean canRead(String file) {
+
+        if (cacheRoot != null && file.startsWith(cacheRoot)) {
+            return true;
+        }
+        if (discRoot != null && file.startsWith(discRoot)) {
+            return true;
+        }
+        if (canReadWrite(file)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public void checkRead(String file) {
 
         file = getCanonPath(file);
@@ -185,13 +200,7 @@ final class BDJSecurityManager extends SecurityManager {
             BDJLoader.accessFile(file);
         }
 
-        if (cacheRoot != null && file.startsWith(cacheRoot)) {
-            return;
-        }
-        else if (discRoot != null && file.startsWith(discRoot)) {
-            return;
-        }
-        else if (canReadWrite(file)) {
+        if (canRead(file)) {
             return;
         }
 
