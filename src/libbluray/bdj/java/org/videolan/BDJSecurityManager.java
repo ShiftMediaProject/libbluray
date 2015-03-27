@@ -109,6 +109,16 @@ final class BDJSecurityManager extends SecurityManager {
                 checkWrite(perm.getName());
                 return;
             }
+            /* grant read access to BD files */
+            if (perm.getActions().equals("read")) {
+                String file = getCanonPath(perm.getName());
+                if (canRead(file)) {
+                    if (usingUdf) {
+                        BDJLoader.accessFile(file);
+                    }
+                    return;
+                }
+            }
         }
 
         /* Networking */
@@ -190,22 +200,6 @@ final class BDJSecurityManager extends SecurityManager {
         }
 
         return false;
-    }
-
-    public void checkRead(String file) {
-
-        file = getCanonPath(file);
-
-        if (usingUdf) {
-            BDJLoader.accessFile(file);
-        }
-
-        if (canRead(file)) {
-            return;
-        }
-
-        //logger.error("Xlet read " + file + " denied at\n" + Logger.dumpStack());
-        super.checkRead(file);
     }
 
     /*
