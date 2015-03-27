@@ -106,9 +106,6 @@ final class BDJSecurityManager extends SecurityManager {
         else if (perm instanceof FilePermission) {
             /* grant delete for writable files */
             if (perm.getActions().equals("delete")) {
-                if (canReadWrite(perm.getName())) {
-                    return;
-                }
                 checkWrite(perm.getName());
                 return;
             }
@@ -185,7 +182,10 @@ final class BDJSecurityManager extends SecurityManager {
         if (discRoot != null && file.startsWith(discRoot)) {
             return true;
         }
-        if (canReadWrite(file)) {
+        if (budaRoot != null && file.startsWith(budaRoot)) {
+            return true;
+        }
+        if (persistentRoot != null && file.startsWith(persistentRoot)) {
             return true;
         }
 
@@ -212,35 +212,37 @@ final class BDJSecurityManager extends SecurityManager {
      * File write access
      */
 
-    private boolean canReadWrite(String file) {
+    private boolean canWrite(String file) {
+
+        // Xlet can write to persistent storage and binding unit
+
         if (budaRoot != null && file.startsWith(budaRoot)) {
             return true;
         }
         if (persistentRoot != null && file.startsWith(persistentRoot)) {
             return true;
         }
+
+        BDJXletContext ctx = BDJXletContext.getCurrentContext();
+        if (ctx != null) {
+            logger.error("Xlet write " + file + " denied at\n" + Logger.dumpStack());
+            return false;
+        }
+
+        // BD-J core can write to cache
+        if (cacheRoot != null && file.startsWith(cacheRoot)) {
+            return true;
+        }
+
+        logger.error("BD-J write " + file + " denied at\n" + Logger.dumpStack());
         return false;
     }
 
     public void checkWrite(String file) {
-        BDJXletContext ctx = BDJXletContext.getCurrentContext();
-
         file = getCanonPath(file);
-
-        if (ctx != null) {
-            // Xlet can write to persistent storage and binding unit
-            if (canReadWrite(file)) {
-                return;
-            }
-            logger.error("Xlet write " + file + " denied at\n" + Logger.dumpStack());
-        } else  {
-            // BD-J core can write to cache
-            if (cacheRoot != null && file.startsWith(cacheRoot)) {
-                return;
-            }
-            logger.error("BD-J write " + file + " denied at\n" + Logger.dumpStack());
+        if (canWrite(file)) {
+            return;
         }
-
 
         throw new SecurityException("write access denied");
     }
