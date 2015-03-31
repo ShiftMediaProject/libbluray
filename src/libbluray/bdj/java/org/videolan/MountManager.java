@@ -111,7 +111,12 @@ public class MountManager {
 
                         logger.info("   mount: " + entry.getName());
 
-                        inStream = jar.getInputStream(entry);
+                        try {
+                            inStream = jar.getInputStream(entry);
+                        } catch (SecurityException se) {
+                            logger.error("Error uncompressing " + entry.getName() + " from " + path +  ": " + se + "\n" + Logger.dumpStack(se));
+                            continue;
+                        }
                         outStream = new FileOutputStream(out);
 
                         int length;
