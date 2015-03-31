@@ -241,8 +241,18 @@ final class BDJSecurityManager extends SecurityManager {
         throw new SecurityException("write access denied");
     }
 
-    private String getCanonPath(final String path)
+    private String getCanonPath(String origPath)
     {
+        if (!java.io.BDFileSystem.isAbsolutePath(origPath)) {
+            String home = BDJXletContext.getCurrentXletHome();
+            if (home == null) {
+                logger.error("Relative path " + origPath + " outside Xlet context\n" + Logger.dumpStack());
+                return origPath;
+            }
+            origPath = home + origPath;
+        }
+
+        final String path = origPath;
         String cpath = (String)AccessController.doPrivileged(new PrivilegedAction() {
             public Object run() {
                 try {

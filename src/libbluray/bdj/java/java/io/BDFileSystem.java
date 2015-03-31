@@ -126,7 +126,7 @@ public abstract class BDFileSystem extends FileSystem {
         return fs.prefixLength(pathname);
     }
 
-    private boolean isAbsolutePath(String path) {
+    public static boolean isAbsolutePath(String path) {
         return path.startsWith("/") || path.indexOf(":\\") == 1 ||
             path.startsWith("\\");
     }
