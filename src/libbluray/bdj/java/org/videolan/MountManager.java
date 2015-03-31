@@ -77,7 +77,7 @@ public class MountManager {
 
             JarFile jar = null;
             try {
-                jar = new JarFile(path);
+                jar = new JarFile(path, false);
                 if (mountPoint == null) {
                     mountPoint = new MountPoint(jarStr, classFiles);
                 }
