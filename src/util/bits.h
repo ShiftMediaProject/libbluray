@@ -28,7 +28,7 @@
 
 #include <stdint.h>
 #include <stdio.h>     // SEEK_*
-#include <sys/types.h> // *size_t
+#include <stddef.h>    // size_t
 
 
 /**
@@ -43,7 +43,7 @@ typedef struct {
     const uint8_t *p;
     const uint8_t *p_end;
 
-    ssize_t  i_left;    /* i_count number of available bits */
+    int            i_left;    /* i_count number of available bits */
 } BITBUFFER;
 
 typedef struct {

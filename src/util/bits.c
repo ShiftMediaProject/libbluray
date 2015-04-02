@@ -73,7 +73,7 @@ void bb_seek( BITBUFFER *bb, int64_t off, int whence)
     b = off >> 3;
     bb->p = &bb->p_start[b];
 
-    ssize_t i_tmp = bb->i_left - (off & 0x07);
+    int i_tmp = bb->i_left - (off & 0x07);
     if (i_tmp <= 0) {
         bb->i_left = 8 + i_tmp;
         bb->p++;
@@ -168,7 +168,7 @@ uint32_t bb_read( BITBUFFER *bb, int i_count )
 
 uint32_t bs_read( BITSTREAM *bs, int i_count )
 {
-    ssize_t left;
+    int left;
     int bytes = (i_count + 7) >> 3;
 
     if (bs->bb.p + bytes >= bs->bb.p_end) {
@@ -184,13 +184,12 @@ uint32_t bs_read( BITSTREAM *bs, int i_count )
 
 void bb_skip( BITBUFFER *bb, size_t i_count )
 {
-    bb->i_left -= i_count;
+    bb->p += i_count >> 3;
+    bb->i_left -= i_count & 0x07;
 
     if( bb->i_left <= 0 ) {
-        const int i_bytes = ( -bb->i_left + 8 ) / 8;
-
-        bb->p += i_bytes;
-        bb->i_left += 8 * i_bytes;
+        bb->p++;
+        bb->i_left += 8;
     }
 }
 
