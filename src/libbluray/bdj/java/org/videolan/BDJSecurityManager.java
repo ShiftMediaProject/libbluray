@@ -243,6 +243,8 @@ final class BDJSecurityManager extends SecurityManager {
 
     private String getCanonPath(String origPath)
     {
+        String suffix = "";
+
         if (!java.io.BDFileSystem.isAbsolutePath(origPath)) {
             String home = BDJXletContext.getCurrentXletHome();
             if (home == null) {
@@ -250,6 +252,11 @@ final class BDJSecurityManager extends SecurityManager {
                 return origPath;
             }
             origPath = home + origPath;
+        }
+
+        if (origPath.endsWith(File.separator + "*")) {
+            suffix = File.separator + "*";
+            origPath = origPath.substring(0, origPath.length() - 2);
         }
 
         final String path = origPath;
@@ -266,7 +273,7 @@ final class BDJSecurityManager extends SecurityManager {
         if (cpath == null) {
             throw new SecurityException("cant canonicalize " + path);
         }
-        return cpath;
+        return cpath + suffix;
     }
 
     /*
