@@ -32,7 +32,7 @@
  * This file defines functions, structures for handling streams of bits
  */
 
-void bb_init( BITBUFFER *bb, uint8_t *p_data, size_t i_data )
+void bb_init( BITBUFFER *bb, const uint8_t *p_data, size_t i_data )
 {
     bb->p_start = p_data;
     bb->p       = bb->p_start;

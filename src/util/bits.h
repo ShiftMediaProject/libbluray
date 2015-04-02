@@ -39,9 +39,9 @@
 #define BF_BUF_SIZE   (1024*32)
 
 typedef struct {
-    uint8_t *p_start;
-    uint8_t *p;
-    uint8_t *p_end;
+    const uint8_t *p_start;
+    const uint8_t *p;
+    const uint8_t *p_end;
 
     ssize_t  i_left;    /* i_count number of available bits */
 } BITBUFFER;
@@ -55,7 +55,7 @@ typedef struct {
     size_t     size;
 } BITSTREAM;
 
-BD_PRIVATE void bb_init( BITBUFFER *bb, uint8_t *p_data, size_t i_data );
+BD_PRIVATE void bb_init( BITBUFFER *bb, const uint8_t *p_data, size_t i_data );
 BD_PRIVATE void bs_init( BITSTREAM *bs, BD_FILE_H *fp );
 BD_PRIVATE void bb_seek( BITBUFFER *bb, int64_t off, int whence);
 BD_PRIVATE void bs_seek( BITSTREAM *bs, int64_t off, int whence);
