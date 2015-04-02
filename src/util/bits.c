@@ -207,7 +207,7 @@ void bb_skip( BITBUFFER *bb, size_t i_count )
 void bs_skip( BITSTREAM *bs, size_t i_count )
 {
     int left;
-    size_t bytes = i_count >> 3;
+    size_t bytes = (i_count + 7) >> 3;
 
     if (bs->bb.p + bytes >= bs->bb.p_end) {
         bs->pos = bs->pos + (bs->bb.p - bs->bb.p_start);
