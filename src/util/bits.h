@@ -27,7 +27,6 @@
 #include "file/filesystem.h" // BD_FILE_H
 
 #include <stdint.h>
-#include <stdio.h>     // SEEK_*
 #include <stddef.h>    // size_t
 
 
@@ -59,6 +58,8 @@ BD_PRIVATE void bb_init( BITBUFFER *bb, const uint8_t *p_data, size_t i_data );
 BD_PRIVATE void bs_init( BITSTREAM *bs, BD_FILE_H *fp );
 BD_PRIVATE void bb_seek( BITBUFFER *bb, int64_t off, int whence);
 BD_PRIVATE void bs_seek( BITSTREAM *bs, int64_t off, int whence);
+BD_PRIVATE void bb_seek_byte( BITBUFFER *bb, int64_t off);
+BD_PRIVATE void bs_seek_byte( BITSTREAM *s, int64_t off);
 BD_PRIVATE void bb_skip( BITBUFFER *bb, size_t i_count );
 BD_PRIVATE void bs_skip( BITSTREAM *bs, size_t i_count );  /* note: i_count must be less than BF_BUF_SIZE */
 BD_PRIVATE uint32_t bb_read( BITBUFFER *bb, int i_count );
@@ -93,16 +94,6 @@ static inline int bs_eof( const BITSTREAM *bs )
 static inline int64_t bs_avail( const BITSTREAM *bs )
 {
     return bs_end(bs) - bs_pos(bs);
-}
-
-static inline void bb_seek_byte( BITBUFFER *bb, int64_t off)
-{
-    bb_seek(bb, off << 3, SEEK_SET);
-}
-
-static inline void bs_seek_byte( BITSTREAM *s, int64_t off)
-{
-    bs_seek(s, off << 3, SEEK_SET);
 }
 
 static inline void bb_read_bytes( BITBUFFER *bb, uint8_t *buf, int i_count )

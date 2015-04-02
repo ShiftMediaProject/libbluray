@@ -25,7 +25,7 @@
 #include "file/file.h"
 #include "util/logging.h"
 
-#include <stdio.h>
+#include <stdio.h>  // SEEK_*
 
 /**
  * \file
@@ -121,6 +121,17 @@ void bs_seek( BITSTREAM *bs, int64_t off, int whence)
         bs->bb.i_left = 8 - (off & 0x07);
     }
 }
+
+void bb_seek_byte( BITBUFFER *bb, int64_t off)
+{
+    bb_seek(bb, off << 3, SEEK_SET);
+}
+
+void bs_seek_byte( BITSTREAM *s, int64_t off)
+{
+    bs_seek(s, off << 3, SEEK_SET);
+}
+
 
 uint32_t bb_read( BITBUFFER *bb, int i_count )
 {
