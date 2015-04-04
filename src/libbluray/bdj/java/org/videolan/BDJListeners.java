@@ -23,6 +23,8 @@ import java.util.LinkedList;
 
 import javax.media.ControllerEvent;
 import javax.media.ControllerListener;
+import javax.media.GainChangeEvent;
+import javax.media.GainChangeListener;
 import javax.tv.media.MediaSelectEvent;
 import javax.tv.media.MediaSelectListener;
 import javax.tv.service.selection.ServiceContextEvent;
@@ -32,6 +34,8 @@ import org.bluray.bdplus.StatusListener;
 
 import org.bluray.media.AngleChangeEvent;
 import org.bluray.media.AngleChangeListener;
+import org.bluray.media.PanningChangeListener;
+import org.bluray.media.PanningChangeEvent;
 import org.bluray.media.PiPStatusEvent;
 import org.bluray.media.PiPStatusListener;
 import org.bluray.media.PlaybackListener;
@@ -145,11 +149,15 @@ public class BDJListeners {
                 ((UOMaskTableListener)listener).receiveUOMaskedEvent((UOMaskedEvent)event);
             } else if (event instanceof PiPStatusEvent) {
                 ((PiPStatusListener)listener).piPStatusChange((PiPStatusEvent)event);
+            } else if (event instanceof PanningChangeEvent) {
+                ((PanningChangeListener)listener).panningChange((PanningChangeEvent)event);
             } else if (event instanceof AngleChangeEvent) {
                 ((AngleChangeListener)listener).angleChange((AngleChangeEvent)event);
             } else if (event instanceof MediaSelectEvent) {
                 ((MediaSelectListener)listener).selectionComplete((MediaSelectEvent)event);
 
+            } else if (event instanceof GainChangeEvent) {
+                ((GainChangeListener)listener).gainChange((GainChangeEvent)event);
             } else if (event instanceof ControllerEvent) {
                 ((ControllerListener)listener).controllerUpdate((ControllerEvent)event);
 
