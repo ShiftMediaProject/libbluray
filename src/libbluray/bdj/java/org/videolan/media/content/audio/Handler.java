@@ -37,8 +37,8 @@ public class Handler extends BDHandler {
     public Handler() {
         controls = new Control[3];
         controls[0] = new MediaTimePositionControlImpl(this);
-        controls[1] = new OverallGainControlImpl();
-        controls[2] = new PanningControlImpl();
+        controls[1] = new OverallGainControlImpl(this);
+        controls[2] = new PanningControlImpl(this);
     }
 
     public void setSource(DataSource source) throws IOException, IncompatibleSourceException {

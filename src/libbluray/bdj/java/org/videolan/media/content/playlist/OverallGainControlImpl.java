@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2015  Petri Hintukainen
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,56 +21,19 @@
 package org.videolan.media.content.playlist;
 
 import java.awt.Component;
-import javax.media.GainChangeListener;
 import org.bluray.media.OverallGainControl;
 
-public class OverallGainControlImpl implements OverallGainControl {
-    public void setMute(boolean mute) {
-        org.videolan.Logger.unimplemented("OverallGainControlImpl", "setMute");
-        this.mute = mute;
+import org.videolan.media.content.BDHandler;
+
+public class OverallGainControlImpl extends GainControlImpl implements OverallGainControl {
+    public OverallGainControlImpl(BDHandler player) {
+        this.player = player;
     }
 
-    public boolean getMute() {
-        org.videolan.Logger.unimplemented("OverallGainControlImpl", "getMute");
-        return this.mute;
+    protected void setGain(boolean mute, float level) {
+        player.setGain(BDHandler.GAIN_OVERALL, mute, level);
+        super.valueChanged();
     }
 
-    public float setDB(float gain) {
-        org.videolan.Logger.unimplemented("OverallGainControlImpl", "setDB");
-        this.gain = gain;
-        return this.gain;
-    }
-
-    public float getDB() {
-        org.videolan.Logger.unimplemented("OverallGainControlImpl", "getDB");
-        return gain;
-    }
-
-    public float setLevel(float level) {
-        org.videolan.Logger.unimplemented("OverallGainControlImpl", "setLevel");
-        this.level = level;
-        return this.level;
-    }
-
-    public float getLevel() {
-        org.videolan.Logger.unimplemented("OverallGainControlImpl", "getLevel");
-        return level;
-    }
-
-    public void addGainChangeListener(GainChangeListener listener) {
-        // TODO Not implemented
-        org.videolan.Logger.unimplemented("OverallGainControlImpl", "addGainChangeListener");
-    }
-
-    public void removeGainChangeListener(GainChangeListener listener) {
-        // TODO Not implemented
-    }
-
-    public Component getControlComponent() {
-        return null;
-    }
-
-    private boolean mute = false;
-    private float level = 0.0f;
-    private float gain = 0.0f;
+    private BDHandler player;
 }
