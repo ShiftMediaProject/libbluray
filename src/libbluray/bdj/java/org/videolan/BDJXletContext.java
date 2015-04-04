@@ -55,6 +55,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                                               this);
 
         callbackQueue = new BDJActionQueue(this.threadGroup, "CallbackQueue");
+        mediaQueue = new BDJActionQueue(this.threadGroup, "MediaQueue");
         userEventQueue = new BDJActionQueue(this.threadGroup, "UserEventQueue");
 
         mountHomeDir(entry);
@@ -197,35 +198,39 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return eventQueue;
     }
 
+    /* must be called from synchronized (this) {} */
+    private boolean putCallbackImpl(BDJAction cb, BDJActionQueue queue)
+    {
+        if (isReleased()) {
+            logger.error("callback ignored (xlet destroyed)");
+            return false;
+        }
+        if (queue == null) {
+            logger.error("callback ignored (no queue)");
+            return false;
+        }
+        queue.put(cb);
+        return true;
+    }
+
     public boolean putCallback(BDJAction cb)
     {
         synchronized (this) {
-            if (isReleased()) {
-                logger.error("callback ignored (xlet destroyed)");
-                return false;
-            }
-            if (callbackQueue == null) {
-                logger.error("callback ignored (no queue)");
-                return false;
-            }
-            callbackQueue.put(cb);
-            return true;
+            return putCallbackImpl(cb, callbackQueue);
+        }
+    }
+
+    public boolean putMediaCallback(BDJAction cb)
+    {
+        synchronized (this) {
+            return putCallbackImpl(cb, mediaQueue);
         }
     }
 
     public boolean putUserEvent(BDJAction cb)
     {
         synchronized (this) {
-            if (isReleased()) {
-                logger.error("UE callback ignored (xlet destroyed)");
-                return false;
-            }
-            if (userEventQueue == null) {
-                logger.error("UE callback ignored (no queue)");
-                return false;
-            }
-            userEventQueue.put(cb);
-            return true;
+            return putCallbackImpl(cb, userEventQueue);
         }
     }
 
@@ -238,8 +243,8 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             }
         }
         if (!released) {
-            // callbackQueue
-            cnt++;
+            // callbackQueue, userEventQueue, mediaQueue
+            cnt += 3;
         }
         return cnt;
     }
@@ -446,6 +451,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
         callbackQueue.shutdown();
         userEventQueue.shutdown();
+        mediaQueue.shutdown();
 
         EventQueue eq = eventQueue;
         eventQueue = null;
@@ -471,6 +477,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             container = null;
             callbackQueue = null;
             userEventQueue = null;
+            mediaQueue = null;
             defaultLooks = null;
             released = true;
         }
@@ -495,5 +502,6 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     private HashMap defaultLooks = new HashMap();
     private BDJActionQueue callbackQueue;
     private BDJActionQueue userEventQueue;
+    private BDJActionQueue mediaQueue;
     private static final Logger logger = Logger.getLogger(BDJXletContext.class.getName());
 }

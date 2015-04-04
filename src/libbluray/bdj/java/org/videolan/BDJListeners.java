@@ -92,6 +92,33 @@ public class BDJListeners {
     }
 
     public void putCallback(Object event) {
+        boolean mediaQueue = true;
+        /*
+        if (event instanceof PlaybackMarkEvent) {
+        } else if (event instanceof PlaybackPlayItemEvent) {
+        } else if (event instanceof UOMaskTableChangedEvent) {
+        } else if (event instanceof UOMaskedEvent) {
+        } else if (event instanceof PiPStatusEvent) {
+        } else if (event instanceof PanningChangeEvent) {
+        } else if (event instanceof AngleChangeEvent) {
+        } else if (event instanceof MediaSelectEvent) {
+        } else if (event instanceof GainChangeEvent) {
+        } else if (event instanceof ControllerEvent) {
+        }
+        */
+        if (event instanceof ServiceContextEvent) {
+            mediaQueue = false;
+        } else if (event instanceof ResourceStatusEvent) {
+            mediaQueue = false;
+        } else if (event instanceof AppsDatabaseEvent) {
+            mediaQueue = false;
+        } else if (event instanceof PSR102Status) {
+            mediaQueue = false;
+        }
+        putCallback(event, mediaQueue);
+    }
+
+    public void putCallback(Object event, boolean mediaQueue) {
         synchronized (listeners) {
             for (Iterator it = listeners.iterator(); it.hasNext(); ) {
                 BDJListener item = (BDJListener)it.next();
@@ -99,7 +126,11 @@ public class BDJListeners {
                     logger.info("Listener terminated: " + item.ctx);
                     it.remove();
                 } else {
-                    item.ctx.putCallback(new Callback(event, item.listener));
+                    if (mediaQueue) {
+                        item.ctx.putMediaCallback(new Callback(event, item.listener));
+                    } else {
+                        item.ctx.putCallback(new Callback(event, item.listener));
+                    }
                 }
             }
         }
