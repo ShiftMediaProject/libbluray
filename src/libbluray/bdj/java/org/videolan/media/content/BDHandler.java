@@ -114,8 +114,10 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
                 if (cls.isInstance(controls[i]))
                     return controls[i];
             }
+            Logger.getLogger("BDHandler").error("getControl(): control not found: " + forName);
             return null;
         } catch (ClassNotFoundException e) {
+            Logger.getLogger("BDHandler").error("getControl(): " + e);
             return null;
         }
     }
