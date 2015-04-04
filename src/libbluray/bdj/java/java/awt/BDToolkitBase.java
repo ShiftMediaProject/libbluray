@@ -62,8 +62,7 @@ abstract class BDToolkitBase extends Toolkit {
                 ((BDToolkit)toolkit).shutdown();
             }
         } catch (Throwable t) {
-            logger.error("shutdownDisc() failed: " + t);
-            t.printStackTrace();
+            logger.error("shutdownDisc() failed: " + t + "\n" + Logger.dumpStack(t));
         }
     }
 
@@ -85,7 +84,7 @@ abstract class BDToolkitBase extends Toolkit {
 
     Graphics getGraphics(Window window) {
         if (!(window instanceof BDRootWindow)) {
-            System.err.println("getGraphics(): not BDRootWindow");
+            logger.error("getGraphics(): not BDRootWindow");
             throw new Error("Not implemented");
         }
         return new BDWindowGraphics((BDRootWindow)window);
