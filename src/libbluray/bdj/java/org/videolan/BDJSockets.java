@@ -38,6 +38,7 @@ class BDJSockets {
 
     protected synchronized void add(Object obj) {
         if (!(obj instanceof SocketImpl)) {
+            logger.error("expected SocketImpl, got " + obj);
             throw new Error("expected SocketImpl");
         }
 
