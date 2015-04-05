@@ -51,6 +51,9 @@ public class TitleContextImpl implements TitleContext {
             throw new IllegalStateException();
         if (state == STATE_STOPPED)
             return new ServiceContentHandler[0];
+
+        org.videolan.Logger.unimplemented("TitleContextImpl", "getServiceContentHandlers");
+
         ServiceContentHandler[] handler = new ServiceContentHandler[1];
         handler[0] = new Handler();
         return handler;
@@ -70,6 +73,9 @@ public class TitleContextImpl implements TitleContext {
 
     public void select(Locator[] locators)
         throws InvalidLocatorException, InvalidServiceComponentException, SecurityException {
+
+        org.videolan.Logger.unimplemented("TitleContextImpl", "select(Locator[])");
+
         select(SIManager.createInstance().getService(locators[0]));
     }
 
