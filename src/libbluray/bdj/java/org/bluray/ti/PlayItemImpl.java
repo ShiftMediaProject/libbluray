@@ -24,6 +24,7 @@ import java.util.Date;
 import javax.tv.locator.Locator;
 import javax.tv.service.ServiceInformationType;
 import javax.tv.service.navigation.ServiceComponent;
+import javax.tv.service.navigation.StreamType;
 
 import org.bluray.net.BDLocator;
 import org.davic.net.InvalidLocatorException;
