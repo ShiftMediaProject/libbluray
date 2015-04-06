@@ -82,7 +82,7 @@ static int _unregister_methods(JNIEnv *env, const char *class_name)
     }
 
     if (error) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to runegister native methods for class %s\n", class_name);
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to unegister native methods for class %s\n", class_name);
     }
 
     return !error;
