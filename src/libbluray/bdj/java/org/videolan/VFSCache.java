@@ -159,20 +159,29 @@ class VFSCache {
         logger.info("cached " + relPath);
     }
 
+    private void copyJarDir(String name, String[] files) {
+
+        for (int i = 0; i < files.length; i++) {
+            String relPath = name + File.separator + files[i];
+            String[] subFiles = Libbluray.listBdFiles(relPath, true);
+            if (subFiles != null) {
+                copyJarDir(relPath, subFiles);
+            } else {
+                Libbluray.cacheBdRomFile(relPath, cacheRoot + relPath);
+            }
+        }
+    }
+
     private void copyJarDir(String name) {
         /* copy directory from BDMV/JAR/ */
 
-        File[] files = new File(vfsRoot + jarDir + name).listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File   file    = files[i];
-            String relPath = name + File.separator + files[i].getName();
-            if (file.isDirectory()) {
-                copyJarDir(relPath);
-            } else {
-                copyJarFile(relPath);
-            }
+        String relPath = jarDir + name;
+        String[] files = Libbluray.listBdFiles(relPath, true);
+        if (files == null) {
+            return;
         }
-        logger.info("cached " + name);
+        copyJarDir(relPath, files);
+        logger.info("cached " + relPath);
     }
 
     /*
@@ -281,7 +290,7 @@ class VFSCache {
         }
 
         String relPath = absPath.substring(vfsRootLength);
-        String[] names = org.videolan.Libbluray.listBdFiles(relPath, true);
+        String[] names = Libbluray.listBdFiles(relPath, true);
         if (names != null) {
             /* this is directory */
             return;
