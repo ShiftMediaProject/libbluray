@@ -18,6 +18,7 @@
  */
 package org.videolan;
 
+import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -50,9 +51,11 @@ import org.davic.resources.ResourceStatusListener;
 
 import org.dvb.application.AppsDatabaseEvent;
 import org.dvb.application.AppsDatabaseEventListener;
+import org.dvb.media.SubtitleAvailableEvent;
 import org.dvb.media.SubtitleListener;
-import java.util.EventObject;
-
+import org.dvb.media.SubtitleNotAvailableEvent;
+import org.dvb.media.SubtitleNotSelectedEvent;
+import org.dvb.media.SubtitleSelectedEvent;
 
 public class BDJListeners {
     private LinkedList listeners = new LinkedList();
@@ -213,9 +216,8 @@ public class BDJListeners {
                     break;
                 }
 
-            /* need to use wrapper if some other callback uses EventObject */
-            } else if (event instanceof EventObject &&
-                       listener instanceof SubtitleListener) {
+            } else if (event instanceof SubtitleAvailableEvent || event instanceof SubtitleNotAvailableEvent ||
+                       event instanceof SubtitleNotSelectedEvent || event instanceof SubtitleSelectedEvent) {
                 ((SubtitleListener)listener).subtitleStatusChanged((EventObject)event);
 
             } else if (event instanceof PSR102Status) {
