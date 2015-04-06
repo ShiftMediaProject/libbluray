@@ -57,7 +57,7 @@ public class FileInputStream extends InputStream
                 logger.info("Using cached " + cachedName + " for " + name);
                 name = cachedName;
             }
-            open(name);
+            openImpl(name);
         } else {
             /* relative paths are problematic ... */
             /* Those should be mapped to xlet home directory, which is inside .jar file. */
@@ -70,7 +70,7 @@ public class FileInputStream extends InputStream
                 logger.error("no home found for " + name + " at " + Logger.dumpStack());
                 throw new FileNotFoundException(name);
             }
-            open(home + name);
+            openImpl(home + name);
         }
 
         available = 1024;
@@ -93,9 +93,22 @@ public class FileInputStream extends InputStream
         available = 1024;
     }
 
-    private native void open(String name) throws FileNotFoundException;
+    /* open()/open0() wrapper to select correct native method at runtime */
+    private void openImpl(String name) throws FileNotFoundException {
+        try {
+            open(name);
+        } catch (UnsatisfiedLinkError e) {
+            /* OpenJDK 8 b40 */
+            open0(name);
+        }
+    }
+
     private native int  readBytes(byte b[], int off, int len) throws IOException;
     private native int  close0();
+    /* OpenJDK 6, OpenJDK 7, PhoneME, ... */
+    private native void open(String name) throws FileNotFoundException;
+    /* OpenJDK 8 */
+    private native void open0(String name) throws FileNotFoundException;
 
     //public  native int  read() throws IOException;
     //public  native long skip(long n) throws IOException;

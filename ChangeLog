@@ -8,6 +8,7 @@
 - Accept directory name (without .jar file name) in LIBBLURAY_CP.
 - Improved error resilence.
 - Improve BD-J compability.
+- Fix Java 8u40 compability.
 - Fix infinite loop with some broken HDMV menus.
 
 2015-01-26: Version 0.7.0
