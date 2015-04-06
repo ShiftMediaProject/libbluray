@@ -83,8 +83,8 @@ public class PiPControlImpl extends VideoControl implements PiPControl, Asynchro
         return false;
     }
 
-    protected void onPiPChange(int param) {
-        listeners.putCallback(new PiPStatusEvent(param > 0, this));
+    protected void onPiPStatusChange(boolean enable) {
+        listeners.putCallback(new PiPStatusEvent(enable, this));
     }
 
     public void addPiPStatusListener(PiPStatusListener listener) {

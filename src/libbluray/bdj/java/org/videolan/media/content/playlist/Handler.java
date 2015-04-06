@@ -29,6 +29,7 @@ import javax.media.ControllerErrorEvent;
 import javax.media.IncompatibleSourceException;
 import javax.media.Time;
 import javax.media.protocol.DataSource;
+import javax.tv.locator.Locator;
 import javax.tv.locator.InvalidLocatorException;
 import javax.tv.service.selection.ServiceContextFactory;
 
@@ -127,6 +128,7 @@ public class Handler extends BDHandler {
 
                 updateTime(new Time(Libbluray.tellTime() * TO_SECONDS));
 
+                currentLocator = new BDLocator(locator.toExternalForm());
             } catch (Throwable e) {
                 return new ConnectionErrorEvent(this);
             }
@@ -193,6 +195,10 @@ public class Handler extends BDHandler {
 
     /* notification from app */
 
+    private void postMediaSelectSucceeded(BDLocator locator) {
+        ((DVBMediaSelectControlImpl)controls[3]).postMediaSelectSucceededEvent(new Locator[] { locator });
+    }
+
     protected void doRateChanged(float rate) {
         synchronized (this) {
             if (state == Started) {
@@ -206,8 +212,12 @@ public class Handler extends BDHandler {
     protected void doChapterReached(int param) {
         ((PlaybackControlImpl)controls[9]).onChapterReach(param);
     }
+
     protected void doMarkReached(int param) {
         ((PlaybackControlImpl)controls[9]).onMarkReach(param);
+
+        if (currentLocator != null)
+            currentLocator.setMarkId(param);
     }
 
     protected void doPlaylistStarted(int param) {
@@ -216,6 +226,12 @@ public class Handler extends BDHandler {
     protected void doPlayItemReached(int param) {
         ((PlaybackControlImpl)controls[9]).onPlayItemReach(param);
         ((UOMaskTableControlImpl)controls[16]).onPlayItemReach(param);
+
+
+        if (currentLocator != null) {
+            currentLocator.setPlayItemId(param);
+            postMediaSelectSucceeded(currentLocator);
+        }
 
         try {
             ((TitleContextImpl)ServiceContextFactory.getInstance().getServiceContext(null)).presentationChanged();
@@ -237,10 +253,39 @@ public class Handler extends BDHandler {
 
     protected void doSubtitleChanged(int param) {
         ((SubtitlingControlImpl)controls[15]).onSubtitleChange(param);
+
+        if (currentLocator != null) {
+            currentLocator.setPGTextStreamNumber(param & 0xfff);
+            postMediaSelectSucceeded(currentLocator);
+        }
     }
 
-    protected void doPiPChanged(int param) {
-        ((PiPControlImpl)controls[8]).onPiPChange(param);
+    protected void doAudioStreamChanged(int param) {
+        if (currentLocator != null) {
+            locator.setPrimaryAudioStreamNumber(param);
+            postMediaSelectSucceeded(currentLocator);
+        }
+    }
+
+    private void doSecondaryVideoChanged(int stream, boolean enable) {
+        if (currentLocator != null) {
+            locator.setSecondaryVideoStreamNumber(stream);
+            postMediaSelectSucceeded(currentLocator);
+        }
+
+        ((PiPControlImpl)controls[8]).onPiPStatusChange(enable);
+    }
+
+    private void doSecondaryAudioChanged(int stream, boolean enable) {
+        if (currentLocator != null) {
+            locator.setSecondaryAudioStreamNumber(stream);
+            postMediaSelectSucceeded(currentLocator);
+        }
+    }
+
+    protected void doSecondaryStreamChanged(int param) {
+        doSecondaryVideoChanged((param & 0xff00) >> 8, (param & 0x80000000) != 0);
+        doSecondaryAudioChanged(param & 0xff, (param & 0x40000000) != 0);
     }
 
     protected void doEndOfMediaReached(int playlist) {
@@ -350,4 +395,5 @@ public class Handler extends BDHandler {
     }
 
     private PlaylistInfo pi = null;
+    private BDLocator currentLocator = null;
 }
