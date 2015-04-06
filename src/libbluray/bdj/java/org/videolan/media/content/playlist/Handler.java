@@ -222,6 +222,13 @@ public class Handler extends BDHandler {
         } catch (Exception e) {
             System.err.println("" + e + "\n" + Logger.dumpStack(e));
         }
+
+        if (pi != null) {
+            TIClip[] clips = pi.getClips();
+            if (clips != null && param >= 0 && param < clips.length) {
+                ((SubtitlingControlImpl)controls[15]).onSubtitleAvailable(clips[param].getPgStreamCount() > 0);
+            }
+        }
     }
 
     protected void doAngleChanged(int param) {

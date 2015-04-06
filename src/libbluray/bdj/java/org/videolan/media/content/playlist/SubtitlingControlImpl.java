@@ -26,7 +26,11 @@ import org.bluray.media.SubtitleStyleNotAvailableException;
 import org.bluray.media.SubtitlingControl;
 import org.bluray.media.TextSubtitleNotAvailableException;
 import org.bluray.ti.CodingType;
+import org.dvb.media.SubtitleAvailableEvent;
 import org.dvb.media.SubtitleListener;
+import org.dvb.media.SubtitleNotAvailableEvent;
+import org.dvb.media.SubtitleNotSelectedEvent;
+import org.dvb.media.SubtitleSelectedEvent;
 import org.videolan.BDJListeners;
 import org.videolan.Libbluray;
 import org.videolan.StreamInfo;
@@ -118,8 +122,21 @@ public class SubtitlingControlImpl extends StreamControl implements SubtitlingCo
     }
 
     protected void onSubtitleChange(int param) {
-        listeners.putCallback(new EventObject(this));
+        if ((param & 0x80000000) != 0) {
+            listeners.putCallback(new SubtitleSelectedEvent(this));
+        } else {
+            listeners.putCallback(new SubtitleNotSelectedEvent(this));
+        }
     }
+
+    protected void onSubtitleAvailable(boolean param) {
+        if (param) {
+            listeners.putCallback(new SubtitleAvailableEvent(this));
+        } else {
+            listeners.putCallback(new SubtitleNotAvailableEvent(this));
+        }
+    }
+
 
     private BDJListeners listeners = new BDJListeners();
 }
