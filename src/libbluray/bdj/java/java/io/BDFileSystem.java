@@ -217,7 +217,20 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public long getLength(File f) {
-        return fs.getLength(f);
+        if (f.isAbsolute()) {
+            return fs.getLength(f);
+        }
+
+        /* try to locate file in Xlet home directory */
+        String home = BDJXletContext.getCurrentXletHome();
+        if (home == null) {
+            logger.error("no home found for " + f.getPath() + " at " + Logger.dumpStack());
+            return 0;
+        }
+
+        String path = home + f.getPath();
+        logger.info("Relative path " + f.getPath() + " translated to " + path);
+        return fs.getLength(new File(path));
     }
 
     /*
