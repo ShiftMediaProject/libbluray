@@ -478,25 +478,17 @@ public class Libbluray {
             return stopTitle(false);
 
         case BDJ_EVENT_CHAPTER:
-            PlayerManager.getInstance().onChapterReach(param);
-            break;
         case BDJ_EVENT_MARK:
-            PlayerManager.getInstance().onMarkReach(param);
-            break;
         case BDJ_EVENT_PLAYITEM:
-            PlayerManager.getInstance().onPlayItemReach(param);
-            break;
         case BDJ_EVENT_PLAYLIST:
-            PlayerManager.getInstance().onPlaylistStart(param);
-            break;
         case BDJ_EVENT_ANGLE:
-            PlayerManager.getInstance().onAngleChange(param);
-            break;
         case BDJ_EVENT_SUBTITLE:
-            PlayerManager.getInstance().onSubtitleChange(param);
-            break;
         case BDJ_EVENT_PIP:
-            PlayerManager.getInstance().onPiPChange(param);
+        case BDJ_EVENT_AUDIO_STREAM:
+        case BDJ_EVENT_SECONDARY_STREAM:
+        case BDJ_EVENT_END_OF_PLAYLIST:
+        case BDJ_EVENT_PTS:
+            PlayerManager.getInstance().onEvent(event, param);
             break;
         case BDJ_EVENT_RATE:
             float rate = (float)param / 90000.0f;
@@ -505,15 +497,11 @@ public class Libbluray {
             if (rate > 0.99f && rate < 1.01f) rate = 1.0f;
             PlayerManager.getInstance().onRateChange(rate);
             break;
-        case BDJ_EVENT_END_OF_PLAYLIST:
-            PlayerManager.getInstance().onPlaylistEnd(param);
-            break;
+
         case BDJ_EVENT_PSR102:
             org.bluray.bdplus.Status.getInstance().receive(param);
             break;
-        case BDJ_EVENT_PTS:
-            PlayerManager.getInstance().onPlaylistTime(param);
-            break;
+
         case BDJ_EVENT_VK_KEY:
             switch (param) {
             case  0: key = KeyEvent.VK_0; break;
@@ -549,28 +537,29 @@ public class Libbluray {
             }
             break;
         default:
+            System.err.println("Unknown event %d.%d\n", event, param);
             result = false;
         }
 
         return result;
     }
 
-    private static final int BDJ_EVENT_CHAPTER                  = 1;
-    private static final int BDJ_EVENT_PLAYITEM                 = 2;
-    private static final int BDJ_EVENT_ANGLE                    = 3;
-    private static final int BDJ_EVENT_SUBTITLE                 = 4;
-    private static final int BDJ_EVENT_PIP                      = 5;
-    private static final int BDJ_EVENT_END_OF_PLAYLIST          = 6;
-    private static final int BDJ_EVENT_PTS                      = 7;
+    public  static final int BDJ_EVENT_CHAPTER                  = 1;
+    public  static final int BDJ_EVENT_PLAYITEM                 = 2;
+    public  static final int BDJ_EVENT_ANGLE                    = 3;
+    public  static final int BDJ_EVENT_SUBTITLE                 = 4;
+    public  static final int BDJ_EVENT_PIP                      = 5;
+    public  static final int BDJ_EVENT_END_OF_PLAYLIST          = 6;
+    public  static final int BDJ_EVENT_PTS                      = 7;
     private static final int BDJ_EVENT_VK_KEY                   = 8;
-    private static final int BDJ_EVENT_MARK                     = 9;
+    public  static final int BDJ_EVENT_MARK                     = 9;
     private static final int BDJ_EVENT_PSR102                   = 10;
-    private static final int BDJ_EVENT_PLAYLIST                 = 11;
+    public  static final int BDJ_EVENT_PLAYLIST                 = 11;
 
     private static final int BDJ_EVENT_START                    = 12;
     private static final int BDJ_EVENT_STOP                     = 13;
 
-    private static final int BDJ_EVENT_RATE                     = 14;
+    public  static final int BDJ_EVENT_RATE                     = 14;
 
     /* TODO: use org/bluray/system/RegisterAccess instead */
     public static final int PSR_IG_STREAM_ID     = 0;

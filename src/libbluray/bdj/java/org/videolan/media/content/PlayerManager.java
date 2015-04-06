@@ -134,73 +134,13 @@ public class PlayerManager {
      *
      */
 
-    public void onPlaylistEnd(int playlist) {
+    public void onEvent(int event, int param) {
         synchronized (stoppingLock) {
             if (stopping) return;
-        synchronized (playlistPlayerLock) {
-            if (playlistPlayer != null)
-                playlistPlayer.playlistEndReached(playlist);
-        }
-        }
-    }
-
-    public void onPlaylistTime(int pts) {
-        synchronized (stoppingLock) {
-            if (stopping) return;
-        synchronized (playlistPlayerLock) {
-            if (playlistPlayer != null)
-                playlistPlayer.timeChanged(pts);
-        }
-        }
-    }
-
-    public void onChapterReach(int param) {
-        synchronized (stoppingLock) {
-            if (stopping) return;
-        synchronized (playlistPlayerLock) {
-            if (playlistPlayer != null)
-                playlistPlayer.chapterReached(param);
-        }
-        }
-    }
-
-    public void onMarkReach(int param) {
-        synchronized (stoppingLock) {
-            if (stopping) return;
-        synchronized (playlistPlayerLock) {
-            if (playlistPlayer != null)
-                playlistPlayer.markReached(param);
-        }
-        }
-    }
-
-    public void onPlaylistStart(int param) {
-        synchronized (stoppingLock) {
-            if (stopping) return;
-        synchronized (playlistPlayerLock) {
-            if (playlistPlayer != null)
-                playlistPlayer.playlistStarted(param);
-        }
-        }
-    }
-
-    public void onPlayItemReach(int param) {
-        synchronized (stoppingLock) {
-            if (stopping) return;
-        synchronized (playlistPlayerLock) {
-            if (playlistPlayer != null)
-                playlistPlayer.playItemReached(param);
-        }
-        }
-    }
-
-    public void onAngleChange(int param) {
-        synchronized (stoppingLock) {
-            if (stopping) return;
-        synchronized (playlistPlayerLock) {
-            if (playlistPlayer != null)
-                playlistPlayer.angleChanged(param);
-        }
+            synchronized (playlistPlayerLock) {
+                if (playlistPlayer != null)
+                    playlistPlayer.statusEvent(event, param);
+            }
         }
     }
 
@@ -210,26 +150,6 @@ public class PlayerManager {
         synchronized (playlistPlayerLock) {
             if (playlistPlayer != null)
                 playlistPlayer.rateChanged(rate);
-        }
-        }
-    }
-
-    public void onSubtitleChange(int param) {
-        synchronized (stoppingLock) {
-            if (stopping) return;
-        synchronized (playlistPlayerLock) {
-            if (playlistPlayer != null)
-                playlistPlayer.subtitleChanged(param);
-        }
-        }
-    }
-
-    public void onPiPChange(int param) {
-        synchronized (stoppingLock) {
-            if (stopping) return;
-        synchronized (playlistPlayerLock) {
-            if (playlistPlayer != null)
-                playlistPlayer.pipChanged(param);
         }
         }
     }

@@ -60,6 +60,7 @@ import org.videolan.BDJActionManager;
 import org.videolan.BDJActionQueue;
 import org.videolan.BDJListeners;
 import org.videolan.BDJXletContext;
+import org.videolan.Libbluray;
 import org.videolan.Logger;
 
 public abstract class BDHandler implements Player, ServiceContentHandler {
@@ -330,63 +331,14 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
      * notifications from app
      */
 
-    protected void timeChanged(int time) {
+    protected void statusEvent(int event, int param) {
         if (isClosed) return;
-        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_TIME_CHANGED, new Integer(time));
-        commandQueue.put(action);
-    }
-
-    protected void playlistEndReached(int playlist) {
-        if (isClosed) return;
-        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_END_OF_MEDIA_REACHED, new Integer(playlist));
-        commandQueue.put(action);
+        commandQueue.put(new PlayerAction(this, PlayerAction.ACTION_STATUS, new Integer(event), param));
     }
 
     protected void rateChanged(float rate) {
         if (isClosed) return;
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_RATE_CHANGED, new Float(rate));
-        commandQueue.put(action);
-    }
-
-    protected void playlistStarted(int param) {
-        if (isClosed) return;
-        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_PLAYLIST_STARTED, new Integer(param));
-        commandQueue.put(action);
-    }
-
-    protected void chapterReached(int param) {
-        if (isClosed) return;
-        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_CHAPTER_REACHED, new Integer(param));
-        commandQueue.put(action);
-    }
-
-    protected void markReached(int param) {
-        if (isClosed) return;
-        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_MARK_REACHED, new Integer(param));
-        commandQueue.put(action);
-    }
-
-    protected void playItemReached(int param) {
-        if (isClosed) return;
-        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_PLAYITEM_REACHED, new Integer(param));
-        commandQueue.put(action);
-    }
-
-    protected void angleChanged(int param) {
-        if (isClosed) return;
-        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_ANGLE_CHANGED, new Integer(param));
-        commandQueue.put(action);
-    }
-
-    protected void subtitleChanged(int param) {
-        if (isClosed) return;
-        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_SUBTITLE_CHANGED, new Integer(param));
-        commandQueue.put(action);
-    }
-
-    protected void pipChanged(int param) {
-        if (isClosed) return;
-        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_PIP_CHANGED, new Integer(param));
         commandQueue.put(action);
     }
 
@@ -620,9 +572,13 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
 
     private class PlayerAction extends BDJAction {
         private PlayerAction(BDHandler player, int action, Object param) {
+            this(player, action, param, -1);
+        }
+        private PlayerAction(BDHandler player, int action, Object param, int param2) {
             this.player = player;
             this.action = action;
             this.param = param;
+            this.param2 = param2;
         }
 
         protected void doAction() {
@@ -656,35 +612,45 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
                 player.doSetRate((Float)param);
                 break;
 
-            case ACTION_END_OF_MEDIA_REACHED:
-                player.doEndOfMediaReached(((Integer)param).intValue());
-                break;
-            case ACTION_TIME_CHANGED:
-                player.doTimeChanged(((Integer)param).intValue());
-                break;
             case ACTION_RATE_CHANGED:
                 player.doRateChanged(((Float)param).floatValue());
                 break;
-            case ACTION_PLAYLIST_STARTED:
-                player.doPlaylistStarted(((Integer)param).intValue());
+            case ACTION_STATUS:
+                switch (((Integer)param).intValue()) {
+                case Libbluray.BDJ_EVENT_CHAPTER:
+                    player.doChapterReached(param2);
+                    break;
+                case Libbluray.BDJ_EVENT_MARK:
+                    player.doMarkReached(param2);
+                    break;
+                case Libbluray.BDJ_EVENT_PLAYITEM:
+                    player.doPlayItemReached(param2);
+                    break;
+                case Libbluray.BDJ_EVENT_PLAYLIST:
+                    player.doPlaylistStarted(param2);
+                    break;
+                case Libbluray.BDJ_EVENT_ANGLE:
+                    player.doAngleChanged(param2);
+                    break;
+                case Libbluray.BDJ_EVENT_SUBTITLE:
+                    player.doSubtitleChanged(param2);
+                    break;
+                case Libbluray.BDJ_EVENT_PIP:
+                    player.doPiPChanged(param2);
+                    break;
+                case Libbluray.BDJ_EVENT_END_OF_PLAYLIST:
+                    player.doEndOfMediaReached(param2);
+                    break;
+                case Libbluray.BDJ_EVENT_PTS:
+                    player.doTimeChanged(param2);
+                    break;
+                default:
+                    System.err.println("Unknown ACTION_STATUS: id " + param + ", value " + param2);
+                    break;
+                }
                 break;
-            case ACTION_PLAYITEM_REACHED:
-                player.doPlayItemReached(((Integer)param).intValue());
-                break;
-            case ACTION_CHAPTER_REACHED:
-                player.doChapterReached(((Integer)param).intValue());
-                break;
-            case ACTION_MARK_REACHED:
-                player.doMarkReached(((Integer)param).intValue());
-                break;
-            case ACTION_ANGLE_CHANGED:
-                player.doAngleChanged(((Integer)param).intValue());
-                break;
-            case ACTION_SUBTITLE_CHANGED:
-                player.doSubtitleChanged(((Integer)param).intValue());
-                break;
-            case ACTION_PIP_CHANGED:
-                player.doPiPChanged(((Integer)param).intValue());
+            default:
+                System.err.println("Unknown action " + action);
                 break;
             }
         }
@@ -692,6 +658,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         private BDHandler player;
         private int action;
         private Object param;
+        private int param2;
 
         public static final int ACTION_INIT = 1;
         public static final int ACTION_REALIZE = 2;
@@ -704,16 +671,8 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         public static final int ACTION_SEEK_TIME = 8;
         public static final int ACTION_SET_RATE = 9;
 
-        public static final int ACTION_END_OF_MEDIA_REACHED = 10;
+        public static final int ACTION_STATUS = 10;
         public static final int ACTION_RATE_CHANGED = 11;
-        public static final int ACTION_TIME_CHANGED = 12;
-        public static final int ACTION_PLAYLIST_STARTED = 13;
-        public static final int ACTION_PLAYITEM_REACHED = 14;
-        public static final int ACTION_CHAPTER_REACHED = 15;
-        public static final int ACTION_MARK_REACHED = 16;
-        public static final int ACTION_ANGLE_CHANGED = 17;
-        public static final int ACTION_SUBTITLE_CHANGED = 18;
-        public static final int ACTION_PIP_CHANGED = 19;
     }
 
     protected int state = Unrealized;
