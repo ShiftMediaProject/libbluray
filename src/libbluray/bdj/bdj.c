@@ -617,7 +617,6 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         "PLAYITEM",
         "ANGLE",
         "SUBTITLE",
-        "PIP",
         "END_OF_PLAYLIST",
         "PTS",
         "VK_KEY",

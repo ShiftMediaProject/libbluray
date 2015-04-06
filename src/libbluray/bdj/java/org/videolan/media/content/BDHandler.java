@@ -380,7 +380,6 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     protected void doPlayItemReached(int playitem) {};
     protected void doAngleChanged(int angle) {};
     protected void doSubtitleChanged(int param) {};
-    protected void doPiPChanged(int param) {};
     protected void doAudioStreamChanged(int param) {};
     protected void doSecondaryStreamChanged(int param) {};
 
@@ -636,9 +635,6 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
                     break;
                 case Libbluray.BDJ_EVENT_SUBTITLE:
                     player.doSubtitleChanged(param2);
-                    break;
-                case Libbluray.BDJ_EVENT_PIP:
-                    player.doPiPChanged(param2);
                     break;
                 case Libbluray.BDJ_EVENT_END_OF_PLAYLIST:
                     player.doEndOfMediaReached(param2);
