@@ -2818,11 +2818,11 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
 
             bd_mutex_lock(&bd->mutex);
             if (bd->st0.clip) {
-            _init_pg_stream(bd);
-            if (bd->st_textst.clip) {
-                BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Changing TextST stream\n");
-                _preload_textst_subpath(bd);
-            }
+                _init_pg_stream(bd);
+                if (bd->st_textst.clip) {
+                    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Changing TextST stream\n");
+                    _preload_textst_subpath(bd);
+                }
             }
             bd_mutex_unlock(&bd->mutex);
 
