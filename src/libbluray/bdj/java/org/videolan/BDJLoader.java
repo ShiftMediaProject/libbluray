@@ -241,7 +241,10 @@ public class BDJLoader {
 
     private static boolean unloadN() {
         try {
-            GUIManager.getInstance().setVisible(false);
+            try {
+                GUIManager.getInstance().setVisible(false);
+            } catch (Error e) {
+            }
 
             AppsDatabase db = AppsDatabase.getAppsDatabase();
 
