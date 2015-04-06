@@ -2808,6 +2808,7 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
             break;
 
         case PSR_PRIMARY_AUDIO_ID:
+            _bdj_event(bd, BDJ_EVENT_AUDIO_STREAM, ev->new_val);
             _queue_event(bd, BD_EVENT_AUDIO_STREAM, ev->new_val);
             break;
 
@@ -2842,6 +2843,7 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
                 _queue_event(bd, BD_EVENT_SECONDARY_AUDIO, !!(ev->new_val & 0x40000000));
                 _queue_event(bd, BD_EVENT_SECONDARY_AUDIO_STREAM, ev->new_val & 0xff);
             }
+            _bdj_event(bd, BDJ_EVENT_SECONDARY_STREAM, ev->new_val);
             break;
 
         /* 3D status */

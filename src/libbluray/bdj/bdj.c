@@ -629,6 +629,8 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         "STOP",
 
         "RATE",
+        "AUDIO_STREAM",
+        "SECONDARY_STREAM",
     };
 
     JNIEnv* env;

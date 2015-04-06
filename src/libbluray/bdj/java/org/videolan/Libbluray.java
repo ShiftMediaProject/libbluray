@@ -537,7 +537,7 @@ public class Libbluray {
             }
             break;
         default:
-            System.err.println("Unknown event %d.%d\n", event, param);
+            System.err.println("Unknown event " + event + "." + param);
             result = false;
         }
 
@@ -560,6 +560,8 @@ public class Libbluray {
     private static final int BDJ_EVENT_STOP                     = 13;
 
     public  static final int BDJ_EVENT_RATE                     = 14;
+    public  static final int BDJ_EVENT_AUDIO_STREAM             = 15;
+    public  static final int BDJ_EVENT_SECONDARY_STREAM         = 16;
 
     /* TODO: use org/bluray/system/RegisterAccess instead */
     public static final int PSR_IG_STREAM_ID     = 0;
