@@ -126,14 +126,6 @@ public class TitleContextImpl implements TitleContext {
         listeners.remove(listener);
     }
 
-    public void removeServiceContentHandler(ServiceContentHandler handler) {
-        if (handler != null) {
-            synchronized (handlers) {
-                handlers.remove(handler);
-            }
-        }
-    }
-
     public void presentationChanged() {
         if (state == STATE_STARTED) {
             postEvent(new PresentationChangedEvent(this));
@@ -189,7 +181,6 @@ public class TitleContextImpl implements TitleContext {
     private static final int STATE_STARTED = 1;
     private static final int STATE_DESTROYED = 2;
     private BDJListeners listeners = new BDJListeners();
-    private LinkedList handlers = new LinkedList();
     private TitleImpl title = null;
     private int state = STATE_STOPPED;
 }
