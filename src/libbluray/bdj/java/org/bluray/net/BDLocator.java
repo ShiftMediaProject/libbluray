@@ -260,11 +260,19 @@ public class BDLocator extends Locator {
     protected String getUrl() {
         String str = "bd://";
 
-        if (disc != null && disc != "")
-            str += disc + ".";
+        if (disc != null && disc != "") {
+            str += disc;
+            if (titleNum >= 0) {
+                str += ".";
+            }
+        }
 
-        if (titleNum >= 0)
-            str += Integer.toString(titleNum, 16) + ".";
+        if (titleNum >= 0) {
+            str += Integer.toString(titleNum, 16);
+            if (jar >= 0 || playList >= 0 || sound >= 0) {
+                str += ".";
+            }
+        }
 
         if (jar >= 0) {
             str += "JAR:" + BDJUtil.makeFiveDigitStr(jar);
