@@ -41,7 +41,7 @@ import org.bluray.ti.TitleImpl;
 import org.videolan.BDJLoader;
 import org.videolan.BDJLoaderCallback;
 import org.videolan.BDJListeners;
-import org.videolan.media.content.playlist.Handler;
+import org.videolan.media.content.PlayerManager;
 
 public class TitleContextImpl implements TitleContext {
     public Service getService() {
@@ -59,11 +59,15 @@ public class TitleContextImpl implements TitleContext {
         if (state == STATE_STOPPED)
             return new ServiceContentHandler[0];
 
-        org.videolan.Logger.unimplemented("TitleContextImpl", "getServiceContentHandlers");
+        ServiceContentHandler player = PlayerManager.getInstance().getPlaylistPlayer();
+        if (player != null) {
+            ServiceContentHandler[] handler = new ServiceContentHandler[1];
+            handler[0] = player;
+            return handler;
+        }
 
-        ServiceContentHandler[] handler = new ServiceContentHandler[1];
-        handler[0] = new Handler();
-        return handler;
+        System.err.println("getServiceContentHandlers(): none found");
+        return new ServiceContentHandler[0];
     }
 
     public void start(Title title, boolean restart) throws SecurityException {

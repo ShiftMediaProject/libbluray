@@ -59,6 +59,12 @@ public class PlayerManager {
         }
     }
 
+    public BDHandler getPlaylistPlayer() {
+        synchronized (playlistPlayerLock) {
+            return playlistPlayer;
+        }
+    }
+
     protected void releaseResource(BDHandler player) {
         if (player instanceof org.videolan.media.content.playlist.Handler) {
             synchronized (playlistPlayerLock) {
