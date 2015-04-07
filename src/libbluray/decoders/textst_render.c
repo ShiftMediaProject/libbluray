@@ -45,24 +45,25 @@
 /*
  * data
  */
-
-typedef struct {
 #ifdef HAVE_FT2
+typedef struct {
+
   FT_Face  face;
   void    *mem;
-#endif
+
 } FONT_DATA;
 
 struct textst_render {
-#ifdef HAVE_FT2
+
   FT_Library     ft_lib;
 
   unsigned       font_count;
   FONT_DATA     *font;
 
   bd_char_code_e char_code;
-#endif
+
 };
+#endif
 
 /*
  * init / free
