@@ -137,7 +137,7 @@ public class TitleContextImpl implements TitleContext {
         listeners.putCallback(event);
     }
 
-    private class TitleStartAction implements BDJLoaderCallback {
+    private static class TitleStartAction implements BDJLoaderCallback {
         private TitleStartAction(TitleContextImpl context, TitleImpl title) {
             this.context = context;
             this.title = title;
@@ -157,7 +157,7 @@ public class TitleContextImpl implements TitleContext {
         private TitleImpl title;
     }
 
-    private class TitleStopAction implements BDJLoaderCallback {
+    private static class TitleStopAction implements BDJLoaderCallback {
         private TitleStopAction(TitleContextImpl context) {
             this.context = context;
         }
