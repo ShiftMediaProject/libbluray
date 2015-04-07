@@ -29,10 +29,12 @@ import javax.tv.service.selection.NormalContentEvent;
 import javax.tv.service.selection.PresentationChangedEvent;
 import javax.tv.service.selection.PresentationTerminatedEvent;
 import javax.tv.service.selection.SelectionFailedEvent;
+import javax.tv.service.selection.SelectPermission;
 import javax.tv.service.selection.ServiceContentHandler;
 import javax.tv.service.selection.ServiceContextDestroyedEvent;
 import javax.tv.service.selection.ServiceContextEvent;
 import javax.tv.service.selection.ServiceContextListener;
+import javax.tv.service.selection.ServiceContextPermission;
 
 import org.bluray.ti.Title;
 import org.bluray.ti.TitleImpl;
@@ -47,6 +49,11 @@ public class TitleContextImpl implements TitleContext {
     }
 
     public ServiceContentHandler[] getServiceContentHandlers() throws SecurityException {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(new ServiceContextPermission("getServiceContentHandlers", "own"));
+        }
+
         if (state == STATE_DESTROYED)
             throw new IllegalStateException();
         if (state == STATE_STOPPED)
@@ -60,6 +67,11 @@ public class TitleContextImpl implements TitleContext {
     }
 
     public void start(Title title, boolean restart) throws SecurityException {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(new SelectPermission(title.getLocator(), "own"));
+        }
+
         if (state == STATE_DESTROYED)
             throw new IllegalStateException();
         TitleStartAction action = new TitleStartAction(this, (TitleImpl)title);
@@ -80,6 +92,11 @@ public class TitleContextImpl implements TitleContext {
     }
 
     public void stop() throws SecurityException {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(new ServiceContextPermission("stop", "own"));
+        }
+
         if (state == STATE_DESTROYED)
             throw new IllegalStateException();
         TitleStopAction action = new TitleStopAction(this);
@@ -88,6 +105,11 @@ public class TitleContextImpl implements TitleContext {
     }
 
     public void destroy() throws SecurityException {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(new ServiceContextPermission("stop", "own"));
+        }
+
         if (state != STATE_DESTROYED) {
             state = STATE_DESTROYED;
             TitleStopAction action = new TitleStopAction(this);
