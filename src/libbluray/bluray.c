@@ -2151,6 +2151,7 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
     bd->seamless_angle_change = 0;
     bd->s_pos = 0;
     bd->end_of_playlist = 0;
+    bd->st0.ig_pid = 0;
 
     bd_psr_write(bd->regs, PSR_PLAYLIST, atoi(bd->title->name));
     bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
