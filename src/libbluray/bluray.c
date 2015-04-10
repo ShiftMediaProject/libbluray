@@ -91,6 +91,7 @@ typedef struct {
 
     /* */
     uint8_t         eof_hit;
+    uint8_t         encrypted_block_cnt;
 
     M2TS_FILTER    *m2ts_filter;
 } BD_STREAM;
@@ -544,6 +545,7 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
     st->clip_pos = (uint64_t)st->clip->start_pkt * 192;
     st->clip_block_pos = (st->clip_pos / 6144) * 6144;
     st->eof_hit = 0;
+    st->encrypted_block_cnt = 0;
 
     if (st->fp) {
         int64_t clip_size = file_size(st->fp);
@@ -589,6 +591,42 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
     return 0;
 }
 
+static int _validate_unit(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
+{
+    /* Check TP_extra_header Copy_permission_indicator. If != 0, unit may be encrypted. */
+    /* Check first sync byte. It should never be encrypted. */
+    if (BD_UNLIKELY(buf[0] & 0xc0 || buf[4] != 0x47)) {
+
+        /* Check first sync bytes. If not OK, drop unit. */
+        if (buf[4] != 0x47 || buf [4 + 192] != 0x47 || buf[4 + 2*192] != 0x47 || buf[4 + 3*192] != 0x47) {
+
+            /* Some streams have Copy_permission_indicator incorrectly set. */
+            /* Check first TS sync byte. If unit is encrypted, first 16 bytes are plain, rest not. */
+            /* not 100% accurate (can be random data too). But the unit is broken anyway ... */
+            if (buf[4] == 0x47) {
+
+                /* most likely encrypted stream. Check couple of blocks before erroring out. */
+                st->encrypted_block_cnt++;
+
+                if (st->encrypted_block_cnt > 10) {
+                    /* error out */
+                    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "TP header copy permission indicator != 0. Stream seems to be encrypted.\n");
+                    _queue_event(bd, BD_EVENT_ENCRYPTED, BD_ERROR_AACS);
+                    return -1;
+                }
+            }
+
+            /* broken block, ignore it */
+            _queue_event(bd, BD_EVENT_READ_ERROR, 1);
+            return 0;
+        }
+    }
+
+    st->eof_hit = 0;
+    st->encrypted_block_cnt = 0;
+    return 1;
+}
+
 static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 {
     const size_t len = 6144;
@@ -600,21 +638,18 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
             size_t read_len;
 
             if ((read_len = file_read(st->fp, buf, len))) {
+                int error;
+
                 if (read_len != len) {
                     BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d !\n", (int)read_len, st->clip_block_pos, (int)len);
                 }
                 st->clip_block_pos += len;
-                st->eof_hit = 0;
 
-                /* Check TP_extra_header Copy_permission_indicator. If != 0, unit is still encrypted. */
-                if (buf[0] & 0xc0) {
-                    /* check first TS sync bytes. First 16 bytes are always plain. */
-                    if (buf[4] == 0x47 && (buf[4+192] != 0x47 || buf[4+2*192] != 0x47)) {
-                        BD_DEBUG(DBG_BLURAY | DBG_CRIT,
-                                 "TP header copy permission indicator != 0, unit is still encrypted?\n");
-                        _queue_event(bd, BD_EVENT_ENCRYPTED, BD_ERROR_AACS);
-                        return -1;
-                    }
+                if ((error = _validate_unit(bd, st, buf)) <= 0) {
+                    /* skip broken unit */
+                    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Skipping broken unit at %"PRId64"\n", st->clip_block_pos - len);
+                    st->clip_pos += len;
+                    return error;
                 }
 
                 if (st->m2ts_filter) {
