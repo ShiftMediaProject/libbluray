@@ -89,6 +89,9 @@ typedef struct {
     uint16_t        ig_pid; /* pid of currently selected IG stream */
     uint16_t        pg_pid; /* pid of currently selected PG stream */
 
+    /* */
+    uint8_t         eof_hit;
+
     M2TS_FILTER    *m2ts_filter;
 } BD_STREAM;
 
@@ -540,6 +543,7 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
     st->clip_size = 0;
     st->clip_pos = (uint64_t)st->clip->start_pkt * 192;
     st->clip_block_pos = (st->clip_pos / 6144) * 6144;
+    st->eof_hit = 0;
 
     if (st->fp) {
         int64_t clip_size = file_size(st->fp);
@@ -600,6 +604,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
                     BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d !\n", (int)read_len, st->clip_block_pos, (int)len);
                 }
                 st->clip_block_pos += len;
+                st->eof_hit = 0;
 
                 /* Check TP_extra_header Copy_permission_indicator. If != 0, unit is still encrypted. */
                 if (buf[0] & 0xc0) {
@@ -646,8 +651,6 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
             return 0;
         }
 
-        BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read past EOF !\n");
-
         /* This is caused by truncated .m2ts file or invalid clip length.
          *
          * Increase position to avoid infinite loops.
@@ -655,6 +658,11 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
          */
         st->clip_block_pos += len;
         st->clip_pos += len;
+
+        if (!st->eof_hit) {
+            BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read past EOF !\n");
+            st->eof_hit = 1;
+        }
 
         return 0;
     }
