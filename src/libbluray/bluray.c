@@ -640,6 +640,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 
             if (file_seek(st->fp, st->clip_block_pos, SEEK_SET) < 0) {
                 BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to seek clip %s!\n", st->clip->name);
+                return -1;
             }
 
             return 0;
