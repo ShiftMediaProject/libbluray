@@ -47,6 +47,10 @@ case "${host_os}" in
   *darwin*)
     SYS=darwin
     ;;
+  netbsd*)
+    SYS=netbsd
+    CFLAGS="${CFLAGS} -D_NETBSD_SOURCE"
+    ;;
   *)
     SYS="${host_os}"
     ;;
