@@ -603,8 +603,8 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 
                 /* Check TP_extra_header Copy_permission_indicator. If != 0, unit is still encrypted. */
                 if (buf[0] & 0xc0) {
-                    /* check first TS sync bytes */
-                    if (buf[4] != 0x47 || buf[4+192] != 0x47 || buf[4+2*192] != 0x47) {
+                    /* check first TS sync bytes. First 16 bytes are always plain. */
+                    if (buf[4] == 0x47 && (buf[4+192] != 0x47 || buf[4+2*192] != 0x47)) {
                         BD_DEBUG(DBG_BLURAY | DBG_CRIT,
                                  "TP header copy permission indicator != 0, unit is still encrypted?\n");
                         _queue_event(bd, BD_EVENT_ENCRYPTED, BD_ERROR_AACS);
