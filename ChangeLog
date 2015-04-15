@@ -1,4 +1,4 @@
-2015-??-??: Version 0.8.0
+2015-04-15: Version 0.8.0
 - Add security checks to BD-J.
 - Add support for UDF image files and unmounted discs.
 - Add UDF volume identifier to DISC_INFO.
