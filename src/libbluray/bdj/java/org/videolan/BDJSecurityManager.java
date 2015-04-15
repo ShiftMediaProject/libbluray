@@ -98,8 +98,8 @@ final class BDJSecurityManager extends SecurityManager {
             try {
                 super.checkPermission(perm);
             } catch (Exception e) {
-                logger.error(perm + " denied by system");
-                deny(perm);
+                logger.info(perm + " denied by system");
+                throw new SecurityException("denied " + perm);
             }
         }
 
