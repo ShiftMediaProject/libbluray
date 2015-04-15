@@ -627,6 +627,25 @@ static int _validate_unit(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
     return 1;
 }
 
+static int _skip_unit(BLURAY *bd, BD_STREAM *st)
+{
+    const size_t len = 6144;
+
+    /* skip broken unit */
+    st->clip_block_pos += len;
+    st->clip_pos += len;
+
+    _queue_event(bd, BD_EVENT_READ_ERROR, 0);
+
+    /* seek to next unit start */
+    if (file_seek(st->fp, st->clip_block_pos, SEEK_SET) < 0) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to seek clip %s!\n", st->clip->name);
+        return -1;
+    }
+
+    return 0;
+}
+
 static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 {
     const size_t len = 6144;
@@ -642,6 +661,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 
                 if (read_len != len) {
                     BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d !\n", (int)read_len, st->clip_block_pos, (int)len);
+                    return _skip_unit(bd, st);
                 }
                 st->clip_block_pos += len;
 
@@ -672,18 +692,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 
             BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read unit at %"PRIu64" failed !\n", st->clip_block_pos);
 
-            _queue_event(bd, BD_EVENT_READ_ERROR, 0);
-
-            /* skip broken unit */
-            st->clip_block_pos += len;
-            st->clip_pos += len;
-
-            if (file_seek(st->fp, st->clip_block_pos, SEEK_SET) < 0) {
-                BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to seek clip %s!\n", st->clip->name);
-                return -1;
-            }
-
-            return 0;
+            return _skip_unit(bd, st);
         }
 
         /* This is caused by truncated .m2ts file or invalid clip length.
