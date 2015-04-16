@@ -146,13 +146,17 @@ struct bluray {
      */
     uint8_t         end_of_playlist; /* 1 - reached. 3 - processed . */
 
+    /* HDMV */
     HDMV_VM        *hdmv_vm;
     uint8_t        hdmv_suspended;
+
+    /* BD-J */
 #ifdef USING_BDJAVA
     BDJAVA         *bdjava;
     BDJ_STORAGE     bdjstorage;
-#endif
+    BD_UO_MASK      bdj_uo_mask;     /* UO mask from current .bdjo file */
     uint8_t         bdj_wait_start;  /* BD-J has selected playlist (prefetch) but not yet started playback */
+#endif
 
     /* HDMV graphics */
     GRAPHICS_CONTROLLER *graphics_controller;
@@ -170,7 +174,6 @@ struct bluray {
     bd_argb_overlay_proc_f argb_overlay_proc;
     BD_ARGB_BUFFER      *argb_buffer;
     BD_MUTEX             argb_buffer_mutex;
-    BD_UO_MASK           bdj_uo_mask;
 #endif
 };
 
@@ -2285,7 +2288,9 @@ static int _play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmar
         return 0;
     }
 
+#ifdef USING_BDJAVA
     bd->bdj_wait_start = 1;  /* playback is triggered by bd_select_rate() */
+#endif
 
     bd_bdj_seek(bd, playitem, playmark, time);
 
@@ -3333,6 +3338,7 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
         return 0;
     }
 
+#ifdef USING_BDJAVA
     if (bd->title_type == title_bdj) {
         if (bd->end_of_playlist == 1) {
             _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, bd_psr_read(bd->regs, PSR_PLAYLIST));
@@ -3351,6 +3357,7 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
             return 0;
         }
     }
+#endif
 
     int bytes = _bd_read(bd, buf, len);
 
