@@ -487,6 +487,7 @@ public class Libbluray {
         case BDJ_EVENT_SECONDARY_STREAM:
         case BDJ_EVENT_END_OF_PLAYLIST:
         case BDJ_EVENT_PTS:
+        case BDJ_EVENT_UO_MASKED:
             PlayerManager.getInstance().onEvent(event, param);
             break;
         case BDJ_EVENT_RATE:
@@ -560,6 +561,7 @@ public class Libbluray {
     public  static final int BDJ_EVENT_RATE                     = 13;
     public  static final int BDJ_EVENT_AUDIO_STREAM             = 14;
     public  static final int BDJ_EVENT_SECONDARY_STREAM         = 15;
+    public  static final int BDJ_EVENT_UO_MASKED                = 16;
 
     /* TODO: use org/bluray/system/RegisterAccess instead */
     public static final int PSR_IG_STREAM_ID     = 0;

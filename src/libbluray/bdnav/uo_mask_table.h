@@ -22,6 +22,11 @@
 
 #include <stdint.h>
 
+enum {
+    UO_MASK_MENU_CALL_INDEX = 0,
+    UO_MASK_TITLE_SEARCH_INDEX = 1,
+};
+
 typedef struct bd_uo_mask_table_s
 {
     unsigned int menu_call : 1;

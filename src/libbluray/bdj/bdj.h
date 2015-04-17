@@ -41,6 +41,7 @@ typedef enum {
     BDJ_EVENT_RATE,
     BDJ_EVENT_AUDIO_STREAM,
     BDJ_EVENT_SECONDARY_STREAM,
+    BDJ_EVENT_UO_MASKED,
 } BDJ_EVENT;
 
 typedef struct {

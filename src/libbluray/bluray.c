@@ -3122,6 +3122,7 @@ static int _try_play_title(BLURAY *bd, unsigned title)
 
     if (bd->st0.uo_mask.title_search) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by stream\n");
+        _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_TITLE_SEARCH_INDEX);
         return 0;
     }
 
@@ -3136,6 +3137,7 @@ static int _try_play_title(BLURAY *bd, unsigned title)
     if (bd->title_type == title_bdj) {
         if (bd->bdj_uo_mask.title_search) {
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by BD-J\n");
+            _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_TITLE_SEARCH_INDEX);
             return 0;
         }
     }
@@ -3166,6 +3168,7 @@ static int _try_menu_call(BLURAY *bd, int64_t pts)
 
     if (bd->st0.uo_mask.menu_call) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by stream\n");
+        _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_MENU_CALL_INDEX);
         return 0;
     }
 
@@ -3184,6 +3187,7 @@ static int _try_menu_call(BLURAY *bd, int64_t pts)
     if (bd->title_type == title_bdj) {
         if (bd->bdj_uo_mask.menu_call) {
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by BD-J\n");
+            _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_MENU_CALL_INDEX);
             return 0;
         }
     }

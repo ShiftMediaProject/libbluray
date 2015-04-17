@@ -630,6 +630,7 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         "RATE",
         "AUDIO_STREAM",
         "SECONDARY_STREAM",
+        "UO_MASKED",
     };
 
     JNIEnv* env;

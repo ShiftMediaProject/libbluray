@@ -247,6 +247,10 @@ public class Handler extends BDHandler {
         }
     }
 
+    protected void doUOMasked(int position) {
+        ((UOMaskTableControlImpl)controls[16]).onUOMasked(position);
+    }
+
     protected void doAngleChanged(int param) {
         ((AngleControlImpl)controls[0]).onAngleChange(param);
     }

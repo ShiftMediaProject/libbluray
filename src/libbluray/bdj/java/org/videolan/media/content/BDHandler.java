@@ -381,6 +381,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     protected void doAngleChanged(int angle) {};
     protected void doSubtitleChanged(int param) {};
     protected void doAudioStreamChanged(int param) {};
+    protected void doUOMasked(int position) {};
     protected void doSecondaryStreamChanged(int param) {};
 
     /*
@@ -647,6 +648,9 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
                     break;
                 case Libbluray.BDJ_EVENT_SECONDARY_STREAM:
                     player.doSecondaryStreamChanged(param2);
+                    break;
+                case Libbluray.BDJ_EVENT_UO_MASKED:
+                    player.doUOMasked(param2);
                     break;
                 default:
                     System.err.println("Unknown ACTION_STATUS: id " + param + ", value " + param2);
