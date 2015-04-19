@@ -226,7 +226,7 @@ main(int argc, char *argv[])
             }
             break;
         }
-        total += PKT_SIZE * wrote;
+        total += wrote;
     }
     if (verbose) {
         fprintf(stderr, "Wrote %"PRId64" bytes\n", total);
