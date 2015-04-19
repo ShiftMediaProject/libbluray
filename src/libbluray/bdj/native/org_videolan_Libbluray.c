@@ -220,6 +220,14 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setUOMaskN(JNIEnv * env,
     bd_set_bdj_uo_mask(bd, ((!!menuCallMask) * BDJ_MENU_CALL_MASK) | ((!!titleSearchMask) * BDJ_TITLE_SEARCH_MASK));
 }
 
+JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setKeyInterestN(JNIEnv * env,
+        jclass cls, jlong np, jint mask) {
+    BLURAY* bd = (BLURAY*)(intptr_t)np;
+
+    BD_DEBUG(DBG_JNI, "setKeyInterestN(0x%x)\n", (int)mask);
+    bd_set_bdj_kit(bd, mask);
+}
+
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_setVirtualPackageN(JNIEnv * env,
         jclass cls, jlong np, jstring vpPath, jboolean psr_init_backup) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
@@ -613,6 +621,11 @@ Java_org_videolan_Libbluray_methods[] =
         CC("setUOMaskN"),
         CC("(JZZ)V"),
         VC(Java_org_videolan_Libbluray_setUOMaskN),
+    },
+    {
+        CC("setKeyInterestN"),
+        CC("(JI)V"),
+        VC(Java_org_videolan_Libbluray_setKeyInterestN),
     },
     {
         CC("getTitleInfosN"),

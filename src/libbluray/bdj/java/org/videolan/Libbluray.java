@@ -247,6 +247,10 @@ public class Libbluray {
         setUOMaskN(nativePointer, menuCallMask, titleSearchMask);
     }
 
+    protected static void setKeyInterest(int mask) {
+        setKeyInterestN(nativePointer, mask);
+    }
+
     protected static int setVirtualPackage(String vpPath, boolean initBackupRegs) {
         return setVirtualPackageN(nativePointer, vpPath, initBackupRegs);
     }
@@ -612,6 +616,7 @@ public class Libbluray {
     private static native int selectAngleN(long np, int angle);
     private static native long getUOMaskN(long np);
     private static native void setUOMaskN(long np, boolean menuCallMask, boolean titleSearchMask);
+    private static native void setKeyInterestN(long np, int mask);
     private static native long tellTimeN(long np);
     private static native int selectRateN(long np, float rate, int reason);
     private static native int writeGPRN(long np, int num, int value);

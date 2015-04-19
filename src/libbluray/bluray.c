@@ -1086,6 +1086,13 @@ uint64_t bd_get_uo_mask(BLURAY *bd)
 #endif
 
 #ifdef USING_BDJAVA
+void bd_set_bdj_kit(BLURAY *bd, int mask)
+{
+    _queue_event(bd, BD_EVENT_KEY_INTEREST_TABLE, mask);
+}
+#endif
+
+#ifdef USING_BDJAVA
 void bd_select_rate(BLURAY *bd, float rate, int reason)
 {
     if (reason == BDJ_PLAYBACK_STOP) {
@@ -1298,6 +1305,7 @@ static void _stop_bdj(BLURAY *bd)
     if (bd->bdjava != NULL) {
         bdj_process_event(bd->bdjava, BDJ_EVENT_STOP, 0);
         _queue_event(bd, BD_EVENT_STILL, 0);
+        _queue_event(bd, BD_EVENT_KEY_INTEREST_TABLE, 0);
     }
 }
 #else

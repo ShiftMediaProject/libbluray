@@ -110,11 +110,19 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getUOMaskN
 
 /*
  * Class:     org_videolan_Libbluray
- * Method:    getUOMask
+ * Method:    setUOMask
  * Signature: (JZZ)V
  */
 JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setUOMaskN
 (JNIEnv *, jclass, jlong, jboolean, jboolean);
+
+/*
+ * Class:     org_videolan_Libbluray
+ * Method:    setKeyInterestN
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setKeyInterestN
+(JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     org_videolan_Libbluray
