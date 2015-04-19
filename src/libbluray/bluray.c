@@ -83,6 +83,7 @@ typedef struct {
     /* current aligned unit */
     uint16_t       int_buf_off;
 
+    /* current stream UO mask (combined from playlist and current clip UO masks) */
     BD_UO_MASK     uo_mask;
 
     /* internally handled pids */
@@ -119,8 +120,8 @@ struct bluray {
     uint64_t       s_pos;
 
     /* streams */
-    BD_STREAM      st0; /* main path */
-    BD_PRELOAD     st_ig; /* preloaded IG stream sub path */
+    BD_STREAM      st0;       /* main path */
+    BD_PRELOAD     st_ig;     /* preloaded IG stream sub path */
     BD_PRELOAD     st_textst; /* preloaded TextST sub path */
 
     /* buffer for bd_read(): current aligned unit of main stream (st0) */
@@ -137,11 +138,11 @@ struct bluray {
     int            next_mark;
 
     /* player state */
-    BD_REGISTERS   *regs;       // player registers
-    BD_EVENT_QUEUE *event_queue; // navigation mode event queue
+    BD_REGISTERS   *regs;            /* player registers */
+    BD_EVENT_QUEUE *event_queue;     /* navigation mode event queue */
     BD_UO_MASK      uo_mask;         /* Current UO mask */
     BD_UO_MASK      title_uo_mask;   /* UO mask from current .bdjo file or Movie Object */
-    BD_TITLE_TYPE  title_type;  // type of current title (in navigation mode)
+    BD_TITLE_TYPE   title_type;      /* type of current title (in navigation mode) */
     /* Pending action after playlist end
      * BD-J: delayed sending of BDJ_EVENT_END_OF_PLAYLIST
      *       1 - message pending. 3 - message sent.
@@ -150,7 +151,7 @@ struct bluray {
 
     /* HDMV */
     HDMV_VM        *hdmv_vm;
-    uint8_t        hdmv_suspended;
+    uint8_t         hdmv_suspended;
 
     /* BD-J */
 #ifdef USING_BDJAVA
