@@ -139,6 +139,7 @@ struct bluray {
     /* player state */
     BD_REGISTERS   *regs;       // player registers
     BD_EVENT_QUEUE *event_queue; // navigation mode event queue
+    BD_UO_MASK      title_uo_mask;   /* UO mask from current .bdjo file or Movie Object */
     BD_TITLE_TYPE  title_type;  // type of current title (in navigation mode)
     /* Pending action after playlist end
      * BD-J: delayed sending of BDJ_EVENT_END_OF_PLAYLIST
@@ -154,7 +155,6 @@ struct bluray {
 #ifdef USING_BDJAVA
     BDJAVA         *bdjava;
     BDJ_STORAGE     bdjstorage;
-    BD_UO_MASK      bdj_uo_mask;     /* UO mask from current .bdjo file */
     uint8_t         bdj_wait_start;  /* BD-J has selected playlist (prefetch) but not yet started playback */
 #endif
 
@@ -519,6 +519,25 @@ static void _init_textst_timer(BLURAY *bd)
         bd->gc_wakeup_pos = 0;
         _update_textst_timer(bd);
     }
+}
+
+/*
+ * UO mask
+ */
+
+#ifdef USING_BDJAVA
+void bd_set_bdj_uo_mask(BLURAY *bd, unsigned mask)
+{
+    bd->title_uo_mask.title_search = !!(mask & BDJ_TITLE_SEARCH_MASK);
+    bd->title_uo_mask.menu_call    = !!(mask & BDJ_MENU_CALL_MASK);
+}
+#endif
+
+static void _update_hdmv_uo_mask(BLURAY *bd)
+{
+    uint32_t mask = hdmv_vm_get_uo_mask(bd->hdmv_vm);
+    bd->title_uo_mask.title_search = !!(mask & HDMV_TITLE_SEARCH_MASK);
+    bd->title_uo_mask.menu_call    = !!(mask & HDMV_MENU_CALL_MASK);
 }
 
 /*
@@ -1061,14 +1080,6 @@ const uint8_t *bd_get_aacs_data(BLURAY *bd, int type)
 #endif
 
 #ifdef USING_BDJAVA
-void bd_set_bdj_uo_mask(BLURAY *bd, unsigned mask)
-{
-    bd->bdj_uo_mask.title_search = !!(mask & BDJ_TITLE_SEARCH_MASK);
-    bd->bdj_uo_mask.menu_call    = !!(mask & BDJ_MENU_CALL_MASK);
-}
-#endif
-
-#ifdef USING_BDJAVA
 uint64_t bd_get_uo_mask(BLURAY *bd)
 {
     /* internal function. Used by BD-J. */
@@ -1276,8 +1287,6 @@ static int _start_bdj(BLURAY *bd, unsigned title)
             return 0;
         }
     }
-
-    memset(&bd->bdj_uo_mask, 0, sizeof(BD_UO_MASK));
 
     return !bdj_process_event(bd->bdjava, BDJ_EVENT_START, title);
 #else
@@ -3138,23 +3147,11 @@ static int _try_play_title(BLURAY *bd, unsigned title)
         _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_TITLE_SEARCH_INDEX);
         return 0;
     }
-
-    if (bd->title_type == title_hdmv) {
-        if (hdmv_vm_get_uo_mask(bd->hdmv_vm) & HDMV_TITLE_SEARCH_MASK) {
-            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by movie object\n");
-            return 0;
-        }
+    if (bd->title_uo_mask.title_search) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by title\n");
+        _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_TITLE_SEARCH_INDEX);
+        return 0;
     }
-
-#ifdef USING_BDJAVA
-    if (bd->title_type == title_bdj) {
-        if (bd->bdj_uo_mask.title_search) {
-            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by BD-J\n");
-            _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_TITLE_SEARCH_INDEX);
-            return 0;
-        }
-    }
-#endif
 
     return _play_title(bd, title);
 }
@@ -3184,27 +3181,17 @@ static int _try_menu_call(BLURAY *bd, int64_t pts)
         _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_MENU_CALL_INDEX);
         return 0;
     }
+    if (bd->title_uo_mask.menu_call) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by title\n");
+        _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_MENU_CALL_INDEX);
+        return 0;
+    }
 
     if (bd->title_type == title_hdmv) {
-        if (hdmv_vm_get_uo_mask(bd->hdmv_vm) & HDMV_MENU_CALL_MASK) {
-            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by movie object\n");
-            return 0;
-        }
-
         if (hdmv_vm_suspend_pl(bd->hdmv_vm) < 0) {
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_menu_call(): error storing playback location\n");
         }
     }
-
-#ifdef USING_BDJAVA
-    if (bd->title_type == title_bdj) {
-        if (bd->bdj_uo_mask.menu_call) {
-            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by BD-J\n");
-            _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_MENU_CALL_INDEX);
-            return 0;
-        }
-    }
-#endif
 
     return _play_title(bd, BLURAY_TITLE_TOP_MENU);
 }
@@ -3300,6 +3287,9 @@ static int _run_hdmv(BLURAY *bd)
 
     /* update VM state */
     bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
+
+    /* update UO mask */
+    _update_hdmv_uo_mask(bd);
 
     return 0;
 }
