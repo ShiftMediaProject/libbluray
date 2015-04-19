@@ -139,6 +139,7 @@ struct bluray {
     /* player state */
     BD_REGISTERS   *regs;       // player registers
     BD_EVENT_QUEUE *event_queue; // navigation mode event queue
+    BD_UO_MASK      uo_mask;         /* Current UO mask */
     BD_UO_MASK      title_uo_mask;   /* UO mask from current .bdjo file or Movie Object */
     BD_TITLE_TYPE  title_type;  // type of current title (in navigation mode)
     /* Pending action after playlist end
@@ -525,11 +526,22 @@ static void _init_textst_timer(BLURAY *bd)
  * UO mask
  */
 
+static void _update_uo_mask(BLURAY *bd)
+{
+    BD_UO_MASK new_mask;
+
+    new_mask = bd_uo_mask_combine(bd->title_uo_mask, bd->st0.uo_mask);
+
+    bd->uo_mask = new_mask;
+}
+
 #ifdef USING_BDJAVA
 void bd_set_bdj_uo_mask(BLURAY *bd, unsigned mask)
 {
     bd->title_uo_mask.title_search = !!(mask & BDJ_TITLE_SEARCH_MASK);
     bd->title_uo_mask.menu_call    = !!(mask & BDJ_MENU_CALL_MASK);
+
+    _update_uo_mask(bd);
 }
 #endif
 
@@ -538,7 +550,10 @@ static void _update_hdmv_uo_mask(BLURAY *bd)
     uint32_t mask = hdmv_vm_get_uo_mask(bd->hdmv_vm);
     bd->title_uo_mask.title_search = !!(mask & HDMV_TITLE_SEARCH_MASK);
     bd->title_uo_mask.menu_call    = !!(mask & HDMV_MENU_CALL_MASK);
+
+    _update_uo_mask(bd);
 }
+
 
 /*
  * clip access (BD_STREAM)
@@ -552,9 +567,6 @@ static void _close_m2ts(BD_STREAM *st)
     }
 
     m2ts_filter_close(&st->m2ts_filter);
-
-    /* reset UO mask */
-    memset(&st->uo_mask, 0, sizeof(st->uo_mask));
 }
 
 static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
@@ -588,6 +600,7 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
 
                 st->uo_mask = bd_uo_mask_combine(pl->app_info.uo_mask,
                                                  pl->play_item[st->clip->ref].uo_mask);
+                _update_uo_mask(bd);
 
                 st->m2ts_filter = m2ts_filter_init((int64_t)st->clip->in_time << 1,
                                                    (int64_t)st->clip->out_time << 1,
@@ -1089,7 +1102,7 @@ uint64_t bd_get_uo_mask(BLURAY *bd)
     } mask = {0};
 
     //bd_mutex_lock(&bd->mutex);
-    memcpy(&mask.mask, &bd->st0.uo_mask, sizeof(BD_UO_MASK));
+    memcpy(&mask.mask, &bd->uo_mask, sizeof(BD_UO_MASK));
     //bd_mutex_unlock(&bd->mutex);
 
     return mask.u64;
@@ -2208,6 +2221,10 @@ static void _close_playlist(BLURAY *bd)
         nav_title_close(bd->title);
         bd->title = NULL;
     }
+
+    /* reset UO mask */
+    memset(&bd->st0.uo_mask, 0, sizeof(BD_UO_MASK));
+    _update_uo_mask(bd);
 }
 
 static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
@@ -3142,13 +3159,8 @@ static int _try_play_title(BLURAY *bd, unsigned title)
         return 0;
     }
 
-    if (bd->st0.uo_mask.title_search) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by stream\n");
-        _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_TITLE_SEARCH_INDEX);
-        return 0;
-    }
-    if (bd->title_uo_mask.title_search) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by title\n");
+    if (bd->uo_mask.title_search) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked\n");
         _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_TITLE_SEARCH_INDEX);
         return 0;
     }
@@ -3176,13 +3188,8 @@ static int _try_menu_call(BLURAY *bd, int64_t pts)
         return 0;
     }
 
-    if (bd->st0.uo_mask.menu_call) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by stream\n");
-        _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_MENU_CALL_INDEX);
-        return 0;
-    }
-    if (bd->title_uo_mask.menu_call) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by title\n");
+    if (bd->uo_mask.menu_call) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked\n");
         _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_MENU_CALL_INDEX);
         return 0;
     }
