@@ -527,13 +527,21 @@ static void _init_textst_timer(BLURAY *bd)
  * UO mask
  */
 
+static uint32_t _compressed_mask(BD_UO_MASK mask)
+{
+    return mask.menu_call | (mask.title_search << 1);
+}
+
 static void _update_uo_mask(BLURAY *bd)
 {
+    BD_UO_MASK old_mask = bd->uo_mask;
     BD_UO_MASK new_mask;
 
     new_mask = bd_uo_mask_combine(bd->title_uo_mask, bd->st0.uo_mask);
-
-    bd->uo_mask = new_mask;
+    if (_compressed_mask(old_mask) != _compressed_mask(new_mask)) {
+        bd->uo_mask = new_mask;
+        _queue_event(bd, BD_EVENT_UO_MASK_CHANGED, _compressed_mask(new_mask));
+    }
 }
 
 #ifdef USING_BDJAVA

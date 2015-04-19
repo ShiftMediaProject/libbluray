@@ -730,7 +730,10 @@ typedef enum {
     /* BD-J key interest table changed */
     BD_EVENT_KEY_INTEREST_TABLE     = 32,  /* bitmask, BLURAY_KIT_* */
 
-    /*BD_EVENT_LAST = 32, */
+    /* UO mask changed */
+    BD_EVENT_UO_MASK_CHANGED        = 33,  /* bitmask, BLURAY_UO_* */
+
+    /*BD_EVENT_LAST = 33, */
 
 } bd_event_e;
 
@@ -763,6 +766,10 @@ typedef struct {
 #define BLURAY_KIT_SEC_AUDIO     0x100
 #define BLURAY_KIT_SEC_VIDEO     0x200
 #define BLURAY_KIT_PG_TEXTST     0x400
+
+/* BD_EVENT_UO_MASK flags */
+#define BLURAY_UO_MENU_CALL      0x1
+#define BLURAY_UO_TITLE_SEARCH   0x2
 
 /**
  *
