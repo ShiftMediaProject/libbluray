@@ -194,6 +194,8 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getAacsDataN
     BLURAY* bd = (BLURAY*)(intptr_t)np;
     const uint8_t *data = bd_get_aacs_data(bd, type);
 
+    BD_DEBUG(DBG_JNI, "getAacsDataN(%d) -> %p\n", (int)type, (const void *)data);
+
     if (!data) {
         return NULL;
     }
@@ -205,12 +207,16 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getAacsDataN
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getUOMaskN(JNIEnv * env,
         jclass cls, jlong np) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
+
+    BD_DEBUG(DBG_JNI, "getUOMaskN()\n");
     return bd_get_uo_mask(bd);
 }
 
 JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setUOMaskN(JNIEnv * env,
         jclass cls, jlong np, jboolean menuCallMask, jboolean titleSearchMask) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
+
+    BD_DEBUG(DBG_JNI, "setUOMaskN(%d,%d)\n", (int)menuCallMask, (int)titleSearchMask);
     bd_set_bdj_uo_mask(bd, ((!!menuCallMask) * BDJ_MENU_CALL_MASK) | ((!!titleSearchMask) * BDJ_TITLE_SEARCH_MASK));
 }
 
