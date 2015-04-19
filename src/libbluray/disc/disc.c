@@ -96,7 +96,7 @@ static BD_FILE_H *_overlay_open_path(BD_DISC *p, const char *rel_path)
 
     if (p->overlay_root) {
         char *abs_path = str_printf("%s%s", p->overlay_root, rel_path);
-        fp = file_open_default()(abs_path, "rb");
+        fp = file_open(abs_path, "rb");
         X_FREE(abs_path);
     }
 
@@ -437,7 +437,7 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
     file_mkdirs(cache_path);
 
     /* output file in local filesystem */
-    fp_out = file_open_default()(cache_path, "wb");
+    fp_out = file_open(cache_path, "wb");
     if (!fp_out) {
         BD_DEBUG(DBG_FILE | DBG_CRIT, "error creating cache file %s\n", cache_path);
         file_close(fp_in);
