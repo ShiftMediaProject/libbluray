@@ -1363,6 +1363,8 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
 
     if (s->ics->interactive_composition.ui_model == IG_UI_MODEL_POPUP && !gc->popup_visible) {
 
+        gc->page_uo_mask = bd_empty_uo_mask();
+
         if (gc->ig_open) {
             GC_TRACE("_render_page(): popup menu not visible\n");
             _close_osd(gc, BD_OVERLAY_IG);
