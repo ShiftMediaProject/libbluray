@@ -2055,7 +2055,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
             }
         }
 
-        if (gc->ig_open && !gc->out_effects) {
+        if (gc->ig_open) {
             cmds->page_uo_mask = gc->page_uo_mask;
         }
     }
