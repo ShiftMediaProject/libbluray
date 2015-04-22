@@ -149,7 +149,7 @@ static int _store_result(HDMV_VM *p, MOBJ_CMD *cmd, uint32_t src, uint32_t dst, 
     /* store result to destination register(s) */
     if (dst != dst0) {
         if (cmd->insn.imm_op1) {
-            BD_DEBUG(DBG_HDMV|DBG_CRIT, "ERROR: storing to imm ! ");
+            BD_DEBUG(DBG_HDMV|DBG_CRIT, "storing to imm !\n");
             return -1;
         }
         ret = _store_reg(p, cmd->dst, dst);
@@ -157,7 +157,7 @@ static int _store_result(HDMV_VM *p, MOBJ_CMD *cmd, uint32_t src, uint32_t dst, 
 
     if (src != src0) {
         if (cmd->insn.imm_op1) {
-            BD_DEBUG(DBG_HDMV|DBG_CRIT, "ERROR: storing to imm ! ");
+            BD_DEBUG(DBG_HDMV|DBG_CRIT, "storing to imm !\n");
             return -1;
         }
         ret += _store_reg(p, cmd->src, src);
