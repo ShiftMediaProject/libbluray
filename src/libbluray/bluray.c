@@ -163,6 +163,7 @@ struct bluray {
     /* HDMV graphics */
     GRAPHICS_CONTROLLER *graphics_controller;
     SOUND_DATA          *sound_effects;
+    BD_UO_MASK           gc_uo_mask;      /* UO mask from current menu page */
     uint32_t             gc_status;
     uint8_t              decode_pg;
 
@@ -538,10 +539,11 @@ static void _update_uo_mask(BLURAY *bd)
     BD_UO_MASK new_mask;
 
     new_mask = bd_uo_mask_combine(bd->title_uo_mask, bd->st0.uo_mask);
+    new_mask = bd_uo_mask_combine(bd->gc_uo_mask,    new_mask);
     if (_compressed_mask(old_mask) != _compressed_mask(new_mask)) {
-        bd->uo_mask = new_mask;
         _queue_event(bd, BD_EVENT_UO_MASK_CHANGED, _compressed_mask(new_mask));
     }
+    bd->uo_mask = new_mask;
 }
 
 #ifdef USING_BDJAVA
@@ -885,6 +887,9 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
         if (cmds.sound_id_ref >= 0 && cmds.sound_id_ref < 0xff) {
             _queue_event(bd, BD_EVENT_SOUND_EFFECT, cmds.sound_id_ref);
         }
+
+        bd->gc_uo_mask = cmds.page_uo_mask;
+        _update_uo_mask(bd);
 
     } else {
         if (bd->gc_status & GC_STATUS_MENU_OPEN) {
@@ -2233,6 +2238,7 @@ static void _close_playlist(BLURAY *bd)
 
     /* reset UO mask */
     memset(&bd->st0.uo_mask, 0, sizeof(BD_UO_MASK));
+    memset(&bd->gc_uo_mask,  0, sizeof(BD_UO_MASK));
     _update_uo_mask(bd);
 }
 
