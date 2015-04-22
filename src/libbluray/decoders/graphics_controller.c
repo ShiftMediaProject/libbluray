@@ -692,7 +692,6 @@ static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id, int out_effe
     _select_button(gc, button_id);
 
     gc->valid_mouse_position = 0;
-    gc->page_uo_mask = bd_empty_uo_mask();
 
     if (out_effects) {
         page = _find_page(&gc->igs->ics->interactive_composition, cur_page_id);
