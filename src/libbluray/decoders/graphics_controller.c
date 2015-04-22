@@ -1381,19 +1381,22 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
         }
         gc->out_effects = NULL;
     }
-    if (gc->in_effects) {
-        if (gc->effect_idx < gc->in_effects->num_effects) {
-            _render_effect(gc, &gc->in_effects->effect[gc->effect_idx]);
-            return 1;
-        }
-        gc->in_effects = NULL;
-    }
 
     page = _find_page(&s->ics->interactive_composition, page_id);
     if (!page) {
         GC_ERROR("_render_page: unknown page id %d (have %d pages)\n",
               page_id, s->ics->interactive_composition.num_pages);
         return -1;
+    }
+
+    gc->page_uo_mask = page->uo_mask_table;
+
+    if (gc->in_effects) {
+        if (gc->effect_idx < gc->in_effects->num_effects) {
+            _render_effect(gc, &gc->in_effects->effect[gc->effect_idx]);
+            return 1;
+        }
+        gc->in_effects = NULL;
     }
 
     palette = _find_palette(s, page->palette_id_ref);
@@ -1411,8 +1414,6 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
                   s->ics->video_descriptor.video_width,
                   s->ics->video_descriptor.video_height);
     }
-
-    gc->page_uo_mask = page->uo_mask_table;
 
     for (ii = 0; ii < page->num_bogs; ii++) {
         BD_IG_BOG    *bog      = &page->bog[ii];
