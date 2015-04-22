@@ -1188,7 +1188,7 @@ uint32_t hdmv_vm_get_uo_mask(HDMV_VM *p)
 
     bd_mutex_lock(&p->mutex);
 
-    if ((o = p->object ? p->object : (p->playing_object ? p->playing_object : p->suspended_object))) {
+    if ((o = (p->object && !p->ig_object) ? p->object : (p->playing_object ? p->playing_object : p->suspended_object))) {
         mask |= o->menu_call_mask;
         mask |= o->title_search_mask << 1;
     }
