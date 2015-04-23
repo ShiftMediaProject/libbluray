@@ -21,7 +21,7 @@
 #define BD_PLAYER_SETTINGS_H_
 
 /*
- * BLURAY_PLAYER_SETTING_AUDIO_CAP (PSR12)
+ * BLURAY_PLAYER_SETTING_AUDIO_CAP (PSR15)
  *
  * Player capability for audio (bitmask)
  */
