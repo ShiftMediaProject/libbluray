@@ -110,7 +110,7 @@ typedef struct {
         } style;
         struct {
             uint8_t length;
-            uint8_t string[0];
+            uint8_t string[1];
         } text;
     } data;
 } BD_TEXTST_DATA;

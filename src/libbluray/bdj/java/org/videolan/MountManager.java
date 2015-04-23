@@ -25,6 +25,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,10 +43,13 @@ import java.util.jar.JarFile;
  */
 public class MountManager {
 
+    /* called from org/dvb/dsmcc/ServiceDomain */
     public static String mount(int jarId) throws MountException {
-        return mount(jarId, true);
+        /* dispatch mount request to privileged thread */
+        return new MountAction(jarId).execute();
     }
 
+    /* package private, called from BDJXletContext */
     protected static String mount(int jarId, boolean classFiles) throws MountException {
         String jarStr = jarIdToString(jarId);
 
@@ -70,17 +77,16 @@ public class MountManager {
 
             JarFile jar = null;
             try {
-                jar = new JarFile(path);
+                jar = new JarFile(path, false);
                 if (mountPoint == null) {
                     mountPoint = new MountPoint(jarStr, classFiles);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Error opening " + path + ": " + e);
                 if (jar != null) {
                     try {
                         jar.close();
                     } catch (IOException e1) {
-                        e1.printStackTrace();
                     }
                 }
                 throw new MountException();
@@ -105,7 +111,12 @@ public class MountManager {
 
                         logger.info("   mount: " + entry.getName());
 
-                        inStream = jar.getInputStream(entry);
+                        try {
+                            inStream = jar.getInputStream(entry);
+                        } catch (SecurityException se) {
+                            logger.error("Error uncompressing " + entry.getName() + " from " + path +  ": " + se + "\n" + Logger.dumpStack(se));
+                            continue;
+                        }
                         outStream = new FileOutputStream(out);
 
                         int length;
@@ -118,7 +129,7 @@ public class MountManager {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Error uncompressing " + path + ": " + e);
                 mountPoint.remove();
                 throw new MountException();
             } finally {
@@ -126,20 +137,17 @@ public class MountManager {
                     try {
                         inStream.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
                     }
                 }
                 if (outStream != null) {
                     try {
                         outStream.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
                     }
                 }
                 try {
                     jar.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
 
@@ -160,11 +168,11 @@ public class MountManager {
         }
     }
 
-    public static void unmount(int jarId) {
+    private static void unmount(int jarId) {
         logger.info("Unmounting JAR: " + jarId);
 
-        Integer id = new Integer(jarId);
-        MountPoint mountPoint;
+        final Integer id = new Integer(jarId);
+        final MountPoint mountPoint;
 
         synchronized (mountPoints) {
             mountPoint = (MountPoint)mountPoints.get(id);
@@ -173,13 +181,20 @@ public class MountManager {
                 return;
             }
 
-            if (mountPoint.decRefCount() < 1) {
-                mountPoints.remove(id);
-            }
+            AccessController.doPrivileged(
+                new PrivilegedAction() {
+                    public Object run() {
+                        if (mountPoint.decRefCount() < 1) {
+                            mountPoints.remove(id);
+                        }
+                        return null;
+                    }
+                });
         }
     }
 
-    public static void unmountAll() {
+    /* package private, called from Libbluray.shutdown() */
+    protected static void unmountAll() {
         logger.info("Unmounting all JARs");
 
         Object[] dirs;
@@ -195,6 +210,7 @@ public class MountManager {
         }
     }
 
+    /* called from org/dvb/dsmcc/ServiceDomain */
     public static String getMount(int jarId) {
         Integer id = new Integer(jarId);
         MountPoint mountPoint;
@@ -265,4 +281,36 @@ public class MountManager {
         private int refCount;
         private boolean classFiles;
     };
+
+    private static class MountAction extends BDJAction {
+        public MountAction(int jarId) {
+            this.jarId = jarId;
+        }
+
+        protected void doAction() {
+            try {
+                this.mountPoint = (String)AccessController.doPrivileged(
+                    new PrivilegedExceptionAction() {
+                        public Object run() throws MountException {
+                            return mount(jarId, true);
+                        }
+                    });
+            } catch (PrivilegedActionException e) {
+                this.exception = (MountException) e.getException();
+            }
+        }
+
+        public String execute() throws MountException {
+            BDJActionManager.getInstance().putCommand(this);
+            waitEnd();
+            if (exception != null) {
+                throw exception;
+            }
+            return mountPoint;
+        }
+
+        private final int jarId;
+        private String mountPoint = null;
+        private MountException exception = null;
+    }
 }

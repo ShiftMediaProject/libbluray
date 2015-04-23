@@ -67,7 +67,7 @@ public class BDRootWindow extends Frame {
                 }
             }
             super.setBounds(x, y, width, height);
-        } else {
+        } else if (width != getWidth() || height != getHeight()){
             logger.error("setBounds(" + x + "," + y + "," + width + "," + height + ") FAILED: already visible");
         }
     }

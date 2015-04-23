@@ -23,7 +23,13 @@
 
 #include "file.h"
 
-#include <stdio.h>
+#include "util/logging.h"
+#include "util/macro.h"
+#include "util/strutl.h"
+
+#include <stdio.h>  // SEEK_*
+#include <string.h> // strchr
+
 
 int64_t file_size(BD_FILE_H *fp)
 {
@@ -37,4 +43,47 @@ int64_t file_size(BD_FILE_H *fp)
     }
 
     return length;
+}
+
+int file_mkdirs(const char *path)
+{
+    int result = 0;
+    char *dir = str_dup(path);
+    char *end = dir;
+    char *p;
+
+    /* strip file name */
+    if (!(end = strrchr(end, DIR_SEP_CHAR))) {
+        X_FREE(dir);
+        return -1;
+    }
+    *end = 0;
+
+    /* tokenize, stop to first existing dir */
+    while ((p = strrchr(dir, DIR_SEP_CHAR))) {
+        if (!file_path_exists(dir)) {
+            break;
+        }
+        *p = 0;
+    }
+
+    /* create missing dirs */
+    p = dir;
+    while (p < end) {
+
+        /* concatenate next non-existing dir */
+        while (*p) p++;
+        if (p >= end) break;
+        *p = DIR_SEP_CHAR;
+
+        result = file_mkdir(dir);
+        if (result < 0) {
+            BD_DEBUG(DBG_FILE | DBG_CRIT, "Error creating directory %s\n", dir);
+            break;
+        }
+        BD_DEBUG(DBG_FILE, "  created directory %s\n", dir);
+    }
+
+    X_FREE(dir);
+    return result;
 }

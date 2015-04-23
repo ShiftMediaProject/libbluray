@@ -83,7 +83,7 @@ public class BDJClassLoader extends URLClassLoader {
         try {
             return new URL(url);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            System.err.println("" + e + "\n" + Logger.dumpStack(e));
             return null;
         }
     }

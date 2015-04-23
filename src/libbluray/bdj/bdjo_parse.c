@@ -22,14 +22,15 @@
 
 #include "bdjo_data.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include "disc/disc.h"
 
 #include "file/file.h"
 #include "util/bits.h"
 #include "util/logging.h"
 #include "util/macro.h"
 
+#include <stdlib.h>
+#include <string.h>
 
 static char *_read_string(BITSTREAM* bs, uint32_t length)
 {
@@ -497,20 +498,31 @@ static int _check_version(BITSTREAM *bs)
     return 1;
 }
 
-static int _parse_bdjo(BITSTREAM* bs, BDJO *p)
+static BDJO *_bdjo_parse(BD_FILE_H *fp)
 {
-    if (_check_version(bs) < 0 ||
-        _parse_terminal_info(bs, &p->terminal_info) < 0 ||
-        _parse_app_cache_info(bs, &p->app_cache_info) < 0 ||
-        _parse_accessible_playlists(bs, &p->accessible_playlists) < 0 ||
-        _parse_app_management_table(bs, &p->app_table) < 0 ||
-        _parse_key_interest_table(bs, &p->key_interest_table) < 0 ||
-        _parse_file_access_info(bs, &p->file_access_info) < 0) {
+    BITSTREAM   bs;
+    BDJO       *p;
 
-      return -1;
+    bs_init(&bs, fp);
+
+    p = calloc(1, sizeof(BDJO));
+    if (!p) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Out of memory\n");
+        return NULL;
     }
 
-    return 1;
+    if (_check_version(&bs) < 0 ||
+        _parse_terminal_info(&bs, &p->terminal_info) < 0 ||
+        _parse_app_cache_info(&bs, &p->app_cache_info) < 0 ||
+        _parse_accessible_playlists(&bs, &p->accessible_playlists) < 0 ||
+        _parse_app_management_table(&bs, &p->app_table) < 0 ||
+        _parse_key_interest_table(&bs, &p->key_interest_table) < 0 ||
+        _parse_file_access_info(&bs, &p->file_access_info) < 0) {
+
+        bdjo_free(&p);
+    }
+
+    return p;
 }
 
 /*
@@ -527,27 +539,46 @@ void bdjo_free(BDJO **pp)
 
 BDJO *bdjo_parse(const char *path)
 {
-    BITSTREAM   bs;
-    BD_FILE_H  *fp = file_open(path, "rb");
-    BDJO       *p;
+    BD_FILE_H *fp;
+    BDJO      *bdjo;
 
+    fp = file_open(path, "rb");
     if (!fp) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to open bdjo file (%s)\n", path);
         return NULL;
     }
 
-    bs_init(&bs, fp);
+    bdjo = _bdjo_parse(fp);
+    file_close(fp);
+    return bdjo;
+}
 
-    p = calloc(1, sizeof(BDJO));
-    if (!p) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Out of memory\n");
-    } else {
-        if (_parse_bdjo(&bs, p) < 0) {
-            bdjo_free(&p);
-        }
+static BDJO *_bdjo_get(BD_DISC *disc, const char *dir, const char *file)
+{
+    BD_FILE_H *fp;
+    BDJO      *bdjo;
+
+    fp = disc_open_file(disc, dir, file);
+    if (!fp) {
+        return NULL;
     }
 
+    bdjo = _bdjo_parse(fp);
     file_close(fp);
 
-    return p;
+    return bdjo;
+}
+
+BDJO *bdjo_get(BD_DISC *disc, const char *file)
+{
+    BDJO *bdjo;
+
+    bdjo = _bdjo_get(disc, "BDMV" DIR_SEP "BDJO", file);
+    if (bdjo) {
+        return bdjo;
+    }
+
+    /* if failed, try backup file */
+    bdjo = _bdjo_get(disc, "BDMV" DIR_SEP "BACKUP" DIR_SEP "BDJO", file);
+    return bdjo;
 }

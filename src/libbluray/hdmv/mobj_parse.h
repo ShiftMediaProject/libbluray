@@ -24,11 +24,12 @@
 
 #include <stdint.h>
 
+struct bd_disc;
 struct mobj_objects;
 struct mobj_cmd;
 
 BD_PRIVATE struct mobj_objects* mobj_parse(const char *file) BD_ATTR_MALLOC; /* parse MovieObject.bdmv */
-BD_PRIVATE struct mobj_objects* mobj_get(const char *disc_root);             /* parse MovieObject.bdmv */
+BD_PRIVATE struct mobj_objects* mobj_get(struct bd_disc *disc);              /* parse MovieObject.bdmv */
 BD_PRIVATE void                 mobj_parse_cmd(uint8_t *buf, struct mobj_cmd *cmd);
 BD_PRIVATE void                 mobj_free(struct mobj_objects **index);
 

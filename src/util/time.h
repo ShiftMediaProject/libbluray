@@ -20,58 +20,10 @@
 #ifndef LIBBLURAY_TIME_H_
 #define LIBBLURAY_TIME_H_
 
-#if HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "attributes.h"
 
-#if defined(_WIN32)
-#   include <windows.h>
-#elif defined(HAVE_SYS_TIME_H)
-#   include <sys/time.h>
-#else
-#   error no time support found
-#endif
+#include <stdint.h>
 
-
-#if defined(_WIN32)
-static uint64_t _bd_get_scr_impl(void)
-{
-    HANDLE thread;
-    DWORD_PTR mask;
-    LARGE_INTEGER frequency, counter;
-
-    thread = GetCurrentThread();
-    mask = SetThreadAffinityMask(thread, 1);
-    QueryPerformanceFrequency(&frequency);
-    QueryPerformanceCounter(&counter);
-    SetThreadAffinityMask(thread, mask);
-
-    return (uint64_t)(counter.QuadPart * 1000.0 / frequency.QuadPart) * 90;
-}
-
-#elif defined(HAVE_SYS_TIME_H)
-
-static uint64_t _bd_get_scr_impl(void)
-{
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    return ((uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000) * 90;
-}
-
-#endif
-
-static uint64_t bd_get_scr(void)
-{
-    static uint64_t t0 = (uint64_t)-1;
-
-    uint64_t now = _bd_get_scr_impl();
-
-    if (t0 > now) {
-        t0 = now;
-    }
-
-    return now - t0;
-}
-
+BD_PRIVATE uint64_t bd_get_scr(void);
 
 #endif // LIBBLURAY_TIME_H_

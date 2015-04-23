@@ -23,6 +23,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import org.videolan.Logger;
 
 public class BDFramePeer extends BDComponentPeer implements FramePeer
@@ -174,7 +177,14 @@ public class BDFramePeer extends BDComponentPeer implements FramePeer
         if (c == null) {
             return true;
         }
-        Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(new FocusEvent(c, FocusEvent.FOCUS_GAINED));
+        final FocusEvent focusEvent = new FocusEvent(c, FocusEvent.FOCUS_GAINED);
+        AccessController.doPrivileged(
+            new PrivilegedAction() {
+                public Object run() {
+                    Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(focusEvent);
+                    return null;
+                }
+            });
         return true;
     }
 

@@ -58,7 +58,7 @@ public abstract class BDJAction {
         try {
             doAction();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("action failed: " + e + "\n" + Logger.dumpStack(e));
         }
         synchronized (this) {
             state = PROCESSED;

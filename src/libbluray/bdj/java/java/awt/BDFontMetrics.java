@@ -30,7 +30,7 @@ import java.util.Map;
 
 import org.videolan.Logger;
 
-public class BDFontMetrics extends FontMetrics {
+public class BDFontMetrics extends sun.font.FontDesignMetrics {
     static final long serialVersionUID = -4956160226949100590L;
 
     private static long ftLib = 0;
@@ -173,6 +173,15 @@ public class BDFontMetrics extends FontMetrics {
             font.metrics = fm;
         }
         return fm;
+    }
+
+    static {
+        sun.font.FontDesignMetrics.setGetFontMetricsAccess(
+            new sun.font.FontDesignMetrics.GetFontMetricsAccess() {
+                public sun.font.FontDesignMetrics getFontMetrics(Font font) {
+                    return BDFontMetrics.getFontMetrics(font);
+                }
+            });
     }
 
     static String stripAttributes(String fontname) {

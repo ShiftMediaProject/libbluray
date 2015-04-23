@@ -20,6 +20,7 @@
 
 package org.videolan;
 
+import java.awt.BDFontMetrics;
 import java.awt.BDToolkit;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -46,105 +47,175 @@ import org.videolan.media.content.PlayerManager;
  * This class allows BDJ to call various libbluray functions.
  */
 public class Libbluray {
-    protected static void init(long nativePointer, String discID, String discRoot,
+
+    /* hook system properties: make "user.dir" point to current Xlet home directory */
+
+    private static boolean propertiesHooked = false;
+
+    private static void hookProperties() {
+        if (propertiesHooked) {
+            return;
+        }
+        propertiesHooked = true;
+
+        java.util.Properties p = new java.util.Properties(System.getProperties()) {
+                public String getProperty(String key) {
+                    if (key.equals("user.dir")) {
+                        BDJXletContext ctx = BDJXletContext.getCurrentContext();
+                        if (ctx != null) {
+                            return ctx.getXletHome();
+                        }
+                    }
+                    return super.getProperty(key);
+                }
+            };
+        System.setProperties(p);
+    }
+
+    private static String canonicalize(String path, boolean create) {
+        try {
+            File dir = new File(path);
+            if (create) {
+                dir.mkdirs();
+            }
+            return dir.getCanonicalPath();
+        } catch (Exception ioe) {
+            System.err.println("error canonicalizing " + path + ": " + ioe);
+        }
+        return path;
+    }
+
+    /* called only from native code */
+    private static void init(long nativePointer, String discID, String discRoot,
                                String persistentRoot, String budaRoot) {
 
-        System.setProperty("bluray.vfs.root", discRoot);
+        hookProperties();
+
+        /* set up directories */
+        persistentRoot = canonicalize(persistentRoot, true);
+        budaRoot       = canonicalize(budaRoot, true);
+
         System.setProperty("dvb.persistent.root", persistentRoot);
         System.setProperty("bluray.bindingunit.root", budaRoot);
 
-            Libbluray.nativePointer = nativePointer;
-            DiscManager.getDiscManager().setCurrentDisc(discID);
+        if (discRoot != null) {
+            discRoot = canonicalize(discRoot, false);
+            System.setProperty("bluray.vfs.root", discRoot);
+        } else {
+            System.getProperties().remove("bluray.vfs.root");
+        }
 
-            BDJActionManager.createInstance();
+        Libbluray.nativePointer = nativePointer;
+        DiscManager.getDiscManager().setCurrentDisc(discID);
 
-            Vector prefix = new Vector();
-            prefix.add("org.videolan");
-            PackageManager.setContentPrefixList(prefix);
-            PackageManager.setProtocolPrefixList(prefix);
-            PackageManager.commitContentPrefixList();
-            PackageManager.commitProtocolPrefixList();
+        BDJActionManager.createInstance();
 
-            java.awt.BDFontMetrics.init();
+        Vector prefix = new Vector();
+        prefix.add("org.videolan");
+        PackageManager.setContentPrefixList(prefix);
+        PackageManager.setProtocolPrefixList(prefix);
+        PackageManager.commitContentPrefixList();
+        PackageManager.commitProtocolPrefixList();
 
-            System.setProperty("mhp.profile.enhanced_broadcast", "YES");
-            System.setProperty("mhp.profile.interactive_broadcast", "YES");
-            System.setProperty("mhp.profile.internet_access", "YES");
+        BDFontMetrics.init();
 
-            System.setProperty("mhp.eb.version.major", "1");
-            System.setProperty("mhp.eb.version.minor", "0");
-            System.setProperty("mhp.eb.version.micro", "3");
-            System.setProperty("mhp.ia.version.major", "1");
-            System.setProperty("mhp.ia.version.minor", "0");
-            System.setProperty("mhp.ia.version.micro", "3");
-            System.setProperty("mhp.ib.version.major", "1");
-            System.setProperty("mhp.ib.version.minor", "0");
-            System.setProperty("mhp.ib.version.micro", "3");
+        System.setProperty("mhp.profile.enhanced_broadcast", "YES");
+        System.setProperty("mhp.profile.interactive_broadcast", "YES");
+        System.setProperty("mhp.profile.internet_access", "YES");
 
-            System.setProperty("mhp.option.ip.multicast", "UNSUPPORTED");
-            System.setProperty("mhp.option.dsmcc.uu", "UNSUPPORTED");
-            System.setProperty("mhp.option.dvb.html", "UNSUPPORTED");
+        System.setProperty("mhp.eb.version.major", "1");
+        System.setProperty("mhp.eb.version.minor", "0");
+        System.setProperty("mhp.eb.version.micro", "3");
+        System.setProperty("mhp.ia.version.major", "1");
+        System.setProperty("mhp.ia.version.minor", "0");
+        System.setProperty("mhp.ia.version.micro", "3");
+        System.setProperty("mhp.ib.version.major", "1");
+        System.setProperty("mhp.ib.version.minor", "0");
+        System.setProperty("mhp.ib.version.micro", "3");
 
-            System.setProperty("dvb.returnchannel.timeout", "30");
+        System.setProperty("mhp.option.ip.multicast", "UNSUPPORTED");
+        System.setProperty("mhp.option.dsmcc.uu", "UNSUPPORTED");
+        System.setProperty("mhp.option.dvb.html", "UNSUPPORTED");
 
-            System.setProperty("bluray.profile.1", "YES");
-            System.setProperty("bluray.p1.version.major", "1");
-            System.setProperty("bluray.p1.version.minor", "1");
-            System.setProperty("bluray.p1.version.micro", "0");
+        System.setProperty("dvb.returnchannel.timeout", "30");
 
-            System.setProperty("bluray.profile.2", "YES");
-            System.setProperty("bluray.p2.version.major", "1");
-            System.setProperty("bluray.p2.version.minor", "0");
-            System.setProperty("bluray.p2.version.micro", "0");
+        System.setProperty("bluray.profile.1", "YES");
+        System.setProperty("bluray.p1.version.major", "1");
+        System.setProperty("bluray.p1.version.minor", "1");
+        System.setProperty("bluray.p1.version.micro", "0");
 
-            System.setProperty("bluray.disc.avplayback.readcapability", "NO");
+        System.setProperty("bluray.profile.2", "YES");
+        System.setProperty("bluray.p2.version.major", "1");
+        System.setProperty("bluray.p2.version.minor", "0");
+        System.setProperty("bluray.p2.version.micro", "0");
 
-            System.setProperty("bluray.video.fullscreenSD", "YES");
-            System.setProperty("bluray.video.fullscreenSDPG", "YES");
+        System.setProperty("bluray.disc.avplayback.readcapability", "NO");
 
-            System.setProperty("aacs.bluray.online.capability", "YES");
-            System.setProperty("aacs.bluray.mc.capability", "NO");
+        System.setProperty("bluray.video.fullscreenSD", "YES");
+        System.setProperty("bluray.video.fullscreenSDPG", "YES");
 
-            System.setProperty("bluray.prefetchedplaylistloading", "NO");
-            System.setProperty("bluray.video.autoresume", "NO");
+        System.setProperty("aacs.bluray.online.capability", "YES");
+        System.setProperty("aacs.bluray.mc.capability", "NO");
 
-            System.setProperty("bluray.mediaselect", "NO");
+        System.setProperty("bluray.prefetchedplaylistloading", "NO");
+        System.setProperty("bluray.video.autoresume", "NO");
 
-            System.setProperty("bluray.event.extension", "YES");
+        System.setProperty("bluray.mediaselect", "NO");
 
-            System.setProperty("bluray.jmf.subtitlestyle", "YES");
+        System.setProperty("bluray.event.extension", "YES");
 
-            System.setProperty("bluray.rccapability.release", "YES");
-            System.setProperty("bluray.rccapability.holdandrelease", "YES");
-            System.setProperty("bluray.rccapability.repeatonhold", "NO");
+        System.setProperty("bluray.jmf.subtitlestyle", "YES");
 
-            System.setProperty("bluray.localstorage.level", "5");
-            System.setProperty("bluray.localstorage.maxlevel", "5");
+        System.setProperty("bluray.rccapability.release", "YES");
+        System.setProperty("bluray.rccapability.holdandrelease", "YES");
+        System.setProperty("bluray.rccapability.repeatonhold", "NO");
 
-            System.setProperty("bluray.localstorage.removable", "NO");
-            System.setProperty("bluray.localstorage.upgradable", "NO");
-            System.setProperty("bluray.localstorage.name", "HDD");
+        System.setProperty("bluray.localstorage.level", "5");
+        System.setProperty("bluray.localstorage.maxlevel", "5");
 
-            System.setProperty("bluray.memory.images", "65536");
-            System.setProperty("bluray.memory.audio", "8192");
-            System.setProperty("bluray.memory.audio_plus_img", "73728");
-            System.setProperty("bluray.memory.java_heap", "32768");
-            System.setProperty("bluray.memory.font_cache", "4096");
+        System.setProperty("bluray.localstorage.removable", "NO");
+        System.setProperty("bluray.localstorage.upgradable", "NO");
+        System.setProperty("bluray.localstorage.name", "HDD");
 
-            System.setProperty("bluray.network.connected", "YES");
+        System.setProperty("bluray.memory.images", "65536");
+        System.setProperty("bluray.memory.audio", "8192");
+        System.setProperty("bluray.memory.audio_plus_img", "73728");
+        System.setProperty("bluray.memory.java_heap", "32768");
+        System.setProperty("bluray.memory.font_cache", "4096");
 
-            BDJSocketFactory.init();
+        System.setProperty("bluray.network.connected", "YES");
+
+        BDJSocketFactory.init();
+
+        try {
+            System.setSecurityManager(new BDJSecurityManager(discRoot, persistentRoot, budaRoot));
+        } catch (Exception ex) {
+            System.err.println("System.setSecurityManager() failed: " + ex);
+            throw new SecurityException("Failed initializing SecurityManager");
+        }
     }
 
-    public static void shutdown() {
+    /* called only from native code */
+    private static void shutdown() {
+        if (nativePointer == 0) {
+            return;
+        }
         try {
             stopTitle(true);
             BDJLoader.shutdown();
             BDJActionManager.shutdown();
+
+            /* all Xlet contexts (and threads) should be terminated now */
+            try {
+                System.setSecurityManager(null);
+            } catch (Exception ex) {
+                System.err.println("System.setSecurityManager(null) failed: " + ex);
+            }
+
             MountManager.unmountAll();
             GUIManager.shutdown();
             BDToolkit.shutdownDisc();
-            java.awt.BDFontMetrics.shutdown();
+            BDFontMetrics.shutdown();
             SIManagerImpl.shutdown();
             IxcRegistry.shutdown();
             EventManager.shutdown();
@@ -153,14 +224,31 @@ public class Libbluray {
             FontFactory.unloadDiscFonts();
             CacheDir.remove();
         } catch (Throwable e) {
-            e.printStackTrace();
+            System.err.println("shutdown() failed: " + e + "\n" + Logger.dumpStack(e));
         }
         nativePointer = 0;
         titleInfos = null;
     }
 
-    public static byte[] getAacsData(int type) {
-        return getAacsDataN(nativePointer, type);
+    /*
+     * Package private
+     */
+
+    /* called by BDJLoader to select HDMV title */
+    protected static boolean selectHdmvTitle(int title) {
+        return selectTitleN(nativePointer, title) == 1 ? true : false;
+    }
+
+    protected static boolean cacheBdRomFile(String path, String cachePath) {
+        return cacheBdRomFileN(nativePointer, path, cachePath) == 0;
+    }
+
+    protected static void setUOMask(boolean menuCallMask, boolean titleSearchMask) {
+        setUOMaskN(nativePointer, menuCallMask, titleSearchMask);
+    }
+
+    protected static int setVirtualPackage(String vpPath, boolean initBackupRegs) {
+        return setVirtualPackageN(nativePointer, vpPath, initBackupRegs);
     }
 
     /*
@@ -194,13 +282,49 @@ public class Libbluray {
         return titleInfos[titleNum];
     }
 
+    /* used by org/bluray/ti/PlayListImpl */
+    public static int getCurrentTitle() {
+        return readPSR(PSR_TITLE_NUMBER);
+    }
+
+
     /*
-     *
+     * Disc data
      */
 
+    public static byte[] getAacsData(int type) {
+        return getAacsDataN(nativePointer, type);
+    }
 
     public static PlaylistInfo getPlaylistInfo(int playlist) {
         return getPlaylistInfoN(nativePointer, playlist);
+    }
+
+    public static Bdjo getBdjo(String name) {
+        return getBdjoN(nativePointer, name + ".bdjo");
+    }
+
+    public static String[] listBdFiles(String path, boolean onlyBdRom) {
+        return listBdFilesN(nativePointer, path, onlyBdRom);
+    }
+
+    /*
+     * Playback control
+     */
+
+    public static boolean selectPlaylist(int playlist, int playitem, int playmark, long time) {
+        if (playlist < 0)
+            throw new IllegalArgumentException("Playlist cannot be negative");
+
+        return selectPlaylistN(nativePointer, playlist, playitem, playmark, time) == 1 ? true : false;
+    }
+
+    public static boolean selectPlaylist(int playlist) {
+        return selectPlaylist(playlist, -1, -1, -1);
+    }
+
+    public static void stopPlaylist() {
+        selectPlaylistN(nativePointer, -1, -1, -1, -1);
     }
 
     public static long seekTime(long tick) {
@@ -227,45 +351,11 @@ public class Libbluray {
         return result;
     }
 
-    public static boolean selectPlaylist(int playlist, int playitem, int playmark, long time) {
-        if (playlist < 0)
-            throw new IllegalArgumentException("Playlist cannot be negative");
-
-        return selectPlaylistN(nativePointer, playlist, playitem, playmark, time) == 1 ? true : false;
-    }
-
-    public static boolean selectPlaylist(int playlist) {
-        return selectPlaylist(playlist, -1, -1, -1);
-    }
-
-    public static void stopPlaylist() {
-        selectPlaylistN(nativePointer, -1, -1, -1, -1);
-    }
-
-    public static boolean selectTitle(TitleImpl title) {
-        TitleInfo ti = title.getTitleInfo();
-        if (ti.isBdj()) {
-            try {
-                ((TitleContext)ServiceContextFactory.getInstance().getServiceContext(null)).select(title);
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-
-        return selectTitleN(nativePointer, title.getTitleNum()) == 1 ? true : false;
-    }
-
     public static boolean selectAngle(int angle) {
         if (angle < 1)
             throw new IllegalArgumentException("Angle cannot be negative");
 
         return selectAngleN(nativePointer, angle) == 1 ? true : false;
-    }
-
-    public static int getCurrentTitle() {
-        return readPSR(PSR_TITLE_NUMBER);
     }
 
     public static int getCurrentAngle() {
@@ -286,6 +376,10 @@ public class Libbluray {
     public static boolean selectRate(float rate, boolean start) {
         return selectRateN(nativePointer, rate, start ? 1 : 2) == 1 ? true : false;
     }
+
+    /*
+     * Register access
+     */
 
     public static void writeGPR(int num, int value) {
         int ret = writeGPRN(nativePointer, num, value);
@@ -319,13 +413,9 @@ public class Libbluray {
         return readPSRN(nativePointer, num);
     }
 
-    public static Bdjo getBdjo(String name) {
-        return getBdjoN(nativePointer,
-                        System.getProperty("bluray.vfs.root") + File.separator +
-                        "BDMV" + File.separator +
-                        "BDJO" + File.separator +
-                        name + ".bdjo");
-    }
+    /*
+     * Graphics
+     */
 
     public static void updateGraphic(int width, int height, int[] rgbArray) {
         updateGraphicN(nativePointer, width, height, rgbArray,
@@ -337,6 +427,10 @@ public class Libbluray {
         updateGraphicN(nativePointer, width, height, rgbArray,
                        x0, y0, x1, y1);
     }
+
+    /*
+     * Events from native side
+     */
 
     private static boolean startTitle(int titleNumber) {
 
@@ -350,8 +444,7 @@ public class Libbluray {
             return true;
 
         } catch (Throwable e) {
-            System.err.println("startTitle() failed: " + e);
-            e.printStackTrace();
+            System.err.println("startTitle() failed: " + e + "\n" + Logger.dumpStack(e));
             return false;
         }
     }
@@ -367,13 +460,13 @@ public class Libbluray {
             }
             return true;
         } catch (Throwable e) {
-            System.err.println("stopTitle() failed: " + e);
-            e.printStackTrace();
+            System.err.println("stopTitle() failed: " + e + "\n" + Logger.dumpStack(e));
             return false;
         }
     }
 
-    public static boolean processEvent(int event, int param) {
+    /* called only from native code */
+    private static boolean processEvent(int event, int param) {
         boolean result = true;
         int key = 0;
 
@@ -462,10 +555,6 @@ public class Libbluray {
         return result;
     }
 
-    public static void setUOMask(boolean menuCallMask, boolean titleSearchMask) {
-        setUOMaskN(nativePointer, menuCallMask, titleSearchMask);
-    }
-
     private static final int BDJ_EVENT_CHAPTER                  = 1;
     private static final int BDJ_EVENT_PLAYITEM                 = 2;
     private static final int BDJ_EVENT_ANGLE                    = 3;
@@ -537,7 +626,10 @@ public class Libbluray {
     private static native int writeGPRN(long np, int num, int value);
     private static native int writePSRN(long np, int num, int value, int psr_value_mask);
     private static native int readGPRN(long np, int num);
+    private static native int setVirtualPackageN(long np, String vpPath, boolean psrBackup);
     private static native int readPSRN(long np, int num);
+    private static native int cacheBdRomFileN(long np, String path, String cachePath);
+    private static native String[] listBdFilesN(long np, String path, boolean onlyBdRom);
     private static native Bdjo getBdjoN(long np, String name);
     private static native void updateGraphicN(long np, int width, int height, int[] rgbArray,
                                               int x0, int y0, int x1, int y1);

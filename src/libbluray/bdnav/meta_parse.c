@@ -21,13 +21,17 @@
 #include "config.h"
 #endif
 
+#include "meta_parse.h"
+
+#include "meta_data.h"
+
+#include "disc/disc.h"
+
 #include "file/file.h"
 #include "util/bits.h"
 #include "util/logging.h"
 #include "util/macro.h"
 #include "util/strutl.h"
-#include "meta_parse.h"
-#include "libbluray/register.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -42,6 +46,9 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/tree.h>
 #endif
+
+#define DEFAULT_LANGUAGE  "eng"
+
 
 #define BAD_CAST_CONST (const xmlChar *)
 #define XML_FREE(p) (xmlFree(p), p = NULL)
@@ -105,16 +112,13 @@ static void _parseManifestNode(xmlNode * a_node, META_DL *disclib)
     }
 }
 
-static void _findMetaXMLfiles(META_ROOT *meta, const char *device_path)
+static void _findMetaXMLfiles(META_ROOT *meta, BD_DISC *disc)
 {
     BD_DIR_H *dir;
     BD_DIRENT ent;
-    char *path = NULL;
-    path = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "META" DIR_SEP "DL", device_path);
-    dir = dir_open(path);
+    dir = disc_open_dir(disc, "BDMV" DIR_SEP "META" DIR_SEP "DL");
     if (dir == NULL) {
-        BD_DEBUG(DBG_DIR, "Failed to open meta dir %s\n", path);
-        X_FREE(path);
+        BD_DEBUG(DBG_DIR, "Failed to open meta dir BDMV/META/DL/\n");
         return;
     }
     int res;
@@ -134,46 +138,31 @@ static void _findMetaXMLfiles(META_ROOT *meta, const char *device_path)
         }
     }
     dir_close(dir);
-    X_FREE(path);
 }
 #endif
 
-META_ROOT *meta_parse(const char *device_path)
+META_ROOT *meta_parse(BD_DISC *disc)
 {
 #ifdef HAVE_LIBXML2
     META_ROOT *root = calloc(1, sizeof(META_ROOT));
     root->dl_count = 0;
 
     xmlDocPtr doc;
-    _findMetaXMLfiles(root, device_path);
+    _findMetaXMLfiles(root, disc);
 
     uint8_t i;
     for (i = 0; i < root->dl_count; i++) {
-        char *base = NULL;
-        base = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "META" DIR_SEP "DL" , device_path);
-        char *path = NULL;
-        path = str_printf("%s" DIR_SEP "%s", base, root->dl_entries[i].filename);
-
-        BD_FILE_H *handle = file_open(path, "rb");
-        if (handle == NULL) {
-            BD_DEBUG(DBG_DIR, "Failed to open meta file (%s)\n", path);
-            X_FREE(path);
-            X_FREE(base);
-            continue;
-        }
-
-        int64_t length = file_size(handle);
-
-        if (length > 0 && length < MAX_META_FILE_SIZE) {
-            size_t size = (size_t)length;
-            uint8_t *data = malloc(size);
-            size_t size_read = file_read(handle, data, size);
-            if (size != size_read) {
-                BD_DEBUG(DBG_DIR, "Failed to read %s\n", path);
-            } else {
-                doc = xmlReadMemory((char*)data, (int)size, base, NULL, 0);
+        uint8_t *data = NULL;
+        size_t size;
+        size = disc_read_file(disc, "BDMV" DIR_SEP "META" DIR_SEP "DL",
+                              root->dl_entries[i].filename,
+                              &data);
+        if (!data || size == 0) {
+            BD_DEBUG(DBG_DIR, "Failed to read BDMV/META/DL/%s\n", root->dl_entries[i].filename);
+        } else {
+                doc = xmlReadMemory((char*)data, (int)size, NULL, NULL, 0);
                 if (doc == NULL) {
-                    BD_DEBUG(DBG_DIR, "Failed to parse %s\n", path);
+                    BD_DEBUG(DBG_DIR, "Failed to parse BDMV/META/DL/%s\n", root->dl_entries[i].filename);
                 } else {
                     xmlNode *root_element = NULL;
                     root_element = xmlDocGetRootElement(doc);
@@ -185,17 +174,13 @@ META_ROOT *meta_parse(const char *device_path)
                     _parseManifestNode(root_element, &root->dl_entries[i]);
                     XML_FREE(doc);
                 }
-            }
             X_FREE(data);
         }
-        file_close(handle);
-        X_FREE(path);
-        X_FREE(base);
     }
     xmlCleanupParser();
     return root;
 #else
-    (void)device_path;
+    (void)disc;
     BD_DEBUG(DBG_DIR, "configured without libxml2 - can't parse meta info\n");
     return NULL;
 #endif

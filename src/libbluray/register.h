@@ -68,8 +68,6 @@ typedef enum {
     /* 48-61: caps for characteristic text subtitle */
 } bd_psr_idx;
 
-#define DEFAULT_LANGUAGE  "eng"
-
 
 typedef struct bd_registers_s BD_REGISTERS;
 

@@ -135,8 +135,9 @@ const VALUE_MAP playback_type_map[] = {
 };
 
 const VALUE_MAP connection_type_map[] = {
-  {0, "Non-seamless"},
-  {1, "Seamless"},
+  {1, "Non-seamless"},
+  {5, "Seamless"},
+  {6, "Seamless"},
   {0, NULL}
 };
 
@@ -158,7 +159,7 @@ _mk_path(const char *base, const char *sub)
 {
     size_t n1 = strlen(base);
     size_t n2 = strlen(sub);
-    char *result = malloc(n1 + n2 + strlen(DIR_SEP) + 1);
+    char *result = (char*)malloc(n1 + n2 + strlen(DIR_SEP) + 1);
     strcpy(result, base);
     strcat(result, DIR_SEP);
     strcat(result, sub);
@@ -753,11 +754,11 @@ main(int argc, char *argv[])
             }
         }
         if (dir != NULL) {
-            char **dirlist = calloc(10001, sizeof(char*));
+            char **dirlist = (char**)calloc(10001, sizeof(char*));
             struct dirent *ent;
             int jj = 0;
             for (ent = readdir(dir); ent != NULL; ent = readdir(dir)) {
-                  dirlist[jj++] = strcpy(malloc(strlen(ent->d_name)), ent->d_name);
+                dirlist[jj++] = strcpy((char*)malloc(strlen(ent->d_name)), ent->d_name);
             }
             qsort(dirlist, jj, sizeof(char*), _qsort_str_cmp);
             for (jj = 0; dirlist[jj] != NULL; jj++) {

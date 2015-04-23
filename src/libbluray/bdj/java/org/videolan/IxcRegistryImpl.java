@@ -30,6 +30,9 @@ import java.rmi.NotBoundException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.Remote;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -75,7 +78,7 @@ public class IxcRegistryImpl {
                 }
             }
             catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                logger.error("" + e);
             }
         }
 
@@ -125,8 +128,7 @@ public class IxcRegistryImpl {
             try {
                 return Copy.deepCopy(toContext.getClassLoader(), (Serializable)obj);
             } catch (Exception e) {
-                Debug("wrapOrCopy: failed in deepCopy: ");
-                e.printStackTrace();
+                Debug("wrapOrCopy: failed in deepCopy:\n" + Logger.dumpStack(e));
                 throw new RemoteException("serialization/deserialization failed", e);
             }
         }
@@ -268,7 +270,7 @@ public class IxcRegistryImpl {
             boolean   finished = false;
             Object    retInCaller = null;
 
-            public RemoteMethod(Method method, BDJXletContext context, Object[] args)
+            public RemoteMethod(final Method method, BDJXletContext context, Object[] args)
                 throws RemoteException {
 
                 callerContext  = BDJXletContext.getCurrentContext();
@@ -279,7 +281,15 @@ public class IxcRegistryImpl {
                     logger.error("callee context is null");
                 }
                 calleeContext  = context;
-                methodInCallee = findMethodInCallee(method);
+
+                //methodInCallee = findMethodInCallee(method);
+                methodInCallee = (Method)AccessController.doPrivileged(
+                    new PrivilegedAction() {
+                        public Object run() {
+                            return findMethodInCallee(method);
+                        }
+                    });
+
                 if (null != args) {
                     argsInCallee = new Object[args.length];
                     for (int i = 0; i < args.length; i++) {
@@ -333,11 +343,9 @@ public class IxcRegistryImpl {
                     }
                     TRACE("can't find method in callee");
                 } catch (SecurityException e) {
-                    TRACE("can't find method in callee: SecurityException:");
-                    e.printStackTrace();
+                    TRACE("can't find method in callee: " + e + "\n" + Logger.dumpStack(e));
                 } catch (ClassNotFoundException e) {
-                    TRACE("can't find method in callee: ClassNotFound:");
-                    e.printStackTrace();
+                    TRACE("can't find method in callee: " + e + "\n" + Logger.dumpStack(e));
                 }
 
                 return null;

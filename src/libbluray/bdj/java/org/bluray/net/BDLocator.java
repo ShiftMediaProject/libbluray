@@ -27,11 +27,18 @@ import org.videolan.BDJUtil;
 public class BDLocator extends Locator {
     public BDLocator(String url) throws InvalidLocatorException {
         super(url);
+        try {
+
         if (!url.startsWith("bd://"))
             throw new InvalidLocatorException();
         String str = url.substring(5);
         if (!parseJar(str) && !parseSound(str) && !parsePlaylist(str))
             throw new InvalidLocatorException();
+
+        } catch (InvalidLocatorException e) {
+            System.err.println("Invalid locator: " + url);
+            throw e;
+        }
     }
 
     public BDLocator(String disc, int titleNum, int playList) throws InvalidLocatorException {

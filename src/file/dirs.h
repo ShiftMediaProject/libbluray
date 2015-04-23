@@ -23,7 +23,6 @@
 #include "util/attributes.h"
 
 #ifdef _WIN32
-BD_PRIVATE int         win32_mkdir(const char *dir);
 BD_PRIVATE char       *win32_get_font_dir(const char *font_file);
 #endif
 

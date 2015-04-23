@@ -61,7 +61,7 @@ typedef double		jdouble;
 
 typedef jint            jsize;
 
-#ifdef __cplusplus
+#if 0 /*ifdef __cplusplus*/
 
 class _jobject {};
 class _jclass : public _jobject {};
@@ -184,7 +184,7 @@ struct JNINativeInterface_;
 
 struct JNIEnv_;
 
-#ifdef __cplusplus
+#if 0 /*ifdef __cplusplus*/
 typedef JNIEnv_ JNIEnv;
 #else
 typedef const struct JNINativeInterface_ *JNIEnv;
@@ -198,7 +198,7 @@ struct JNIInvokeInterface_;
 
 struct JavaVM_;
 
-#ifdef __cplusplus
+#if 0 /*ifdef __cplusplus*/
 typedef JavaVM_ JavaVM;
 #else
 typedef const struct JNIInvokeInterface_ *JavaVM;
@@ -769,7 +769,7 @@ struct JNINativeInterface_ {
 
 struct JNIEnv_ {
     const struct JNINativeInterface_ *functions;
-#ifdef __cplusplus
+#if 0/*ifdef __cplusplus*/
 
     jint GetVersion() {
         return functions->GetVersion(this);
@@ -1918,7 +1918,7 @@ struct JNIInvokeInterface_ {
 
 struct JavaVM_ {
     const struct JNIInvokeInterface_ *functions;
-#ifdef __cplusplus
+#if 0/*ifdef __cplusplus*/
 
     jint DestroyJavaVM() {
         return functions->DestroyJavaVM(this);

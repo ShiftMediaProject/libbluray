@@ -1,6 +1,6 @@
 dnl library version number
 m4_define([bluray_major], 0)
-m4_define([bluray_minor], 7)
+m4_define([bluray_minor], 8)
 m4_define([bluray_micro], 0)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
@@ -12,9 +12,9 @@ dnl - If interfaces have been changed or removed, increase current and set age a
 dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
-m4_define([lt_current],  8)
+m4_define([lt_current],  9)
 m4_define([lt_revision], 0)
-m4_define([lt_age],      7)
+m4_define([lt_age],      8)
 
 dnl initilization
 AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
@@ -47,6 +47,10 @@ case "${host_os}" in
   *darwin*)
     SYS=darwin
     ;;
+  netbsd*)
+    SYS=netbsd
+    CFLAGS="${CFLAGS} -D_NETBSD_SOURCE"
+    ;;
   *)
     SYS="${host_os}"
     ;;
@@ -78,10 +82,12 @@ AC_ARG_ENABLE([examples],
   [use_examples=yes])
 
 AC_ARG_ENABLE([bdjava],
-  [AS_HELP_STRING([--enable-bdjava],
-  [enable BD-Java support (default is no)])],
+  [AS_HELP_STRING([--disable-bdjava], [disable BD-Java support @<:@default=enabled@:>@])],
   [use_bdjava=$enableval],
-  [use_bdjava=no])
+  [use_bdjava=yes])
+
+AC_ARG_ENABLE([udf],
+  [AS_HELP_STRING([--enable-udf], [enable UDF support @<:@default=disabled@:>@])])
 
 AC_ARG_WITH([libxml2],
   [AS_HELP_STRING([--without-libxml2], [build without libxml2 support @<:@default=with@:>@])])
@@ -238,6 +244,24 @@ AC_SUBST(BDJ_TYPE)
 dnl bootclasspath
 AC_SUBST(BDJ_BOOTCLASSPATH)
 
+dnl udf support (using git submodule)
+AS_IF([test "x$enable_udf" = "xyes"], [
+    if test ! -f "${srcdir}/contrib/libudfread/src/udfread.h"; then
+        AC_MSG_ERROR("libudfread source tree not found")
+    fi
+    AC_CHECK_HEADERS([unistd.h fcntl.h])
+    AS_IF([test "${SYS}" != "mingw32"], [
+      AC_CHECK_FUNC([pread],, [AC_MSG_ERROR("Function pread not found. Try with --disable-udf.")])
+    ])
+
+    AC_DEFINE([ENABLE_UDF], [1], [Define to 1 if libudfread is to be used for disc image access])
+    UDF_CFLAGS='-I${srcdir}/contrib/libudfread/src/'
+    AC_SUBST(UDF_CFLAGS)
+    ],
+  [enable_udf=no])
+
+AM_CONDITIONAL([ENABLE_UDF], [test $enable_udf = "yes" ])
+
 dnl generate documentation
 DX_INIT_DOXYGEN(libbluray, doc/doxygen-config, [doc/doxygen])
 
@@ -255,7 +279,7 @@ AC_SUBST(LT_VERSION_INFO)
 
 dnl generate output files
 AC_SUBST(BDJAVA_CFLAGS)
-AC_CONFIG_FILES([Makefile src/Makefile src/libbluray.pc src/libbluray/bluray-version.h])
+AC_CONFIG_FILES([Makefile src/libbluray.pc src/libbluray/bluray-version.h])
 AC_OUTPUT
 
 
@@ -283,5 +307,6 @@ fi
 fi
 fi
 echo "  Metadata support (libxml2):    $with_libxml2"
+echo "  UDF filesystem support:        $enable_udf"
 echo "  Build examples:                $use_examples"
 

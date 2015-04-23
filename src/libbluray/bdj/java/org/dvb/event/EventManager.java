@@ -178,7 +178,7 @@ public class EventManager implements ResourceServer {
                 continue;
             }
             if (item.userEvents.contains(ue)) {
-                item.context.putCallback(new UserEventAction(item, ue));
+                item.context.putUserEvent(new UserEventAction(item, ue));
                 return true;
             }
         }
@@ -193,7 +193,7 @@ public class EventManager implements ResourceServer {
                 continue;
             }
             if (item.userEvents.contains(ue)) {
-                item.context.putCallback(new UserEventAction(item, ue));
+                item.context.putUserEvent(new UserEventAction(item, ue));
                 result = true;
             }
         }

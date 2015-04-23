@@ -22,7 +22,6 @@
 #include "util.h"
 
 #include "libbluray/bdj/bdjo_data.h"
-#include "libbluray/bdj/bdjo_parse.h"
 
 #include "util/logging.h"
 
@@ -41,7 +40,7 @@
  *
  */
 
-static jobject _make_terminal_info(JNIEnv* env, BDJO_TERMINAL_INFO *p)
+static jobject _make_terminal_info(JNIEnv* env, const BDJO_TERMINAL_INFO *p)
 {
     jstring jdefault_font = (*env)->NewStringUTF(env, p->default_font);
     return bdj_make_object(env, "org/videolan/bdjo/TerminalInfo", "(Ljava/lang/String;IZZ)V",
@@ -49,7 +48,7 @@ static jobject _make_terminal_info(JNIEnv* env, BDJO_TERMINAL_INFO *p)
                            (jint)p->menu_call_mask, (jint)p->title_search_mask);
 }
 
-static jobject _make_app_cache_info(JNIEnv* env, BDJO_APP_CACHE_INFO *p)
+static jobject _make_app_cache_info(JNIEnv* env, const BDJO_APP_CACHE_INFO *p)
 {
     unsigned ii;
 
@@ -74,7 +73,7 @@ static jobject _make_app_cache_info(JNIEnv* env, BDJO_APP_CACHE_INFO *p)
     return app_cache_array;
 }
 
-static jobject _make_accessible_playlists(JNIEnv* env, BDJO_ACCESSIBLE_PLAYLISTS *p)
+static jobject _make_accessible_playlists(JNIEnv* env, const BDJO_ACCESSIBLE_PLAYLISTS *p)
 {
     unsigned ii;
 
@@ -93,7 +92,7 @@ static jobject _make_accessible_playlists(JNIEnv* env, BDJO_ACCESSIBLE_PLAYLISTS
                            playlists);
 }
 
-static jobject _make_app(JNIEnv* env, BDJO_APP *p)
+static jobject _make_app(JNIEnv* env, const BDJO_APP *p)
 {
     unsigned ii;
 
@@ -172,7 +171,7 @@ static jobject _make_app(JNIEnv* env, BDJO_APP *p)
     return entry;
 }
 
-static jobjectArray _make_app_management_table(JNIEnv* env, BDJO_APP_MANAGEMENT_TABLE *p)
+static jobjectArray _make_app_management_table(JNIEnv* env, const BDJO_APP_MANAGEMENT_TABLE *p)
 {
     unsigned ii;
 
@@ -189,7 +188,7 @@ static jobjectArray _make_app_management_table(JNIEnv* env, BDJO_APP_MANAGEMENT_
     return entries;
 }
 
-static jobject _make_bdjo(JNIEnv* env, BDJO *p)
+jobject bdjo_make_jobj(JNIEnv* env, const BDJO *p)
 {
     jobject terminal_info = _make_terminal_info(env, &p->terminal_info);
     JNICHK(terminal_info);
@@ -224,23 +223,6 @@ static jobject _make_bdjo(JNIEnv* env, BDJO *p)
                                      "Lorg/videolan/bdjo/PlayListTable;[Lorg/videolan/bdjo/AppEntry;ILjava/lang/String;)V",
                                      terminal_info, app_cache_info, accessible_playlists, app_table,
                                      key_interest_table, file_access_info);
-
-    return result;
-}
-
-jobject bdjo_get(JNIEnv* env, const char* bdjo_path)
-{
-    jobject    result = NULL;
-    BDJO      *bdjo   = bdjo_parse(bdjo_path);
-
-    if (!bdjo) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to read bdjo file (%s)\n", bdjo_path);
-        return NULL;
-    }
-
-    result = _make_bdjo(env, bdjo);
-
-    bdjo_free(&bdjo);
 
     return result;
 }

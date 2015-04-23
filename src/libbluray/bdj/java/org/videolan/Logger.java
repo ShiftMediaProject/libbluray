@@ -121,19 +121,29 @@ public class Logger {
         unimplemented(null);
     }
 
-    public static String dumpStack() {
-        StackTraceElement e[] = new Exception("Stack trace").getStackTrace();
+    private static String printStackTrace(StackTraceElement[] e, int offset)
+    {
         if (e != null && e.length > 1) {
             StringBuffer dump = new StringBuffer();
             dump.append("\t");
-            dump.append(e[2].toString());
-            for (int i = 3; i < e.length; i++) {
+            dump.append(e[offset].toString());
+            for (int i = offset + 1; i < e.length; i++) {
                 dump.append("\n\t");
                 dump.append(e[i].toString());
             }
             return dump.toString();
         }
         return "";
+    }
+
+    public static String dumpStack() {
+        StackTraceElement e[] = new Exception("Stack trace").getStackTrace();
+        return printStackTrace(e, 2);
+    }
+
+    public static String dumpStack(Throwable t) {
+        StackTraceElement e[] = t.getStackTrace();
+        return printStackTrace(e, 0);
     }
 
     public void unimplemented(String func) {

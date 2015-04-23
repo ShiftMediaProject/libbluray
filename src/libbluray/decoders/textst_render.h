@@ -52,7 +52,7 @@ BD_PRIVATE void           textst_render_free(TEXTST_RENDER **pp);
  *
  */
 
-BD_PRIVATE int textst_render_add_font(TEXTST_RENDER *p, const char *file);
+BD_PRIVATE int textst_render_add_font(TEXTST_RENDER *p, void *data, size_t size);
 BD_PRIVATE int textst_render_set_char_code(TEXTST_RENDER *p, int char_code);
 BD_PRIVATE int textst_render(TEXTST_RENDER *p,
                              TEXTST_BITMAP *bmp,

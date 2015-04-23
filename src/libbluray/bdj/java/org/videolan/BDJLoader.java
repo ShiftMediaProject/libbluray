@@ -44,6 +44,7 @@ import org.videolan.media.content.PlayerManager;
 
 public class BDJLoader {
 
+    /* called by org.dvb.ui.FontFactory */
     public static File addFont(InputStream is) {
         VFSCache localCache = vfsCache;
         if (localCache != null) {
@@ -52,12 +53,21 @@ public class BDJLoader {
         return null;
     }
 
+    /* called by org.dvb.ui.FontFactory */
     public static File addFont(String fontFile) {
         VFSCache localCache = vfsCache;
         if (localCache != null) {
             return localCache.addFont(fontFile);
         }
         return null;
+    }
+
+    /* called by BDJSecurityManager */
+    protected static void accessFile(String file) {
+        VFSCache localCache = vfsCache;
+        if (localCache != null) {
+            localCache.accessFile(file);
+        }
     }
 
     public static String getCachedFile(String path) {
@@ -92,12 +102,13 @@ public class BDJLoader {
         return true;
     }
 
-    public static void shutdown() {
+    protected static void shutdown() {
         try {
-            queue.shutdown();
+            if (queue != null) {
+                queue.shutdown();
+            }
         } catch (Throwable e) {
-            logger.error("shutdown() failed: " + e);
-            e.printStackTrace();
+            logger.error("shutdown() failed: " + e + "\n" + Logger.dumpStack(e));
         }
         queue = null;
         vfsCache = null;
@@ -113,7 +124,7 @@ public class BDJLoader {
         if (!ti.isBdj()) {
             logger.info("Not BD-J title - requesting HDMV title start");
             unloadN();
-            return Libbluray.selectTitle(title);
+            return Libbluray.selectHdmvTitle(title.getTitleNum());
         }
 
         try {
@@ -222,8 +233,7 @@ public class BDJLoader {
             return true;
 
         } catch (Throwable e) {
-            logger.error("loadN() failed: " + e);
-            e.printStackTrace();
+            logger.error("loadN() failed: " + e + "\n" + Logger.dumpStack(e));
             unloadN();
             return false;
         }
@@ -231,7 +241,10 @@ public class BDJLoader {
 
     private static boolean unloadN() {
         try {
-            GUIManager.getInstance().setVisible(false);
+            try {
+                GUIManager.getInstance().setVisible(false);
+            } catch (Error e) {
+            }
 
             AppsDatabase db = AppsDatabase.getAppsDatabase();
 
@@ -256,8 +269,7 @@ public class BDJLoader {
 
             return true;
         } catch (Throwable e) {
-            logger.error("unloadN() failed: " + e);
-            e.printStackTrace();
+            logger.error("unloadN() failed: " + e + "\n" + Logger.dumpStack(e));
             return false;
         }
     }

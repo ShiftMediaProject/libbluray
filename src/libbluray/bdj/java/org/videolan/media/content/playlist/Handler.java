@@ -39,6 +39,7 @@ import org.bluray.ti.selection.TitleContextImpl;
 import org.videolan.BDJAction;
 import org.videolan.BDJActionManager;
 import org.videolan.Libbluray;
+import org.videolan.Logger;
 import org.videolan.PlaylistInfo;
 import org.videolan.TIClip;
 import org.videolan.media.content.BDHandler;
@@ -52,15 +53,15 @@ public class Handler extends BDHandler {
         controls[3] = new DVBMediaSelectControlImpl(this);
         controls[4] = new MediaTimeEventControlImpl();
         controls[5] = new MediaTimePositionControlImpl(this);
-        controls[6] = new OverallGainControlImpl();
-        controls[7] = new PanningControlImpl();
+        controls[6] = new OverallGainControlImpl(this);
+        controls[7] = new PanningControlImpl(this);
         controls[8] = new PiPControlImpl(this);
         controls[9] = new PlaybackControlImpl(this);
         controls[10] = new PlayListChangeControlImpl(this);
         controls[11] = new PrimaryAudioControlImpl(this);
-        controls[12] = new PrimaryGainControlImpl();
+        controls[12] = new PrimaryGainControlImpl(this);
         controls[13] = new SecondaryAudioControlImpl(this);
-        controls[14] = new SecondaryGainControlImpl();
+        controls[14] = new SecondaryGainControlImpl(this);
         controls[15] = new SubtitlingControlImpl(this);
         controls[16] = new UOMaskTableControlImpl(this);
         controls[17] = new VideoFormatControlImpl(this);
@@ -219,7 +220,14 @@ public class Handler extends BDHandler {
         try {
             ((TitleContextImpl)ServiceContextFactory.getInstance().getServiceContext(null)).presentationChanged();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("" + e + "\n" + Logger.dumpStack(e));
+        }
+
+        if (pi != null) {
+            TIClip[] clips = pi.getClips();
+            if (clips != null && param >= 0 && param < clips.length) {
+                ((SubtitlingControlImpl)controls[15]).onSubtitleAvailable(clips[param].getPgStreamCount() > 0);
+            }
         }
     }
 

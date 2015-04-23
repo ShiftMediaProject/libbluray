@@ -51,7 +51,7 @@ static const char *_hex2str(const uint8_t *data, size_t len)
     static char *str = NULL;
     size_t i;
 
-    str = realloc(str, 2*len + 1);
+    str = (char*)realloc(str, 2*len + 1);
     *str = 0;
 
     for (i = 0; i < len; i++) {
@@ -167,6 +167,9 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    if (info->udf_volume_id) {
+        printf("Volume Identifier   : %s\n", info->udf_volume_id);
+    }
     printf("BluRay detected     : %s\n", _yes_no(info->bluray_detected));
     if (info->bluray_detected) {
         printf("First Play supported: %s\n", _yes_no(info->first_play_supported));

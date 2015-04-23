@@ -26,7 +26,6 @@
 #include "util/strutl.h"
 #include "util/logging.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

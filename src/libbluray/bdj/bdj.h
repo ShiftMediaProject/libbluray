@@ -45,6 +45,8 @@ typedef enum {
 typedef struct {
     char *persistent_root;
     char *cache_root;
+
+    char *classpath;
 } BDJ_STORAGE;
 
 typedef struct bdjava_s BDJAVA;
@@ -56,6 +58,6 @@ BD_PRIVATE BDJAVA* bdj_open(const char *path, struct bluray *bd,
 BD_PRIVATE void bdj_close(BDJAVA *bdjava);
 BD_PRIVATE int  bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
 
-BD_PRIVATE int  bdj_jvm_available(void); /* 0: no. 1: only jvm. 2: jvm + libbluray.jar. */
+BD_PRIVATE int  bdj_jvm_available(BDJ_STORAGE *storage); /* 0: no. 1: only jvm. 2: jvm + libbluray.jar. */
 
 #endif

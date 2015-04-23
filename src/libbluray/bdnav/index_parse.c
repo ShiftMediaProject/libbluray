@@ -19,6 +19,8 @@
 
 #include "index_parse.h"
 
+#include "disc/disc.h"
+
 #include "file/file.h"
 #include "util/bits.h"
 #include "util/logging.h"
@@ -177,70 +179,65 @@ static int _parse_header(BITSTREAM *bs, int *index_start, int *extension_data_st
     return 1;
 }
 
-static INDX_ROOT *_indx_parse(const char *file_name)
+static INDX_ROOT *_indx_parse(BD_FILE_H *fp)
 {
     BITSTREAM  bs;
-    BD_FILE_H *fp;
     INDX_ROOT *index = calloc(1, sizeof(INDX_ROOT));
-
     int        indexes_start, extension_data_start;
 
-    fp = file_open(file_name, "rb");
-    if (!fp) {
-        BD_DEBUG(DBG_NAV | DBG_CRIT, "indx_parse(): error opening %s\n", file_name);
-        X_FREE(index);
+    if (!index) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
         return NULL;
     }
 
     bs_init(&bs, fp);
 
-    if (!_parse_header(&bs, &indexes_start, &extension_data_start)) {
-        BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: invalid header\n");
-        goto error;
+    if (!_parse_header(&bs, &indexes_start, &extension_data_start) ||
+        !_parse_app_info(&bs, &index->app_info)) {
+
+        indx_free(&index);
+        return NULL;
+    }
+
+    bs_seek_byte(&bs, indexes_start);
+    if (!_parse_index(&bs, index)) {
+        indx_free(&index);
+        return NULL;
     }
 
     if (extension_data_start) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: unknown extension data at %d\n", extension_data_start);
     }
 
-    if (!_parse_app_info(&bs, &index->app_info)) {
-        BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: error parsing app info\n");
-        goto error;
-    }
-
-    bs_seek_byte(&bs, indexes_start);
-
-    if (!_parse_index(&bs, index)) {
-        BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: error parsing indexes\n");
-        goto error;
-    }
-
-    file_close(fp);
-
     return index;
-
- error:
-    X_FREE(index);
-    file_close(fp);
-    return NULL;
 }
 
-INDX_ROOT *indx_parse(const char *disc_root)
+static INDX_ROOT *_indx_get(BD_DISC *disc, const char *path)
 {
+    BD_FILE_H *fp;
     INDX_ROOT *index;
-    char *file;
 
-    file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "index.bdmv", disc_root);
-    index = _indx_parse(file);
-    X_FREE(file);
-    if (index) {
-        return index;
+    fp = disc_open_path(disc, path);
+    if (!fp) {
+        return NULL;
     }
 
-    /* try backup */
-    file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "BACKUP" DIR_SEP "index.bdmv", disc_root);
-    index = _indx_parse(file);
-    X_FREE(file);
+    index = _indx_parse(fp);
+    file_close(fp);
+    return index;
+}
+
+INDX_ROOT *indx_get(BD_DISC *disc)
+{
+    INDX_ROOT *index;
+
+    index = _indx_get(disc, "BDMV" DIR_SEP "index.bdmv");
+
+    if (!index) {
+        /* try backup */
+        index = _indx_get(disc, "BDMV" DIR_SEP "BACKUP" DIR_SEP "index.bdmv");
+    }
+
     return index;
 }
 

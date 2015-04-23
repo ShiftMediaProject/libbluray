@@ -50,9 +50,20 @@ public class SIManagerImpl extends SIManager {
     protected SIManagerImpl() {
         int ntitles = Libbluray.numTitles();
         LinkedList list = new LinkedList();
-        for (int i = 0; i <= ntitles; i++)
-            list.add(new TitleImpl(i));
-        list.add(new TitleImpl(65535));
+        for (int i = 0; i <= ntitles; i++) {
+            try {
+                list.add(new TitleImpl(i));
+            } catch (Throwable t) {
+                org.videolan.Logger.getLogger("SIManagerImpl").error("Failed initializing title " + i + ": " + t);
+            }
+        }
+
+        try {
+            list.add(new TitleImpl(65535));
+        } catch (Throwable t) {
+            org.videolan.Logger.getLogger("SIManagerImpl").error("Failed initializing title FirstPlay: " + t);
+        }
+
         titles = new ServiceListImpl(list);
     }
 

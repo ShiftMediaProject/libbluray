@@ -48,7 +48,7 @@ public class FontIndex extends DefaultHandler implements EntityResolver{
         } catch (FileNotFoundException e) {
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("error parsing font index: " + e);
         } finally {
             fontData = null;
             if (stream != null) {

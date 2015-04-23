@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2013       VideoLAN
+ * Copyright (C) 2013-2015  VideoLAN
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,10 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "libbdplus.h"
+#include "bdplus.h"
 
-#include "dl.h"
-#include "file.h"
+#include "file/dl.h"
+#include "file/file.h"
 #include "util/logging.h"
 #include "util/macro.h"
 #include "util/strutl.h"
@@ -66,18 +66,9 @@ void libbdplus_unload(BD_BDPLUS **p)
     }
 }
 
-int libbdplus_required(const char *device_path)
+int libbdplus_required(void *have_file_handle, int (*have_file)(void *, const char *, const char *))
 {
-    BD_FILE_H *fd;
-    char      *tmp;
-
-    tmp = str_printf("%s" DIR_SEP "BDSVM" DIR_SEP "00000.svm", device_path);
-    fd = file_open(tmp, "rb");
-    X_FREE(tmp);
-
-    if (fd) {
-        file_close(fd);
-
+    if (have_file(have_file_handle, "BDSVM", "00000.svm")) {
         BD_DEBUG(DBG_BLURAY, "BDSVM" DIR_SEP "00000.svm found. Disc seems to be BD+ protected.\n");
         return 1;
     }
@@ -143,29 +134,33 @@ BD_BDPLUS *libbdplus_load(void)
     }
 
     BD_DEBUG(DBG_BLURAY, "Loaded libbdplus (%p)\n", p->h_libbdplus);
-
-    if (file_open != file_open_default()) {
-        BD_DEBUG(DBG_BLURAY, "Registering libbdplus filesystem handler %p (%p)\n", (void *)(intptr_t)file_open, p->h_libbdplus);
-        DL_CALL(p->h_libbdplus, bdplus_register_file, file_open);
-    }
-
     return p;
 }
 
-int libbdplus_init(BD_BDPLUS *p, const char *device_path, const uint8_t *vid, const uint8_t *mk)
+int libbdplus_init(BD_BDPLUS *p, const char *root,
+                   void *file_open_handle, void *file_open_fp,
+                   const uint8_t *vid, const uint8_t *mk)
 {
     fptr_p_void    bdplus_init;
+    fptr_void      set_fopen;
 
     _libbdplus_close(p);
 
     *(void **)(&bdplus_init) = dl_dlsym(p->h_libbdplus, "bdplus_init");
+    *(void **)(&set_fopen)   = dl_dlsym(p->h_libbdplus, "bdplus_set_fopen");
 
     if (!bdplus_init) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "libbdplus dlsym(bdplus_init) failed! (%p)\n", p->h_libbdplus);
         return -1;
     }
 
-    p->bdplus = bdplus_init(device_path, NULL, vid);
+    if (set_fopen) {
+        p->bdplus = bdplus_init(NULL, NULL, vid);
+        set_fopen(p->bdplus, file_open_handle, file_open_fp);
+    } else {
+        p->bdplus = bdplus_init(root, NULL, vid);
+    }
+
     if (!p->bdplus) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bdplus_init() failed! (%p)\n", p->h_libbdplus);
         return -1;

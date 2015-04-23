@@ -17,6 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "graphics_controller.h"
 
 #include "graphics_processor.h"
@@ -929,13 +933,13 @@ static int _textst_style_select(GRAPHICS_CONTROLLER *p, int user_style_idx)
     return -1;
 }
 
-int gc_add_font(GRAPHICS_CONTROLLER *p, const char *font_file)
+int gc_add_font(GRAPHICS_CONTROLLER *p, void *data, size_t size)
 {
     if (!p) {
         return -1;
     }
 
-    if (!font_file) {
+    if (!data) {
         textst_render_free(&p->textst_render);
         return 0;
     }
@@ -947,13 +951,14 @@ int gc_add_font(GRAPHICS_CONTROLLER *p, const char *font_file)
         }
     }
 
-    return textst_render_add_font(p->textst_render, font_file);
+    return textst_render_add_font(p->textst_render, data, size);
 }
 
 static int _render_textst_region(GRAPHICS_CONTROLLER *p, int64_t pts, BD_TEXTST_REGION_STYLE *style, TEXTST_BITMAP *bmp,
                                  BD_PG_PALETTE_ENTRY *palette)
 {
-    unsigned y, bmp_y;
+    unsigned bmp_y;
+    uint16_t y;
     RLE_ENC  rle;
 
     rle_begin(&rle);
@@ -1008,7 +1013,7 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
             GC_TRACE("_render_textst(): next event #%d in %"PRId64" seconds (pts %"PRId64")\n",
                      ii, (dialog[ii].start_pts - now)/90000, dialog[ii].start_pts);
             if (cmds) {
-                cmds->wakeup_time = dialog[ii].start_pts / 2;
+                cmds->wakeup_time = (uint32_t)(dialog[ii].start_pts / 2);
             }
             return 1;
         }

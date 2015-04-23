@@ -30,10 +30,12 @@
  */
 
 #ifdef __cplusplus
+typedef void    (*fptr_void)(...);
 typedef int     (*fptr_int)(...);
 typedef int32_t (*fptr_int32)(...);
 typedef void*   (*fptr_p_void)(...);
 #else
+typedef void    (*fptr_void)();
 typedef int     (*fptr_int)();
 typedef int32_t (*fptr_int32)();
 typedef void*   (*fptr_p_void)();

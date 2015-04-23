@@ -29,17 +29,19 @@ import javax.tv.service.selection.NormalContentEvent;
 import javax.tv.service.selection.PresentationChangedEvent;
 import javax.tv.service.selection.PresentationTerminatedEvent;
 import javax.tv.service.selection.SelectionFailedEvent;
+import javax.tv.service.selection.SelectPermission;
 import javax.tv.service.selection.ServiceContentHandler;
 import javax.tv.service.selection.ServiceContextDestroyedEvent;
 import javax.tv.service.selection.ServiceContextEvent;
 import javax.tv.service.selection.ServiceContextListener;
+import javax.tv.service.selection.ServiceContextPermission;
 
 import org.bluray.ti.Title;
 import org.bluray.ti.TitleImpl;
 import org.videolan.BDJLoader;
 import org.videolan.BDJLoaderCallback;
 import org.videolan.BDJListeners;
-import org.videolan.media.content.playlist.Handler;
+import org.videolan.media.content.PlayerManager;
 
 public class TitleContextImpl implements TitleContext {
     public Service getService() {
@@ -47,16 +49,33 @@ public class TitleContextImpl implements TitleContext {
     }
 
     public ServiceContentHandler[] getServiceContentHandlers() throws SecurityException {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(new ServiceContextPermission("getServiceContentHandlers", "own"));
+        }
+
         if (state == STATE_DESTROYED)
             throw new IllegalStateException();
         if (state == STATE_STOPPED)
             return new ServiceContentHandler[0];
-        ServiceContentHandler[] handler = new ServiceContentHandler[1];
-        handler[0] = new Handler();
-        return handler;
+
+        ServiceContentHandler player = PlayerManager.getInstance().getPlaylistPlayer();
+        if (player != null) {
+            ServiceContentHandler[] handler = new ServiceContentHandler[1];
+            handler[0] = player;
+            return handler;
+        }
+
+        System.err.println("getServiceContentHandlers(): none found");
+        return new ServiceContentHandler[0];
     }
 
     public void start(Title title, boolean restart) throws SecurityException {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(new SelectPermission(title.getLocator(), "own"));
+        }
+
         if (state == STATE_DESTROYED)
             throw new IllegalStateException();
         TitleStartAction action = new TitleStartAction(this, (TitleImpl)title);
@@ -70,10 +89,18 @@ public class TitleContextImpl implements TitleContext {
 
     public void select(Locator[] locators)
         throws InvalidLocatorException, InvalidServiceComponentException, SecurityException {
+
+        org.videolan.Logger.unimplemented("TitleContextImpl", "select(Locator[])");
+
         select(SIManager.createInstance().getService(locators[0]));
     }
 
     public void stop() throws SecurityException {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(new ServiceContextPermission("stop", "own"));
+        }
+
         if (state == STATE_DESTROYED)
             throw new IllegalStateException();
         TitleStopAction action = new TitleStopAction(this);
@@ -82,6 +109,11 @@ public class TitleContextImpl implements TitleContext {
     }
 
     public void destroy() throws SecurityException {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(new ServiceContextPermission("stop", "own"));
+        }
+
         if (state != STATE_DESTROYED) {
             state = STATE_DESTROYED;
             TitleStopAction action = new TitleStopAction(this);
@@ -98,14 +130,6 @@ public class TitleContextImpl implements TitleContext {
         listeners.remove(listener);
     }
 
-    public void removeServiceContentHandler(ServiceContentHandler handler) {
-        if (handler != null) {
-            synchronized (handlers) {
-                handlers.remove(handler);
-            }
-        }
-    }
-
     public void presentationChanged() {
         if (state == STATE_STARTED) {
             postEvent(new PresentationChangedEvent(this));
@@ -117,7 +141,7 @@ public class TitleContextImpl implements TitleContext {
         listeners.putCallback(event);
     }
 
-    private class TitleStartAction implements BDJLoaderCallback {
+    private static class TitleStartAction implements BDJLoaderCallback {
         private TitleStartAction(TitleContextImpl context, TitleImpl title) {
             this.context = context;
             this.title = title;
@@ -137,7 +161,7 @@ public class TitleContextImpl implements TitleContext {
         private TitleImpl title;
     }
 
-    private class TitleStopAction implements BDJLoaderCallback {
+    private static class TitleStopAction implements BDJLoaderCallback {
         private TitleStopAction(TitleContextImpl context) {
             this.context = context;
         }
@@ -161,7 +185,6 @@ public class TitleContextImpl implements TitleContext {
     private static final int STATE_STARTED = 1;
     private static final int STATE_DESTROYED = 2;
     private BDJListeners listeners = new BDJListeners();
-    private LinkedList handlers = new LinkedList();
     private TitleImpl title = null;
     private int state = STATE_STOPPED;
 }

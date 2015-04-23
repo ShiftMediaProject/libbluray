@@ -81,7 +81,7 @@ static int64_t _parse_timestamp(uint8_t *p)
  */
 static int _add_ts(PES_BUFFER *p, unsigned pusi, uint8_t *buf, unsigned len)
 {
-    int result = 0;
+    unsigned result = 0;
 
     if (pusi) {
 

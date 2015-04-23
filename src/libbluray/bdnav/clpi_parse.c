@@ -22,6 +22,8 @@
 
 #include "extdata_parse.h"
 
+#include "disc/disc.h"
+
 #include "file/file.h"
 #include "util/bits.h"
 #include "util/macro.h"
@@ -674,27 +676,19 @@ clpi_free(CLPI_CL *cl)
 }
 
 static CLPI_CL*
-_clpi_parse(const char *path)
+_clpi_parse(BD_FILE_H *fp)
 {
     BITSTREAM  bits;
-    BD_FILE_H *fp;
     CLPI_CL   *cl;
 
     cl = calloc(1, sizeof(CLPI_CL));
     if (cl == NULL) {
-        return NULL;
-    }
-
-    fp = file_open(path, "rb");
-    if (fp == NULL) {
-        BD_DEBUG(DBG_NAV | DBG_CRIT, "Failed to open %s\n", path);
-        X_FREE(cl);
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
         return NULL;
     }
 
     bs_init(&bits, fp);
     if (!_parse_header(&bits, cl)) {
-        file_close(fp);
         clpi_free(cl);
         return NULL;
     }
@@ -707,48 +701,70 @@ _clpi_parse(const char *path)
     }
 
     if (!_parse_clipinfo(&bits, cl)) {
-        file_close(fp);
         clpi_free(cl);
         return NULL;
     }
     if (!_parse_sequence(&bits, cl)) {
-        file_close(fp);
         clpi_free(cl);
         return NULL;
     }
     if (!_parse_program_info(&bits, cl)) {
-        file_close(fp);
         clpi_free(cl);
         return NULL;
     }
     if (!_parse_cpi_info(&bits, cl)) {
-        file_close(fp);
         clpi_free(cl);
         return NULL;
     }
-    file_close(fp);
+
     return cl;
 }
 
 CLPI_CL*
 clpi_parse(const char *path)
 {
-    CLPI_CL *cl = _clpi_parse(path);
+    BD_FILE_H *fp;
+    CLPI_CL   *cl;
 
-    /* if failed, try backup file */
-    if (!cl) {
-        size_t len   = strlen(path);
-        char *backup = malloc(len + 8);
-
-        strncpy(backup, path, len - 18);
-        strcpy(backup + len - 18, "BACKUP" DIR_SEP);
-        strcpy(backup + len - 18 + 7, path + len - 18);
-
-        cl = _clpi_parse(backup);
-
-        X_FREE(backup);
+    fp = file_open(path, "rb");
+    if (!fp) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "Failed to open %s\n", path);
+        return NULL;
     }
 
+    cl = _clpi_parse(fp);
+    file_close(fp);
+    return cl;
+}
+
+static CLPI_CL*
+_clpi_get(BD_DISC *disc, const char *dir, const char *file)
+{
+    BD_FILE_H *fp;
+    CLPI_CL   *cl;
+
+    fp = disc_open_file(disc, dir, file);
+    if (!fp) {
+        return NULL;
+    }
+
+    cl = _clpi_parse(fp);
+    file_close(fp);
+    return cl;
+}
+
+CLPI_CL*
+clpi_get(BD_DISC *disc, const char *file)
+{
+    CLPI_CL *cl;
+
+    cl = _clpi_get(disc, "BDMV" DIR_SEP "CLIPINF", file);
+    if (cl) {
+        return cl;
+    }
+
+    /* if failed, try backup file */
+    cl = _clpi_get(disc, "BDMV" DIR_SEP "BACKUP" DIR_SEP "CLIPINF", file);
     return cl;
 }
 

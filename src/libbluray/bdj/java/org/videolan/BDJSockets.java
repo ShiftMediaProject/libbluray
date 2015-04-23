@@ -24,6 +24,10 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+
 import java.net.Socket;
 import java.net.SocketImpl;
 
@@ -34,6 +38,7 @@ class BDJSockets {
 
     protected synchronized void add(Object obj) {
         if (!(obj instanceof SocketImpl)) {
+            logger.error("expected SocketImpl, got " + obj);
             throw new Error("expected SocketImpl");
         }
 
@@ -73,11 +78,17 @@ class BDJSockets {
 
     private Socket getSocket(SocketImpl socketImpl) {
         try {
-            Method getSocket = SocketImpl.class.getDeclaredMethod("getSocket", new Class[0]);
-            getSocket.setAccessible(true);
-            return (Socket) getSocket.invoke(socketImpl, new Object[0]);
-        } catch (Exception e) {
-            logger.error("Failed to get Socket: " + e + " at " + Logger.dumpStack());
+            final SocketImpl si = socketImpl;
+            return (Socket)AccessController.doPrivileged(
+                new PrivilegedExceptionAction() {
+                    public Object run() throws Exception {
+                        Method getSocket = SocketImpl.class.getDeclaredMethod("getSocket", new Class[0]);
+                        getSocket.setAccessible(true);
+                        return getSocket.invoke(si, new Object[0]);
+                    }
+                });
+        } catch (PrivilegedActionException e) {
+            logger.error("Failed to get Socket: " + e.getException() + " at " + Logger.dumpStack());
             return null;
         }
     }

@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2013       VideoLAN
+ * Copyright (C) 2013-2015  VideoLAN
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,9 +27,11 @@
 
 typedef struct bd_aacs BD_AACS;
 
-BD_PRIVATE int  libaacs_required(const char *device_path);
+BD_PRIVATE int  libaacs_required(void *h, int (*have_file)(void *, const char *, const char *));
 BD_PRIVATE BD_AACS *libaacs_load(void);
-BD_PRIVATE int  libaacs_open(BD_AACS *p, const char *device_path, const char *keyfile_path);
+BD_PRIVATE int  libaacs_open(BD_AACS *p, const char *device,
+                             void *file_open_handle, void *file_open_fp,
+                             const char *keyfile_path);
 BD_PRIVATE void libaacs_unload(BD_AACS **p);
 
 BD_PRIVATE void libaacs_select_title(BD_AACS *p, uint32_t title);

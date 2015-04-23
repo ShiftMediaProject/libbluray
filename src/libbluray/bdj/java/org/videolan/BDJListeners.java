@@ -18,11 +18,14 @@
  */
 package org.videolan;
 
+import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.media.ControllerEvent;
 import javax.media.ControllerListener;
+import javax.media.GainChangeEvent;
+import javax.media.GainChangeListener;
 import javax.tv.media.MediaSelectEvent;
 import javax.tv.media.MediaSelectListener;
 import javax.tv.service.selection.ServiceContextEvent;
@@ -32,6 +35,8 @@ import org.bluray.bdplus.StatusListener;
 
 import org.bluray.media.AngleChangeEvent;
 import org.bluray.media.AngleChangeListener;
+import org.bluray.media.PanningChangeListener;
+import org.bluray.media.PanningChangeEvent;
 import org.bluray.media.PiPStatusEvent;
 import org.bluray.media.PiPStatusListener;
 import org.bluray.media.PlaybackListener;
@@ -46,9 +51,11 @@ import org.davic.resources.ResourceStatusListener;
 
 import org.dvb.application.AppsDatabaseEvent;
 import org.dvb.application.AppsDatabaseEventListener;
+import org.dvb.media.SubtitleAvailableEvent;
 import org.dvb.media.SubtitleListener;
-import java.util.EventObject;
-
+import org.dvb.media.SubtitleNotAvailableEvent;
+import org.dvb.media.SubtitleNotSelectedEvent;
+import org.dvb.media.SubtitleSelectedEvent;
 
 public class BDJListeners {
     private LinkedList listeners = new LinkedList();
@@ -88,6 +95,33 @@ public class BDJListeners {
     }
 
     public void putCallback(Object event) {
+        boolean mediaQueue = true;
+        /*
+        if (event instanceof PlaybackMarkEvent) {
+        } else if (event instanceof PlaybackPlayItemEvent) {
+        } else if (event instanceof UOMaskTableChangedEvent) {
+        } else if (event instanceof UOMaskedEvent) {
+        } else if (event instanceof PiPStatusEvent) {
+        } else if (event instanceof PanningChangeEvent) {
+        } else if (event instanceof AngleChangeEvent) {
+        } else if (event instanceof MediaSelectEvent) {
+        } else if (event instanceof GainChangeEvent) {
+        } else if (event instanceof ControllerEvent) {
+        }
+        */
+        if (event instanceof ServiceContextEvent) {
+            mediaQueue = false;
+        } else if (event instanceof ResourceStatusEvent) {
+            mediaQueue = false;
+        } else if (event instanceof AppsDatabaseEvent) {
+            mediaQueue = false;
+        } else if (event instanceof PSR102Status) {
+            mediaQueue = false;
+        }
+        putCallback(event, mediaQueue);
+    }
+
+    public void putCallback(Object event, boolean mediaQueue) {
         synchronized (listeners) {
             for (Iterator it = listeners.iterator(); it.hasNext(); ) {
                 BDJListener item = (BDJListener)it.next();
@@ -95,7 +129,11 @@ public class BDJListeners {
                     logger.info("Listener terminated: " + item.ctx);
                     it.remove();
                 } else {
-                    item.ctx.putCallback(new Callback(event, item.listener));
+                    if (mediaQueue) {
+                        item.ctx.putMediaCallback(new Callback(event, item.listener));
+                    } else {
+                        item.ctx.putCallback(new Callback(event, item.listener));
+                    }
                 }
             }
         }
@@ -128,6 +166,10 @@ public class BDJListeners {
             this.listener = listener;
         }
 
+        public String toString() {
+            return this.getClass().getName() + "[event=" + event + ", listener=" + listener;
+        }
+
         protected void doAction() {
             if (event instanceof PlaybackMarkEvent) {
                 ((PlaybackListener)listener).markReached((PlaybackMarkEvent)event);
@@ -141,11 +183,15 @@ public class BDJListeners {
                 ((UOMaskTableListener)listener).receiveUOMaskedEvent((UOMaskedEvent)event);
             } else if (event instanceof PiPStatusEvent) {
                 ((PiPStatusListener)listener).piPStatusChange((PiPStatusEvent)event);
+            } else if (event instanceof PanningChangeEvent) {
+                ((PanningChangeListener)listener).panningChange((PanningChangeEvent)event);
             } else if (event instanceof AngleChangeEvent) {
                 ((AngleChangeListener)listener).angleChange((AngleChangeEvent)event);
             } else if (event instanceof MediaSelectEvent) {
                 ((MediaSelectListener)listener).selectionComplete((MediaSelectEvent)event);
 
+            } else if (event instanceof GainChangeEvent) {
+                ((GainChangeListener)listener).gainChange((GainChangeEvent)event);
             } else if (event instanceof ControllerEvent) {
                 ((ControllerListener)listener).controllerUpdate((ControllerEvent)event);
 
@@ -170,9 +216,8 @@ public class BDJListeners {
                     break;
                 }
 
-            /* need to use wrapper if some other callback uses EventObject */
-            } else if (event instanceof EventObject &&
-                       listener instanceof SubtitleListener) {
+            } else if (event instanceof SubtitleAvailableEvent || event instanceof SubtitleNotAvailableEvent ||
+                       event instanceof SubtitleNotSelectedEvent || event instanceof SubtitleSelectedEvent) {
                 ((SubtitleListener)listener).subtitleStatusChanged((EventObject)event);
 
             } else if (event instanceof PSR102Status) {

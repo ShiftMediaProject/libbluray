@@ -43,14 +43,14 @@ public class ServiceDomain {
 
     public void attach(Locator locator) throws DSMCCException,
             InterruptedIOException, MPEGDeliveryException
-    {   
+    {
         BDLocator bdl = checkLocator(locator);
         if (bdl == null)
             throw new DSMCCException("invalid BDLocator");
-        
+
         if (!bdl.isJarFileItem())
             throw new DSMCCException("invalid BDLocator");
-       
+
         try {
             this.mountPoint = new DSMCCObject(MountManager.mount(bdl.getJarFileId()));
             this.locator = locator;
@@ -87,21 +87,21 @@ public class ServiceDomain {
         BDLocator bdl = checkLocator(locator);
         if (bdl == null)
             throw new InvalidLocatorException("invalid BDLocator");
-        
+
         if (bdl.isJarFileItem()) {
             String mountPt = MountManager.getMount(bdl.getJarFileId());
-            
+
             if (mountPt == null)
                 throw new NotLoadedException();
-            
+
             DSMCCObject obj = new DSMCCObject(mountPt, bdl.getPathSegments());
-            
+
             if (!obj.exists())
                 throw new FileNotFoundException();
-            
+
             return obj.getURL();
         }
-        
+
         throw new InvalidLocatorException();
     }
 
@@ -125,20 +125,20 @@ public class ServiceDomain {
     {
         return locator;
     }
-    
+
     private static BDLocator checkLocator(Locator locator)
     {
         if (!(locator instanceof BDLocator))
             return null;
-        
+
         BDLocator bdl = (BDLocator)locator;
-        
+
         if (bdl.isJarFileItem())
             return bdl;
         else
             return null;
     }
-    
+
     private DSMCCObject mountPoint = null;
     private Locator locator = null;
 }

@@ -158,6 +158,14 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectTitleN
 
 /*
  * Class:     org_videolan_Libbluray
+ * Method:    setVirtualPackageN
+ * Signature: (JLjava/lang/String;Z)I
+ */
+JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_setVirtualPackageN
+  (JNIEnv * env, jclass cls, jlong np, jstring vpPath, jboolean psr_init_backup);
+
+/*
+ * Class:     org_videolan_Libbluray
  * Method:    selectAngleN
  * Signature: (JI)I
  */
@@ -211,6 +219,23 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readGPRN
  */
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN
   (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     org_videolan_Libbluray
+ * Method:    cacheBdRomFileN
+ * Signature: (JLjava/lang/String;Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_cacheBdRomFileN
+(JNIEnv *, jclass, jlong, jstring, jstring);
+
+/*
+ * Class:     org_videolan_Libbluray
+ * Method:    listBdFilesN
+ * Signature: (JLjava/lang/String;Z)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_org_videolan_Libbluray_listBdFilesN(JNIEnv * env,
+                                                                        jclass cls, jlong np, jstring jpath,
+                                                                        jboolean onlyBdRom);
 
 /*
  * Class:     org_videolan_Libbluray

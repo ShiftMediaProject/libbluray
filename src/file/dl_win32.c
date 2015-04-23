@@ -81,7 +81,7 @@ void *dl_dlsym(void *handle, const char *symbol)
 
     if (!result) {
         char buf[128];
-        BD_DEBUG(DBG_FILE | DBG_CRIT, "GetProcAddress(%p, '%s') failed: %s\n", handle, symbol, dlerror(buf, sizeof(buf)));
+        BD_DEBUG(DBG_FILE, "GetProcAddress(%p, '%s') failed: %s\n", handle, symbol, dlerror(buf, sizeof(buf)));
     }
 
     return result;

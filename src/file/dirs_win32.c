@@ -29,19 +29,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <shlobj.h>
 #include <windows.h>
+#include <shlobj.h>
 #include <limits.h>
 #include <direct.h>
 
-
-int win32_mkdir(const char *dir)
-{
-    wchar_t wdir[MAX_PATH];
-
-    MultiByteToWideChar(CP_UTF8, 0, dir, -1, wdir, MAX_PATH);
-    return _wmkdir(wdir);
-}
 
 char *win32_get_font_dir(const char *font_file)
 {

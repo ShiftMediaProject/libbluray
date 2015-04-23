@@ -114,8 +114,10 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
                 if (cls.isInstance(controls[i]))
                     return controls[i];
             }
+            Logger.getLogger("BDHandler").error("getControl(): control not found: " + forName);
             return null;
         } catch (ClassNotFoundException e) {
+            Logger.getLogger("BDHandler").error("getControl(): " + e);
             return null;
         }
     }
@@ -236,6 +238,18 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         commandQueue.put(action);
         action.waitEnd();
         return rate;
+    }
+
+    public static final int GAIN_OVERALL = 1;
+    public static final int GAIN_PRIMARY = 2;
+    public static final int GAIN_SECONDARY = 3;
+
+    public void setGain(int mixer, boolean mute, float level) {
+        Logger.unimplemented("BDHandler", "setGain");
+    }
+
+    public void setPanning(float x, float y) {
+        Logger.unimplemented("BDHandler", "setPanning");
     }
 
     public Locator[] getServiceContentLocators() {

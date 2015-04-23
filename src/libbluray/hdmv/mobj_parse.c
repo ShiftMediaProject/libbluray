@@ -21,6 +21,8 @@
 
 #include "mobj_data.h"
 
+#include "disc/disc.h"
+
 #include "file/file.h"
 #include "util/bits.h"
 #include "util/logging.h"
@@ -122,25 +124,18 @@ void mobj_free(MOBJ_OBJECTS **p)
     }
 }
 
-MOBJ_OBJECTS *mobj_parse(const char *file_name)
+static MOBJ_OBJECTS *_mobj_parse(BD_FILE_H *fp)
 {
     BITSTREAM     bs;
-    BD_FILE_H    *fp;
     MOBJ_OBJECTS *objects = NULL;
     uint16_t      num_objects;
     uint32_t      data_len;
     int           extension_data_start, i;
 
-    fp = file_open(file_name, "rb");
-    if (!fp) {
-      BD_DEBUG(DBG_NAV | DBG_CRIT, "error opening %s\n", file_name);
-      return NULL;
-    }
-
     bs_init(&bs, fp);
 
     if (!_mobj_parse_header(&bs, &extension_data_start)) {
-        BD_DEBUG(DBG_NAV | DBG_CRIT, "%s: invalid header\n", file_name);
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "MovieObject.bdmv: invalid header\n");
         goto error;
     }
 
@@ -153,7 +148,7 @@ MOBJ_OBJECTS *mobj_parse(const char *file_name)
     data_len = bs_read(&bs, 32);
 
     if ((bs_end(&bs) - bs_pos(&bs))/8 < (int64_t)data_len) {
-        BD_DEBUG(DBG_NAV | DBG_CRIT, "%s: invalid data_len %d !\n", file_name, data_len);
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "MovieObject.bdmv: invalid data_len %d !\n", data_len);
         goto error;
     }
 
@@ -175,36 +170,59 @@ MOBJ_OBJECTS *mobj_parse(const char *file_name)
 
     for (i = 0; i < objects->num_objects; i++) {
         if (!_mobj_parse_object(&bs, &objects->objects[i])) {
-            BD_DEBUG(DBG_NAV | DBG_CRIT, "%s: error parsing object %d\n", file_name, i);
+            BD_DEBUG(DBG_NAV | DBG_CRIT, "MovieObject.bdmv: error parsing object %d\n", i);
             goto error;
         }
     }
-
-    file_close(fp);
 
     return objects;
 
  error:
     mobj_free(&objects);
-    file_close(fp);
     return NULL;
 }
 
-MOBJ_OBJECTS *mobj_get(const char *disc_root)
+MOBJ_OBJECTS *mobj_parse(const char *file_name)
+{
+    BD_FILE_H    *fp;
+    MOBJ_OBJECTS *objects;
+
+    fp = file_open(file_name, "rb");
+    if (!fp) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "error opening %s\n", file_name);
+        return NULL;
+    }
+
+    objects = _mobj_parse(fp);
+    file_close(fp);
+    return objects;
+}
+
+static MOBJ_OBJECTS *_mobj_get(BD_DISC *disc, const char *path)
+{
+    BD_FILE_H    *fp;
+    MOBJ_OBJECTS *objects;
+
+    fp = disc_open_path(disc, path);
+    if (!fp) {
+        return NULL;
+    }
+
+    objects = _mobj_parse(fp);
+    file_close(fp);
+    return objects;
+}
+
+MOBJ_OBJECTS *mobj_get(BD_DISC *disc)
 {
     MOBJ_OBJECTS *objects;
-    char *file;
 
-    file = str_printf("%s"DIR_SEP "BDMV" DIR_SEP "MovieObject.bdmv", disc_root);
-    objects = mobj_parse(file);
-    X_FREE(file);
+    objects = _mobj_get(disc, "BDMV" DIR_SEP "MovieObject.bdmv");
     if (objects) {
         return objects;
     }
 
     /* if failed, try backup file */
-    file = str_printf("%s" DIR_SEP "BDMV" DIR_SEP "BACKUP" DIR_SEP "MovieObject.bdmv", disc_root);
-    objects = mobj_parse(file);
-    X_FREE(file);
+    objects = _mobj_get(disc, "BDMV" DIR_SEP "BACKUP" DIR_SEP "MovieObject.bdmv");
     return objects;
 }

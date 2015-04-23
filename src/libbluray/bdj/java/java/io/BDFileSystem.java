@@ -31,6 +31,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import org.videolan.BDJLoader;
 import org.videolan.BDJXletContext;
@@ -42,7 +44,36 @@ public abstract class BDFileSystem extends FileSystem {
 
     protected final FileSystem fs;
 
-    public static void init(Class c) {
+    private static FileSystem nativeFileSystem;
+
+    static {
+        /* Java 8: getFileSystem() no longer exists on java.io.FileSystem */
+        try {
+            nativeFileSystem = (FileSystem)Class.forName("java.io.DefaultFileSystem")
+                .getDeclaredMethod("getFileSystem", new Class[0])
+                .invoke(null, new Object[0]);
+        } catch (Exception e) {
+            try {
+                nativeFileSystem = (FileSystem)FileSystem.class
+                    .getDeclaredMethod("getFileSystem",new Class[0])
+                    .invoke(null, new Object[0]);
+            } catch (Exception t) {
+                System.err.print("Couldn't find native filesystem: " + t);
+            }
+        }
+    }
+
+    public static void init(final Class c) {
+        AccessController.doPrivileged(
+            new PrivilegedAction() {
+                public Object run() {
+                    init0(c);
+                    return null;
+                }
+            });
+    }
+
+    private static void init0(Class c) {
         Field filesystem;
         try {
             filesystem = c.getDeclaredField("fs");
@@ -64,6 +95,17 @@ public abstract class BDFileSystem extends FileSystem {
         }
     }
 
+    public static String[] nativeList(File f) {
+        return nativeFileSystem.list(f);
+    }
+
+    public static boolean nativeFileExists(String path) {
+        return nativeFileSystem.getBooleanAttributes(new File(path)) != 0;
+    }
+
+    /*
+     */
+
     public BDFileSystem(FileSystem fs) {
         this.fs = fs;
     }
@@ -84,7 +126,7 @@ public abstract class BDFileSystem extends FileSystem {
         return fs.prefixLength(pathname);
     }
 
-    private boolean isAbsolutePath(String path) {
+    public static boolean isAbsolutePath(String path) {
         return path.startsWith("/") || path.indexOf(":\\") == 1 ||
             path.startsWith("\\");
     }
@@ -175,7 +217,20 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public long getLength(File f) {
-        return fs.getLength(f);
+        if (f.isAbsolute()) {
+            return fs.getLength(f);
+        }
+
+        /* try to locate file in Xlet home directory */
+        String home = BDJXletContext.getCurrentXletHome();
+        if (home == null) {
+            logger.error("no home found for " + f.getPath() + " at " + Logger.dumpStack());
+            return 0;
+        }
+
+        String path = home + f.getPath();
+        logger.info("Relative path " + f.getPath() + " translated to " + path);
+        return fs.getLength(new File(path));
     }
 
     /*
@@ -244,7 +299,21 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public String[] list(File f) {
-        return fs.list(f);
+
+        String path = f.getPath();
+        String root = System.getProperty("bluray.vfs.root");
+        if (root == null || !path.startsWith(root)) {
+            /* not inside VFS */
+            return fs.list(f);
+        }
+
+        /* path is inside VFS */
+        /* EX. HOSTEL_2 lists files in BD-ROM */
+        int rootLength = root.length();
+        path = path.substring(rootLength);
+
+        String[] names = org.videolan.Libbluray.listBdFiles(path, false);
+        return names;
     }
 
     public boolean createDirectory(File f) {

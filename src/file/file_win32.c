@@ -83,7 +83,6 @@ static int64_t _file_read(BD_FILE_H *file, uint8_t *buf, int64_t size)
     return 0;
 }
 
-#if 0
 static int64_t _file_write(BD_FILE_H *file, const uint8_t *buf, int64_t size)
 {
     if (size > 0 && size < BD_MAX_SSIZE) {
@@ -93,7 +92,6 @@ static int64_t _file_write(BD_FILE_H *file, const uint8_t *buf, int64_t size)
     BD_DEBUG(DBG_FILE | DBG_CRIT, "Ignoring invalid write of size %"PRId64" (%p)\n", size, (void*)file);
     return 0;
 }
-#endif
 
 static BD_FILE_H *_file_open(const char* filename, const char *mode)
 {
@@ -109,7 +107,7 @@ static BD_FILE_H *_file_open(const char* filename, const char *mode)
         file->close    = _file_close;
         file->seek     = _file_seek;
         file->read     = _file_read;
-        //file->write    = _file_write;
+        file->write    = _file_write;
         file->tell     = _file_tell;
         //file->eof      = _file_eof;
 
@@ -126,4 +124,35 @@ BD_FILE_H* (*file_open)(const char* filename, const char *mode) = _file_open;
 BD_FILE_OPEN file_open_default(void)
 {
     return _file_open;
+}
+
+int file_unlink(const char *file)
+{
+    wchar_t wfile[MAX_PATH];
+
+    MultiByteToWideChar(CP_UTF8, 0, file, -1, wfile, MAX_PATH);
+    return _wremove(wfile);
+}
+
+int file_path_exists(const char *path)
+{
+    wchar_t wpath[MAX_PATH];
+
+    MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, MAX_PATH);
+
+    DWORD dwAttrib = GetFileAttributesW(wpath);
+    if (dwAttrib != INVALID_FILE_ATTRIBUTES) {
+        return 0;
+    }
+    return -1;
+}
+
+int file_mkdir(const char *dir)
+{
+    wchar_t wdir[MAX_PATH];
+
+    MultiByteToWideChar(CP_UTF8, 0, dir, -1, wdir, MAX_PATH);
+    if (!CreateDirectoryW(wdir, NULL))
+        return -1;
+    return 0;
 }

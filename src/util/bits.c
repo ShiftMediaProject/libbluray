@@ -22,16 +22,17 @@
 
 #include "bits.h"
 
+#include "file/file.h"
 #include "util/logging.h"
 
-#include <stdio.h>
+#include <stdio.h>  // SEEK_*
 
 /**
  * \file
  * This file defines functions, structures for handling streams of bits
  */
 
-void bb_init( BITBUFFER *bb, uint8_t *p_data, size_t i_data )
+void bb_init( BITBUFFER *bb, const uint8_t *p_data, size_t i_data )
 {
     bb->p_start = p_data;
     bb->p       = bb->p_start;
@@ -72,7 +73,7 @@ void bb_seek( BITBUFFER *bb, int64_t off, int whence)
     b = off >> 3;
     bb->p = &bb->p_start[b];
 
-    ssize_t i_tmp = bb->i_left - (off & 0x07);
+    int i_tmp = bb->i_left - (off & 0x07);
     if (i_tmp <= 0) {
         bb->i_left = 8 + i_tmp;
         bb->p++;
@@ -121,6 +122,17 @@ void bs_seek( BITSTREAM *bs, int64_t off, int whence)
     }
 }
 
+void bb_seek_byte( BITBUFFER *bb, int64_t off)
+{
+    bb_seek(bb, off << 3, SEEK_SET);
+}
+
+void bs_seek_byte( BITSTREAM *s, int64_t off)
+{
+    bs_seek(s, off << 3, SEEK_SET);
+}
+
+
 uint32_t bb_read( BITBUFFER *bb, int i_count )
 {
     static const uint32_t i_mask[33] = {
@@ -167,7 +179,7 @@ uint32_t bb_read( BITBUFFER *bb, int i_count )
 
 uint32_t bs_read( BITSTREAM *bs, int i_count )
 {
-    ssize_t left;
+    int left;
     int bytes = (i_count + 7) >> 3;
 
     if (bs->bb.p + bytes >= bs->bb.p_end) {
@@ -181,22 +193,21 @@ uint32_t bs_read( BITSTREAM *bs, int i_count )
     return bb_read(&bs->bb, i_count);
 }
 
-void bb_skip( BITBUFFER *bb, ssize_t i_count )
+void bb_skip( BITBUFFER *bb, size_t i_count )
 {
-    bb->i_left -= i_count;
+    bb->p += i_count >> 3;
+    bb->i_left -= i_count & 0x07;
 
     if( bb->i_left <= 0 ) {
-        const int i_bytes = ( -bb->i_left + 8 ) / 8;
-
-        bb->p += i_bytes;
-        bb->i_left += 8 * i_bytes;
+        bb->p++;
+        bb->i_left += 8;
     }
 }
 
-void bs_skip( BITSTREAM *bs, ssize_t i_count )
+void bs_skip( BITSTREAM *bs, size_t i_count )
 {
     int left;
-    int bytes = i_count >> 3;
+    size_t bytes = (i_count + 7) >> 3;
 
     if (bs->bb.p + bytes >= bs->bb.p_end) {
         bs->pos = bs->pos + (bs->bb.p - bs->bb.p_start);

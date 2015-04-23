@@ -45,17 +45,25 @@
 /*
  * data
  */
+#ifdef HAVE_FT2
+typedef struct {
+
+  FT_Face  face;
+  void    *mem;
+
+} FONT_DATA;
 
 struct textst_render {
-#ifdef HAVE_FT2
+
   FT_Library     ft_lib;
 
   unsigned       font_count;
-  FT_Face       *face;
+  FONT_DATA     *font;
 
   bd_char_code_e char_code;
-#endif
+
 };
+#endif
 
 /*
  * init / free
@@ -88,9 +96,10 @@ void textst_render_free(TEXTST_RENDER **pp)
             /* free fonts */
             unsigned ii;
             for (ii = 0; ii < p->font_count; ii++) {
-                if (p->face[ii]) {
-                    FT_Done_Face(p->face[ii]);
+                if (p->font[ii].face) {
+                    FT_Done_Face(p->font[ii].face);
                 }
+                X_FREE(p->font[ii].mem);
             }
 
             FT_Done_FreeType(p->ft_lib);
@@ -104,31 +113,33 @@ void textst_render_free(TEXTST_RENDER **pp)
  * settings
  */
 
-int textst_render_add_font(TEXTST_RENDER *p, const char *file)
+int textst_render_add_font(TEXTST_RENDER *p, void *data, size_t size)
 {
 #ifdef HAVE_FT2
-    FT_Face *tmp = realloc(p->face, sizeof(*(p->face)) * (p->font_count + 1));
+    FONT_DATA *tmp = realloc(p->font, sizeof(*(p->font)) * (p->font_count + 1));
     if (!tmp) {
         TEXTST_ERROR("out of memory\n");
         return -1;
     }
-    p->face = tmp;
+    p->font = tmp;
 
-    if (FT_New_Face(p->ft_lib, file, -1, NULL)) {
-        TEXTST_ERROR("Unsupport font file format (%s)\n", file);
+    if (FT_New_Memory_Face(p->ft_lib, (const FT_Byte*)data, (FT_Long)size, -1, NULL)) {
+        TEXTST_ERROR("Unsupport font file format\n");
         return -1;
     }
 
-    if (!FT_New_Face(p->ft_lib, file, 0, &p->face[p->font_count])) {
+    if (!FT_New_Memory_Face(p->ft_lib, (const FT_Byte*)data, (FT_Long)size, 0, &p->font[p->font_count].face)) {
+        p->font[p->font_count].mem = data;
         p->font_count++;
         return 0;
     }
 
-    TEXTST_ERROR("Loading font %s failed\n", file);
+    TEXTST_ERROR("Loading font %d failed\n", p->font_count);
 
 #else
     (void)p;
-    (void)file;
+    (void)data;
+    (void)size;
 #endif
 
     return -1;
@@ -207,7 +218,8 @@ static int _draw_string(FT_Face face, const uint8_t *string, int length,
 {
     uint8_t  color = style->font_color;
     unsigned char_code;
-    int      ii, jj, kk;
+    int      ii;
+    unsigned jj, kk;
     unsigned flags;
 
     if (length <= 0) {
@@ -264,13 +276,13 @@ static int _draw_string(FT_Face face, const uint8_t *string, int length,
 
 static void _update_face(TEXTST_RENDER *p, FT_Face *face, const BD_TEXTST_REGION_STYLE *style)
 {
-    if (style->font_id_ref >= p->font_count || !p->face[style->font_id_ref]) {
+    if (style->font_id_ref >= p->font_count || !p->font[style->font_id_ref].face) {
         TEXTST_ERROR("textst_Render: incorrect font index %d\n", style->font_id_ref);
         if (!*face) {
-            *face = p->face[0];
+            *face = p->font[0].face;
         }
     } else {
-        *face = p->face[style->font_id_ref];
+        *face = p->font[style->font_id_ref].face;
     }
     FT_Set_Char_Size(*face, 0, style->font_size << 6, 0, 0);
 }

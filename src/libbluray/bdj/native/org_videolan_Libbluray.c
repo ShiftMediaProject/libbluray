@@ -25,12 +25,18 @@
 #include "bdjo.h"
 #include "util.h"
 
+#include "libbluray/bdj/bdjo_parse.h"
+
 #include "libbluray/bluray.h"
 #include "libbluray/bluray_internal.h"
 #include "libbluray/decoders/overlay.h"
+#include "libbluray/disc/disc.h"
 
+#include "file/file.h"
 #include "util/logging.h"
+#include "util/macro.h"
 
+#include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 
@@ -208,6 +214,27 @@ JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setUOMaskN(JNIEnv * env,
     bd_set_bdj_uo_mask(bd, ((!!menuCallMask) * BDJ_MENU_CALL_MASK) | ((!!titleSearchMask) * BDJ_TITLE_SEARCH_MASK));
 }
 
+JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_setVirtualPackageN(JNIEnv * env,
+        jclass cls, jlong np, jstring vpPath, jboolean psr_init_backup) {
+    BLURAY* bd = (BLURAY*)(intptr_t)np;
+    const char *path = NULL;
+    jint result;
+
+    if (vpPath) {
+        path = (*env)->GetStringUTFChars(env, vpPath, NULL);
+    }
+
+    BD_DEBUG(DBG_JNI|DBG_CRIT, "setVirtualPackageN(%s,%d)\n", path, (int)psr_init_backup);
+
+    result = bd_set_virtual_package(bd, path, (int)psr_init_backup);
+
+    if (vpPath) {
+        (*env)->ReleaseStringUTFChars(env, vpPath, path);
+    }
+
+    return result;
+}
+
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN(JNIEnv * env,
         jclass cls, jlong np, jint playitem, jint playmark, jlong tick) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
@@ -304,26 +331,128 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_readPSRN(JNIEnv * env,
     return value;
 }
 
-JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
-                                                               jclass cls, jlong np, jstring jpath) {
+JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_cacheBdRomFileN(JNIEnv * env,
+                                                                   jclass cls, jlong np,
+                                                                   jstring jrel_path, jstring jcache_path) {
 
-    (void)np;
+    BLURAY *bd = (BLURAY*)(intptr_t)np;
+    BD_DISC *disc = bd_get_disc(bd);
+    int result = -1;
+
+    const char *rel_path = (*env)->GetStringUTFChars(env, jrel_path, NULL);
+    const char *cache_path = (*env)->GetStringUTFChars(env, jcache_path, NULL);
+    if (!rel_path || !cache_path) {
+        BD_DEBUG(DBG_JNI | DBG_CRIT, "cacheBdRomFile() failed: no path\n");
+        goto out;
+    }
+    BD_DEBUG(DBG_JNI, "cacheBdRomFile(%s => %s)\n", rel_path, cache_path);
+
+    result = disc_cache_bdrom_file(disc, rel_path, cache_path);
+
+ out:
+    if (rel_path) {
+        (*env)->ReleaseStringUTFChars(env, jrel_path, rel_path);
+    }
+    if (cache_path) {
+        (*env)->ReleaseStringUTFChars(env, jcache_path, cache_path);
+    }
+
+    return result;
+}
+
+JNIEXPORT jobjectArray JNICALL Java_org_videolan_Libbluray_listBdFilesN(JNIEnv * env,
+                                                                        jclass cls, jlong np, jstring jpath,
+                                                                        jboolean onlyBdRom) {
+
+    BLURAY *bd = (BLURAY*)(intptr_t)np;
+    BD_DISC *disc = bd_get_disc(bd);
 
     const char *path = (*env)->GetStringUTFChars(env, jpath, NULL);
     if (!path) {
+        BD_DEBUG(DBG_JNI | DBG_CRIT, "listBdFilesN() failed: no path\n");
+        return NULL;
+    }
+    BD_DEBUG(DBG_JNI, "listBdFilesN(%s)\n", path);
+
+    /* open directory stream */
+    BD_DIR_H *dp;
+    if (onlyBdRom) {
+        dp = disc_open_bdrom_dir(disc, path);
+    } else {
+        dp = disc_open_dir(disc, path);
+    }
+    if (!dp) {
+        BD_DEBUG(DBG_JNI, "failed opening directory %s\n", path);
+        (*env)->ReleaseStringUTFChars(env, jpath, path);
+        return NULL;
+    }
+    (*env)->ReleaseStringUTFChars(env, jpath, path);
+
+    /* count files and create java strings (java array size must be known when it is created) */
+    jstring  *files = NULL;
+    unsigned  count = 0;
+    unsigned  allocated = 0;
+    BD_DIRENT ent;
+    while (!dir_read(dp, &ent)) {
+        if (strcmp(ent.d_name, ".") && strcmp(ent.d_name, "..")) {
+            if (allocated <= count) {
+                allocated += 512;
+                jstring *tmp = realloc(files, sizeof(*files) * allocated);
+                if (!tmp) {
+                    BD_DEBUG(DBG_JNI | DBG_CRIT, "failed allocating memory for %u directory entries\n", allocated);
+                    break;
+                }
+                files = tmp;
+            }
+            files[count] = (*env)->NewStringUTF(env, ent.d_name);
+            count++;
+        }
+    }
+    dir_close(dp);
+
+    /* allocate java array */
+    jobjectArray arr = bdj_make_array(env, "java/lang/String", count);
+    if (!arr) {
+        BD_DEBUG(DBG_JNI | DBG_CRIT, "failed creating array [%d]\n", count);
+    } else {
+        /* populate files to array */
+        unsigned ii;
+        for (ii = 0; ii < count; ii++) {
+            (*env)->SetObjectArrayElement(env, arr, ii, files[ii]);
+        }
+    }
+
+    X_FREE(files);
+
+    return arr;
+}
+
+
+JNIEXPORT jobject JNICALL Java_org_videolan_Libbluray_getBdjoN(JNIEnv * env,
+                                                               jclass cls, jlong np, jstring jfile) {
+
+    BLURAY           *bd = (BLURAY*)(intptr_t)np;
+    struct bdjo_data *bdjo;
+    jobject           jbdjo = NULL;
+
+    const char *file = (*env)->GetStringUTFChars(env, jfile, NULL);
+    if (!file) {
         BD_DEBUG(DBG_JNI | DBG_CRIT, "getBdjoN() failed: no path\n");
         return NULL;
     }
-    BD_DEBUG(DBG_JNI, "getBdjoN(%s)\n", path);
+    BD_DEBUG(DBG_JNI, "getBdjoN(%s)\n", file);
 
-    jobject bdjo = bdjo_get(env, path);
-    if (!bdjo) {
-        BD_DEBUG(DBG_JNI | DBG_CRIT, "getBdjoN(%s) failed\n", path);
+    bdjo = bdjo_get(bd_get_disc(bd), file);
+    if (bdjo) {
+        jbdjo = bdjo_make_jobj(env, bdjo);
+        bdjo_free(&bdjo);
+    } else {
+        BD_DEBUG(DBG_JNI | DBG_CRIT, "getBdjoN(%s) failed\n", file);
     }
 
-    (*env)->ReleaseStringUTFChars(env, jpath, path);
+    (*env)->ReleaseStringUTFChars(env, jfile, file);
 
-    return bdjo;
+    return jbdjo;
 }
 
 static void _updateGraphic(JNIEnv * env,
@@ -345,10 +474,10 @@ static void _updateGraphic(JNIEnv * env,
         jsize offset;
 
         /* set dirty area before lock() */
-        buf->dirty[BD_OVERLAY_IG].x0 = x0;
-        buf->dirty[BD_OVERLAY_IG].x1 = x1;
-        buf->dirty[BD_OVERLAY_IG].y0 = y0;
-        buf->dirty[BD_OVERLAY_IG].y1 = y1;
+        buf->dirty[BD_OVERLAY_IG].x0 = (uint16_t)x0;
+        buf->dirty[BD_OVERLAY_IG].x1 = (uint16_t)x1;
+        buf->dirty[BD_OVERLAY_IG].y0 = (uint16_t)y0;
+        buf->dirty[BD_OVERLAY_IG].y1 = (uint16_t)y1;
 
         /* get buffer */
         if (buf->lock) {
@@ -505,6 +634,11 @@ Java_org_videolan_Libbluray_methods[] =
         VC(Java_org_videolan_Libbluray_selectTitleN),
     },
     {
+        CC("setVirtualPackageN"),
+        CC("(JLjava/lang/String;Z)I"),
+        VC(Java_org_videolan_Libbluray_setVirtualPackageN),
+    },
+    {
         CC("selectAngleN"),
         CC("(JI)I"),
         VC(Java_org_videolan_Libbluray_selectAngleN),
@@ -538,6 +672,16 @@ Java_org_videolan_Libbluray_methods[] =
         CC("readPSRN"),
         CC("(JI)I"),
         VC(Java_org_videolan_Libbluray_readPSRN),
+    },
+    {
+        CC("cacheBdRomFileN"),
+        CC("(JLjava/lang/String;Ljava/lang/String;)I"),
+        VC(Java_org_videolan_Libbluray_cacheBdRomFileN),
+    },
+    {
+        CC("listBdFilesN"),
+        CC("(JLjava/lang/String;Z)[Ljava/lang/String;"),
+        VC(Java_org_videolan_Libbluray_listBdFilesN),
     },
     {
         CC("getBdjoN"),

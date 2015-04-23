@@ -63,7 +63,7 @@ void bd_set_debug_mask(uint32_t mask);
 uint32_t bd_get_debug_mask(void);
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif /* BD_LOG_CONTROL_H_ */

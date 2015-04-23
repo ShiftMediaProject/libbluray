@@ -25,7 +25,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
+import java.io.BDFileSystem;
 import org.videolan.bdjo.AppCache;
 
 class VFSCache {
@@ -53,12 +56,18 @@ class VFSCache {
         cacheRoot = CacheDir.create("VFSCache").getPath() + File.separator;
         fontRoot  = CacheDir.create("Font").getPath() + File.separator;
         vfsRoot   = System.getProperty("bluray.vfs.root");
+
+        if (vfsRoot == null) {
+            System.err.println("disc root is in UDF");
+            System.setProperty("bluray.vfs.root", cacheRoot);
+            vfsRoot = cacheRoot;
+            cacheAll = true;
+        }
+
         if (!vfsRoot.endsWith(File.separator)) {
             vfsRoot = vfsRoot + File.separator;
         }
         vfsRootLength = vfsRoot.length();
-
-        new File(cacheRoot + jarDir).mkdirs();
     }
 
     /*
@@ -107,7 +116,7 @@ class VFSCache {
         boolean result = false;
 
         try {
-            inStream = new /*BD*/FileInputStream(srcPath);
+            inStream = new FileInputStream(srcPath);
             result = copyStream(inStream, dstPath);
 
         } catch (IOException e) {
@@ -137,36 +146,42 @@ class VFSCache {
     private void copyJarFile(String name) {
         /* copy file from BDMV/JAR/ */
 
-        String srcPath = vfsRoot + jarDir + name;
-        String dstPath = cacheRoot + jarDir + name;
-        File   dstFile = new File(dstPath);
+        String relPath = jarDir + name;
+        String dstPath = cacheRoot + relPath;
 
-        if (dstFile.exists()) {
+        if (BDFileSystem.nativeFileExists(dstPath)) {
             //logger.info(dstPath + " already cached");
             return;
         }
 
-        copyFile(srcPath, dstPath);
+        Libbluray.cacheBdRomFile(relPath, dstPath);
 
-        logger.info("cached " + name);
+        logger.info("cached " + relPath);
+    }
+
+    private void copyJarDir(String name, String[] files) {
+
+        for (int i = 0; i < files.length; i++) {
+            String relPath = name + File.separator + files[i];
+            String[] subFiles = Libbluray.listBdFiles(relPath, true);
+            if (subFiles != null) {
+                copyJarDir(relPath, subFiles);
+            } else {
+                Libbluray.cacheBdRomFile(relPath, cacheRoot + relPath);
+            }
+        }
     }
 
     private void copyJarDir(String name) {
         /* copy directory from BDMV/JAR/ */
 
-        new File(cacheRoot + jarDir + name).mkdirs();
-
-        File[] files = new File(vfsRoot + jarDir + name).listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File   file    = files[i];
-            String relPath = name + File.separator + files[i].getName();
-            if (file.isDirectory()) {
-                copyJarDir(relPath);
-            } else {
-                copyJarFile(relPath);
-            }
+        String relPath = jarDir + name;
+        String[] files = Libbluray.listBdFiles(relPath, true);
+        if (files == null) {
+            return;
         }
-        logger.info("cached " + name);
+        copyJarDir(relPath, files);
+        logger.info("cached " + relPath);
     }
 
     /*
@@ -188,17 +203,16 @@ class VFSCache {
 
     protected synchronized File addFont(String fontFile) {
 
-        new File(fontRoot + fontDir).mkdirs();
+        String relPath = fontDir + fontFile;
+        String dstPath = fontRoot + relPath;
+        File dstFile = new File(dstPath);
 
-        String srcPath = vfsRoot + fontDir + fontFile;
-        String dstPath = fontRoot + fontDir + fontFile;
-        File   dstFile = new File(dstPath);
-        if (dstFile.exists()) {
+        if (BDFileSystem.nativeFileExists(dstPath)) {
             //logger.info(dstPath + " already cached");
             return dstFile;
         }
 
-        if (!copyFile(srcPath, dstPath)) {
+        if (!Libbluray.cacheBdRomFile(relPath, dstPath)) {
             return null;
         }
 
@@ -238,6 +252,61 @@ class VFSCache {
     }
 
     /*
+     * Accessing any file triggers security manager checks.
+     * -> we cache the file (on demand) so that it will be accessible by standard Java I/O.
+     */
+    boolean inAccessFile = false;
+    protected void accessFile(String absPath) {
+        if (!cacheAll) {
+            /* BD-ROM filesystem is accessible with standard I/O */
+            return;
+        }
+
+        if (!absPath.startsWith(vfsRoot)) {
+            /* path does not map to VFS */
+            return;
+        }
+
+        accessFileSynced(absPath);
+    }
+
+    protected synchronized void accessFileSynced(String absPath) {
+
+        if (inAccessFile) {
+            /* avoid recursion from SecurityManager checks */
+            return;
+        }
+
+        inAccessFile = true;
+        accessFileImp(absPath);
+        inAccessFile = false;
+    }
+
+    private void accessFileImp(String absPath) {
+
+        if (BDFileSystem.nativeFileExists(absPath)) {
+            /* file is already cached */
+            return;
+        }
+
+        String relPath = absPath.substring(vfsRootLength);
+        String[] names = Libbluray.listBdFiles(relPath, true);
+        if (names != null) {
+            /* this is directory */
+            return;
+        }
+
+        /* do not cache .m2ts streams */
+        if (relPath.startsWith("BDMV" + File.separator + "STREAM" + File.separator)) {
+            return;
+        }
+
+        /* finally, copy the file to cache */
+        Libbluray.cacheBdRomFile(relPath, cacheRoot + relPath);
+    }
+
+
+    /*
      * Add file from binding unit data area to cache
      */
     protected synchronized boolean add(String vpFile, String budaFile) {
@@ -256,13 +325,17 @@ class VFSCache {
      */
     public synchronized String map(String absPath) {
 
+        if (cacheAll) {
+            return absPath;
+        }
+
         if (!absPath.startsWith(vfsRoot)) {
             //logger.info(absPath + " not in BDMV/JAR");
             return absPath;
         }
 
         String cachePath = cacheRoot + absPath.substring(vfsRootLength);
-        if (!new File(cachePath).exists()) {
+        if (!BDFileSystem.nativeFileExists(cachePath)) {
             //logger.info(cachePath + " not in VFS cache");
             return absPath;
         }
@@ -275,6 +348,7 @@ class VFSCache {
     private String vfsRoot = null;
     private String fontRoot = null;
     private int    vfsRootLength = 0;
+    private boolean cacheAll = false;
 
     private static final String jarDir = "BDMV" + File.separator + "JAR" + File.separator;
     private static final String fontDir = "BDMV" + File.separator + "AUXDATA" + File.separator;
