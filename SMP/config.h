@@ -1,4 +1,7 @@
 
+/* Define to 1 if libudfread is to be used for disc image access */
+/* #undef ENABLE_UDF */
+
 /* Define to 1 if using libbluray J2ME stack */
 /* #undef HAVE_BDJ_J2ME */
 
@@ -11,6 +14,12 @@
 
 /* Define to 1 if you have the <errno.h> header file. */
 #define HAVE_ERRNO_H 1
+
+/* Define to 1 if you have the <fcntl.h> header file. */
+#define HAVE_FCNTL_H 1
+
+/* Define this if you have fontconfig library */
+#define HAVE_FONTCONFIG 1
 
 /* Define this if you have FreeType2 library */
 #define HAVE_FT2 1

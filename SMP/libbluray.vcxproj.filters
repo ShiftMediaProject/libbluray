@@ -58,6 +58,12 @@
     <Filter Include="Header Files\libbluray\bdj\native">
       <UniqueIdentifier>{bae98ff5-1d78-48b3-8ec1-2cc3fe001c3c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\disc">
+      <UniqueIdentifier>{25bb1b92-1b24-4c74-925d-bbe0dabbb8bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\disc">
+      <UniqueIdentifier>{cf64b6b0-44d1-46c3-946b-17dc2785bd49}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -109,12 +115,6 @@
       <Filter>Header Files\file</Filter>
     </ClInclude>
     <ClInclude Include="..\src\file\filesystem.h">
-      <Filter>Header Files\file</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\file\libaacs.h">
-      <Filter>Header Files\file</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\file\libbdplus.h">
       <Filter>Header Files\file</Filter>
     </ClInclude>
     <ClInclude Include="..\src\libbluray\bluray.h">
@@ -261,18 +261,27 @@
     <ClInclude Include="..\src\libbluray\hdmv\mobj_print.h">
       <Filter>Header Files\libbluray\hdmv</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\libbluray\disc\bdplus.h">
+      <Filter>Header Files\disc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\libbluray\disc\aacs.h">
+      <Filter>Header Files\disc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\libbluray\disc\enc_info.h">
+      <Filter>Header Files\disc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\libbluray\disc\dec.h">
+      <Filter>Header Files\disc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\libbluray\disc\disc.h">
+      <Filter>Header Files\disc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\file\file_win32.c">
       <Filter>Source Files\file</Filter>
     </ClCompile>
     <ClCompile Include="..\src\file\filesystem.c">
-      <Filter>Source Files\file</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\file\libaacs.c">
-      <Filter>Source Files\file</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\file\libbdplus.c">
       <Filter>Source Files\file</Filter>
     </ClCompile>
     <ClCompile Include="..\src\file\dir_win32.c">
@@ -403,6 +412,21 @@
     </ClCompile>
     <ClCompile Include="..\src\libbluray\bdj\native\util.c">
       <Filter>Source Files\libbluray\bdj\native</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libbluray\disc\aacs.c">
+      <Filter>Source Files\disc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libbluray\disc\bdplus.c">
+      <Filter>Source Files\disc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\util\time.c">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libbluray\disc\dec.c">
+      <Filter>Source Files\disc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libbluray\disc\disc.c">
+      <Filter>Source Files\disc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

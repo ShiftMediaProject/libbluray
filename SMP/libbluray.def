@@ -2,6 +2,9 @@
 EXPORTS
     bd_get_version
     bd_open
+    bd_init
+    bd_open_disc
+    bd_open_stream
     bd_close
     bd_get_disc_info
     bd_get_meta
