@@ -81,7 +81,7 @@ struct graphics_controller_s {
     BD_UO_MASK      page_uo_mask;
 
     /* page effects */
-    int                    effect_idx;
+    unsigned               effect_idx;
     BD_IG_EFFECT_SEQUENCE *in_effects;
     BD_IG_EFFECT_SEQUENCE *out_effects;
     int64_t                next_effect_time; /* 90 kHz */
