@@ -52,6 +52,9 @@ BD_PRIVATE const char *disc_root(BD_DISC *disc);
 /* Get UDF volume ID */
 BD_PRIVATE const char *disc_volume_id(BD_DISC *);
 
+/* Generate pseudo disc ID */
+BD_PRIVATE void disc_pseudo_id(BD_DISC *, uint8_t *id/*[20]*/);
+
 /* Open VFS file (relative to disc root) */
 BD_PRIVATE struct bd_file_s *disc_open_file(BD_DISC *disc, const char *dir, const char *file);
 BD_PRIVATE struct bd_file_s *disc_open_path(BD_DISC *disc, const char *path);
