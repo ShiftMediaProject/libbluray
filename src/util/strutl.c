@@ -27,22 +27,21 @@
 #include <ctype.h>
 #include <string.h>
 
-char * str_dup(const char *str)
+char *str_dup(const char *str)
 {
-  return str ? strcpy (malloc(strlen(str) + 1), str) : NULL;
+    return str ? strcpy (malloc(strlen(str) + 1), str) : NULL;
 }
 
-char * str_printf(const char *fmt, ...)
+char *str_printf(const char *fmt, ...)
 {
     /* Guess we need no more than 100 bytes. */
-    int len;
     va_list ap;
-    int size = 100;
-    char *tmp, *str = NULL;
+    int     len;
+    int     size = 100;
+    char   *tmp, *str = NULL;
 
     str = malloc(size);
-    while (1) 
-    {
+    while (1) {
         /* Try to print in the allocated space. */
         va_start(ap, fmt);
         len = vsnprintf(str, size, fmt, ap);
