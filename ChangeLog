@@ -1,4 +1,4 @@
-- Improved error resilence.
+- Improved error resilience.
 
 2015-04-15: Version 0.8.0
 - Add security checks to BD-J.
@@ -8,7 +8,7 @@
 - Add /usr/share/libbluray/lib/ to .jar file search paths.
 - Add BD_EVENT_PLAYLIST_STOP (playlist playback is interrupted).
 - Accept directory name (without .jar file name) in LIBBLURAY_CP.
-- Improved error resilence.
+- Improved error resilience.
 - Improve BD-J compability.
 - Fix Java 8u40 compability.
 - Fix infinite loop with some broken HDMV menus.
@@ -53,7 +53,7 @@
 - Added disc application info to BLURAY_DISC_INFO.
 - Added bd_set_rate().
 - Added color keys (RED, GREEN, YELLOW, BLUE).
-- Improved error resilence.
+- Improved error resilience.
 - Fix build without libxml.
 
 2013-12-21: Version 0.5.0
