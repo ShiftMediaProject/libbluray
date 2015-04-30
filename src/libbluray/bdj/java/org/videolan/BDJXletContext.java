@@ -287,7 +287,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                 try {
                     look = defClass.newInstance();
                     setDefaultLook(key, look);
-                } catch (Throwable t) {
+                } catch (Exception t) {
                     logger.error("Error creating default look " + defClass.getName() + " for " + key + ": " + t);
                 }
             }
@@ -357,7 +357,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         }
         try {
             thread.join();
-        } catch (Throwable t) { }
+        } catch (InterruptedException e) { }
     }
 
     private void stopIxcThreads() {
