@@ -474,7 +474,7 @@ public class Libbluray {
     }
 
     /* called only from native code */
-    private static boolean processEvent(int event, int param) {
+    private static boolean processEventImpl(int event, int param) {
         boolean result = true;
         int key = 0;
 
@@ -550,6 +550,15 @@ public class Libbluray {
         }
 
         return result;
+    }
+
+    private static boolean processEvent(int event, int param) {
+        try {
+            return processEventImpl(event, param);
+        } catch (Throwable e) {
+            System.err.println("processEvent() failed: " + e + "\n" + Logger.dumpStack(e));
+            return false;
+        }
     }
 
     public  static final int BDJ_EVENT_CHAPTER                  = 1;
