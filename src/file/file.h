@@ -37,9 +37,9 @@
  * file access
  */
 
-#define file_close(X) X->close(X)
+#define file_close(X)    X->close(X)
 #define file_seek(X,Y,Z) X->seek(X,Y,Z)
-#define file_tell(X) X->tell(X)
+#define file_tell(X)     X->tell(X)
 //#define file_eof(X) X->eof(X)
 #define file_read(X,Y,Z) (size_t)X->read(X,Y,Z)
 //#define file_write(X,Y,Z) (size_t)X->write(X,Y,Z)

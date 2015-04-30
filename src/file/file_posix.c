@@ -37,7 +37,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-static void file_close_linux(BD_FILE_H *file)
+static void _file_close(BD_FILE_H *file)
 {
     if (file) {
         close((int)(intptr_t)file->internal);
@@ -48,7 +48,7 @@ static void file_close_linux(BD_FILE_H *file)
     }
 }
 
-static int64_t file_seek_linux(BD_FILE_H *file, int64_t offset, int32_t origin)
+static int64_t _file_seek(BD_FILE_H *file, int64_t offset, int32_t origin)
 {
     off_t result = lseek((int)(intptr_t)file->internal, offset, origin);
     if (result == (off_t)-1) {
@@ -58,19 +58,19 @@ static int64_t file_seek_linux(BD_FILE_H *file, int64_t offset, int32_t origin)
     return (int64_t)result;
 }
 
-static int64_t file_tell_linux(BD_FILE_H *file)
+static int64_t _file_tell(BD_FILE_H *file)
 {
-    return file_seek_linux(file, 0, SEEK_CUR);
+    return _file_seek(file, 0, SEEK_CUR);
 }
 
 #if 0
-static int file_eof_linux(BD_FILE_H *file)
+static int _file_eof(BD_FILE_H *file)
 {
     return feof((FILE *)file->internal);
 }
 #endif
 
-static int64_t file_read_linux(BD_FILE_H *file, uint8_t *buf, int64_t size)
+static int64_t _file_read(BD_FILE_H *file, uint8_t *buf, int64_t size)
 {
     ssize_t got, result;
 
@@ -95,7 +95,7 @@ static int64_t file_read_linux(BD_FILE_H *file, uint8_t *buf, int64_t size)
     return (int64_t)got;
 }
 
-static int64_t file_write_linux(BD_FILE_H *file, const uint8_t *buf, int64_t size)
+static int64_t _file_write(BD_FILE_H *file, const uint8_t *buf, int64_t size)
 {
     ssize_t written, result;
 
@@ -117,7 +117,7 @@ static int64_t file_write_linux(BD_FILE_H *file, const uint8_t *buf, int64_t siz
     return (int64_t)written;
 }
 
-static BD_FILE_H *file_open_linux(const char* filename, const char *cmode)
+static BD_FILE_H *_file_open(const char* filename, const char *cmode)
 {
     BD_FILE_H *file;
     int fd    = -1;
@@ -150,11 +150,11 @@ static BD_FILE_H *file_open_linux(const char* filename, const char *cmode)
         return NULL;
     }
 
-    file->close = file_close_linux;
-    file->seek = file_seek_linux;
-    file->read = file_read_linux;
-    file->write = file_write_linux;
-    file->tell = file_tell_linux;
+    file->close = _file_close;
+    file->seek  = _file_seek;
+    file->read  = _file_read;
+    file->write = _file_write;
+    file->tell  = _file_tell;
     //file->eof = file_eof_linux;
 
     file->internal = (void*)(intptr_t)fd;
@@ -163,11 +163,11 @@ static BD_FILE_H *file_open_linux(const char* filename, const char *cmode)
     return file;
 }
 
-BD_FILE_H* (*file_open)(const char* filename, const char *mode) = file_open_linux;
+BD_FILE_H* (*file_open)(const char* filename, const char *mode) = _file_open;
 
 BD_FILE_OPEN file_open_default(void)
 {
-    return file_open_linux;
+    return _file_open;
 }
 
 int file_unlink(const char *file)
