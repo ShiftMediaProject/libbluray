@@ -213,14 +213,14 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return true;
     }
 
-    public boolean putCallback(BDJAction cb)
+    protected boolean putCallback(BDJAction cb)
     {
         synchronized (this) {
             return putCallbackImpl(cb, callbackQueue);
         }
     }
 
-    public boolean putMediaCallback(BDJAction cb)
+    protected boolean putMediaCallback(BDJAction cb)
     {
         synchronized (this) {
             return putCallbackImpl(cb, mediaQueue);
@@ -347,7 +347,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return result;
     }
 
-    public static void stopThread(Thread thread, int timeout, String type) {
+    protected static void stopThread(Thread thread, int timeout, String type) {
         if (!waitThread(thread, timeout)) {
             thread.interrupt();
             if (!waitThread(thread, 200)) {
@@ -360,7 +360,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         } catch (Throwable t) { }
     }
 
-    protected void stopIxcThreads() {
+    private void stopIxcThreads() {
         while (true) {
             Thread thread;
             synchronized (ixcThreads) {
@@ -391,7 +391,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         }
     }
 
-    public void removeAllFAA() {
+    private void removeAllFAA() {
         Object[] faaArray;
         synchronized (faaList) {
             faaArray = faaList.toArray();
