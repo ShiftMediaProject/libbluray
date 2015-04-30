@@ -362,6 +362,10 @@ public class Libbluray {
         return selectAngleN(nativePointer, angle) == 1 ? true : false;
     }
 
+    public static int soundEffect(int id) {
+        return soundEffectN(nativePointer, id);
+    }
+
     public static int getCurrentAngle() {
         return readPSR(PSR_ANGLE_NUMBER);
     }
@@ -614,6 +618,7 @@ public class Libbluray {
     private static native int selectPlaylistN(long np, int playlist, int playitem, int playmark, long time);
     private static native int selectTitleN(long np, int title);
     private static native int selectAngleN(long np, int angle);
+    private static native int soundEffectN(long np, int id);
     private static native long getUOMaskN(long np);
     private static native void setUOMaskN(long np, boolean menuCallMask, boolean titleSearchMask);
     private static native void setKeyInterestN(long np, int mask);
