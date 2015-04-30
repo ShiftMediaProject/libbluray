@@ -2,6 +2,7 @@
  * This file is part of libbluray
  * Copyright (C) 2009-2010  Obliter0n
  * Copyright (C) 2009-2010  John Stebbins
+ * Copyright (C) 2010-2015  Petri Hintukainen
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -42,7 +43,7 @@ static void _file_close(BD_FILE_H *file)
     if (file) {
         close((int)(intptr_t)file->internal);
 
-        BD_DEBUG(DBG_FILE, "Closed LINUX file (%p)\n", (void*)file);
+        BD_DEBUG(DBG_FILE, "Closed POSIX file (%p)\n", (void*)file);
 
         X_FREE(file);
     }
@@ -159,7 +160,7 @@ static BD_FILE_H *_file_open(const char* filename, const char *cmode)
 
     file->internal = (void*)(intptr_t)fd;
 
-    BD_DEBUG(DBG_FILE, "Opened LINUX file %s (%p)\n", filename, (void*)file);
+    BD_DEBUG(DBG_FILE, "Opened POSIX file %s (%p)\n", filename, (void*)file);
     return file;
 }
 
