@@ -38,6 +38,11 @@
 #include "../register.h"
 #include "../keys.h"
 
+#ifdef _WIN32
+/* mingw: PRId64 seems to expands to %d without stdio.h ... */
+#include <stdio.h>
+#endif
+
 #include <inttypes.h>
 #include <string.h>
 
