@@ -33,7 +33,16 @@
 
 char *str_dup(const char *str)
 {
-    return str ? strcpy (malloc(strlen(str) + 1), str) : NULL;
+    char *dup = NULL;
+
+    if (str) {
+        size_t size = strlen(str) + 1;
+        dup = malloc(size);
+        if (dup) {
+            memcpy(dup, str, size);
+        }
+    }
+    return dup;
 }
 
 char *str_printf(const char *fmt, ...)
