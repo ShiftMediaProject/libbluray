@@ -25,6 +25,8 @@
 
 #include "util/attributes.h"
 
+#include <stdint.h>
+
 #ifdef _WIN32
 # define DIR_SEP "\\"
 # define DIR_SEP_CHAR '\\'
