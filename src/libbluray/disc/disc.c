@@ -471,19 +471,19 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
 
 BD_FILE_H *disc_open_stream(BD_DISC *disc, const char *file)
 {
-  BD_FILE_H *fp = disc_open_file(disc, "BDMV" DIR_SEP "STREAM", file);
-  if (!fp) {
-      return NULL;
-  }
+    BD_FILE_H *fp = disc_open_file(disc, "BDMV" DIR_SEP "STREAM", file);
+    if (!fp) {
+        return NULL;
+    }
 
-  if (disc->dec) {
-      BD_FILE_H *st = dec_open_stream(disc->dec, fp, atoi(file));
-      if (st) {
-          return st;
-      }
-  }
+    if (disc->dec) {
+        BD_FILE_H *st = dec_open_stream(disc->dec, fp, atoi(file));
+        if (st) {
+            return st;
+        }
+    }
 
-  return fp;
+    return fp;
 }
 
 const uint8_t *disc_get_data(BD_DISC *disc, int type)
