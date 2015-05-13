@@ -1461,7 +1461,10 @@ BLURAY *bd_open(const char *device_path, const char *keyfile_path)
         return NULL;
     }
 
-    bd_open_disc(bd, device_path, keyfile_path);
+    if (!bd_open_disc(bd, device_path, keyfile_path)) {
+        bd_close(bd);
+        return NULL;
+    }
 
     return bd;
 }
