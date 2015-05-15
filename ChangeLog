@@ -1,4 +1,11 @@
+2015-05-15: Version 0.8.1
+- Notify application when UO mask changes.
 - Improved error resilience.
+- Improved BD-J compability.
+- Fix crash after bd_open(NULL).
+- Fix compability problem with libbdplus.
+- Fix memory leak in UDF filesystem parser.
+- Fix crash in freetype.
 
 2015-04-15: Version 0.8.0
 - Add security checks to BD-J.
