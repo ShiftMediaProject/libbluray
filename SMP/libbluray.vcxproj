@@ -431,6 +431,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -449,9 +450,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -492,6 +493,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -510,9 +512,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -557,6 +559,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -575,9 +578,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -621,6 +624,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -639,9 +643,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -683,6 +687,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -701,9 +706,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -745,6 +750,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -763,9 +769,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -820,6 +826,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -838,9 +845,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -895,6 +902,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -913,9 +921,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -969,6 +977,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -987,9 +996,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1043,6 +1052,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -1061,9 +1071,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1118,6 +1128,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -1136,9 +1147,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1192,6 +1203,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -1210,9 +1222,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1265,6 +1277,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -1283,9 +1296,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1338,6 +1351,7 @@ copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
+copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
 copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
@@ -1356,9 +1370,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.8.0.jar (
+if not exist .\src\libbluray-j2se-0.8.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.8.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
