@@ -96,7 +96,7 @@ static BD_FILE_H *_overlay_open_path(BD_DISC *p, const char *rel_path)
 
     if (p->overlay_root) {
         char *abs_path = str_printf("%s%s", p->overlay_root, rel_path);
-        fp = file_open_default()(abs_path, "rb");
+        fp = file_open(abs_path, "rb");
         X_FREE(abs_path);
     }
 
@@ -437,7 +437,7 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
     file_mkdirs(cache_path);
 
     /* output file in local filesystem */
-    fp_out = file_open_default()(cache_path, "wb");
+    fp_out = file_open(cache_path, "wb");
     if (!fp_out) {
         BD_DEBUG(DBG_FILE | DBG_CRIT, "error creating cache file %s\n", cache_path);
         file_close(fp_in);
@@ -471,19 +471,19 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
 
 BD_FILE_H *disc_open_stream(BD_DISC *disc, const char *file)
 {
-  BD_FILE_H *fp = disc_open_file(disc, "BDMV" DIR_SEP "STREAM", file);
-  if (!fp) {
-      return NULL;
-  }
+    BD_FILE_H *fp = disc_open_file(disc, "BDMV" DIR_SEP "STREAM", file);
+    if (!fp) {
+        return NULL;
+    }
 
-  if (disc->dec) {
-      BD_FILE_H *st = dec_open_stream(disc->dec, fp, atoi(file));
-      if (st) {
-          return st;
-      }
-  }
+    if (disc->dec) {
+        BD_FILE_H *st = dec_open_stream(disc->dec, fp, atoi(file));
+        if (st) {
+            return st;
+        }
+    }
 
-  return fp;
+    return fp;
 }
 
 const uint8_t *disc_get_data(BD_DISC *disc, int type)
@@ -511,3 +511,88 @@ void disc_event(BD_DISC *disc, uint32_t event, uint32_t param)
     }
 }
 
+/*
+ * Pseudo disc ID
+ * This is used when AACS disc ID is not available
+ */
+
+#define ROTL64(k, n)  (((k) << (n)) | ((k) >> (64 - (n))))
+
+static uint64_t _fmix64(uint64_t k)
+{
+    k ^= k >> 33;
+    k *= UINT64_C(0xff51afd7ed558ccd);
+    k ^= k >> 33;
+    k *= UINT64_C(0xc4ceb9fe1a85ec53);
+    k ^= k >> 33;
+    return k;
+}
+
+static void _murmurhash3_128(const uint8_t *in, size_t len, void *out)
+{
+    // original MurmurHash3 was written by Austin Appleby, and is placed in the public domain.
+    // https://code.google.com/p/smhasher/wiki/MurmurHash3
+    const uint64_t c1 = UINT64_C(0x87c37b91114253d5);
+    const uint64_t c2 = UINT64_C(0x4cf5ad432745937f);
+    uint64_t h[2] = {0, 0};
+    size_t i;
+
+    /* use only N * 16 bytes, ignore tail */
+    len &= ~15;
+
+    for (i = 0; i < len; i += 16) {
+        uint64_t k1, k2;
+        memcpy(&k1, in + i,     sizeof(uint64_t));
+        memcpy(&k2, in + i + 8, sizeof(uint64_t));
+
+        k1 *= c1; k1 = ROTL64(k1, 31); k1 *= c2; h[0] ^= k1;
+
+        h[0] = ROTL64(h[0], 27); h[0] += h[1]; h[0] = h[0] * 5 + 0x52dce729;
+
+        k2 *= c2; k2 = ROTL64(k2, 33); k2 *= c1; h[1] ^= k2;
+
+        h[1] = ROTL64(h[1], 31); h[1] += h[0]; h[1] = h[1] * 5 + 0x38495ab5;
+    }
+
+    h[0] ^= len;
+    h[1] ^= len;
+
+    h[0] += h[1];
+    h[1] += h[0];
+
+    h[0] = _fmix64(h[0]);
+    h[1] = _fmix64(h[1]);
+
+    h[0] += h[1];
+    h[1] += h[0];
+
+    memcpy(out, h, 2*sizeof(uint64_t));
+}
+
+static int _hash_file(BD_DISC *p, const char *dir, const char *file, void *hash)
+{
+    uint8_t *data = NULL;
+    size_t sz;
+
+    sz = disc_read_file(p, dir, file, &data);
+    if (sz > 16) {
+        _murmurhash3_128(data, sz, hash);
+    }
+
+    X_FREE(data);
+    return sz > 16;
+}
+
+BD_PRIVATE void disc_pseudo_id(BD_DISC *p, uint8_t *id/*[20]*/)
+{
+    uint8_t h[2][20];
+    int i;
+
+    memset(h, 0, sizeof(h));
+    _hash_file(p, "BDMV", "MovieObject.bdmv", h[0]);
+    _hash_file(p, "BDMV", "index.bdmv", h[1]);
+
+    for (i = 0; i < 20; i++) {
+        id[i] = h[0][i] ^ h[1][i];
+    }
+}

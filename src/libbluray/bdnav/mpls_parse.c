@@ -18,6 +18,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "mpls_parse.h"
 
 #include "extdata_parse.h"
@@ -55,6 +59,8 @@ mpls_parse_uo(uint8_t *buf, BD_UO_MASK *uo)
 {
     BITBUFFER bb;
     bb_init(&bb, buf, 8);
+
+    memset(uo, 0, sizeof(BD_UO_MASK));
 
     uo->menu_call                       = bb_read(&bb, 1);
     uo->title_search                    = bb_read(&bb, 1);

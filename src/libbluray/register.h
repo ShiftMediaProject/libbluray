@@ -24,6 +24,10 @@
 
 #include <stdint.h>
 
+
+#define BD_PSR_COUNT 128
+#define BD_GPR_COUNT 4096
+
 /*
  * Player Status Registers
  */
@@ -259,5 +263,14 @@ void bd_psr_register_cb(BD_REGISTERS *, void (*callback)(void*,BD_PSR_EVENT*), v
  */
 void bd_psr_unregister_cb(BD_REGISTERS *, void (*callback)(void*,BD_PSR_EVENT*), void *cb_handle);
 
+
+/*
+ * save / restore registers between playback sessions
+ *
+ * When state is restored, restore events will be generated and playback state is restored.
+ */
+
+BD_PRIVATE void registers_save(BD_REGISTERS *p, uint32_t *psr, uint32_t *gpr);
+BD_PRIVATE void registers_restore(BD_REGISTERS *p, const uint32_t *psr, const uint32_t *gpr);
 
 #endif /* _BD_REGISTER_H_ */

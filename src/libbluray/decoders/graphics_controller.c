@@ -38,6 +38,11 @@
 #include "../register.h"
 #include "../keys.h"
 
+#ifdef _WIN32
+/* mingw: PRId64 seems to expands to %d without stdio.h ... */
+#include <stdio.h>
+#endif
+
 #include <inttypes.h>
 #include <string.h>
 
@@ -81,7 +86,7 @@ struct graphics_controller_s {
     BD_UO_MASK      page_uo_mask;
 
     /* page effects */
-    int                    effect_idx;
+    unsigned               effect_idx;
     BD_IG_EFFECT_SEQUENCE *in_effects;
     BD_IG_EFFECT_SEQUENCE *out_effects;
     int64_t                next_effect_time; /* 90 kHz */
@@ -692,7 +697,6 @@ static void _select_page(GRAPHICS_CONTROLLER *gc, uint16_t page_id, int out_effe
     _select_button(gc, button_id);
 
     gc->valid_mouse_position = 0;
-    gc->page_uo_mask = bd_empty_uo_mask();
 
     if (out_effects) {
         page = _find_page(&gc->igs->ics->interactive_composition, cur_page_id);
@@ -1364,6 +1368,8 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
 
     if (s->ics->interactive_composition.ui_model == IG_UI_MODEL_POPUP && !gc->popup_visible) {
 
+        gc->page_uo_mask = bd_empty_uo_mask();
+
         if (gc->ig_open) {
             GC_TRACE("_render_page(): popup menu not visible\n");
             _close_osd(gc, BD_OVERLAY_IG);
@@ -1381,19 +1387,22 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
         }
         gc->out_effects = NULL;
     }
-    if (gc->in_effects) {
-        if (gc->effect_idx < gc->in_effects->num_effects) {
-            _render_effect(gc, &gc->in_effects->effect[gc->effect_idx]);
-            return 1;
-        }
-        gc->in_effects = NULL;
-    }
 
     page = _find_page(&s->ics->interactive_composition, page_id);
     if (!page) {
         GC_ERROR("_render_page: unknown page id %d (have %d pages)\n",
               page_id, s->ics->interactive_composition.num_pages);
         return -1;
+    }
+
+    gc->page_uo_mask = page->uo_mask_table;
+
+    if (gc->in_effects) {
+        if (gc->effect_idx < gc->in_effects->num_effects) {
+            _render_effect(gc, &gc->in_effects->effect[gc->effect_idx]);
+            return 1;
+        }
+        gc->in_effects = NULL;
     }
 
     palette = _find_palette(s, page->palette_id_ref);
@@ -1411,8 +1420,6 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
                   s->ics->video_descriptor.video_width,
                   s->ics->video_descriptor.video_height);
     }
-
-    gc->page_uo_mask = page->uo_mask_table;
 
     for (ii = 0; ii < page->num_bogs; ii++) {
         BD_IG_BOG    *bog      = &page->bog[ii];
@@ -2053,7 +2060,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
             }
         }
 
-        if (gc->ig_open && !gc->out_effects) {
+        if (gc->ig_open) {
             cmds->page_uo_mask = gc->page_uo_mask;
         }
     }

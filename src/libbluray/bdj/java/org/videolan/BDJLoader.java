@@ -178,6 +178,7 @@ public class BDJLoader {
             gui.setVisible(true);
 
             Libbluray.setUOMask(terminfo.getMenuCallMask(), terminfo.getTitleSearchMask());
+            Libbluray.setKeyInterest(bdjo.getKeyInterestTable());
 
             // initialize appProxys
             for (int i = 0; i < appTable.length; i++) {

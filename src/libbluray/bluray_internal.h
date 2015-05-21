@@ -38,7 +38,7 @@ BD_PRIVATE struct bd_disc *bd_get_disc(struct bluray *bd);
 BD_PRIVATE int      bd_set_virtual_package(struct bluray *bd, const char *vp_path, int psr_init_backup);
 
 /*
- * UO mask
+ * UO mask, KIT
  */
 
 #define BDJ_MENU_CALL_MASK     0x01
@@ -46,6 +46,7 @@ BD_PRIVATE int      bd_set_virtual_package(struct bluray *bd, const char *vp_pat
 
 BD_PRIVATE uint64_t bd_get_uo_mask(struct bluray *bd);
 BD_PRIVATE void     bd_set_bdj_uo_mask(struct bluray *bd, unsigned mask);
+BD_PRIVATE void     bd_set_bdj_kit(struct bluray *bd, int mask);
 
 /*
  * title selection
@@ -73,6 +74,7 @@ enum bd_select_rate_reason {
 BD_PRIVATE int      bd_play_playlist_at(struct bluray *bd, int playlist, int playitem, int playmark, int64_t time);
 BD_PRIVATE void     bd_select_rate(struct bluray *bd, float rate, int reason);
 BD_PRIVATE int      bd_bdj_seek(struct bluray *bd, int playitem, int playmark, int64_t time);
+BD_PRIVATE int      bd_bdj_sound_effect(struct bluray *bd, int id);
 
 /*
  * BD-J overlay

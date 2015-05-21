@@ -194,6 +194,8 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getAacsDataN
     BLURAY* bd = (BLURAY*)(intptr_t)np;
     const uint8_t *data = bd_get_aacs_data(bd, type);
 
+    BD_DEBUG(DBG_JNI, "getAacsDataN(%d) -> %p\n", (int)type, (const void *)data);
+
     if (!data) {
         return NULL;
     }
@@ -205,13 +207,25 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getAacsDataN
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_getUOMaskN(JNIEnv * env,
         jclass cls, jlong np) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
+
+    BD_DEBUG(DBG_JNI, "getUOMaskN()\n");
     return bd_get_uo_mask(bd);
 }
 
 JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setUOMaskN(JNIEnv * env,
         jclass cls, jlong np, jboolean menuCallMask, jboolean titleSearchMask) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
+
+    BD_DEBUG(DBG_JNI, "setUOMaskN(%d,%d)\n", (int)menuCallMask, (int)titleSearchMask);
     bd_set_bdj_uo_mask(bd, ((!!menuCallMask) * BDJ_MENU_CALL_MASK) | ((!!titleSearchMask) * BDJ_TITLE_SEARCH_MASK));
+}
+
+JNIEXPORT void JNICALL Java_org_videolan_Libbluray_setKeyInterestN(JNIEnv * env,
+        jclass cls, jlong np, jint mask) {
+    BLURAY* bd = (BLURAY*)(intptr_t)np;
+
+    BD_DEBUG(DBG_JNI, "setKeyInterestN(0x%x)\n", (int)mask);
+    bd_set_bdj_kit(bd, mask);
 }
 
 JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_setVirtualPackageN(JNIEnv * env,
@@ -271,6 +285,12 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_selectAngleN(JNIEnv * env,
         jclass cls, jlong np, jint angle) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
     return bd_select_angle(bd, angle - 1);
+}
+
+JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_soundEffectN(JNIEnv * env,
+        jclass cls, jlong np, jint id) {
+    BLURAY* bd = (BLURAY*)(intptr_t)np;
+    return bd_bdj_sound_effect(bd, id);
 }
 
 JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_tellTimeN(JNIEnv * env,
@@ -609,6 +629,11 @@ Java_org_videolan_Libbluray_methods[] =
         VC(Java_org_videolan_Libbluray_setUOMaskN),
     },
     {
+        CC("setKeyInterestN"),
+        CC("(JI)V"),
+        VC(Java_org_videolan_Libbluray_setKeyInterestN),
+    },
+    {
         CC("getTitleInfosN"),
         CC("(J)[Lorg/videolan/TitleInfo;"),
         VC(Java_org_videolan_Libbluray_getTitleInfosN),
@@ -642,6 +667,11 @@ Java_org_videolan_Libbluray_methods[] =
         CC("selectAngleN"),
         CC("(JI)I"),
         VC(Java_org_videolan_Libbluray_selectAngleN),
+    },
+    {
+        CC("soundEffectN"),
+        CC("(JI)I"),
+        VC(Java_org_videolan_Libbluray_soundEffectN),
     },
     {
         CC("tellTimeN"),

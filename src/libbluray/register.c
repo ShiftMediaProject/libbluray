@@ -17,6 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "register.h"
 
 #include "player_settings.h"
@@ -28,9 +32,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-
-#define BD_PSR_COUNT 128
-#define BD_GPR_COUNT 4096
 
 /*
  * Initial values for player status/setting registers (5.8.2).
@@ -477,4 +478,55 @@ int bd_psr_write_bits(BD_REGISTERS *p, int reg, uint32_t val, uint32_t mask)
     bd_psr_unlock(p);
 
     return result;
+}
+
+/*
+ * save / restore registers between playback sessions
+ */
+
+void registers_save(BD_REGISTERS *p, uint32_t *psr, uint32_t *gpr)
+{
+    bd_psr_lock(p);
+
+    memcpy(gpr, p->gpr, sizeof(p->gpr));
+    memcpy(psr, p->psr, sizeof(p->psr));
+
+    bd_psr_unlock(p);
+}
+
+void registers_restore(BD_REGISTERS *p, const uint32_t *psr, const uint32_t *gpr)
+{
+    uint32_t new_psr[13];
+
+    bd_psr_lock(p);
+
+    memcpy(p->gpr, gpr, sizeof(p->gpr));
+    memcpy(p->psr, psr, sizeof(p->psr));
+
+    memcpy(new_psr, p->psr, sizeof(new_psr[0]) * 13);
+
+    /* generate restore events */
+    if (p->num_cb) {
+        BD_PSR_EVENT ev;
+        unsigned     i, j;
+
+        ev.ev_type = BD_PSR_RESTORE;
+        ev.old_val = 0; /* not used with BD_PSR_RESTORE */
+
+        for (i = 4; i < 13; i++) {
+            if (i != PSR_NAV_TIMER) {
+
+                p->psr[i] = new_psr[i];
+
+                ev.psr_idx = i;
+                ev.new_val = new_psr[i];
+
+                for (j = 0; j < p->num_cb; j++) {
+                    p->cb[j].cb(p->cb[j].handle, &ev);
+                }
+            }
+        }
+    }
+
+    bd_psr_unlock(p);
 }

@@ -247,6 +247,10 @@ public class Libbluray {
         setUOMaskN(nativePointer, menuCallMask, titleSearchMask);
     }
 
+    protected static void setKeyInterest(int mask) {
+        setKeyInterestN(nativePointer, mask);
+    }
+
     protected static int setVirtualPackage(String vpPath, boolean initBackupRegs) {
         return setVirtualPackageN(nativePointer, vpPath, initBackupRegs);
     }
@@ -358,6 +362,10 @@ public class Libbluray {
         return selectAngleN(nativePointer, angle) == 1 ? true : false;
     }
 
+    public static int soundEffect(int id) {
+        return soundEffectN(nativePointer, id);
+    }
+
     public static int getCurrentAngle() {
         return readPSR(PSR_ANGLE_NUMBER);
     }
@@ -466,7 +474,7 @@ public class Libbluray {
     }
 
     /* called only from native code */
-    private static boolean processEvent(int event, int param) {
+    private static boolean processEventImpl(int event, int param) {
         boolean result = true;
         int key = 0;
 
@@ -478,25 +486,17 @@ public class Libbluray {
             return stopTitle(false);
 
         case BDJ_EVENT_CHAPTER:
-            PlayerManager.getInstance().onChapterReach(param);
-            break;
         case BDJ_EVENT_MARK:
-            PlayerManager.getInstance().onMarkReach(param);
-            break;
         case BDJ_EVENT_PLAYITEM:
-            PlayerManager.getInstance().onPlayItemReach(param);
-            break;
         case BDJ_EVENT_PLAYLIST:
-            PlayerManager.getInstance().onPlaylistStart(param);
-            break;
         case BDJ_EVENT_ANGLE:
-            PlayerManager.getInstance().onAngleChange(param);
-            break;
         case BDJ_EVENT_SUBTITLE:
-            PlayerManager.getInstance().onSubtitleChange(param);
-            break;
-        case BDJ_EVENT_PIP:
-            PlayerManager.getInstance().onPiPChange(param);
+        case BDJ_EVENT_AUDIO_STREAM:
+        case BDJ_EVENT_SECONDARY_STREAM:
+        case BDJ_EVENT_END_OF_PLAYLIST:
+        case BDJ_EVENT_PTS:
+        case BDJ_EVENT_UO_MASKED:
+            PlayerManager.getInstance().onEvent(event, param);
             break;
         case BDJ_EVENT_RATE:
             float rate = (float)param / 90000.0f;
@@ -505,15 +505,11 @@ public class Libbluray {
             if (rate > 0.99f && rate < 1.01f) rate = 1.0f;
             PlayerManager.getInstance().onRateChange(rate);
             break;
-        case BDJ_EVENT_END_OF_PLAYLIST:
-            PlayerManager.getInstance().onPlaylistEnd(param);
-            break;
+
         case BDJ_EVENT_PSR102:
             org.bluray.bdplus.Status.getInstance().receive(param);
             break;
-        case BDJ_EVENT_PTS:
-            PlayerManager.getInstance().onPlaylistTime(param);
-            break;
+
         case BDJ_EVENT_VK_KEY:
             switch (param) {
             case  0: key = KeyEvent.VK_0; break;
@@ -549,28 +545,40 @@ public class Libbluray {
             }
             break;
         default:
+            System.err.println("Unknown event " + event + "." + param);
             result = false;
         }
 
         return result;
     }
 
-    private static final int BDJ_EVENT_CHAPTER                  = 1;
-    private static final int BDJ_EVENT_PLAYITEM                 = 2;
-    private static final int BDJ_EVENT_ANGLE                    = 3;
-    private static final int BDJ_EVENT_SUBTITLE                 = 4;
-    private static final int BDJ_EVENT_PIP                      = 5;
-    private static final int BDJ_EVENT_END_OF_PLAYLIST          = 6;
-    private static final int BDJ_EVENT_PTS                      = 7;
-    private static final int BDJ_EVENT_VK_KEY                   = 8;
-    private static final int BDJ_EVENT_MARK                     = 9;
-    private static final int BDJ_EVENT_PSR102                   = 10;
-    private static final int BDJ_EVENT_PLAYLIST                 = 11;
+    private static boolean processEvent(int event, int param) {
+        try {
+            return processEventImpl(event, param);
+        } catch (Throwable e) {
+            System.err.println("processEvent() failed: " + e + "\n" + Logger.dumpStack(e));
+            return false;
+        }
+    }
 
-    private static final int BDJ_EVENT_START                    = 12;
-    private static final int BDJ_EVENT_STOP                     = 13;
+    public  static final int BDJ_EVENT_CHAPTER                  = 1;
+    public  static final int BDJ_EVENT_PLAYITEM                 = 2;
+    public  static final int BDJ_EVENT_ANGLE                    = 3;
+    public  static final int BDJ_EVENT_SUBTITLE                 = 4;
+    public  static final int BDJ_EVENT_END_OF_PLAYLIST          = 5;
+    public  static final int BDJ_EVENT_PTS                      = 6;
+    private static final int BDJ_EVENT_VK_KEY                   = 7;
+    public  static final int BDJ_EVENT_MARK                     = 8;
+    private static final int BDJ_EVENT_PSR102                   = 9;
+    public  static final int BDJ_EVENT_PLAYLIST                 = 10;
 
-    private static final int BDJ_EVENT_RATE                     = 14;
+    private static final int BDJ_EVENT_START                    = 11;
+    private static final int BDJ_EVENT_STOP                     = 12;
+
+    public  static final int BDJ_EVENT_RATE                     = 13;
+    public  static final int BDJ_EVENT_AUDIO_STREAM             = 14;
+    public  static final int BDJ_EVENT_SECONDARY_STREAM         = 15;
+    public  static final int BDJ_EVENT_UO_MASKED                = 16;
 
     /* TODO: use org/bluray/system/RegisterAccess instead */
     public static final int PSR_IG_STREAM_ID     = 0;
@@ -619,8 +627,10 @@ public class Libbluray {
     private static native int selectPlaylistN(long np, int playlist, int playitem, int playmark, long time);
     private static native int selectTitleN(long np, int title);
     private static native int selectAngleN(long np, int angle);
+    private static native int soundEffectN(long np, int id);
     private static native long getUOMaskN(long np);
     private static native void setUOMaskN(long np, boolean menuCallMask, boolean titleSearchMask);
+    private static native void setKeyInterestN(long np, int mask);
     private static native long tellTimeN(long np);
     private static native int selectRateN(long np, float rate, int reason);
     private static native int writeGPRN(long np, int num, int value);

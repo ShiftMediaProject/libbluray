@@ -727,7 +727,13 @@ typedef enum {
     /* 3D */
     BD_EVENT_STEREOSCOPIC_STATUS    = 27,  /* 0 - 2D, 1 - 3D */
 
-    /*BD_EVENT_LAST = 31, */
+    /* BD-J key interest table changed */
+    BD_EVENT_KEY_INTEREST_TABLE     = 32,  /* bitmask, BLURAY_KIT_* */
+
+    /* UO mask changed */
+    BD_EVENT_UO_MASK_CHANGED        = 33,  /* bitmask, BLURAY_UO_* */
+
+    /*BD_EVENT_LAST = 33, */
 
 } bd_event_e;
 
@@ -747,6 +753,23 @@ typedef struct {
 /* BD_EVENT_TITLE special titles */
 #define BLURAY_TITLE_FIRST_PLAY  0xffff
 #define BLURAY_TITLE_TOP_MENU    0
+
+/* BD_EVENT_KEY_INTEREST flags */
+#define BLURAY_KIT_PLAY          0x1
+#define BLURAY_KIT_STOP          0x2
+#define BLURAY_KIT_FFW           0x4
+#define BLURAY_KIT_REW           0x8
+#define BLURAY_KIT_TRACK_NEXT    0x10
+#define BLURAY_KIT_TRACK_PREV    0x20
+#define BLURAY_KIT_PAUSE         0x40
+#define BLURAY_KIT_STILL_OFF     0x80
+#define BLURAY_KIT_SEC_AUDIO     0x100
+#define BLURAY_KIT_SEC_VIDEO     0x200
+#define BLURAY_KIT_PG_TEXTST     0x400
+
+/* BD_EVENT_UO_MASK flags */
+#define BLURAY_UO_MENU_CALL      0x1
+#define BLURAY_UO_TITLE_SEARCH   0x2
 
 /**
  *

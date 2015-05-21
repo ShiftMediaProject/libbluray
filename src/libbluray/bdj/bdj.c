@@ -617,7 +617,6 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         "PLAYITEM",
         "ANGLE",
         "SUBTITLE",
-        "PIP",
         "END_OF_PLAYLIST",
         "PTS",
         "VK_KEY",
@@ -629,6 +628,9 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         "STOP",
 
         "RATE",
+        "AUDIO_STREAM",
+        "SECONDARY_STREAM",
+        "UO_MASKED",
     };
 
     JNIEnv* env;

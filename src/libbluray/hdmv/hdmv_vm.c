@@ -17,6 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "hdmv_vm.h"
 
 #include "mobj_data.h"
@@ -70,6 +74,92 @@ struct hdmv_vm_s {
     uint8_t  have_first_play;
     uint16_t num_titles;
 };
+
+/*
+ * save / restore VM state
+ */
+
+static int _save_state(HDMV_VM *p, uint32_t *s)
+{
+    memset(s, 0, sizeof(*s) * HDMV_STATE_SIZE);
+
+    if (p->ig_object) {
+        BD_DEBUG(DBG_HDMV | DBG_CRIT, "_save_state() failed: button object running\n");
+        return -1;
+    }
+    if (p->object) {
+        BD_DEBUG(DBG_HDMV | DBG_CRIT, "_save_state() failed: movie object running\n");
+        return -1;
+    }
+    if (p->event[0].event != HDMV_EVENT_NONE) {
+        BD_DEBUG(DBG_HDMV | DBG_CRIT, "_save_state() failed: unprocessed events\n");
+        return -1;
+    }
+
+    if (p->playing_object) {
+        s[0] = (uint32_t)(p->playing_object - p->movie_objects->objects);
+        s[1] = p->playing_pc;
+    } else {
+        s[0] = (uint32_t)-1;
+    }
+
+    if (p->suspended_object) {
+        s[2] = (uint32_t)(p->suspended_object - p->movie_objects->objects);
+        s[3] = p->suspended_pc;
+    } else {
+        s[2] = (uint32_t)-1;
+    }
+
+    /* nv timer ? */
+
+    return 0;
+}
+
+static int _restore_state(HDMV_VM *p, const uint32_t *s)
+{
+    if (s[0] == (uint32_t)-1) {
+        p->playing_object = NULL;
+    } else if (s[0] >= p->movie_objects->num_objects) {
+        BD_DEBUG(DBG_HDMV | DBG_CRIT, "_restore_state() failed: invalid playing object index\n");
+        return -1;
+    } else {
+        p->playing_object = &p->movie_objects->objects[s[0]];
+    }
+    p->playing_pc = s[1];
+
+    if (s[2] == (uint32_t)-1) {
+        p->suspended_object = NULL;
+    } else if (s[2] >= p->movie_objects->num_objects) {
+        BD_DEBUG(DBG_HDMV | DBG_CRIT, "_restore_state() failed: invalid suspended object index\n");
+        return -1;
+    } else {
+        p->suspended_object = &p->movie_objects->objects[s[2]];
+    }
+    p->suspended_pc = s[3];
+
+    p->object = NULL;
+    p->ig_object = NULL;
+    memset(p->event, 0, sizeof(p->event));
+
+    return 0;
+}
+
+int hdmv_vm_save_state(HDMV_VM *p, uint32_t *s)
+{
+    int result;
+    bd_mutex_lock(&p->mutex);
+    result = _save_state(p, s);
+    bd_mutex_unlock(&p->mutex);
+    return result;
+}
+
+void hdmv_vm_restore_state(HDMV_VM *p, const uint32_t *s)
+{
+    bd_mutex_lock(&p->mutex);
+    _restore_state(p, s);
+    bd_mutex_unlock(&p->mutex);
+}
+
 
 /*
  * registers: PSR and GPR access
@@ -149,7 +239,7 @@ static int _store_result(HDMV_VM *p, MOBJ_CMD *cmd, uint32_t src, uint32_t dst, 
     /* store result to destination register(s) */
     if (dst != dst0) {
         if (cmd->insn.imm_op1) {
-            BD_DEBUG(DBG_HDMV|DBG_CRIT, "ERROR: storing to imm ! ");
+            BD_DEBUG(DBG_HDMV|DBG_CRIT, "storing to imm !\n");
             return -1;
         }
         ret = _store_reg(p, cmd->dst, dst);
@@ -157,7 +247,7 @@ static int _store_result(HDMV_VM *p, MOBJ_CMD *cmd, uint32_t src, uint32_t dst, 
 
     if (src != src0) {
         if (cmd->insn.imm_op1) {
-            BD_DEBUG(DBG_HDMV|DBG_CRIT, "ERROR: storing to imm ! ");
+            BD_DEBUG(DBG_HDMV|DBG_CRIT, "storing to imm !\n");
             return -1;
         }
         ret += _store_reg(p, cmd->src, src);
@@ -1188,7 +1278,7 @@ uint32_t hdmv_vm_get_uo_mask(HDMV_VM *p)
 
     bd_mutex_lock(&p->mutex);
 
-    if ((o = p->object ? p->object : (p->playing_object ? p->playing_object : p->suspended_object))) {
+    if ((o = (p->object && !p->ig_object) ? p->object : (p->playing_object ? p->playing_object : p->suspended_object))) {
         mask |= o->menu_call_mask;
         mask |= o->title_search_mask << 1;
     }

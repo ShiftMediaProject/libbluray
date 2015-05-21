@@ -83,11 +83,16 @@ typedef struct {
     /* current aligned unit */
     uint16_t       int_buf_off;
 
+    /* current stream UO mask (combined from playlist and current clip UO masks) */
     BD_UO_MASK     uo_mask;
 
     /* internally handled pids */
     uint16_t        ig_pid; /* pid of currently selected IG stream */
     uint16_t        pg_pid; /* pid of currently selected PG stream */
+
+    /* */
+    uint8_t         eof_hit;
+    uint8_t         encrypted_block_cnt;
 
     M2TS_FILTER    *m2ts_filter;
 } BD_STREAM;
@@ -115,8 +120,8 @@ struct bluray {
     uint64_t       s_pos;
 
     /* streams */
-    BD_STREAM      st0; /* main path */
-    BD_PRELOAD     st_ig; /* preloaded IG stream sub path */
+    BD_STREAM      st0;       /* main path */
+    BD_PRELOAD     st_ig;     /* preloaded IG stream sub path */
     BD_PRELOAD     st_textst; /* preloaded TextST sub path */
 
     /* buffer for bd_read(): current aligned unit of main stream (st0) */
@@ -133,26 +138,32 @@ struct bluray {
     int            next_mark;
 
     /* player state */
-    BD_REGISTERS   *regs;       // player registers
-    BD_EVENT_QUEUE *event_queue; // navigation mode event queue
-    BD_TITLE_TYPE  title_type;  // type of current title (in navigation mode)
+    BD_REGISTERS   *regs;            /* player registers */
+    BD_EVENT_QUEUE *event_queue;     /* navigation mode event queue */
+    BD_UO_MASK      uo_mask;         /* Current UO mask */
+    BD_UO_MASK      title_uo_mask;   /* UO mask from current .bdjo file or Movie Object */
+    BD_TITLE_TYPE   title_type;      /* type of current title (in navigation mode) */
     /* Pending action after playlist end
      * BD-J: delayed sending of BDJ_EVENT_END_OF_PLAYLIST
      *       1 - message pending. 3 - message sent.
      */
     uint8_t         end_of_playlist; /* 1 - reached. 3 - processed . */
 
+    /* HDMV */
     HDMV_VM        *hdmv_vm;
-    uint8_t        hdmv_suspended;
+    uint8_t         hdmv_suspended;
+
+    /* BD-J */
 #ifdef USING_BDJAVA
     BDJAVA         *bdjava;
     BDJ_STORAGE     bdjstorage;
-#endif
     uint8_t         bdj_wait_start;  /* BD-J has selected playlist (prefetch) but not yet started playback */
+#endif
 
     /* HDMV graphics */
     GRAPHICS_CONTROLLER *graphics_controller;
     SOUND_DATA          *sound_effects;
+    BD_UO_MASK           gc_uo_mask;      /* UO mask from current menu page */
     uint32_t             gc_status;
     uint8_t              decode_pg;
 
@@ -166,7 +177,6 @@ struct bluray {
     bd_argb_overlay_proc_f argb_overlay_proc;
     BD_ARGB_BUFFER      *argb_buffer;
     BD_MUTEX             argb_buffer_mutex;
-    BD_UO_MASK           bdj_uo_mask;
 #endif
 };
 
@@ -515,6 +525,48 @@ static void _init_textst_timer(BLURAY *bd)
 }
 
 /*
+ * UO mask
+ */
+
+static uint32_t _compressed_mask(BD_UO_MASK mask)
+{
+    return mask.menu_call | (mask.title_search << 1);
+}
+
+static void _update_uo_mask(BLURAY *bd)
+{
+    BD_UO_MASK old_mask = bd->uo_mask;
+    BD_UO_MASK new_mask;
+
+    new_mask = bd_uo_mask_combine(bd->title_uo_mask, bd->st0.uo_mask);
+    new_mask = bd_uo_mask_combine(bd->gc_uo_mask,    new_mask);
+    if (_compressed_mask(old_mask) != _compressed_mask(new_mask)) {
+        _queue_event(bd, BD_EVENT_UO_MASK_CHANGED, _compressed_mask(new_mask));
+    }
+    bd->uo_mask = new_mask;
+}
+
+#ifdef USING_BDJAVA
+void bd_set_bdj_uo_mask(BLURAY *bd, unsigned mask)
+{
+    bd->title_uo_mask.title_search = !!(mask & BDJ_TITLE_SEARCH_MASK);
+    bd->title_uo_mask.menu_call    = !!(mask & BDJ_MENU_CALL_MASK);
+
+    _update_uo_mask(bd);
+}
+#endif
+
+static void _update_hdmv_uo_mask(BLURAY *bd)
+{
+    uint32_t mask = hdmv_vm_get_uo_mask(bd->hdmv_vm);
+    bd->title_uo_mask.title_search = !!(mask & HDMV_TITLE_SEARCH_MASK);
+    bd->title_uo_mask.menu_call    = !!(mask & HDMV_MENU_CALL_MASK);
+
+    _update_uo_mask(bd);
+}
+
+
+/*
  * clip access (BD_STREAM)
  */
 
@@ -526,9 +578,6 @@ static void _close_m2ts(BD_STREAM *st)
     }
 
     m2ts_filter_close(&st->m2ts_filter);
-
-    /* reset UO mask */
-    memset(&st->uo_mask, 0, sizeof(st->uo_mask));
 }
 
 static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
@@ -540,6 +589,8 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
     st->clip_size = 0;
     st->clip_pos = (uint64_t)st->clip->start_pkt * 192;
     st->clip_block_pos = (st->clip_pos / 6144) * 6144;
+    st->eof_hit = 0;
+    st->encrypted_block_cnt = 0;
 
     if (st->fp) {
         int64_t clip_size = file_size(st->fp);
@@ -560,6 +611,7 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
 
                 st->uo_mask = bd_uo_mask_combine(pl->app_info.uo_mask,
                                                  pl->play_item[st->clip->ref].uo_mask);
+                _update_uo_mask(bd);
 
                 st->m2ts_filter = m2ts_filter_init((int64_t)st->clip->in_time << 1,
                                                    (int64_t)st->clip->out_time << 1,
@@ -585,6 +637,61 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
     return 0;
 }
 
+static int _validate_unit(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
+{
+    /* Check TP_extra_header Copy_permission_indicator. If != 0, unit may be encrypted. */
+    /* Check first sync byte. It should never be encrypted. */
+    if (BD_UNLIKELY(buf[0] & 0xc0 || buf[4] != 0x47)) {
+
+        /* Check first sync bytes. If not OK, drop unit. */
+        if (buf[4] != 0x47 || buf [4 + 192] != 0x47 || buf[4 + 2*192] != 0x47 || buf[4 + 3*192] != 0x47) {
+
+            /* Some streams have Copy_permission_indicator incorrectly set. */
+            /* Check first TS sync byte. If unit is encrypted, first 16 bytes are plain, rest not. */
+            /* not 100% accurate (can be random data too). But the unit is broken anyway ... */
+            if (buf[4] == 0x47) {
+
+                /* most likely encrypted stream. Check couple of blocks before erroring out. */
+                st->encrypted_block_cnt++;
+
+                if (st->encrypted_block_cnt > 10) {
+                    /* error out */
+                    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "TP header copy permission indicator != 0. Stream seems to be encrypted.\n");
+                    _queue_event(bd, BD_EVENT_ENCRYPTED, BD_ERROR_AACS);
+                    return -1;
+                }
+            }
+
+            /* broken block, ignore it */
+            _queue_event(bd, BD_EVENT_READ_ERROR, 1);
+            return 0;
+        }
+    }
+
+    st->eof_hit = 0;
+    st->encrypted_block_cnt = 0;
+    return 1;
+}
+
+static int _skip_unit(BLURAY *bd, BD_STREAM *st)
+{
+    const size_t len = 6144;
+
+    /* skip broken unit */
+    st->clip_block_pos += len;
+    st->clip_pos += len;
+
+    _queue_event(bd, BD_EVENT_READ_ERROR, 0);
+
+    /* seek to next unit start */
+    if (file_seek(st->fp, st->clip_block_pos, SEEK_SET) < 0) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to seek clip %s!\n", st->clip->name);
+        return -1;
+    }
+
+    return 0;
+}
+
 static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 {
     const size_t len = 6144;
@@ -596,20 +703,19 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
             size_t read_len;
 
             if ((read_len = file_read(st->fp, buf, len))) {
+                int error;
+
                 if (read_len != len) {
                     BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d !\n", (int)read_len, st->clip_block_pos, (int)len);
+                    return _skip_unit(bd, st);
                 }
                 st->clip_block_pos += len;
 
-                /* Check TP_extra_header Copy_permission_indicator. If != 0, unit is still encrypted. */
-                if (buf[0] & 0xc0) {
-                    /* check first TS sync bytes. First 16 bytes are always plain. */
-                    if (buf[4] == 0x47 && (buf[4+192] != 0x47 || buf[4+2*192] != 0x47)) {
-                        BD_DEBUG(DBG_BLURAY | DBG_CRIT,
-                                 "TP header copy permission indicator != 0, unit is still encrypted?\n");
-                        _queue_event(bd, BD_EVENT_ENCRYPTED, BD_ERROR_AACS);
-                        return -1;
-                    }
+                if ((error = _validate_unit(bd, st, buf)) <= 0) {
+                    /* skip broken unit */
+                    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Skipping broken unit at %"PRId64"\n", st->clip_block_pos - len);
+                    st->clip_pos += len;
+                    return error;
                 }
 
                 if (st->m2ts_filter) {
@@ -632,21 +738,8 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 
             BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read unit at %"PRIu64" failed !\n", st->clip_block_pos);
 
-            _queue_event(bd, BD_EVENT_READ_ERROR, 0);
-
-            /* skip broken unit */
-            st->clip_block_pos += len;
-            st->clip_pos += len;
-
-            if (file_seek(st->fp, st->clip_block_pos, SEEK_SET) < 0) {
-                BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to seek clip %s!\n", st->clip->name);
-                return -1;
-            }
-
-            return 0;
+            return _skip_unit(bd, st);
         }
-
-        BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read past EOF !\n");
 
         /* This is caused by truncated .m2ts file or invalid clip length.
          *
@@ -655,6 +748,11 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
          */
         st->clip_block_pos += len;
         st->clip_pos += len;
+
+        if (!st->eof_hit) {
+            BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read past EOF !\n");
+            st->eof_hit = 1;
+        }
 
         return 0;
     }
@@ -789,6 +887,9 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
         if (cmds.sound_id_ref >= 0 && cmds.sound_id_ref < 0xff) {
             _queue_event(bd, BD_EVENT_SOUND_EFFECT, cmds.sound_id_ref);
         }
+
+        bd->gc_uo_mask = cmds.page_uo_mask;
+        _update_uo_mask(bd);
 
     } else {
         if (bd->gc_status & GC_STATUS_MENU_OPEN) {
@@ -1006,14 +1107,6 @@ const uint8_t *bd_get_aacs_data(BLURAY *bd, int type)
 #endif
 
 #ifdef USING_BDJAVA
-void bd_set_bdj_uo_mask(BLURAY *bd, unsigned mask)
-{
-    bd->bdj_uo_mask.title_search = !!(mask & BDJ_TITLE_SEARCH_MASK);
-    bd->bdj_uo_mask.menu_call    = !!(mask & BDJ_MENU_CALL_MASK);
-}
-#endif
-
-#ifdef USING_BDJAVA
 uint64_t bd_get_uo_mask(BLURAY *bd)
 {
     /* internal function. Used by BD-J. */
@@ -1023,10 +1116,17 @@ uint64_t bd_get_uo_mask(BLURAY *bd)
     } mask = {0};
 
     //bd_mutex_lock(&bd->mutex);
-    memcpy(&mask.mask, &bd->st0.uo_mask, sizeof(BD_UO_MASK));
+    memcpy(&mask.mask, &bd->uo_mask, sizeof(BD_UO_MASK));
     //bd_mutex_unlock(&bd->mutex);
 
     return mask.u64;
+}
+#endif
+
+#ifdef USING_BDJAVA
+void bd_set_bdj_kit(BLURAY *bd, int mask)
+{
+    _queue_event(bd, BD_EVENT_KEY_INTEREST_TABLE, mask);
 }
 #endif
 
@@ -1215,8 +1315,6 @@ static int _start_bdj(BLURAY *bd, unsigned title)
         }
     }
 
-    memset(&bd->bdj_uo_mask, 0, sizeof(BD_UO_MASK));
-
     return !bdj_process_event(bd->bdjava, BDJ_EVENT_START, title);
 #else
     (void)bd;
@@ -1243,6 +1341,7 @@ static void _stop_bdj(BLURAY *bd)
     if (bd->bdjava != NULL) {
         bdj_process_event(bd->bdjava, BDJ_EVENT_STOP, 0);
         _queue_event(bd, BD_EVENT_STILL, 0);
+        _queue_event(bd, BD_EVENT_KEY_INTEREST_TABLE, 0);
     }
 }
 #else
@@ -1362,7 +1461,10 @@ BLURAY *bd_open(const char *device_path, const char *keyfile_path)
         return NULL;
     }
 
-    bd_open_disc(bd, device_path, keyfile_path);
+    if (!bd_open_disc(bd, device_path, keyfile_path)) {
+        bd_close(bd);
+        return NULL;
+    }
 
     return bd;
 }
@@ -2136,6 +2238,11 @@ static void _close_playlist(BLURAY *bd)
         nav_title_close(bd->title);
         bd->title = NULL;
     }
+
+    /* reset UO mask */
+    memset(&bd->st0.uo_mask, 0, sizeof(BD_UO_MASK));
+    memset(&bd->gc_uo_mask,  0, sizeof(BD_UO_MASK));
+    _update_uo_mask(bd);
 }
 
 static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
@@ -2233,7 +2340,9 @@ static int _play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmar
         return 0;
     }
 
+#ifdef USING_BDJAVA
     bd->bdj_wait_start = 1;  /* playback is triggered by bd_select_rate() */
+#endif
 
     bd_bdj_seek(bd, playitem, playmark, time);
 
@@ -2251,6 +2360,20 @@ int bd_play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmark, in
 
     return result;
 }
+
+int bd_bdj_sound_effect(BLURAY *bd, int id)
+{
+    if (bd->sound_effects && id >= bd->sound_effects->num_sounds) {
+        return -1;
+    }
+    if (id < 0 || id > 0xff) {
+        return -1;
+    }
+
+    _queue_event(bd, BD_EVENT_SOUND_EFFECT, id);
+    return 0;
+}
+
 #endif /* USING_BDJAVA */
 
 // Select a title for playback
@@ -2808,6 +2931,7 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
             break;
 
         case PSR_PRIMARY_AUDIO_ID:
+            _bdj_event(bd, BDJ_EVENT_AUDIO_STREAM, ev->new_val);
             _queue_event(bd, BD_EVENT_AUDIO_STREAM, ev->new_val);
             break;
 
@@ -2842,6 +2966,7 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
                 _queue_event(bd, BD_EVENT_SECONDARY_AUDIO, !!(ev->new_val & 0x40000000));
                 _queue_event(bd, BD_EVENT_SECONDARY_AUDIO_STREAM, ev->new_val & 0xff);
             }
+            _bdj_event(bd, BDJ_EVENT_SECONDARY_STREAM, ev->new_val);
             break;
 
         /* 3D status */
@@ -3066,26 +3191,11 @@ static int _try_play_title(BLURAY *bd, unsigned title)
         return 0;
     }
 
-    if (bd->st0.uo_mask.title_search) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by stream\n");
+    if (bd->uo_mask.title_search) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked\n");
+        _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_TITLE_SEARCH_INDEX);
         return 0;
     }
-
-    if (bd->title_type == title_hdmv) {
-        if (hdmv_vm_get_uo_mask(bd->hdmv_vm) & HDMV_TITLE_SEARCH_MASK) {
-            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by movie object\n");
-            return 0;
-        }
-    }
-
-#ifdef USING_BDJAVA
-    if (bd->title_type == title_bdj) {
-        if (bd->bdj_uo_mask.title_search) {
-            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked by BD-J\n");
-            return 0;
-        }
-    }
-#endif
 
     return _play_title(bd, title);
 }
@@ -3110,30 +3220,17 @@ static int _try_menu_call(BLURAY *bd, int64_t pts)
         return 0;
     }
 
-    if (bd->st0.uo_mask.menu_call) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by stream\n");
+    if (bd->uo_mask.menu_call) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked\n");
+        _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_MENU_CALL_INDEX);
         return 0;
     }
 
     if (bd->title_type == title_hdmv) {
-        if (hdmv_vm_get_uo_mask(bd->hdmv_vm) & HDMV_MENU_CALL_MASK) {
-            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by movie object\n");
-            return 0;
-        }
-
         if (hdmv_vm_suspend_pl(bd->hdmv_vm) < 0) {
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_menu_call(): error storing playback location\n");
         }
     }
-
-#ifdef USING_BDJAVA
-    if (bd->title_type == title_bdj) {
-        if (bd->bdj_uo_mask.menu_call) {
-            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked by BD-J\n");
-            return 0;
-        }
-    }
-#endif
 
     return _play_title(bd, BLURAY_TITLE_TOP_MENU);
 }
@@ -3230,6 +3327,9 @@ static int _run_hdmv(BLURAY *bd)
     /* update VM state */
     bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
 
+    /* update UO mask */
+    _update_hdmv_uo_mask(bd);
+
     return 0;
 }
 
@@ -3275,6 +3375,7 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
         return 0;
     }
 
+#ifdef USING_BDJAVA
     if (bd->title_type == title_bdj) {
         if (bd->end_of_playlist == 1) {
             _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, bd_psr_read(bd->regs, PSR_PLAYLIST));
@@ -3293,6 +3394,7 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
             return 0;
         }
     }
+#endif
 
     int bytes = _bd_read(bd, buf, len);
 

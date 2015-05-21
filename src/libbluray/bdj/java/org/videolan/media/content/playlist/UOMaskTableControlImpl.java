@@ -60,7 +60,6 @@ public class UOMaskTableControlImpl implements UOMaskTableControl {
     }
 
     protected void onUOMasked(int position) {
-        // TODO: this method is not called
         listeners.putCallback(new UOMaskedEvent(this, position));
     }
 

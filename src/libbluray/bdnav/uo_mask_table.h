@@ -22,6 +22,11 @@
 
 #include <stdint.h>
 
+enum {
+    UO_MASK_MENU_CALL_INDEX = 0,
+    UO_MASK_TITLE_SEARCH_INDEX = 1,
+};
+
 typedef struct bd_uo_mask_table_s
 {
     unsigned int menu_call : 1;
@@ -63,9 +68,9 @@ typedef struct bd_uo_mask_table_s
 static inline BD_UO_MASK bd_uo_mask_combine(BD_UO_MASK a, BD_UO_MASK b)
 {
     union {
-        BD_UO_MASK mask;
         uint64_t   u64;
-    } mask_a, mask_b, result;
+        BD_UO_MASK mask;
+    } mask_a = {0}, mask_b = {0}, result;
 
     mask_a.mask = a;
     mask_b.mask = b;
@@ -78,9 +83,12 @@ static inline BD_UO_MASK bd_uo_mask_combine(BD_UO_MASK a, BD_UO_MASK b)
 
 static inline BD_UO_MASK bd_empty_uo_mask(void)
 {
-    const BD_UO_MASK empty = EMPTY_UO_MASK;
-    return empty;
-}
+    static const union {
+        const uint64_t   u64;
+        const BD_UO_MASK mask;
+    } empty = {0};
 
+    return empty.mask;
+}
 
 #endif // _BD_UO_MASK_TABLE_H_

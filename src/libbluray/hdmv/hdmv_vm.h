@@ -119,4 +119,15 @@ BD_PRIVATE int      hdmv_vm_suspend_pl(HDMV_VM *p);
  */
 BD_PRIVATE int      hdmv_vm_resume(HDMV_VM *p);
 
+
+/*
+ * save / restore VM state
+ */
+
+/* VM state size */
+#define HDMV_STATE_SIZE 10  /* * sizeof(uint32_t) */
+
+BD_PRIVATE int hdmv_vm_save_state(HDMV_VM *p, uint32_t *s);
+BD_PRIVATE void hdmv_vm_restore_state(HDMV_VM *p, const uint32_t *s);
+
 #endif // _HDMV_VM_H_
