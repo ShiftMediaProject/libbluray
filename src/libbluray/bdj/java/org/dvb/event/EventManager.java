@@ -40,8 +40,8 @@ public class EventManager implements ResourceServer {
         synchronized (EventManager.class) {
             if (instance == null)
                 instance = new EventManager();
+            return instance;
         }
-        return instance;
     }
 
     public static void shutdown() {
