@@ -294,7 +294,11 @@ public class Handler extends BDHandler {
 
     protected void doEndOfMediaReached(int playlist) {
         synchronized (this) {
-            if (locator == null || locator.getPlayListId() != playlist) {
+            if (locator == null) {
+                System.err.println("endOfMedia(" + playlist + ") ignored: no current locator");
+                return;
+            }
+            if (locator.getPlayListId() != playlist) {
                 System.err.println("endOfMedia ignored: playlist does not match (" + playlist + " != " + locator.getPlayListId());
                 return;
             }
