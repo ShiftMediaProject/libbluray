@@ -62,10 +62,16 @@ public class ServiceContextFactoryImpl extends ServiceContextFactory {
     }
 
     public ServiceContext[] getServiceContexts() {
-        SecurityManager sec = System.getSecurityManager();
-        if (sec != null)
-            sec.checkPermission(new ServiceContextPermission("access", "own"));
-        return serviceContexts;
+        try {
+            SecurityManager sec = System.getSecurityManager();
+            if (sec != null)
+                sec.checkPermission(new ServiceContextPermission("access", "own"));
+            return serviceContexts;
+
+        } catch (Exception e) {
+        }
+
+        return new ServiceContext[0];
     }
 
     private ServiceContext[] serviceContexts;
