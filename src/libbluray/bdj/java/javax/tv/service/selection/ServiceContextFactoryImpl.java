@@ -33,12 +33,14 @@ public class ServiceContextFactoryImpl extends ServiceContextFactory {
         synchronized (ServiceContextFactoryImpl.class) {
             if (instance == null)
                 instance = new ServiceContextFactoryImpl();
+            return instance;
         }
-        return instance;
     }
 
     public static void shutdown() {
-        instance = null;
+        synchronized (ServiceContextFactoryImpl.class) {
+            instance = null;
+        }
     }
 
     public ServiceContext createServiceContext()
