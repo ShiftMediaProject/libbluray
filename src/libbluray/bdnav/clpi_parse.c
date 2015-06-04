@@ -223,7 +223,7 @@ _parse_sequence(BITSTREAM *bits, CLPI_CL *cl)
     cl->sequence.num_atc_seq = bs_read(bits, 8);
 
     CLPI_ATC_SEQ *atc_seq;
-    atc_seq = malloc(cl->sequence.num_atc_seq * sizeof(CLPI_ATC_SEQ));
+    atc_seq = calloc(cl->sequence.num_atc_seq, sizeof(CLPI_ATC_SEQ));
     cl->sequence.atc_seq = atc_seq;
     for (ii = 0; ii < cl->sequence.num_atc_seq; ii++) {
         atc_seq[ii].spn_atc_start = bs_read(bits, 32);
@@ -254,7 +254,7 @@ _parse_program(BITSTREAM *bits, CLPI_PROG_INFO *program)
     program->num_prog = bs_read(bits, 8);
 
     CLPI_PROG *progs;
-    progs = malloc(program->num_prog * sizeof(CLPI_PROG));
+    progs = calloc(program->num_prog, sizeof(CLPI_PROG));
     program->progs = progs;
     for (ii = 0; ii < program->num_prog; ii++) {
         progs[ii].spn_program_sequence_start = bs_read(bits, 32);
@@ -263,7 +263,7 @@ _parse_program(BITSTREAM *bits, CLPI_PROG_INFO *program)
         progs[ii].num_groups                 = bs_read(bits, 8);
 
         CLPI_PROG_STREAM *ps;
-        ps = malloc(progs[ii].num_streams * sizeof(CLPI_PROG_STREAM));
+        ps = calloc(progs[ii].num_streams, sizeof(CLPI_PROG_STREAM));
         progs[ii].streams = ps;
         for (jj = 0; jj < progs[ii].num_streams; jj++) {
             ps[jj].pid = bs_read(bits, 16);
@@ -335,7 +335,7 @@ _parse_cpi(BITSTREAM *bits, CLPI_CPI *cpi)
     cpi->num_stream_pid = bs_read(bits, 8);
 
     CLPI_EP_MAP_ENTRY *entry;
-    entry = malloc(cpi->num_stream_pid * sizeof(CLPI_EP_MAP_ENTRY));
+    entry = calloc(cpi->num_stream_pid, sizeof(CLPI_EP_MAP_ENTRY));
     cpi->entry = entry;
     for (ii = 0; ii < cpi->num_stream_pid; ii++) {
         entry[ii].pid                      = bs_read(bits, 16);
@@ -796,7 +796,7 @@ clpi_copy(const CLPI_CL* src_cl)
         }
 
         dest_cl->sequence.num_atc_seq = src_cl->sequence.num_atc_seq;
-        dest_cl->sequence.atc_seq = malloc(src_cl->sequence.num_atc_seq * sizeof(CLPI_ATC_SEQ));
+        dest_cl->sequence.atc_seq = calloc(src_cl->sequence.num_atc_seq, sizeof(CLPI_ATC_SEQ));
         for (ii = 0; ii < src_cl->sequence.num_atc_seq; ii++) {
             dest_cl->sequence.atc_seq[ii].spn_atc_start = src_cl->sequence.atc_seq[ii].spn_atc_start;
             dest_cl->sequence.atc_seq[ii].offset_stc_id = src_cl->sequence.atc_seq[ii].offset_stc_id;
@@ -811,7 +811,7 @@ clpi_copy(const CLPI_CL* src_cl)
         }
 
         dest_cl->program.num_prog = src_cl->program.num_prog;
-        dest_cl->program.progs = malloc(src_cl->program.num_prog * sizeof(CLPI_PROG));
+        dest_cl->program.progs = calloc(src_cl->program.num_prog, sizeof(CLPI_PROG));
         for (ii = 0; ii < src_cl->program.num_prog; ii++) {
             dest_cl->program.progs[ii].spn_program_sequence_start = src_cl->program.progs[ii].spn_program_sequence_start;
             dest_cl->program.progs[ii].program_map_pid = src_cl->program.progs[ii].program_map_pid;
@@ -831,7 +831,7 @@ clpi_copy(const CLPI_CL* src_cl)
         }
 
         dest_cl->cpi.num_stream_pid = src_cl->cpi.num_stream_pid;
-        dest_cl->cpi.entry = malloc(src_cl->cpi.num_stream_pid * sizeof(CLPI_EP_MAP_ENTRY));
+        dest_cl->cpi.entry = calloc(src_cl->cpi.num_stream_pid, sizeof(CLPI_EP_MAP_ENTRY));
         for (ii = 0; ii < dest_cl->cpi.num_stream_pid; ii++) {
             dest_cl->cpi.entry[ii].pid = src_cl->cpi.entry[ii].pid;
             dest_cl->cpi.entry[ii].ep_stream_type = src_cl->cpi.entry[ii].ep_stream_type;
