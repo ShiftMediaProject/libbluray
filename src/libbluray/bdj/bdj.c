@@ -136,6 +136,10 @@ static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char 
 {
     if (java_home) {
         char *path = str_printf("%s/%s/%s", java_home, jvm_dir, jvm_lib);
+        if (!path) {
+            BD_DEBUG(DBG_CRIT, "out of memory\n");
+            return NULL;
+        }
         BD_DEBUG(DBG_BDJ, "Opening %s ...\n", path);
         void *h = dl_dlopen(path, NULL);
         X_FREE(path);
