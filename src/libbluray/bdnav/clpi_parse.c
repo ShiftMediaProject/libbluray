@@ -622,10 +622,12 @@ _clean_program(CLPI_PROG_INFO *p)
 {
     int ii;
 
-    for (ii = 0; ii < p->num_prog; ii++) {
-        X_FREE(p->progs[ii].streams);
+    if (p && p->progs) {
+        for (ii = 0; ii < p->num_prog; ii++) {
+            X_FREE(p->progs[ii].streams);
+        }
+        X_FREE(p->progs);
     }
-    X_FREE(p->progs);
 }
 
 static void
@@ -633,11 +635,13 @@ _clean_cpi(CLPI_CPI *cpi)
 {
     int ii;
 
-    for (ii = 0; ii < cpi->num_stream_pid; ii++) {
-        X_FREE(cpi->entry[ii].coarse);
-        X_FREE(cpi->entry[ii].fine);
+    if (cpi && cpi->entry) {
+        for (ii = 0; ii < cpi->num_stream_pid; ii++) {
+            X_FREE(cpi->entry[ii].coarse);
+            X_FREE(cpi->entry[ii].fine);
+        }
+        X_FREE(cpi->entry);
     }
-    X_FREE(cpi->entry);
 }
 
 void
@@ -649,11 +653,13 @@ clpi_free(CLPI_CL *cl)
         return;
     }
     X_FREE(cl->clip.atc_delta);
+    if (cl->sequence.atc_seq) {
+        for (ii = 0; ii < cl->sequence.num_atc_seq; ii++) {
+            X_FREE(cl->sequence.atc_seq[ii].stc_seq);
+        }
 
-    for (ii = 0; ii < cl->sequence.num_atc_seq; ii++) {
-        X_FREE(cl->sequence.atc_seq[ii].stc_seq);
+        X_FREE(cl->sequence.atc_seq);
     }
-    X_FREE(cl->sequence.atc_seq);
 
     _clean_program(&cl->program);
     _clean_cpi(&cl->cpi);
