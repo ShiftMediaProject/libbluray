@@ -623,9 +623,7 @@ _clean_program(CLPI_PROG_INFO *p)
     int ii;
 
     for (ii = 0; ii < p->num_prog; ii++) {
-        if (p->progs[ii].streams != NULL) {
-            X_FREE(p->progs[ii].streams);
-        }
+        X_FREE(p->progs[ii].streams);
     }
     X_FREE(p->progs);
 }
@@ -636,12 +634,8 @@ _clean_cpi(CLPI_CPI *cpi)
     int ii;
 
     for (ii = 0; ii < cpi->num_stream_pid; ii++) {
-        if (cpi->entry[ii].coarse != NULL) {
-            X_FREE(cpi->entry[ii].coarse);
-        }
-        if (cpi->entry[ii].fine != NULL) {
-            X_FREE(cpi->entry[ii].fine);
-        }
+        X_FREE(cpi->entry[ii].coarse);
+        X_FREE(cpi->entry[ii].fine);
     }
     X_FREE(cpi->entry);
 }
@@ -654,17 +648,12 @@ clpi_free(CLPI_CL *cl)
     if (cl == NULL) {
         return;
     }
-    if (cl->clip.atc_delta != NULL) {
-        X_FREE(cl->clip.atc_delta);
-    }
+    X_FREE(cl->clip.atc_delta);
+
     for (ii = 0; ii < cl->sequence.num_atc_seq; ii++) {
-        if (cl->sequence.atc_seq[ii].stc_seq != NULL) {
-            X_FREE(cl->sequence.atc_seq[ii].stc_seq);
-        }
+        X_FREE(cl->sequence.atc_seq[ii].stc_seq);
     }
-    if (cl->sequence.atc_seq != NULL) {
-        X_FREE(cl->sequence.atc_seq);
-    }
+    X_FREE(cl->sequence.atc_seq);
 
     _clean_program(&cl->program);
     _clean_cpi(&cl->cpi);
