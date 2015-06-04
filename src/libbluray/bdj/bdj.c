@@ -464,6 +464,11 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     }
 
     JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 20);
+    if (!option) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
+
     int n = 0;
     JavaVMInitArgs args;
     option[n++].optionString = str_dup   ("-Dawt.toolkit=java.awt.BDToolkit");
@@ -538,16 +543,22 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
         return 0;
     }
 
+    BDJAVA* bdjava = calloc(1, sizeof(BDJAVA));
+    if (!bdjava) {
+        dl_dlclose(jvm_lib);
+        return NULL;
+    }
+
     JNIEnv* env = NULL;
     JavaVM *jvm = NULL;
     if (!_find_jvm(jvm_lib, &env, &jvm) &&
         !_create_jvm(jvm_lib, java_home, jar_file, &env, &jvm)) {
 
+        X_FREE(bdjava);
         dl_dlclose(jvm_lib);
         return NULL;
     }
 
-    BDJAVA* bdjava = calloc(1, sizeof(BDJAVA));
     bdjava->h_libjvm = jvm_lib;
     bdjava->jvm = jvm;
 

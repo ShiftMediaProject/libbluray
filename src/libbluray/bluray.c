@@ -202,7 +202,9 @@ static void _init_event_queue(BLURAY *bd)
 {
     if (!bd->event_queue) {
         bd->event_queue = calloc(1, sizeof(struct bd_event_queue_s));
-        bd_mutex_init(&bd->event_queue->mutex);
+        if (bd->event_queue) {
+            bd_mutex_init(&bd->event_queue->mutex);
+        }
     } else {
         bd_mutex_lock(&bd->event_queue->mutex);
         bd->event_queue->in  = 0;
