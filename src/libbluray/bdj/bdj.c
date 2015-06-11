@@ -212,7 +212,13 @@ static void *_load_jvm(const char **p_java_home)
 
 static int _can_read_file(const char *fn)
 {
-    FILE *fp = fopen(fn, "rb");
+    FILE *fp;
+
+    if (!fn) {
+        return 0;
+    }
+
+    fp = fopen(fn, "rb");
     if (fp) {
         char b;
         int result = (int)fread(&b, 1, 1, fp);
