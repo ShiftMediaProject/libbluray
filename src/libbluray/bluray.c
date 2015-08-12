@@ -3575,7 +3575,37 @@ int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, BLURAY_SOUND_EFFECT *effe
 }
 
 /*
- *
+ * Direct file access
+ */
+
+static int _bd_read_file(BLURAY *bd, const char *dir, const char *file, void **data, int64_t *size)
+{
+    if (!bd || !bd->disc || !file || !data || !size) {
+        BD_DEBUG(DBG_CRIT, "Invalid arguments for bd_read_file()\n");
+        return 0;
+    }
+
+    *data = NULL;
+    *size = (int64_t)disc_read_file(bd->disc, dir, file, (uint8_t**)data);
+    if (!*data || *size < 0) {
+        BD_DEBUG(DBG_BLURAY, "bd_read_file() failed\n");
+        X_FREE(*data);
+        return 0;
+    }
+
+    BD_DEBUG(DBG_CRIT, "bd_read_file(): read %"PRId64" bytes from %s"DIR_SEP"%s\n",
+             *size, dir, file);
+    return 1;
+}
+
+int bd_read_file(BLURAY *bd, const char *path, void **data, int64_t *size)
+{
+    return _bd_read_file(bd, NULL, path, data, size);
+}
+
+
+/*
+ * Metadata
  */
 
 const struct meta_dl *bd_get_meta(BLURAY *bd)
@@ -3611,6 +3641,15 @@ const struct meta_dl *bd_get_meta(BLURAY *bd)
 
     return meta;
 }
+
+int bd_get_meta_file(BLURAY *bd, const char *name, void **data, int64_t *size)
+{
+    return _bd_read_file(bd, DIR_SEP "BDMV" DIR_SEP "META" DIR_SEP "DL", name, data, size);
+}
+
+/*
+ * Database access
+ */
 
 struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref)
 {

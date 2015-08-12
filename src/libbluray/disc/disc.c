@@ -399,7 +399,11 @@ size_t disc_read_file(BD_DISC *disc, const char *dir, const char *file,
 
     *data = NULL;
 
-    fp = disc_open_file(disc, dir, file);
+    if (dir) {
+        fp = disc_open_file(disc, dir, file);
+    } else {
+        fp = disc_open_path(disc, file);
+    }
     if (!fp) {
         return 0;
     }
