@@ -27,10 +27,19 @@ public class ContentAttribute {
     }
 
     public byte[] getContentCertID() {
+        byte[] id = getContentCertID("AACS" + File.separator + "Content000.cer");
+        if (id != null) {
+            return id;
+        }
+
+        return new byte[6];
+    }
+
+    private byte[] getContentCertID(String file) {
         FileInputStream is = null;
         try {
             is = new FileInputStream(
-                System.getProperty("bluray.vfs.root") + File.separator + "AACS/Content000.cer");
+                System.getProperty("bluray.vfs.root") + File.separator + file);
             if (is.skip(14) != 14)
                 return null;
             byte[] bytes = new byte[6];
