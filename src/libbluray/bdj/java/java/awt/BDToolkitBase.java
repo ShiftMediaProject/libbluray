@@ -243,7 +243,7 @@ abstract class BDToolkitBase extends Toolkit {
             }
         }
 
-        logger.warning("getSystemEventQueue(): no context");
+        logger.warning("getSystemEventQueue(): no context   from:" + logger.dumpStack());
         return eventQueue;
     }
 }
