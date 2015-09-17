@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2015  Petri Hintukainen
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,9 +26,21 @@ import javax.tv.service.SIElement;
 import javax.tv.service.SIRequest;
 import javax.tv.service.SIRequestorImpl;
 
+import org.bluray.net.BDLocator;
+
 public final class SIElementFilter extends ServiceFilter
 {
     public SIElementFilter(SIElement element) throws FilterNotSupportedException {
+        if (element == null)
+            throw new NullPointerException();
+
+        try {
+            new BDLocator(element.getLocator().toExternalForm());
+        } catch (Exception e) {
+            System.err.println("Invalid SI element: " + e + " at " + org.videolan.Logger.dumpStack(e));
+            throw new FilterNotSupportedException();
+        }
+
         this.element = element;
     }
 
