@@ -37,9 +37,9 @@ public final class SIElementFilter extends ServiceFilter
 
     public boolean accept(Service service) {
         SIRequestorImpl requestor = new SIRequestorImpl();
-        
+
         SIRequest req = service.retrieveDetails(requestor);
-        
+
         // TODO: This may be a bit excessive
         int timeout = 0;
         while (!requestor.getResponse() && timeout < 1000) {
@@ -48,27 +48,27 @@ public final class SIElementFilter extends ServiceFilter
             } catch (InterruptedException e) {
                 // ignore
             }
-            
+
             timeout++;
         }
-        
+
         // if we still don't have a response just cancel the request
         if (!requestor.getResponse()) {
             if (req != null)
                 req.cancel();
         }
-        
+
         if (requestor.getResult() == null)
             return false;
-        
+
         SIRetrievable[] rets = requestor.getResult();
         for (int i = 0; i < rets.length; i++) {
             if (rets[i].equals(element))
                 return true;
         }
-        
+
         return false;
     }
-    
+
     SIElement element;
 }
