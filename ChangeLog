@@ -1,3 +1,5 @@
+- Fix Xlet-initiated font caching.
+
 2015-05-15: Version 0.8.1
 - Notify application when UO mask changes.
 - Improved error resilience.
