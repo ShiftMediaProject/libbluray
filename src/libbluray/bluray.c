@@ -2708,9 +2708,9 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
         bd_mutex_lock(&bd->mutex);
 
         bd->decode_pg = !!value;
-        result = bd_psr_write_bits(bd->regs, PSR_PG_STREAM,
-                                   (!!value) << 31,
-                                   0x80000000);
+        result = !bd_psr_write_bits(bd->regs, PSR_PG_STREAM,
+                                    (!!value) << 31,
+                                    0x80000000);
 
         bd_mutex_unlock(&bd->mutex);
         return result;
