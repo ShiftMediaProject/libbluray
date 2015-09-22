@@ -346,6 +346,10 @@ static const char *_bdj_persistent_root(BDJ_STORAGE *storage)
     const char *root;
     char       *data_home;
 
+    if (storage->no_persistent_storage) {
+        return NULL;
+    }
+
     if (!storage->persistent_root) {
 
         root = getenv("LIBBLURAY_PERSISTENT_ROOT");
@@ -367,6 +371,10 @@ static const char *_bdj_buda_root(BDJ_STORAGE *storage)
 {
     const char *root;
     char       *cache_home;
+
+    if (storage->no_persistent_storage) {
+        return NULL;
+    }
 
     if (!storage->cache_root) {
 

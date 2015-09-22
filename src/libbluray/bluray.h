@@ -665,7 +665,9 @@ typedef enum {
     BLURAY_PLAYER_SETTING_TEXT_CAP       = 30,    /* Text Subtitle capability.    Bit mask. */
     BLURAY_PLAYER_SETTING_PLAYER_PROFILE = 31,    /* Player profile and version. */
 
-    BLURAY_PLAYER_SETTING_DECODE_PG      = 0x100, /* Enable/disable PG (subtitle) decoder. Integer. */
+    BLURAY_PLAYER_SETTING_DECODE_PG          = 0x100, /* Enable/disable PG (subtitle) decoder. Integer. Default: disabled. */
+    BLURAY_PLAYER_SETTING_PERSISTENT_STORAGE = 0x101, /* Enable/disable BD-J persistent storage. Integer. Default: enabled. */
+
     BLURAY_PLAYER_PERSISTENT_ROOT        = 400,   /* Root path to the BD_J persistent storage location. String. */
     BLURAY_PLAYER_CACHE_ROOT             = 401,   /* Root path to the BD_J cache storage location. String. */
 } bd_player_setting;

@@ -110,6 +110,20 @@ public class Libbluray {
         initOnce();
 
         /* set up directories */
+
+        try {
+            if (persistentRoot == null) {
+                /* no persistent storage */
+                persistentRoot = CacheDir.create("dvb.persistent.root").getPath() + File.separator;
+            }
+            if (budaRoot == null) {
+                /* no persistent storage for BUDA */
+                budaRoot = CacheDir.create("bluray.bindingunit.root").getPath() + File.separator;
+            }
+        } catch (java.io.IOException e) {
+            System.err.println("Cache creation failed: " + e);
+            /* not fatal with most discs */
+        }
         persistentRoot = canonicalize(persistentRoot, true);
         budaRoot       = canonicalize(budaRoot, true);
 
@@ -122,6 +136,8 @@ public class Libbluray {
         } else {
             System.getProperties().remove("bluray.vfs.root");
         }
+
+        /* */
 
         Libbluray.nativePointer = nativePointer;
         DiscManager.getDiscManager().setCurrentDisc(discID);

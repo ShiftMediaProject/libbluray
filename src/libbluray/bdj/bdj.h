@@ -22,6 +22,8 @@
 
 #include "util/attributes.h"
 
+#include <stdint.h>
+
 typedef enum {
     /* Note: these must be in sync with Libbluray.java ! */
 
@@ -65,6 +67,8 @@ typedef struct {
     char *cache_root;        /* BD-J binding unit data area */
 
     char *classpath;         /* BD-J implementation class path (location of libbluray.jar) */
+
+    uint8_t no_persistent_storage; /* disable persistent storage (remove files at close) */
 } BDJ_STORAGE;
 
 typedef struct bdjava_s BDJAVA;

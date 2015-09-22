@@ -1388,6 +1388,8 @@ static void _storage_free(BLURAY *bd)
 
 BLURAY *bd_init(void)
 {
+    char *env;
+
     BD_DEBUG(DBG_BLURAY, "libbluray version "BLURAY_VERSION_STRING"\n");
 
     BLURAY *bd = calloc(1, sizeof(BLURAY));
@@ -1408,6 +1410,12 @@ BLURAY *bd_init(void)
 #ifdef USING_BDJAVA
     bd_mutex_init(&bd->argb_buffer_mutex);
 #endif
+
+    env = getenv("LIBBLURAY_PERSISTENT_STORAGE");
+    if (env) {
+        int v = (!strcmp(env, "yes")) ? 1 : (!strcmp(env, "no")) ? 0 : atoi(env);
+        bd->bdjstorage.no_persistent_storage = !v;
+    }
 
     BD_DEBUG(DBG_BLURAY, "BLURAY initialized!\n");
 
@@ -2766,6 +2774,14 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
 
         bd_mutex_unlock(&bd->mutex);
         return result;
+    }
+    if (idx == BLURAY_PLAYER_SETTING_PERSISTENT_STORAGE) {
+        if (bd->title_type != title_undef) {
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Can't disable persistent storage during playback\n");
+            return 0;
+        }
+        bd->bdjstorage.no_persistent_storage = !value;
+        return 1;
     }
 
     for (i = 0; i < sizeof(map) / sizeof(map[0]); i++) {

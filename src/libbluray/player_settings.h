@@ -158,4 +158,22 @@ enum {
     BLURAY_PG_TEXTST_DECODER_ENABLE   = 1,  /* enable both decoders */
 };
 
+
+/*
+ * BLURAY_PLAYER_SETTING_PERSISTENT_STORAGE
+ *
+ * Enable / disable BD-J persistent storage.
+ *
+ * If persistent storage is disabled, BD-J Xlets can't access any data
+ * stored during earlier playback sessions. Persistent data stored during
+ * current playback session will be removed and can't be accessed later.
+ *
+ * This setting can't be changed after bd_play() has been called.
+ */
+
+enum {
+    BLURAY_PERSISTENT_STORAGE_DISABLE = 0,  /* disable persistent storage between playback sessions */
+    BLURAY_PERSISTENT_STORAGE_ENABLE  = 1,  /* enable persistent storage */
+};
+
 #endif /* BD_PLAYER_SETTINGS_H_ */
