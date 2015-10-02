@@ -1,4 +1,9 @@
+- Add functions to read files from VFS.
+- Improved error resilience.
+- Improved BD-J compability.
 - Fix Xlet-initiated font caching.
+- Fix return value when setting BLURAY_PLAYER_SETTING_DECODE_PG.
+- Fix build with C++ compiler
 
 2015-05-15: Version 0.8.1
 - Notify application when UO mask changes.
