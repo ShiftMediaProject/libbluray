@@ -202,7 +202,9 @@ static void _init_event_queue(BLURAY *bd)
 {
     if (!bd->event_queue) {
         bd->event_queue = calloc(1, sizeof(struct bd_event_queue_s));
-        bd_mutex_init(&bd->event_queue->mutex);
+        if (bd->event_queue) {
+            bd_mutex_init(&bd->event_queue->mutex);
+        }
     } else {
         bd_mutex_lock(&bd->event_queue->mutex);
         bd->event_queue->in  = 0;
@@ -2081,12 +2083,14 @@ static int _preload_textst_subpath(BLURAY *bd)
     gc_add_font(bd->graphics_controller, NULL, -1);
     for (ii = 0; ii < bd->st_textst.clip->cl->font_info.font_count; ii++) {
         char *file = str_printf("%s.otf", bd->st_textst.clip->cl->font_info.font[ii].file_id);
-        uint8_t *data = NULL;
-        size_t size = disc_read_file(bd->disc, "BDMV" DIR_SEP "AUXDATA", file, &data);
-        if (data && size > 0 && gc_add_font(bd->graphics_controller, data, size) < 0) {
-            X_FREE(data);
+        if (file) {
+            uint8_t *data = NULL;
+            size_t size = disc_read_file(bd->disc, "BDMV" DIR_SEP "AUXDATA", file, &data);
+            if (data && size > 0 && gc_add_font(bd->graphics_controller, data, size) < 0) {
+                X_FREE(data);
+            }
+            X_FREE(file);
         }
-        X_FREE(file);
     }
     gc_run(bd->graphics_controller, GC_CTRL_PG_CHARCODE, char_code, NULL);
 
@@ -2285,8 +2289,13 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
 
 int bd_select_playlist(BLURAY *bd, uint32_t playlist)
 {
-    char *f_name = str_printf("%05d.mpls", playlist);
+    char *f_name;
     int result;
+
+    f_name = str_printf("%05d.mpls", playlist);
+    if (!f_name) {
+        return 0;
+    }
 
     bd_mutex_lock(&bd->mutex);
 
@@ -2637,8 +2646,13 @@ BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx, unsigned an
 
 BLURAY_TITLE_INFO* bd_get_playlist_info(BLURAY *bd, uint32_t playlist, unsigned angle)
 {
-    char *f_name = str_printf("%05d.mpls", playlist);
+    char *f_name;
     BLURAY_TITLE_INFO *title_info;
+
+    f_name = str_printf("%05d.mpls", playlist);
+    if (!f_name) {
+        return NULL;
+    }
 
     title_info = _get_title_info(bd, 0, playlist, f_name, angle);
 
@@ -2694,9 +2708,9 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
         bd_mutex_lock(&bd->mutex);
 
         bd->decode_pg = !!value;
-        result = bd_psr_write_bits(bd->regs, PSR_PG_STREAM,
-                                   (!!value) << 31,
-                                   0x80000000);
+        result = !bd_psr_write_bits(bd->regs, PSR_PG_STREAM,
+                                    (!!value) << 31,
+                                    0x80000000);
 
         bd_mutex_unlock(&bd->mutex);
         return result;
@@ -3561,7 +3575,37 @@ int bd_get_sound_effect(BLURAY *bd, unsigned sound_id, BLURAY_SOUND_EFFECT *effe
 }
 
 /*
- *
+ * Direct file access
+ */
+
+static int _bd_read_file(BLURAY *bd, const char *dir, const char *file, void **data, int64_t *size)
+{
+    if (!bd || !bd->disc || !file || !data || !size) {
+        BD_DEBUG(DBG_CRIT, "Invalid arguments for bd_read_file()\n");
+        return 0;
+    }
+
+    *data = NULL;
+    *size = (int64_t)disc_read_file(bd->disc, dir, file, (uint8_t**)data);
+    if (!*data || *size < 0) {
+        BD_DEBUG(DBG_BLURAY, "bd_read_file() failed\n");
+        X_FREE(*data);
+        return 0;
+    }
+
+    BD_DEBUG(DBG_CRIT, "bd_read_file(): read %"PRId64" bytes from %s"DIR_SEP"%s\n",
+             *size, dir, file);
+    return 1;
+}
+
+int bd_read_file(BLURAY *bd, const char *path, void **data, int64_t *size)
+{
+    return _bd_read_file(bd, NULL, path, data, size);
+}
+
+
+/*
+ * Metadata
  */
 
 const struct meta_dl *bd_get_meta(BLURAY *bd)
@@ -3597,6 +3641,15 @@ const struct meta_dl *bd_get_meta(BLURAY *bd)
 
     return meta;
 }
+
+int bd_get_meta_file(BLURAY *bd, const char *name, void **data, int64_t *size)
+{
+    return _bd_read_file(bd, DIR_SEP "BDMV" DIR_SEP "META" DIR_SEP "DL", name, data, size);
+}
+
+/*
+ * Database access
+ */
 
 struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref)
 {

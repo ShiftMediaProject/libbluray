@@ -426,6 +426,18 @@ public class IxcRegistryImpl {
             throw new IllegalArgumentException("xc not current BDJXletContext");
         }
 
+        if ("/7fff7669/4050/Messenger".equals(path)) {
+            /* known discs:
+               - Terminator Salvation
+            */
+            try {
+                logger.error("Enabling Ixc delay hack for " + path);
+                Thread.sleep(200L);
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
+        }
+
         WrappedRemoteObj wrappedObj = null;
         synchronized (remoteObjects) {
             if (!remoteObjects.containsKey(path)) {
