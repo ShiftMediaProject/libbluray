@@ -8,6 +8,7 @@ EXPORTS
     bd_close
     bd_get_disc_info
     bd_get_meta
+    bd_get_meta_file
     bd_get_titles
     bd_get_main_title
     bd_get_title_info
@@ -56,6 +57,7 @@ EXPORTS
     bd_free_bdjo
     bd_start_bdj
     bd_stop_bdj
+    bd_read_file
 
     bd_register_file
     bd_register_dir
