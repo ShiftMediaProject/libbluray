@@ -83,11 +83,11 @@ static void _parseManifestNode(xmlNode * a_node, META_DL *disclib)
                 if (xmlStrEqual(cur_node->name, BAD_CAST_CONST "titleName") && (tmp = xmlGetProp(cur_node, BAD_CAST_CONST "titleNumber"))) {
                     META_TITLE *new_entries = realloc(disclib->toc_entries, ((disclib->toc_count + 1)*sizeof(META_TITLE)));
                     if (new_entries) {
-                    int i = disclib->toc_count;
-                    disclib->toc_count++;
-                    disclib->toc_entries = new_entries;
-                    disclib->toc_entries[i].title_number = atoi((const char*)tmp);
-                    disclib->toc_entries[i].title_name = (char*)xmlNodeGetContent(cur_node);
+                        int i = disclib->toc_count;
+                        disclib->toc_count++;
+                        disclib->toc_entries = new_entries;
+                        disclib->toc_entries[i].title_number = atoi((const char*)tmp);
+                        disclib->toc_entries[i].title_name = (char*)xmlNodeGetContent(cur_node);
                     }
                     XML_FREE(tmp);
                 }
@@ -96,20 +96,20 @@ static void _parseManifestNode(xmlNode * a_node, META_DL *disclib)
                 if (xmlStrEqual(cur_node->name, BAD_CAST_CONST "thumbnail") && (tmp = xmlGetProp(cur_node, BAD_CAST_CONST "href"))) {
                     META_THUMBNAIL *new_thumbnails = realloc(disclib->thumbnails, ((disclib->thumb_count + 1)*sizeof(META_THUMBNAIL)));
                     if (new_thumbnails) {
-                    uint8_t i = disclib->thumb_count;
-                    disclib->thumb_count++;
-                    disclib->thumbnails = new_thumbnails;
-                    disclib->thumbnails[i].path = (char *)tmp;
-                    if ((tmp = xmlGetProp(cur_node, BAD_CAST_CONST "size"))) {
-                        int x = 0, y = 0;
-                        sscanf((const char*)tmp, "%ix%i", &x, &y);
-                        disclib->thumbnails[i].xres = x;
-                        disclib->thumbnails[i].yres = y;
-                        XML_FREE(tmp);
-                    }
-                    else {
-                        disclib->thumbnails[i].xres = disclib->thumbnails[i].yres = -1;
-                    }
+                        uint8_t i = disclib->thumb_count;
+                        disclib->thumb_count++;
+                        disclib->thumbnails = new_thumbnails;
+                        disclib->thumbnails[i].path = (char *)tmp;
+                        if ((tmp = xmlGetProp(cur_node, BAD_CAST_CONST "size"))) {
+                            int x = 0, y = 0;
+                            sscanf((const char*)tmp, "%ix%i", &x, &y);
+                            disclib->thumbnails[i].xres = x;
+                            disclib->thumbnails[i].yres = y;
+                            XML_FREE(tmp);
+                        }
+                        else {
+                          disclib->thumbnails[i].xres = disclib->thumbnails[i].yres = -1;
+                        }
                     }
                 }
             }
@@ -134,15 +134,15 @@ static void _findMetaXMLfiles(META_ROOT *meta, BD_DISC *disc)
         else if (strncasecmp(ent.d_name, "bdmt_", 5) == 0) {
             META_DL *new_dl_entries = realloc(meta->dl_entries, ((meta->dl_count + 1)*sizeof(META_DL)));
             if (new_dl_entries) {
-            uint8_t i = meta->dl_count;
-            meta->dl_count++;
-            meta->dl_entries = new_dl_entries;
-            memset(&meta->dl_entries[i], 0, sizeof(meta->dl_entries[i]));
+                uint8_t i = meta->dl_count;
+                meta->dl_count++;
+                meta->dl_entries = new_dl_entries;
+                memset(&meta->dl_entries[i], 0, sizeof(meta->dl_entries[i]));
 
-            meta->dl_entries[i].filename = str_dup(ent.d_name);
-            strncpy(meta->dl_entries[i].language_code, ent.d_name+5,3);
-            meta->dl_entries[i].language_code[3] = '\0';
-            str_tolower(meta->dl_entries[i].language_code);
+                meta->dl_entries[i].filename = str_dup(ent.d_name);
+                strncpy(meta->dl_entries[i].language_code, ent.d_name+5,3);
+                meta->dl_entries[i].language_code[3] = '\0';
+                str_tolower(meta->dl_entries[i].language_code);
             }
         }
     }
