@@ -260,7 +260,7 @@ public class IxcRegistryImpl {
             return result;
         }
 
-        public class RemoteMethod implements Runnable
+        private class RemoteMethod implements Runnable
         {
             final BDJXletContext calleeContext;
             final BDJXletContext callerContext;
