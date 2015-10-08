@@ -276,9 +276,11 @@ public class IxcRegistryImpl {
                 callerContext  = BDJXletContext.getCurrentContext();
                 if (callerContext == null) {
                     logger.error("caller context is null");
+                    throw new RemoteException("no caller context");
                 }
                 if (context == null) {
                     logger.error("callee context is null");
+                    throw new RemoteException("no callee context");
                 }
                 calleeContext  = context;
 
