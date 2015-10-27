@@ -3217,6 +3217,12 @@ static int _try_play_title(BLURAY *bd, unsigned title)
 int bd_play_title(BLURAY *bd, unsigned title)
 {
     int ret;
+
+    if (title == BLURAY_TITLE_TOP_MENU) {
+        /* menu call uses different UO mask */
+        return bd_menu_call(bd, -1);
+    }
+
     bd_mutex_lock(&bd->mutex);
     ret = _try_play_title(bd, title);
     bd_mutex_unlock(&bd->mutex);
