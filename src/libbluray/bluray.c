@@ -3593,7 +3593,7 @@ static int _bd_read_file(BLURAY *bd, const char *dir, const char *file, void **d
         return 0;
     }
 
-    BD_DEBUG(DBG_CRIT, "bd_read_file(): read %"PRId64" bytes from %s"DIR_SEP"%s\n",
+    BD_DEBUG(DBG_BLURAY, "bd_read_file(): read %"PRId64" bytes from %s"DIR_SEP"%s\n",
              *size, dir, file);
     return 1;
 }
