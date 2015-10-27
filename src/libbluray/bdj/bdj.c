@@ -77,14 +77,14 @@ static void *_load_jvm_win32(const char **p_java_home)
 
     r = RegOpenKeyExW(HKEY_LOCAL_MACHINE, buf_loc, 0, KEY_READ, &hkey);
     if (r != ERROR_SUCCESS) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error opening registry key SOFTWARE\\JavaSoft\\Java Runtime Environment\\");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error opening registry key SOFTWARE\\JavaSoft\\Java Runtime Environment\\\n");
         return NULL;
     }
 
     r = RegQueryValueExW(hkey, L"CurrentVersion", NULL, &lType, (LPBYTE)buf_vers, &dSize);
     RegCloseKey(hkey);
     if (r != ERROR_SUCCESS) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "CurrentVersion registry value not found");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "CurrentVersion registry value not found\n");
         return NULL;
     }
 
@@ -97,7 +97,7 @@ static void *_load_jvm_win32(const char **p_java_home)
     dSize = sizeof(buf_loc);
     r = RegOpenKeyExW(HKEY_LOCAL_MACHINE, buf_loc, 0, KEY_READ, &hkey);
     if (r != ERROR_SUCCESS) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error opening JRE version-specific registry key");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error opening JRE version-specific registry key\n");
         return NULL;
     }
 
@@ -115,7 +115,7 @@ static void *_load_jvm_win32(const char **p_java_home)
     RegCloseKey(hkey);
 
     if (r != ERROR_SUCCESS) {
-        BD_DEBUG(DBG_BDJ | DBG_CRIT, "RuntimeLib registry value not found");
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "RuntimeLib registry value not found\n");
         return NULL;
     }
 
