@@ -78,6 +78,12 @@ public class TitleContextImpl implements TitleContext {
 
         if (state == STATE_DESTROYED)
             throw new IllegalStateException();
+
+        if (!restart && (this.title == null || !title.equals(this.title))) {
+            /* force restarting of service bound Xlets when title changes */
+            restart = true;
+        }
+
         TitleStartAction action = new TitleStartAction(this, (TitleImpl)title);
         if (!BDJLoader.load((TitleImpl)title, restart, action))
             action.loaderDone(false);
