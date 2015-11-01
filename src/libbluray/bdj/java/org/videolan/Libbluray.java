@@ -93,6 +93,9 @@ public class Libbluray {
 
         hookProperties();
 
+        /* hook calss loading */
+        sun.misc.ClassFileTransformer.add(new BDJClassFileTransformer());
+
         /* set up directories */
         persistentRoot = canonicalize(persistentRoot, true);
         budaRoot       = canonicalize(budaRoot, true);
