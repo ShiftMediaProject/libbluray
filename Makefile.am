@@ -26,7 +26,8 @@ EXTRA_DIST = \
 	src/libbluray/bdj/build.xml \
 	src/libbluray/bdj/java \
 	src/libbluray/bdj/java-j2me \
-	src/libbluray/bdj/java-j2se
+	src/libbluray/bdj/java-j2se \
+	contrib/asm
 
 lib_LTLIBRARIES=libbluray.la
 libbluray_la_SOURCES = \
