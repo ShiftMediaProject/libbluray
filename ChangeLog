@@ -1,3 +1,4 @@
+2015-11-03: Version 0.9.1
 - Improved BD-J security.
 - Improved error resilience.
 - Improved seeking (avoid skipping PAT/PMT/PCR).
