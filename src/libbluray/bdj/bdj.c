@@ -67,7 +67,7 @@ static void *_load_jvm_win32(const char **p_java_home)
 
     wchar_t buf_loc[4096] = L"SOFTWARE\\JavaSoft\\Java Runtime Environment\\";
     wchar_t buf_vers[128];
-
+    wchar_t java_path[4096] = L"";
     char strbuf[256];
 
     LONG r;
@@ -108,6 +108,9 @@ static void *_load_jvm_win32(const char **p_java_home)
         WideCharToMultiByte(CP_UTF8, 0, buf_loc, -1, java_home, sizeof(java_home), NULL, NULL);
         *p_java_home = java_home;
         BD_DEBUG(DBG_BDJ, "JavaHome: %s\n", java_home);
+
+        wcscat(java_path, buf_loc);
+        wcscat(java_path, L"\\bin");
     }
 
     dSize = sizeof(buf_loc);
@@ -119,7 +122,9 @@ static void *_load_jvm_win32(const char **p_java_home)
         return NULL;
     }
 
+    SetDllDirectoryW(java_path);
     void *result = LoadLibraryW(buf_loc);
+    SetDllDirectoryW(NULL);
 
     WideCharToMultiByte(CP_UTF8, 0, buf_loc, -1, strbuf, sizeof(strbuf), NULL, NULL);
     if (!result) {
