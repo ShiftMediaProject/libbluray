@@ -26,6 +26,7 @@
 
 #include "native/register_native.h"
 
+#include "file/file.h"
 #include "file/dirs.h"
 #include "file/dl.h"
 #include "util/strutl.h"
@@ -41,9 +42,6 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <winreg.h>
-#define DIR_SEP "\\"
-#else
-#define DIR_SEP "/"
 #endif
 
 #ifdef HAVE_BDJ_J2ME
@@ -217,17 +215,17 @@ static void *_load_jvm(const char **p_java_home)
 
 static int _can_read_file(const char *fn)
 {
-    FILE *fp;
+    BD_FILE_H *fp;
 
     if (!fn) {
         return 0;
     }
 
-    fp = fopen(fn, "rb");
+    fp = file_open(fn, "rb");
     if (fp) {
         char b;
-        int result = (int)fread(&b, 1, 1, fp);
-        fclose(fp);
+        int result = (int)file_read(fp, &b, 1);
+        file_close(fp);
         if (result == 1) {
             return 1;
         }
