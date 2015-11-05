@@ -76,6 +76,14 @@ final class BDJSecurityManager extends SecurityManager {
                 }
                 deny(perm);
             }
+
+            // work around bug in openjdk 7 / 8
+            // sun.awt.AWTAutoShutdown.notifyThreadBusy is missing doPrivileged()
+            // (fixed in jdk9 / http://hg.openjdk.java.net/jdk9/client/jdk/rev/5b613a3c04be )
+            if (classDepth("sun.awt.AWTAutoShutdown") > 0) {
+                return;
+            }
+
             if (perm.implies(new RuntimePermission("modifyThreadGroup"))) {
                 /* do check here (no need to log failures) */
                 super.checkPermission(perm);
