@@ -1,3 +1,9 @@
+- Add primary audio stream to bd_select_stream().
+- Fix SecurityException in AWTAutoShutdown.
+- Fix BD-J check when install path in Windows contains non-ASCII chars.
+- Fix jvm.dll loading in Windows ($JAVA_HOME/bin should be in dll load path).
+- Fix class translating in recent Java 8 versions.
+
 2015-11-03: Version 0.9.1
 - Improved BD-J security.
 - Improved error resilience.
