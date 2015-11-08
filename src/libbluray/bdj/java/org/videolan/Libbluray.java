@@ -81,13 +81,6 @@ public class Libbluray {
             System.err.println("hookProperties() failed: " + t);
         }
 
-        /* hook class loading (fix invalid class files) */
-        try {
-            sun.misc.ClassFileTransformer.add(new BDJClassFileTransformer());
-        } catch (Throwable t) {
-            System.err.println("Adding class file transformer failed: " + t);
-        }
-
         /* hook sockets (limit network connections) */
         try {
             BDJSocketFactory.init();

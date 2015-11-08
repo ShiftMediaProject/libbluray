@@ -21,6 +21,7 @@ package org.videolan;
 
 import java.net.MalformedURLException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
@@ -135,6 +136,77 @@ public class BDJClassLoader extends URLClassLoader {
         } catch (Error err) {
             logger.error("FATAL: " + err);
             throw err;
+        }
+    }
+
+    private byte[] loadClassCode(String name) throws ClassNotFoundException {
+        String path = name.replace('.', '/').concat(".class");
+
+        URL res = super.findResource(path);
+        if (res == null) {
+            logger.error("loadClassCode(): resource for class " + name + "not found");
+            throw new ClassNotFoundException(name);
+        }
+
+        InputStream is = null;
+        ByteArrayOutputStream os = null;
+        try {
+            is = res.openStream();
+            os = new ByteArrayOutputStream();
+            byte[] buffer = new byte[0xffff];
+            while (true) {
+                int r = is.read(buffer);
+                if (r == -1) break;
+                os.write(buffer, 0, r);
+            }
+
+            return os.toByteArray();
+
+        } catch (Exception e) {
+            logger.error("loadClassCode(" + name + ") failed: " + e);
+            throw new ClassNotFoundException(name);
+
+        } finally {
+            try {
+                if (is != null)
+                    is.close();
+            } catch (IOException ioe) {
+            }
+            try {
+                if (os != null)
+                    os.close();
+            } catch (IOException ioe) {
+            }
+        }
+    }
+
+    protected Class findClass(String name) throws ClassNotFoundException {
+        try {
+            return super.findClass(name);
+
+        } catch (ClassFormatError ce) {
+
+            /* try to "fix" broken class file */
+            /* if we got ClassFormatError, package was already created. */
+            byte[] b = loadClassCode(name);
+            if (b == null) {
+                logger.error("loadClassCode(" + name + ") failed");
+                /* this usually kills Xlet ... */
+                throw ce;
+            }
+            try {
+                b = new BDJClassFileTransformer().transform(b, 0, b.length);
+                return defineClass(b, 0, b.length);
+            } catch (ThreadDeath td) {
+                throw td;
+            } catch (Throwable t) {
+                logger.error("Class rewriting failed: " + t);
+                throw new ClassNotFoundException(name);
+            }
+
+        } catch (Error er) {
+            logger.error("Unexpected error: " + er + " " + Logger.dumpStack(er));
+            throw er;
         }
     }
 
