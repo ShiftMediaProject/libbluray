@@ -260,7 +260,7 @@ public class IxcRegistryImpl {
             return result;
         }
 
-        public class RemoteMethod implements Runnable
+        private class RemoteMethod implements Runnable
         {
             final BDJXletContext calleeContext;
             final BDJXletContext callerContext;
@@ -276,9 +276,11 @@ public class IxcRegistryImpl {
                 callerContext  = BDJXletContext.getCurrentContext();
                 if (callerContext == null) {
                     logger.error("caller context is null");
+                    throw new RemoteException("no caller context");
                 }
                 if (context == null) {
                     logger.error("callee context is null");
+                    throw new RemoteException("no callee context");
                 }
                 calleeContext  = context;
 

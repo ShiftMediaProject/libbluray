@@ -119,6 +119,10 @@ final class BDJSecurityManager extends SecurityManager {
                     return;
                 }
             }
+            if (perm.getActions().contains("write")) {
+                /* write permissions are handled in checkWrite() */
+                deny(perm);
+            }
         }
 
         /* Networking */

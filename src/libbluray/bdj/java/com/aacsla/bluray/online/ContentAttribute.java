@@ -32,6 +32,16 @@ public class ContentAttribute {
             return id;
         }
 
+        id = getContentCertID("MAKEMKV" + File.separator + "AACS" + File.separator + "Content000.cer");
+        if (id != null) {
+            return id;
+        }
+
+        id = getContentCertID("ANY!" + File.separator + "Content000.cer");
+        if (id != null) {
+            return id;
+        }
+
         return new byte[6];
     }
 

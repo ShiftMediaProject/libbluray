@@ -42,6 +42,7 @@
 #include "hdmv/hdmv_vm.h"
 #include "hdmv/mobj_parse.h"
 #include "decoders/graphics_controller.h"
+#include "decoders/hdmv_pids.h"
 #include "decoders/m2ts_filter.h"
 #include "decoders/overlay.h"
 #include "disc/disc.h"
@@ -93,6 +94,7 @@ typedef struct {
     /* */
     uint8_t         eof_hit;
     uint8_t         encrypted_block_cnt;
+    uint8_t         seek_flag;  /* used to fine-tune first read after seek */
 
     M2TS_FILTER    *m2ts_filter;
 } BD_STREAM;
@@ -849,6 +851,7 @@ static int64_t _seek_stream(BLURAY *bd, BD_STREAM *st,
     }
 
     st->int_buf_off = 6144;
+    st->seek_flag = 1;
 
     return st->clip_pos;
 }
@@ -1958,6 +1961,19 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                     /* fatal error */
                     return -1;
                 }
+
+                /* finetune seek point (avoid skipping PAT/PMT/PCR) */
+                if (BD_UNLIKELY(st->seek_flag)) {
+                    st->seek_flag = 0;
+
+                    /* rewind if previous packets contain PAT/PMT/PCR */
+                    while (st->int_buf_off >= 192 && TS_PID(bd->int_buf + st->int_buf_off - 192) <= HDMV_PID_PCR) {
+                        st->clip_pos -= 192;
+                        st->int_buf_off -= 192;
+                        bd->s_pos -= 192;
+                    }
+                }
+
             }
             if (size > (unsigned int)6144 - st->int_buf_off) {
                 size = 6144 - st->int_buf_off;
@@ -2281,6 +2297,8 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
         _find_next_playmark(bd);
 
         _preload_subpaths(bd);
+
+        bd->st0.seek_flag = 1;
 
         return 1;
     }
@@ -3217,6 +3235,12 @@ static int _try_play_title(BLURAY *bd, unsigned title)
 int bd_play_title(BLURAY *bd, unsigned title)
 {
     int ret;
+
+    if (title == BLURAY_TITLE_TOP_MENU) {
+        /* menu call uses different UO mask */
+        return bd_menu_call(bd, -1);
+    }
+
     bd_mutex_lock(&bd->mutex);
     ret = _try_play_title(bd, title);
     bd_mutex_unlock(&bd->mutex);
@@ -3593,7 +3617,7 @@ static int _bd_read_file(BLURAY *bd, const char *dir, const char *file, void **d
         return 0;
     }
 
-    BD_DEBUG(DBG_CRIT, "bd_read_file(): read %"PRId64" bytes from %s"DIR_SEP"%s\n",
+    BD_DEBUG(DBG_BLURAY, "bd_read_file(): read %"PRId64" bytes from %s"DIR_SEP"%s\n",
              *size, dir, file);
     return 1;
 }
