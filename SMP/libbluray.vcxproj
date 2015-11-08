@@ -464,9 +464,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -527,9 +527,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -593,9 +593,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -659,9 +659,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -723,9 +723,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -787,9 +787,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -863,9 +863,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -939,9 +939,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1015,9 +1015,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1091,9 +1091,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1167,9 +1167,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1243,9 +1243,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1318,9 +1318,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1393,9 +1393,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-0.9.0.jar (
+if not exist .\src\libbluray-j2se-0.9.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-0.9.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1408,4 +1408,4 @@ del $(OutDir)\bin\*.jar
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-</Project>
+</Project>
