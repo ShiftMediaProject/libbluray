@@ -126,7 +126,16 @@ public class BDJClassLoader extends URLClassLoader {
             }
             return c;
         }
-        return super.loadClass(name);
+
+        try {
+            return super.loadClass(name);
+        } catch (ClassNotFoundException e0) {
+            logger.error("ClassNotFoundException: " + name);
+            throw e0;
+        } catch (Error err) {
+            logger.error("FATAL: " + err);
+            throw err;
+        }
     }
 
     public URL getResource(String name) {
@@ -157,4 +166,6 @@ public class BDJClassLoader extends URLClassLoader {
     }
 
     private String xletClass;
+
+    private static final Logger logger = Logger.getLogger(BDJClassLoader.class.getName());
 }
