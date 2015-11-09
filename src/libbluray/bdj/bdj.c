@@ -223,7 +223,7 @@ static int _can_read_file(const char *fn)
 
     fp = file_open(fn, "rb");
     if (fp) {
-        char b;
+        uint8_t b;
         int result = (int)file_read(fp, &b, 1);
         file_close(fp);
         if (result == 1) {
