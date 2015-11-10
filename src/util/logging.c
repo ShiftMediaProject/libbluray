@@ -104,7 +104,7 @@ void bd_debug(const char *file, int line, uint32_t mask, const char *format, ...
 
         } else {
             len += len2;
-            if (len >= sizeof(buffer)) {
+            if ((size_t)len >= sizeof(buffer)) {
                 len = sizeof(buffer);
             }
 
