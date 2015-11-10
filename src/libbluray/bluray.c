@@ -2788,6 +2788,9 @@ void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint
     bd_mutex_lock(&bd->mutex);
 
     switch (stream_type) {
+        case BLURAY_AUDIO_STREAM:
+            bd_psr_write(bd->regs, PSR_PRIMARY_AUDIO_ID, stream_id & 0xff);
+            break;
         case BLURAY_PG_TEXTST_STREAM:
             bd_psr_write_bits(bd->regs, PSR_PG_STREAM,
                               ((!!enable_flag)<<31) | (stream_id & 0xfff),
