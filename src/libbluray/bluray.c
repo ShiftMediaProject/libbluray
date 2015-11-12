@@ -798,7 +798,15 @@ static int _preload_m2ts(BLURAY *bd, BD_PRELOAD *p)
 
     /* allocate buffer */
     p->clip_size = (size_t)st.clip_size;
-    p->buf       = realloc(p->buf, p->clip_size);
+    uint8_t* tmp = (uint8_t*)realloc(p->buf, p->clip_size);
+    if (!tmp) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_preload_m2ts(): out of memory\n");
+        _close_m2ts(&st);
+        _close_preload(p);
+        return 0;
+    }
+
+    p->buf = tmp;
 
     /* read clip to buffer */
 
