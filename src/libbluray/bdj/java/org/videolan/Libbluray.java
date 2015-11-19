@@ -60,6 +60,7 @@ public class Libbluray {
                         if (ctx != null) {
                             return ctx.getXletHome();
                         }
+                        System.err.println("getProperty(user.dir): no context !  " + Logger.dumpStack());
                     }
                     return super.getProperty(key);
                 }
