@@ -270,7 +270,7 @@ class VFSCache {
         accessFileSynced(absPath);
     }
 
-    protected synchronized void accessFileSynced(String absPath) {
+    private synchronized void accessFileSynced(String absPath) {
 
         if (inAccessFile) {
             /* avoid recursion from SecurityManager checks */
