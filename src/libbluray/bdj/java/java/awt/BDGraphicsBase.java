@@ -170,7 +170,11 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
     }
 
     public FontMetrics getFontMetrics(Font font) {
-        return BDFontMetrics.getFontMetrics(font);
+        if (font != null) {
+            return BDFontMetrics.getFontMetrics(font);
+        }
+        logger.error("getFontMetrics(null) from " + Logger.dumpStack());
+        return null;
     }
 
     public void setColor(Color c) {
