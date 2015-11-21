@@ -50,6 +50,10 @@ public class ContentAttribute {
         try {
             is = new FileInputStream(
                 System.getProperty("bluray.vfs.root") + File.separator + file);
+        } catch (Exception e) {
+            return null;
+        }
+        try {
             if (is.skip(14) != 14)
                 return null;
             byte[] bytes = new byte[6];
