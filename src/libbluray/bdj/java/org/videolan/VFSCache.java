@@ -277,9 +277,12 @@ class VFSCache {
             return;
         }
 
-        inAccessFile = true;
-        accessFileImp(absPath);
-        inAccessFile = false;
+        try {
+            inAccessFile = true;
+            accessFileImp(absPath);
+        } finally {
+            inAccessFile = false;
+        }
     }
 
     private void accessFileImp(String absPath) {
