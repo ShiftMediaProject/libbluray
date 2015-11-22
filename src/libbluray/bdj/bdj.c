@@ -135,6 +135,35 @@ static void *_load_jvm_win32(const char **p_java_home)
 }
 #endif
 
+#ifdef _WIN32
+static inline char *_utf8_to_cp(const char *utf8)
+{
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, utf8, -1, NULL, 0);
+    if (wlen == 0) {
+        return NULL;
+    }
+
+    wchar_t *wide = (wchar_t *)malloc(wlen * sizeof(wchar_t));
+    if (!wide) {
+        return NULL;
+    }
+    MultiByteToWideChar(CP_UTF8, 0, utf8, -1, wide, wlen);
+
+    size_t len = WideCharToMultiByte(CP_ACP, 0, wide, -1, NULL, 0, NULL, NULL);
+    if (len == 0) {
+        X_FREE(wide);
+        return NULL;
+    }
+
+    char *out = (char *)malloc(len);
+    if (out != NULL) {
+        WideCharToMultiByte(CP_ACP, 0, wide, -1, out, len, NULL, NULL);
+    }
+    X_FREE(wide);
+    return out;
+}
+#endif
+
 static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char *jvm_lib)
 {
     if (java_home) {
@@ -516,6 +545,17 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     args.nOptions = n;
     args.options = option;
     args.ignoreUnrecognized = JNI_FALSE; // don't ignore unrecognized options
+
+#ifdef _WIN32
+    /* ... in windows, JVM options are not UTF8 but current system code page ... */
+    /* luckily, most BD-J options can be passed in as java strings later. But, not class path. */
+    int ii;
+    for (ii = 0; ii < n; ii++) {
+        char *tmp = _utf8_to_cp(option[ii].optionString);
+        X_FREE(option[ii].optionString);
+        option[ii].optionString = tmp;
+    }
+#endif
 
     int result = JNI_CreateJavaVM_fp(jvm, (void**) env, &args);
 
