@@ -221,7 +221,7 @@ public class MountManager {
         if (mountPoint != null) {
             return mountPoint.getMountPoint();
         } else {
-            logger.info("JAR " + jarId + " not mounted");
+            logger.error("JAR " + jarId + " not mounted");
         }
         return null;
     }
@@ -247,6 +247,7 @@ public class MountManager {
             if (dir != null) {
                 return dir.getAbsolutePath();
             }
+            logger.error("getMountPoint(): already unmounted !");
             return null;
         }
 
