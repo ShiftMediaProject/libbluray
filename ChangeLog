@@ -1,4 +1,5 @@
 - Add primary audio stream to bd_select_stream().
+- Fix Android build.
 - Fix SecurityException in AWTAutoShutdown.
 - Fix BD-J check when install path in Windows contains non-ASCII chars.
 - Fix jvm.dll loading in Windows ($JAVA_HOME/bin should be in dll load path).
