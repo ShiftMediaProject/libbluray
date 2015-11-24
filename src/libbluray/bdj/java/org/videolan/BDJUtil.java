@@ -47,6 +47,11 @@ public class BDJUtil {
      */
     public static String discRootToFilesystem(String path)
     {
-        return System.getProperty("bluray.vfs.root") + path;
+        String vfsRoot = System.getProperty("bluray.vfs.root");
+        if (vfsRoot == null) {
+            System.err.println("discRootToFilesystem(): disc root not set !");
+            return path;
+        }
+        return vfsRoot + path;
     }
 }
