@@ -14,6 +14,7 @@ m4/ltversion.m4
 m4/lt~obsolete.m4
 autom4te.cache/
 build-aux/
+build*
 config.h.in
 config.h
 config.log
