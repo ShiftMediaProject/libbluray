@@ -34,6 +34,7 @@ mobj_dump
 mpls_dump
 sound_dump
 bdj_test
+bdjo_dump
 bd_info
 hdmv_test
 *.exe
