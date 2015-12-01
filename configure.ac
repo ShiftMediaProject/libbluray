@@ -87,7 +87,9 @@ AC_ARG_ENABLE([bdjava],
   [use_bdjava=yes])
 
 AC_ARG_ENABLE([udf],
-  [AS_HELP_STRING([--enable-udf], [enable UDF support @<:@default=disabled@:>@])])
+  [AS_HELP_STRING([--disable-udf], [disable UDF support @<:@default=enabled@:>@])],
+  [enable_udf=$enableval],
+  [enable_udf=yes])
 
 AC_ARG_WITH([libxml2],
   [AS_HELP_STRING([--without-libxml2], [build without libxml2 support @<:@default=with@:>@])])
