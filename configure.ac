@@ -91,6 +91,12 @@ AC_ARG_ENABLE([udf],
   [enable_udf=$enableval],
   [enable_udf=yes])
 
+AC_ARG_ENABLE([bdjava-jar],
+  [AS_HELP_STRING([--enable-bdjava-jar],
+  [enable JAR file for BD-Java support (default is no)])],
+  [use_bdjava_jar=$enableval],
+  [use_bdjava_jar=no])
+
 AC_ARG_WITH([libxml2],
   [AS_HELP_STRING([--without-libxml2], [build without libxml2 support @<:@default=with@:>@])])
 
@@ -226,7 +232,7 @@ if [[ $use_bdjava = "yes" ]]; then
   ])
 
   AC_CHECK_PROG(HAVE_ANT, [ant], yes, no)
-  if test "x$HAVE_ANT" = "xno"; then
+  if test "x$use_bdjava_jar" = "xyes" && test "x$HAVE_ANT" = "xno"; then
       AC_MSG_ERROR([BD-J requires ANT, but ant was not found. Please install it.])
   fi
 
@@ -235,6 +241,7 @@ if [[ $use_bdjava = "yes" ]]; then
   AC_DEFINE_UNQUOTED([JDK_HOME], ["$JDK_HOME"], [""])
 fi
 AM_CONDITIONAL([USING_BDJAVA], [ test $use_bdjava = "yes" ])
+AM_CONDITIONAL([USING_BDJAVA_BUILD_JAR], [ test $use_bdjava_jar = "yes" ])
 
 dnl BD-J type
 if test "$BDJ_TYPE" = "j2me"; then
@@ -294,6 +301,7 @@ echo "  --------"
 echo "  BD-J support:                  $use_bdjava"
 if [[ $use_bdjava = "yes" ]]; then
 echo "  BD-J type:                     $BDJ_TYPE"
+echo "  build JAR:                     $use_bdjava_jar"
 if test x"$BDJ_BOOTCLASSPATH" != x""; then
 echo "  BD-J bootclasspath:            $BDJ_BOOTCLASSPATH"
 fi

@@ -186,10 +186,12 @@ endif
 
 
 if USING_BDJAVA
+if USING_BDJAVA_BUILD_JAR
 jardir=$(datadir)/java/
 jar_DATA=$(top_builddir)/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar
 
 $(top_builddir)/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar: all-local
+endif
 
 libbluray_la_SOURCES += \
 	src/libbluray/bdj/bdj.h \
@@ -214,6 +216,7 @@ libbluray_la_SOURCES += \
 
 AM_CFLAGS += $(BDJAVA_CFLAGS)
 
+if USING_BDJAVA_BUILD_JAR
 all-local:
 	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml \
 	    -Dbuild='$(abs_builddir)/src/libbluray/bdj/build' \
@@ -228,6 +231,7 @@ clean-local:
 	    -Ddist='$(abs_builddir)/.libs' \
 	    -Dversion='$(BDJ_TYPE)-$(VERSION)' \
 	    clean
+endif
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig
