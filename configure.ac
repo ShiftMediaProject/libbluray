@@ -92,10 +92,10 @@ AC_ARG_ENABLE([udf],
   [enable_udf=yes])
 
 AC_ARG_ENABLE([bdjava-jar],
-  [AS_HELP_STRING([--enable-bdjava-jar],
-  [enable JAR file for BD-Java support (default is no)])],
+  [AS_HELP_STRING([--disable-bdjava-jar],
+  [disable building of BD-Java JAR file @<:@default=enabled@:>@])],
   [use_bdjava_jar=$enableval],
-  [use_bdjava_jar=no])
+  [use_bdjava_jar=yes])
 
 AC_ARG_WITH([libxml2],
   [AS_HELP_STRING([--without-libxml2], [build without libxml2 support @<:@default=with@:>@])])
