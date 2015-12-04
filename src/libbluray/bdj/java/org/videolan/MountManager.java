@@ -185,6 +185,7 @@ public class MountManager {
                 new PrivilegedAction() {
                     public Object run() {
                         if (mountPoint.decRefCount() < 1) {
+                            logger.error("Removing JAR " + id + " from mount cache");
                             mountPoints.remove(id);
                         }
                         return null;
