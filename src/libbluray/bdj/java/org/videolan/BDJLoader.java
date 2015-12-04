@@ -185,11 +185,6 @@ public class BDJLoader {
                 throw new InvalidObjectException("bdjo not loaded");
             AppEntry[] appTable = bdjo.getAppTable();
 
-            // initialize AppCaches
-            if (vfsCache != null) {
-                vfsCache.add(bdjo.getAppCaches());
-            }
-
             // reuse appProxys
             BDJAppProxy[] proxys = new BDJAppProxy[appTable.length];
             AppsDatabase db = AppsDatabase.getAppsDatabase();
@@ -215,7 +210,6 @@ public class BDJLoader {
                             proxy.stop(true);
                         } else {
                             logger.info("Keeping xlet " + appTable[i].getInitialClass());
-                            proxy.getXletContext().update(appTable[i], bdjo.getAppCaches());
                             proxys[i] = proxy;
                             proxy = null;
                         }
@@ -240,6 +234,11 @@ public class BDJLoader {
             Libbluray.setUOMask(terminfo.getMenuCallMask(), terminfo.getTitleSearchMask());
             Libbluray.setKeyInterest(bdjo.getKeyInterestTable());
 
+            // initialize AppCaches
+            if (vfsCache != null) {
+                vfsCache.add(bdjo.getAppCaches());
+            }
+
             // initialize appProxys
             for (int i = 0; i < appTable.length; i++) {
                 if (proxys[i] == null) {
@@ -256,6 +255,7 @@ public class BDJLoader {
                     }
                     logger.info("Loaded class: " + appTable[i].getInitialClass() + p + " from " + appTable[i].getBasePath() + ".jar");
                 } else {
+                    proxys[i].getXletContext().update(appTable[i], bdjo.getAppCaches());
                     logger.info("Reused class: " + appTable[i].getInitialClass() +     " from " + appTable[i].getBasePath() + ".jar");
                 }
             }
