@@ -266,6 +266,19 @@ public class BDJLoader {
             // notify AppsDatabase
             ((BDJAppsDatabase)BDJAppsDatabase.getAppsDatabase()).newDatabase(bdjo, proxys);
 
+            // auto start playlist
+            try {
+                PlayListTable plt = bdjo.getAccessiblePlaylists();
+                if ((plt != null) && (plt.isAutostartFirst())) {
+                    logger.info("Auto-starting playlist");
+                    String[] pl = plt.getPlayLists();
+                    if (pl.length > 0)
+                        Manager.createPlayer(new MediaLocator(new BDLocator("bd://PLAYLIST:" + pl[0]))).start();
+                }
+            } catch (Exception e) {
+                logger.error("loadN(): autoplaylist failed: " + e + "\n" + Logger.dumpStack(e));
+            }
+
             // now run all the xlets
             for (int i = 0; i < appTable.length; i++) {
                 int code = appTable[i].getControlCode();
@@ -281,15 +294,6 @@ public class BDJLoader {
             }
 
             logger.info("Finished initializing and starting xlets.");
-
-            // auto start playlist
-            PlayListTable plt = bdjo.getAccessiblePlaylists();
-            if ((plt != null) && (plt.isAutostartFirst())) {
-                logger.info("Auto-starting playlist");
-                String[] pl = plt.getPlayLists();
-                if (pl.length > 0)
-                    Manager.createPlayer(new MediaLocator(new BDLocator("bd://PLAYLIST:" + pl[0]))).start();
-            }
 
             return true;
 
