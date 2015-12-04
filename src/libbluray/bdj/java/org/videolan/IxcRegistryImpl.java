@@ -452,7 +452,7 @@ public class IxcRegistryImpl {
         }
         Object remoteObj = wrapOrCopy(wrappedObj, wrappedObj.context, (BDJXletContext)xc);
 
-        Debug("IxcRegistry.lookup(" + path + ") => " + remoteObj);
+        Debug("IxcRegistry.lookup(" + path + ") => OK");
 
         return (Remote)remoteObj;
     }
