@@ -150,7 +150,7 @@ libbluray_la_SOURCES+= \
 endif
 endif
 
-libbluray_la_LDFLAGS= -version-info $(LT_VERSION_INFO) -export-symbols-regex "^bd_"
+libbluray_la_LDFLAGS= -no-undefined -version-info $(LT_VERSION_INFO) -export-symbols-regex "^bd_"
 libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS) $(FONTCONFIG_LIBS)
 
 noinst_HEADERS = \

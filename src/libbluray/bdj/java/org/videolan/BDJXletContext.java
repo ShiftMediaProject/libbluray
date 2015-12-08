@@ -80,6 +80,8 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     }
 
     public String getXletHome() {
+        if (homeMountPoint == null)
+            logger.error("Home directory not mounted!");
         return homeMountPoint;
     }
 

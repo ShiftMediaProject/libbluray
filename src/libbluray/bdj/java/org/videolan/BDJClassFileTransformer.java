@@ -20,7 +20,7 @@
 package org.videolan;
 
 /**
- * This is a class which is called by java.lang.ClassLoader
+ * This is a class which is called by BDJClassLoader
  * when ClassFormatError is thrown inside defineClass().
  *
  * Some discs have invalid debug info in class files (broken by
@@ -32,8 +32,6 @@ package org.videolan;
  *       in class file com/tcs/blr/bluray/pal/fox/controller/d
  */
 
-import sun.misc.ClassFileTransformer;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.ClassVisitor;
@@ -41,7 +39,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Attribute;
 
-public class BDJClassFileTransformer extends ClassFileTransformer
+class BDJClassFileTransformer
 {
     public byte[] transform(byte[] b, int off, int len)
         throws ClassFormatError

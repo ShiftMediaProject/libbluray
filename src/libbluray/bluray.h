@@ -553,6 +553,7 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle);
  * @param stream_id  stream number (1..N)
  * @param enable_flag  set to 0 to disable streams of this type
  */
+#define BLURAY_AUDIO_STREAM      0
 #define BLURAY_PG_TEXTST_STREAM  1
 
 void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint32_t enable_flag);
