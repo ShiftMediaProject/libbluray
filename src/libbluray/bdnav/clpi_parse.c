@@ -359,8 +359,8 @@ _parse_cpi_info(BITSTREAM *bits, CLPI_CL *cl)
     return _parse_cpi(bits, &cl->cpi);
 }
 
-static uint32_t
-_find_stc_spn(const CLPI_CL *cl, uint8_t stc_id)
+uint32_t
+clpi_find_stc_spn(const CLPI_CL *cl, uint8_t stc_id)
 {
     int ii;
     CLPI_ATC_SEQ *atc;
@@ -401,7 +401,7 @@ clpi_lookup_spn(const CLPI_CL *cl, uint32_t timestamp, int before, uint8_t stc_i
     // Use sequence info to find spn_stc_start before doing
     // PTS search. The spn_stc_start defines the point in
     // the EP map to start searching.
-    stc_spn = _find_stc_spn(cl, stc_id);
+    stc_spn = clpi_find_stc_spn(cl, stc_id);
     for (ii = 0; ii < entry->num_ep_coarse; ii++) {
         ref = entry->coarse[ii].ref_ep_fine_id;
         if (entry->coarse[ii].spn_ep >= stc_spn) {

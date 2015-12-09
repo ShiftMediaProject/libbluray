@@ -604,6 +604,8 @@ static void _fill_clip(NAV_TITLE *title,
     *pos += clip->end_pkt - clip->start_pkt;
     clip->title_time = *time;
     *time += clip->out_time - clip->in_time;
+
+    clip->stc_spn = clpi_find_stc_spn(clip->cl, mpls_clip[clip->angle].stc_id);
 }
 
 NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
