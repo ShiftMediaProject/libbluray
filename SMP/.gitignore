@@ -22,4 +22,5 @@
 *.iobj
 *.ipdb
 .vs/
-!*.jar
+*.VC.db
+*.opendb
