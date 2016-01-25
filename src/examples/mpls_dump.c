@@ -781,6 +781,8 @@ main(int argc, char *argv[])
             }
             free(dirlist);
             free(path);
+            closedir(dir);
+            dir = NULL;
         } else {
             pl = _process_file(argv[ii], pl_list, pl_ii);
             if (pl != NULL) {
