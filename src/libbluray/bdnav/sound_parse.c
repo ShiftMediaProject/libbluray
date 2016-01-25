@@ -169,7 +169,7 @@ static SOUND_DATA *_sound_parse(BD_FILE_H *fp)
 
     data_offsets = calloc(num_sounds, sizeof(uint32_t));
     data = calloc(1, sizeof(SOUND_DATA));
-    if (!data_offsets | !data) {
+    if (!data_offsets || !data) {
         BD_DEBUG(DBG_CRIT, "out of memory\n");
         goto error;
     }
