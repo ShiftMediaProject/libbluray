@@ -177,7 +177,7 @@ static void _comb_dir_append(BD_DIR_H *dp, BD_DIRENT *entry)
     }
 
     /* append */
-    priv = realloc(priv, sizeof(*priv) + priv->count * sizeof(BD_DIRENT));
+    priv = realloc(dp->internal, sizeof(*priv) + priv->count * sizeof(BD_DIRENT));
     if (!priv) {
         return;
     }
