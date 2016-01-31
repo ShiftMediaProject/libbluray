@@ -58,15 +58,19 @@ static void _libaacs_close(BD_AACS *p)
     }
 }
 
+static void _unload(BD_AACS *p)
+{
+    _libaacs_close(p);
+
+    if (p->h_libaacs) {
+        dl_dlclose(p->h_libaacs);
+    }
+}
+
 void libaacs_unload(BD_AACS **p)
 {
     if (p && *p) {
-        _libaacs_close(*p);
-
-        if ((*p)->h_libaacs) {
-            dl_dlclose((*p)->h_libaacs);
-        }
-
+        _unload(*p);
         X_FREE(*p);
     }
 }
