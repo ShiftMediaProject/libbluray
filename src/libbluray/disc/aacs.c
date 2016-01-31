@@ -47,6 +47,8 @@ struct bd_aacs {
     fptr_p_void    get_device_binding_id;
     fptr_p_void    get_device_nonce;
     fptr_p_void    get_media_key;
+
+    int            impl_id;
 };
 
 
@@ -86,7 +88,7 @@ int libaacs_required(void *have_file_handle, int (*have_file)(void *, const char
     return 0;
 }
 
-static void *_open_libaacs(void)
+static void *_open_libaacs(int *impl_id)
 {
     const char * const libaacs[] = {
       getenv("LIBAACS_PATH"),
@@ -95,10 +97,11 @@ static void *_open_libaacs(void)
     };
     unsigned ii;
 
-    for (ii = 0; ii < sizeof(libaacs) / sizeof(libaacs[0]); ii++) {
+    for (ii = *impl_id; ii < sizeof(libaacs) / sizeof(libaacs[0]); ii++) {
         if (libaacs[ii]) {
             void *handle = dl_dlopen(libaacs[ii], "0");
             if (handle) {
+                *impl_id = ii;
                 BD_DEBUG(DBG_BLURAY, "Using %s for AACS\n", libaacs[ii]);
                 return handle;
             }
@@ -109,14 +112,15 @@ static void *_open_libaacs(void)
     return NULL;
 }
 
-BD_AACS *libaacs_load(void)
+static BD_AACS *_load(int impl_id)
 {
     BD_AACS *p = calloc(1, sizeof(BD_AACS));
     if (!p) {
         return NULL;
     }
+    p->impl_id = impl_id;
 
-    p->h_libaacs = _open_libaacs();
+    p->h_libaacs = _open_libaacs(&p->impl_id);
     if (!p->h_libaacs) {
         X_FREE(p);
         return NULL;
@@ -145,6 +149,11 @@ BD_AACS *libaacs_load(void)
     }
 
     return p;
+}
+
+BD_AACS *libaacs_load(void)
+{
+    return _load(0);
 }
 
 int libaacs_open(BD_AACS *p, const char *device,
@@ -182,6 +191,22 @@ int libaacs_open(BD_AACS *p, const char *device,
         p->aacs = open(device, keyfile_path);
     } else {
         BD_DEBUG(DBG_BLURAY, "aacs_open() not found\n");
+    }
+
+    if (error_code) {
+        /* failed. try next aacs implementation if available. */
+        BD_AACS *p2 = _load(p->impl_id + 1);
+        if (p2) {
+            if (!libaacs_open(p2, device, file_open_handle, file_open_fp, keyfile_path)) {
+                /* succeed - swap implementations */
+                _unload(p);
+                *p = *p2;
+                X_FREE(p2);
+                return 0;
+            }
+            /* failed - report original errors */
+            libaacs_unload(&p2);
+        }
     }
 
     if (p->aacs) {
