@@ -1423,8 +1423,7 @@ BLURAY *bd_init(void)
 
 static int _bd_open(BLURAY *bd,
                     const char *device_path, const char *keyfile_path,
-                    void *read_blocks_handle,
-                    int (*read_blocks)(void *handle, void *buf, int lba, int num_blocks))
+                    fs_access *p_fs)
 {
     BD_ENC_INFO enc_info;
 
@@ -1436,7 +1435,7 @@ static int _bd_open(BLURAY *bd,
         return 0;
     }
 
-    bd->disc = disc_open(device_path, read_blocks_handle, read_blocks,
+    bd->disc = disc_open(device_path, p_fs,
                          &enc_info, keyfile_path,
                          (void*)bd->regs, (void*)bd_psr_read, (void*)bd_psr_write);
 
@@ -1456,7 +1455,7 @@ int bd_open_disc(BLURAY *bd, const char *device_path, const char *keyfile_path)
         return 0;
     }
 
-    return _bd_open(bd, device_path, keyfile_path, NULL, NULL);
+    return _bd_open(bd, device_path, keyfile_path, NULL);
 }
 
 int bd_open_stream(BLURAY *bd,
@@ -1467,7 +1466,8 @@ int bd_open_stream(BLURAY *bd,
         return 0;
     }
 
-    return _bd_open(bd, NULL, NULL, read_blocks_handle, read_blocks);
+    fs_access fs = { read_blocks_handle, read_blocks, NULL, NULL };
+    return _bd_open(bd, NULL, NULL, &fs);
 }
 
 BLURAY *bd_open(const char *device_path, const char *keyfile_path)
