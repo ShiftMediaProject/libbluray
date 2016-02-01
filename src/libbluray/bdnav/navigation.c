@@ -174,6 +174,21 @@ _pl_duration(MPLS_PL *pl)
     return duration;
 }
 
+static uint32_t
+_pl_chapter_count(MPLS_PL *pl)
+{
+    unsigned ii, chapters = 0;
+
+    // Count the number of "entry" marks (skipping "link" marks)
+    // This is the the number of chapters
+    for (ii = 0; ii < pl->mark_count; ii++) {
+        if (pl->play_mark[ii].mark_type == BD_MARK_ENTRY) {
+            chapters++;
+        }
+    }
+    return chapters;
+}
+
 NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_title_length)
 {
     BD_DIR_H *dir;
@@ -446,7 +461,7 @@ static void _fill_clip(NAV_TITLE *title,
 NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
 {
     NAV_TITLE *title = NULL;
-    unsigned ii, ss, chapters = 0;
+    unsigned ii, ss;
     uint32_t pos = 0;
     uint32_t time = 0;
 
@@ -506,15 +521,8 @@ NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
         }
     }
 
-    // Count the number of "entry" marks (skipping "link" marks)
-    // This is the the number of chapters
-    for (ii = 0; ii < title->pl->mark_count; ii++) {
-        if (title->pl->play_mark[ii].mark_type == BD_MARK_ENTRY) {
-            chapters++;
-        }
-    }
-    title->chap_list.count = chapters;
-    title->chap_list.mark = calloc(chapters, sizeof(NAV_MARK));
+    title->chap_list.count = _pl_chapter_count(title->pl);
+    title->chap_list.mark = calloc(title->chap_list.count, sizeof(NAV_MARK));
     title->mark_list.count = title->pl->mark_count;
     title->mark_list.mark = calloc(title->pl->mark_count, sizeof(NAV_MARK));
 
