@@ -78,7 +78,10 @@ int main(int argc, char *argv[])
         _usage(argv[0]);
     }
     bd = bd_open(bd_dir, NULL);
-
+    if (!bd) {
+        fprintf(stderr, "bd_open(%s) failed\n", bd_dir);
+        exit(EXIT_FAILURE);
+    }
     count = bd_get_titles(bd, flags, seconds);
     main_title = bd_get_main_title(bd);
     if (main_title >= 0) {
