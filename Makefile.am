@@ -270,20 +270,20 @@ bd_info_LDADD = libbluray.la
 bdsplice_SOURCES = src/examples/bdsplice.c
 bdsplice_LDADD = libbluray.la
 
-bdj_test_SOURCES = src/examples/bdj_test.c
+bdj_test_SOURCES = src/devtools/bdj_test.c
 bdj_test_LDADD = libbluray.la
 
-bdjo_dump_SOURCES = src/examples/bdjo_dump.c
+bdjo_dump_SOURCES = src/devtools/bdjo_dump.c
 bdjo_dump_LDADD = libbluray.la
 
 clpi_dump_CFLAGS = $(AM_CFLAGS)
 clpi_dump_SOURCES = \
-	src/examples/clpi_dump.c \
-	src/examples/util.c \
-	src/examples/util.h
+	src/devtools/clpi_dump.c \
+	src/devtools/util.c \
+	src/devtools/util.h
 clpi_dump_LDADD = libbluray.la
 
-hdmv_test_SOURCES = src/examples/hdmv_test.c
+hdmv_test_SOURCES = src/devtools/hdmv_test.c
 hdmv_test_LDADD = libbluray.la
 
 index_dump_SOURCES = src/examples/index_dump.c
@@ -296,15 +296,15 @@ list_titles_SOURCES = src/examples/list_titles.c
 list_titles_LDADD = libbluray.la
 
 mobj_dump_CFLAGS = $(AM_CFLAGS)
-mobj_dump_SOURCES = src/examples/mobj_dump.c \
+mobj_dump_SOURCES = src/devtools/mobj_dump.c \
 	src/libbluray/hdmv/mobj_print.c
 mobj_dump_LDADD = libbluray.la
 
 mpls_dump_CFLAGS = $(AM_CFLAGS)
 mpls_dump_SOURCES = \
-	src/examples/mpls_dump.c \
-	src/examples/util.c \
-	src/examples/util.h
+	src/devtools/mpls_dump.c \
+	src/devtools/util.c \
+	src/devtools/util.h
 mpls_dump_LDADD = libbluray.la
 
 sound_dump_SOURCES = src/examples/sound_dump.c
