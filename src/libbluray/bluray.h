@@ -335,6 +335,22 @@ int bd_open_stream(BLURAY *bd,
                    int (*read_blocks)(void *handle, void *buf, int lba, int num_blocks));
 
 /**
+ *  Open BluRay disc
+ *
+ * @param bd  BLURAY object
+ * @param handle  opaque handle for open_dir and open_file
+ * @param open_dir  function used to open a directory
+ * @param open_file  function used to open a file
+ * @return 1 on success, 0 if error
+ */
+struct bd_dir_s;
+struct bd_file_s;
+int bd_open_files(BLURAY *bd,
+                  void *handle,
+                  struct bd_dir_s *(*open_dir)(void *handle, const char *rel_path),
+                  struct bd_file_s *(*open_file)(void *handle, const char *rel_path));
+
+/**
  *  Close BluRay disc
  *
  * @param bd  BLURAY object

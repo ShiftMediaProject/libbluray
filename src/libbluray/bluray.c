@@ -1470,6 +1470,19 @@ int bd_open_stream(BLURAY *bd,
     return _bd_open(bd, NULL, NULL, &fs);
 }
 
+int bd_open_files(BLURAY *bd,
+                  void *handle,
+                  struct bd_dir_s *(*open_dir)(void *handle, const char *rel_path),
+                  struct bd_file_s *(*open_file)(void *handle, const char *rel_path))
+{
+    if (!open_dir || !open_file) {
+        return 0;
+    }
+
+    fs_access fs = { handle, NULL, open_dir, open_file };
+    return _bd_open(bd, NULL, NULL, &fs);
+}
+
 BLURAY *bd_open(const char *device_path, const char *keyfile_path)
 {
     BLURAY *bd;
