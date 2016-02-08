@@ -57,15 +57,19 @@ static void _libbdplus_close(BD_BDPLUS *p)
     }
 }
 
+static void _unload(BD_BDPLUS *p)
+{
+    _libbdplus_close(p);
+
+    if (p->h_libbdplus) {
+        dl_dlclose(p->h_libbdplus);
+    }
+}
+
 void libbdplus_unload(BD_BDPLUS **p)
 {
     if (p && *p) {
-        _libbdplus_close(*p);
-
-        if ((*p)->h_libbdplus) {
-            dl_dlclose((*p)->h_libbdplus);
-        }
-
+        _unload(*p);
         X_FREE(*p);
     }
 }
