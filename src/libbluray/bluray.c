@@ -952,6 +952,7 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
     bd->disc_info.bdplus_handled     = enc_info->bdplus_handled;
     bd->disc_info.bdplus_gen         = enc_info->bdplus_gen;
     bd->disc_info.bdplus_date        = enc_info->bdplus_date;
+    bd->disc_info.no_menu_support    = enc_info->no_menu_support;
 
     bd->disc_info.udf_volume_id      = disc_volume_id(bd->disc);
 
@@ -1096,6 +1097,10 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
         bd_get_meta(bd);
 
         indx_free(&index);
+    }
+
+    if (!bd->disc_info.first_play_supported || !bd->disc_info.top_menu_supported) {
+        bd->disc_info.no_menu_support = 1;
     }
 
     if (bd->disc_info.bdj_detected) {
@@ -3119,6 +3124,11 @@ static int _play_title(BLURAY *bd, unsigned title)
 {
     if (!bd->disc_info.titles) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_play_title(#%d): No disc index\n", title);
+        return 0;
+    }
+
+    if (bd->disc_info.no_menu_support) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_play(): no menu support\n");
         return 0;
     }
 

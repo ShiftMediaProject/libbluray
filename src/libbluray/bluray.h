@@ -119,6 +119,9 @@ typedef struct {
     char bdj_disc_id[33];    /* (BD-J) disc ID */
 
     const char *udf_volume_id; /* optional UDF volume identifier */
+
+    uint8_t no_menu_support;   /* 1 if this disc can't be played using on-disc menus */
+
 } BLURAY_DISC_INFO;
 
 /*
