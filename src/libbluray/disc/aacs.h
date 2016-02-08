@@ -36,8 +36,10 @@ BD_PRIVATE void libaacs_unload(BD_AACS **p);
 
 BD_PRIVATE void libaacs_select_title(BD_AACS *p, uint32_t title);
 BD_PRIVATE int  libaacs_decrypt_unit(BD_AACS *p, uint8_t *buf);
+BD_PRIVATE int  libaacs_decrypt_bus(BD_AACS *p, uint8_t *buf);
 
 BD_PRIVATE uint32_t libaacs_get_mkbv(BD_AACS *p);
+BD_PRIVATE int      libaacs_get_bec_enabled(BD_AACS *p);
 
 #define BD_AACS_DISC_ID            1
 #define BD_AACS_MEDIA_VID          2

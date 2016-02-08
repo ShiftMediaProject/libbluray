@@ -41,6 +41,7 @@ struct bd_aacs {
 
     /* function pointers */
     fptr_int       decrypt_unit;
+    fptr_int       decrypt_bus;
 
     fptr_p_void    get_vid;
     fptr_p_void    get_pmsn;
@@ -129,6 +130,7 @@ static BD_AACS *_load(int impl_id)
     BD_DEBUG(DBG_BLURAY, "Loading aacs library (%p)\n", p->h_libaacs);
 
     *(void **)(&p->decrypt_unit) = dl_dlsym(p->h_libaacs, "aacs_decrypt_unit");
+    *(void **)(&p->decrypt_bus)  = dl_dlsym(p->h_libaacs, "aacs_decrypt_bus");
     *(void **)(&p->get_vid)      = dl_dlsym(p->h_libaacs, "aacs_get_vid");
     *(void **)(&p->get_pmsn)     = dl_dlsym(p->h_libaacs, "aacs_get_pmsn");
     *(void **)(&p->get_device_binding_id) = dl_dlsym(p->h_libaacs, "aacs_get_device_binding_id");
@@ -246,6 +248,18 @@ int libaacs_decrypt_unit(BD_AACS *p, uint8_t *buf)
     return 0;
 }
 
+int libaacs_decrypt_bus(BD_AACS *p, uint8_t *buf)
+{
+    if (p && p->aacs && p->decrypt_bus) {
+        if (p->decrypt_bus(p->aacs, buf) > 0) {
+            return 0;
+        }
+    }
+
+    BD_DEBUG(DBG_AACS | DBG_CRIT, "Unable to BUS decrypt unit (AACS)!\n");
+    return -1;
+}
+
 /*
  *
  */
@@ -303,6 +317,22 @@ static const uint8_t *_get_media_key(BD_AACS *p)
 uint32_t libaacs_get_mkbv(BD_AACS *p)
 {
     return p ? p->mkbv : 0;
+}
+
+int libaacs_get_bec_enabled(BD_AACS *p)
+{
+    fptr_int get_bec;
+
+    if (!p || !p->h_libaacs) {
+        return 0;
+    }
+
+    *(void **)(&get_bec) = dl_dlsym(p->h_libaacs, "aacs_get_bus_encryption");
+    if (!get_bec) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "aacs_get_bus_encryption() dlsym failed!\n");
+    }
+
+    return get_bec(p->aacs) == 3;
 }
 
 static const char *_type2str(int type)
