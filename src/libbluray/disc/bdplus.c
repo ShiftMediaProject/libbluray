@@ -46,6 +46,8 @@ struct bd_bdplus {
 
     /* old API */
     fptr_p_void    title;
+
+    int impl_id;
 };
 
 
@@ -85,7 +87,11 @@ int libbdplus_required(void *have_file_handle, int (*have_file)(void *, const ch
     return 0;
 }
 
-static void *_libbdplus_open(void)
+#define IMPL_USER       0
+#define IMPL_LIBBDPLUS  1
+#define IMPL_LIBMMBD    2
+
+static void *_libbdplus_open(int *impl_id)
 {
     const char * const libbdplus[] = {
       getenv("LIBBDPLUS_PATH"),
@@ -94,10 +100,11 @@ static void *_libbdplus_open(void)
     };
     unsigned ii;
 
-    for (ii = 0; ii < sizeof(libbdplus) / sizeof(libbdplus[0]); ii++) {
+    for (ii = *impl_id; ii < sizeof(libbdplus) / sizeof(libbdplus[0]); ii++) {
         if (libbdplus[ii]) {
             void *handle = dl_dlopen(libbdplus[ii], "0");
             if (handle) {
+                *impl_id = ii;
                 BD_DEBUG(DBG_BLURAY, "Using %s for BD+\n", libbdplus[ii]);
                 return handle;
             }
@@ -108,16 +115,17 @@ static void *_libbdplus_open(void)
     return NULL;
 }
 
-BD_BDPLUS *libbdplus_load(void)
+static BD_BDPLUS *_load(int impl_id)
 {
     BD_BDPLUS *p = calloc(1, sizeof(BD_BDPLUS));
     if (!p) {
         return NULL;
     }
+    p->impl_id = impl_id;
 
     BD_DEBUG(DBG_BDPLUS, "attempting to load libbdplus\n");
 
-    p->h_libbdplus = _libbdplus_open();
+    p->h_libbdplus = _libbdplus_open(&p->impl_id);
     if (!p->h_libbdplus) {
         X_FREE(p);
         return NULL;
@@ -148,6 +156,11 @@ BD_BDPLUS *libbdplus_load(void)
     return p;
 }
 
+BD_BDPLUS *libbdplus_load()
+{
+    return _load(0);
+}
+
 int libbdplus_init(BD_BDPLUS *p, const char *root,
                    void *file_open_handle, void *file_open_fp,
                    const uint8_t *vid, const uint8_t *mk)
@@ -156,6 +169,28 @@ int libbdplus_init(BD_BDPLUS *p, const char *root,
     fptr_void      set_fopen;
 
     _libbdplus_close(p);
+
+    /* force libmmbd BD+ if no AACS media key:
+     * - libbdplus requires media key
+     * - libmmbd does not export media key
+     *   (=> libbdplus won't work with libmmbd AACS)
+     */
+    if (mk == NULL && p->impl_id == IMPL_LIBBDPLUS) {
+        BD_BDPLUS *p2 = _load(IMPL_LIBMMBD);
+        if (p2) {
+            if (!libbdplus_init(p2, root, file_open_handle, file_open_fp, vid, mk)) {
+                /* succeed - swap implementations */
+                _unload(p);
+                *p = *p2;
+                X_FREE(p2);
+                return 0;
+            }
+            /* failed - continue with original bd+ implementation */
+            libbdplus_unload(&p2);
+        }
+    }
+
+    /* */
 
     *(void **)(&bdplus_init) = dl_dlsym(p->h_libbdplus, "bdplus_init");
     *(void **)(&set_fopen)   = dl_dlsym(p->h_libbdplus, "bdplus_set_fopen");
