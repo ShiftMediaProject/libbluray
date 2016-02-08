@@ -179,6 +179,8 @@ static int _libaacs_init(BD_DEC *dec, struct dec_dev *dev,
     int result;
     const uint8_t *disc_id;
 
+    memset(i, 0, sizeof(*i));
+
     libaacs_unload(&dec->aacs);
 
     i->aacs_detected = libaacs_required((void*)dev, _bdrom_have_file);
