@@ -2539,6 +2539,9 @@ uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length)
 
 int bd_get_main_title(BLURAY *bd)
 {
+    if (!bd) {
+        return -1;
+    }
     if (bd->title_type != title_undef) {
         BD_DEBUG(DBG_CRIT | DBG_BLURAY, "bd_get_main_title() can't be used with BluRay menus\n");
     }
