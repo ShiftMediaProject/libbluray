@@ -77,9 +77,10 @@ _parse_appinfo(BITSTREAM *bits, MPLS_AI *ai)
     ai->random_access_flag = bs_read(bits, 1);
     ai->audio_mix_flag = bs_read(bits, 1);
     ai->lossless_bypass_flag = bs_read(bits, 1);
+    ai->mvc_base_view_r_flag = bs_read(bits, 1);
 #if 0
     // Reserved
-    bs_skip(bits, 13);
+    bs_skip(bits, 12);
     bs_seek_byte(bits, pos + len);
 #endif
     return 1;

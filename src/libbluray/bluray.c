@@ -2675,6 +2675,8 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
         }
     }
 
+    title_info->mvc_base_view_r_flag = title->pl->app_info.mvc_base_view_r_flag;
+
     return title_info;
 
  error:

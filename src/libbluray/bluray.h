@@ -274,6 +274,8 @@ typedef struct bd_title_info {
     BLURAY_CLIP_INFO     *clips;
     BLURAY_TITLE_CHAPTER *chapters;
     BLURAY_TITLE_MARK    *marks;
+
+    uint8_t              mvc_base_view_r_flag;
 } BLURAY_TITLE_INFO;
 
 /*
