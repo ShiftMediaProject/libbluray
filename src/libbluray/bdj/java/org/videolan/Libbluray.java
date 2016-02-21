@@ -135,7 +135,9 @@ public class Libbluray {
         PackageManager.commitContentPrefixList();
         PackageManager.commitProtocolPrefixList();
 
-        BDFontMetrics.init();
+        try {
+            BDFontMetrics.init();
+        } catch (Throwable t) {}
 
         System.setProperty("mhp.profile.enhanced_broadcast", "YES");
         System.setProperty("mhp.profile.interactive_broadcast", "YES");
