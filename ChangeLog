@@ -1,3 +1,15 @@
+- Add bd_open_files(). This function deprecates old global file system hooks.
+- Add flag for on-disc menu support to DISC_INFO.
+- Add configure argument to disable building of JAR file.
+- Autodetect working aacs implementation.
+- Enable UDF support by default.
+- Split developer tools from examples.
+- Improved error resilience.
+- Improved BD-J compability.
+- Fix stopping playback from HDMV menus.
+- Fix possible errors in win32 .iso image reading.
+- Fix undefined values in DISC_INFO.
+
 2015-12-01: Version 0.9.2
 - Add primary audio stream to bd_select_stream().
 - Improve error resilience.
