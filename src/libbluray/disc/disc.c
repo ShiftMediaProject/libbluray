@@ -287,8 +287,6 @@ BD_DISC *disc_open(const char *device_path,
             dir_close(dp_img);
             BD_DEBUG(DBG_FILE, "%s does not seem to be image file or device node\n", device_path);
         }
-#else
-        (void)read_blocks;
 #endif
 
         struct dec_dev dev = { p->fs_handle, p->pf_file_open_bdrom, p, (file_openFp)disc_open_path, p->disc_root, device_path };
