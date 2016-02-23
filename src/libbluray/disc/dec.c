@@ -179,10 +179,6 @@ static int _libaacs_init(BD_DEC *dec, struct dec_dev *dev,
     int result;
     const uint8_t *disc_id;
 
-    memset(i, 0, sizeof(*i));
-
-    libaacs_unload(&dec->aacs);
-
     i->aacs_detected = libaacs_required((void*)dev, _bdrom_have_file);
     if (!i->aacs_detected) {
         /* no AACS */
@@ -220,8 +216,6 @@ static int _libbdplus_init(BD_DEC *dec, struct dec_dev *dev,
                            BD_ENC_INFO *i,
                            void *regs, void *psr_read, void *psr_write)
 {
-    libbdplus_unload(&dec->bdplus);
-
     i->bdplus_detected = libbdplus_required((void*)dev, _bdrom_have_file);
     if (!i->bdplus_detected) {
         return 0;
