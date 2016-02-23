@@ -179,16 +179,7 @@ static int _libaacs_init(BD_DEC *dec, struct dec_dev *dev,
     int result;
     const uint8_t *disc_id;
 
-    i->aacs_detected = libaacs_required((void*)dev, _bdrom_have_file);
-    if (!i->aacs_detected) {
-        /* no AACS */
-        return 1; /* no error if libaacs is not needed */
-    }
-
-    dec->aacs = libaacs_load();
-    i->libaacs_detected = !!dec->aacs;
     if (!dec->aacs) {
-        /* no libaacs */
         return 0;
     }
 
@@ -216,13 +207,6 @@ static int _libbdplus_init(BD_DEC *dec, struct dec_dev *dev,
                            BD_ENC_INFO *i,
                            void *regs, void *psr_read, void *psr_write)
 {
-    i->bdplus_detected = libbdplus_required((void*)dev, _bdrom_have_file);
-    if (!i->bdplus_detected) {
-        return 0;
-    }
-
-    dec->bdplus = libbdplus_load();
-    i->libbdplus_detected = !!dec->bdplus;
     if (!dec->bdplus) {
         return 0;
     }
@@ -265,6 +249,37 @@ static int _libbdplus_init(BD_DEC *dec, struct dec_dev *dev,
     return 1;
 }
 
+static int _dec_detect(struct dec_dev *dev, BD_ENC_INFO *i)
+{
+    /* Check for AACS */
+    i->aacs_detected = libaacs_required((void*)dev, _bdrom_have_file);
+    if (!i->aacs_detected) {
+        /* No AACS (=> no BD+) */
+        return 0;
+    }
+
+    /* check for BD+ */
+    i->bdplus_detected = libbdplus_required((void*)dev, _bdrom_have_file);
+    return 1;
+}
+
+static void _dec_load(BD_DEC *dec, BD_ENC_INFO *i)
+{
+    int force_mmbd_aacs = 0;
+
+    if (i->bdplus_detected) {
+        /* load BD+ library and check BD+ library type. libmmbd doesn't work with libaacs */
+        dec->bdplus = libbdplus_load();
+        force_mmbd_aacs = dec->bdplus && libbdplus_is_mmbd(dec->bdplus);
+    }
+
+    /* load AACS library */
+    dec->aacs = libaacs_load(force_mmbd_aacs);
+
+    i->libaacs_detected   = !!dec->aacs;
+    i->libbdplus_detected = !!dec->bdplus;
+}
+
 /*
  *
  */
@@ -273,16 +288,38 @@ BD_DEC *dec_init(struct dec_dev *dev, BD_ENC_INFO *enc_info,
                  const char *keyfile_path,
                  void *regs, void *psr_read, void *psr_write)
 {
-    BD_DEC *dec = calloc(1, sizeof(BD_DEC));
-    if (dec) {
-        memset(enc_info, 0, sizeof(*enc_info));
-        _libaacs_init(dec, dev, enc_info, keyfile_path);
-        _libbdplus_init(dec, dev, enc_info, regs, psr_read, psr_write);
+    BD_DEC *dec = NULL;
 
-        if (!enc_info->bdplus_handled && !enc_info->aacs_handled) {
-            X_FREE(dec);
-        }
+    memset(enc_info, 0, sizeof(*enc_info));
+
+    /* detect AACS/BD+ */
+    if (!_dec_detect(dev, enc_info)) {
+        return NULL;
     }
+
+    dec = calloc(1, sizeof(BD_DEC));
+    if (!dec) {
+        return NULL;
+    }
+
+    /* load compatible libraries */
+    _dec_load(dec, enc_info);
+
+    /* init decoding libraries */
+    /* BD+ won't help unless AACS works ... */
+    if (_libaacs_init(dec, dev, enc_info, keyfile_path)) {
+        _libbdplus_init(dec, dev, enc_info, regs, psr_read, psr_write);
+    }
+
+    if (!enc_info->aacs_handled) {
+        /* AACS failed, clean up */
+        dec_close(&dec);
+    }
+
+    /* BD+ failure may be non-fatal (not all titles in disc use BD+).
+     * Keep working AACS decoder even if BD+ init failed
+     */
+
     return dec;
 }
 

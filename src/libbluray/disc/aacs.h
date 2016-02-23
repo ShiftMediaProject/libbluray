@@ -28,7 +28,7 @@
 typedef struct bd_aacs BD_AACS;
 
 BD_PRIVATE int  libaacs_required(void *h, int (*have_file)(void *, const char *, const char *));
-BD_PRIVATE BD_AACS *libaacs_load(void);
+BD_PRIVATE BD_AACS *libaacs_load(int force_mmbd);
 BD_PRIVATE int  libaacs_open(BD_AACS *p, const char *device,
                              void *file_open_handle, void *file_open_fp,
                              const char *keyfile_path);

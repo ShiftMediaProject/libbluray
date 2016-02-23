@@ -89,6 +89,10 @@ int libaacs_required(void *have_file_handle, int (*have_file)(void *, const char
     return 0;
 }
 
+#define IMPL_USER       0
+#define IMPL_LIBAACS    1
+#define IMPL_LIBMMBD    2
+
 static void *_open_libaacs(int *impl_id)
 {
     const char * const libaacs[] = {
@@ -153,9 +157,9 @@ static BD_AACS *_load(int impl_id)
     return p;
 }
 
-BD_AACS *libaacs_load(void)
+BD_AACS *libaacs_load(int force_mmbd)
 {
-    return _load(0);
+    return _load(force_mmbd ? IMPL_LIBMMBD : 0);
 }
 
 int libaacs_open(BD_AACS *p, const char *device,

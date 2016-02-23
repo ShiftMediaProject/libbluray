@@ -115,6 +115,11 @@ static void *_libbdplus_open(int *impl_id)
     return NULL;
 }
 
+int libbdplus_is_mmbd(BD_BDPLUS *p)
+{
+    return p && (p->impl_id == IMPL_LIBMMBD);
+}
+
 static BD_BDPLUS *_load(int impl_id)
 {
     BD_BDPLUS *p = calloc(1, sizeof(BD_BDPLUS));
