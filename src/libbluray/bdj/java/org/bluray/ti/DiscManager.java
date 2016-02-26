@@ -49,7 +49,11 @@ public class DiscManager {
     }
 
     public void setCurrentDisc(String id) {
-        disc = new DiscImpl(id);
+        if (org.videolan.BDJXletContext.getCurrentContext() == null) {
+            disc = new DiscImpl(id);
+        } else {
+            System.err.println("Ignoring disc ID (from Xlet)");
+        }
     }
 
     private LinkedList listeners = new LinkedList();
