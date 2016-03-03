@@ -202,6 +202,26 @@ _filter_repeats(MPLS_PL *pl, unsigned repeats)
 }
 
 /*
+ * find main movie playlist
+ */
+
+static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
+{
+    uint32_t d1 = _pl_duration(p1);
+    uint32_t d2 = _pl_duration(p2);
+
+    /* compare playlist duration, select longer playlist */
+    if (d1 < d2) {
+        return 1;
+    }
+    if (d1 > d2) {
+        return -1;
+    }
+
+    return 0;
+}
+
+/*
  * title list
  */
 
@@ -272,7 +292,8 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
             /* main title guessing */
             if (_filter_dup(pl_list, ii, pl) &&
                 _filter_repeats(pl, 2)) {
-                if (_pl_duration(pl_list[ii]) >= _pl_duration(pl_list[title_list->main_title_idx])) {
+
+                if (_pl_guess_main_title(pl_list[ii], pl_list[title_list->main_title_idx]) <= 0) {
                     title_list->main_title_idx = ii;
                 }
             }
