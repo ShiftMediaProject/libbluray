@@ -44,6 +44,32 @@ struct m2ts_demux_s
     PES_BUFFER *buf;
 };
 
+/*
+ *
+ */
+
+static PES_BUFFER *_flush(M2TS_DEMUX *p)
+{
+    PES_BUFFER *result = NULL;
+
+    result = p->buf;
+    p->buf = NULL;
+
+    return result;
+}
+
+void m2ts_demux_reset(M2TS_DEMUX *p)
+{
+    if (p) {
+        PES_BUFFER *buf = _flush(p);
+        pes_buffer_free(&buf);
+    }
+}
+
+/*
+ *
+ */
+
 M2TS_DEMUX *m2ts_demux_init(uint16_t pid)
 {
     M2TS_DEMUX *p = calloc(1, sizeof(*p));
@@ -58,10 +84,49 @@ M2TS_DEMUX *m2ts_demux_init(uint16_t pid)
 void m2ts_demux_free(M2TS_DEMUX **p)
 {
     if (p && *p) {
-        pes_buffer_free(&(*p)->buf);
+        m2ts_demux_reset(*p);
         X_FREE(*p);
     }
 }
+
+/*
+ *
+ */
+
+static int _realloc(PES_BUFFER *p, size_t size)
+{
+    uint8_t *tmp = realloc(p->buf, size);
+
+    if (!tmp) {
+        BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
+        return -1;
+    }
+
+    p->size = size;
+    p->buf = tmp;
+
+    return 0;
+}
+
+static int _add_ts(PES_BUFFER *p, uint8_t *buf, unsigned len)
+{
+    // realloc
+    if (p->size < p->len + len) {
+        if (_realloc(p, p->size * 2) < 0) {
+            return -1;
+        }
+    }
+
+    // append
+    memcpy(p->buf + p->len, buf, len);
+    p->len += len;
+
+    return 0;
+}
+
+/*
+ * Parsing
+ */
 
 static int64_t _parse_timestamp(uint8_t *p)
 {
@@ -74,20 +139,9 @@ static int64_t _parse_timestamp(uint8_t *p)
     return ts;
 }
 
-/*
- * _add_ts()
- * - add ts payload to buffer.
- * - parse PES header if pusi is set.
- * - return:
- *   < 0   error (incorrect PES header)
- *   = 0   PES packet continue
- *   > 0   PES packet payload length from PES header
- */
-static int _add_ts(PES_BUFFER *p, unsigned pusi, uint8_t *buf, unsigned len)
+static int _parse_pes(PES_BUFFER *p, uint8_t *buf, unsigned len)
 {
-    unsigned result = 0;
-
-    if (pusi) {
+    int result = 0;
 
         if (len < 6) {
             BD_DEBUG(DBG_DECODE, "invalid BDAV TS (PES header not in single TS packet)\n");
@@ -127,32 +181,22 @@ static int _add_ts(PES_BUFFER *p, unsigned pusi, uint8_t *buf, unsigned len)
             }
         }
 
-        buf += hdr_len;
-        len -= hdr_len;
-
         result = pes_length + 6 - hdr_len;
+
+    if (_realloc(p, BD_MAX(result, 0x100)) < 0) {
+        return -1;
     }
 
-    // realloc
-    if (p->size < p->len + len) {
-        uint8_t *tmp;
-        p->size *= 2;
-        p->size = BD_MAX(p->size, BD_MAX(result, 0x100));
-        tmp     = realloc(p->buf, p->size);
-        if (!tmp) {
-            BD_DEBUG(DBG_DECODE | DBG_CRIT, "out of memory\n");
-            p->size = 0;
-            return -1;
-        }
-        p->buf = tmp;
-    }
-
-    // append
-    memcpy(p->buf + p->len, buf, len);
-    p->len += len;
+    p->len = len - hdr_len;
+    memcpy(p->buf, buf + hdr_len, p->len);
 
     return result;
 }
+
+
+/*
+ *
+ */
 
 PES_BUFFER *m2ts_demux(M2TS_DEMUX *p, uint8_t *buf)
 {
@@ -160,10 +204,7 @@ PES_BUFFER *m2ts_demux(M2TS_DEMUX *p, uint8_t *buf)
     PES_BUFFER *result = NULL;
 
     if (!buf) {
-        // flush
-        result = p->buf;
-        p->buf = NULL;
-        return result;
+        return _flush(p);
     }
 
     for (; buf < end; buf += 192) {
@@ -202,21 +243,28 @@ PES_BUFFER *m2ts_demux(M2TS_DEMUX *p, uint8_t *buf)
                 pes_buffer_free(&p->buf);
             }
             p->buf = pes_buffer_alloc();
-        }
+            if (!buf) {
+                continue;
+            }
+            int r = _parse_pes(p->buf, buf + 4 + payload_offset, 188 - payload_offset);
+            if (r < 0) {
+                pes_buffer_free(&p->buf);
+                continue;
+            }
+            p->pes_length = r;
+
+        } else {
 
         if (!p->buf) {
             BD_DEBUG(DBG_DECODE, "skipping packet (no pusi seen)\n");
             continue;
         }
 
-        int r = _add_ts(p->buf, pusi, buf + 4 + payload_offset, 188 - payload_offset);
-        if (r) {
+            int r = _add_ts(p->buf, buf + 4 + payload_offset, 188 - payload_offset);
             if (r < 0) {
-                BD_DEBUG(DBG_DECODE, "skipping block (PES header error)\n");
                 pes_buffer_free(&p->buf);
                 continue;
             }
-            p->pes_length = r;
         }
 
         if (p->buf->len == p->pes_length) {
