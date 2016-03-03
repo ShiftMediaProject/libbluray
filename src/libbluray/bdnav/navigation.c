@@ -205,10 +205,25 @@ _filter_repeats(MPLS_PL *pl, unsigned repeats)
  * find main movie playlist
  */
 
+#define DBG_MAIN_PL DBG_NAV
+
 static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
 {
     uint32_t d1 = _pl_duration(p1);
     uint32_t d2 = _pl_duration(p2);
+
+    /* if both longer than 30 min */
+    if (d1 > 30*60*45000 && d2 > 30*60*45000) {
+
+        /* prefer many chapters over few chapters */
+        int chap_diff = _pl_chapter_count(p2) - _pl_chapter_count(p1);
+        if (chap_diff < -3 || chap_diff > 3) {
+            /* chapter count differs by more than 3 */
+            BD_DEBUG(DBG_MAIN_PL, "main title: chapter count difference %d\n", chap_diff);
+            return chap_diff;
+        }
+
+    }
 
     /* compare playlist duration, select longer playlist */
     if (d1 < d2) {
