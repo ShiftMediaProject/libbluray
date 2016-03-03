@@ -36,6 +36,43 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * Utils
+ */
+
+static uint32_t
+_pl_duration(MPLS_PL *pl)
+{
+    unsigned ii;
+    uint32_t duration = 0;
+    MPLS_PI *pi;
+
+    for (ii = 0; ii < pl->list_count; ii++) {
+        pi = &pl->play_item[ii];
+        duration += pi->out_time - pi->in_time;
+    }
+    return duration;
+}
+
+static uint32_t
+_pl_chapter_count(MPLS_PL *pl)
+{
+    unsigned ii, chapters = 0;
+
+    // Count the number of "entry" marks (skipping "link" marks)
+    // This is the the number of chapters
+    for (ii = 0; ii < pl->mark_count; ii++) {
+        if (pl->play_mark[ii].mark_type == BD_MARK_ENTRY) {
+            chapters++;
+        }
+    }
+    return chapters;
+}
+
+/*
+ * Check if two playlists are the same
+ */
+
 static int _stream_cmp(MPLS_STREAM *a, MPLS_STREAM *b)
 {
     if (a->stream_type == b->stream_type &&
@@ -111,6 +148,10 @@ static int _pl_cmp(MPLS_PL *pl1, MPLS_PL *pl2)
     return 0;
 }
 
+/*
+ * Playlist filtering
+ */
+
 /* return 0 if duplicate playlist */
 static int _filter_dup(MPLS_PL *pl_list[], unsigned count, MPLS_PL *pl)
 {
@@ -154,40 +195,15 @@ _filter_repeats(MPLS_PL *pl, unsigned repeats)
       pi = &pl->play_item[ii];
       // Ignore titles with repeated segments
       if (_find_repeats(pl, pi->clip[0].clip_id, pi->in_time, pi->out_time) > repeats) {
-        return 0;
+          return 0;
       }
     }
     return 1;
 }
 
-static uint32_t
-_pl_duration(MPLS_PL *pl)
-{
-    unsigned ii;
-    uint32_t duration = 0;
-    MPLS_PI *pi;
-
-    for (ii = 0; ii < pl->list_count; ii++) {
-        pi = &pl->play_item[ii];
-        duration += pi->out_time - pi->in_time;
-    }
-    return duration;
-}
-
-static uint32_t
-_pl_chapter_count(MPLS_PL *pl)
-{
-    unsigned ii, chapters = 0;
-
-    // Count the number of "entry" marks (skipping "link" marks)
-    // This is the the number of chapters
-    for (ii = 0; ii < pl->mark_count; ii++) {
-        if (pl->play_mark[ii].mark_type == BD_MARK_ENTRY) {
-            chapters++;
-        }
-    }
-    return chapters;
-}
+/*
+ * title list
+ */
 
 NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_title_length)
 {
@@ -284,6 +300,10 @@ void nav_free_title_list(NAV_TITLE_LIST *title_list)
     X_FREE(title_list->title_info);
     X_FREE(title_list);
 }
+
+/*
+ *
+ */
 
 uint8_t nav_lookup_aspect(NAV_CLIP *clip, int pid)
 {
