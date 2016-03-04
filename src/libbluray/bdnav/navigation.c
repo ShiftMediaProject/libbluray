@@ -131,6 +131,20 @@ static int _pi_cmp(MPLS_PI *pi1, MPLS_PI *pi2)
     return 0;
 }
 
+static int _pm_cmp(MPLS_PLM *pm1, MPLS_PLM *pm2)
+{
+    if (pm1->mark_id       == pm2->mark_id       &&
+        pm1->mark_type     == pm2->mark_type     &&
+        pm1->play_item_ref == pm2->play_item_ref &&
+        pm1->time          == pm2->time          &&
+        pm1->entry_es_pid  == pm2->entry_es_pid  &&
+        pm1->duration      == pm2->duration ) {
+        return 0;
+    }
+
+    return 1;
+}
+
 static int _pl_cmp(MPLS_PL *pl1, MPLS_PL *pl2)
 {
     unsigned ii;
@@ -140,6 +154,12 @@ static int _pl_cmp(MPLS_PL *pl1, MPLS_PL *pl2)
     }
     if (pl1->mark_count != pl2->mark_count) {
         return 1;
+    }
+
+    for (ii = 0; ii < pl1->mark_count; ii++) {
+        if (_pm_cmp(&pl1->play_mark[ii], &pl2->play_mark[ii])) {
+            return 1;
+        }
     }
     for (ii = 0; ii < pl1->list_count; ii++) {
         if (_pi_cmp(&pl1->play_item[ii], &pl2->play_item[ii])) {
