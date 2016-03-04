@@ -224,6 +224,17 @@ static void _video_props(MPLS_STN *s, int *full_hd, int *mpeg12)
     }
 }
 
+static void _audio_props(MPLS_STN *s, int *hd_audio)
+{
+    unsigned ii;
+    *hd_audio = 0;
+    for (ii = 0; ii < s->num_audio; ii++) {
+        if (s->audio[ii].format == BD_STREAM_TYPE_AUDIO_LPCM || s->audio[ii].format >= BD_STREAM_TYPE_AUDIO_TRUHD) {
+            *hd_audio = 1;
+        }
+    }
+}
+
 static int _cmp_video_props(const MPLS_PL *p1, const MPLS_PL *p2)
 {
     MPLS_STN *s1 = &p1->play_item[0].stn;
@@ -239,6 +250,19 @@ static int _cmp_video_props(const MPLS_PL *p1, const MPLS_PL *p2)
 
     /* prefer H.264/VC1 over MPEG1/2 */
     return mp12_2 - mp12_1;
+}
+
+static int _cmp_audio_props(const MPLS_PL *p1, const MPLS_PL *p2)
+{
+    MPLS_STN *s1 = &p1->play_item[0].stn;
+    MPLS_STN *s2 = &p2->play_item[0].stn;
+    int hda1, hda2;
+
+    _audio_props(s1, &hda1);
+    _audio_props(s2, &hda2);
+
+    /* prefer HD audio formats */
+    return hda2 - hda1;
 }
 
 static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
@@ -264,6 +288,13 @@ static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
         if (vid_diff) {
             BD_DEBUG(DBG_MAIN_PL, "main title: video properties difference %d\n", vid_diff);
             return vid_diff;
+        }
+
+        /* compare audio: prefer HD audio */
+        int aud_diff = _cmp_audio_props(p1, p2);
+        if (aud_diff) {
+            BD_DEBUG(DBG_MAIN_PL, "main title: audio properties difference %d\n", aud_diff);
+            return aud_diff;
         }
     }
 
