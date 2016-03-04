@@ -154,6 +154,12 @@ static int _pl_cmp(MPLS_PL *pl1, MPLS_PL *pl2)
     if (pl1->mark_count != pl2->mark_count) {
         return 1;
     }
+    if (pl1->sub_count != pl2->sub_count) {
+        return 1;
+    }
+    if (pl1->ext_sub_count != pl2->ext_sub_count) {
+        return 1;
+    }
 
     for (ii = 0; ii < pl1->mark_count; ii++) {
         if (_pm_cmp(&pl1->play_mark[ii], &pl2->play_mark[ii])) {
