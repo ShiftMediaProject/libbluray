@@ -24,7 +24,7 @@
 #include <inttypes.h>
 #include <unistd.h>
 
-#define OPTS "ahs:"
+#define OPTS "ahs:l"
 
 static void _usage(char *cmd)
 {
@@ -33,17 +33,38 @@ static void _usage(char *cmd)
 "   List the titles and title info of a BD\n"
 "   -s #    - Filter out titles shorter than # seconds\n"
 "   -a      - List all titles\n"
+"   -l      - Show language codes\n"
 "   -h      - This message\n",
         cmd
     );
     exit(EXIT_FAILURE);
 }
 
+static void _print_langs(const char *tag, const BLURAY_STREAM_INFO *si, int count)
+{
+    int ii;
+    printf("\t%s: ", tag);
+    for (ii = 0; ii < count; ii++) {
+        printf("%3.3s ", si[ii].lang);
+    }
+    printf("\n");
+}
+
+static void _dump_langs(const BLURAY_CLIP_INFO *ci)
+{
+    if (ci->audio_streams) {
+        _print_langs("AUD",  ci->audio_streams, ci->audio_stream_count);
+    }
+    if (ci->pg_streams) {
+        _print_langs("PG ",  ci->pg_streams,    ci->pg_stream_count);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     BLURAY *bd;
     int count, ii, opt, main_title;
-    unsigned int seconds = 0;
+    unsigned int seconds = 0, langs = 0;
     unsigned int flags = TITLES_RELEVANT;
     char *bd_dir = NULL;
 
@@ -65,6 +86,9 @@ int main(int argc, char *argv[])
                 break;
             case 's':
                 seconds = strtol(optarg, NULL, 0);
+                break;
+            case 'l':
+                langs = 1;
                 break;
             case 'h':
             default:
@@ -106,6 +130,9 @@ int main(int argc, char *argv[])
               ti->clips[0].sec_video_stream_count,
               ti->clips[0].sec_audio_stream_count
         );
+        if (langs) {
+            _dump_langs(&ti->clips[0]);
+        }
         bd_free_title_info(ti);
     }
     bd_close(bd);
