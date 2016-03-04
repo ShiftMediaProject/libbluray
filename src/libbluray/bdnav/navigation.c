@@ -249,10 +249,12 @@ static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
     /* if both longer than 30 min */
     if (d1 > 30*60*45000 && d2 > 30*60*45000) {
 
-        /* prefer many chapters over few chapters */
-        int chap_diff = _pl_chapter_count(p2) - _pl_chapter_count(p1);
-        if (chap_diff < -3 || chap_diff > 3) {
-            /* chapter count differs by more than 3 */
+        /* prefer many chapters over no chapters */
+        int chap1 = _pl_chapter_count(p1);
+        int chap2 = _pl_chapter_count(p2);
+        int chap_diff = chap2 - chap1;
+        if ((chap1 < 2 || chap2 < 2) && (chap_diff < -5 || chap_diff > 5)) {
+            /* chapter count differs by more than 5 */
             BD_DEBUG(DBG_MAIN_PL, "main title: chapter count difference %d\n", chap_diff);
             return chap_diff;
         }
