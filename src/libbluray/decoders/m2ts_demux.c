@@ -143,45 +143,45 @@ static int _parse_pes(PES_BUFFER *p, uint8_t *buf, unsigned len)
 {
     int result = 0;
 
-        if (len < 6) {
+    if (len < 6) {
+        BD_DEBUG(DBG_DECODE, "invalid BDAV TS (PES header not in single TS packet)\n");
+        return -1;
+    }
+    if (buf[0] || buf[1] || buf[2] != 1) {
+        BD_DEBUG(DBG_DECODE, "invalid PES header (00 00 01)");
+        return -1;
+    }
+
+    // Parse PES header
+    unsigned pes_pid    = buf[3];
+    unsigned pes_length = buf[4] << 8 | buf[5];
+    unsigned hdr_len    = 6;
+
+    if (pes_pid != 0xbf) {
+
+        if (len < 9) {
             BD_DEBUG(DBG_DECODE, "invalid BDAV TS (PES header not in single TS packet)\n");
             return -1;
         }
-        if (buf[0] || buf[1] || buf[2] != 1) {
-            BD_DEBUG(DBG_DECODE, "invalid PES header (00 00 01)");
+
+        unsigned pts_exists = buf[7] & 0x80;
+        unsigned dts_exists = buf[7] & 0x40;
+        hdr_len += buf[8] + 3;
+
+        if (len < hdr_len) {
+            BD_DEBUG(DBG_DECODE, "invalid BDAV TS (PES header not in single TS packet)\n");
             return -1;
         }
 
-        // Parse PES header
-        unsigned pes_pid    = buf[3];
-        unsigned pes_length = buf[4] << 8 | buf[5];
-        unsigned hdr_len    = 6;
-
-        if (pes_pid != 0xbf) {
-
-            if (len < 9) {
-                BD_DEBUG(DBG_DECODE, "invalid BDAV TS (PES header not in single TS packet)\n");
-                return -1;
-            }
-
-            unsigned pts_exists = buf[7] & 0x80;
-            unsigned dts_exists = buf[7] & 0x40;
-            hdr_len += buf[8] + 3;
-
-            if (len < hdr_len) {
-                BD_DEBUG(DBG_DECODE, "invalid BDAV TS (PES header not in single TS packet)\n");
-                return -1;
-            }
-
-            if (pts_exists) {
-                p->pts = _parse_timestamp(buf + 9);
-            }
-            if (dts_exists) {
-                p->dts = _parse_timestamp(buf + 14);
-            }
+        if (pts_exists) {
+            p->pts = _parse_timestamp(buf + 9);
         }
+        if (dts_exists) {
+            p->dts = _parse_timestamp(buf + 14);
+        }
+    }
 
-        result = pes_length + 6 - hdr_len;
+    result = pes_length + 6 - hdr_len;
 
     if (_realloc(p, BD_MAX(result, 0x100)) < 0) {
         return -1;
@@ -255,13 +255,12 @@ PES_BUFFER *m2ts_demux(M2TS_DEMUX *p, uint8_t *buf)
 
         } else {
 
-        if (!p->buf) {
-            BD_DEBUG(DBG_DECODE, "skipping packet (no pusi seen)\n");
-            continue;
-        }
+            if (!p->buf) {
+                BD_DEBUG(DBG_DECODE, "skipping packet (no pusi seen)\n");
+                continue;
+            }
 
-            int r = _add_ts(p->buf, buf + 4 + payload_offset, 188 - payload_offset);
-            if (r < 0) {
+            if (_add_ts(p->buf, buf + 4 + payload_offset, 188 - payload_offset) < 0) {
                 pes_buffer_free(&p->buf);
                 continue;
             }
