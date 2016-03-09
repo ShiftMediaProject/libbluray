@@ -1885,6 +1885,14 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
         out_len = 0;
         BD_DEBUG(DBG_STREAM, "Reading [%d bytes] at %"PRIu64"...\n", len, bd->s_pos);
 
+        if (st->clip == NULL) {
+            // We previously reached the last clip.  Nothing
+            // else to read.
+            _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
+            bd->end_of_playlist |= 1;
+            return 0;
+        }
+
         while (len > 0) {
             uint32_t clip_pkt;
 
@@ -1912,13 +1920,6 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                         size = (unsigned int)(angle_pos - st->clip_pos);
                     }
                 }
-            }
-            if (st->clip == NULL) {
-                // We previously reached the last clip.  Nothing
-                // else to read.
-                _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
-                bd->end_of_playlist |= 1;
-                return 0;
             }
             if (st->int_buf_off == 6144 || clip_pkt >= st->clip->end_pkt) {
 
