@@ -588,6 +588,10 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
 {
     _close_m2ts(st);
 
+    if (!st->clip) {
+        return 0;
+    }
+
     st->fp = disc_open_stream(bd->disc, st->clip->name);
 
     st->clip_size = 0;
