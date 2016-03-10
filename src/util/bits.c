@@ -122,10 +122,12 @@ void bs_seek( BITSTREAM *bs, int64_t off, int whence)
     }
 }
 
+#if 0
 void bb_seek_byte( BITBUFFER *bb, int64_t off)
 {
     bb_seek(bb, off << 3, SEEK_SET);
 }
+#endif
 
 void bs_seek_byte( BITSTREAM *s, int64_t off)
 {
