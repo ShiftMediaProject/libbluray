@@ -112,6 +112,8 @@ libbluray_la_SOURCES = \
 	src/util/attributes.h \
 	src/util/bits.h \
 	src/util/bits.c \
+	src/util/event_queue.h \
+	src/util/event_queue.c \
 	src/util/logging.h \
 	src/util/logging.c \
 	src/util/log_control.h \
