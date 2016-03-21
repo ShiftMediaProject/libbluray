@@ -454,6 +454,11 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
     BD_FILE_H *fp_out;
     int64_t    got;
 
+    if (rel_path[strlen(rel_path) - 1] == '/') {
+        file_mkdirs(cache_path);
+        return 0;
+    }
+
     /* input file from BD-ROM */
     fp_in = p->pf_file_open_bdrom(p->fs_handle, rel_path);
     if (!fp_in) {
