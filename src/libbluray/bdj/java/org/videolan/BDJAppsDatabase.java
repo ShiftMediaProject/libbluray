@@ -39,8 +39,10 @@ public class BDJAppsDatabase extends AppsDatabase {
         }
     }
 
+    private static final Object appTableLock = new Object();
+
     public int size() {
-        synchronized (this) {
+        synchronized (appTableLock) {
             if (appTable == null)
                 return 0;
             return appTable.length;
@@ -49,7 +51,7 @@ public class BDJAppsDatabase extends AppsDatabase {
 
     public Enumeration getAppIDs(AppsDatabaseFilter filter) {
         Vector ids = new Vector();
-        synchronized (this) {
+        synchronized (appTableLock) {
             if (appTable != null)
                 for (int i = 0; i < appTable.length; i++)
                     if (filter.accept(appTable[i].getIdentifier()))
@@ -60,7 +62,7 @@ public class BDJAppsDatabase extends AppsDatabase {
 
     public Enumeration getAppAttributes(AppsDatabaseFilter filter) {
         Vector attributes = new Vector();
-        synchronized (this) {
+        synchronized (appTableLock) {
             if (appTable != null)
                 for (int i = 0; i < size(); i++)
                     if (filter.accept(appTable[i].getIdentifier()))
@@ -70,7 +72,7 @@ public class BDJAppsDatabase extends AppsDatabase {
     }
 
     public AppAttributes getAppAttributes(AppID key) {
-        synchronized (this) {
+        synchronized (appTableLock) {
             if (appTable != null)
                 for (int i = 0; i < size(); i++)
                     if (key.equals(appTable[i].getIdentifier()))
@@ -80,7 +82,7 @@ public class BDJAppsDatabase extends AppsDatabase {
     }
 
     public AppProxy getAppProxy(AppID key) {
-        synchronized (this) {
+        synchronized (appTableLock) {
             if ((appTable != null) && (appProxys != null))
                 for (int i = 0; i < size(); i++)
                     if (key.equals(appTable[i].getIdentifier()))
@@ -94,7 +96,7 @@ public class BDJAppsDatabase extends AppsDatabase {
     }
 
     protected void newDatabase(Bdjo bdjo, BDJAppProxy[] appProxys) {
-        synchronized (this) {
+        synchronized (appTableLock) {
             this.bdjo = bdjo;
             this.appProxys = appProxys;
             this.appTable = (bdjo != null) ? bdjo.getAppTable() : null;
