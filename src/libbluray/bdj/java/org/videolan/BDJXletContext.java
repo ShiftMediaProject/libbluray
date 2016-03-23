@@ -199,6 +199,8 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
      * Event queues
      */
 
+    private final Object cbLock = new Object();
+
     protected void setEventQueue(EventQueue eq) {
         eventQueue = eq;
     }
@@ -224,21 +226,21 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
     protected boolean putCallback(BDJAction cb)
     {
-        synchronized (this) {
+        synchronized (cbLock) {
             return putCallbackImpl(cb, callbackQueue);
         }
     }
 
     protected boolean putMediaCallback(BDJAction cb)
     {
-        synchronized (this) {
+        synchronized (cbLock) {
             return putCallbackImpl(cb, mediaQueue);
         }
     }
 
     public boolean putUserEvent(BDJAction cb)
     {
-        synchronized (this) {
+        synchronized (cbLock) {
             return putCallbackImpl(cb, userEventQueue);
         }
     }
@@ -488,13 +490,15 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         } catch (InvocationTargetException e) {
         }
 
+        synchronized (cbLock) {
+            callbackQueue = null;
+            userEventQueue = null;
+            mediaQueue = null;
+        }
         synchronized (this) {
             threadGroup = null;
             loader = null;
             container = null;
-            callbackQueue = null;
-            userEventQueue = null;
-            mediaQueue = null;
             defaultLooks = null;
             released = true;
         }
