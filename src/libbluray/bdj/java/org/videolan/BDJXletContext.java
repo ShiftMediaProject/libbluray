@@ -444,19 +444,27 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                 entry.getInitialClass());
     }
 
-    protected void release() {
+    protected void exitXlet() {
+        // Called from AppProxy when destroyXlet() has been called.
+        // Release as much resources as possible while running in Xlet context.
+
+        org.dvb.io.ixc.IxcRegistry.unbindAll(this);
 
         closeSockets();
         removeAllFAA();
         stopIxcThreads();
-        defaultLooks.clear();
 
-        org.dvb.io.ixc.IxcRegistry.unbindAll(this);
+        defaultLooks.clear();
 
         if (sceneFactory != null) {
             sceneFactory.dispose();
             sceneFactory = null;
         }
+    }
+
+    protected void release() {
+
+        exitXlet();
 
         callbackQueue.shutdown();
         userEventQueue.shutdown();

@@ -252,6 +252,8 @@ class BDJAppProxy implements DVBJProxy, Runnable {
                 context.closeSockets();
                 context.getThreadGroup().waitForShutdown(1000, 1 + context.numEventQueueThreads());
 
+                context.exitXlet();
+
             } catch (Throwable e) {
                 logger.error("doStop() failed: " + e + "\n" + Logger.dumpStack(e));
                 state = INVALID;
