@@ -39,7 +39,7 @@ class BDJThreadGroup extends ThreadGroup {
         }
 
         if (e instanceof ThreadDeath) {
-            logger.error("Thread " + t + " killed" + stack);
+            logger.error("Thread " + t + " killed" /*+ stack*/);
         } else {
             logger.error("Unhandled exception in thread " + t + ": " + e + stack);
         }
