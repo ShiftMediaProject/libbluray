@@ -31,8 +31,11 @@ import org.videolan.bdjo.AppEntry;
 import org.videolan.bdjo.Bdjo;
 
 public class BDJAppsDatabase extends AppsDatabase {
+
+    private static final Object instanceLock = new Object();
+
     static public AppsDatabase getAppsDatabase() {
-        synchronized (BDJAppsDatabase.class) {
+        synchronized (instanceLock) {
             if (instance == null)
                 instance = new BDJAppsDatabase();
             return instance;

@@ -22,10 +22,15 @@ package org.bluray.ti;
 import java.util.LinkedList;
 
 public class DiscManager {
-    public static synchronized DiscManager getDiscManager() {
-        if (instance == null)
-            instance = new DiscManager();
-        return instance;
+
+    private static final Object instanceLock = new Object();
+
+    public static DiscManager getDiscManager() {
+        synchronized (instanceLock) {
+            if (instance == null)
+                instance = new DiscManager();
+            return instance;
+        }
     }
 
     public void expectNextDisc(String[] discIds) {

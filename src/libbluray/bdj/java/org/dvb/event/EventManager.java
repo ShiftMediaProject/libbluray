@@ -36,8 +36,11 @@ import org.videolan.GUIManager;
 import org.videolan.Logger;
 
 public class EventManager implements ResourceServer {
+
+    private static final Object instanceLock = new Object();
+
     public static EventManager getInstance() {
-        synchronized (EventManager.class) {
+        synchronized (instanceLock) {
             if (instance == null)
                 instance = new EventManager();
             return instance;
@@ -46,7 +49,7 @@ public class EventManager implements ResourceServer {
 
     public static void shutdown() {
         EventManager e;
-        synchronized (EventManager.class) {
+        synchronized (instanceLock) {
             e = instance;
             instance = null;
         }
