@@ -1044,9 +1044,11 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
         indx_free(&index);
     }
 
+#if 0
     if (!bd->disc_info.first_play_supported || !bd->disc_info.top_menu_supported) {
         bd->disc_info.no_menu_support = 1;
     }
+#endif
 
     if (bd->disc_info.bdj_detected) {
         BDID_DATA *bdid = bdid_get(bd->disc); /* parse id.bdmv */
