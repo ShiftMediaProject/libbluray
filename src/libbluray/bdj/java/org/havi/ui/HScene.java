@@ -36,12 +36,16 @@ import java.util.Map;
 import org.havi.ui.event.HEventGroup;
 import org.videolan.BDJXletContext;
 import org.videolan.GUIManager;
+import org.videolan.Logger;
 import java.awt.BDToolkit;
 
 
 public class HScene extends Container implements HComponentOrdering {
     protected HScene() {
         context = BDJXletContext.getCurrentContext();
+        if (context == null) {
+            logger.error("HScene() created from privileged context: " + Logger.dumpStack());
+        }
         BDToolkit.addComponent(this);
     }
 
@@ -431,6 +435,8 @@ public class HScene extends Container implements HComponentOrdering {
     private Map shortcuts = Collections.synchronizedMap(new HashMap());
     private boolean shortcutsEnabled = true;
     private BDJXletContext context;
+
+    private static final Logger logger = Logger.getLogger(HScene.class.getName());
 
     private static final long serialVersionUID = 422730746877212409L;
 }
