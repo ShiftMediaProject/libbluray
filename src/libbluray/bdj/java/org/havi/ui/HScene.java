@@ -382,15 +382,27 @@ public class HScene extends Container implements HComponentOrdering {
     }
 
     public void setVisible(boolean visible) {
+        if (visible == isVisible())
+            return;
         super.setVisible(visible);
+
+        /*
+         * This doesn't work
+         *  - visible state of other HScenes is never restored
+         *     => no focus, key events are lost
+         *  - Scenes are not wiped from GUI
+
         if (visible) {
             for (int i = 0; i < GUIManager.getInstance().getComponentCount(); i++) {
                     Component c = GUIManager.getInstance().getComponent(i);
                     if (c != this)
                         c.setVisible(false);
-    }
+            }
         }
-        GUIManager.getInstance().setVisible(visible);
+        */
+
+        if (visible)
+            GUIManager.getInstance().setVisible(visible);
     }
 
     public int getBackgroundMode() {
