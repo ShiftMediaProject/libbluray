@@ -167,10 +167,13 @@ public class EventManager implements ResourceServer {
                 if (item.context == context) {
                     if (item.userEvents.contains(ue)) {
                         result = BDJHelper.postKeyEvent(type, modifiers, keyCode);
+                        logger.info("Key posted to exclusive AWT event listener, r=" + result);
                         return true;
                     }
                 }
             }
+        } else {
+            logger.info("No focused HScene found !");
         }
 
         for (Iterator it = exclusiveUserEventListener.iterator(); it.hasNext(); ) {
@@ -182,6 +185,7 @@ public class EventManager implements ResourceServer {
             }
             if (item.userEvents.contains(ue)) {
                 item.context.putUserEvent(new UserEventAction(item, ue));
+                logger.info("Key posted to exclusive UE listener");
                 return true;
             }
         }
@@ -197,6 +201,7 @@ public class EventManager implements ResourceServer {
             }
             if (item.userEvents.contains(ue)) {
                 item.context.putUserEvent(new UserEventAction(item, ue));
+                logger.info("Key posted to shared UE listener");
                 result = true;
             }
         }
