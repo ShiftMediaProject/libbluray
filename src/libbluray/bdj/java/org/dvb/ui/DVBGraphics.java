@@ -23,10 +23,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 public abstract class DVBGraphics extends Graphics2D {
-    protected DVBGraphics(Graphics2D gfx)
-    {
-        this.gfx = gfx;
-    }
 
     public abstract int[] getAvailableCompositeRules();
 
@@ -55,5 +51,4 @@ public abstract class DVBGraphics extends Graphics2D {
     }
 
     protected int type = DVBBufferedImage.TYPE_BASE;
-    protected Graphics2D gfx;
 }
