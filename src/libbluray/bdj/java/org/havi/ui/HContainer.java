@@ -45,7 +45,7 @@ public class HContainer extends Container implements HMatteLayer,
 
     public HMatte getMatte()
     {
-        return hMatte;
+        return null;
     }
 
     public boolean isDoubleBuffered()
@@ -308,7 +308,6 @@ public class HContainer extends Container implements HMatteLayer,
        return grouped;
     }
 
-    private HMatte hMatte = null;
     private boolean grouped = false;
 
     private static final long serialVersionUID = 263606166411114032L;
