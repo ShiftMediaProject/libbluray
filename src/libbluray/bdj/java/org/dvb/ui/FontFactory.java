@@ -34,16 +34,22 @@ import org.videolan.FontIndexData;
 import org.videolan.Logger;
 
 public class FontFactory {
-    public static synchronized void loadDiscFonts() {
+    public static void loadDiscFonts() {
         unloadDiscFonts();
+
+        // fonts are loaded on demand
     }
 
-    public static synchronized void unloadDiscFonts() {
-        fonts = null;
-        fontIds = null;
+    public static void unloadDiscFonts() {
+        synchronized (fontsLock) {
+            fonts = null;
+            fontIds = null;
+        }
     }
 
-    private static synchronized void readDiscFonts() throws FontFormatException, IOException {
+    private static void readDiscFonts() throws FontFormatException, IOException {
+        synchronized (fontsLock) {
+
         if (fonts != null)
             return;
 
@@ -84,7 +90,7 @@ public class FontFactory {
                 }
             }
         }
-
+        }
     }
 
     public FontFactory() throws FontFormatException, IOException {
@@ -120,7 +126,7 @@ public class FontFactory {
 
     public Font createFont(String fontId) {
         Font font = null;
-        synchronized (FontFactory.class) {
+        synchronized (fontsLock) {
             font = (Font)fontIds.get(fontId);
         }
         if (font != null) {
@@ -148,7 +154,7 @@ public class FontFactory {
 
         /* Factory created for fonts in dvb.fontindex */
         Font font = null;
-        synchronized (FontFactory.class) {
+        synchronized (fontsLock) {
             font = (Font)fonts.get(name + "." + style);
         }
 
@@ -161,6 +167,8 @@ public class FontFactory {
     }
 
     private Font urlFont = null;
+
+    private static final Object fontsLock = new Object();
 
     private static Map fonts = null;
     private static Map fontIds = null;
