@@ -47,6 +47,8 @@ BD_PRIVATE int      libaacs_get_bec_enabled(BD_AACS *p);
 #define BD_AACS_DEVICE_BINDING_ID  4
 #define BD_AACS_DEVICE_NONCE       5
 #define BD_AACS_MEDIA_KEY          6
+#define BD_AACS_CONTENT_CERT_ID    7
+#define BD_AACS_BDJ_ROOT_CERT_HASH 8
 
 BD_PRIVATE const uint8_t *libaacs_get_aacs_data(BD_AACS *p, int type);
 

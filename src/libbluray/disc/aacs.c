@@ -340,6 +340,19 @@ int libaacs_get_bec_enabled(BD_AACS *p)
     return get_bec(p->aacs) == 3;
 }
 
+static const uint8_t *_get_data(BD_AACS *p, const char *func)
+{
+    fptr_p_void fp;
+
+    *(void **)(&fp) = dl_dlsym(p->h_libaacs, func);
+    if (!fp) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "%s() dlsym failed!\n", func);
+        return NULL;
+    }
+
+    return (const uint8_t*)fp(p->aacs);
+}
+
 static const char *_type2str(int type)
 {
     switch (type) {
@@ -349,6 +362,8 @@ static const char *_type2str(int type)
     case BD_AACS_DEVICE_BINDING_ID:  return "DEVICE_BINDING_ID";
     case BD_AACS_DEVICE_NONCE:       return "DEVICE_NONCE";
     case BD_AACS_MEDIA_KEY:          return "MEDIA_KEY";
+    case BD_AACS_CONTENT_CERT_ID:    return "CONTENT_CERT_ID";
+    case BD_AACS_BDJ_ROOT_CERT_HASH: return "BDJ_ROOT_CERT_HASH";
     default: return "???";
     }
 }
@@ -378,6 +393,12 @@ BD_PRIVATE const uint8_t *libaacs_get_aacs_data(BD_AACS *p, int type)
 
         case BD_AACS_MEDIA_KEY:
             return _get_media_key(p);
+
+        case BD_AACS_CONTENT_CERT_ID:
+            return _get_data(p, "aacs_get_content_cert_id");
+
+        case BD_AACS_BDJ_ROOT_CERT_HASH:
+            return _get_data(p, "aacs_get_bdj_root_cert_hash");
     }
 
     BD_DEBUG(DBG_BLURAY | DBG_CRIT, "get_aacs_data(): unknown query %d\n", type);

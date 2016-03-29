@@ -658,6 +658,9 @@ public class Libbluray {
     public static final int AACS_MEDIA_PMSN        = 3;
     public static final int AACS_DEVICE_BINDING_ID = 4;
     public static final int AACS_DEVICE_NONCE      = 5;
+    public static final int AACS_MEDIA_KEY         = 6;
+    public static final int AACS_CONTENT_CERT_ID   = 7;
+    public static final int AACS_BDJ_ROOT_CERT_HASH= 8;
 
     private static native byte[] getAacsDataN(long np, int type);
     private static native TitleInfo[] getTitleInfosN(long np);
