@@ -23,34 +23,28 @@ import java.security.BasicPermission;
 import java.security.Permission;
 
 public final class AppsControlPermission extends BasicPermission {
-    public AppsControlPermission()
-    {
+    public AppsControlPermission() {
         super("toto");
     }
 
-    public AppsControlPermission(String name, String actions)
-    {
+    public AppsControlPermission(String name, String actions) {
         super(name);
     }
 
-    public String getActions()
-    {
+    public String getActions() {
         // actions should be always null
         return null;
     }
 
-    public boolean implies(Permission perm)
-    {
+    public boolean implies(Permission perm) {
         return perm instanceof AppsControlPermission;
     }
 
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         return obj instanceof AppsControlPermission;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return getClass().hashCode();
     }
 

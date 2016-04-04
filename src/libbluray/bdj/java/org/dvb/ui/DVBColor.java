@@ -72,6 +72,6 @@ public class DVBColor extends AlphaColor {
     {
         return super.toString();
     }
-    
+
     private static final long serialVersionUID = -5411538049776187650L;
 }

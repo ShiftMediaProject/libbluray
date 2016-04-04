@@ -51,10 +51,9 @@ public abstract class DVBGraphics extends Graphics2D {
 
     public String toString()
     {
-        return getClass().getName() + "[font=" + getFont() + ",color="
-                + getColor() + "]";
+        return getClass().getName() + "[font=" + getFont() + ",color=" + getColor() + "]";
     }
-    
+
     protected int type = DVBBufferedImage.TYPE_BASE;
     protected Graphics2D gfx;
 }

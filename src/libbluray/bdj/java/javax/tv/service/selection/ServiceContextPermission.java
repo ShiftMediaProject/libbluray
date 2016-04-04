@@ -23,16 +23,14 @@ import java.security.Permission;
 import java.security.BasicPermission;
 
 public final class ServiceContextPermission extends BasicPermission {
-    public ServiceContextPermission(String name, String actions)
-    {
+    public ServiceContextPermission(String name, String actions) {
         super(name);
 
         this.name = name;
         this.actions = actions;
     }
 
-    public boolean implies(Permission perm)
-    {
+    public boolean implies(Permission perm) {
         if (!(perm instanceof ServiceContextPermission))
             return false;
         if (!perm.getActions().equals(actions) && !actions.equals("*"))
@@ -46,8 +44,7 @@ public final class ServiceContextPermission extends BasicPermission {
         return true;
     }
 
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (!super.equals(obj))
@@ -68,8 +65,7 @@ public final class ServiceContextPermission extends BasicPermission {
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + ((actions == null) ? 0 : actions.hashCode());
@@ -77,8 +73,7 @@ public final class ServiceContextPermission extends BasicPermission {
         return result;
     }
 
-    public String getActions()
-    {
+    public String getActions() {
         return actions;
     }
 

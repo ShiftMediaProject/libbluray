@@ -22,20 +22,17 @@ import javax.tv.service.Service;
 import javax.tv.service.ServiceType;
 
 public final class ServiceTypeFilter extends ServiceFilter {
-    public ServiceTypeFilter(ServiceType type)
-    {
+    public ServiceTypeFilter(ServiceType type) {
         if (type == null)
             throw new NullPointerException();
         this.type = type;
     }
 
-    public ServiceType getFilterValue()
-    {
+    public ServiceType getFilterValue() {
         return type;
     }
 
-    public boolean accept(Service service)
-    {
+    public boolean accept(Service service) {
         return service.getServiceType().equals(type);
     }
 

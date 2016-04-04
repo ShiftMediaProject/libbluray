@@ -23,7 +23,7 @@ import java.awt.Rectangle;
 
 public class AWTVideoSize
 {
-    public AWTVideoSize(Rectangle source, Rectangle dest) { 
+    public AWTVideoSize(Rectangle source, Rectangle dest) {
         this.source = source;
         this.dest = dest;
     }
@@ -44,8 +44,7 @@ public class AWTVideoSize
         return getDestination().height / getSource().height;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((dest == null) ? 0 : dest.hashCode());
@@ -53,8 +52,7 @@ public class AWTVideoSize
         return result;
     }
 
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -75,11 +73,10 @@ public class AWTVideoSize
         return true;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "AWTVideoSize [dest=" + dest + ", source=" + source + "]";
     }
-    
+
     private Rectangle source;
     private Rectangle dest;
 }

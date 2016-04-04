@@ -20,15 +20,13 @@
 package javax.tv.service.selection;
 
 public class SelectionFailedEvent extends ServiceContextEvent {
-    public SelectionFailedEvent(ServiceContext context, int reason)
-    {
+    public SelectionFailedEvent(ServiceContext context, int reason) {
         super(context);
 
         this.reason = reason;
     }
 
-    public int getReason()
-    {
+    public int getReason() {
         return reason;
     }
 

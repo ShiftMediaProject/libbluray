@@ -20,15 +20,13 @@
 package javax.tv.service.selection;
 
 public class PresentationTerminatedEvent extends ServiceContextEvent {
-    public PresentationTerminatedEvent(ServiceContext context, int reason)
-    {
+    public PresentationTerminatedEvent(ServiceContext context, int reason) {
         super(context);
 
         this.reason = reason;
     }
 
-    public int getReason()
-    {
+    public int getReason() {
         return reason;
     }
 

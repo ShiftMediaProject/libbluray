@@ -32,7 +32,7 @@ public final class MediaSelectPermission extends Permission
         if (locator == null)
             this.locator = "*";
         else
-        this.locator = locator.toExternalForm();
+            this.locator = locator.toExternalForm();
     }
 
     public MediaSelectPermission(String locator, String actions) {

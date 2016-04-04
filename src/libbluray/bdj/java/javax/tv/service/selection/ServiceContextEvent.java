@@ -23,13 +23,13 @@ import java.util.EventObject;
 
 public class ServiceContextEvent extends EventObject
 {
-    public ServiceContextEvent(ServiceContext context) { 
+    public ServiceContextEvent(ServiceContext context) {
         super(context);
     }
 
     public ServiceContext getServiceContext() {
         return (ServiceContext)source;
     }
-    
+
     private static final long serialVersionUID = -1865592897966055645L;
 }

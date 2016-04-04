@@ -24,8 +24,7 @@ import javax.tv.locator.Locator;
 import java.io.Serializable;
 
 public final class SelectPermission extends Permission implements Serializable {
-    public SelectPermission(Locator locator, String actions)
-    {
+    public SelectPermission(Locator locator, String actions) {
         super(locator.toExternalForm());
 
         if (!actions.equals("own") && !actions.equals("*"))
@@ -35,8 +34,7 @@ public final class SelectPermission extends Permission implements Serializable {
         this.actions = actions;
     }
 
-    public SelectPermission(String locator, String actions)
-    {
+    public SelectPermission(String locator, String actions) {
         super(locator);
 
         if (!actions.equals("own") && !actions.equals("*"))
@@ -46,8 +44,7 @@ public final class SelectPermission extends Permission implements Serializable {
         this.actions = actions;
     }
 
-    public boolean implies(Permission perm)
-    {
+    public boolean implies(Permission perm) {
         if (!(perm instanceof SelectPermission))
             return false;
         if (!perm.getActions().equals(actions) && !actions.equals("*"))
@@ -61,8 +58,7 @@ public final class SelectPermission extends Permission implements Serializable {
         return true;
     }
 
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (obj == null)
             return false;
         if (this == obj)
@@ -83,8 +79,7 @@ public final class SelectPermission extends Permission implements Serializable {
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((actions == null) ? 0 : actions.hashCode());
@@ -92,8 +87,7 @@ public final class SelectPermission extends Permission implements Serializable {
         return result;
     }
 
-    public String getActions()
-    {
+    public String getActions() {
         return actions;
     }
 

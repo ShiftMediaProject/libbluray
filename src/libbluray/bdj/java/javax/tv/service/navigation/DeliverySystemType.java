@@ -20,13 +20,11 @@
 package javax.tv.service.navigation;
 
 public class DeliverySystemType {
-    protected DeliverySystemType(String name)
-    {
+    protected DeliverySystemType(String name) {
         this.name = name;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return name;
     }
 
