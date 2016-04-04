@@ -19,9 +19,7 @@
 
 package org.dvb.ui;
 
-import java.awt.image.RasterFormatException;
-
-public class DVBRasterFormatException extends RasterFormatException {
+public class DVBRasterFormatException extends Exception {
     public DVBRasterFormatException(String reason)
     {
         super(reason);
