@@ -24,6 +24,9 @@ import javax.tv.service.Service;
 public final class PreferenceFilter extends ServiceFilter {
 
     public PreferenceFilter(FavoriteServicesName name) {
+        System.err.println("No preference");
+        if (name == null)
+            throw new NullPointerException();
         throw new IllegalArgumentException();
     }
 

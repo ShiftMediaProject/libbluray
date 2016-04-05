@@ -27,6 +27,7 @@ public class SortNotAvailableException extends SIException
     }
 
     public SortNotAvailableException(String reason) {
+        super(reason);
     }
 
     private static final long serialVersionUID = 5524379730037808067L;

@@ -33,7 +33,9 @@ public final class ServiceTypeFilter extends ServiceFilter {
     }
 
     public boolean accept(Service service) {
-        return service.getServiceType().equals(type);
+        if (service == null)
+            throw new NullPointerException();
+        return service.getServiceType() == type;
     }
 
     private ServiceType type;
