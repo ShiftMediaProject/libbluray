@@ -41,6 +41,14 @@ public class PlayItemImpl implements PlayItem {
         this.service = service;
     }
 
+    public int getPlayItemId() {
+        return playitemId;
+    }
+
+    public int getPlayListId() {
+        return playlistId;
+    }
+
     public Locator getLocator()
     {
         int title = Libbluray.getCurrentTitle();
