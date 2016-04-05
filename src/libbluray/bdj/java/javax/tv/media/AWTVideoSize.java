@@ -24,8 +24,12 @@ import java.awt.Rectangle;
 public class AWTVideoSize
 {
     public AWTVideoSize(Rectangle source, Rectangle dest) {
-        this.source = source;
-        this.dest = dest;
+        if (source == null || dest == null) {
+            System.err.println("null rect");
+            throw new NullPointerException("null rect");
+        }
+        this.source = (Rectangle)source.clone();
+        this.dest = (Rectangle)dest.clone();
     }
 
     public Rectangle getSource() {
@@ -37,11 +41,11 @@ public class AWTVideoSize
     }
 
     public float getXScale() {
-        return getDestination().width / getSource().width;
+        return dest.width / source.width;
     }
 
     public float getYScale() {
-        return getDestination().height / getSource().height;
+        return dest.height / source.height;
     }
 
     public int hashCode() {
@@ -53,28 +57,15 @@ public class AWTVideoSize
     }
 
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
+        if (!(obj instanceof AWTVideoSize)) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
+        }
         AWTVideoSize other = (AWTVideoSize) obj;
-        if (dest == null) {
-            if (other.dest != null)
-                return false;
-        } else if (!dest.equals(other.dest))
-            return false;
-        if (source == null) {
-            if (other.source != null)
-                return false;
-        } else if (!source.equals(other.source))
-            return false;
-        return true;
+        return dest.equals(other.dest) && source.equals(other.source);
     }
 
     public String toString() {
-        return "AWTVideoSize [dest=" + dest + ", source=" + source + "]";
+        return getClass().getName() + "[dest=" + dest + ",source=" + source + "]";
     }
 
     private Rectangle source;
