@@ -25,6 +25,7 @@ public class XletStateChangeException extends Exception
     }
 
     public XletStateChangeException(String s) {
+        super(s);
     }
 
     private static final long serialVersionUID = 6559278303854606991L;
