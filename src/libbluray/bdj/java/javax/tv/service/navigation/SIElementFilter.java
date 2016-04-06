@@ -20,11 +20,8 @@
 
 package javax.tv.service.navigation;
 
-import javax.tv.service.SIRetrievable;
 import javax.tv.service.Service;
 import javax.tv.service.SIElement;
-import javax.tv.service.SIRequest;
-import javax.tv.service.SIRequestorImpl;
 
 import org.bluray.net.BDLocator;
 
