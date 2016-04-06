@@ -19,8 +19,9 @@
 
 package org.davic.media;
 
-public class MediaTimeEvent {
+public class MediaTimeEvent extends java.util.EventObject {
     public MediaTimeEvent(Object source, long eventTime, int ID) {
+        super(source);
         this.source = source;
         this.eventTime = eventTime;
         this.eventId = ID;
@@ -38,7 +39,7 @@ public class MediaTimeEvent {
         return source;
     }
 
-    private Object source;
-    private long eventTime;
-    private int eventId;
+    private final Object source;
+    private final long eventTime;
+    private final int eventId;
 }
