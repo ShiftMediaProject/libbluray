@@ -37,7 +37,7 @@ public class PanningChangeEvent extends EventObject {
         return balance;
     }
 
-    private float balance;
-    private float fade;
+    private final float balance;
+    private final float fade;
     private static final long serialVersionUID = 75180748900043421L;
 }

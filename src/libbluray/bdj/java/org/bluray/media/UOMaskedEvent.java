@@ -31,6 +31,10 @@ public class UOMaskedEvent extends EventObject {
         return position;
     }
 
-    private int position;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",position=" + position + "]";
+    }
+
+    private final int position;
     private static final long serialVersionUID = -1417936916531803863L;
 }

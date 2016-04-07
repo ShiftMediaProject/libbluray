@@ -30,7 +30,10 @@ public class PlaybackPlayItemEvent extends EventObject {
     public int getPlayItem() {
         return playItem;
     }
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",playItem=" + playItem + "]";
+    }
 
-    private int playItem;
+    private final int playItem;
     private static final long serialVersionUID = -2550042660300066017L;
 }

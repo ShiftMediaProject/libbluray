@@ -32,6 +32,10 @@ public class PlaybackMarkEvent extends EventObject {
         return this.mark;
     }
 
-    private int mark;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",mark=" + mark + "]";
+    }
+
+    private final int mark;
     private static final long serialVersionUID = -6679776995045036356L;
 }

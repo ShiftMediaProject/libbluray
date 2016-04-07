@@ -31,6 +31,10 @@ public class AngleChangeEvent extends EventObject {
         return this.angle;
     }
 
-    private int angle;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",angle=" + angle + "]";
+    }
+
+    private final int angle;
     private static final long serialVersionUID = -2582705865081165327L;
 }

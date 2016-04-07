@@ -33,6 +33,10 @@ public class PiPStatusEvent extends EventObject {
         return this.available;
     }
 
-    private boolean available;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",available=" + available + "]";
+    }
+
+    private final boolean available;
     private static final long serialVersionUID = -1233930796504204430L;
 }
