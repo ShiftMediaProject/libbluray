@@ -24,11 +24,11 @@ import java.security.Permission;
 
 public final class AppsControlPermission extends BasicPermission {
     public AppsControlPermission() {
-        super("toto");
+        super("*");
     }
 
     public AppsControlPermission(String name, String actions) {
-        super(name);
+        super("*");
     }
 
     public String getActions() {
@@ -45,7 +45,7 @@ public final class AppsControlPermission extends BasicPermission {
     }
 
     public int hashCode() {
-        return getClass().hashCode();
+        return 0;
     }
 
     private static final long serialVersionUID = 4003360685455291075L;

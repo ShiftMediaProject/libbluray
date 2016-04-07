@@ -37,6 +37,10 @@ public class AppsDatabaseEvent extends EventObject {
         return id;
     }
 
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",id=" + id + ",appid" + appid + "]";
+    }
+
     static public final int NEW_DATABASE = 0;
     static public final int APP_CHANGED = 1;
     static public final int APP_ADDED = 2;

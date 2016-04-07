@@ -48,11 +48,7 @@ public class AppID implements Serializable {
     }
 
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
+        if (!(obj instanceof AppID))
             return false;
         AppID other = (AppID) obj;
         if (aid != other.aid)
@@ -62,8 +58,6 @@ public class AppID implements Serializable {
         return true;
     }
 
-    int oid;
-    int aid;
-
-    private static final long serialVersionUID = 1;
+    private int oid;
+    private int aid;
 }
