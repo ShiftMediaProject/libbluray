@@ -1678,7 +1678,7 @@ uint32_t bd_get_current_chapter(BLURAY *bd)
     bd_mutex_lock(&bd->mutex);
 
     if (bd->title) {
-        ret = nav_chapter_get_current(bd->st0.clip, SPN(bd->st0.clip_pos));
+        ret = nav_chapter_get_current(bd->title, SPN(bd->s_pos));
     }
 
     bd_mutex_unlock(&bd->mutex);
