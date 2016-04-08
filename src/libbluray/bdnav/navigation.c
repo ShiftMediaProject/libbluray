@@ -476,7 +476,7 @@ _fill_mark(NAV_TITLE *title, NAV_MARK *mark, int entry)
     } else {
         mark->clip_pkt = clip->start_pkt;
     }
-    mark->title_pkt = clip->title_pkt + mark->clip_pkt;
+    mark->title_pkt = clip->title_pkt + mark->clip_pkt - clip->start_pkt;
     mark->clip_time = plm->time;
 
     // Calculate start of mark relative to beginning of playlist
