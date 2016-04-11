@@ -34,6 +34,10 @@ public class ControllerClosedEvent extends ControllerEvent {
         return reason;
     }
 
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",reason=" + reason + "]";
+    }
+
     private String reason = "";
     private static final long serialVersionUID = 5868546288299613691L;
 }

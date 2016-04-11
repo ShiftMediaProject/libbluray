@@ -36,7 +36,12 @@ public class CachingControlEvent extends ControllerEvent {
         return progress;
     }
 
-    private CachingControl cacheControl;
-    private long progress;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",cacheControl=" + cacheControl + ",progress=" + progress + "]";
+    }
+
+    private final CachingControl cacheControl;
+    private final long progress;
+
     private static final long serialVersionUID = 8877038236738665179L;
 }

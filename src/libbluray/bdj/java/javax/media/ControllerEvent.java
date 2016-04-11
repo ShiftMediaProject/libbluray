@@ -36,6 +36,10 @@ public class ControllerEvent extends EventObject implements MediaEvent {
         return source;
     }
 
-    private Controller source;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + "]";
+    }
+
+    protected final Controller source;
     private static final long serialVersionUID = 2637536605185993242L;
 }

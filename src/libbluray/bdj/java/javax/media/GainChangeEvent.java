@@ -51,9 +51,14 @@ public class GainChangeEvent extends EventObject implements MediaEvent {
         return level;
     }
 
-    private GainControl source;
-    private boolean mute;
-    private float dB;
-    private float level;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",mute=" + mute + ",db=" + dB + ",level=" + level + "]";
+    }
+
+    private final GainControl source;
+    private final boolean mute;
+    private final float dB;
+    private final float level;
+
     private static final long serialVersionUID = -3685931181525562650L;
 }

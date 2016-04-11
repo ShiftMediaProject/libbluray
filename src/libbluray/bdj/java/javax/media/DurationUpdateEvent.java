@@ -30,6 +30,10 @@ public class DurationUpdateEvent extends ControllerEvent {
         return duration;
     }
 
-    private Time duration;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",duration=" + duration + "]";
+    }
+
+    private final Time duration;
     private static final long serialVersionUID = 400898256354068250L;
 }

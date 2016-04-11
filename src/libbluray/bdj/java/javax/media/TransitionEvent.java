@@ -40,8 +40,13 @@ public class TransitionEvent extends ControllerEvent {
         return target;
     }
 
-    private int previous;
-    private int current;
-    private int target;
+    public String toString() {
+        return getClass().toString() + "[source=" + source + ",previous=" + previous + ",current=" + current + ",target=" + target + "]";
+    }
+
+    private final int previous;
+    private final int current;
+    private final int target;
+
     private static final long serialVersionUID = 6818216020447063912L;
 }

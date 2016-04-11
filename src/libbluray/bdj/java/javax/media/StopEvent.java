@@ -33,6 +33,11 @@ public class StopEvent extends TransitionEvent {
         return mediaTime;
     }
 
-    private Time mediaTime;
+    public String toString() {
+        return getClass().toString() + "[source=" + source + ",mediaTime=" + mediaTime + "]";
+    }
+
+    private final Time mediaTime;
+
     private static final long serialVersionUID = -4224879148377028872L;
 }

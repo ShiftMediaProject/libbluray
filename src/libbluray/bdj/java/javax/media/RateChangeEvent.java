@@ -30,6 +30,11 @@ public class RateChangeEvent extends ControllerEvent {
         return rate;
     }
 
-    private float rate;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",rate=" + rate + "]";
+    }
+
+    private final float rate;
+
     private static final long serialVersionUID = -4420398478601444547L;
 }

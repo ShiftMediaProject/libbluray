@@ -30,6 +30,11 @@ public class MediaTimeSetEvent extends ControllerEvent {
         return mediaTime;
     }
 
-    private Time mediaTime;
+    public String toString() {
+        return getClass().toString() + "[source=" + source + ",mediaTime=" + mediaTime + "]";
+    }
+
+    private final Time mediaTime;
+
     private static final long serialVersionUID = -628446955261317468L;
 }
