@@ -21,6 +21,8 @@ package javax.tv.service;
 
 public class ServiceType {
     protected ServiceType(String name) {
+        if (name == null)
+            throw new NullPointerException();
         this.name = name;
     }
 

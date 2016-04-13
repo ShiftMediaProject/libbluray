@@ -25,11 +25,14 @@ public class ServiceContextEvent extends EventObject
 {
     public ServiceContextEvent(ServiceContext context) {
         super(context);
+        this.context = context;
     }
 
     public ServiceContext getServiceContext() {
-        return (ServiceContext)source;
+        return context;
     }
+
+    protected ServiceContext context;
 
     private static final long serialVersionUID = -1865592897966055645L;
 }

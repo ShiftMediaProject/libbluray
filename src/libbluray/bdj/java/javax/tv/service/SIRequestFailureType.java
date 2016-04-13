@@ -21,6 +21,8 @@ package javax.tv.service;
 
 public class SIRequestFailureType {
     protected SIRequestFailureType(String name) {
+        if (name == null)
+            throw new NullPointerException();
         this.name = name;
     }
 
@@ -36,5 +38,6 @@ public class SIRequestFailureType {
             "DATA_UNAVAILABLE");
     public static final SIRequestFailureType UNKNOWN = new SIRequestFailureType(
             "UNKNOWN");
+
     private String name;
 }
