@@ -40,11 +40,11 @@ public class DVBColor extends AlphaColor {
     }
 
     public Color brighter() {
-        return super.brighter();
+        return new DVBColor(super.brighter());
     }
 
     public Color darker() {
-        return super.darker();
+        return new DVBColor(super.darker());
     }
 
     public boolean equals(Object obj) {
