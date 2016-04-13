@@ -29,8 +29,7 @@ public class VFSManager {
     private static VFSManager instance = null;
 
     public static VFSManager getInstance() throws SecurityException,
-            UnsupportedOperationException
-    {
+            UnsupportedOperationException {
         if (instance == null) {
             instance = new VFSManager();
         }
@@ -38,43 +37,36 @@ public class VFSManager {
         return instance;
     }
 
-    protected VFSManager()
-    {
+    protected VFSManager() {
         state = STABLE;
     }
 
-    public boolean disableClip(String streamfile)
-    {
+    public boolean disableClip(String streamfile) {
         logger.unimplemented("disableClip");
         return true;
     }
 
-    public boolean enableClip(String streamfile)
-    {
+    public boolean enableClip(String streamfile) {
         logger.unimplemented("enableClip");
         return true;
     }
 
-    public String[] getDisabledClipIDs()
-    {
+    public String[] getDisabledClipIDs() {
         logger.unimplemented("getDisabledClipIDs");
         return new String[]{};
     }
 
-    public int getState()
-    {
+    public int getState() {
         return state;
     }
 
-    public boolean isEnabledClip(String clipID)
-    {
+    public boolean isEnabledClip(String clipID) {
         logger.unimplemented("isEnabledClip");
         return true;
     }
 
     public void requestUpdating(String manifestfile, String signaturefile,
-            boolean initBackupRegs) throws PreparingFailedException
-    {
+            boolean initBackupRegs) throws PreparingFailedException {
         state = PREPARING;
 
         BUMFAsset[] assets = BUMFParser.parse(manifestfile);

@@ -32,8 +32,7 @@ import org.videolan.StreamInfo;
 
 public class TitleComponentImpl implements TitleComponent {
     protected TitleComponentImpl(int stream_number, StreamInfo stream, StreamType type, boolean primary,
-                                 int playlistId, int playitemId, Title service)
-    {
+                                 int playlistId, int playitemId, Title service) {
         this.stream_number = stream_number;
         this.stream = stream;
         this.type = type;

@@ -31,26 +31,22 @@ import org.videolan.TIClip;
 import org.videolan.PlaylistInfo;
 
 public class PlayListImpl implements PlayList {
-    protected PlayListImpl(String filename, Title service)
-    {
+    protected PlayListImpl(String filename, Title service) {
         this.filename = filename;
         this.id = Integer.parseInt(filename);
         this.playlist = Libbluray.getPlaylistInfo(id);
         this.service = service;
     }
 
-    public String getFileName()
-    {
+    public String getFileName() {
         return filename;
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
-    public PlayItem[] getPlayItems()
-    {
+    public PlayItem[] getPlayItems() {
         TIClip[] clips = playlist.getClips();
         PlayItem[] items = new PlayItem[clips.length];
 
@@ -61,8 +57,7 @@ public class PlayListImpl implements PlayList {
         return items;
     }
 
-    public Locator getLocator()
-    {
+    public Locator getLocator() {
         int title = Libbluray.getCurrentTitle();
 
         try {
@@ -72,13 +67,11 @@ public class PlayListImpl implements PlayList {
         }
     }
 
-    public ServiceInformationType getServiceInformationType()
-    {
+    public ServiceInformationType getServiceInformationType() {
         return TitleInformationType.BD_ROM;
     }
 
-    public Date getUpdateTime()
-    {
+    public Date getUpdateTime() {
         return null;
     }
 

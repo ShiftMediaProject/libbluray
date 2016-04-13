@@ -20,13 +20,11 @@
 package org.bluray.ti;
 
 public class CodingType {
-    protected CodingType(String name)
-    {
+    protected CodingType(String name) {
         this.name = name;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return name;
     }
 

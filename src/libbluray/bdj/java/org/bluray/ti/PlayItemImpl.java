@@ -33,8 +33,7 @@ import org.videolan.StreamInfo;
 import org.videolan.TIClip;
 
 public class PlayItemImpl implements PlayItem {
-    protected PlayItemImpl(int playlistId, int playitemId, TIClip clip, Title service)
-    {
+    protected PlayItemImpl(int playlistId, int playitemId, TIClip clip, Title service) {
         this.playlistId = playlistId;
         this.playitemId = playitemId;
         this.clip = clip;
@@ -49,8 +48,7 @@ public class PlayItemImpl implements PlayItem {
         return playlistId;
     }
 
-    public Locator getLocator()
-    {
+    public Locator getLocator() {
         int title = Libbluray.getCurrentTitle();
         try {
             return new BDLocator("bd://" + title + ".PLAYLIST:" + playlistId + ".ITEM:" + playitemId);
@@ -59,18 +57,15 @@ public class PlayItemImpl implements PlayItem {
         }
     }
 
-    public ServiceInformationType getServiceInformationType()
-    {
+    public ServiceInformationType getServiceInformationType() {
         return TitleInformationType.BD_ROM;
     }
 
-    public Date getUpdateTime()
-    {
+    public Date getUpdateTime() {
         return null;
     }
 
-    public ServiceComponent[] getComponents()
-    {
+    public ServiceComponent[] getComponents() {
         StreamInfo[] video = clip.getVideoStreams();
         StreamInfo[] audio = clip.getVideoStreams();
         StreamInfo[] pg = clip.getVideoStreams();

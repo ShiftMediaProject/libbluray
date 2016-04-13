@@ -20,8 +20,7 @@
 package org.bluray.ti;
 
 public class DiscEjectedEvent extends DiscStatusEvent {
-    public DiscEjectedEvent(Object source)
-    {
+    public DiscEjectedEvent(Object source) {
         super(source);
     }
 
