@@ -20,15 +20,13 @@
 package javax.media;
 
 public class MediaTimeSetEvent extends ControllerEvent {
-    public MediaTimeSetEvent(Controller from, Time mediaTime)
-    {
+    public MediaTimeSetEvent(Controller from, Time mediaTime) {
         super(from);
-        
+
         this.mediaTime = mediaTime;
     }
 
-    public Time getMediaTime()
-    {
+    public Time getMediaTime() {
         return mediaTime;
     }
 

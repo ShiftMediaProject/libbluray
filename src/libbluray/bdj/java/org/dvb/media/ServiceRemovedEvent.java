@@ -24,23 +24,20 @@ import javax.media.StopEvent;
 import javax.media.Controller;
 
 public class ServiceRemovedEvent extends StopEvent {
-    public ServiceRemovedEvent(Controller source)
-    {
+    public ServiceRemovedEvent(Controller source) {
         super(source, 0, 0, 0, null);
 
         this.stream = null;
     }
 
     public ServiceRemovedEvent(Controller source, int previous, int current,
-            int target, MediaLocator stream)
-    {
+            int target, MediaLocator stream) {
         super(source, 0, 0, 0, null);
 
         this.stream = stream;
     }
 
-    public MediaLocator getStream()
-    {
+    public MediaLocator getStream() {
         return stream;
     }
 

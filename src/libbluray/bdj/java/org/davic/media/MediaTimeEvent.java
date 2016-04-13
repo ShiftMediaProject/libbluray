@@ -20,8 +20,7 @@
 package org.davic.media;
 
 public class MediaTimeEvent {
-    public MediaTimeEvent(Object source, long eventTime, int ID)
-    {
+    public MediaTimeEvent(Object source, long eventTime, int ID) {
         this.source = source;
         this.eventTime = eventTime;
         this.eventId = ID;
@@ -38,7 +37,7 @@ public class MediaTimeEvent {
     public Object getSource() {
         return source;
     }
-    
+
     private Object source;
     private long eventTime;
     private int eventId;

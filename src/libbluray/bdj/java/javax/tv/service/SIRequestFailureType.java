@@ -20,13 +20,11 @@
 package javax.tv.service;
 
 public class SIRequestFailureType {
-    protected SIRequestFailureType(String name)
-    {
+    protected SIRequestFailureType(String name) {
         this.name = name;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return name;
     }
 

@@ -20,15 +20,13 @@
 package org.dvb.media;
 
 public class DFCChangedEvent extends VideoFormatEvent {
-    public DFCChangedEvent(Object source, int newDFC)
-    {
+    public DFCChangedEvent(Object source, int newDFC) {
         super(source);
 
         this.newDFC = newDFC;
     }
 
-    public int getNewDFC()
-    {
+    public int getNewDFC() {
         return newDFC;
     }
 

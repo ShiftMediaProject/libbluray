@@ -30,52 +30,43 @@ public class FileAttributes {
     public static final int PRIORITY_HIGH = 3;
 
     protected FileAttributes(Date expiration_date,
-            FileAccessPermissions permissions, int priority)
-    {
+            FileAccessPermissions permissions, int priority) {
         this.permissions = permissions;
         this.priority = priority;
     }
 
-    public Date getExpirationDate()
-    {
+    public Date getExpirationDate() {
         org.videolan.Logger.unimplemented(FileAttributes.class.getName(), "getExpirationDate");
         return null;
     }
 
-    public void setExpirationDate(Date d)
-    {
+    public void setExpirationDate(Date d) {
         // expiration dates are for losers
     }
 
-    public FileAccessPermissions getPermissions()
-    {
+    public FileAccessPermissions getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(FileAccessPermissions permissions)
-    {
+    public void setPermissions(FileAccessPermissions permissions) {
         this.permissions = permissions;
     }
 
-    public int getPriority()
-    {
+    public int getPriority() {
         return priority;
     }
 
-    public void setPriority(int priority)
-    {
+    public void setPriority(int priority) {
         this.priority = priority;
     }
 
     public static void setFileAttributes(FileAttributes p, File f)
-            throws IOException
-    {
+            throws IOException {
         org.videolan.Logger.unimplemented(FileAttributes.class.getName(), "setFileAttributes");
         // not implemented
     }
 
-    public static FileAttributes getFileAttributes(File f) throws IOException
-    {
+    public static FileAttributes getFileAttributes(File f) throws IOException {
         boolean r = f.canRead();
         boolean w = f.canWrite();
 

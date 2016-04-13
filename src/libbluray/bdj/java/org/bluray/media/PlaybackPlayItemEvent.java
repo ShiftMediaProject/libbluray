@@ -22,14 +22,12 @@ package org.bluray.media;
 import java.util.EventObject;
 
 public class PlaybackPlayItemEvent extends EventObject {
-    public PlaybackPlayItemEvent(PlaybackControl source, int playItem)
-    {
+    public PlaybackPlayItemEvent(PlaybackControl source, int playItem) {
         super(source);
         this.playItem = playItem;
     }
 
-    public int getPlayItem()
-    {
+    public int getPlayItem() {
         return playItem;
     }
 

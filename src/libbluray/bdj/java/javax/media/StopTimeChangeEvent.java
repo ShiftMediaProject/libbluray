@@ -20,15 +20,13 @@
 package javax.media;
 
 public class StopTimeChangeEvent extends ControllerEvent {
-    public StopTimeChangeEvent(Controller from, Time stopTime)
-    {
+    public StopTimeChangeEvent(Controller from, Time stopTime) {
         super(from);
 
         this.stopTime = stopTime;
     }
 
-    public Time getStopTime()
-    {
+    public Time getStopTime() {
         return stopTime;
     }
 

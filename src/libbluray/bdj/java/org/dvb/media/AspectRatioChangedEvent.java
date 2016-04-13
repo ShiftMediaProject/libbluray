@@ -20,15 +20,13 @@
 package org.dvb.media;
 
 public class AspectRatioChangedEvent extends VideoFormatEvent {
-    public AspectRatioChangedEvent(Object source, int newRatio)
-    {
+    public AspectRatioChangedEvent(Object source, int newRatio) {
         super(source);
-        
+
         this.newRatio = newRatio;
     }
 
-    public int getNewRatio()
-    {
+    public int getNewRatio() {
         return newRatio;
     }
 

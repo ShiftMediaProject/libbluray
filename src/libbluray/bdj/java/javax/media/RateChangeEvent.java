@@ -20,15 +20,13 @@
 package javax.media;
 
 public class RateChangeEvent extends ControllerEvent {
-    public RateChangeEvent(Controller source, float rate)
-    {
+    public RateChangeEvent(Controller source, float rate) {
         super(source);
 
         this.rate = rate;
     }
 
-    public float getRate()
-    {
+    public float getRate() {
         return rate;
     }
 

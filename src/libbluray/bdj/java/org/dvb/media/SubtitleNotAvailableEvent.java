@@ -22,14 +22,12 @@ package org.dvb.media;
 import java.util.EventObject;
 
 public class SubtitleNotAvailableEvent extends EventObject {
-    public SubtitleNotAvailableEvent(Object source)
-    {
+    public SubtitleNotAvailableEvent(Object source) {
         super(source);
         this.source = source;
     }
 
-    public Object getSource()
-    {
+    public Object getSource() {
         return source;
     }
 

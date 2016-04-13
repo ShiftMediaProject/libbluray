@@ -22,8 +22,7 @@ package org.dvb.media;
 import java.util.EventObject;
 
 public abstract class VideoFormatEvent extends EventObject {
-    public VideoFormatEvent(Object source)
-    {
+    public VideoFormatEvent(Object source) {
         super(source);
     }
 

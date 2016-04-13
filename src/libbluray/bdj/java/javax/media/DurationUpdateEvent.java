@@ -20,15 +20,13 @@
 package javax.media;
 
 public class DurationUpdateEvent extends ControllerEvent {
-    public DurationUpdateEvent(Controller source, Time duration)
-    {
+    public DurationUpdateEvent(Controller source, Time duration) {
         super(source);
 
         this.duration = duration;
     }
 
-    public Time getDuration()
-    {
+    public Time getDuration() {
         return duration;
     }
 

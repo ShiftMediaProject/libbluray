@@ -23,8 +23,7 @@ import java.util.EventObject;
 
 public class AppStateChangeEvent extends EventObject {
     public AppStateChangeEvent(AppID appid, int fromstate, int tostate,
-            Object source, boolean hasFailed)
-    {
+            Object source, boolean hasFailed) {
         super(source);
 
         this.appid = appid;
@@ -33,23 +32,19 @@ public class AppStateChangeEvent extends EventObject {
         this.hasFailed = hasFailed;
     }
 
-    public AppID getAppID()
-    {
+    public AppID getAppID() {
         return appid;
     }
 
-    public int getFromState()
-    {
+    public int getFromState() {
         return fromstate;
     }
 
-    public int getToState()
-    {
+    public int getToState() {
         return tostate;
     }
 
-    public boolean hasFailed()
-    {
+    public boolean hasFailed() {
         return hasFailed;
     }
 

@@ -20,15 +20,13 @@
 package org.dvb.media;
 
 public class ActiveFormatDescriptionChangedEvent extends VideoFormatEvent {
-    public ActiveFormatDescriptionChangedEvent(Object source, int newFormat)
-    {
+    public ActiveFormatDescriptionChangedEvent(Object source, int newFormat) {
         super(source);
 
         this.newFormat = newFormat;
     }
 
-    public int getNewFormat()
-    {
+    public int getNewFormat() {
         return newFormat;
     }
 

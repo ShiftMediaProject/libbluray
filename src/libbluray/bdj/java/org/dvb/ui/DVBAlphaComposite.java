@@ -22,29 +22,24 @@ package org.dvb.ui;
 
 public final class DVBAlphaComposite {
 
-    private DVBAlphaComposite(int rule)
-    {
+    private DVBAlphaComposite(int rule) {
         this(rule, 1.0f);
     }
 
-    private DVBAlphaComposite(int rule, float alpha)
-    {
+    private DVBAlphaComposite(int rule, float alpha) {
         this.rule = rule;
         this.alpha = alpha;
     }
 
-    public int getRule()
-    {
+    public int getRule() {
         return rule;
     }
 
-    public float getAlpha()
-    {
+    public float getAlpha() {
         return alpha;
     }
 
-    public static DVBAlphaComposite getInstance(int rule)
-    {
+    public static DVBAlphaComposite getInstance(int rule) {
         switch (rule) {
         case CLEAR:
             return Clear;
@@ -68,8 +63,7 @@ public final class DVBAlphaComposite {
         }
     }
 
-    public static DVBAlphaComposite getInstance(int rule, float alpha)
-    {
+    public static DVBAlphaComposite getInstance(int rule, float alpha) {
         if (rule < 1 || rule > 8) {
             System.err.println("Unknown composite rule");
             throw new IllegalArgumentException("Unknown rule");
@@ -86,8 +80,7 @@ public final class DVBAlphaComposite {
         return new DVBAlphaComposite(rule, alpha);
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + Float.floatToIntBits(alpha);
@@ -95,8 +88,7 @@ public final class DVBAlphaComposite {
         return result;
     }
 
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (!(obj instanceof DVBAlphaComposite))
             return false;
 

@@ -22,14 +22,12 @@ package org.dvb.media;
 import java.util.EventObject;
 
 public class SubtitleNotSelectedEvent extends EventObject {
-    public SubtitleNotSelectedEvent(Object source)
-    {
+    public SubtitleNotSelectedEvent(Object source) {
         super(source);
         this.source = source;
     }
 
-    public Object getSource()
-    {
+    public Object getSource() {
         return source;
     }
 

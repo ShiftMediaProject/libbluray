@@ -31,13 +31,11 @@ import java.awt.image.ImageProducer;
 import java.awt.image.RasterFormatException;
 
 public class DVBBufferedImage extends Image {
-    public DVBBufferedImage(int width, int height)
-    {
+    public DVBBufferedImage(int width, int height) {
         this(width, height, TYPE_BASE);
     }
 
-    public DVBBufferedImage(int width, int height, int type)
-    {
+    public DVBBufferedImage(int width, int height, int type) {
         if (type != TYPE_BASE && type != TYPE_ADVANCED) {
             throw new IllegalArgumentException(err("Unknown image type " + type));
         }

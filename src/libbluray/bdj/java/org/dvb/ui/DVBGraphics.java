@@ -26,8 +26,7 @@ public abstract class DVBGraphics extends Graphics2D {
 
     public abstract int[] getAvailableCompositeRules();
 
-    public DVBColor getBestColorMatch(Color c)
-    {
+    public DVBColor getBestColorMatch(Color c) {
         return new DVBColor(c);
     }
 
@@ -35,8 +34,7 @@ public abstract class DVBGraphics extends Graphics2D {
 
     public abstract DVBAlphaComposite getDVBComposite();
 
-    public int getType()
-    {
+    public int getType() {
         return type;
     }
 
@@ -45,8 +43,7 @@ public abstract class DVBGraphics extends Graphics2D {
     public abstract void setDVBComposite(DVBAlphaComposite comp)
             throws UnsupportedDrawingOperationException;
 
-    public String toString()
-    {
+    public String toString() {
         return getClass().getName() + "[font=" + getFont() + ",color=" + getColor() + "]";
     }
 

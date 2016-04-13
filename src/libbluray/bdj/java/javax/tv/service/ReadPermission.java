@@ -24,27 +24,23 @@ import javax.tv.locator.Locator;
 import java.io.Serializable;
 
 public final class ReadPermission extends Permission implements Serializable {
-    public ReadPermission(Locator locator)
-    {
+    public ReadPermission(Locator locator) {
         super(locator.toExternalForm());
-        
+
         this.locator = locator.toExternalForm();
     }
 
-    public ReadPermission(String locator, String actions)
-    {
+    public ReadPermission(String locator, String actions) {
         super(null);
-        
+
         this.locator = locator;
     }
 
-    public boolean implies(Permission perm)
-    {
+    public boolean implies(Permission perm) {
         return (perm instanceof ReadPermission) && (this.equals(perm) || this.equals("*"));
     }
 
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (obj == null)
             return false;
         if (this == obj)
@@ -60,18 +56,16 @@ public final class ReadPermission extends Permission implements Serializable {
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         final int prime = 31;
         int result = prime + ((locator == null) ? 0 : locator.hashCode());
         return result;
     }
 
-    public String getActions()
-    {
+    public String getActions() {
         return "";
     }
-    
+
     private String locator;
     private static final long serialVersionUID = 3887436671296398427L;
 }

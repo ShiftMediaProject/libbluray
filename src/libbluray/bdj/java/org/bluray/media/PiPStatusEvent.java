@@ -23,15 +23,13 @@ package org.bluray.media;
 import java.util.EventObject;
 
 public class PiPStatusEvent extends EventObject {
-    public PiPStatusEvent(boolean available, PiPControl source)
-    {
+    public PiPStatusEvent(boolean available, PiPControl source) {
         super(source);
 
         this.available = available;
     }
 
-    public boolean isPiPAvailable()
-    {
+    public boolean isPiPAvailable() {
         return this.available;
     }
 

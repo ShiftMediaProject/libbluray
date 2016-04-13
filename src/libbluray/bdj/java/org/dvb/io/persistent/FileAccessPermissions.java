@@ -22,8 +22,7 @@ package org.dvb.io.persistent;
 public class FileAccessPermissions {
     public FileAccessPermissions(boolean readWorld, boolean writeWorld,
             boolean readOrganisation, boolean writeOrganisation,
-            boolean readApplication, boolean writeApplication)
-    {
+            boolean readApplication, boolean writeApplication) {
         this.readWorld = readWorld;
         this.writeWorld = writeWorld;
         this.readOrganisation = readOrganisation;
@@ -32,40 +31,33 @@ public class FileAccessPermissions {
         this.writeApplication = writeApplication;
     }
 
-    public boolean hasReadWorldAccessRight()
-    {
+    public boolean hasReadWorldAccessRight() {
         return readWorld;
     }
 
-    public boolean hasWriteWorldAccessRight()
-    {
+    public boolean hasWriteWorldAccessRight() {
         return writeWorld;
     }
 
-    public boolean hasReadOrganisationAccessRight()
-    {
+    public boolean hasReadOrganisationAccessRight() {
         return readOrganisation;
     }
 
-    public boolean hasWriteOrganisationAccessRight()
-    {
+    public boolean hasWriteOrganisationAccessRight() {
         return writeOrganisation;
     }
 
-    public boolean hasReadApplicationAccessRight()
-    {
+    public boolean hasReadApplicationAccessRight() {
         return readApplication;
     }
 
-    public boolean hasWriteApplicationAccessRight()
-    {
+    public boolean hasWriteApplicationAccessRight() {
         return writeApplication;
     }
 
     public void setPermissions(boolean ReadWorld, boolean WriteWorld,
             boolean ReadOrganisation, boolean WriteOrganisation,
-            boolean ReadApplication, boolean WriteApplication)
-    {
+            boolean ReadApplication, boolean WriteApplication) {
         this.readWorld = ReadWorld;
         this.writeWorld = WriteWorld;
         this.readOrganisation = ReadOrganisation;

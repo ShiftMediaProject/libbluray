@@ -22,20 +22,17 @@ package javax.media;
 import java.util.EventObject;
 
 public class ControllerEvent extends EventObject implements MediaEvent {
-    public ControllerEvent(Controller source)
-    {
+    public ControllerEvent(Controller source) {
         super(source);
 
         this.source = source;
     }
 
-    public Controller getSourceController()
-    {
+    public Controller getSourceController() {
         return source;
     }
 
-    public Object getSource()
-    {
+    public Object getSource() {
         return source;
     }
 

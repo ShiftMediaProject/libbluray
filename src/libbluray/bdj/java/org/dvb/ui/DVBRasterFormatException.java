@@ -20,8 +20,7 @@
 package org.dvb.ui;
 
 public class DVBRasterFormatException extends Exception {
-    public DVBRasterFormatException(String reason)
-    {
+    public DVBRasterFormatException(String reason) {
         super(reason);
     }
 

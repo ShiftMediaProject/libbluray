@@ -24,20 +24,17 @@ import javax.media.Controller;
 import javax.media.MediaLocator;
 
 public class CAStopEvent extends StopEvent {
-    public CAStopEvent(Controller source)
-    {
+    public CAStopEvent(Controller source) {
         super(source, 0, 0, 0, null);
     }
 
     public CAStopEvent(Controller source, int previous, int current,
-            int target, MediaLocator stream)
-    {
+            int target, MediaLocator stream) {
         super(source, previous, current, target, null);
         this.stream = stream;
     }
 
-    public MediaLocator getStream()
-    {
+    public MediaLocator getStream() {
         return stream;
     }
 

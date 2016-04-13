@@ -22,15 +22,13 @@ package org.bluray.media;
 import java.util.EventObject;
 
 public class PlaybackMarkEvent extends EventObject {
-    public PlaybackMarkEvent(PlaybackControl source, int mark)
-    {
+    public PlaybackMarkEvent(PlaybackControl source, int mark) {
         super(source);
 
         this.mark = mark;
     }
 
-    public int getMark()
-    {
+    public int getMark() {
         return this.mark;
     }
 

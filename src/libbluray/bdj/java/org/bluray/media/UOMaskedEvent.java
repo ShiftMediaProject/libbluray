@@ -22,14 +22,12 @@ package org.bluray.media;
 import java.util.EventObject;
 
 public class UOMaskedEvent extends EventObject {
-    public UOMaskedEvent(UOMaskTableControl source, int position)
-    {
+    public UOMaskedEvent(UOMaskTableControl source, int position) {
         super(source);
         this.position = position;
     }
 
-    public int getUOMaskPosition()
-    {
+    public int getUOMaskPosition() {
         return position;
     }
 

@@ -21,26 +21,22 @@ package javax.media;
 
 public class TransitionEvent extends ControllerEvent {
     public TransitionEvent(Controller from, int previous, int current,
-            int target)
-    {
+            int target) {
         super(from);
         this.previous = previous;
         this.current = current;
         this.target = target;
     }
 
-    public int getPreviousState()
-    {
+    public int getPreviousState() {
         return previous;
     }
 
-    public int getCurrentState()
-    {
+    public int getCurrentState() {
         return current;
     }
 
-    public int getTargetState()
-    {
+    public int getTargetState() {
         return target;
     }
 

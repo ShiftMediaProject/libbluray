@@ -21,13 +21,11 @@ package javax.tv.service;
 
 public class ServiceInformationType {
 
-    protected ServiceInformationType(String name)
-    {
+    protected ServiceInformationType(String name) {
         this.name = name;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return name;
     }
 
