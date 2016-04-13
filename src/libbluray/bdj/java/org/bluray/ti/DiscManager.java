@@ -21,8 +21,11 @@ package org.bluray.ti;
 
 import java.util.LinkedList;
 
+import org.videolan.BDJListeners;
+
 public class DiscManager {
 
+    private static DiscManager instance;
     private static final Object instanceLock = new Object();
 
     public static DiscManager getDiscManager() {
@@ -38,30 +41,26 @@ public class DiscManager {
     }
 
     public Disc getCurrentDisc() {
-        return disc;
+        return new DiscImpl(discId);
     }
 
     public void addDiscStatusEventListener(DiscStatusListener listener) {
-        synchronized(listeners) {
-            listeners.add(listener);
-        }
+        listeners.add(listener);
     }
 
     public void removeDiscStatusEventListener(DiscStatusListener listener) {
-        synchronized(listeners) {
-            listeners.remove(listener);
-        }
+        listeners.remove(listener);
     }
 
+    // XXX not allowed to add new public methods -- should be done in Impl class
     public void setCurrentDisc(String id) {
         if (org.videolan.BDJXletContext.getCurrentContext() == null) {
-            disc = new DiscImpl(id);
+            discId = id;
         } else {
             System.err.println("Ignoring disc ID (from Xlet)");
         }
     }
 
-    private LinkedList listeners = new LinkedList();
-    private static DiscManager instance;
-    private DiscImpl disc = null;
+    private BDJListeners listeners = new BDJListeners();
+    private String discId = null;
 }

@@ -75,8 +75,8 @@ public class PlayListImpl implements PlayList {
         return null;
     }
 
-    String filename;
-    PlaylistInfo playlist;
-    int id;
-    Title service;
+    private String filename;
+    private PlaylistInfo playlist;
+    private int id;
+    private Title service;
 }

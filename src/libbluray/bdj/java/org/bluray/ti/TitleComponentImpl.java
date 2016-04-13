@@ -111,11 +111,11 @@ public class TitleComponentImpl implements TitleComponent {
         return stream.getSubPathId();
     }
 
-    int stream_number;
-    StreamInfo stream;
-    StreamType type;
-    boolean primary;
-    int playlistId;
-    int playitemId;
-    Title service;
+    private int stream_number;
+    private StreamInfo stream;
+    private StreamType type;
+    private boolean primary;
+    private int playlistId;
+    private int playitemId;
+    private Title service;
 }

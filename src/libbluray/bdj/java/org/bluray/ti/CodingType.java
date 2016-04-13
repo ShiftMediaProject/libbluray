@@ -22,6 +22,8 @@ package org.bluray.ti;
 public class CodingType {
     protected CodingType(String name) {
         this.name = name;
+        if (name == null)
+            throw new NullPointerException("name is null");
     }
 
     public String toString() {

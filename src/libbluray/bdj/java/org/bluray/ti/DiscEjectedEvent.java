@@ -23,6 +23,4 @@ public class DiscEjectedEvent extends DiscStatusEvent {
     public DiscEjectedEvent(Object source) {
         super(source);
     }
-
-    private static final long serialVersionUID = -5165934355777383590L;
 }

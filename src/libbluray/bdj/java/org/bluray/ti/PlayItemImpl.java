@@ -51,7 +51,7 @@ public class PlayItemImpl implements PlayItem {
     public Locator getLocator() {
         int title = Libbluray.getCurrentTitle();
         try {
-            return new BDLocator("bd://" + title + ".PLAYLIST:" + playlistId + ".ITEM:" + playitemId);
+            return new BDLocator("bd://" + Integer.toHexString(title) + ".PLAYLIST:" + playlistId + ".ITEM:" + playitemId);
         } catch (InvalidLocatorException e) {
             return null;
         }
@@ -95,8 +95,8 @@ public class PlayItemImpl implements PlayItem {
         return components;
     }
 
-    int playlistId;
-    int playitemId;
-    TIClip clip;
-    Title service;
+    private int playlistId;
+    private int playitemId;
+    private TIClip clip;
+    private Title service;
 }
