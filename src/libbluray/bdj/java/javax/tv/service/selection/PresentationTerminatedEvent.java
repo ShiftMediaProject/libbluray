@@ -29,6 +29,11 @@ public class PresentationTerminatedEvent extends ServiceContextEvent {
     public int getReason() {
         return reason;
     }
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",reason=" + reason + "]";
+    }
+
+    private final int reason;
 
     public static final int SERVICE_VANISHED = 1;
     public static final int TUNED_AWAY = 2;
@@ -37,6 +42,5 @@ public class PresentationTerminatedEvent extends ServiceContextEvent {
     public static final int USER_STOP = 5;
     public static final int OTHER = 255;
 
-    private int reason;
     private static final long serialVersionUID = 4787886890628229164L;
 }

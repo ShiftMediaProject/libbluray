@@ -30,6 +30,12 @@ public class SelectionFailedEvent extends ServiceContextEvent {
         return reason;
     }
 
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",reason=" + reason + "]";
+    }
+
+    private final int reason;
+
     public static final int INTERRUPTED = 1;
     public static final int CA_REFUSAL = 2;
     public static final int CONTENT_NOT_FOUND = 3;
@@ -38,6 +44,5 @@ public class SelectionFailedEvent extends ServiceContextEvent {
     public static final int INSUFFICIENT_RESOURCES = 6;
     public static final int OTHER = 255;
 
-    private int reason;
     private static final long serialVersionUID = 3991728273494160910L;
 }
