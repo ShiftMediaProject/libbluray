@@ -21,12 +21,12 @@ package org.dvb.io.persistent;
 
 public class FileAccessPermissions {
     public FileAccessPermissions(boolean readWorld, boolean writeWorld,
-            boolean readOrganisation, boolean writeOrganisation,
+            boolean readOrganization, boolean writeOrganization,
             boolean readApplication, boolean writeApplication) {
         this.readWorld = readWorld;
         this.writeWorld = writeWorld;
-        this.readOrganisation = readOrganisation;
-        this.writeOrganisation = writeOrganisation;
+        this.readOrganization = readOrganization;
+        this.writeOrganization = writeOrganization;
         this.readApplication = readApplication;
         this.writeApplication = writeApplication;
     }
@@ -39,12 +39,12 @@ public class FileAccessPermissions {
         return writeWorld;
     }
 
-    public boolean hasReadOrganisationAccessRight() {
-        return readOrganisation;
+    public boolean hasReadOrganizationAccessRight() {
+        return readOrganization;
     }
 
-    public boolean hasWriteOrganisationAccessRight() {
-        return writeOrganisation;
+    public boolean hasWriteOrganizationAccessRight() {
+        return writeOrganization;
     }
 
     public boolean hasReadApplicationAccessRight() {
@@ -56,20 +56,30 @@ public class FileAccessPermissions {
     }
 
     public void setPermissions(boolean ReadWorld, boolean WriteWorld,
-            boolean ReadOrganisation, boolean WriteOrganisation,
+            boolean ReadOrganization, boolean WriteOrganization,
             boolean ReadApplication, boolean WriteApplication) {
         this.readWorld = ReadWorld;
         this.writeWorld = WriteWorld;
-        this.readOrganisation = ReadOrganisation;
-        this.writeOrganisation = WriteOrganisation;
+        this.readOrganization = ReadOrganization;
+        this.writeOrganization = WriteOrganization;
         this.readApplication = ReadApplication;
         this.writeApplication = WriteApplication;
     }
 
+    public String toString() {
+        return this.getClass().getName() +
+            "[rApp=" + readApplication +
+            ",wApp=" + writeApplication +
+            ",rOrg=" + readOrganization +
+            ",wOrg=" + writeOrganization +
+            ",rWorld=" + readWorld +
+            ",wWorld=" + writeWorld + "]";
+    }
+
     private boolean readWorld;
     private boolean writeWorld;
-    private boolean readOrganisation;
-    private boolean writeOrganisation;
+    private boolean readOrganization;
+    private boolean writeOrganization;
     private boolean readApplication;
     private boolean writeApplication;
 }

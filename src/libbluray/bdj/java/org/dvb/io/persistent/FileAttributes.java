@@ -75,6 +75,11 @@ public class FileAttributes {
         return new FileAttributes(null, permissions, PRIORITY_LOW);
     }
 
+    public String toString() {
+        return this.getClass().getName() + "[priority=" + priority + ",permissions=" +
+            permissions + ",expirationDate=" + expirationDate + "]";
+    }
+
     private FileAccessPermissions permissions;
     private int priority;
     private Date expirationDate;
