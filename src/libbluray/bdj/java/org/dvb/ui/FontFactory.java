@@ -155,7 +155,8 @@ public class FontFactory {
         /* Factory created for fonts in dvb.fontindex */
         Font font = null;
         synchronized (fontsLock) {
-            font = (Font)fonts.get(name + "." + style);
+            if (fonts != null)
+                font = (Font)fonts.get(name + "." + style);
         }
 
         if (font == null) {
