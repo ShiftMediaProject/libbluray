@@ -26,18 +26,23 @@ public final class ServiceContextPermission extends BasicPermission {
     public ServiceContextPermission(String name, String actions) {
         super(name);
 
+        if (name == null || actions == null)
+            throw new NullPointerException();
+
         this.name = name;
         this.actions = actions;
     }
 
     public boolean implies(Permission perm) {
+        if (perm == null)
+            throw new NullPointerException();
         if (!(perm instanceof ServiceContextPermission))
-            return false;
-        if (!perm.getActions().equals(actions) && !actions.equals("*"))
             return false;
 
         ServiceContextPermission scperm = (ServiceContextPermission) perm;
 
+        if (!scperm.actions.equals(actions) && !actions.equals("*"))
+            return false;
         if (!scperm.name.equals(name) && !name.equals("*"))
             return false;
 
@@ -45,22 +50,12 @@ public final class ServiceContextPermission extends BasicPermission {
     }
 
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
+        if (!(obj instanceof ServiceContextPermission))
             return false;
         ServiceContextPermission other = (ServiceContextPermission) obj;
-        if (actions == null) {
-            if (other.actions != null)
-                return false;
-        } else if (!actions.equals(other.actions))
+        if (!actions.equals(other.actions))
             return false;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
+        if (!name.equals(other.name))
             return false;
         return true;
     }

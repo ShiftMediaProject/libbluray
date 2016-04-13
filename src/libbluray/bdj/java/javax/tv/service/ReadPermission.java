@@ -25,35 +25,41 @@ import java.io.Serializable;
 
 public final class ReadPermission extends Permission implements Serializable {
     public ReadPermission(Locator locator) {
-        super(locator.toExternalForm());
+        super(locator == null ? "*" : locator.toExternalForm());
 
-        this.locator = locator.toExternalForm();
+        if (locator == null)
+            this.locator = "*";
+        else
+            this.locator = locator.toExternalForm();
     }
 
     public ReadPermission(String locator, String actions) {
-        super(null);
+        super(locator == null ? "*" : locator);
+
+        if (locator == null)
+            throw new NullPointerException();
 
         this.locator = locator;
     }
 
     public boolean implies(Permission perm) {
-        return (perm instanceof ReadPermission) && (this.equals(perm) || this.equals("*"));
+        if (perm == null)
+            throw new NullPointerException();
+        if (!(perm instanceof ReadPermission))
+            return false;
+
+        ReadPermission other = (ReadPermission)perm;
+        return locator.equals(other.locator) || locator.equals("*");
     }
 
     public boolean equals(Object obj) {
-        if (obj == null)
-            return false;
         if (this == obj)
             return true;
-        if (getClass() != obj.getClass())
+        if (!(obj instanceof ReadPermission))
             return false;
+
         ReadPermission other = (ReadPermission) obj;
-        if (locator == null) {
-            if (other.locator != null)
-                return false;
-        } else if (!locator.equals(other.locator))
-            return false;
-        return true;
+        return locator.equals(other.locator);
     }
 
     public int hashCode() {
