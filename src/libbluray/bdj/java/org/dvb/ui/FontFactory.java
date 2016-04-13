@@ -63,6 +63,7 @@ public class FontFactory {
             try {
                 File fontFile = org.videolan.BDJLoader.addFont(data.getFileName());
                 if (fontFile == null) {
+                    logger.error("error caching font");
                     throw new IOException("error caching font");
                 }
 
@@ -105,6 +106,7 @@ public class FontFactory {
 
             File fontFile = org.videolan.BDJLoader.addFont(inStream);
             if (fontFile == null) {
+                logger.error("error caching font");
                 throw new IOException("error caching font");
             }
 
@@ -124,10 +126,15 @@ public class FontFactory {
         }
     }
 
+    // used by root window / .bdjo default font
     public Font createFont(String fontId) {
         Font font = null;
         synchronized (fontsLock) {
-            font = (Font)fontIds.get(fontId);
+            if (fontIds == null) {
+                logger.error("no disc fonts loaded");
+            } else {
+                font = (Font)fontIds.get(fontId);
+            }
         }
         if (font != null) {
             return font.deriveFont(0, 12);
@@ -140,6 +147,7 @@ public class FontFactory {
         logger.info("Creating font: " + name + " " + style + " " + size);
 
         if (style < 0 || size <= 0 || (style & ~3) != 0) {
+            logger.error("invalid font size / style");
             throw new IllegalArgumentException();
         }
 
