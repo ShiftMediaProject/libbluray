@@ -29,19 +29,19 @@ public class FileAttributes {
     public static final int PRIORITY_MEDIUM = 2;
     public static final int PRIORITY_HIGH = 3;
 
-    protected FileAttributes(Date expiration_date,
+    protected FileAttributes(Date expirationDate,
             FileAccessPermissions permissions, int priority) {
+        this.expirationDate = expirationDate;
         this.permissions = permissions;
         this.priority = priority;
     }
 
     public Date getExpirationDate() {
-        org.videolan.Logger.unimplemented(FileAttributes.class.getName(), "getExpirationDate");
-        return null;
+        return expirationDate;
     }
 
     public void setExpirationDate(Date d) {
-        // expiration dates are for losers
+        this.expirationDate = d;
     }
 
     public FileAccessPermissions getPermissions() {
@@ -77,4 +77,5 @@ public class FileAttributes {
 
     private FileAccessPermissions permissions;
     private int priority;
+    private Date expirationDate;
 }
