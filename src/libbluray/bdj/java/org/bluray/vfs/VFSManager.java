@@ -27,14 +27,21 @@ import org.videolan.Logger;
 public class VFSManager {
 
     private static VFSManager instance = null;
+    private static final Object instanceLock = new Object();
 
     public static VFSManager getInstance() throws SecurityException,
             UnsupportedOperationException {
-        if (instance == null) {
-            instance = new VFSManager();
-        }
 
-        return instance;
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null)
+            sm.checkPermission(new VFSPermission("*"));
+
+        synchronized (instanceLock) {
+            if (instance == null) {
+                instance = new VFSManager();
+            }
+            return instance;
+        }
     }
 
     protected VFSManager() {
@@ -71,6 +78,7 @@ public class VFSManager {
 
         BUMFAsset[] assets = BUMFParser.parse(manifestfile);
         if (assets == null) {
+            logger.error("manifest parsing failed");
             state = STABLE;
             throw new PreparingFailedException();
         }
