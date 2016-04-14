@@ -1808,13 +1808,21 @@ static int64_t _clip_seek_time(BLURAY *bd, uint32_t tick)
 {
     uint32_t clip_pkt, out_pkt;
 
-    if (tick < bd->st0.clip->out_time) {
-
-        // Find the closest access unit to the requested position
-        nav_clip_time_search(bd->st0.clip, tick, &clip_pkt, &out_pkt);
-
-        _seek_internal(bd, bd->st0.clip, out_pkt, clip_pkt);
+    if (!bd->title || !bd->st0.clip) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_clip_seek_time(): no playlist playing\n");
+        return -1;
     }
+
+    if (tick >= bd->st0.clip->out_time) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_clip_seek_time(): timestamp after clip end (%u < %u)\n",
+                 bd->st0.clip->out_time, tick);
+        return -1;
+    }
+
+    // Find the closest access unit to the requested position
+    nav_clip_time_search(bd->st0.clip, tick, &clip_pkt, &out_pkt);
+
+    _seek_internal(bd, bd->st0.clip, out_pkt, clip_pkt);
 
     return bd->s_pos;
 }
