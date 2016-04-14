@@ -2831,6 +2831,14 @@ void bd_stop_bdj(BLURAY *bd)
  * Navigation mode interface
  */
 
+static void _set_scr(BLURAY *bd, int64_t pts)
+{
+    if (pts >= 0) {
+        uint32_t tick = (uint32_t)(((uint64_t)pts) >> 1);
+        bd_psr_write(bd->regs, PSR_TIME, tick);
+    }
+}
+
 static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
 {
     /* PSR restore events are handled internally.
@@ -3234,9 +3242,7 @@ int bd_play_title(BLURAY *bd, unsigned title)
 
 static int _try_menu_call(BLURAY *bd, int64_t pts)
 {
-    if (pts >= 0) {
-        bd_psr_write(bd->regs, PSR_TIME, (uint32_t)(((uint64_t)pts) >> 1));
-    }
+    _set_scr(bd, pts);
 
     if (bd->title_type == title_undef) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_menu_call(): bd_play() not called\n");
@@ -3464,13 +3470,6 @@ int bd_get_event(BLURAY *bd, BD_EVENT *event)
 /*
  * user interaction
  */
-
-static void _set_scr(BLURAY *bd, int64_t pts)
-{
-    if (pts >= 0) {
-        bd_psr_write(bd->regs, PSR_TIME, (uint32_t)(((uint64_t)pts) >> 1));
-    }
-}
 
 void bd_set_scr(BLURAY *bd, int64_t pts)
 {
