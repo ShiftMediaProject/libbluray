@@ -133,8 +133,7 @@ static int _pi_cmp(MPLS_PI *pi1, MPLS_PI *pi2)
 
 static int _pm_cmp(MPLS_PLM *pm1, MPLS_PLM *pm2)
 {
-    if (pm1->mark_id       == pm2->mark_id       &&
-        pm1->mark_type     == pm2->mark_type     &&
+    if (pm1->mark_type     == pm2->mark_type     &&
         pm1->play_item_ref == pm2->play_item_ref &&
         pm1->time          == pm2->time          &&
         pm1->entry_es_pid  == pm2->entry_es_pid  &&
