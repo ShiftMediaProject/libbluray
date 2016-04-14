@@ -376,6 +376,9 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         }
     }
 
+    protected void doSeekNotify(long tick) {
+        updateTime(new Time(tick * TO_SECONDS));
+    }
 
     protected void doPlaylistStarted(int playlist) {};
     protected void doChapterReached(int chapter) {};
@@ -654,6 +657,9 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
                     break;
                 case Libbluray.BDJ_EVENT_UO_MASKED:
                     player.doUOMasked(param2);
+                    break;
+                case Libbluray.BDJ_EVENT_SEEK:
+                    player.doSeekNotify(param2 * 2 /* 45kHz -> 90kHz */);
                     break;
                 default:
                     System.err.println("Unknown ACTION_STATUS: id " + param + ", value " + param2);

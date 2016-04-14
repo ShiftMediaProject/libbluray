@@ -308,6 +308,10 @@ public class Handler extends BDHandler {
         super.doEndOfMediaReached(playlist);
     }
 
+    protected void doSeekNotify(long tick) {
+        super.doSeekNotify(Libbluray.tellTime());
+    }
+
     protected BDLocator getLocator() {
         return locator;
     }

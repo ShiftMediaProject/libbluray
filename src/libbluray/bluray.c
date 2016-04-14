@@ -1561,10 +1561,11 @@ static void _seek_internal(BLURAY *bd,
 {
     if (_seek_stream(bd, &bd->st0, clip, clip_pkt) >= 0) {
 
-        _queue_event(bd, BD_EVENT_SEEK, 0);
-
         /* update title position */
         bd->s_pos = (uint64_t)title_pkt * 192;
+
+        _queue_event(bd, BD_EVENT_SEEK, 0);
+        _bdj_event(bd, BDJ_EVENT_SEEK, 0);
 
         /* playmark tracking */
         _find_next_playmark(bd);
