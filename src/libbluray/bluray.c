@@ -2858,7 +2858,7 @@ static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
             bd_seek_playitem(bd, ev->new_val);
             return;
         case PSR_TIME:
-            bd_seek_time(bd, ((int64_t)ev->new_val) << 1);
+            _clip_seek_time(bd, ev->new_val);
             _init_ig_stream(bd);
             _run_gc(bd, GC_CTRL_INIT_MENU, 0);
             return;
