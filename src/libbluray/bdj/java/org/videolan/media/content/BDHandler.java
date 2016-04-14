@@ -44,6 +44,7 @@ import javax.media.RealizeCompleteEvent;
 import javax.media.ResourceUnavailableEvent;
 import javax.media.StartEvent;
 import javax.media.StopByRequestEvent;
+import javax.media.StopTimeChangeEvent;
 import javax.media.Time;
 import javax.media.TimeBase;
 import javax.media.TransitionEvent;
@@ -184,6 +185,8 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         checkUnrealized();
         // TODO: actually stopping when stop time is hit needs to be implemented
         this.stopTime = stopTime;
+
+        postStopTimeChangeEvent();
     }
 
     public Time getMediaTime() {
@@ -436,6 +439,10 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     /*
      *
      */
+
+    private void postStopTimeChangeEvent() {
+        notifyListeners(new StopTimeChangeEvent(this, getStopTime()));
+    }
 
     private void notifyListeners(ControllerEvent event) {
         listeners.putCallback(event);
