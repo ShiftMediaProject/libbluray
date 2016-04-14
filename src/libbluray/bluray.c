@@ -219,6 +219,30 @@ static int _queue_event(BLURAY *bd, uint32_t event, uint32_t param)
  * PSR utils
  */
 
+static void _update_time_psr(BLURAY *bd, uint32_t time)
+{
+    /*
+     * Update PSR8: Presentation Time
+     * The PSR8 represents presentation time in the playing interval from IN_time until OUT_time of
+     * the current PlayItem, measured in units of a 45 kHz clock.
+     */
+
+    if (!bd->title || !bd->st0.clip) {
+        return;
+    }
+    if (time < bd->st0.clip->in_time) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_update_time_psr(): timestamp before clip start\n");
+        return;
+    }
+    if (time > bd->st0.clip->out_time) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_update_time_psr(): timestamp after clip end\n");
+        return;
+    }
+
+    bd_psr_write(bd->regs, PSR_TIME, time);
+}
+
+
 static void _update_stream_psr_by_lang(BD_REGISTERS *regs,
                                        uint32_t psr_lang, uint32_t psr_stream,
                                        uint32_t enable_flag,
@@ -2843,7 +2867,7 @@ static void _set_scr(BLURAY *bd, int64_t pts)
 {
     if (pts >= 0) {
         uint32_t tick = (uint32_t)(((uint64_t)pts) >> 1);
-        bd_psr_write(bd->regs, PSR_TIME, tick);
+        _update_time_psr(bd, tick);
     }
 }
 
