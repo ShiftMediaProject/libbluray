@@ -23,20 +23,17 @@ import java.awt.event.ActionEvent;
 import org.havi.ui.HActionInputPreferred;
 
 public class HActionEvent extends ActionEvent {
-    public HActionEvent(HActionInputPreferred source, int id, String command)
-    {
+    public HActionEvent(HActionInputPreferred source, int id, String command) {
         super(source, id, command);
 
         this.command = command;
     }
 
-    public String getActionCommand()
-    {
+    public String getActionCommand() {
         return command;
     }
 
-    public int getModifiers()
-    {
+    public int getModifiers() {
         return 0;
     }
 

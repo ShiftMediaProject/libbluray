@@ -24,15 +24,13 @@ import java.awt.AWTEvent;
 import org.havi.ui.HSelectionInputPreferred;
 
 public class HItemEvent extends AWTEvent {
-    public HItemEvent(HSelectionInputPreferred source, int id, Object item)
-    {
+    public HItemEvent(HSelectionInputPreferred source, int id, Object item) {
         super(source, id);
 
         this.item = item;
     }
 
-    public Object getItem()
-    {
+    public Object getItem() {
         return item;
     }
 

@@ -27,138 +27,112 @@ import org.havi.ui.event.HFocusEvent;
 import org.havi.ui.event.HFocusListener;
 
 public class HGraphicButton extends HIcon implements HActionable {
-    public HGraphicButton()
-    {
+    public HGraphicButton() {
         org.videolan.Logger.unimplemented(HGraphicButton.class.getName(), "");
     }
 
-    public HGraphicButton(Image image, int x, int y, int width, int height)
-    {
-        org.videolan.Logger.unimplemented(HGraphicButton.class.getName(), "");
-    }
-
-    public HGraphicButton(Image imageNormal, Image imageFocused,
-            Image imageActioned, int x, int y, int width, int height)
-    {
-        org.videolan.Logger.unimplemented(HGraphicButton.class.getName(), "");
-    }
-
-    public HGraphicButton(Image image)
-    {
+    public HGraphicButton(Image image, int x, int y, int width, int height) {
         org.videolan.Logger.unimplemented(HGraphicButton.class.getName(), "");
     }
 
     public HGraphicButton(Image imageNormal, Image imageFocused,
-            Image imageActioned)
-    {
+            Image imageActioned, int x, int y, int width, int height) {
         org.videolan.Logger.unimplemented(HGraphicButton.class.getName(), "");
     }
 
-    public static void setDefaultLook(HGraphicLook hlook)
-    {
+    public HGraphicButton(Image image) {
+        org.videolan.Logger.unimplemented(HGraphicButton.class.getName(), "");
+    }
+
+    public HGraphicButton(Image imageNormal, Image imageFocused,
+            Image imageActioned) {
+        org.videolan.Logger.unimplemented(HGraphicButton.class.getName(), "");
+    }
+
+    public static void setDefaultLook(HGraphicLook hlook) {
         DefaultLook = hlook;
     }
 
-    public static HGraphicLook getDefaultLook()
-    {
+    public static HGraphicLook getDefaultLook() {
         if (DefaultLook == null)
             org.videolan.Logger.unimplemented("", "getDefaultLook");
         return DefaultLook;
     }
 
-    public void setMove(int keyCode, HNavigable target)
-    {
+    public void setMove(int keyCode, HNavigable target) {
         throw new Error("Not implemented");
     }
 
-    public HNavigable getMove(int keyCode)
-    {
+    public HNavigable getMove(int keyCode) {
         throw new Error("Not implemented");
     }
 
     public void setFocusTraversal(HNavigable up, HNavigable down,
-            HNavigable left, HNavigable right)
-    {
+            HNavigable left, HNavigable right) {
         throw new Error("Not implemented");
     }
 
-    public boolean isSelected()
-    {
+    public boolean isSelected() {
         throw new Error("Not implemented");
     }
 
-    public void setGainFocusSound(HSound sound)
-    {
+    public void setGainFocusSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public void setLoseFocusSound(HSound sound)
-    {
+    public void setLoseFocusSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public HSound getGainFocusSound()
-    {
+    public HSound getGainFocusSound() {
         throw new Error("Not implemented");
     }
 
-    public HSound getLoseFocusSound()
-    {
+    public HSound getLoseFocusSound() {
         throw new Error("Not implemented");
     }
 
-    public void addHFocusListener(HFocusListener l)
-    {
+    public void addHFocusListener(HFocusListener l) {
         throw new Error("Not implemented");
     }
 
-    public void removeHFocusListener(HFocusListener l)
-    {
+    public void removeHFocusListener(HFocusListener l) {
         throw new Error("Not implemented");
     }
 
-    public int[] getNavigationKeys()
-    {
+    public int[] getNavigationKeys() {
         throw new Error("Not implemented");
     }
 
-    public void processHFocusEvent(HFocusEvent evt)
-    {
+    public void processHFocusEvent(HFocusEvent evt) {
         throw new Error("Not implemented");
     }
 
-    public void addHActionListener(HActionListener l)
-    {
+    public void addHActionListener(HActionListener l) {
         throw new Error("Not implemented");
     }
 
-    public void removeHActionListener(HActionListener l)
-    {
+    public void removeHActionListener(HActionListener l) {
         throw new Error("Not implemented");
     }
 
-    public void setActionCommand(String command)
-    {
+    public void setActionCommand(String command) {
         throw new Error("Not implemented");
     }
 
-    public void setActionSound(HSound sound)
-    {
+    public void setActionSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public HSound getActionSound()
-    {
+    public HSound getActionSound() {
         throw new Error("Not implemented");
     }
 
-    public void processHActionEvent(HActionEvent evt)
-    {
+    public void processHActionEvent(HActionEvent evt) {
         throw new Error("Not implemented");
     }
 
-    public String getActionCommand()
-    {
+    public String getActionCommand() {
         throw new Error("Not implemented");
     }
 

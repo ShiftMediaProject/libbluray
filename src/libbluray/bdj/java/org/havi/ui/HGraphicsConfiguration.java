@@ -31,7 +31,6 @@ import java.awt.Color;
 
 public class HGraphicsConfiguration extends HScreenConfiguration {
     protected HGraphicsConfiguration() {
-
     }
 
     HGraphicsConfiguration(HGraphicsConfigTemplate hgct) {
@@ -97,7 +96,6 @@ public class HGraphicsConfiguration extends HScreenConfiguration {
     }
 
     public void dispose(Color c) {
-
     }
 
     private HGraphicsConfigTemplate hgct;

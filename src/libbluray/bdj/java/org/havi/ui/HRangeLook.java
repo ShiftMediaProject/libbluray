@@ -25,68 +25,55 @@ import java.awt.Point;
 import java.awt.Dimension;
 
 public class HRangeLook implements HExtendedLook, HAdjustableLook {
-    public HRangeLook()
-    {
+    public HRangeLook() {
         org.videolan.Logger.unimplemented(HRangeLook.class.getName(), "");
     }
 
-    public void fillBackground(Graphics g, HVisible visible, int state)
-    {
+    public void fillBackground(Graphics g, HVisible visible, int state) {
         throw new Error("Not implemented");
     }
 
-    public void renderBorders(Graphics g, HVisible visible, int state)
-    {
+    public void renderBorders(Graphics g, HVisible visible, int state) {
         throw new Error("Not implemented");
     }
 
-    public void renderVisible(Graphics g, HVisible visible, int state)
-    {
+    public void renderVisible(Graphics g, HVisible visible, int state) {
         throw new Error("Not implemented");
     }
 
-    public void showLook(Graphics g, HVisible visible, int state)
-    {
+    public void showLook(Graphics g, HVisible visible, int state) {
         throw new Error("Not implemented");
     }
 
-    public void widgetChanged(HVisible visible, HChangeData[] changes)
-    {
+    public void widgetChanged(HVisible visible, HChangeData[] changes) {
         throw new Error("Not implemented");
     }
 
-    public Dimension getMinimumSize(HVisible hvisible)
-    {
+    public Dimension getMinimumSize(HVisible hvisible) {
         throw new Error("Not implemented");
     }
 
-    public Dimension getPreferredSize(HVisible hvisible)
-    {
+    public Dimension getPreferredSize(HVisible hvisible) {
         throw new Error("Not implemented");
     }
 
-    public Dimension getMaximumSize(HVisible hvisible)
-    {
+    public Dimension getMaximumSize(HVisible hvisible) {
         throw new Error("Not implemented");
     }
 
-    public boolean isOpaque(HVisible visible)
-    {
+    public boolean isOpaque(HVisible visible) {
         throw new Error("Not implemented");
     }
 
-    public Insets getInsets(HVisible hvisible)
-    {
+    public Insets getInsets(HVisible hvisible) {
         throw new Error("Not implemented");
     }
 
-    public int hitTest(HOrientable component, Point pt)
-    {
+    public int hitTest(HOrientable component, Point pt) {
         throw new Error("Not implemented");
     }
 
-    public Integer getValue(HOrientable component, Point pt)
-    {
+    public Integer getValue(HOrientable component, Point pt) {
         throw new Error("Not implemented");
     }
 }

@@ -22,21 +22,18 @@ package org.havi.ui.event;
 import java.util.EventObject;
 
 public class HBackgroundImageEvent extends EventObject {
-    public HBackgroundImageEvent(Object source, int id)
-    {
+    public HBackgroundImageEvent(Object source, int id) {
         super(source);
 
         this.source = source;
         this.id = id;
     }
 
-    public Object getSource()
-    {
+    public Object getSource() {
         return source;
     }
 
-    public int getID()
-    {
+    public int getID() {
         return id;
     }
 

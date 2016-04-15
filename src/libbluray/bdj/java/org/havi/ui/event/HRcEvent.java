@@ -24,14 +24,12 @@ import java.awt.event.KeyEvent;
 
 public class HRcEvent extends KeyEvent {
     public HRcEvent(Component source, int id, long when, int modifiers,
-            int keyCode)
-    {
+            int keyCode) {
         super(source, id, when, modifiers, keyCode, (char)keyCode);
     }
 
     public HRcEvent(Component source, int id, long when, int modifiers,
-            int keyCode, char keyChar)
-    {
+            int keyCode, char keyChar) {
         super(source, id, when, modifiers, keyCode, keyChar);
     }
 

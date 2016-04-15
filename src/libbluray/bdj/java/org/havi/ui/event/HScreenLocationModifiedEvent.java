@@ -22,15 +22,13 @@ package org.havi.ui.event;
 import java.util.EventObject;
 
 public class HScreenLocationModifiedEvent extends EventObject {
-    public HScreenLocationModifiedEvent(Object source)
-    {
+    public HScreenLocationModifiedEvent(Object source) {
         super(source);
 
         this.source = source;
     }
 
-    public Object getSource()
-    {
+    public Object getSource() {
         return source;
     }
 

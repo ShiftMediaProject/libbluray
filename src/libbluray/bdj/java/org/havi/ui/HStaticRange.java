@@ -21,96 +21,78 @@ package org.havi.ui;
 
 public class HStaticRange extends HVisible implements HNoInputPreferred,
         HOrientable {
-    public HStaticRange()
-    {
+    public HStaticRange() {
         org.videolan.Logger.unimplemented(HStaticRange.class.getName(), "");
     }
 
     public HStaticRange(int orientation, int minimum, int maximum, int value,
-            int x, int y, int width, int height)
-    {
+            int x, int y, int width, int height) {
         org.videolan.Logger.unimplemented(HStaticRange.class.getName(), "");
     }
 
-    public HStaticRange(int orientation, int minimum, int maximum, int value)
-    {
+    public HStaticRange(int orientation, int minimum, int maximum, int value) {
         org.videolan.Logger.unimplemented(HStaticRange.class.getName(), "");
     }
 
-    public void setLook(HLook hlook) throws HInvalidLookException
-    {
+    public void setLook(HLook hlook) throws HInvalidLookException {
         throw new Error("Not implemented");
     }
 
-    public static void setDefaultLook(HRangeLook look)
-    {
+    public static void setDefaultLook(HRangeLook look) {
         DefaultLook = look;
     }
 
-    public static HRangeLook getDefaultLook()
-    {
+    public static HRangeLook getDefaultLook() {
         if (DefaultLook == null)
             org.videolan.Logger.unimplemented("", "getDefaultLook");
         return DefaultLook;
     }
 
-    public int getOrientation()
-    {
+    public int getOrientation() {
         throw new Error("Not implemented");
     }
 
-    public void setOrientation(int orient)
-    {
+    public void setOrientation(int orient) {
         throw new Error("Not implemented");
     }
 
-    public boolean setRange(int minimum, int maximum)
-    {
+    public boolean setRange(int minimum, int maximum) {
         throw new Error("Not implemented");
     }
 
-    public int getMinValue()
-    {
+    public int getMinValue() {
         throw new Error("Not implemented");
     }
 
-    public int getMaxValue()
-    {
+    public int getMaxValue() {
         throw new Error("Not implemented");
     }
 
-    public void setValue(int value)
-    {
+    public void setValue(int value) {
         throw new Error("Not implemented");
     }
 
-    public int getValue()
-    {
+    public int getValue() {
         throw new Error("Not implemented");
     }
 
-    public void setThumbOffsets(int minOffset, int maxOffset)
-    {
+    public void setThumbOffsets(int minOffset, int maxOffset) {
         throw new Error("Not implemented");
     }
 
-    public int getThumbMinOffset()
-    {
+    public int getThumbMinOffset() {
         throw new Error("Not implemented");
     }
 
-    public int getThumbMaxOffset()
-    {
+    public int getThumbMaxOffset() {
         throw new Error("Not implemented");
     }
 
-    public void setBehavior(int behavior)
-    {
+    public void setBehavior(int behavior) {
         throw new Error("Not implemented");
     }
 
-    public int getBehavior()
-    {
+    public int getBehavior() {
         throw new Error("Not implemented");
     }
 

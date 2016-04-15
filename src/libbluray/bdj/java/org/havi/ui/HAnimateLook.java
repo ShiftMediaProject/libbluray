@@ -23,58 +23,47 @@ import java.awt.Graphics;
 import java.awt.Dimension;
 
 public class HAnimateLook implements HExtendedLook {
-    public HAnimateLook()
-    {
+    public HAnimateLook() {
         org.videolan.Logger.unimplemented(HAnimateLook.class.getName(), "");
     }
 
-    public void fillBackground(Graphics g, HVisible visible, int state)
-    {
+    public void fillBackground(Graphics g, HVisible visible, int state) {
         throw new Error("Not implemented");
     }
 
-    public void renderBorders(Graphics g, HVisible visible, int state)
-    {
+    public void renderBorders(Graphics g, HVisible visible, int state) {
         throw new Error("Not implemented");
     }
 
-    public void renderVisible(java.awt.Graphics g, HVisible visible, int state)
-    {
+    public void renderVisible(java.awt.Graphics g, HVisible visible, int state) {
         throw new Error("Not implemented");
     }
 
-    public void showLook(java.awt.Graphics g, HVisible visible, int state)
-    {
+    public void showLook(java.awt.Graphics g, HVisible visible, int state) {
         throw new Error("Not implemented");
     }
 
-    public void widgetChanged(HVisible visible, HChangeData[] changes)
-    {
+    public void widgetChanged(HVisible visible, HChangeData[] changes) {
         throw new Error("Not implemented");
     }
 
-    public Dimension getMinimumSize(HVisible hvisible)
-    {
+    public Dimension getMinimumSize(HVisible hvisible) {
         throw new Error("Not implemented");
     }
 
-    public Dimension getPreferredSize(HVisible hvisible)
-    {
+    public Dimension getPreferredSize(HVisible hvisible) {
         throw new Error("Not implemented");
     }
 
-    public Dimension getMaximumSize(HVisible hvisible)
-    {
+    public Dimension getMaximumSize(HVisible hvisible) {
         throw new Error("Not implemented");
     }
 
-    public boolean isOpaque(HVisible visible)
-    {
+    public boolean isOpaque(HVisible visible) {
         throw new Error("Not implemented");
     }
 
-    public java.awt.Insets getInsets(HVisible hvisible)
-    {
+    public java.awt.Insets getInsets(HVisible hvisible) {
         throw new Error("Not implemented");
     }
 }

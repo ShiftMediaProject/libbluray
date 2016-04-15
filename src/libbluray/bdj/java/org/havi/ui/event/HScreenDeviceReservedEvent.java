@@ -22,15 +22,13 @@ package org.havi.ui.event;
 import org.davic.resources.ResourceStatusEvent;
 
 public class HScreenDeviceReservedEvent extends ResourceStatusEvent {
-    public HScreenDeviceReservedEvent(Object source)
-    {
+    public HScreenDeviceReservedEvent(Object source) {
         super(source);
 
         this.source = source;
     }
 
-    public Object getSource()
-    {
+    public Object getSource() {
         return source;
     }
 

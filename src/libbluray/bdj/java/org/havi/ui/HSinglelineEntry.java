@@ -29,237 +29,191 @@ import org.havi.ui.event.HTextEvent;
 import org.havi.ui.event.HTextListener;
 
 public class HSinglelineEntry extends HVisible implements HTextValue {
-    public HSinglelineEntry()
-    {
+    public HSinglelineEntry() {
         org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public HSinglelineEntry(String text, int x, int y, int width, int height,
-            int maxChars, Font font, Color color)
-    {
+            int maxChars, Font font, Color color) {
         org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
-    public HSinglelineEntry(int x, int y, int width, int height, int maxChars)
-    {
+    public HSinglelineEntry(int x, int y, int width, int height, int maxChars) {
         org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
-    public HSinglelineEntry(String text, int maxChars, Font font, Color color)
-    {
+    public HSinglelineEntry(String text, int maxChars, Font font, Color color) {
         org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
-    public HSinglelineEntry(int maxChars)
-    {
+    public HSinglelineEntry(int maxChars) {
         org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
-    public void setTextContent(String string, int state)
-    {
+    public void setTextContent(String string, int state) {
         throw new Error("Not implemented");
     }
 
-    public String getTextContent(int state)
-    {
+    public String getTextContent(int state) {
         throw new Error("Not implemented");
     }
 
-    public int getCaretCharPosition()
-    {
+    public int getCaretCharPosition() {
         throw new Error("Not implemented");
     }
 
-    public int setCaretCharPosition(int position)
-    {
+    public int setCaretCharPosition(int position) {
         throw new Error("Not implemented");
     }
 
-    public void setType(int type)
-    {
+    public void setType(int type) {
         throw new Error("Not implemented");
     }
 
-    public void setValidInput(char[] inputChars)
-    {
+    public void setValidInput(char[] inputChars) {
         throw new Error("Not implemented");
     }
 
-    public boolean echoCharIsSet()
-    {
+    public boolean echoCharIsSet() {
         throw new Error("Not implemented");
     }
 
-    public char getEchoChar()
-    {
+    public char getEchoChar() {
         throw new Error("Not implemented");
     }
 
-    public void setEchoChar(char c)
-    {
+    public void setEchoChar(char c) {
         throw new Error("Not implemented");
     }
 
-    public static void setDefaultLook(HSinglelineEntryLook look)
-    {
+    public static void setDefaultLook(HSinglelineEntryLook look) {
         DefaultLook = look;
     }
 
-    public static HSinglelineEntryLook getDefaultLook()
-    {
+    public static HSinglelineEntryLook getDefaultLook() {
         if (DefaultLook == null)
             org.videolan.Logger.unimplemented("", "getDefaultLook");
         return DefaultLook;
     }
 
-    public void setLook(HLook hlook) throws HInvalidLookException
-    {
+    public void setLook(HLook hlook) throws HInvalidLookException {
         throw new Error("Not implemented");
     }
 
-    public boolean insertChar(char c)
-    {
+    public boolean insertChar(char c) {
         throw new Error("Not implemented");
     }
 
-    public boolean deletePreviousChar()
-    {
+    public boolean deletePreviousChar() {
         throw new Error("Not implemented");
     }
 
-    public boolean deleteNextChar()
-    {
+    public boolean deleteNextChar() {
         throw new Error("Not implemented");
     }
 
-    public void caretNextCharacter()
-    {
+    public void caretNextCharacter() {
         throw new Error("Not implemented");
     }
 
-    public void caretPreviousCharacter()
-    {
+    public void caretPreviousCharacter() {
         throw new Error("Not implemented");
     }
 
-    public void setMaxChars(int maxChars)
-    {
+    public void setMaxChars(int maxChars) {
         throw new Error("Not implemented");
     }
 
-    public int getMaxChars()
-    {
+    public int getMaxChars() {
         throw new Error("Not implemented");
     }
 
-    public void setMove(int keyCode, HNavigable target)
-    {
+    public void setMove(int keyCode, HNavigable target) {
         throw new Error("Not implemented");
     }
 
-    public HNavigable getMove(int keyCode)
-    {
+    public HNavigable getMove(int keyCode) {
         throw new Error("Not implemented");
     }
 
     public void setFocusTraversal(HNavigable up, HNavigable down,
-            HNavigable left, HNavigable right)
-    {
+            HNavigable left, HNavigable right) {
         throw new Error("Not implemented");
     }
 
-    public boolean isSelected()
-    {
+    public boolean isSelected() {
         throw new Error("Not implemented");
     }
 
-    public void setGainFocusSound(HSound sound)
-    {
+    public void setGainFocusSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public void setLoseFocusSound(HSound sound)
-    {
+    public void setLoseFocusSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public HSound getGainFocusSound()
-    {
+    public HSound getGainFocusSound() {
         throw new Error("Not implemented");
     }
 
-    public HSound getLoseFocusSound()
-    {
+    public HSound getLoseFocusSound() {
         throw new Error("Not implemented");
     }
 
-    public void addHFocusListener(HFocusListener l)
-    {
+    public void addHFocusListener(HFocusListener l) {
         throw new Error("Not implemented");
     }
 
-    public void removeHFocusListener(HFocusListener l)
-    {
+    public void removeHFocusListener(HFocusListener l) {
         throw new Error("Not implemented");
     }
 
-    public int[] getNavigationKeys()
-    {
+    public int[] getNavigationKeys() {
         throw new Error("Not implemented");
     }
 
-    public void processHFocusEvent(HFocusEvent evt)
-    {
+    public void processHFocusEvent(HFocusEvent evt) {
         throw new Error("Not implemented");
     }
 
-    public void addHKeyListener(HKeyListener l)
-    {
+    public void addHKeyListener(HKeyListener l) {
         throw new Error("Not implemented");
     }
 
-    public void removeHKeyListener(HKeyListener l)
-    {
+    public void removeHKeyListener(HKeyListener l) {
         throw new Error("Not implemented");
     }
 
-    public void addHTextListener(HTextListener l)
-    {
+    public void addHTextListener(HTextListener l) {
         throw new Error("Not implemented");
     }
 
-    public void removeHTextListener(HTextListener l)
-    {
+    public void removeHTextListener(HTextListener l) {
         throw new Error("Not implemented");
     }
 
-    public boolean getEditMode()
-    {
+    public boolean getEditMode() {
         throw new Error("Not implemented");
     }
 
-    public void setEditMode(boolean edit)
-    {
+    public void setEditMode(boolean edit) {
         throw new Error("Not implemented");
     }
 
-    public int getType()
-    {
+    public int getType() {
         throw new Error("Not implemented");
     }
 
-    public char[] getValidInput()
-    {
+    public char[] getValidInput() {
         throw new Error("Not implemented");
     }
 
-    public void processHTextEvent(HTextEvent evt)
-    {
+    public void processHTextEvent(HTextEvent evt) {
         throw new Error("Not implemented");
     }
 
-    public void processHKeyEvent(HKeyEvent evt)
-    {
+    public void processHKeyEvent(HKeyEvent evt) {
         throw new Error("Not implemented");
     }
 

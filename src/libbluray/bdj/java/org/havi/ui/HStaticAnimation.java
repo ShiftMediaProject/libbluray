@@ -23,92 +23,75 @@ import java.awt.Image;
 
 public class HStaticAnimation extends HVisible implements HNoInputPreferred,
         HAnimateEffect {
-    public HStaticAnimation()
-    {
+    public HStaticAnimation() {
         org.videolan.Logger.unimplemented(HStaticAnimation.class.getName(), "");
     }
 
     public HStaticAnimation(Image[] imagesNormal, int delay, int playMode,
-            int repeatCount, int x, int y, int width, int height)
-    {
+            int repeatCount, int x, int y, int width, int height) {
         org.videolan.Logger.unimplemented(HStaticAnimation.class.getName(), "");
     }
 
     public HStaticAnimation(Image[] imagesNormal, int delay, int playMode,
-            int repeatCount)
-    {
+            int repeatCount) {
         org.videolan.Logger.unimplemented(HStaticAnimation.class.getName(), "");
     }
 
-    public void setLook(HLook hlook) throws HInvalidLookException
-    {
+    public void setLook(HLook hlook) throws HInvalidLookException {
         throw new Error("Not implemented");
     }
 
-    public static void setDefaultLook(HAnimateLook hlook)
-    {
+    public static void setDefaultLook(HAnimateLook hlook) {
         DefaultLook = hlook;
     }
 
-    public static HAnimateLook getDefaultLook()
-    {
+    public static HAnimateLook getDefaultLook() {
         if (DefaultLook == null)
             org.videolan.Logger.unimplemented("", "getDefaultLook");
         return DefaultLook;
     }
 
-    public void start()
-    {
+    public void start() {
         throw new Error("Not implemented");
     }
 
-    public void stop()
-    {
+    public void stop() {
         throw new Error("Not implemented");
     }
 
-    public boolean isAnimated()
-    {
+    public boolean isAnimated() {
         throw new Error("Not implemented");
     }
 
-    public void setPosition(int position)
-    {
+    public void setPosition(int position) {
         throw new Error("Not implemented");
     }
 
-    public int getPosition()
-    {
+    public int getPosition() {
         throw new Error("Not implemented");
     }
 
-    public void setRepeatCount(int count)
-    {
+    public void setRepeatCount(int count) {
         throw new Error("Not implemented");
     }
 
-    public int getRepeatCount()
-    {
+    public int getRepeatCount() {
         throw new Error("Not implemented");
     }
 
-    public void setDelay(int count)
-    {
+    public void setDelay(int count) {
         throw new Error("Not implemented");
     }
 
-    public int getDelay()
-    {
+    public int getDelay() {
         throw new Error("Not implemented");
     }
 
-    public void setPlayMode(int mode)
-    {
+    public void setPlayMode(int mode) {
         throw new Error("Not implemented");
     }
 
-    public int getPlayMode()
-    {
+    public int getPlayMode() {
         throw new Error("Not implemented");
     }
 

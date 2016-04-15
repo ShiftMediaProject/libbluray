@@ -20,28 +20,24 @@
 package org.havi.ui;
 
 public class HScreenRectangle {
-    public HScreenRectangle(float x, float y, float width, float height)
-    {
+    public HScreenRectangle(float x, float y, float width, float height) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
     }
 
-    public void setLocation(float x, float y)
-    {
+    public void setLocation(float x, float y) {
         this.x = x;
         this.y = y;
     }
 
-    public void setSize(float width, float height)
-    {
+    public void setSize(float width, float height) {
         this.width = width;
         this.height = height;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "HScreenRectangle[" + x + "," + y + " " + width + "x" + height + "]";
     }
 

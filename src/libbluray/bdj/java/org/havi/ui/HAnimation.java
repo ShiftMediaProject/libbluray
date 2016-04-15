@@ -24,104 +24,85 @@ import org.havi.ui.event.HFocusEvent;
 import org.havi.ui.event.HFocusListener;
 
 public class HAnimation extends HStaticAnimation implements HNavigable {
-    public HAnimation()
-    {
+    public HAnimation() {
         org.videolan.Logger.unimplemented(HAnimation.class.getName(), "");
     }
 
     public HAnimation(Image[] images, int delay, int playMode, int repeatCount,
-            int x, int y, int width, int height)
-    {
+            int x, int y, int width, int height) {
         org.videolan.Logger.unimplemented(HAnimation.class.getName(), "");
     }
 
     public HAnimation(Image[] imagesNormal, Image[] imagesFocused, int delay,
-            int playMode, int repeatCount, int x, int y, int width, int height)
-    {
+            int playMode, int repeatCount, int x, int y, int width, int height) {
         org.videolan.Logger.unimplemented(HAnimation.class.getName(), "");
     }
 
-    public HAnimation(Image[] images, int delay, int playMode, int repeatCount)
-    {
+    public HAnimation(Image[] images, int delay, int playMode, int repeatCount) {
         org.videolan.Logger.unimplemented(HAnimation.class.getName(), "");
     }
 
     public HAnimation(Image[] imagesNormal, Image[] imagesFocused, int delay,
-            int playMode, int repeatCount)
-    {
+            int playMode, int repeatCount) {
         org.videolan.Logger.unimplemented(HAnimation.class.getName(), "");
     }
 
-    public static void setDefaultLook(HAnimateLook hlook)
-    {
+    public static void setDefaultLook(HAnimateLook hlook) {
         DefaultLook = hlook;
     }
 
-    public static HAnimateLook getDefaultLook()
-    {
+    public static HAnimateLook getDefaultLook() {
         if (DefaultLook == null)
             org.videolan.Logger.unimplemented("", "getDefaultLook");
         return DefaultLook;
     }
 
-    public void setMove(int keyCode, HNavigable target)
-    {
+    public void setMove(int keyCode, HNavigable target) {
         throw new Error("Not implemented");
     }
 
-    public HNavigable getMove(int keyCode)
-    {
+    public HNavigable getMove(int keyCode) {
         throw new Error("Not implemented");
     }
 
     public void setFocusTraversal(HNavigable up, HNavigable down,
-            HNavigable left, HNavigable right)
-    {
+            HNavigable left, HNavigable right) {
         throw new Error("Not implemented");
     }
 
-    public boolean isSelected()
-    {
+    public boolean isSelected() {
         throw new Error("Not implemented");
     }
 
-    public void setGainFocusSound(HSound sound)
-    {
+    public void setGainFocusSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public void setLoseFocusSound(HSound sound)
-    {
+    public void setLoseFocusSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public HSound getGainFocusSound()
-    {
+    public HSound getGainFocusSound() {
         throw new Error("Not implemented");
     }
 
-    public HSound getLoseFocusSound()
-    {
+    public HSound getLoseFocusSound() {
         throw new Error("Not implemented");
     }
 
-    public void addHFocusListener(HFocusListener listener)
-    {
+    public void addHFocusListener(HFocusListener listener) {
         throw new Error("Not implemented");
     }
 
-    public void removeHFocusListener(HFocusListener listener)
-    {
+    public void removeHFocusListener(HFocusListener listener) {
         throw new Error("Not implemented");
     }
 
-    public int[] getNavigationKeys()
-    {
+    public int[] getNavigationKeys() {
         throw new Error("Not implemented");
     }
 
-    public void processHFocusEvent(HFocusEvent event)
-    {
+    public void processHFocusEvent(HFocusEvent event) {
         throw new Error("Not implemented");
     }
 

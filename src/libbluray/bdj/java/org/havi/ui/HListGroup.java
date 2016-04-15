@@ -25,271 +25,218 @@ import org.havi.ui.event.HFocusListener;
 import org.havi.ui.event.HItemEvent;
 
 public class HListGroup extends HVisible implements HItemValue {
-    public HListGroup()
-    {
+    public HListGroup() {
         org.videolan.Logger.unimplemented(HListGroup.class.getName(), "");
     }
 
-    public HListGroup(HListElement[] items)
-    {
+    public HListGroup(HListElement[] items) {
         org.videolan.Logger.unimplemented(HListGroup.class.getName(), "");
     }
 
-    public HListGroup(HListElement[] items, int x, int y, int width, int height)
-    {
+    public HListGroup(HListElement[] items, int x, int y, int width, int height) {
         org.videolan.Logger.unimplemented(HListGroup.class.getName(), "");
     }
 
-    public void setLook(HLook hlook) throws HInvalidLookException
-    {
+    public void setLook(HLook hlook) throws HInvalidLookException {
         throw new Error("Not implemented");
     }
 
-    public static void setDefaultLook(HListGroupLook look)
-    {
+    public static void setDefaultLook(HListGroupLook look) {
         DefaultLook = look;
     }
 
-    public static HListGroupLook getDefaultLook()
-    {
+    public static HListGroupLook getDefaultLook() {
         if (DefaultLook == null)
             org.videolan.Logger.unimplemented("", "getDefaultLook");
         return DefaultLook;
     }
 
-    public HListElement[] getListContent()
-    {
+    public HListElement[] getListContent() {
         throw new Error("Not implemented");
     }
 
-    public void setListContent(HListElement[] elements)
-    {
+    public void setListContent(HListElement[] elements) {
         throw new Error("Not implemented");
     }
 
-    public void addItem(HListElement item, int index)
-    {
+    public void addItem(HListElement item, int index) {
         throw new Error("Not implemented");
     }
 
-    public void addItems(HListElement[] items, int index)
-    {
+    public void addItems(HListElement[] items, int index)  {
         throw new Error("Not implemented");
     }
 
-    public HListElement getItem(int index)
-    {
+    public HListElement getItem(int index) {
         throw new Error("Not implemented");
     }
 
-    public int getIndex(HListElement item)
-    {
+    public int getIndex(HListElement item) {
         throw new Error("Not implemented");
     }
 
-    public int getNumItems()
-    {
+    public int getNumItems() {
         throw new Error("Not implemented");
     }
 
-    public HListElement removeItem(int index)
-    {
+    public HListElement removeItem(int index) {
         throw new Error("Not implemented");
     }
 
-    public void removeAllItems()
-    {
+    public void removeAllItems() {
         throw new Error("Not implemented");
     }
 
-    public int getCurrentIndex()
-    {
+    public int getCurrentIndex() {
         throw new Error("Not implemented");
     }
 
-    public HListElement getCurrentItem()
-    {
+    public HListElement getCurrentItem() {
         throw new Error("Not implemented");
     }
 
-    public boolean setCurrentItem(int index)
-    {
+    public boolean setCurrentItem(int index) {
         throw new Error("Not implemented");
     }
 
-    public int[] getSelectionIndices()
-    {
+    public int[] getSelectionIndices() {
         throw new Error("Not implemented");
     }
 
-    public HListElement[] getSelection()
-    {
+    public HListElement[] getSelection() {
         throw new Error("Not implemented");
     }
 
-    public void clearSelection()
-    {
+    public void clearSelection() {
         throw new Error("Not implemented");
     }
 
-    public int getNumSelected()
-    {
+    public int getNumSelected() {
         throw new Error("Not implemented");
     }
 
-    public boolean getMultiSelection()
-    {
+    public boolean getMultiSelection() {
         throw new Error("Not implemented");
     }
 
-    public void setMultiSelection(boolean multi)
-    {
+    public void setMultiSelection(boolean multi) {
         throw new Error("Not implemented");
     }
 
-    public void setItemSelected(int index, boolean sel)
-    {
+    public void setItemSelected(int index, boolean sel) {
         throw new Error("Not implemented");
     }
 
-    public boolean isItemSelected(int index)
-    {
+    public boolean isItemSelected(int index) {
         throw new Error("Not implemented");
     }
 
-    public int getScrollPosition()
-    {
+    public int getScrollPosition() {
         throw new Error("Not implemented");
     }
 
-    public void setScrollPosition(int scroll)
-    {
+    public void setScrollPosition(int scroll) {
         throw new Error("Not implemented");
     }
 
-    public Dimension getIconSize()
-    {
+    public Dimension getIconSize() {
         throw new Error("Not implemented");
     }
 
-    public void setIconSize(Dimension size)
-    {
+    public void setIconSize(Dimension size) {
         throw new Error("Not implemented");
     }
 
-    public Dimension getLabelSize()
-    {
+    public Dimension getLabelSize() {
         throw new Error("Not implemented");
     }
 
-    public void setLabelSize(Dimension size)
-    {
+    public void setLabelSize(Dimension size) {
         throw new Error("Not implemented");
     }
 
-    public void setMove(int keyCode, HNavigable target)
-    {
+    public void setMove(int keyCode, HNavigable target) {
         throw new Error("Not implemented");
     }
 
-    public HNavigable getMove(int keyCode)
-    {
+    public HNavigable getMove(int keyCode) {
         throw new Error("Not implemented");
     }
 
     public void setFocusTraversal(HNavigable up, HNavigable down,
-            HNavigable left, HNavigable right)
-    {
+            HNavigable left, HNavigable right) {
         throw new Error("Not implemented");
     }
 
-    public boolean isSelected()
-    {
+    public boolean isSelected() {
         throw new Error("Not implemented");
     }
 
-    public void setGainFocusSound(HSound sound)
-    {
+    public void setGainFocusSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public void setLoseFocusSound(HSound sound)
-    {
+    public void setLoseFocusSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public HSound getGainFocusSound()
-    {
+    public HSound getGainFocusSound() {
         throw new Error("Not implemented");
     }
 
-    public HSound getLoseFocusSound()
-    {
+    public HSound getLoseFocusSound() {
         throw new Error("Not implemented");
     }
 
-    public void addHFocusListener(HFocusListener l)
-    {
+    public void addHFocusListener(HFocusListener l) {
         throw new Error("Not implemented");
     }
 
-    public void removeHFocusListener(HFocusListener l)
-    {
+    public void removeHFocusListener(HFocusListener l) {
         throw new Error("Not implemented");
     }
 
-    public int[] getNavigationKeys()
-    {
+    public int[] getNavigationKeys() {
         throw new Error("Not implemented");
     }
 
-    public void processHFocusEvent(HFocusEvent evt)
-    {
+    public void processHFocusEvent(HFocusEvent evt) {
         throw new Error("Not implemented");
     }
 
-    public int getOrientation()
-    {
+    public int getOrientation() {
         throw new Error("Not implemented");
     }
 
-    public void setOrientation(int orient)
-    {
+    public void setOrientation(int orient) {
         throw new Error("Not implemented");
     }
 
-    public void addItemListener(org.havi.ui.event.HItemListener l)
-    {
+    public void addItemListener(org.havi.ui.event.HItemListener l) {
         throw new Error("Not implemented");
     }
 
-    public void removeItemListener(org.havi.ui.event.HItemListener l)
-    {
+    public void removeItemListener(org.havi.ui.event.HItemListener l) {
         throw new Error("Not implemented");
     }
 
-    public void setSelectionSound(HSound sound)
-    {
+    public void setSelectionSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public HSound getSelectionSound()
-    {
+    public HSound getSelectionSound() {
         throw new Error("Not implemented");
     }
 
-    public boolean getSelectionMode()
-    {
+    public boolean getSelectionMode() {
         throw new Error("Not implemented");
     }
 
-    public void setSelectionMode(boolean edit)
-    {
+    public void setSelectionMode(boolean edit) {
         throw new Error("Not implemented");
     }
 
-    public void processHItemEvent(HItemEvent evt)
-    {
+    public void processHItemEvent(HItemEvent evt) {
         throw new Error("Not implemented");
     }
 

@@ -56,8 +56,7 @@ public class HScene extends Container implements HComponentOrdering {
     public void paint(Graphics g) {
         if (backgroundMode == BACKGROUND_FILL) {
             g.setColor(getBackground());
-            g.fillRect(super.getX(), super.getY(), super.getWidth(), super
-                    .getHeight());
+            g.fillRect(super.getX(), super.getY(), super.getWidth(), super.getHeight());
         }
 
         if (image != null) {

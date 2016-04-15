@@ -25,147 +25,119 @@ import org.havi.ui.event.HFocusEvent;
 import org.havi.ui.event.HFocusListener;
 
 public class HRangeValue extends HRange implements HAdjustmentValue {
-    public HRangeValue()
-    {
+    public HRangeValue() {
         org.videolan.Logger.unimplemented(HRangeValue.class.getName(), "");
     }
 
     public HRangeValue(int orientation, int minimum, int maximum, int value,
-            int x, int y, int width, int height)
-    {
+            int x, int y, int width, int height) {
         org.videolan.Logger.unimplemented(HRangeValue.class.getName(), "");
     }
 
-    public HRangeValue(int orientation, int minimum, int maximum, int value)
-    {
+    public HRangeValue(int orientation, int minimum, int maximum, int value) {
         org.videolan.Logger.unimplemented(HRangeValue.class.getName(), "");
     }
 
-    public static void setDefaultLook(HRangeLook look)
-    {
+    public static void setDefaultLook(HRangeLook look) {
         DefaultLook = look;
     }
 
-    public static HRangeLook getDefaultLook()
-    {
+    public static HRangeLook getDefaultLook() {
         if (DefaultLook == null)
             org.videolan.Logger.unimplemented("", "getDefaultLook");
         return DefaultLook;
     }
 
-    public void setMove(int keyCode, HNavigable target)
-    {
+    public void setMove(int keyCode, HNavigable target) {
         throw new Error("Not implemented");
     }
 
-    public HNavigable getMove(int keyCode)
-    {
+    public HNavigable getMove(int keyCode) {
         throw new Error("Not implemented");
     }
 
     public void setFocusTraversal(HNavigable up, HNavigable down,
-            HNavigable left, HNavigable right)
-    {
+            HNavigable left, HNavigable right) {
         throw new Error("Not implemented");
     }
 
-    public boolean isSelected()
-    {
+    public boolean isSelected() {
         throw new Error("Not implemented");
     }
 
-    public void setGainFocusSound(HSound sound)
-    {
+    public void setGainFocusSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public void setLoseFocusSound(HSound sound)
-    {
+    public void setLoseFocusSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public HSound getGainFocusSound()
-    {
+    public HSound getGainFocusSound() {
         throw new Error("Not implemented");
     }
 
-    public HSound getLoseFocusSound()
-    {
+    public HSound getLoseFocusSound() {
         throw new Error("Not implemented");
     }
 
-    public void addHFocusListener(HFocusListener l)
-    {
+    public void addHFocusListener(HFocusListener l) {
         throw new Error("Not implemented");
     }
 
-    public void removeHFocusListener(HFocusListener l)
-    {
+    public void removeHFocusListener(HFocusListener l) {
         throw new Error("Not implemented");
     }
 
-    public int[] getNavigationKeys()
-    {
+    public int[] getNavigationKeys() {
         throw new Error("Not implemented");
     }
 
-    public void processHFocusEvent(HFocusEvent evt)
-    {
+    public void processHFocusEvent(HFocusEvent evt) {
         throw new Error("Not implemented");
     }
 
-    public void setUnitIncrement(int increment)
-    {
+    public void setUnitIncrement(int increment) {
         throw new Error("Not implemented");
     }
 
-    public int getUnitIncrement()
-    {
+    public int getUnitIncrement() {
         throw new Error("Not implemented");
     }
 
-    public void setBlockIncrement(int increment)
-    {
+    public void setBlockIncrement(int increment) {
         throw new Error("Not implemented");
     }
 
-    public int getBlockIncrement()
-    {
+    public int getBlockIncrement() {
         throw new Error("Not implemented");
     }
 
-    public void addAdjustmentListener(HAdjustmentListener l)
-    {
+    public void addAdjustmentListener(HAdjustmentListener l) {
         throw new Error("Not implemented");
     }
 
-    public void removeAdjustmentListener(HAdjustmentListener l)
-    {
+    public void removeAdjustmentListener(HAdjustmentListener l) {
         throw new Error("Not implemented");
     }
 
-    public void setAdjustmentSound(HSound sound)
-    {
+    public void setAdjustmentSound(HSound sound) {
         throw new Error("Not implemented");
     }
 
-    public HSound getAdjustmentSound()
-    {
+    public HSound getAdjustmentSound() {
         throw new Error("Not implemented");
     }
 
-    public boolean getAdjustMode()
-    {
+    public boolean getAdjustMode() {
         throw new Error("Not implemented");
     }
 
-    public void setAdjustMode(boolean adjust)
-    {
+    public void setAdjustMode(boolean adjust) {
         throw new Error("Not implemented");
     }
 
-    public void processHAdjustmentEvent(HAdjustmentEvent evt)
-    {
+    public void processHAdjustmentEvent(HAdjustmentEvent evt) {
         throw new Error("Not implemented");
     }
 

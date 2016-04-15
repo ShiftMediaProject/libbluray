@@ -22,33 +22,27 @@ package org.havi.ui;
 import java.awt.Image;
 
 public class HListElement {
-    public HListElement(String label)
-    {
+    public HListElement(String label) {
         org.videolan.Logger.unimplemented(HListElement.class.getName(), "");
     }
 
-    public HListElement(Image icon, String label)
-    {
+    public HListElement(Image icon, String label) {
         org.videolan.Logger.unimplemented(HListElement.class.getName(), "");
     }
 
-    public String getLabel()
-    {
+    public String getLabel() {
         throw new Error("Not implemented");
     }
 
-    public Image getIcon()
-    {
+    public Image getIcon() {
         throw new Error("Not implemented");
     }
 
-    public void setLabel(String label)
-    {
+    public void setLabel(String label) {
         throw new Error("Not implemented");
     }
 
-    public void setIcon(Image icon)
-    {
+    public void setIcon(Image icon) {
         throw new Error("Not implemented");
     }
 }
