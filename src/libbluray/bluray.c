@@ -2288,12 +2288,7 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
 
     bd_psr_write(bd->regs, PSR_PLAYLIST, atoi(bd->title->name));
     bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
-
-    if (_is_interactive_title(bd)) {
-        bd_psr_write(bd->regs, PSR_CHAPTER, 0xffff);
-    } else {
-        bd_psr_write(bd->regs, PSR_CHAPTER, 1);
-    }
+    bd_psr_write(bd->regs, PSR_CHAPTER, 0xffff);
 
     // Get the initial clip of the playlist
     bd->st0.clip = nav_next_clip(bd->title, NULL);
@@ -2943,10 +2938,6 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
             _bdj_event  (bd, BDJ_EVENT_PLAYITEM,ev->new_val);
             _queue_event(bd, BD_EVENT_PLAYITEM, ev->new_val);
             break;
-        case PSR_CHAPTER:
-            _bdj_event  (bd, BDJ_EVENT_CHAPTER, ev->new_val);
-            _queue_event(bd, BD_EVENT_CHAPTER,  ev->new_val);
-            break;
         case PSR_TIME:
             _bdj_event  (bd, BDJ_EVENT_PTS,     ev->new_val);
             break;
@@ -2974,6 +2965,13 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
 
         case PSR_TITLE_NUMBER:
             disc_event(bd->disc, DISC_EVENT_TITLE, ev->new_val);
+            break;
+
+        case PSR_CHAPTER:
+            _bdj_event  (bd, BDJ_EVENT_CHAPTER, ev->new_val);
+            if (ev->new_val != 0xffff) {
+                _queue_event(bd, BD_EVENT_CHAPTER,  ev->new_val);
+            }
             break;
 
         /* stream selection */
