@@ -378,7 +378,7 @@ static int _is_interactive_title(BLURAY *bd)
 
 static void _update_chapter_psr(BLURAY *bd)
 {
-    if (!_is_interactive_title(bd)) {
+    if (!_is_interactive_title(bd) && bd->title->chap_list.count > 0) {
         uint32_t current_chapter = bd_get_current_chapter(bd);
         bd_psr_write(bd->regs, PSR_CHAPTER,  current_chapter + 1);
     }
