@@ -245,8 +245,10 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
 
     public void setComposite(Composite comp) {
         if ((comp != null) && (comp != composite)) {
-            if (!(comp instanceof AlphaComposite))
+            if (!(comp instanceof AlphaComposite)) {
+                logger.error("Composite is not AlphaComposite");
                 throw new IllegalArgumentException("Only AlphaComposite is supported");
+            }
             composite = (AlphaComposite) comp;
         }
     }
@@ -308,8 +310,10 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
         } else if (clip instanceof Rectangle) {
             Rectangle rect = (Rectangle) clip;
             setClip(rect.x, rect.y, rect.width, rect.height);
-        } else
+        } else {
+            logger.error("Shape is not Rectangle: " + clip.getClass().getName());
             throw new IllegalArgumentException("setClip(Shape) only supports Rectangle objects");
+        }
     }
 
     private void setupClip() {
