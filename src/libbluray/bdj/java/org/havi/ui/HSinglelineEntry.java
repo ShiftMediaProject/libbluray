@@ -51,39 +51,45 @@ public class HSinglelineEntry extends HVisible implements HTextValue {
     }
 
     public void setTextContent(String string, int state) {
-        throw new Error("Not implemented");
+        super.setTextContent(string, ALL_STATES);
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "setTextContent");
     }
 
     public String getTextContent(int state) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return "";
     }
 
     public int getCaretCharPosition() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return 0;
     }
 
     public int setCaretCharPosition(int position) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return 0;
     }
 
     public void setType(int type) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public void setValidInput(char[] inputChars) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public boolean echoCharIsSet() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return false;
     }
 
     public char getEchoChar() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return 0;
     }
 
     public void setEchoChar(char c) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public static void setDefaultLook(HSinglelineEntryLook look) {
@@ -97,125 +103,141 @@ public class HSinglelineEntry extends HVisible implements HTextValue {
     }
 
     public void setLook(HLook hlook) throws HInvalidLookException {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public boolean insertChar(char c) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return false;
     }
 
     public boolean deletePreviousChar() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return false;
     }
 
     public boolean deleteNextChar() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return false;
     }
 
     public void caretNextCharacter() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public void caretPreviousCharacter() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public void setMaxChars(int maxChars) {
-        throw new Error("Not implemented");
+        if (maxChars < 0)
+            this.maxChars = 0;
+        else
+            this.maxChars = maxChars;
     }
 
     public int getMaxChars() {
-        throw new Error("Not implemented");
+        return maxChars;
     }
 
     public void setMove(int keyCode, HNavigable target) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public HNavigable getMove(int keyCode) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return null;
     }
 
     public void setFocusTraversal(HNavigable up, HNavigable down,
             HNavigable left, HNavigable right) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public boolean isSelected() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return false;
     }
 
     public void setGainFocusSound(HSound sound) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public void setLoseFocusSound(HSound sound) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public HSound getGainFocusSound() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return null;
     }
 
     public HSound getLoseFocusSound() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return null;
     }
 
     public void addHFocusListener(HFocusListener l) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public void removeHFocusListener(HFocusListener l) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public int[] getNavigationKeys() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return null;
     }
 
     public void processHFocusEvent(HFocusEvent evt) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public void addHKeyListener(HKeyListener l) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public void removeHKeyListener(HKeyListener l) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public void addHTextListener(HTextListener l) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public void removeHTextListener(HTextListener l) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public boolean getEditMode() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return false;
     }
 
     public void setEditMode(boolean edit) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public int getType() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return 0;
     }
 
     public char[] getValidInput() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
+        return null;
     }
 
     public void processHTextEvent(HTextEvent evt) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
 
     public void processHKeyEvent(HKeyEvent evt) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntry.class.getName(), "");
     }
+
+    private int maxChars;
 
     private static HSinglelineEntryLook DefaultLook = null;
 

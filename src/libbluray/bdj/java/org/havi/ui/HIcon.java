@@ -24,6 +24,9 @@ import java.awt.Image;
 import org.havi.ui.event.HFocusEvent;
 import org.havi.ui.event.HFocusListener;
 
+import org.videolan.BDJXletContext;
+import org.videolan.Logger;
+
 public class HIcon extends HStaticIcon implements HNavigable {
     public HIcon() {
         org.videolan.Logger.unimplemented(HIcon.class.getName(), "");
@@ -53,52 +56,57 @@ public class HIcon extends HStaticIcon implements HNavigable {
     }
 
     public void setMove(int keyCode, HNavigable target) {
-        throw new Error("Not implemented");
+        Logger.unimplemented("", "");
     }
 
     public HNavigable getMove(int keyCode) {
-        throw new Error("Not implemented");
+        Logger.unimplemented("", "");
+        return null;
     }
 
     public void setFocusTraversal(HNavigable up, HNavigable down,
             HNavigable left, HNavigable right) {
-        throw new Error("Not implemented");
+        Logger.unimplemented("", "");
     }
 
     public boolean isSelected() {
-        throw new Error("Not implemented");
+        Logger.unimplemented("", "");
+        return false;
     }
 
     public void setGainFocusSound(HSound sound) {
-        throw new Error("Not implemented");
+        Logger.unimplemented("", "");
     }
 
     public void setLoseFocusSound(HSound sound) {
-        throw new Error("Not implemented");
+        Logger.unimplemented("", "");
     }
 
     public HSound getGainFocusSound() {
-        throw new Error("Not implemented");
+        Logger.unimplemented("", "");
+        return null;
     }
 
     public HSound getLoseFocusSound() {
-        throw new Error("Not implemented");
+        Logger.unimplemented("", "");
+        return null;
     }
 
     public void addHFocusListener(HFocusListener l) {
-        throw new Error("Not implemented");
+        Logger.unimplemented("", "");
     }
 
     public void removeHFocusListener(HFocusListener l) {
-        throw new Error("Not implemented");
+        Logger.unimplemented("", "");
     }
 
     public int[] getNavigationKeys() {
-        throw new Error("Not implemented");
+        Logger.unimplemented("", "");
+        return null;
     }
 
     public void processHFocusEvent(HFocusEvent evt) {
-        throw new Error("Not implemented");
+        Logger.unimplemented("", "");
     }
 
     private static HGraphicLook DefaultLook = null;

@@ -47,52 +47,57 @@ public class HRange extends HStaticRange implements HNavigable {
     }
 
     public void setMove(int keyCode, HNavigable target) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HRange.class.getName(), "");
     }
 
     public HNavigable getMove(int keyCode) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HRange.class.getName(), "");
+        return null;
     }
 
     public void setFocusTraversal(HNavigable up, HNavigable down,
             HNavigable left, HNavigable right) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HRange.class.getName(), "");
     }
 
     public boolean isSelected() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HRange.class.getName(), "");
+        return false;
     }
 
     public void setGainFocusSound(HSound sound) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HRange.class.getName(), "");
     }
 
     public void setLoseFocusSound(HSound sound) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HRange.class.getName(), "");
     }
 
     public HSound getGainFocusSound() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HRange.class.getName(), "");
+        return null;
     }
 
     public HSound getLoseFocusSound() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HRange.class.getName(), "");
+        return null;
     }
 
     public void addHFocusListener(HFocusListener l) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HRange.class.getName(), "");
     }
 
     public void removeHFocusListener(HFocusListener l) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HRange.class.getName(), "");
     }
 
     public int[] getNavigationKeys() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HRange.class.getName(), "");
+        return null;
     }
 
     public void processHFocusEvent(HFocusEvent evt) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HRange.class.getName(), "");
     }
 
     private static HRangeLook DefaultLook = null;

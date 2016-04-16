@@ -29,42 +29,47 @@ public class HSinglelineEntryLook implements HExtendedLook {
     }
 
     public void fillBackground(Graphics g, HVisible visible, int state) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntryLook.class.getName(), "");
     }
 
     public void renderBorders(Graphics g, HVisible visible, int state) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntryLook.class.getName(), "");
     }
 
     public void renderVisible(Graphics g, HVisible visible, int state) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntryLook.class.getName(), "");
     }
 
     public void showLook(Graphics g, HVisible visible, int state) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntryLook.class.getName(), "");
     }
 
     public void widgetChanged(HVisible visible, HChangeData[] changes) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntryLook.class.getName(), "");
     }
 
     public Dimension getMinimumSize(HVisible hvisible) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntryLook.class.getName(), "");
+        return null;
     }
 
     public Dimension getPreferredSize(HVisible hvisible) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntryLook.class.getName(), "");
+        return null;
     }
 
     public Dimension getMaximumSize(HVisible hvisible) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntryLook.class.getName(), "");
+        return null;
     }
 
     public boolean isOpaque(HVisible visible) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntryLook.class.getName(), "");
+        return false;
     }
 
     public Insets getInsets(HVisible hvisible) {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HSinglelineEntryLook.class.getName(), "");
+        return null;
     }
 }

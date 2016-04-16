@@ -34,7 +34,6 @@ public class HMultilineEntry extends HSinglelineEntry {
 
     public HMultilineEntry(int x, int y, int width, int height, int maxChars) {
         org.videolan.Logger.unimplemented(HMultilineEntry.class.getName(), "");
-        throw new Error("Not implemented");
     }
 
     public HMultilineEntry(String text, int maxChars, Font font, Color color) {
@@ -56,15 +55,15 @@ public class HMultilineEntry extends HSinglelineEntry {
     }
 
     public void setLook(HLook hlook) throws HInvalidLookException {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HMultilineEntry.class.getName(), "");
     }
 
     public void caretNextLine() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HMultilineEntry.class.getName(), "");
     }
 
     public void caretPreviousLine() {
-        throw new Error("Not implemented");
+        org.videolan.Logger.unimplemented(HMultilineEntry.class.getName(), "");
     }
 
     private static HSinglelineEntryLook DefaultLook = null;
