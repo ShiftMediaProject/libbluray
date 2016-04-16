@@ -21,13 +21,29 @@ package org.havi.ui;
 
 public class HScreenPoint {
     public HScreenPoint(float x, float y) {
-        this.x = x;
-        this.y = y;
+        setLocation(x, y);
     }
 
     public void setLocation(float x, float y) {
         this.x = x;
         this.y = y;
+    }
+
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof HScreenPoint))
+            return false;
+
+        HScreenPoint other = (HScreenPoint)obj;
+        Float x1 = new Float(this.x);
+        Float y1 = new Float(this.y);
+        Float x2 = new Float(other.x);
+        Float y2 = new Float(other.y);
+        return x1.equals(x2) && y1.equals(y2);
+    }
+
+    public String toString() {
+        return "[" + x + "," + y + "]";
     }
 
     public float x;
