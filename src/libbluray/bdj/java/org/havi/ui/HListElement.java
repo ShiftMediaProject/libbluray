@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2016  Petri Hintukainen
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,26 +24,30 @@ import java.awt.Image;
 
 public class HListElement {
     public HListElement(String label) {
-        org.videolan.Logger.unimplemented(HListElement.class.getName(), "");
+        this.label = label;
     }
 
     public HListElement(Image icon, String label) {
-        org.videolan.Logger.unimplemented(HListElement.class.getName(), "");
+        this.label = label;
+        this.icon = icon;
     }
 
     public String getLabel() {
-        throw new Error("Not implemented");
+        return label;
     }
 
     public Image getIcon() {
-        throw new Error("Not implemented");
+        return icon;
     }
 
     public void setLabel(String label) {
-        throw new Error("Not implemented");
+        this.label = label;
     }
 
     public void setIcon(Image icon) {
-        throw new Error("Not implemented");
+        this.icon = icon;
     }
+
+    private Image icon = null;
+    private String label = null;
 }
