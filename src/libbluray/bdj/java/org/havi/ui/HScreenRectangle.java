@@ -21,10 +21,8 @@ package org.havi.ui;
 
 public class HScreenRectangle {
     public HScreenRectangle(float x, float y, float width, float height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+        setLocation(x, y);
+        setSize(width, height);
     }
 
     public void setLocation(float x, float y) {
@@ -33,12 +31,29 @@ public class HScreenRectangle {
     }
 
     public void setSize(float width, float height) {
-        this.width = width;
-        this.height = height;
+        this.width = Math.max(0.0f, width);
+        this.height = Math.max(0.0f, height);
+    }
+
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof HScreenRectangle))
+            return false;
+
+        HScreenRectangle other = (HScreenRectangle)obj;
+        Float x1 = new Float(this.x);
+        Float y1 = new Float(this.y);
+        Float w1 = new Float(this.width);
+        Float h1 = new Float(this.height);
+        Float x2 = new Float(other.x);
+        Float y2 = new Float(other.y);
+        Float w2 = new Float(other.width);
+        Float h2 = new Float(other.height);
+        return x1.equals(x2) && y1.equals(y2) && w1.equals(w2) && h1.equals(h2);
     }
 
     public String toString() {
-        return "HScreenRectangle[" + x + "," + y + " " + width + "x" + height + "]";
+        return getClass().getName() + "[" + x + "," + y + " " + width + "x" + height + "]";
     }
 
     public float x;
