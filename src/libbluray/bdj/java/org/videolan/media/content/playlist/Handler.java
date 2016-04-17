@@ -278,14 +278,14 @@ public class Handler extends BDHandler {
 
     protected void doAudioStreamChanged(int param) {
         if (currentLocator != null) {
-            locator.setPrimaryAudioStreamNumber(param);
+            currentLocator.setPrimaryAudioStreamNumber(param);
             postMediaSelectSucceeded(currentLocator);
         }
     }
 
     private void doSecondaryVideoChanged(int stream, boolean enable) {
         if (currentLocator != null) {
-            locator.setSecondaryVideoStreamNumber(stream);
+            currentLocator.setSecondaryVideoStreamNumber(stream);
             postMediaSelectSucceeded(currentLocator);
         }
 
@@ -294,7 +294,7 @@ public class Handler extends BDHandler {
 
     private void doSecondaryAudioChanged(int stream, boolean enable) {
         if (currentLocator != null) {
-            locator.setSecondaryAudioStreamNumber(stream);
+            currentLocator.setSecondaryAudioStreamNumber(stream);
             postMediaSelectSucceeded(currentLocator);
         }
     }
