@@ -31,13 +31,16 @@ import java.awt.image.ImageConsumer;
 import java.awt.image.ImageObserver;
 
 import org.dvb.ui.DVBBufferedImage;
+import org.dvb.ui.DVBAlphaComposite;
+import org.dvb.ui.DVBGraphics;
+import org.dvb.ui.UnsupportedDrawingOperationException;
 
 import sun.awt.ConstrainableGraphics;
 
 import org.videolan.GUIManager;
 import org.videolan.Logger;
 
-abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphics {
+abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphics {
     private static final Color DEFAULT_COLOR = Color.BLACK;
     private static final Font DEFAULT_FONT = new Font("Dialog", Font.PLAIN, 12);
 
@@ -145,6 +148,52 @@ abstract class BDGraphicsBase extends Graphics2D implements ConstrainableGraphic
     public Graphics create() {
         return new BDGraphics((BDGraphics)this);
     }
+
+    /*
+     * DVBGraphics methods
+     */
+
+    public int[] getAvailableCompositeRules()
+    {
+        /*
+        int[] rules = { DVBAlphaComposite.CLEAR, DVBAlphaComposite.SRC,
+                        DVBAlphaComposite.SRC_OVER, DVBAlphaComposite.DST_OVER,
+                        DVBAlphaComposite.SRC_IN, DVBAlphaComposite.DST_IN,
+                        DVBAlphaComposite.SRC_OUT, DVBAlphaComposite.DST_OUT };
+        */
+        int[] rules = {
+            DVBAlphaComposite.CLEAR,
+            DVBAlphaComposite.SRC,
+            DVBAlphaComposite.SRC_OVER };
+
+        return rules;
+    }
+
+    public DVBAlphaComposite getDVBComposite()
+    {
+        Composite comp = getComposite();
+        if (!(comp instanceof AlphaComposite))
+            return null;
+        return DVBAlphaComposite.getInstance(
+                                             ((AlphaComposite)comp).getRule(),
+                                             ((AlphaComposite)comp).getAlpha());
+    }
+
+    public void setDVBComposite(DVBAlphaComposite comp)
+                    throws UnsupportedDrawingOperationException
+    {
+        if ((comp.getRule() < DVBAlphaComposite.CLEAR) ||
+            (comp.getRule() > DVBAlphaComposite.SRC_OVER)) {
+            logger.error("setDVBComposite() FAILED: unsupported rule " + comp.getRule());
+            throw new UnsupportedDrawingOperationException("Unsupported composition rule: " + comp.getRule());
+        }
+
+        setComposite(AlphaComposite.getInstance(comp.getRule(), comp.getAlpha()));
+    }
+
+    /*
+     *
+     */
 
     public void translate(int x, int y) {
         originX += x;
