@@ -69,18 +69,38 @@ public class Handler extends BDHandler {
     }
 
     public void setSource(DataSource source) throws IOException, IncompatibleSourceException {
+
+        /* validate source */
+        BDLocator newLocator;
+        try {
+            newLocator = new BDLocator(source.getLocator().toExternalForm());
+        } catch (org.davic.net.InvalidLocatorException e) {
+            logger.error("incompatible source: " + source);
+            throw new IncompatibleSourceException();
+        } catch (Exception e) {
+            logger.error("unexpected expection: " + e);
+            throw new IncompatibleSourceException();
+        }
+
+        if (!newLocator.isPlayListItem()) {
+            logger.error("not playlist: " + newLocator);
+            throw new IncompatibleSourceException();
+        }
+
+        /* get playlist info */
+        PlaylistInfo newPi = Libbluray.getPlaylistInfo(newLocator.getPlayListId());
+        if (newPi == null) {
+            logger.error("getPlaylistInfo failed for " + newLocator);
+            throw new IOException();
+        }
+
+        /* commit changes and prefetch */
         synchronized (this) {
-            try {
-                sourceLocator = new BDLocator(source.getLocator().toExternalForm());
-                currentLocator = null;
-            } catch (org.davic.net.InvalidLocatorException e) {
-                throw new IncompatibleSourceException();
-            }
-            if (!sourceLocator.isPlayListItem())
-                throw new IncompatibleSourceException();
-            pi = Libbluray.getPlaylistInfo(sourceLocator.getPlayListId());
-            if (pi == null)
-                throw new IOException();
+
+            sourceLocator = newLocator;
+            currentLocator = null;
+            pi = newPi;
+
             baseMediaTime = 0;
             if (state == Prefetched)
                 doPrefetch();
@@ -350,16 +370,32 @@ public class Handler extends BDHandler {
 
     protected void selectPlayList(BDLocator locator)
             throws InvalidPlayListException, InvalidLocatorException, ClockStartedError {
+
+        if (locator == null) {
+            logger.error("null locator");
+            throw new NullPointerException();
+        }
+        if (!locator.isPlayListItem()) {
+            logger.error("not playlist: " + locator);
+            throw new InvalidLocatorException(locator);
+        }
+
+        PlaylistInfo newPi = Libbluray.getPlaylistInfo(locator.getPlayListId());
+        if (newPi == null) {
+            logger.error("invalid playlist");
+            throw new InvalidPlayListException();
+        }
+
         synchronized (this) {
-            if (getState() == Started)
+            if (getState() == Started) {
+                logger.error("throw ClockStartedError");
                 throw new ClockStartedError();
-            if (!locator.isPlayListItem())
-                throw new InvalidLocatorException(locator);
-            pi = Libbluray.getPlaylistInfo(locator.getPlayListId());
-            if (pi == null)
-                throw new InvalidPlayListException();
+            }
+
+            this.pi = newPi;
             this.sourceLocator = locator;
             this.currentLocator = null;
+
             baseMediaTime = 0;
             if (state == Prefetched)
                 doPrefetch();
