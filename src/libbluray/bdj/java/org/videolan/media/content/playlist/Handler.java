@@ -87,6 +87,17 @@ public class Handler extends BDHandler {
         }
     }
 
+    public Locator[] getServiceContentLocators() {
+        if (locator == null)
+            return new Locator[0];
+        Locator[] locators = new Locator[1];
+        if (currentLocator != null && getState() >= Prefetched)
+            locators[0] = currentLocator;
+        else
+            locators[0] = locator;
+        return locators;
+    }
+
     public Time getDuration() {
         long duration = pi.getDuration() ;
         return new Time(duration * TO_SECONDS);
@@ -410,4 +421,5 @@ public class Handler extends BDHandler {
 
     private PlaylistInfo pi = null;
     private BDLocator currentLocator = null;
+    private BDLocator locator = null;
 }

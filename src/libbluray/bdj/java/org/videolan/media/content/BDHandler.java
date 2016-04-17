@@ -54,7 +54,6 @@ import javax.tv.locator.Locator;
 import javax.tv.service.selection.ServiceContentHandler;
 
 import org.bluray.media.OverallGainControl;
-import org.bluray.net.BDLocator;
 
 import org.videolan.BDJAction;
 import org.videolan.BDJActionManager;
@@ -260,11 +259,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     }
 
     public Locator[] getServiceContentLocators() {
-        if (locator == null)
-            return new Locator[0];
-        Locator[] locators = new Locator[1];
-        locators[0] = locator;
-        return locators;
+        return new Locator[0];
     }
 
     public void realize() {
@@ -706,7 +701,6 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     protected long baseTime;
     protected float rate = 1.0f;
     protected Control[] controls = null;
-    protected BDLocator locator = null;
     private BDJListeners listeners = new BDJListeners();
     private BDJXletContext ownerContext;
     boolean isClosed = false;
