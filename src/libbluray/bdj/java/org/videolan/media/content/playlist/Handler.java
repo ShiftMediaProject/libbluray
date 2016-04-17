@@ -71,14 +71,14 @@ public class Handler extends BDHandler {
     public void setSource(DataSource source) throws IOException, IncompatibleSourceException {
         synchronized (this) {
             try {
-                locator = new BDLocator(source.getLocator().toExternalForm());
+                sourceLocator = new BDLocator(source.getLocator().toExternalForm());
                 currentLocator = null;
             } catch (org.davic.net.InvalidLocatorException e) {
                 throw new IncompatibleSourceException();
             }
-            if (!locator.isPlayListItem())
+            if (!sourceLocator.isPlayListItem())
                 throw new IncompatibleSourceException();
-            pi = Libbluray.getPlaylistInfo(locator.getPlayListId());
+            pi = Libbluray.getPlaylistInfo(sourceLocator.getPlayListId());
             if (pi == null)
                 throw new IOException();
             baseMediaTime = 0;
@@ -88,13 +88,13 @@ public class Handler extends BDHandler {
     }
 
     public Locator[] getServiceContentLocators() {
-        if (locator == null)
+        if (sourceLocator == null)
             return new Locator[0];
         Locator[] locators = new Locator[1];
         if (currentLocator != null && getState() >= Prefetched)
             locators[0] = currentLocator;
         else
-            locators[0] = locator;
+            locators[0] = sourceLocator;
         return locators;
     }
 
@@ -107,31 +107,31 @@ public class Handler extends BDHandler {
         synchronized (this) {
             try {
                 int stream;
-                stream = locator.getPrimaryAudioStreamNumber();
+                stream = sourceLocator.getPrimaryAudioStreamNumber();
                 if (stream > 0)
                     Libbluray.writePSR(Libbluray.PSR_PRIMARY_AUDIO_ID, stream);
-                stream = locator.getPGTextStreamNumber();
+                stream = sourceLocator.getPGTextStreamNumber();
                 if (stream > 0) {
                     Libbluray.writePSR(Libbluray.PSR_PG_STREAM, stream, 0x00000fff);
                 }
-                stream = locator.getSecondaryVideoStreamNumber();
+                stream = sourceLocator.getSecondaryVideoStreamNumber();
                 if (stream > 0) {
                     Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, stream << 8, 0x0000ff00);
                 }
-                stream = locator.getSecondaryAudioStreamNumber();
+                stream = sourceLocator.getSecondaryAudioStreamNumber();
                 if (stream > 0) {
                     Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, stream, 0x000000ff);
                 }
 
-                int pl = locator.getPlayListId();
+                int pl = sourceLocator.getPlayListId();
                 long time = -1;
                 int pi = -1, mark = -1;
                 if (baseMediaTime != 0) {
                     time = (long)(baseMediaTime * FROM_NAROSECONDS);
-                } /*else*/ if (locator.getMarkId() > 0) {
-                    mark = locator.getMarkId();
-                } /*else*/ if (locator.getPlayItemId() > 0) {
-                    pi = locator.getPlayItemId();
+                } /*else*/ if (sourceLocator.getMarkId() > 0) {
+                    mark = sourceLocator.getMarkId();
+                } /*else*/ if (sourceLocator.getPlayItemId() > 0) {
+                    pi = sourceLocator.getPlayItemId();
                 }
 
                 if (!Libbluray.selectPlaylist(pl, pi, mark, time)) {
@@ -140,7 +140,7 @@ public class Handler extends BDHandler {
 
                 updateTime(new Time(Libbluray.tellTime() * TO_SECONDS));
 
-                currentLocator = new BDLocator(locator.toExternalForm());
+                currentLocator = new BDLocator(sourceLocator.toExternalForm());
             } catch (Exception e) {
                 return new ConnectionErrorEvent(this);
             }
@@ -327,7 +327,7 @@ public class Handler extends BDHandler {
     protected BDLocator getCurrentLocator() {
         if (currentLocator != null)
             return currentLocator;
-        return locator;
+        return sourceLocator;
     }
 
     protected PlaylistInfo getPlaylistInfo() {
@@ -358,7 +358,7 @@ public class Handler extends BDHandler {
             pi = Libbluray.getPlaylistInfo(locator.getPlayListId());
             if (pi == null)
                 throw new InvalidPlayListException();
-            this.locator = locator;
+            this.sourceLocator = locator;
             this.currentLocator = null;
             baseMediaTime = 0;
             if (state == Prefetched)
@@ -397,18 +397,18 @@ public class Handler extends BDHandler {
                 if ((player.getState() == Prefetched) || (player.getState() == Started)) {
                     Libbluray.seekMark(param);
                     player.updateTime(new Time(Libbluray.tellTime() * TO_SECONDS));
-                } else if (player.locator != null) {
-                    player.locator.setMarkId(param);
-                    player.locator.setPlayItemId(-1);
+                } else if (player.sourceLocator != null) {
+                    player.sourceLocator.setMarkId(param);
+                    player.sourceLocator.setPlayItemId(-1);
                 }
                 break;
             case ACTION_SEEK_PLAYITEM:
                 if ((player.getState() == Prefetched) || (player.getState() == Started)) {
                     Libbluray.seekPlayItem(param);
                     player.updateTime(new Time(Libbluray.tellTime() * TO_SECONDS));
-                } else if (player.locator != null) {
-                    player.locator.setMarkId(-1);
-                    player.locator.setPlayItemId(param);
+                } else if (player.sourceLocator != null) {
+                    player.sourceLocator.setMarkId(-1);
+                    player.sourceLocator.setPlayItemId(param);
                 }
                 break;
             }
@@ -424,7 +424,7 @@ public class Handler extends BDHandler {
 
     private PlaylistInfo pi = null;
     private BDLocator currentLocator = null;
-    private BDLocator locator = null;
+    private BDLocator sourceLocator = null;
 
     private static final Logger logger = Logger.getLogger(Handler.class.getName());
 }
