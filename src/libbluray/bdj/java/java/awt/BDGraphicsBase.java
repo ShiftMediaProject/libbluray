@@ -1520,9 +1520,11 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
         try {
             return (Image)bufferedImagePeer.get(image);
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+            logger.error("Failed getting buffered image peer: " + e + "\n" +
+                         Logger.dumpStack(e));
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            logger.error("Failed getting buffered image peer: " + e + "\n" +
+                         Logger.dumpStack(e));
         }
         return null;
     }
