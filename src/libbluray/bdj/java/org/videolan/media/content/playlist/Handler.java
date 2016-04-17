@@ -323,7 +323,10 @@ public class Handler extends BDHandler {
         super.doSeekNotify(Libbluray.tellTime());
     }
 
-    protected BDLocator getLocator() {
+    /* used by DVBMediaSelectControlImpl */
+    protected BDLocator getCurrentLocator() {
+        if (currentLocator != null)
+            return currentLocator;
         return locator;
     }
 
