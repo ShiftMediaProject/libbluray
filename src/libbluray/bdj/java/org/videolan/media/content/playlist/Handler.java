@@ -306,12 +306,12 @@ public class Handler extends BDHandler {
 
     protected void doEndOfMediaReached(int playlist) {
         synchronized (this) {
-            if (locator == null) {
-                System.err.println("endOfMedia(" + playlist + ") ignored: no current locator");
+            if (currentLocator == null) {
+                logger.error("endOfMedia(" + playlist + ") ignored: no current locator");
                 return;
             }
-            if (locator.getPlayListId() != playlist) {
-                System.err.println("endOfMedia ignored: playlist does not match (" + playlist + " != " + locator.getPlayListId());
+            if (currentLocator.getPlayListId() != playlist) {
+                logger.error("endOfMedia ignored: playlist does not match (" + playlist + " != " + currentLocator.getPlayListId());
                 return;
             }
         }
@@ -425,4 +425,6 @@ public class Handler extends BDHandler {
     private PlaylistInfo pi = null;
     private BDLocator currentLocator = null;
     private BDLocator locator = null;
+
+    private static final Logger logger = Logger.getLogger(Handler.class.getName());
 }
