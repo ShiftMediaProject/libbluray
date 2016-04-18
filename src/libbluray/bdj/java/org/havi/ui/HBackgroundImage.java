@@ -40,6 +40,10 @@ public class HBackgroundImage implements ImageObserver {
     }
 
     public HBackgroundImage(byte pixels[]) {
+        if (pixels == null) {
+            System.err.println("null pixels from " + org.videolan.Logger.dumpStack());
+            return;
+        }
         producer = new ByteArrayImageSource(pixels);
         img = Toolkit.getDefaultToolkit().createImage(producer);
     }
