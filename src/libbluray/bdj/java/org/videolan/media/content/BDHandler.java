@@ -409,6 +409,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
 
     protected ControllerErrorEvent doStop() {
         baseMediaTime = getMediaNanoseconds();
+        rate = 1.0f;
         return null;
     }
 
