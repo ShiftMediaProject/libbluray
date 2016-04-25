@@ -167,7 +167,7 @@ static inline char *_utf8_to_cp(const char *utf8)
 static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char *jvm_lib)
 {
     if (java_home) {
-        char *path = str_printf("%s/%s/%s", java_home, jvm_dir, jvm_lib);
+        char *path = str_printf("%s" DIR_SEP "%s" DIR_SEP "%s", java_home, jvm_dir, jvm_lib);
         if (!path) {
             BD_DEBUG(DBG_CRIT, "out of memory\n");
             return NULL;
@@ -197,7 +197,7 @@ static void *_load_jvm(const char **p_java_home)
 #else
 # ifdef _WIN32
     static const char *jvm_path[] = {NULL, JDK_HOME};
-    static const char  jvm_dir[]  = "jre/bin/server";
+    static const char  jvm_dir[]  = "jre\\bin\\server";
     static const char  jvm_lib[]  = "jvm";
 # else
     static const char *jvm_path[] = {NULL, JDK_HOME,
