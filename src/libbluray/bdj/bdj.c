@@ -202,9 +202,11 @@ static void *_load_jvm(const char **p_java_home)
 # else
     static const char *jvm_path[] = {NULL, JDK_HOME,
                                      "/usr/lib/jvm/default-java",
-                                     "/usr/lib/jvm/java-6-openjdk",
-                                     "/usr/lib/jvm/java-7-openjdk",
+                                     "/usr/lib/jvm/default",
                                      "/etc/java-config-2/current-system-vm",
+                                     "/usr/lib/jvm/java-7-openjdk",
+                                     "/usr/lib/jvm/java-8-openjdk",
+                                     "/usr/lib/jvm/java-6-openjdk",
     };
     static const char  jvm_dir[]  = "jre/lib/" JAVA_ARCH "/server";
     static const char  jvm_lib[]  = "libjvm";
