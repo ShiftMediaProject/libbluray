@@ -35,7 +35,7 @@ public class MediaTimePositionControlImpl implements MediaTimePositionControl {
     }
 
     public Time setMediaTimePosition(Time mediaTime) {
-        player.setMediaTime(mediaTime);
+        player.setMediaTimePosition(mediaTime);
         return player.getMediaTime();
     }
 

@@ -53,6 +53,8 @@ import javax.media.protocol.DataSource;
 import javax.tv.locator.Locator;
 import javax.tv.service.selection.ServiceContentHandler;
 
+import org.davic.media.MediaTimePositionChangedEvent;
+
 import org.bluray.media.OverallGainControl;
 
 import org.videolan.BDJAction;
@@ -218,6 +220,11 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_SEEK_TIME, now);
         commandQueue.put(action);
         action.waitEnd();
+    }
+
+    public void setMediaTimePosition(Time mediaTime) {
+        setMediaTime(mediaTime);
+        postMediaTimePositionChangedEvent();
     }
 
     public Time mapToTimeBase(Time t) throws ClockStoppedException {
@@ -438,6 +445,10 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
 
     private void postStopTimeChangeEvent() {
         notifyListeners(new StopTimeChangeEvent(this, getStopTime()));
+    }
+
+    protected void postMediaTimePositionChangedEvent() {
+        notifyListeners(new MediaTimePositionChangedEvent(this, getState(), getState(), getState(), getMediaTime()));
     }
 
     private void notifyListeners(ControllerEvent event) {
