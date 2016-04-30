@@ -33,6 +33,12 @@ public class HRcEvent extends KeyEvent {
         super(source, id, when, modifiers, keyCode, keyChar);
     }
 
+    public String toString() {
+        return getClass().getName() + "[source=" + this.source + ",id=" + getID() +
+            ",when=" + getWhen() + ",modifiers=" + getModifiers() +
+            ",keyCode=" + getKeyCode() + ",keyChar=" + getKeyChar() + "]";
+    }
+
     public static final int RC_FIRST = 400;
     public static final int VK_COLORED_KEY_0 = 403;
     public static final int VK_COLORED_KEY_1 = VK_COLORED_KEY_0 + 1;

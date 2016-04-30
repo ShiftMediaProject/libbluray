@@ -37,6 +37,10 @@ public class HBackgroundImageEvent extends EventObject {
         return id;
     }
 
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",id=" + id + "]";
+    }
+
     public static final int BACKGROUNDIMAGE_FIRST = 1;
     public static final int BACKGROUNDIMAGE_LOADED = 1;
     public static final int BACKGROUNDIMAGE_FILE_NOT_FOUND = 2;

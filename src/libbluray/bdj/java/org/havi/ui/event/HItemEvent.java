@@ -34,6 +34,10 @@ public class HItemEvent extends AWTEvent {
         return item;
     }
 
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",id=" + id + ",item=" + item + "]";
+    }
+
     public static final int ITEM_FIRST = HAdjustmentEvent.ADJUST_LAST + 1;
     public static final int ITEM_START_CHANGE = ITEM_FIRST;
     public static final int ITEM_TOGGLE_SELECTED = ITEM_FIRST + 1;
@@ -50,6 +54,6 @@ public class HItemEvent extends AWTEvent {
     public static final int ITEM_END_CHANGE = ITEM_FIRST + 12;
     public static final int ITEM_LAST = ITEM_FIRST + 12;
 
-    private Object item;
+    private final Object item;
     private static final long serialVersionUID = -487680187698958380L;
 }
