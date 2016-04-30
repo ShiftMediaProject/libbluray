@@ -26,6 +26,7 @@ import java.awt.Font;
 import org.havi.ui.event.HFocusEvent;
 import org.havi.ui.event.HFocusListener;
 
+import org.videolan.BDJXletContext;
 import org.videolan.Logger;
 
 public class HText extends HStaticText implements HNavigable {
@@ -87,16 +88,6 @@ public class HText extends HStaticText implements HNavigable {
         setTextLayoutManager(tlm);
     }
 
-    public static void setDefaultLook(HTextLook look) {
-        DefaultLook = look;
-    }
-
-    public static HTextLook getDefaultLook() {
-        if (DefaultLook == null)
-            DefaultLook = new HTextLook();
-        return DefaultLook;
-    }
-
     public void setMove(int keyCode, HNavigable target) {
         logger.unimplemented("setMove");
     }
@@ -155,7 +146,16 @@ public class HText extends HStaticText implements HNavigable {
         logger.unimplemented("processHFocusEvent");
     }
 
-    private static HTextLook DefaultLook = null;
+    public static void setDefaultLook(HTextLook hlook) {
+        BDJXletContext.setXletDefaultLook(PROPERTY_LOOK, hlook);
+    }
+
+    public static HTextLook getDefaultLook() {
+        return (HTextLook) BDJXletContext.getXletDefaultLook(PROPERTY_LOOK, DEFAULT_LOOK);
+    }
+
+    static final Class DEFAULT_LOOK = HTextLook.class;
+    private static final String PROPERTY_LOOK = HText.class.getName();
 
     private static final long serialVersionUID = -8178609258303529066L;
 

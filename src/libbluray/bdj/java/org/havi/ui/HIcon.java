@@ -46,13 +46,11 @@ public class HIcon extends HStaticIcon implements HNavigable {
     }
 
     public static void setDefaultLook(HGraphicLook hlook) {
-        DefaultLook = hlook;
+        BDJXletContext.setXletDefaultLook(PROPERTY_LOOK, hlook);
     }
 
     public static HGraphicLook getDefaultLook() {
-        if (DefaultLook == null)
-            org.videolan.Logger.unimplemented("", "getDefaultLook");
-        return DefaultLook;
+        return (HGraphicLook)BDJXletContext.getXletDefaultLook(PROPERTY_LOOK, DEFAULT_LOOK);
     }
 
     public void setMove(int keyCode, HNavigable target) {
@@ -109,7 +107,8 @@ public class HIcon extends HStaticIcon implements HNavigable {
         Logger.unimplemented("", "");
     }
 
-    private static HGraphicLook DefaultLook = null;
+    static final Class DEFAULT_LOOK = HGraphicLook.class;
+    private static final String PROPERTY_LOOK = HIcon.class.getName();
 
     private static final long serialVersionUID = 2006124827619610922L;
 }
