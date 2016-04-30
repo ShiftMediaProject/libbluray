@@ -24,14 +24,7 @@ import org.davic.resources.ResourceStatusEvent;
 public class HScreenDeviceReservedEvent extends ResourceStatusEvent {
     public HScreenDeviceReservedEvent(Object source) {
         super(source);
-
-        this.source = source;
     }
 
-    public Object getSource() {
-        return source;
-    }
-
-    private Object source;
     private static final long serialVersionUID = 944596304967870290L;
 }

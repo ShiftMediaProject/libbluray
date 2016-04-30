@@ -25,18 +25,15 @@ import org.havi.ui.HActionInputPreferred;
 public class HActionEvent extends ActionEvent {
     public HActionEvent(HActionInputPreferred source, int id, String command) {
         super(source, id, command);
-
-        this.command = command;
     }
 
     public String getActionCommand() {
-        return command;
+        return super.getActionCommand();
     }
 
     public int getModifiers() {
-        return 0;
+        return super.getModifiers();
     }
 
-    private String command;
     private static final long serialVersionUID = -906983727975217421L;
 }

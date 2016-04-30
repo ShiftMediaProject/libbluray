@@ -25,12 +25,7 @@ public class HBackgroundImageEvent extends EventObject {
     public HBackgroundImageEvent(Object source, int id) {
         super(source);
 
-        this.source = source;
         this.id = id;
-    }
-
-    public Object getSource() {
-        return source;
     }
 
     public int getID() {
@@ -48,7 +43,6 @@ public class HBackgroundImageEvent extends EventObject {
     public static final int BACKGROUNDIMAGE_INVALID = 4;
     public static final int BACKGROUNDIMAGE_LAST = 4;
 
-    private Object source;
-    private int id;
+    private final int id;
     private static final long serialVersionUID = 4941828555539092236L;
 }
