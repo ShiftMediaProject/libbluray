@@ -35,6 +35,10 @@ public class StopByResourceLossEvent extends StopEvent {
         return stream;
     }
 
-    private MediaLocator stream;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",stream=" + stream + "]";
+    }
+
+    private final MediaLocator stream;
     private static final long serialVersionUID = -2924890229807383503L;
 }

@@ -35,6 +35,10 @@ public class NoComponentSelectedEvent extends StopEvent {
         return stream;
     }
 
-    private MediaLocator stream;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",stream=" + stream + "]";
+    }
+
+    private final MediaLocator stream;
     private static final long serialVersionUID = -5650793101305031432L;
 }

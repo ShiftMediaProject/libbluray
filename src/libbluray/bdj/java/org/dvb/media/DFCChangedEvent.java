@@ -30,6 +30,10 @@ public class DFCChangedEvent extends VideoFormatEvent {
         return newDFC;
     }
 
-    private int newDFC;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",newDFC=" + newDFC + "]";
+    }
+
+    private final int newDFC;
     private static final long serialVersionUID = -4351969268893058245L;
 }

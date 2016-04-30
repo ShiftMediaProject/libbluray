@@ -24,7 +24,14 @@ import java.util.EventObject;
 public abstract class VideoFormatEvent extends EventObject {
     public VideoFormatEvent(Object source) {
         super(source);
+
+        this.source = source;
     }
 
+    public Object getSource() {
+        return source;
+    }
+
+    protected final Object source;
     private static final long serialVersionUID = 8432740055225331694L;
 }

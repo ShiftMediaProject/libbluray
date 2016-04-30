@@ -41,6 +41,10 @@ public class ServiceRemovedEvent extends StopEvent {
         return stream;
     }
 
-    private MediaLocator stream;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",stream=" + stream + "]";
+    }
+
+    private final MediaLocator stream;
     private static final long serialVersionUID = -7235988242857485021L;
 }

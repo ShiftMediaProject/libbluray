@@ -32,6 +32,6 @@ public class SubtitleAvailableEvent extends EventObject {
         return source;
     }
 
-    private Object source;
+    protected final Object source;
     private static final long serialVersionUID = -7714072037836958718L;
 }

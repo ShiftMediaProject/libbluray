@@ -30,6 +30,10 @@ public class AspectRatioChangedEvent extends VideoFormatEvent {
         return newRatio;
     }
 
-    private int newRatio;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",newRatio=" + newRatio + "]";
+    }
+
+    private final int newRatio;
     private static final long serialVersionUID = -897298629574550910L;
 }

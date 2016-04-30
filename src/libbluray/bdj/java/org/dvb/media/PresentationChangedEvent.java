@@ -40,11 +40,15 @@ public class PresentationChangedEvent extends ControllerEvent {
         return reason;
     }
 
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",stream=" + stream + ",reason=" + reason + "]";
+    }
+
     public static final int STREAM_UNAVAILABLE = 0x00;
     public static final int CA_FAILURE = 0x01;
     public static final int CA_RETURNED = 0x02;
 
-    private MediaLocator stream;
-    private int reason;
+    private final MediaLocator stream;
+    private final int reason;
     private static final long serialVersionUID = 7465215844040053752L;
 }

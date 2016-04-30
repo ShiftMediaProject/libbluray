@@ -31,6 +31,6 @@ public class SubtitleNotAvailableEvent extends EventObject {
         return source;
     }
 
-    private Object source;
+    protected final Object source;
     private static final long serialVersionUID = -5092068346063671440L;
 }

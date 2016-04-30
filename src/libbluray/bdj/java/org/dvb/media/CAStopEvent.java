@@ -26,6 +26,7 @@ import javax.media.MediaLocator;
 public class CAStopEvent extends StopEvent {
     public CAStopEvent(Controller source) {
         super(source, 0, 0, 0, null);
+        this.stream = null;
     }
 
     public CAStopEvent(Controller source, int previous, int current,
@@ -38,6 +39,10 @@ public class CAStopEvent extends StopEvent {
         return stream;
     }
 
-    private MediaLocator stream;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",stream=" + stream + "]";
+    }
+
+    private final MediaLocator stream;
     private static final long serialVersionUID = 4964383050657791426L;
 }

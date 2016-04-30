@@ -30,6 +30,10 @@ public class ActiveFormatDescriptionChangedEvent extends VideoFormatEvent {
         return newFormat;
     }
 
-    private int newFormat;
+    public String toString() {
+        return getClass().getName() + "[source=" + source + ",newFormat=" + newFormat + "]";
+    }
+
+    private final int newFormat;
     private static final long serialVersionUID = -1102487117285915146L;
 }
