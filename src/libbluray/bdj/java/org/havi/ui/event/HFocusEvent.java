@@ -42,7 +42,9 @@ public class HFocusEvent extends java.awt.event.FocusEvent {
     }
 
     public int getTransferId() {
-        return transfer;
+        if (getID() == FOCUS_TRANSFER)
+            return transfer;
+        return NO_TRANSFER_ID;
     }
 
     private int transfer;
