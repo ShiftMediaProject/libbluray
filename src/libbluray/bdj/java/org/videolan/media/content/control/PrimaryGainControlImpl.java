@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package org.videolan.media.content.playlist;
+package org.videolan.media.content.control;
 
 import java.awt.Component;
 import org.bluray.media.PrimaryGainControl;
@@ -26,7 +26,7 @@ import org.bluray.media.PrimaryGainControl;
 import org.videolan.media.content.BDHandler;
 
 public class PrimaryGainControlImpl extends GainControlImpl implements PrimaryGainControl {
-    PrimaryGainControlImpl(BDHandler player) {
+    public PrimaryGainControlImpl(BDHandler player) {
         this.player = player;
     }
 

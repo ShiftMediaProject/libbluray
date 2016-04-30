@@ -1,7 +1,6 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
- * Copyright (C) 2015  Petri Hintukainen
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,21 +17,32 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package org.videolan.media.content.playlist;
+package org.videolan.media.content.control;
 
 import java.awt.Component;
-import org.bluray.media.OverallGainControl;
+
+import javax.media.Time;
+
+import org.davic.media.MediaTimePositionControl;
 
 import org.videolan.media.content.BDHandler;
 
-public class OverallGainControlImpl extends GainControlImpl implements OverallGainControl {
-    public OverallGainControlImpl(BDHandler player) {
+public class MediaTimePositionControlImpl implements MediaTimePositionControl {
+    public MediaTimePositionControlImpl(BDHandler player) {
         this.player = player;
     }
 
-    protected void setGain(boolean mute, float level) {
-        player.setGain(BDHandler.GAIN_OVERALL, mute, level);
-        super.valueChanged();
+    public Component getControlComponent() {
+        return null;
+    }
+
+    public Time setMediaTimePosition(Time mediaTime) {
+        player.setMediaTimePosition(mediaTime);
+        return player.getMediaTime();
+    }
+
+    public Time getMediaTimePosition() {
+        return player.getMediaTime();
     }
 
     private BDHandler player;

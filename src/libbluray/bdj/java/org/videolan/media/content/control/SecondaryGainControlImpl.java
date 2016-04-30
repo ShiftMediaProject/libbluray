@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package org.videolan.media.content.playlist;
+package org.videolan.media.content.control;
 
 import java.awt.Component;
 import org.bluray.media.SecondaryGainControl;
@@ -26,7 +26,7 @@ import org.bluray.media.SecondaryGainControl;
 import org.videolan.media.content.BDHandler;
 
 public class SecondaryGainControlImpl extends GainControlImpl implements SecondaryGainControl {
-    SecondaryGainControlImpl(BDHandler player) {
+    public SecondaryGainControlImpl(BDHandler player) {
         this.player = player;
     }
 

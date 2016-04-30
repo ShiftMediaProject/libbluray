@@ -45,6 +45,12 @@ import org.videolan.PlaylistInfo;
 import org.videolan.TIClip;
 import org.videolan.media.content.BDHandler;
 
+import org.videolan.media.content.control.MediaTimePositionControlImpl;
+import org.videolan.media.content.control.OverallGainControlImpl;
+import org.videolan.media.content.control.PanningControlImpl;
+import org.videolan.media.content.control.PrimaryGainControlImpl;
+import org.videolan.media.content.control.SecondaryGainControlImpl;
+
 public class Handler extends BDHandler {
     public Handler() {
         controls = new Control[18];
