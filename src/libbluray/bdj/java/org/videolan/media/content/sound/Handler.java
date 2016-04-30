@@ -37,7 +37,7 @@ import javax.media.protocol.DataSource;
 
 import org.bluray.net.BDLocator;
 
-//import org.videolan.media.content.playlist.MediaTimePositionControlImpl;
+import org.videolan.media.content.playlist.MediaTimePositionControlImpl;
 import org.videolan.media.content.playlist.OverallGainControlImpl;
 import org.videolan.media.content.playlist.PanningControlImpl;
 

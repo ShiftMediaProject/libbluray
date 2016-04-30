@@ -25,8 +25,10 @@ import javax.media.Time;
 
 import org.davic.media.MediaTimePositionControl;
 
+import org.videolan.media.content.BDHandler;
+
 public class MediaTimePositionControlImpl implements MediaTimePositionControl {
-    protected MediaTimePositionControlImpl(Handler player) {
+    public MediaTimePositionControlImpl(BDHandler player) {
         this.player = player;
     }
 
@@ -43,5 +45,5 @@ public class MediaTimePositionControlImpl implements MediaTimePositionControl {
         return player.getMediaTime();
     }
 
-    private Handler player;
+    private BDHandler player;
 }
