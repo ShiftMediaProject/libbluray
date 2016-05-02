@@ -125,8 +125,11 @@ public class Handler extends BDHandler {
     }
 
     public Time getDuration() {
-        long duration = pi.getDuration() ;
-        return new Time(duration * TO_SECONDS);
+        if (pi != null) {
+            long duration = pi.getDuration();
+            return new Time(duration * TO_SECONDS);
+        }
+        return DURATION_UNKNOWN;
     }
 
     protected ControllerErrorEvent doPrefetch() {
