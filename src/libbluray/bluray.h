@@ -207,6 +207,11 @@ typedef enum {
     BLURAY_STILL_INFINITE = 0x02,
 } bd_still_mode_e;
 
+typedef enum {
+    BLURAY_MARK_ENTRY     = 0x01,  /* entry mark for chapter search */
+    BLURAY_MARK_LINK      = 0x02,  /* link point */
+} bd_mark_type_e;
+
 typedef struct bd_stream_info {
     uint8_t     coding_type;
     uint8_t     format;
