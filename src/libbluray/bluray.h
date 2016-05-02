@@ -92,6 +92,7 @@ typedef struct {
     /* Disc ID */
     uint8_t  disc_id[20];
 
+    /* BD-J */
     uint8_t  bdj_detected;     /* 1 if disc uses BD-J */
     uint8_t  bdj_supported;    /* 1 if BD-J support was compiled in */
     uint8_t  libjvm_detected;  /* 1 if usable Java VM was found */
@@ -240,25 +241,25 @@ typedef struct bd_clip {
     BLURAY_STREAM_INFO *sec_audio_streams;
     BLURAY_STREAM_INFO *sec_video_streams;
 
-    uint64_t           start_time;
-    uint64_t           in_time;
-    uint64_t           out_time;
+    uint64_t           start_time;  /* start media time, 90kHz, ("playlist time") */
+    uint64_t           in_time;     /* start timestamp, 90kHz */
+    uint64_t           out_time;    /* end timestamp, 90kHz */
 } BLURAY_CLIP_INFO;
 
 typedef struct bd_chapter {
     uint32_t    idx;
-    uint64_t    start;
-    uint64_t    duration;
-    uint64_t    offset;
+    uint64_t    start;     /* start media time, 90kHz, ("playlist time") */
+    uint64_t    duration;  /* duration */
+    uint64_t    offset;    /* distance from title start, bytes */
     unsigned    clip_ref;
 } BLURAY_TITLE_CHAPTER;
 
 typedef struct bd_mark {
     uint32_t    idx;
-    int         type;
-    uint64_t    start;
-    uint64_t    duration;
-    uint64_t    offset;
+    int         type;      /* bd_mark_type_e */
+    uint64_t    start;     /* mark media time, 90kHz, ("playlist time") */
+    uint64_t    duration;  /* time to next mark */
+    uint64_t    offset;    /* mark distance from title start, bytes */
     unsigned    clip_ref;
 } BLURAY_TITLE_MARK;
 
@@ -757,7 +758,8 @@ typedef enum {
      * status
      */
 
-    /* Nothing to do. Playlist is not playing, but title applet is running. */
+    /* Nothing to do. Playlist is not playing, but title applet is running.
+     * Application should not call bd_read*() immediately again to avoid busy loop. */
     BD_EVENT_IDLE                   = 29,
 
     /* Pop-Up menu available */
