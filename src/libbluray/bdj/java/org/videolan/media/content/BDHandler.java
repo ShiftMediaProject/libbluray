@@ -104,6 +104,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     }
 
     public int getTargetState() {
+        Logger.unimplemented("BDHandler", "getTargetState()");
         synchronized (this) {
             return targetState;
         }
