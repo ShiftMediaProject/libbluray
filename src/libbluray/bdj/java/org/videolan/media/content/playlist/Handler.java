@@ -152,18 +152,18 @@ public class Handler extends BDHandler {
                     Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, stream, 0x000000ff);
                 }
 
-                int pl = sourceLocator.getPlayListId();
+                int plId = sourceLocator.getPlayListId();
                 long time = -1;
-                int pi = -1, mark = -1;
+                int piId = -1, mark = -1;
                 if (baseMediaTime != 0) {
                     time = (long)(baseMediaTime * FROM_NAROSECONDS);
                 } /*else*/ if (sourceLocator.getMarkId() > 0) {
                     mark = sourceLocator.getMarkId();
                 } /*else*/ if (sourceLocator.getPlayItemId() > 0) {
-                    pi = sourceLocator.getPlayItemId();
+                    piId = sourceLocator.getPlayItemId();
                 }
 
-                if (!Libbluray.selectPlaylist(pl, pi, mark, time)) {
+                if (!Libbluray.selectPlaylist(plId, piId, mark, time)) {
                     return new ConnectionErrorEvent(this);
                 }
 
