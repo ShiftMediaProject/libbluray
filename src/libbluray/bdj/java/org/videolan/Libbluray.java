@@ -159,15 +159,27 @@ public class Libbluray {
 
         System.setProperty("dvb.returnchannel.timeout", "30");
 
+        /* get profile from PSR */
+        int psr31 = readPSR(PSR_PROFILE_VERSION);
+        int profile = psr31 >> 16;
+        boolean p11 = (profile & 0x01) != 0;
+        boolean p2  = (profile & 0x02) != 0;
+        boolean p5  = (profile & 0x10) != 0;
+
         System.setProperty("bluray.profile.1", "YES");
         System.setProperty("bluray.p1.version.major", "1");
-        System.setProperty("bluray.p1.version.minor", "1");
+        System.setProperty("bluray.p1.version.minor", p11 ? "1" : "0");
         System.setProperty("bluray.p1.version.micro", "0");
 
-        System.setProperty("bluray.profile.2", "YES");
+        System.setProperty("bluray.profile.2", p2 ? "YES" : "NO");
         System.setProperty("bluray.p2.version.major", "1");
         System.setProperty("bluray.p2.version.minor", "0");
         System.setProperty("bluray.p2.version.micro", "0");
+
+        System.setProperty("bluray.profile.5", p5 ? "YES" : "NO");
+        System.setProperty("bluray.p5.version.major", "1");
+        System.setProperty("bluray.p5.version.minor", "0");
+        System.setProperty("bluray.p5.version.micro", "0");
 
         System.setProperty("bluray.disc.avplayback.readcapability", "NO");
 
