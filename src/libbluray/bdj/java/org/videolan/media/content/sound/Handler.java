@@ -96,9 +96,11 @@ public class Handler extends BDHandler {
         return null;
     }
 
-    protected ControllerErrorEvent doStop() {
-        return super.doStop();
+    /*
+    protected ControllerErrorEvent doStop(boolean eof) {
+        return super.doStop(eof);
     }
+    */
 
     protected BDLocator getLocator() {
         return locator;

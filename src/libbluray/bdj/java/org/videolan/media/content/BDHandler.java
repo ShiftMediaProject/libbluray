@@ -372,7 +372,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
 
     protected void doEndOfMediaReached(int playlist) {
         if (state == Started) {
-            ControllerErrorEvent error = doStop();
+            ControllerErrorEvent error = doStop(true);
             if (error == null) {
                 state = Prefetched;
                 notifyListeners(new EndOfMediaEvent(this, Started, Prefetched, Prefetched, getMediaTime()));
@@ -415,7 +415,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         return null;
     }
 
-    protected ControllerErrorEvent doStop() {
+    protected ControllerErrorEvent doStop(boolean eof) {
         baseMediaTime = getMediaNanoseconds();
         rate = 1.0f;
         return null;
@@ -539,7 +539,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     private boolean doStopAction() {
         switch (state) {
         case Started:
-            ControllerErrorEvent error = doStop();
+            ControllerErrorEvent error = doStop(false);
             if (error == null) {
                 state = Prefetched;
                 notifyListeners(new StopByRequestEvent(this, Started, Prefetched, Prefetched, getMediaTime()));

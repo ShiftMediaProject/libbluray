@@ -198,9 +198,12 @@ public class Handler extends BDHandler {
         }
     }
 
-    protected ControllerErrorEvent doStop() {
+    protected ControllerErrorEvent doStop(boolean eof) {
         Libbluray.selectRate(0.0f, false);
-        return super.doStop();
+        if (!eof) {
+            Libbluray.stopPlaylist();
+        }
+        return super.doStop(eof);
     }
 
     protected void doSeekTime(Time at) {
