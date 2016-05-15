@@ -1,3 +1,4 @@
+2016-05-15: Version 0.9.3
 - Add bd_open_files(). This function deprecates old global file system hooks.
 - Add flag for on-disc menu support to DISC_INFO.
 - Add configure argument to disable building of JAR file.
