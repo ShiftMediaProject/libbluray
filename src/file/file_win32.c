@@ -40,7 +40,9 @@
 static void _file_close(BD_FILE_H *file)
 {
     if (file) {
-        fclose((FILE *)file->internal);
+        if (fclose((FILE *)file->internal)) {
+            BD_DEBUG(DBG_FILE | DBG_CRIT, "Error closing WIN32 file (%p)\n", (void*)file);
+        }
 
         BD_DEBUG(DBG_FILE, "Closed WIN32 file (%p)\n", (void*)file);
 

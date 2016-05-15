@@ -48,7 +48,9 @@
 static void _file_close(BD_FILE_H *file)
 {
     if (file) {
-        close((int)(intptr_t)file->internal);
+        if (close((int)(intptr_t)file->internal)) {
+            BD_DEBUG(DBG_CRIT | DBG_FILE, "Error closing POSIX file (%p)\n", (void*)file);
+        }
 
         BD_DEBUG(DBG_FILE, "Closed POSIX file (%p)\n", (void*)file);
 
