@@ -477,10 +477,11 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
         return -1;
     }
 
-    while (1) {
+    do {
         uint8_t buf[16*2048];
         got = file_read(fp_in, buf, sizeof(buf));
-        if (got <= 0) {
+        if (got < 0) {
+            /* we'll call write(fp, buf, 0) after EOF. It is used to check for errors. */
             break;
         }
         if (fp_out->write(fp_out, buf, got) != got) {
@@ -490,7 +491,8 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
             (void)file_unlink(cache_path);
             return -1;
         }
-    }
+    } while (got > 0);
+
     BD_DEBUG(DBG_FILE, "cached %s to %s\n", rel_path, cache_path);
 
     file_close(fp_out);
