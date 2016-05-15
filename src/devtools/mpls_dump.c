@@ -768,7 +768,7 @@ main(int argc, char *argv[])
                 dirlist[jj++] = strcpy((char*)malloc(strlen(ent->d_name)), ent->d_name);
             }
             qsort(dirlist, jj, sizeof(char*), _qsort_str_cmp);
-            for (jj = 0; dirlist[jj] != NULL; jj++) {
+            for (jj = 0; dirlist[jj] != NULL && pl_ii < 1000; jj++) {
                 char *name = NULL;
                 name = _mk_path(path, dirlist[jj]);
                 free(dirlist[jj]);
@@ -796,7 +796,11 @@ main(int argc, char *argv[])
                 pl_list[pl_ii++] = pl;
             }
         }
+        if (pl_ii >= 999) {
+            fprintf(stderr, "Error: too many play lists given. Output is truncated.\n");
+        }
     }
+
     // Cleanup
     for (ii = 0; ii < pl_ii; ii++) {
         bd_free_mpls(pl_list[ii]);
