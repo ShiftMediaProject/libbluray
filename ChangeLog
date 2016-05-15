@@ -1,14 +1,27 @@
 - Add bd_open_files(). This function deprecates old global file system hooks.
 - Add flag for on-disc menu support to DISC_INFO.
 - Add configure argument to disable building of JAR file.
-- Autodetect working aacs implementation.
+- Add missing player settings enums.
+- Update linux Java search path list and preferred JVM.
 - Enable UDF support by default.
 - Split developer tools from examples.
-- Improved error resilience.
-- Improved BD-J compability.
+- Improve BDJ_EVENT_CHAPTER triggering.
+- Improve main title detection.
+- Improve error resilience.
+- Improve BD-J compability.
+- Improve detecting of working aacs implementation.
+- Improve libmmbd support.
+- Fix BD-J media player stop().
+- Fix restoring playback rate with some BD-J discs.
+- Fix restoring suspended playback time position.
+- Fix current chapter lookup.
+- Fix lost key focus with multi-HScene discs.
+- Fix playback of discs without Top Menu title.
+- Fix caching of some BD-J files from UDF filesystem.
 - Fix stopping playback from HDMV menus.
 - Fix possible errors in win32 .iso image reading.
 - Fix undefined values in DISC_INFO.
+- Fix memory leaks.
 
 2015-12-01: Version 0.9.2
 - Add primary audio stream to bd_select_stream().
