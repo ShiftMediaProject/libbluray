@@ -169,7 +169,7 @@ uint32_t bb_read( BITBUFFER *bb, int i_count )
             return( i_result );
         } else {
             /* less in the buffer than requested */
-           i_result |= (*bb->p&i_mask[bb->i_left]) << -i_shr;
+           i_result |= (unsigned)(*bb->p&i_mask[bb->i_left]) << -i_shr;
            i_count  -= bb->i_left;
            bb->p++;
            bb->i_left = 8;
