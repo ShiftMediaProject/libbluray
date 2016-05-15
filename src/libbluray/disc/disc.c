@@ -480,11 +480,9 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
     do {
         uint8_t buf[16*2048];
         got = file_read(fp_in, buf, sizeof(buf));
-        if (got < 0) {
-            /* we'll call write(fp, buf, 0) after EOF. It is used to check for errors. */
-            break;
-        }
-        if (fp_out->write(fp_out, buf, got) != got) {
+
+        /* we'll call write(fp, buf, 0) after EOF. It is used to check for errors. */
+        if (got < 0 || fp_out->write(fp_out, buf, got) != got) {
             BD_DEBUG(DBG_FILE | DBG_CRIT, "error caching file %s\n", rel_path);
             file_close(fp_out);
             file_close(fp_in);
