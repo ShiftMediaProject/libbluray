@@ -741,6 +741,13 @@ main(int argc, char *argv[])
         if (S_ISDIR(st.st_mode)) {
 
             printf("Directory: %s:\n", argv[ii]);
+
+            /* drop old ones (do not check for duplicates across directories) */
+            for (int jj = 0; jj < pl_ii; jj++) {
+                bd_free_mpls(pl_list[jj]);
+            }
+            pl_ii = 0;
+
             path = _mk_path(argv[ii], PLAYLIST_DIR);
             if (path == NULL) {
                 fprintf(stderr, "Failed to find playlist path: %s\n", argv[ii]);
