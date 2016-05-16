@@ -54,8 +54,9 @@ typedef enum {
 
     BDJ_EVENT_VK_KEY           = 16,
     BDJ_EVENT_UO_MASKED        = 17,
+    BDJ_EVENT_MOUSE            = 18,
 
-    BDJ_EVENT_LAST             = 17,
+    BDJ_EVENT_LAST             = 18,
 
 } BDJ_EVENT;
 

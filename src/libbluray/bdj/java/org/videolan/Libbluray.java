@@ -578,6 +578,10 @@ public class Libbluray {
             case 404: key = HRcEvent.VK_COLORED_KEY_1; break;
             case 405: key = HRcEvent.VK_COLORED_KEY_2; break;
             case 406: key = HRcEvent.VK_COLORED_KEY_3; break;
+            case 17:
+                result = java.awt.BDJHelper.postMouseEvent(0);
+                key = -1;
+                break;
             default:
                 key = -1;
                 result = false;
@@ -589,6 +593,9 @@ public class Libbluray {
                 boolean r3 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_RELEASED, 0, key);
                 result = r1 || r2 || r3;
             }
+            break;
+        case BDJ_EVENT_MOUSE:
+            result = java.awt.BDJHelper.postMouseEvent(param >> 16, param & 0xffff);
             break;
         default:
             System.err.println("Unknown event " + event + "." + param);
@@ -628,6 +635,7 @@ public class Libbluray {
 
     private static final int BDJ_EVENT_VK_KEY                   = 16;
     public  static final int BDJ_EVENT_UO_MASKED                = 17;
+    private static final int BDJ_EVENT_MOUSE                    = 18;
 
     /* TODO: use org/bluray/system/RegisterAccess instead */
     public static final int PSR_IG_STREAM_ID     = 0;

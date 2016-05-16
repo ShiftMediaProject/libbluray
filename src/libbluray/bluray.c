@@ -3510,6 +3510,7 @@ void bd_set_scr(BLURAY *bd, int64_t pts)
 
 int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
 {
+    uint32_t param = (x << 16) | y;
     int result = -1;
 
     bd_mutex_lock(&bd->mutex);
@@ -3517,7 +3518,11 @@ int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
     _set_scr(bd, pts);
 
     if (bd->title_type == title_hdmv) {
-        result = _run_gc(bd, GC_CTRL_MOUSE_MOVE, (x << 16) | y);
+        result = _run_gc(bd, GC_CTRL_MOUSE_MOVE, param);
+#ifdef USING_BDJAVA
+    } else if (bd->title_type == title_bdj) {
+        result = _bdj_event(bd, BDJ_EVENT_MOUSE, param);
+#endif
     }
 
     bd_mutex_unlock(&bd->mutex);

@@ -703,6 +703,7 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
 
         /* 16 */ "VK_KEY",
         /* 17 */ "UO_MASKED",
+        /* 18 */ "MOUSE",
     };
 
     JNIEnv* env;
@@ -715,7 +716,7 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         return -1;
     }
 
-    if (ev > BD_EVENT_LAST) {
+    if (ev > BDJ_EVENT_LAST) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "bdj_process_event(%d,%d): unknown event\n", ev, param);
     }
     // Disable too verbose logging (PTS)
