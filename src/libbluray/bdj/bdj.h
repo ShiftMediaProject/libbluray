@@ -23,26 +23,40 @@
 #include "util/attributes.h"
 
 typedef enum {
-    BDJ_EVENT_NONE = 0,
-    BDJ_EVENT_CHAPTER,
-    BDJ_EVENT_PLAYITEM,
-    BDJ_EVENT_ANGLE,
-    BDJ_EVENT_SUBTITLE,
-    BDJ_EVENT_END_OF_PLAYLIST,
-    BDJ_EVENT_PTS,
-    BDJ_EVENT_VK_KEY,
-    BDJ_EVENT_MARK,
-    BDJ_EVENT_PSR102,
-    BDJ_EVENT_PLAYLIST,
+    /* Note: these must be in sync with Libbluray.java ! */
 
-    BDJ_EVENT_START, /* param: title number */
-    BDJ_EVENT_STOP,
+    BDJ_EVENT_NONE             = 0,
 
-    BDJ_EVENT_RATE,
-    BDJ_EVENT_AUDIO_STREAM,
-    BDJ_EVENT_SECONDARY_STREAM,
-    BDJ_EVENT_UO_MASKED,
-    BDJ_EVENT_SEEK,
+    /* Application control */
+
+    BDJ_EVENT_START            = 1, /* param: title number */
+    BDJ_EVENT_STOP             = 2,
+    BDJ_EVENT_PSR102           = 3,
+
+    /* Playback status */
+
+    BDJ_EVENT_PLAYLIST         = 4,
+    BDJ_EVENT_PLAYITEM         = 5,
+    BDJ_EVENT_CHAPTER          = 6,
+    BDJ_EVENT_MARK             = 7,
+    BDJ_EVENT_PTS              = 8,
+    BDJ_EVENT_END_OF_PLAYLIST  = 9,
+
+    BDJ_EVENT_SEEK             = 10,
+    BDJ_EVENT_RATE             = 11,
+
+    BDJ_EVENT_ANGLE            = 12,
+    BDJ_EVENT_AUDIO_STREAM     = 13,
+    BDJ_EVENT_SUBTITLE         = 14,
+    BDJ_EVENT_SECONDARY_STREAM = 15,
+
+    /* User interaction */
+
+    BDJ_EVENT_VK_KEY           = 16,
+    BDJ_EVENT_UO_MASKED        = 17,
+
+    BDJ_EVENT_LAST             = 17,
+
 } BDJ_EVENT;
 
 typedef struct {

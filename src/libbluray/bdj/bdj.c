@@ -680,26 +680,29 @@ void bdj_close(BDJAVA *bdjava)
 int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
 {
     static const char * const ev_name[] = {
-        "NONE",
-        "CHAPTER",
-        "PLAYITEM",
-        "ANGLE",
-        "SUBTITLE",
-        "END_OF_PLAYLIST",
-        "PTS",
-        "VK_KEY",
-        "MARK",
-        "PSR102",
-        "PLAYLIST",
+        /*  0 */ "NONE",
 
-        "START",
-        "STOP",
+        /*  1 */ "START",
+        /*  2 */ "STOP",
+        /*  3 */ "PSR102",
 
-        "RATE",
-        "AUDIO_STREAM",
-        "SECONDARY_STREAM",
-        "UO_MASKED",
-        "SEEK",
+        /*  4 */ "PLAYLIST",
+        /*  5 */ "PLAYITEM",
+        /*  6 */ "CHAPTER",
+        /*  7 */ "MARK",
+        /*  8 */ "PTS",
+        /*  9 */ "END_OF_PLAYLIST",
+
+        /* 10 */ "SEEK",
+        /* 11 */ "RATE",
+
+        /* 12 */ "ANGLE",
+        /* 13 */ "AUDIO_STREAM",
+        /* 14 */ "SUBTITLE",
+        /* 15 */ "SECONDARY_STREAM",
+
+        /* 16 */ "VK_KEY",
+        /* 17 */ "UO_MASKED",
     };
 
     JNIEnv* env;

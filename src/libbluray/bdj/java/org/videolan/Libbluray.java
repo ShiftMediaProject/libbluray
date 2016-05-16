@@ -607,25 +607,27 @@ public class Libbluray {
         }
     }
 
-    public  static final int BDJ_EVENT_CHAPTER                  = 1;
-    public  static final int BDJ_EVENT_PLAYITEM                 = 2;
-    public  static final int BDJ_EVENT_ANGLE                    = 3;
-    public  static final int BDJ_EVENT_SUBTITLE                 = 4;
-    public  static final int BDJ_EVENT_END_OF_PLAYLIST          = 5;
-    public  static final int BDJ_EVENT_PTS                      = 6;
-    private static final int BDJ_EVENT_VK_KEY                   = 7;
-    public  static final int BDJ_EVENT_MARK                     = 8;
-    private static final int BDJ_EVENT_PSR102                   = 9;
-    public  static final int BDJ_EVENT_PLAYLIST                 = 10;
+    private static final int BDJ_EVENT_START                    = 1;
+    private static final int BDJ_EVENT_STOP                     = 2;
+    private static final int BDJ_EVENT_PSR102                   = 3;
 
-    private static final int BDJ_EVENT_START                    = 11;
-    private static final int BDJ_EVENT_STOP                     = 12;
+    public  static final int BDJ_EVENT_PLAYLIST                 = 4;
+    public  static final int BDJ_EVENT_PLAYITEM                 = 5;
+    public  static final int BDJ_EVENT_CHAPTER                  = 6;
+    public  static final int BDJ_EVENT_MARK                     = 7;
+    public  static final int BDJ_EVENT_PTS                      = 8;
+    public  static final int BDJ_EVENT_END_OF_PLAYLIST          = 9;
 
-    public  static final int BDJ_EVENT_RATE                     = 13;
-    public  static final int BDJ_EVENT_AUDIO_STREAM             = 14;
+    public  static final int BDJ_EVENT_SEEK                     = 10;
+    public  static final int BDJ_EVENT_RATE                     = 11;
+
+    public  static final int BDJ_EVENT_ANGLE                    = 12;
+    public  static final int BDJ_EVENT_AUDIO_STREAM             = 13;
+    public  static final int BDJ_EVENT_SUBTITLE                 = 14;
     public  static final int BDJ_EVENT_SECONDARY_STREAM         = 15;
-    public  static final int BDJ_EVENT_UO_MASKED                = 16;
-    public  static final int BDJ_EVENT_SEEK                     = 17;
+
+    private static final int BDJ_EVENT_VK_KEY                   = 16;
+    public  static final int BDJ_EVENT_UO_MASKED                = 17;
 
     /* TODO: use org/bluray/system/RegisterAccess instead */
     public static final int PSR_IG_STREAM_ID     = 0;
