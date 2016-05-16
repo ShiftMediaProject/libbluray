@@ -345,12 +345,6 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         commandQueue.put(new PlayerAction(this, PlayerAction.ACTION_STATUS, new Integer(event), param));
     }
 
-    protected void rateChanged(float rate) {
-        if (isClosed) return;
-        PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_RATE_CHANGED, new Float(rate));
-        commandQueue.put(action);
-    }
-
     /*
      * handling of notifications from app
      */
@@ -635,9 +629,6 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
                 player.doSetRate((Float)param);
                 break;
 
-            case ACTION_RATE_CHANGED:
-                player.doRateChanged(((Float)param).floatValue());
-                break;
             case ACTION_STATUS:
                 switch (((Integer)param).intValue()) {
                 case Libbluray.BDJ_EVENT_CHAPTER:
@@ -676,6 +667,13 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
                 case Libbluray.BDJ_EVENT_SEEK:
                     player.doSeekNotify(param2 * 2 /* 45kHz -> 90kHz */);
                     break;
+                case Libbluray.BDJ_EVENT_RATE:
+                    float rate = (float)param2 / 90000.0f;
+                    if (rate < 0.0f) rate = -rate;
+                    if (rate < 0.01f) rate = 0.0f;
+                    if (rate > 0.99f && rate < 1.01f) rate = 1.0f;
+                    player.doRateChanged(rate);
+                    break;
                 default:
                     System.err.println("Unknown ACTION_STATUS: id " + param + ", value " + param2);
                     break;
@@ -704,7 +702,6 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         public static final int ACTION_SET_RATE = 9;
 
         public static final int ACTION_STATUS = 10;
-        public static final int ACTION_RATE_CHANGED = 11;
     }
 
     protected int state = Unrealized;

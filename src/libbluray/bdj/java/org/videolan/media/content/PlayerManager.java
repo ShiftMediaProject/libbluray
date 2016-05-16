@@ -148,15 +148,5 @@ public class PlayerManager {
         }
     }
 
-    public void onRateChange(float rate) {
-        synchronized (stoppingLock) {
-            if (stopping) return;
-        synchronized (playlistPlayerLock) {
-            if (playlistPlayer != null)
-                playlistPlayer.rateChanged(rate);
-        }
-        }
-    }
-
     private static final Logger logger = Logger.getLogger(PlayerManager.class.getName());
 }

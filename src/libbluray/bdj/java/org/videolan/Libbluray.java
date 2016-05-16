@@ -548,14 +548,8 @@ public class Libbluray {
         case BDJ_EVENT_PTS:
         case BDJ_EVENT_UO_MASKED:
         case BDJ_EVENT_SEEK:
-            PlayerManager.getInstance().onEvent(event, param);
-            break;
         case BDJ_EVENT_RATE:
-            float rate = (float)param / 90000.0f;
-            if (rate < 0.0f) rate = -rate;
-            if (rate < 0.01f) rate = 0.0f;
-            if (rate > 0.99f && rate < 1.01f) rate = 1.0f;
-            PlayerManager.getInstance().onRateChange(rate);
+            PlayerManager.getInstance().onEvent(event, param);
             break;
 
         case BDJ_EVENT_PSR102:
