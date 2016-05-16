@@ -715,8 +715,11 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         return -1;
     }
 
+    if (ev > BD_EVENT_LAST) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "bdj_process_event(%d,%d): unknown event\n", ev, param);
+    }
     // Disable too verbose logging (PTS)
-    if (ev != BDJ_EVENT_PTS) {
+    else if (ev != BDJ_EVENT_PTS) {
         BD_DEBUG(DBG_BDJ, "bdj_process_event(%s,%d)\n", ev_name[ev], param);
     }
 
