@@ -484,7 +484,7 @@ Java_java_awt_BDFontMetrics_charsWidthN(JNIEnv * env, jobject obj, jlong ftFace,
         return 0;
     (*env)->GetCharArrayRegion(env, charArray, offset, length, chars);
     if ((*env)->ExceptionCheck(env)) {
-        free(chars);
+        X_FREE(chars);
         return 0;
     }
 
@@ -494,7 +494,7 @@ Java_java_awt_BDFontMetrics_charsWidthN(JNIEnv * env, jobject obj, jlong ftFace,
         }
     }
 
-    free(chars);
+    X_FREE(chars);
 
     return width;
 

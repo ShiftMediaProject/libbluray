@@ -210,7 +210,7 @@ typedef struct {
 
 static int _si_close(struct udfread_block_input *bi_gen)
 {
-    free(bi_gen);
+    X_FREE(bi_gen);
     return 0;
 }
 
