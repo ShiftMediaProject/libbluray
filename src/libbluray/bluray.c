@@ -3508,6 +3508,32 @@ void bd_set_scr(BLURAY *bd, int64_t pts)
     bd_mutex_unlock(&bd->mutex);
 }
 
+static int _set_rate(BLURAY *bd, uint32_t rate)
+{
+    if (!bd->title) {
+        return -1;
+    }
+
+#ifdef USING_BDJAVA
+    if (bd->title_type == title_bdj) {
+        return _bdj_event(bd, BDJ_EVENT_RATE, rate);
+    }
+#endif
+
+    return 0;
+}
+
+int bd_set_rate(BLURAY *bd, uint32_t rate)
+{
+    int result;
+
+    bd_mutex_lock(&bd->mutex);
+    result = _set_rate(bd, rate);
+    bd_mutex_unlock(&bd->mutex);
+
+    return result;
+}
+
 int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
 {
     uint32_t param = (x << 16) | y;

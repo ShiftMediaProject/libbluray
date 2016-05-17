@@ -977,6 +977,23 @@ void bd_set_scr(BLURAY *bd, int64_t pts);
 
 /**
  *
+ *  Set current playback rate.
+ *
+ *  Notify BD-J media player when user changes playback rate
+ *  (ex. pauses playback).
+ *  Changing rate may fail if corresponding UO is masked or
+ *  playlist is not playing.
+ *
+ * @param bd  BLURAY object
+ * @param rate current playback rate * 90000 (0 = paused, 90000 = normal)
+ * @return <0 on error, 0 on success
+ */
+#define BLURAY_RATE_PAUSED  0
+#define BLURAY_RATE_NORMAL  90000
+int bd_set_rate(BLURAY *bd, uint32_t rate);
+
+/**
+ *
  *  Pass user input to graphics controller.
  *  Keys are defined in libbluray/keys.h.
  *  Current pts can be updated by using BD_VK_NONE key. This is required for animated menus.
