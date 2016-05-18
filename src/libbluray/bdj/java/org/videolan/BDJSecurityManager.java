@@ -145,6 +145,10 @@ final class BDJSecurityManager extends SecurityManager {
                 return;
             }
         }
+        else if (perm instanceof java.net.URLPermission) {
+            logger.info("grant " + perm);
+            return;
+        }
 
         /* Java TV */
         else if (perm instanceof javax.tv.service.ReadPermission) {
