@@ -68,6 +68,12 @@ final class BDJSecurityManager extends SecurityManager {
     public void checkPermission(Permission perm) {
         if (perm instanceof RuntimePermission) {
             if (perm.implies(new RuntimePermission("createSecurityManager"))) {
+
+                // allow initializing of javax.crypto.JceSecurityManager
+                if (classDepth("javax.crypto.JceSecurityManager") < 3) {
+                    return;
+                }
+
                 deny(perm);
             }
             if (perm.implies(new RuntimePermission("setSecurityManager"))) {
