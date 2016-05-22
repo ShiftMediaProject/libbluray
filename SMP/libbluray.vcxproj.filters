@@ -276,6 +276,9 @@
     <ClInclude Include="..\src\libbluray\disc\disc.h">
       <Filter>Header Files\disc</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\util\event_queue.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\file\file_win32.c">
@@ -427,6 +430,9 @@
     </ClCompile>
     <ClCompile Include="..\src\libbluray\disc\disc.c">
       <Filter>Source Files\disc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\util\event_queue.c">
+      <Filter>Source Files\util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
