@@ -167,7 +167,7 @@ static inline char *_utf8_to_cp(const char *utf8)
 static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char *jvm_lib)
 {
     if (java_home) {
-        char *path = str_printf("%s/%s/%s", java_home, jvm_dir, jvm_lib);
+        char *path = str_printf("%s" DIR_SEP "%s" DIR_SEP "%s", java_home, jvm_dir, jvm_lib);
         if (!path) {
             BD_DEBUG(DBG_CRIT, "out of memory\n");
             return NULL;
@@ -197,14 +197,17 @@ static void *_load_jvm(const char **p_java_home)
 #else
 # ifdef _WIN32
     static const char *jvm_path[] = {NULL, JDK_HOME};
-    static const char  jvm_dir[]  = "jre/bin/server";
+    static const char  jvm_dir[]  = "jre\\bin\\server";
     static const char  jvm_lib[]  = "jvm";
 # else
     static const char *jvm_path[] = {NULL, JDK_HOME,
-                                    "/usr/lib/jvm/default-java",
-                                    "/usr/lib/jvm/java-6-openjdk",
-                                    "/usr/lib/jvm/java-7-openjdk",
-                                    "/etc/java-config-2/current-system-vm"};
+                                     "/usr/lib/jvm/default-java",
+                                     "/usr/lib/jvm/default",
+                                     "/etc/java-config-2/current-system-vm",
+                                     "/usr/lib/jvm/java-7-openjdk",
+                                     "/usr/lib/jvm/java-8-openjdk",
+                                     "/usr/lib/jvm/java-6-openjdk",
+    };
     static const char  jvm_dir[]  = "jre/lib/" JAVA_ARCH "/server";
     static const char  jvm_lib[]  = "libjvm";
 # endif
@@ -511,6 +514,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     JavaVMInitArgs args;
     option[n++].optionString = str_dup   ("-Dawt.toolkit=java.awt.BDToolkit");
     option[n++].optionString = str_dup   ("-Djava.awt.graphicsenv=java.awt.BDGraphicsEnvironment");
+    option[n++].optionString = str_dup   ("-Djavax.accessibility.assistive_technologies= ");
     option[n++].optionString = str_printf("-Xbootclasspath/p:%s", jar_file);
     option[n++].optionString = str_dup   ("-Xms256M");
     option[n++].optionString = str_dup   ("-Xmx256M");
@@ -695,6 +699,7 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
         "AUDIO_STREAM",
         "SECONDARY_STREAM",
         "UO_MASKED",
+        "SEEK",
     };
 
     JNIEnv* env;

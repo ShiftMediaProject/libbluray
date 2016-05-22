@@ -30,14 +30,18 @@ public class GUIManager extends BDRootWindow {
     private GUIManager() {
     }
 
-    public static synchronized GUIManager createInstance() {
-        if (instance == null) {
-            instance = new GUIManager();
-        } else {
-            instance.clearOverlay();
-            instance.setDefaultFont(null);
+    private static final Object instanceLock = new Object();
+
+    public static GUIManager createInstance() {
+        synchronized (instanceLock) {
+            if (instance == null) {
+                instance = new GUIManager();
+            } else {
+                instance.clearOverlay();
+                instance.setDefaultFont(null);
+            }
+            return instance;
         }
-        return instance;
     }
 
     public static synchronized GUIManager getInstance() {
@@ -69,7 +73,7 @@ public class GUIManager extends BDRootWindow {
     }
 
     protected static void shutdown() throws Throwable {
-        synchronized (GUIManager.class) {
+        synchronized (instanceLock) {
             if (instance != null) {
                 instance.setVisible(false);
                 instance.removeAll();

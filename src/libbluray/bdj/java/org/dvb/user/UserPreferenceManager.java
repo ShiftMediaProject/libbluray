@@ -27,8 +27,10 @@ public class UserPreferenceManager {
     private UserPreferenceManager() {
     }
 
+    private static final Object instanceLock = new Object();
+
     public static UserPreferenceManager getInstance() {
-        synchronized (UserPreferenceManager.class) {
+        synchronized (instanceLock) {
             if (instance == null)
                 instance = new UserPreferenceManager();
             return instance;

@@ -741,6 +741,13 @@ main(int argc, char *argv[])
         if (S_ISDIR(st.st_mode)) {
 
             printf("Directory: %s:\n", argv[ii]);
+
+            /* drop old ones (do not check for duplicates across directories) */
+            for (int jj = 0; jj < pl_ii; jj++) {
+                bd_free_mpls(pl_list[jj]);
+            }
+            pl_ii = 0;
+
             path = _mk_path(argv[ii], PLAYLIST_DIR);
             if (path == NULL) {
                 fprintf(stderr, "Failed to find playlist path: %s\n", argv[ii]);
@@ -761,7 +768,7 @@ main(int argc, char *argv[])
                 dirlist[jj++] = strcpy((char*)malloc(strlen(ent->d_name)), ent->d_name);
             }
             qsort(dirlist, jj, sizeof(char*), _qsort_str_cmp);
-            for (jj = 0; dirlist[jj] != NULL; jj++) {
+            for (jj = 0; dirlist[jj] != NULL && pl_ii < 1000; jj++) {
                 char *name = NULL;
                 name = _mk_path(path, dirlist[jj]);
                 free(dirlist[jj]);
@@ -781,13 +788,19 @@ main(int argc, char *argv[])
             }
             free(dirlist);
             free(path);
+            closedir(dir);
+            dir = NULL;
         } else {
             pl = _process_file(argv[ii], pl_list, pl_ii);
             if (pl != NULL) {
                 pl_list[pl_ii++] = pl;
             }
         }
+        if (pl_ii >= 999) {
+            fprintf(stderr, "Error: too many play lists given. Output is truncated.\n");
+        }
     }
+
     // Cleanup
     for (ii = 0; ii < pl_ii; ii++) {
         bd_free_mpls(pl_list[ii]);

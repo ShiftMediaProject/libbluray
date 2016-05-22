@@ -70,7 +70,12 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         try {
             int homeJarID = Integer.parseInt(home);
             long time = System.currentTimeMillis();
-            homeMountPoint = MountManager.mount(homeJarID, false) + java.io.File.separator;
+            homeMountPoint = MountManager.mount(homeJarID, false);
+            if (homeMountPoint == null) {
+                logger.error("Failed mounting " + home + ".jar");
+            } else {
+                homeMountPoint = homeMountPoint + java.io.File.separator;
+            }
             time = System.currentTimeMillis() - time;
             logger.info("Mounted Xlet home directory from " + home + ".jar " +
                         "to " + homeMountPoint + "(" + time + "ms)");
@@ -194,6 +199,8 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
      * Event queues
      */
 
+    private final Object cbLock = new Object();
+
     protected void setEventQueue(EventQueue eq) {
         eventQueue = eq;
     }
@@ -219,21 +226,21 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
     protected boolean putCallback(BDJAction cb)
     {
-        synchronized (this) {
+        synchronized (cbLock) {
             return putCallbackImpl(cb, callbackQueue);
         }
     }
 
     protected boolean putMediaCallback(BDJAction cb)
     {
-        synchronized (this) {
+        synchronized (cbLock) {
             return putCallbackImpl(cb, mediaQueue);
         }
     }
 
     public boolean putUserEvent(BDJAction cb)
     {
-        synchronized (this) {
+        synchronized (cbLock) {
             return putCallbackImpl(cb, userEventQueue);
         }
     }
@@ -439,19 +446,27 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                 entry.getInitialClass());
     }
 
-    protected void release() {
+    protected void exitXlet() {
+        // Called from AppProxy when destroyXlet() has been called.
+        // Release as much resources as possible while running in Xlet context.
+
+        org.dvb.io.ixc.IxcRegistry.unbindAll(this);
 
         closeSockets();
         removeAllFAA();
         stopIxcThreads();
-        defaultLooks.clear();
 
-        org.dvb.io.ixc.IxcRegistry.unbindAll(this);
+        defaultLooks.clear();
 
         if (sceneFactory != null) {
             sceneFactory.dispose();
             sceneFactory = null;
         }
+    }
+
+    protected void release() {
+
+        exitXlet();
 
         callbackQueue.shutdown();
         userEventQueue.shutdown();
@@ -475,13 +490,15 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         } catch (InvocationTargetException e) {
         }
 
+        synchronized (cbLock) {
+            callbackQueue = null;
+            userEventQueue = null;
+            mediaQueue = null;
+        }
         synchronized (this) {
             threadGroup = null;
             loader = null;
             container = null;
-            callbackQueue = null;
-            userEventQueue = null;
-            mediaQueue = null;
             defaultLooks = null;
             released = true;
         }

@@ -94,7 +94,6 @@ typedef struct
 
 typedef struct
 {
-    uint8_t         mark_id;
     uint8_t         mark_type;
     uint16_t        play_item_ref;
     uint32_t        time;

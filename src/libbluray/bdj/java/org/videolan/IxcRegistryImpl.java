@@ -452,7 +452,7 @@ public class IxcRegistryImpl {
         }
         Object remoteObj = wrapOrCopy(wrappedObj, wrappedObj.context, (BDJXletContext)xc);
 
-        Debug("IxcRegistry.lookup(" + path + ") => " + remoteObj);
+        Debug("IxcRegistry.lookup(" + path + ") => OK");
 
         return (Remote)remoteObj;
     }
@@ -510,8 +510,8 @@ public class IxcRegistryImpl {
     }
 
     public void unbindAll(XletContext xc) {
-
-        if (null != BDJXletContext.getCurrentContext()) {
+        XletContext requestor = BDJXletContext.getCurrentContext();
+        if (requestor != null && requestor != xc) {
             logger.error("unbindAll(ctx) from wrong thread: " + Logger.dumpStack());
             return;
         }

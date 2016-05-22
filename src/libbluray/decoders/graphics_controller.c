@@ -361,6 +361,10 @@ static int _save_page_state(GRAPHICS_CONTROLLER *gc)
         GC_TRACE("_save_page_state(): no bog data !\n");
         return -1;
     }
+    if (!gc->igs || !gc->igs->ics) {
+        GC_TRACE("_save_page_state(): no IG composition\n");
+        return -1;
+    }
 
     PG_DISPLAY_SET *s       = gc->igs;
     BD_IG_PAGE     *page    = NULL;
@@ -824,6 +828,8 @@ void gc_free(GRAPHICS_CONTROLLER **p)
         }
 
         bd_mutex_destroy(&gc->mutex);
+
+        X_FREE(gc->saved_bog_data);
 
         X_FREE(*p);
     }

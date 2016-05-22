@@ -58,7 +58,7 @@ BD_PRIVATE void bb_init( BITBUFFER *bb, const uint8_t *p_data, size_t i_data );
 BD_PRIVATE void bs_init( BITSTREAM *bs, BD_FILE_H *fp );
 BD_PRIVATE void bb_seek( BITBUFFER *bb, int64_t off, int whence);
 BD_PRIVATE void bs_seek( BITSTREAM *bs, int64_t off, int whence);
-BD_PRIVATE void bb_seek_byte( BITBUFFER *bb, int64_t off);
+//BD_PRIVATE void bb_seek_byte( BITBUFFER *bb, int64_t off);
 BD_PRIVATE void bs_seek_byte( BITSTREAM *s, int64_t off);
 BD_PRIVATE void bb_skip( BITBUFFER *bb, size_t i_count );
 BD_PRIVATE void bs_skip( BITSTREAM *bs, size_t i_count );  /* note: i_count must be less than BF_BUF_SIZE */

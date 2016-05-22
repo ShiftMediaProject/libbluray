@@ -135,7 +135,9 @@ public class Libbluray {
         PackageManager.commitContentPrefixList();
         PackageManager.commitProtocolPrefixList();
 
-        BDFontMetrics.init();
+        try {
+            BDFontMetrics.init();
+        } catch (Throwable t) {}
 
         System.setProperty("mhp.profile.enhanced_broadcast", "YES");
         System.setProperty("mhp.profile.interactive_broadcast", "YES");
@@ -157,15 +159,27 @@ public class Libbluray {
 
         System.setProperty("dvb.returnchannel.timeout", "30");
 
+        /* get profile from PSR */
+        int psr31 = readPSR(PSR_PROFILE_VERSION);
+        int profile = psr31 >> 16;
+        boolean p11 = (profile & 0x01) != 0;
+        boolean p2  = (profile & 0x02) != 0;
+        boolean p5  = (profile & 0x10) != 0;
+
         System.setProperty("bluray.profile.1", "YES");
         System.setProperty("bluray.p1.version.major", "1");
-        System.setProperty("bluray.p1.version.minor", "1");
+        System.setProperty("bluray.p1.version.minor", p11 ? "1" : "0");
         System.setProperty("bluray.p1.version.micro", "0");
 
-        System.setProperty("bluray.profile.2", "YES");
+        System.setProperty("bluray.profile.2", p2 ? "YES" : "NO");
         System.setProperty("bluray.p2.version.major", "1");
         System.setProperty("bluray.p2.version.minor", "0");
         System.setProperty("bluray.p2.version.micro", "0");
+
+        System.setProperty("bluray.profile.5", p5 ? "YES" : "NO");
+        System.setProperty("bluray.p5.version.major", "1");
+        System.setProperty("bluray.p5.version.minor", "0");
+        System.setProperty("bluray.p5.version.micro", "0");
 
         System.setProperty("bluray.disc.avplayback.readcapability", "NO");
 
@@ -533,6 +547,7 @@ public class Libbluray {
         case BDJ_EVENT_END_OF_PLAYLIST:
         case BDJ_EVENT_PTS:
         case BDJ_EVENT_UO_MASKED:
+        case BDJ_EVENT_SEEK:
             PlayerManager.getInstance().onEvent(event, param);
             break;
         case BDJ_EVENT_RATE:
@@ -616,6 +631,7 @@ public class Libbluray {
     public  static final int BDJ_EVENT_AUDIO_STREAM             = 14;
     public  static final int BDJ_EVENT_SECONDARY_STREAM         = 15;
     public  static final int BDJ_EVENT_UO_MASKED                = 16;
+    public  static final int BDJ_EVENT_SEEK                     = 17;
 
     /* TODO: use org/bluray/system/RegisterAccess instead */
     public static final int PSR_IG_STREAM_ID     = 0;
@@ -656,6 +672,9 @@ public class Libbluray {
     public static final int AACS_MEDIA_PMSN        = 3;
     public static final int AACS_DEVICE_BINDING_ID = 4;
     public static final int AACS_DEVICE_NONCE      = 5;
+    public static final int AACS_MEDIA_KEY         = 6;
+    public static final int AACS_CONTENT_CERT_ID   = 7;
+    public static final int AACS_BDJ_ROOT_CERT_HASH= 8;
 
     private static native byte[] getAacsDataN(long np, int type);
     private static native TitleInfo[] getTitleInfosN(long np);

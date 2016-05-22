@@ -141,7 +141,7 @@ static void _app_management_table_print(const BDJO_APP_MANAGEMENT_TABLE *p)
     unsigned ii;
 
     for (ii = 0; ii < p->num_app; ii++) {
-        printf("Application %d:\n", ii);
+        printf("Application %u:\n", ii);
         _app_print(&p->app[ii]);
     }
 }

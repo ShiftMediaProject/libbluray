@@ -671,7 +671,7 @@ _parse_playlistmark(BITSTREAM *bits, MPLS_PL *pl)
 
     plm = calloc(pl->mark_count, sizeof(MPLS_PLM));
     for (ii = 0; ii < pl->mark_count; ii++) {
-        plm[ii].mark_id       = bs_read(bits, 8);
+        bs_skip(bits, 8); /* reserved */
         plm[ii].mark_type     = bs_read(bits, 8);
         plm[ii].play_item_ref = bs_read(bits, 16);
         plm[ii].time          = bs_read(bits, 32);

@@ -122,10 +122,12 @@ void bs_seek( BITSTREAM *bs, int64_t off, int whence)
     }
 }
 
+#if 0
 void bb_seek_byte( BITBUFFER *bb, int64_t off)
 {
     bb_seek(bb, off << 3, SEEK_SET);
 }
+#endif
 
 void bs_seek_byte( BITSTREAM *s, int64_t off)
 {
@@ -167,7 +169,7 @@ uint32_t bb_read( BITBUFFER *bb, int i_count )
             return( i_result );
         } else {
             /* less in the buffer than requested */
-           i_result |= (*bb->p&i_mask[bb->i_left]) << -i_shr;
+           i_result |= (unsigned)(*bb->p&i_mask[bb->i_left]) << -i_shr;
            i_count  -= bb->i_left;
            bb->p++;
            bb->i_left = 8;

@@ -44,6 +44,7 @@ import javax.media.RealizeCompleteEvent;
 import javax.media.ResourceUnavailableEvent;
 import javax.media.StartEvent;
 import javax.media.StopByRequestEvent;
+import javax.media.StopTimeChangeEvent;
 import javax.media.Time;
 import javax.media.TimeBase;
 import javax.media.TransitionEvent;
@@ -52,8 +53,9 @@ import javax.media.protocol.DataSource;
 import javax.tv.locator.Locator;
 import javax.tv.service.selection.ServiceContentHandler;
 
+import org.davic.media.MediaTimePositionChangedEvent;
+
 import org.bluray.media.OverallGainControl;
-import org.bluray.net.BDLocator;
 
 import org.videolan.BDJAction;
 import org.videolan.BDJActionManager;
@@ -102,6 +104,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     }
 
     public int getTargetState() {
+        Logger.unimplemented("BDHandler", "getTargetState()");
         synchronized (this) {
             return targetState;
         }
@@ -184,6 +187,8 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         checkUnrealized();
         // TODO: actually stopping when stop time is hit needs to be implemented
         this.stopTime = stopTime;
+
+        postStopTimeChangeEvent();
     }
 
     public Time getMediaTime() {
@@ -216,6 +221,11 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_SEEK_TIME, now);
         commandQueue.put(action);
         action.waitEnd();
+    }
+
+    public void setMediaTimePosition(Time mediaTime) {
+        setMediaTime(mediaTime);
+        postMediaTimePositionChangedEvent();
     }
 
     public Time mapToTimeBase(Time t) throws ClockStoppedException {
@@ -257,11 +267,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     }
 
     public Locator[] getServiceContentLocators() {
-        if (locator == null)
-            return new Locator[0];
-        Locator[] locators = new Locator[1];
-        locators[0] = locator;
-        return locators;
+        return new Locator[0];
     }
 
     public void realize() {
@@ -366,7 +372,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
 
     protected void doEndOfMediaReached(int playlist) {
         if (state == Started) {
-            ControllerErrorEvent error = doStop();
+            ControllerErrorEvent error = doStop(true);
             if (error == null) {
                 state = Prefetched;
                 notifyListeners(new EndOfMediaEvent(this, Started, Prefetched, Prefetched, getMediaTime()));
@@ -376,6 +382,9 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         }
     }
 
+    protected void doSeekNotify(long tick) {
+        updateTime(new Time(tick * TO_SECONDS));
+    }
 
     protected void doPlaylistStarted(int playlist) {};
     protected void doChapterReached(int chapter) {};
@@ -406,8 +415,9 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         return null;
     }
 
-    protected ControllerErrorEvent doStop() {
+    protected ControllerErrorEvent doStop(boolean eof) {
         baseMediaTime = getMediaNanoseconds();
+        rate = 1.0f;
         return null;
     }
 
@@ -433,6 +443,14 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     /*
      *
      */
+
+    private void postStopTimeChangeEvent() {
+        notifyListeners(new StopTimeChangeEvent(this, getStopTime()));
+    }
+
+    protected void postMediaTimePositionChangedEvent() {
+        notifyListeners(new MediaTimePositionChangedEvent(this, getState(), getState(), getState(), getMediaTime()));
+    }
 
     private void notifyListeners(ControllerEvent event) {
         listeners.putCallback(event);
@@ -521,7 +539,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     private boolean doStopAction() {
         switch (state) {
         case Started:
-            ControllerErrorEvent error = doStop();
+            ControllerErrorEvent error = doStop(false);
             if (error == null) {
                 state = Prefetched;
                 notifyListeners(new StopByRequestEvent(this, Started, Prefetched, Prefetched, getMediaTime()));
@@ -655,6 +673,9 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
                 case Libbluray.BDJ_EVENT_UO_MASKED:
                     player.doUOMasked(param2);
                     break;
+                case Libbluray.BDJ_EVENT_SEEK:
+                    player.doSeekNotify(param2 * 2 /* 45kHz -> 90kHz */);
+                    break;
                 default:
                     System.err.println("Unknown ACTION_STATUS: id " + param + ", value " + param2);
                     break;
@@ -693,7 +714,6 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     protected long baseTime;
     protected float rate = 1.0f;
     protected Control[] controls = null;
-    protected BDLocator locator = null;
     private BDJListeners listeners = new BDJListeners();
     private BDJXletContext ownerContext;
     boolean isClosed = false;

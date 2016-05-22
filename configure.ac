@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([bluray_major], 0)
 m4_define([bluray_minor], 9)
-m4_define([bluray_micro], 2)
+m4_define([bluray_micro], 3)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
 dnl shared library version (.so version)
@@ -12,9 +12,9 @@ dnl - If interfaces have been changed or removed, increase current and set age a
 dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
-m4_define([lt_current],  10)
-m4_define([lt_revision], 2)
-m4_define([lt_age],      9)
+m4_define([lt_current],  11)
+m4_define([lt_revision], 0)
+m4_define([lt_age],      10)
 
 dnl initilization
 AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
@@ -87,7 +87,15 @@ AC_ARG_ENABLE([bdjava],
   [use_bdjava=yes])
 
 AC_ARG_ENABLE([udf],
-  [AS_HELP_STRING([--enable-udf], [enable UDF support @<:@default=disabled@:>@])])
+  [AS_HELP_STRING([--disable-udf], [disable UDF support @<:@default=enabled@:>@])],
+  [enable_udf=$enableval],
+  [enable_udf=yes])
+
+AC_ARG_ENABLE([bdjava-jar],
+  [AS_HELP_STRING([--disable-bdjava-jar],
+  [disable building of BD-Java JAR file @<:@default=enabled@:>@])],
+  [use_bdjava_jar=$enableval],
+  [use_bdjava_jar=yes])
 
 AC_ARG_WITH([libxml2],
   [AS_HELP_STRING([--without-libxml2], [build without libxml2 support @<:@default=with@:>@])])
@@ -224,7 +232,7 @@ if [[ $use_bdjava = "yes" ]]; then
   ])
 
   AC_CHECK_PROG(HAVE_ANT, [ant], yes, no)
-  if test "x$HAVE_ANT" = "xno"; then
+  if test "x$use_bdjava_jar" = "xyes" && test "x$HAVE_ANT" = "xno"; then
       AC_MSG_ERROR([BD-J requires ANT, but ant was not found. Please install it.])
   fi
 
@@ -233,6 +241,7 @@ if [[ $use_bdjava = "yes" ]]; then
   AC_DEFINE_UNQUOTED([JDK_HOME], ["$JDK_HOME"], [""])
 fi
 AM_CONDITIONAL([USING_BDJAVA], [ test $use_bdjava = "yes" ])
+AM_CONDITIONAL([USING_BDJAVA_BUILD_JAR], [ test $use_bdjava_jar = "yes" ])
 
 dnl BD-J type
 if test "$BDJ_TYPE" = "j2me"; then
@@ -292,6 +301,7 @@ echo "  --------"
 echo "  BD-J support:                  $use_bdjava"
 if [[ $use_bdjava = "yes" ]]; then
 echo "  BD-J type:                     $BDJ_TYPE"
+echo "  build JAR:                     $use_bdjava_jar"
 if test x"$BDJ_BOOTCLASSPATH" != x""; then
 echo "  BD-J bootclasspath:            $BDJ_BOOTCLASSPATH"
 fi
