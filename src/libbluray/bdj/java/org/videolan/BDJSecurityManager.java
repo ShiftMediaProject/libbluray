@@ -35,6 +35,15 @@ final class BDJSecurityManager extends SecurityManager {
     private String persistentRoot;
     private boolean usingUdf = false;
 
+    private static Class urlPermission = null;
+    static {
+        try {
+            /* Java 8 */
+            urlPermission = Class.forName("java.net.URLPermission");
+        } catch (Exception e) {
+        }
+    }
+
     BDJSecurityManager(String discRoot, String persistentRoot, String budaRoot) {
         this.discRoot  = discRoot;
         this.cacheRoot = null;
@@ -145,7 +154,8 @@ final class BDJSecurityManager extends SecurityManager {
                 return;
             }
         }
-        else if (perm instanceof java.net.URLPermission) {
+        else if (urlPermission != null &&
+                 urlPermission.isInstance(perm)) {
             logger.info("grant " + perm);
             return;
         }
