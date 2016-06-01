@@ -893,7 +893,7 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, u
 }
 
 // Search for random access point closest to the requested time
-// Time is in 45khz ticks relative to the beginning of a specific clip
+// Time is in 45khz ticks, between clip in_time and out_time.
 void nav_clip_time_search(NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt)
 {
     if (tick >= clip->out_time) {
