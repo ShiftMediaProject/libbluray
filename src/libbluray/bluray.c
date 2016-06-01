@@ -143,6 +143,7 @@ struct bluray {
      *       1 - message pending. 3 - message sent.
      */
     uint8_t         end_of_playlist; /* 1 - reached. 3 - processed . */
+    uint8_t         app_scr;         /* 1 if application provides presentation timetamps */
 
     /* HDMV */
     HDMV_VM        *hdmv_vm;
@@ -242,6 +243,26 @@ static void _update_time_psr(BLURAY *bd, uint32_t time)
     bd_psr_write(bd->regs, PSR_TIME, time);
 }
 
+static uint32_t _update_time_psr_from_stream(BLURAY *bd)
+{
+    /* update PSR_TIME from stream. Not real presentation time (except when seeking), but near enough. */
+    NAV_CLIP *clip = bd->st0.clip;
+
+    if (bd->title && clip) {
+
+        uint32_t clip_pkt, clip_time;
+        nav_clip_packet_search(bd->st0.clip, SPN(bd->st0.clip_pos), &clip_pkt, &clip_time);
+        if (clip_time >= clip->in_time && clip_time <= clip->out_time) {
+            _update_time_psr(bd, clip_time);
+            return clip_time;
+        } else {
+            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "%s: no timestamp for SPN %u (got %u). clip %u-%u.\n",
+                     clip->name, SPN(bd->st0.clip_pos), clip_time, clip->in_time, clip->out_time);
+        }
+    }
+
+    return 0;
+}
 
 static void _update_stream_psr_by_lang(BD_REGISTERS *regs,
                                        uint32_t psr_lang, uint32_t psr_stream,
@@ -2863,6 +2884,9 @@ static void _set_scr(BLURAY *bd, int64_t pts)
     if (pts >= 0) {
         uint32_t tick = (uint32_t)(((uint64_t)pts) >> 1);
         _update_time_psr(bd, tick);
+
+    } else if (!bd->app_scr) {
+        _update_time_psr_from_stream(bd);
     }
 }
 
@@ -3504,6 +3528,7 @@ int bd_get_event(BLURAY *bd, BD_EVENT *event)
 void bd_set_scr(BLURAY *bd, int64_t pts)
 {
     bd_mutex_lock(&bd->mutex);
+    bd->app_scr = 1;
     _set_scr(bd, pts);
     bd_mutex_unlock(&bd->mutex);
 }
