@@ -878,15 +878,7 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, u
         *clip_pkt = clip->end_pkt;
     } else {
         clip = &title->clip_list.clip[ii];
-        if (clip->cl != NULL) {
-            *clip_pkt = clpi_lookup_spn(clip->cl, tick - pos + pi->in_time, 1,
-                      title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
-            if (*clip_pkt < clip->start_pkt) {
-                *clip_pkt = clip->start_pkt;
-            }
-        } else {
-            *clip_pkt = clip->start_pkt;
-        }
+        nav_clip_time_search(clip, tick - pos + pi->in_time, clip_pkt, out_pkt);
     }
     *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
     return clip;
