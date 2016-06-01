@@ -776,6 +776,19 @@ NAV_CLIP* nav_mark_search(NAV_TITLE *title, unsigned mark, uint32_t *clip_pkt, u
     return clip;
 }
 
+void nav_clip_packet_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *clip_pkt, uint32_t *clip_time)
+{
+    *clip_time = clip->in_time;
+    if (clip->cl != NULL) {
+        *clip_pkt = clpi_access_point(clip->cl, pkt, 0, 0, clip_time);
+        if (*clip_pkt < clip->start_pkt) {
+            *clip_pkt = clip->start_pkt;
+        }
+    } else {
+        *clip_pkt = clip->start_pkt;
+    }
+}
+
 // Search for random access point closest to the requested packet
 // Packets are 192 byte TS packets
 // pkt is relative to the beginning of the title
@@ -801,14 +814,7 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, 
         *clip_pkt = clip->end_pkt;
     } else {
         clip = &title->clip_list.clip[ii];
-        if (clip->cl != NULL) {
-            *clip_pkt = clpi_access_point(clip->cl, pkt - pos + clip->start_pkt, 0, 0, out_time);
-            if (*clip_pkt < clip->start_pkt) {
-                *clip_pkt = clip->start_pkt;
-            }
-        } else {
-            *clip_pkt = clip->start_pkt;
-        }
+        nav_clip_packet_search(clip, pkt - pos + clip->start_pkt, clip_pkt, out_time);
     }
     if(*out_time < clip->in_time)
         *out_time = 0;
