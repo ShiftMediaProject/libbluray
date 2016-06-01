@@ -742,7 +742,7 @@ typedef enum {
     BD_EVENT_DISCONTINUITY          = 28,  /* new timestamp (45 kHz) */
 
     /* HDMV VM or JVM seeked the stream. Next read() will return data from new position. Flush all buffers. */
-    BD_EVENT_SEEK                   = 21,
+    BD_EVENT_SEEK                   = 21,  /* new media time (45 kHz) */
 
     /* still playback (pause) */
     BD_EVENT_STILL                  = 22,  /* 0 - off, 1 - on */

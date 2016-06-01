@@ -1580,15 +1580,20 @@ static void _seek_internal(BLURAY *bd,
                            NAV_CLIP *clip, uint32_t title_pkt, uint32_t clip_pkt)
 {
     if (_seek_stream(bd, &bd->st0, clip, clip_pkt) >= 0) {
+        uint32_t media_time;
 
         /* update title position */
         bd->s_pos = (uint64_t)title_pkt * 192;
 
         /* Update PSR_TIME */
-        _update_time_psr_from_stream(bd);
+        media_time = _update_time_psr_from_stream(bd);
 
-        _queue_event(bd, BD_EVENT_SEEK, 0);
-        _bdj_event(bd, BDJ_EVENT_SEEK, 0);
+        /* emit notification events */
+        if (media_time >= clip->in_time) {
+            media_time = media_time - clip->in_time + clip->title_time;
+        }
+        _queue_event(bd, BD_EVENT_SEEK, media_time);
+        _bdj_event(bd, BDJ_EVENT_SEEK, media_time);
 
         /* playmark tracking */
         _find_next_playmark(bd);
