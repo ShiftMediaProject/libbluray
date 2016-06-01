@@ -1584,6 +1584,9 @@ static void _seek_internal(BLURAY *bd,
         /* update title position */
         bd->s_pos = (uint64_t)title_pkt * 192;
 
+        /* Update PSR_TIME */
+        _update_time_psr_from_stream(bd);
+
         _queue_event(bd, BD_EVENT_SEEK, 0);
         _bdj_event(bd, BDJ_EVENT_SEEK, 0);
 
