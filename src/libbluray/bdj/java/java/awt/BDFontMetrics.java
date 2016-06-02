@@ -130,8 +130,8 @@ public class BDFontMetrics extends sun.font.FontDesignMetrics {
                 if (fm != null) {
                     fm.destroy();
                 }
-            } catch (Throwable e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                logger.error("shutdown() failed: " + e);
             }
         }
         destroyN(BDFontMetrics.ftLib);
@@ -194,8 +194,10 @@ public class BDFontMetrics extends sun.font.FontDesignMetrics {
     static synchronized String[] getFontList() {
         try {
             init();
+        } catch (ThreadDeath td) {
+            throw td;
         } catch (Throwable t) {
-            System.err.println("getFontList() failed: " + t);
+            logger.error("getFontList() failed: " + t);
             return new String[0];
         }
 
