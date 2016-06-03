@@ -784,6 +784,11 @@ void nav_clip_packet_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *clip_pkt, ui
         if (*clip_pkt < clip->start_pkt) {
             *clip_pkt = clip->start_pkt;
         }
+        if (*clip_time && *clip_time < clip->in_time) {
+            /* EP map does not store lowest 8 bits of timestamp */
+            *clip_time = clip->in_time;
+        }
+
     } else {
         *clip_pkt = clip->start_pkt;
     }
