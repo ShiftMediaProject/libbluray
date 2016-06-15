@@ -70,4 +70,8 @@ class Area {
     public Area getBounds() {
         return new Area(x0, y0, x1, y1);
     }
+
+    public String toString() {
+        return getClass().getName() + "[" + x0 + "," + y0 + "-" + x1 + "," + y1 + "]";
+    }
 }
