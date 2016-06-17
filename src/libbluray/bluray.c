@@ -26,6 +26,7 @@
 #include "bluray-version.h"
 #include "bluray.h"
 #include "bluray_internal.h"
+#include "keys.h"
 #include "register.h"
 #include "util/array.h"
 #include "util/event_queue.h"
@@ -3592,6 +3593,10 @@ int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
 int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
 {
     int result = -1;
+
+    if (key == BD_VK_ROOT_MENU) {
+        return bd_menu_call(bd, pts);
+    }
 
     bd_mutex_lock(&bd->mutex);
 
