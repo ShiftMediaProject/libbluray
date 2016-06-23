@@ -345,75 +345,89 @@
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>libblurayd</TargetName>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>libblurayd</TargetName>
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>blurayd</TargetName>
     <LinkIncremental>false</LinkIncremental>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLStaticDeps|Win32'">
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>blurayd</TargetName>
     <LinkIncremental>false</LinkIncremental>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>blurayd</TargetName>
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
     <LinkIncremental>false</LinkIncremental>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLStaticDeps|x64'">
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>blurayd</TargetName>
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
     <LinkIncremental>false</LinkIncremental>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>libbluray</TargetName>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|Win32'">
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>libbluray</TargetName>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>libbluray</TargetName>
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|x64'">
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>libbluray</TargetName>
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>bluray</TargetName>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'">
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>bluray</TargetName>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>bluray</TargetName>
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|x64'">
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>bluray</TargetName>
     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -476,6 +490,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -538,6 +567,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
     <ClCompile>
@@ -603,6 +647,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLStaticDeps|Win32'">
     <ClCompile>
@@ -668,6 +727,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
     <ClCompile>
@@ -731,6 +805,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLStaticDeps|x64'">
     <ClCompile>
@@ -794,6 +883,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -869,6 +973,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|Win32'">
     <ClCompile>
@@ -944,6 +1063,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -1019,6 +1153,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|x64'">
     <ClCompile>
@@ -1094,6 +1243,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
     <ClCompile>
@@ -1169,6 +1333,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'">
     <ClCompile>
@@ -1244,6 +1423,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
     <ClCompile>
@@ -1318,6 +1512,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|x64'">
     <ClCompile>
@@ -1392,6 +1601,21 @@ if exist $(OutDir)\bin\*.jar (
 del $(OutDir)\bin\*.jar
 )</Command>
     </PreBuildEvent>
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist $(OutDir)\include\libbluray (
+rmdir /s /q $(OutDir)\include\libbluray
+)
+if exist $(OutDir)\licenses\libbluray.txt (
+del /f /q $(OutDir)\licenses\libbluray.txt
+)
+if exist $(OutDir)\bin\*.jar (
+del /f /q $(OutDir)\bin\*.jar
+)</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
