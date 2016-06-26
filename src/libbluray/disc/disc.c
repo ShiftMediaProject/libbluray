@@ -453,9 +453,20 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
     BD_FILE_H *fp_in;
     BD_FILE_H *fp_out;
     int64_t    got;
+    size_t     size;
 
-    if (rel_path[strlen(rel_path) - 1] == '/') {
-        file_mkdirs(cache_path);
+    if (!cache_path || !cache_path[0]) {
+        return -1;
+    }
+
+    /* make sure cache directory exists */
+    if (file_mkdirs(cache_path) < 0) {
+        return -1;
+    }
+
+    /* plain directory ? */
+    size = strlen(rel_path);
+    if (rel_path[size - 1] == '/' || rel_path[size - 1] == '\\') {
         return 0;
     }
 
@@ -465,9 +476,6 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
         BD_DEBUG(DBG_FILE | DBG_CRIT, "error caching file %s (does not exist ?)\n", rel_path);
         return -1;
     }
-
-    /* make sure path exists */
-    file_mkdirs(cache_path);
 
     /* output file in local filesystem */
     fp_out = file_open(cache_path, "wb");
