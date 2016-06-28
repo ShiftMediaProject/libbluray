@@ -435,7 +435,7 @@
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(OutDir)\lib\x86\$(TargetName).pdb</ProgramDataBaseFileName>
@@ -448,7 +448,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>libiconvd.lib;libfreetyped.lib;libxml2d.lib;libfontconfigd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;$(ProjectDir)\..\..\prebuilt\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
@@ -512,7 +512,7 @@ del /f /q $(OutDir)\bin\*.jar
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(OutDir)\lib\x64\$(TargetName).pdb</ProgramDataBaseFileName>
@@ -525,7 +525,7 @@ del /f /q $(OutDir)\bin\*.jar
       <TargetMachine>MachineX64</TargetMachine>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>libiconvd.lib;libfreetyped.lib;libxml2d.lib;libfontconfigd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
@@ -589,7 +589,7 @@ del /f /q $(OutDir)\bin\*.jar
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -603,7 +603,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>iconvd.lib;freetyped.lib;xml2d.lib;fontconfigd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;$(ProjectDir)\..\..\prebuilt\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
@@ -669,7 +669,7 @@ del /f /q $(OutDir)\bin\*.jar
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -683,7 +683,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>libiconvd.lib;libfreetyped.lib;libxml2d.lib;libfontconfigd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;$(ProjectDir)\..\..\prebuilt\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
@@ -749,7 +749,7 @@ del /f /q $(OutDir)\bin\*.jar
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
@@ -762,7 +762,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>iconvd.lib;freetyped.lib;xml2d.lib;fontconfigd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -827,7 +827,7 @@ del /f /q $(OutDir)\bin\*.jar
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
@@ -840,7 +840,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>libiconvd.lib;libfreetyped.lib;libxml2d.lib;libfontconfigd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -915,7 +915,7 @@ del /f /q $(OutDir)\bin\*.jar
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
@@ -931,7 +931,7 @@ del /f /q $(OutDir)\bin\*.jar
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;libfontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;$(ProjectDir)\..\..\prebuilt\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
@@ -1005,7 +1005,7 @@ del /f /q $(OutDir)\bin\*.jar
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
@@ -1021,7 +1021,7 @@ del /f /q $(OutDir)\bin\*.jar
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;libfontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;$(ProjectDir)\..\..\prebuilt\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
@@ -1095,7 +1095,7 @@ del /f /q $(OutDir)\bin\*.jar
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
@@ -1111,7 +1111,7 @@ del /f /q $(OutDir)\bin\*.jar
       <TargetMachine>MachineX64</TargetMachine>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;libfontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
@@ -1185,7 +1185,7 @@ del /f /q $(OutDir)\bin\*.jar
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
@@ -1201,7 +1201,7 @@ del /f /q $(OutDir)\bin\*.jar
       <TargetMachine>MachineX64</TargetMachine>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;libfontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
@@ -1275,7 +1275,7 @@ del /f /q $(OutDir)\bin\*.jar
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
@@ -1290,7 +1290,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>iconv.lib;freetype.lib;xml2.lib;fontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;$(ProjectDir)\..\..\prebuilt\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -1365,7 +1365,7 @@ del /f /q $(OutDir)\bin\*.jar
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
@@ -1380,7 +1380,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;libfontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;$(ProjectDir)\..\..\prebuilt\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -1455,7 +1455,7 @@ del /f /q $(OutDir)\bin\*.jar
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
@@ -1470,7 +1470,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>iconv.lib;freetype.lib;xml2.lib;fontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
@@ -1544,7 +1544,7 @@ del /f /q $(OutDir)\bin\*.jar
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
@@ -1559,7 +1559,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;libfontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
