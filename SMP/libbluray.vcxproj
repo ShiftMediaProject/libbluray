@@ -465,6 +465,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -542,6 +543,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -622,6 +624,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -702,6 +705,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -780,6 +784,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -858,6 +863,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -948,6 +954,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -1038,6 +1045,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -1128,6 +1136,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -1218,6 +1227,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -1308,6 +1318,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -1398,6 +1409,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -1487,6 +1499,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -1576,6 +1589,7 @@ copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
 copy ..\src\util\log_control.h $(OutDir)\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
+mkdir $(OutDir)\bin
 copy .\src\*.jar $(OutDir)\bin</Command>
     </PostBuildEvent>
     <PreBuildEvent>
