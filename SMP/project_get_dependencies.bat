@@ -94,6 +94,7 @@ REM    RepoName = Name of the repository
 :downloadLibs
 SET REPONAME=%~1
 REM Get latest release
+ECHO %REPONAME%: Getting latest release...
 SET UPSTREAMAPIURL=%UPSTREAMURL:github.com=api.github.com/repos%
 powershell -nologo -noprofile -command "try { Invoke-RestMethod -Uri %UPSTREAMAPIURL%/%REPONAME%/releases/latest > latest.json } catch {exit 1}"
 IF NOT %ERRORLEVEL% == 0 ( ECHO Failed getting latest %REPONAME% release & GOTO exitOnError )
@@ -108,8 +109,10 @@ FOR /F "tokens=1 delims=_" %%F in ("%LIBNAME:~1%") DO SET LIBNAME=%%F
 IF "%LIBNAME%"=="" ( ECHO Failed getting latest %REPONAME% release name information & GOTO exitOnError )
 DEL /F /Q latest.json
 REM Get the download location for the required tag
-SET DLURL=%UPSTREAMURL%/%REPONAME%/releases/download/%TAG%/%LIBNAME%_%TAG%_msvc%MSVC_VER%.zip
+SET TAG2=%TAG:+=.%
+SET DLURL=%UPSTREAMURL%/%REPONAME%/releases/download/%TAG%/%LIBNAME%_%TAG2%_msvc%MSVC_VER%.zip
 REM Download a pre-built archive and extract
+ECHO %REPONAME%: Downloading %LIBNAME%_%TAG%_msvc%MSVC_VER%.zip...
 SET PREBUILTDIR=prebuilt
 MKDIR %PREBUILTDIR% >NUL 2>&1
 powershell -nologo -noprofile -command "try { (New-Object Net.WebClient).DownloadFile('%DLURL%', '%PREBUILTDIR%\temp.zip') } catch {exit 1}"
@@ -117,6 +120,7 @@ IF NOT %ERRORLEVEL% == 0 ( ECHO Failed downloading %DLURL% & GOTO exitOnError )
 powershell -nologo -noprofile -command "try { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::ExtractToDirectory('%PREBUILTDIR%\temp.zip', '%PREBUILTDIR%'); } catch [System.IO.IOException] {exit 0} catch {exit 1}"
 IF NOT %ERRORLEVEL% == 0 ( ECHO Failed extracting downloaded archive & GOTO exitOnError )
 DEL /F /Q %PREBUILTDIR%\\temp.zip
+ECHO.
 EXIT /B %ERRORLEVEL%
 
 :exitOnError
