@@ -32,6 +32,7 @@
 #include "file/file.h"
 #include "file/mount.h"
 
+#include <ctype.h>
 #include <string.h>
 
 #ifdef ENABLE_UDF
@@ -52,6 +53,8 @@ struct bd_disc {
     void        (*pf_fs_close)(void *);
 
     const char   *udf_volid;
+
+    int8_t        avchd;  /* -1 - unknown. 0 - no. 1 - yes */
 };
 
 /*
@@ -90,6 +93,44 @@ static BD_DIR_H *_bdrom_open_dir(void *p, const char *dir)
     X_FREE(path);
 
     return dp;
+}
+
+/*
+ * AVCHD 8.3 filenames
+ */
+
+static char *_avchd_file_name(const char *rel_path)
+{
+    static const char map[][2][6] = {
+        { ".mpls", ".MPL" },
+        { ".clpi", ".CPI" },
+        { ".m2ts", ".MTS" },
+        { ".bdmv", ".BDM" },
+    };
+    char *avchd_path = str_dup(rel_path);
+    char *name = avchd_path ? strrchr(avchd_path, DIR_SEP_CHAR) : NULL;
+    char *dot = name ? strrchr(name, '.') : NULL;
+    size_t i;
+
+    if (dot) {
+
+        /* take up to 8 chars from file name */
+        for (i = 0; *name && name < dot && i < 9; i++, name++) {
+            *name = toupper(*name);
+        }
+
+        /* convert extension */
+        for (i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
+            if (!strcmp(dot, map[i][0])) {
+                strcpy(name, map[i][1]);
+                return avchd_path;
+            }
+        }
+    }
+
+    /* failed */
+    X_FREE(avchd_path);
+    return NULL;
 }
 
 /*
@@ -229,6 +270,8 @@ static BD_DISC *_disc_init()
         p->fs_handle          = (void*)p;
         p->pf_file_open_bdrom = _bdrom_open_path;
         p->pf_dir_open_bdrom  = _bdrom_open_dir;
+
+        p->avchd = -1;
     }
     return p;
 }
@@ -341,6 +384,18 @@ BD_FILE_H *disc_open_path(BD_DISC *p, const char *rel_path)
 {
     BD_FILE_H *fp;
 
+    if (p->avchd > 0) {
+        char *avchd_path = _avchd_file_name(rel_path);
+        if (avchd_path) {
+            BD_DEBUG(DBG_FILE, "AVCHD: %s -> %s\n", rel_path, avchd_path);
+            fp = p->pf_file_open_bdrom(p->fs_handle, avchd_path);
+            X_FREE(avchd_path);
+            if (fp) {
+                return fp;
+            }
+        }
+    }
+
     /* search file from overlay */
     fp = _overlay_open_path(p, rel_path);
 
@@ -349,7 +404,19 @@ BD_FILE_H *disc_open_path(BD_DISC *p, const char *rel_path)
         fp = p->pf_file_open_bdrom(p->fs_handle, rel_path);
 
         if (!fp) {
-            BD_DEBUG(DBG_FILE | DBG_CRIT, "error opening file %s\n", rel_path);
+
+            /* AVCHD short filenames detection */
+            if (p->avchd < 0 && !strcmp(rel_path, "BDMV" DIR_SEP "index.bdmv")) {
+                fp = p->pf_file_open_bdrom(p->fs_handle, "BDMV" DIR_SEP "INDEX.BDM");
+                if (fp) {
+                    BD_DEBUG(DBG_FILE | DBG_CRIT, "detected AVCHD 8.3 filenames\n");
+                }
+                p->avchd = !!fp;
+            }
+
+            if (!fp) {
+                BD_DEBUG(DBG_FILE | DBG_CRIT, "error opening file %s\n", rel_path);
+            }
         }
     }
 
