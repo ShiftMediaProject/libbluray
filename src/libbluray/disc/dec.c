@@ -219,7 +219,7 @@ static int _libbdplus_init(BD_DEC *dec, struct dec_dev *dev,
         return 0;
     }
 
-    if (libbdplus_init(dec->bdplus, dev->root, dev->file_open_bdrom_handle, (void*)dev->pf_file_open_bdrom, vid, mk)) {
+    if (libbdplus_init(dec->bdplus, dev->root, dev->device, dev->file_open_bdrom_handle, (void*)dev->pf_file_open_bdrom, vid, mk)) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bdplus_init() failed\n");
 
         i->bdplus_handled = 0;

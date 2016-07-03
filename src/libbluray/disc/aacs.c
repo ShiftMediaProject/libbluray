@@ -30,6 +30,7 @@
 #include "util/strutl.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 
 struct bd_aacs {
@@ -181,6 +182,15 @@ int libaacs_open(BD_AACS *p, const char *device,
     } else if (open2) {
         BD_DEBUG(DBG_BLURAY, "Using old aacs_open2(), no UDF support available\n");
         p->aacs = open2(device, keyfile_path, &error_code);
+
+        /* libmmbd needs dev: for devices */
+        if (!p->aacs && p->impl_id == IMPL_LIBMMBD && !strncmp(device, "/dev/", 5)) {
+            char *tmp_device = str_printf("dev:%s", device);
+            if (tmp_device) {
+                p->aacs = open2(tmp_device, keyfile_path, &error_code);
+                X_FREE(tmp_device);
+            }
+        }
     } else if (open) {
         BD_DEBUG(DBG_BLURAY, "Using old aacs_open(), no verbose error reporting available\n");
         p->aacs = open(device, keyfile_path);
