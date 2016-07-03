@@ -208,7 +208,7 @@ int libbdplus_init(BD_BDPLUS *p, const char *root,
     if (set_fopen) {
         p->bdplus = bdplus_init(NULL, NULL, vid);
         set_fopen(p->bdplus, file_open_handle, file_open_fp);
-    } else {
+    } else if (root) {
         p->bdplus = bdplus_init(root, NULL, vid);
     }
 
