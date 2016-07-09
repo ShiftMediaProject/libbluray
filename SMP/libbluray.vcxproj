@@ -434,7 +434,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -512,7 +512,7 @@ del /f /q $(OutDir)\bin\*.jar
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_DEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -920,7 +920,7 @@ del /f /q $(OutDir)\bin\*.jar
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -1011,7 +1011,7 @@ del /f /q $(OutDir)\bin\*.jar
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -1102,7 +1102,7 @@ del /f /q $(OutDir)\bin\*.jar
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -1193,7 +1193,7 @@ del /f /q $(OutDir)\bin\*.jar
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;NDEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
