@@ -38,8 +38,12 @@
 #ifndef _JNI_MD_H_
 #define _JNI_MD_H_
 
+#ifndef JNIEXPORT
 #define JNIEXPORT __declspec(dllexport)
+#endif
+#ifndef JNIIMPORT
 #define JNIIMPORT __declspec(dllimport)
+#endif
 #define JNICALL   __stdcall
 
 typedef long jint;
