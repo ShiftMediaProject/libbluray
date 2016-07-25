@@ -222,6 +222,9 @@ public class BDFontMetrics extends sun.font.FontDesignMetrics {
     /** Cache of first 256 Unicode characters as these map to ASCII characters and are often used. */
     private int[] widths;
 
+    /* synchronize access to ftFace (native functions) */
+    private final Object faceLock = new Object();
+
     /**
      * Creates a font metrics for the supplied font. To get a font metrics for a font
      * use the static method getFontMetrics instead which does caching.
@@ -243,20 +246,24 @@ public class BDFontMetrics extends sun.font.FontDesignMetrics {
     private native int stringWidthN(long ftFace, String string);
     private native int charsWidthN(long ftFace, char chars[], int offset, int len);
 
-    private synchronized void loadWidths() {
+    private void loadWidths() {
         /* Cache first 256 char widths for use by the getWidths method and for faster metric
            calculation as they are commonly used (ASCII) characters. */
         if (widths == null) {
-            widths = new int[256];
-            for (int i = 0; i < 256; i++) {
-                widths[i] = charWidthN(ftFace, (char)i);
+            int[] widths = new int[256];
+            synchronized (faceLock) {
+                for (int i = 0; i < 256; i++) {
+                    widths[i] = charWidthN(ftFace, (char)i);
+                }
             }
+            this.widths = widths;
         }
     }
 
-
-    protected synchronized void drawString(BDGraphics g, String string, int x, int y, int rgb) {
-        g.drawStringN(ftFace, string, x, y, rgb);
+    protected void drawString(BDGraphics g, String string, int x, int y, int rgb) {
+        synchronized (faceLock) {
+            g.drawStringN(ftFace, string, x, y, rgb);
+        }
     }
 
     public int getAscent() {
@@ -278,31 +285,37 @@ public class BDFontMetrics extends sun.font.FontDesignMetrics {
     /**
      * Fast lookup of first 256 chars as these are always the same eg. ASCII charset.
      */
-    public synchronized int charWidth(char c) {
+    public int charWidth(char c) {
         if (c < 256) {
             loadWidths();
             return widths[c];
         }
-        return charWidthN(ftFace, c);
+        synchronized (faceLock) {
+            return charWidthN(ftFace, c);
+        }
     }
 
     /**
      * Return the width of the specified string in this Font.
      */
-    public synchronized int stringWidth(String string) {
+    public int stringWidth(String string) {
         /* Allow only one call at time.
          * (calling this function from multiple threads caused crashes in freetype)
          */
         synchronized (BDFontMetrics.class) {
-            return stringWidthN(ftFace, string);
+            synchronized (faceLock) {
+                return stringWidthN(ftFace, string);
+            }
         }
     }
 
     /**
      * Return the width of the specified char[] in this Font.
      */
-    public synchronized int charsWidth(char chars[], int offset, int length) {
-        return charsWidthN(ftFace, chars, offset, length);
+    public int charsWidth(char chars[], int offset, int length) {
+        synchronized (faceLock) {
+            return charsWidthN(ftFace, chars, offset, length);
+        }
     }
 
     /**
