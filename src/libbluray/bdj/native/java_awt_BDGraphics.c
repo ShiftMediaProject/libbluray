@@ -57,6 +57,9 @@ Java_java_awt_BDGraphics_drawStringN(JNIEnv * env, jobject obj, jlong ftFace, js
     unsigned j, k;
     FT_Face face = (FT_Face)(intptr_t)ftFace;
 
+    if (!face)
+        return;
+
     length = (*env)->GetStringLength(env, string);
     if (length <= 0)
       return;
