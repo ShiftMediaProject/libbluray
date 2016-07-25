@@ -208,6 +208,8 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
     }
 
     public Font getFont() {
+        if (font == null)
+            return DEFAULT_FONT;
         return font;
     }
 
