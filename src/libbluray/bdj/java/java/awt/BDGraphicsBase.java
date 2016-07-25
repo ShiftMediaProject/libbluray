@@ -215,6 +215,9 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
         if (font != null && fontMetrics == null) {
             fontMetrics = BDFontMetrics.getFontMetrics(font);
         }
+        if (fontMetrics == null) {
+            logger.error("getFontMetrics() failed");
+        }
         return fontMetrics;
     }
 
@@ -240,6 +243,8 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
     }
 
     public GraphicsConfiguration getDeviceConfiguration() {
+        if (gc == null)
+            logger.error("getDeviceConfiguration() failed");
         return gc;
     }
 

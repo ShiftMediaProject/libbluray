@@ -230,9 +230,10 @@ public class BDFontMetrics extends sun.font.FontDesignMetrics {
         super(font);
 
         ftFace = loadFontN(ftLib, nativeName, font.getSize());
-        if (ftFace == 0)
+        if (ftFace == 0) {
+            logger.error("Error loading font");
             throw new AWTError("font face:" + nativeName + " not loaded");
-
+        }
         widths = null;
     }
 
