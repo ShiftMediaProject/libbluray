@@ -62,7 +62,9 @@ static int _dir_read_win32(BD_DIR_H *dir, BD_DIRENT *entry)
     if (!priv->info.name[0]) {
         return 1;
     }
-    WideCharToMultiByte(CP_UTF8, 0, priv->info.name, -1, entry->d_name, sizeof(entry->d_name), NULL, NULL);
+    if (!WideCharToMultiByte(CP_UTF8, 0, priv->info.name, -1, entry->d_name, sizeof(entry->d_name), NULL, NULL)) {
+        return -1;
+    }
 
     priv->info.name[0] = 0;
     _wfindnext(priv->handle, &priv->info);
