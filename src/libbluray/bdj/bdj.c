@@ -87,7 +87,9 @@ static void *_load_jvm_win32(const char **p_java_home)
     }
 
     if (debug_mask & DBG_BDJ) {
-        WideCharToMultiByte(CP_UTF8, 0, buf_vers, -1, strbuf, sizeof(strbuf), NULL, NULL);
+        if (!WideCharToMultiByte(CP_UTF8, 0, buf_vers, -1, strbuf, sizeof(strbuf), NULL, NULL)) {
+            strbuf[0] = 0;
+        }
         BD_DEBUG(DBG_BDJ, "JRE version: %s\n", strbuf);
     }
     wcscat(buf_loc, buf_vers);
@@ -103,8 +105,9 @@ static void *_load_jvm_win32(const char **p_java_home)
 
     if (r == ERROR_SUCCESS) {
         /* do not fail even if not found */
-        WideCharToMultiByte(CP_UTF8, 0, buf_loc, -1, java_home, sizeof(java_home), NULL, NULL);
-        *p_java_home = java_home;
+        if (WideCharToMultiByte(CP_UTF8, 0, buf_loc, -1, java_home, sizeof(java_home), NULL, NULL)) {
+            *p_java_home = java_home;
+        }
         BD_DEBUG(DBG_BDJ, "JavaHome: %s\n", java_home);
 
         wcscat(java_path, buf_loc);
@@ -124,7 +127,9 @@ static void *_load_jvm_win32(const char **p_java_home)
     void *result = LoadLibraryW(buf_loc);
     SetDllDirectoryW(NULL);
 
-    WideCharToMultiByte(CP_UTF8, 0, buf_loc, -1, strbuf, sizeof(strbuf), NULL, NULL);
+    if (!WideCharToMultiByte(CP_UTF8, 0, buf_loc, -1, strbuf, sizeof(strbuf), NULL, NULL)) {
+        strbuf[0] = 0;
+    }
     if (!result) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "can't open library '%s'\n", strbuf);
     } else {
@@ -139,7 +144,7 @@ static void *_load_jvm_win32(const char **p_java_home)
 static inline char *_utf8_to_cp(const char *utf8)
 {
     int wlen = MultiByteToWideChar(CP_UTF8, 0, utf8, -1, NULL, 0);
-    if (wlen == 0) {
+    if (wlen <= 0) {
         return NULL;
     }
 
@@ -147,17 +152,22 @@ static inline char *_utf8_to_cp(const char *utf8)
     if (!wide) {
         return NULL;
     }
-    MultiByteToWideChar(CP_UTF8, 0, utf8, -1, wide, wlen);
+    if (!MultiByteToWideChar(CP_UTF8, 0, utf8, -1, wide, wlen)) {
+        X_FREE(wide);
+        return NULL;
+    }
 
     size_t len = WideCharToMultiByte(CP_ACP, 0, wide, -1, NULL, 0, NULL, NULL);
-    if (len == 0) {
+    if (len <= 0) {
         X_FREE(wide);
         return NULL;
     }
 
     char *out = (char *)malloc(len);
     if (out != NULL) {
-        WideCharToMultiByte(CP_ACP, 0, wide, -1, out, len, NULL, NULL);
+        if (!WideCharToMultiByte(CP_ACP, 0, wide, -1, out, len, NULL, NULL)) {
+            X_FREE(out);
+        }
     }
     X_FREE(wide);
     return out;
@@ -586,8 +596,12 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     int ii;
     for (ii = 0; ii < n; ii++) {
         char *tmp = _utf8_to_cp(option[ii].optionString);
-        X_FREE(option[ii].optionString);
-        option[ii].optionString = tmp;
+        if (tmp) {
+            X_FREE(option[ii].optionString);
+            option[ii].optionString = tmp;
+        } else {
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to convert %s\n", option[ii].optionString);
+        }
     }
 #endif
 
