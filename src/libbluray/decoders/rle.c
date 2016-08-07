@@ -69,7 +69,9 @@ BD_PG_RLE_ELEM *rle_crop_object(const BD_PG_RLE_ELEM *orig, int width,
     int      x1 = crop_x + crop_w; /* first pixel outside of cropped region */
     int      x, y;
 
-    rle_begin(&rle);
+    if (!rle_begin(&rle)) {
+        return NULL;
+    }
 
     /* skip crop_y */
     for (y = 0; y < crop_y; y++) {

@@ -46,14 +46,17 @@ typedef struct {
 BD_PRIVATE BD_PG_RLE_ELEM *rle_crop_object(const BD_PG_RLE_ELEM *orig, int width,
                                            int crop_x, int crop_y, int crop_w, int crop_h);
 
-static inline void rle_begin(RLE_ENC *p)
+static inline int rle_begin(RLE_ENC *p)
 {
     p->num_elem = 1024;
     p->free_elem = 1024;
     p->elem = refcnt_realloc(NULL, p->num_elem * sizeof(BD_PG_RLE_ELEM));
-
+    if (!p->elem) {
+        return 0;
+    }
     p->elem->len = 0;
     p->elem->color = 0xffff;
+    return 1;
 }
 
 static inline BD_PG_RLE_ELEM *rle_get(RLE_ENC *p)
@@ -65,7 +68,9 @@ static inline BD_PG_RLE_ELEM *rle_get(RLE_ENC *p)
 static inline void rle_end(RLE_ENC *p)
 {
     BD_PG_RLE_ELEM *start = rle_get(p);
-    bd_refcnt_dec(start);
+    if (start) {
+        bd_refcnt_dec(start);
+    }
     p->elem = NULL;
 }
 

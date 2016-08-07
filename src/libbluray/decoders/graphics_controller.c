@@ -971,7 +971,9 @@ static int _render_textst_region(GRAPHICS_CONTROLLER *p, int64_t pts, BD_TEXTST_
     uint16_t y;
     RLE_ENC  rle;
 
-    rle_begin(&rle);
+    if (!rle_begin(&rle)) {
+        return -1;
+    }
 
     for (y = 0, bmp_y = 0; y < style->region_info.region.height; y++) {
         if (y < style->text_box.ypos || y >= style->text_box.ypos + style->text_box.height) {
