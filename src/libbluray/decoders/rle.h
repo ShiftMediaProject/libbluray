@@ -34,6 +34,8 @@ typedef struct {
     BD_PG_RLE_ELEM *elem;     /* current element */
     unsigned int    free_elem;/* unused element count */
     unsigned int    num_elem; /* allocated element count */
+
+    int error;
 } RLE_ENC;
 
 /*
@@ -52,16 +54,26 @@ static inline int rle_begin(RLE_ENC *p)
     p->free_elem = 1024;
     p->elem = refcnt_realloc(NULL, p->num_elem * sizeof(BD_PG_RLE_ELEM));
     if (!p->elem) {
-        return 0;
+        return -1;
     }
     p->elem->len = 0;
     p->elem->color = 0xffff;
-    return 1;
+
+    p->error = 0;
+
+    return 0;
 }
 
 static inline BD_PG_RLE_ELEM *rle_get(RLE_ENC *p)
 {
     BD_PG_RLE_ELEM *start = (p->elem ? p->elem - (p->num_elem - p->free_elem) : NULL);
+    if (p->error) {
+        if (start) {
+            bd_refcnt_dec(start);
+            p->elem = NULL;
+        }
+        return NULL;
+    }
     return start;
 }
 
@@ -78,8 +90,8 @@ static inline void rle_end(RLE_ENC *p)
  * compression
  */
 
-BD_PRIVATE void rle_add_eol(RLE_ENC *p);
-BD_PRIVATE void rle_add_bite(RLE_ENC *p, uint8_t color, int len);
-BD_PRIVATE void rle_compress_chunk(RLE_ENC *p, const uint8_t *mem, unsigned width);
+BD_PRIVATE int rle_add_eol(RLE_ENC *p);
+BD_PRIVATE int rle_add_bite(RLE_ENC *p, uint8_t color, int len);
+BD_PRIVATE int rle_compress_chunk(RLE_ENC *p, const uint8_t *mem, unsigned width);
 
 #endif /* _BD_RLE_H_ */
