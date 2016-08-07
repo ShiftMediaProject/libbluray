@@ -296,6 +296,11 @@ static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
             storage->classpath = str_dup(classpath);
         }
 
+        if (!storage->classpath) {
+            BD_DEBUG(DBG_CRIT, "out of memory\n");
+            return NULL;
+        }
+
         if (_can_read_file(storage->classpath)) {
             return storage->classpath;
         }
@@ -311,6 +316,11 @@ static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
     const char *lib_path = dl_get_path();
     if (lib_path) {
         char *cp = str_printf("%s" BDJ_JARFILE, lib_path);
+        if (!cp) {
+            BD_DEBUG(DBG_CRIT, "out of memory\n");
+            return NULL;
+        }
+
         BD_DEBUG(DBG_BDJ, "Checking %s ...\n", cp);
         if (_can_read_file(cp)) {
             storage->classpath = cp;
