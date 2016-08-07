@@ -368,10 +368,15 @@ static const char *_bdj_persistent_root(BDJ_STORAGE *storage)
         }
 
         data_home = file_get_data_home();
-        storage->persistent_root = str_printf("%s" DIR_SEP "bluray" DIR_SEP "dvb.persistent.root" DIR_SEP, data_home ? data_home : "");
-        X_FREE(data_home);
+        if (data_home) {
+            storage->persistent_root = str_printf("%s" DIR_SEP "bluray" DIR_SEP "dvb.persistent.root" DIR_SEP, data_home);
+            X_FREE(data_home);
+            BD_DEBUG(DBG_BDJ, "LIBBLURAY_PERSISTENT_ROOT not set, using %s\n", storage->persistent_root);
+        }
 
-        BD_DEBUG(DBG_BDJ, "LIBBLURAY_PERSISTENT_ROOT not set, using %s\n", storage->persistent_root);
+        if (!storage->persistent_root) {
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "WARNING: BD-J persistent root not set\n");
+        }
     }
 
     return storage->persistent_root;
@@ -394,10 +399,15 @@ static const char *_bdj_buda_root(BDJ_STORAGE *storage)
         }
 
         cache_home = file_get_cache_home();
-        storage->cache_root = str_printf("%s" DIR_SEP "bluray" DIR_SEP "bluray.bindingunit.root" DIR_SEP, cache_home ? cache_home : "");
-        X_FREE(cache_home);
+        if (cache_home) {
+            storage->cache_root = str_printf("%s" DIR_SEP "bluray" DIR_SEP "bluray.bindingunit.root" DIR_SEP, cache_home);
+            X_FREE(cache_home);
+            BD_DEBUG(DBG_BDJ, "LIBBLURAY_CACHE_ROOT not set, using %s\n", storage->cache_root);
+        }
 
-        BD_DEBUG(DBG_BDJ, "LIBBLURAY_CACHE_ROOT not set, using %s\n", storage->cache_root);
+        if (!storage->cache_root) {
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "WARNING: BD-J cache root not set\n");
+        }
     }
 
     return storage->cache_root;
