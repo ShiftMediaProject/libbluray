@@ -117,8 +117,12 @@ static int CALLBACK EnumFontCallbackW(const ENUMLOGFONTEXW *lpelfe, const NEWTEX
             size_t len = WideCharToMultiByte(CP_UTF8, 0, wdata, -1, NULL, 0, NULL, NULL);
             if (len != 0) {
                 data->filename = (char *)malloc(len);
-                WideCharToMultiByte(CP_UTF8, 0, wdata, -1, data->filename, len, NULL, NULL);
-                break;
+                if (data->filename) {
+                    if (!WideCharToMultiByte(CP_UTF8, 0, wdata, -1, data->filename, len, NULL, NULL)) {
+                        data->filename[0] = 0;
+                    }
+                    break;
+                }
             }
         }
     }
