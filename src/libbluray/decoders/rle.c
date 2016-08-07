@@ -33,6 +33,9 @@ static int _rle_ensure_size(RLE_ENC *p)
 {
     if (BD_UNLIKELY(!p->free_elem)) {
         BD_PG_RLE_ELEM *start = rle_get(p);
+        if (p->error) {
+            return -1;
+        }
         /* realloc to 2x */
         void *tmp = refcnt_realloc(start, p->num_elem * 2 * sizeof(BD_PG_RLE_ELEM));
         if (!tmp) {
@@ -181,7 +184,7 @@ int rle_add_bite(RLE_ENC *p, uint8_t color, int len)
         p->elem->len += len;
     } else {
         if (BD_LIKELY(p->elem->len)) {
-            if (BD_UNLIKELY(!_rle_grow(p))) {
+            if (BD_UNLIKELY(_rle_grow(p) < 0)) {
                 return -1;
             }
         }
