@@ -79,7 +79,7 @@ static dir_data_t *_open_impl(const char *dirname)
     wchar_t wfilespec[MAX_PATH];
     int result;
 
-    filespec = str_printf("%s/*", dirname);
+    filespec = str_printf("%s" DIR_SEP "*", dirname);
     if (!filespec) {
         return NULL;
     }
