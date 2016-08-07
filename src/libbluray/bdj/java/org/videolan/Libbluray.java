@@ -274,7 +274,9 @@ public class Libbluray {
         }
         nativePointer = 0;
         titleInfos = null;
-        bdjoFiles = null;
+        synchronized (bdjoFilesLock) {
+            bdjoFiles = null;
+        }
     }
 
     /*
