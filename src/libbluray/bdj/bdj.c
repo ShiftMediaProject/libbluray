@@ -446,16 +446,18 @@ static int _bdj_init(JNIEnv *env, struct bluray *bd, const char *disc_root, cons
                                  param_bdjava_ptr, param_disc_id, param_disc_root,
                                  param_persistent_root, param_buda_root);
 
+    (*env)->DeleteLocalRef(env, init_class);
+    (*env)->DeleteLocalRef(env, param_disc_id);
+    (*env)->DeleteLocalRef(env, param_disc_root);
+    (*env)->DeleteLocalRef(env, param_persistent_root);
+    (*env)->DeleteLocalRef(env, param_buda_root);
+
     if ((*env)->ExceptionOccurred(env)) {
         (*env)->ExceptionDescribe(env);
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to initialize BD-J (uncaught exception)\n");
         (*env)->ExceptionClear(env);
         return 0;
     }
-
-    (*env)->DeleteLocalRef(env, init_class);
-    (*env)->DeleteLocalRef(env, param_disc_id);
-    (*env)->DeleteLocalRef(env, param_disc_root);
 
     return 1;
 }
