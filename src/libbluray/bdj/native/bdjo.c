@@ -17,6 +17,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Note:
+ * This module should be called only from Java side.
+ * If it is called from native C thread, lot of references are leaked !
+ */
+
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
