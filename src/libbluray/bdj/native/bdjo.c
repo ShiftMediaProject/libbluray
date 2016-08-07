@@ -35,10 +35,16 @@
  * https://hdcookbook.dev.java.net/
  */
 
-#define JNICHK(a) if((*env)->ExceptionOccurred(env)) { \
-    BD_DEBUG(DBG_BDJ, "Exception occured\n"); \
-    (*env)->ExceptionDescribe(env); \
-    } if (!a) return NULL;
+#define JNICHK(a) \
+  do {                                                              \
+      if ((*env)->ExceptionOccurred(env)) {                         \
+          BD_DEBUG(DBG_BDJ | DBG_CRIT, "Exception occured\n");      \
+          (*env)->ExceptionDescribe(env);                           \
+      }                                                             \
+      if (!(a)) {                                                   \
+          return NULL;                                              \
+      } \
+  } while (0)
 
 /*
  *
