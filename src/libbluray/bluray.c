@@ -1503,6 +1503,10 @@ BLURAY *bd_open(const char *device_path, const char *keyfile_path)
 
 void bd_close(BLURAY *bd)
 {
+    if (!bd) {
+        return;
+    }
+
     _close_bdj(bd);
 
     _close_m2ts(&bd->st0);
