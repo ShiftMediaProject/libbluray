@@ -49,9 +49,9 @@ typedef struct {
     BD_FILE_H *fp;
     uint8_t    buf[BF_BUF_SIZE];
     BITBUFFER  bb;
-    int64_t    pos;
-    int64_t    end;
-    size_t     size;
+    int64_t    pos;   /* file offset of buffer start (buf[0]) */
+    int64_t    end;   /* size of file */
+    size_t     size;  /* bytes in buf */
 } BITSTREAM;
 
 BD_PRIVATE void bb_init( BITBUFFER *bb, const uint8_t *p_data, size_t i_data );
