@@ -790,6 +790,11 @@ _parse_pip_data(BITSTREAM *bits, MPLS_PIP_METADATA *block)
     }
 
     data = calloc(entries, sizeof(MPLS_PIP_DATA));
+    if (!data) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
+
     for (ii = 0; ii < entries; ii++) {
 
         data[ii].time = bs_read(bits, 32);
@@ -852,11 +857,14 @@ _parse_pip_metadata_extension(BITSTREAM *bits, MPLS_PL *pl)
     }
 
     data = calloc(entries, sizeof(MPLS_PIP_METADATA));
+    if (!data) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
+
     for (ii = 0; ii < entries; ii++) {
-      if (!_parse_pip_metadata_block(bits, start_address, data)) {
-            X_FREE(data);
-            BD_DEBUG(DBG_NAV | DBG_CRIT, "error parsing pip metadata extension\n");
-            return 0;
+        if (!_parse_pip_metadata_block(bits, start_address, &data[ii])) {
+            goto error;
         }
     }
 
@@ -864,6 +872,15 @@ _parse_pip_metadata_extension(BITSTREAM *bits, MPLS_PL *pl)
     pl->ext_pip_data       = data;
 
     return 1;
+
+ error:
+    BD_DEBUG(DBG_NAV | DBG_CRIT, "error parsing pip metadata extension\n");
+    for (ii = 0; ii < entries; ii++) {
+        _clean_pip_data(&data[ii]);
+    }
+    X_FREE(data);
+    return 0;
+
 }
 
 static int
@@ -880,17 +897,28 @@ _parse_subpath_extension(BITSTREAM *bits, MPLS_PL *pl)
     }
 
     sub_path = calloc(sub_count,  sizeof(MPLS_SUB));
+    if (!sub_path) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
+
     for (ii = 0; ii < sub_count; ii++) {
         if (!_parse_subpath(bits, &sub_path[ii])) {
-            X_FREE(sub_path);
-            BD_DEBUG(DBG_NAV | DBG_CRIT, "error parsing extension subpath\n");
-            return 0;
+            goto error;
         }
     }
     pl->ext_sub_path  = sub_path;
     pl->ext_sub_count = sub_count;
 
     return 1;
+
+ error:
+    BD_DEBUG(DBG_NAV | DBG_CRIT, "error parsing extension subpath\n");
+    for (ii = 0; ii < sub_count; ii++) {
+        _clean_subpath(&sub_path[ii]);
+    }
+    X_FREE(sub_path);
+    return 0;
 }
 
 static int
