@@ -730,6 +730,11 @@ _parse_playlist(BITSTREAM *bits, MPLS_PL *pl)
     return 1;
 }
 
+static void _clean_pip_data(MPLS_PIP_METADATA *p)
+{
+    X_FREE(p->data);
+}
+
 static void
 _clean_playlist(MPLS_PL *pl)
 {
@@ -756,6 +761,13 @@ _clean_playlist(MPLS_PL *pl)
         }
         X_FREE(pl->ext_sub_path);
     }
+    if (pl->ext_pip_data != NULL) {
+        for (ii = 0; ii < pl->ext_pip_data_count; ii++) {
+            _clean_pip_data(&pl->ext_pip_data[ii]);
+        }
+        X_FREE(pl->ext_pip_data);
+    }
+
     X_FREE(pl->play_mark);
     X_FREE(pl);
 }
