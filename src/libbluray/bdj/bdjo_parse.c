@@ -507,7 +507,10 @@ static BDJO *_bdjo_parse(BD_FILE_H *fp)
     BITSTREAM   bs;
     BDJO       *p;
 
-    bs_init(&bs, fp);
+    if (bs_init(&bs, fp) < 0) {
+        BD_DEBUG(DBG_BDJ, "?????.bdjo: read error\n");
+        return NULL;
+    }
 
     p = calloc(1, sizeof(BDJO));
     if (!p) {

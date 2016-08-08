@@ -67,7 +67,10 @@ static BDID_DATA *_bdid_parse(BD_FILE_H *fp)
     uint32_t   data_start, extension_data_start;
     uint8_t    tmp[16];
 
-    bs_init(&bs, fp);
+    if (bs_init(&bs, fp) < 0) {
+        BD_DEBUG(DBG_NAV, "id.bdmv: read error\n");
+        return NULL;
+    }
 
     if (!_parse_header(&bs, &data_start, &extension_data_start)) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "id.bdmv: invalid header\n");

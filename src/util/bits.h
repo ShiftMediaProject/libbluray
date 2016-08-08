@@ -55,7 +55,7 @@ typedef struct {
 } BITSTREAM;
 
 BD_PRIVATE void bb_init( BITBUFFER *bb, const uint8_t *p_data, size_t i_data );
-BD_PRIVATE void bs_init( BITSTREAM *bs, BD_FILE_H *fp );
+BD_PRIVATE int  bs_init( BITSTREAM *bs, BD_FILE_H *fp );
 BD_PRIVATE void bb_seek( BITBUFFER *bb, int64_t off, int whence);
 BD_PRIVATE void bs_seek( BITSTREAM *bs, int64_t off, int whence);
 //BD_PRIVATE void bb_seek_byte( BITBUFFER *bb, int64_t off);

@@ -680,13 +680,17 @@ _clpi_parse(BD_FILE_H *fp)
     BITSTREAM  bits;
     CLPI_CL   *cl;
 
+    if (bs_init(&bits, fp) < 0) {
+        BD_DEBUG(DBG_NAV, "?????.clpi: read error\n");
+        return NULL;
+    }
+
     cl = calloc(1, sizeof(CLPI_CL));
     if (cl == NULL) {
         BD_DEBUG(DBG_CRIT, "out of memory\n");
         return NULL;
     }
 
-    bs_init(&bits, fp);
     if (!_parse_header(&bits, cl)) {
         clpi_free(cl);
         return NULL;

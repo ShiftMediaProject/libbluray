@@ -149,7 +149,10 @@ static SOUND_DATA *_sound_parse(BD_FILE_H *fp)
     uint32_t      data_start, extension_data_start;
     uint32_t     *data_offsets = NULL;
 
-    bs_init(&bs, fp);
+    if (bs_init(&bs, fp) < 0) {
+        BD_DEBUG(DBG_NAV, "sound.bdmv: read error\n");
+        goto error;
+    }
 
     if (!_bclk_parse_header(&bs, &data_start, &extension_data_start)) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "invalid header\n");

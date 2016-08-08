@@ -194,15 +194,19 @@ static int _parse_header(BITSTREAM *bs, int *index_start, int *extension_data_st
 static INDX_ROOT *_indx_parse(BD_FILE_H *fp)
 {
     BITSTREAM  bs;
-    INDX_ROOT *index = calloc(1, sizeof(INDX_ROOT));
+    INDX_ROOT *index;
     int        indexes_start, extension_data_start;
 
+    if (bs_init(&bs, fp) < 0) {
+        BD_DEBUG(DBG_NAV, "index.bdmv: read error\n");
+        return NULL;
+    }
+
+    index = calloc(1, sizeof(INDX_ROOT));
     if (!index) {
         BD_DEBUG(DBG_CRIT, "out of memory\n");
         return NULL;
     }
-
-    bs_init(&bs, fp);
 
     if (!_parse_header(&bs, &indexes_start, &extension_data_start) ||
         !_parse_app_info(&bs, &index->app_info)) {

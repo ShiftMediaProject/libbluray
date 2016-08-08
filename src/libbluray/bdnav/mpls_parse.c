@@ -914,13 +914,16 @@ _mpls_parse(BD_FILE_H *fp)
     BITSTREAM  bits;
     MPLS_PL   *pl = NULL;
 
+    if (bs_init(&bits, fp) < 0) {
+        BD_DEBUG(DBG_NAV, "?????.mpls: read error\n");
+        return NULL;
+    }
+
     pl = calloc(1, sizeof(MPLS_PL));
     if (pl == NULL) {
         BD_DEBUG(DBG_CRIT, "out of memory\n");
         return NULL;
     }
-
-    bs_init(&bits, fp);
 
     if (!_parse_header(&bits, pl)) {
         _clean_playlist(pl);

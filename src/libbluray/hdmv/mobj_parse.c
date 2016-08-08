@@ -136,7 +136,10 @@ static MOBJ_OBJECTS *_mobj_parse(BD_FILE_H *fp)
     uint32_t      data_len;
     int           extension_data_start, i;
 
-    bs_init(&bs, fp);
+    if (bs_init(&bs, fp) < 0) {
+        BD_DEBUG(DBG_NAV, "MovieObject.bdmv: read error\n");
+        goto error;;
+    }
 
     if (!_mobj_parse_header(&bs, &extension_data_start)) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "MovieObject.bdmv: invalid header\n");

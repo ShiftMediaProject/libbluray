@@ -40,19 +40,32 @@ void bb_init( BITBUFFER *bb, const uint8_t *p_data, size_t i_data )
     bb->i_left  = 8;
 }
 
-void bs_init( BITSTREAM *bs, BD_FILE_H *fp )
+static int _bs_read( BITSTREAM *bs)
+{
+    int result = 0;
+    int64_t got;
+
+    got = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
+    if (got <= 0 || got > BF_BUF_SIZE) {
+        BD_DEBUG(DBG_FILE, "_bs_read(): read error\n");
+        got = 0;
+        result = -1;
+    }
+
+    bs->size = (size_t)got;
+    bb_init(&bs->bb, bs->buf, bs->size);
+
+    return result;
+}
+
+int bs_init( BITSTREAM *bs, BD_FILE_H *fp )
 {
     int64_t size = file_size(fp);;
     bs->fp = fp;
     bs->pos = 0;
     bs->end = (size < 0) ? 0 : size;
-    bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
-    if (bs->size == 0 || bs->size > BF_BUF_SIZE) {
-        bs->size = 0;
-        bs->end = 0;
-        BD_DEBUG(DBG_FILE|DBG_CRIT, "bs_init(): read error!\n");
-    }
-    bb_init(&bs->bb, bs->buf, bs->size);
+
+    return _bs_read(bs);
 }
 
 void bb_seek( BITBUFFER *bb, int64_t off, int whence)
