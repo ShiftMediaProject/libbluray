@@ -95,7 +95,7 @@ void bb_seek( BITBUFFER *bb, int64_t off, int whence)
     }
 }
 
-void bs_seek( BITSTREAM *bs, int64_t off, int whence)
+static void _bs_seek( BITSTREAM *bs, int64_t off, int whence)
 {
     int64_t b;
 
@@ -144,7 +144,7 @@ void bb_seek_byte( BITBUFFER *bb, int64_t off)
 
 void bs_seek_byte( BITSTREAM *s, int64_t off)
 {
-    bs_seek(s, off << 3, SEEK_SET);
+    _bs_seek(s, off << 3, SEEK_SET);
 }
 
 
