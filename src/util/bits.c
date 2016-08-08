@@ -58,6 +58,17 @@ static int _bs_read( BITSTREAM *bs)
     return result;
 }
 
+static int _bs_read_at( BITSTREAM *bs, int64_t off )
+{
+    if (file_seek(bs->fp, off, SEEK_SET) < 0) {
+        BD_DEBUG(DBG_FILE | DBG_CRIT, "bs_read(): seek failed\n");
+        /* no change in state. Caller _must_ check return value. */
+        return -1;
+    }
+    bs->pos = off;
+    return _bs_read(bs);
+}
+
 int bs_init( BITSTREAM *bs, BD_FILE_H *fp )
 {
     int64_t size = file_size(fp);;
@@ -95,8 +106,9 @@ void bb_seek( BITBUFFER *bb, int64_t off, int whence)
     }
 }
 
-static void _bs_seek( BITSTREAM *bs, int64_t off, int whence)
+static int _bs_seek( BITSTREAM *bs, int64_t off, int whence)
 {
+    int result = 0;
     int64_t b;
 
     switch (whence) {
@@ -110,29 +122,31 @@ static void _bs_seek( BITSTREAM *bs, int64_t off, int whence)
         default:
             break;
     }
+    if (off < 0) {
+        BD_DEBUG(DBG_FILE | DBG_CRIT, "bs_seek(): seek failed (negative offset)\n");
+        return -1;
+    }
+
     b = off >> 3;
     if (b >= bs->end)
     {
+        int64_t pos;
         if (BF_BUF_SIZE < bs->end) {
-            bs->pos = bs->end - BF_BUF_SIZE;
-            file_seek(bs->fp, BF_BUF_SIZE, SEEK_END);
+            pos = bs->end - BF_BUF_SIZE;
         } else {
-            bs->pos = 0;
-            file_seek(bs->fp, 0, SEEK_SET);
+            pos = 0;
         }
-        bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
-        bb_init(&bs->bb, bs->buf, bs->size);
+        result = _bs_read_at(bs, pos);
         bs->bb.p = bs->bb.p_end;
     } else if (b < bs->pos || b >= (bs->pos + BF_BUF_SIZE)) {
-        file_seek(bs->fp, b, SEEK_SET);
-        bs->pos = b;
-        bs->size = file_read(bs->fp, bs->buf, BF_BUF_SIZE);
-        bb_init(&bs->bb, bs->buf, bs->size);
+        result  = _bs_read_at(bs, b);
     } else {
         b -= bs->pos;
         bs->bb.p = &bs->bb.p_start[b];
         bs->bb.i_left = 8 - (off & 0x07);
     }
+
+    return result;
 }
 
 #if 0
@@ -142,9 +156,9 @@ void bb_seek_byte( BITBUFFER *bb, int64_t off)
 }
 #endif
 
-void bs_seek_byte( BITSTREAM *s, int64_t off)
+int bs_seek_byte( BITSTREAM *s, int64_t off)
 {
-    _bs_seek(s, off << 3, SEEK_SET);
+    return _bs_seek(s, off << 3, SEEK_SET);
 }
 
 

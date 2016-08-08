@@ -212,7 +212,9 @@ _parse_stream(BITSTREAM *bits, MPLS_STREAM *s)
             break;
     };
 
-    bs_seek_byte(bits, pos + len);
+    if (bs_seek_byte(bits, pos + len) < 0) {
+        return 0;
+    }
 
     len = bs_read(bits, 8);
     pos = bs_pos(bits) >> 3;
@@ -260,7 +262,10 @@ _parse_stream(BITSTREAM *bits, MPLS_STREAM *s)
     };
     s->lang[3] = '\0';
 
-    bs_seek_byte(bits, pos + len);
+    if (bs_seek_byte(bits, pos + len) < 0) {
+        return 0;
+    }
+
     return 1;
 }
 
@@ -414,7 +419,10 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
     }
     stn->secondary_video = ss;
 
-    bs_seek_byte(bits, pos + len);
+    if (bs_seek_byte(bits, pos + len) < 0) {
+        return 0;
+    }
+
     return 1;
 }
 
@@ -515,8 +523,12 @@ _parse_playitem(BITSTREAM *bits, MPLS_PI *pi)
     if (!_parse_stn(bits, &pi->stn)) {
         return 0;
     }
+
     // Seek past any unused items
-    bs_seek_byte(bits, pos + len);
+    if (bs_seek_byte(bits, pos + len) < 0) {
+        return 0;
+    }
+
     return 1;
 }
 
@@ -592,7 +604,10 @@ _parse_subplayitem(BITSTREAM *bits, MPLS_SUB_PI *spi)
 
 
     // Seek to end of subpath
-    bs_seek_byte(bits, pos + len);
+    if (bs_seek_byte(bits, pos + len) < 0) {
+        return 0;
+    }
+
     return 1;
 }
 
@@ -635,7 +650,10 @@ _parse_subpath(BITSTREAM *bits, MPLS_SUB *sp)
     sp->sub_play_item = spi;
 
     // Seek to end of subpath
-    bs_seek_byte(bits, pos + len);
+    if (bs_seek_byte(bits, pos + len) < 0) {
+        return 0;
+    }
+
     return 1;
 }
 
@@ -657,7 +675,10 @@ _parse_playlistmark(BITSTREAM *bits, MPLS_PL *pl)
     int ii;
     MPLS_PLM *plm = NULL;
 
-    bs_seek_byte(bits, pl->mark_pos);
+    if (bs_seek_byte(bits, pl->mark_pos) < 0) {
+        return 0;
+    }
+
     // length field
     len = bs_read(bits, 32);
 
@@ -690,7 +711,10 @@ _parse_playlist(BITSTREAM *bits, MPLS_PL *pl)
     MPLS_PI *pi = NULL;
     MPLS_SUB *sub_path = NULL;
 
-    bs_seek_byte(bits, pl->list_pos);
+    if (bs_seek_byte(bits, pl->list_pos) < 0) {
+        return 0;
+    }
+
     // playlist length
     len = bs_read(bits, 32);
 
@@ -835,9 +859,13 @@ _parse_pip_metadata_block(BITSTREAM *bits, uint32_t start_address, MPLS_PIP_META
     data_address = bs_read(bits, 32);
 
     pos = bs_pos(bits) / 8;
-    bs_seek_byte(bits, start_address + data_address);
+    if (bs_seek_byte(bits, start_address + data_address) < 0) {
+        return 0;
+    }
     result = _parse_pip_data(bits, data);
-    bs_seek_byte(bits, pos);
+    if (bs_seek_byte(bits, pos) < 0) {
+        return 0;
+    }
 
     return result;
 }

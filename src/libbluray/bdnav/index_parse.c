@@ -144,7 +144,9 @@ static int _parse_app_info(BITSTREAM *bs, INDX_APP_INFO *app_info)
 {
     uint32_t len;
 
-    bs_seek_byte(bs, 40);
+    if (bs_seek_byte(bs, 40) < 0) {
+        return 0;
+    }
 
     len = bs_read(bs, 32);
 
@@ -173,7 +175,9 @@ static int _parse_header(BITSTREAM *bs, int *index_start, int *extension_data_st
 {
     uint32_t sig1, sig2;
 
-    bs_seek_byte(bs, 0);
+    if (bs_seek_byte(bs, 0) < 0) {
+        return 0;
+    }
 
     sig1 = bs_read(bs, 32);
     sig2 = bs_read(bs, 32);
@@ -215,7 +219,11 @@ static INDX_ROOT *_indx_parse(BD_FILE_H *fp)
         return NULL;
     }
 
-    bs_seek_byte(&bs, indexes_start);
+    if (bs_seek_byte(&bs, indexes_start) < 0) {
+        indx_free(&index);
+        return NULL;
+    }
+
     if (!_parse_index(&bs, index)) {
         indx_free(&index);
         return NULL;

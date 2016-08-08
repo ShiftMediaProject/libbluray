@@ -44,7 +44,9 @@ static int _mobj_parse_header(BITSTREAM *bs, int *extension_data_start)
 {
     uint32_t sig1, sig2;
 
-    bs_seek_byte(bs, 0);
+    if (bs_seek_byte(bs, 0) < 0) {
+        return 0;
+    }
 
     sig1 = bs_read(bs, 32);
     sig2 = bs_read(bs, 32);
@@ -138,7 +140,7 @@ static MOBJ_OBJECTS *_mobj_parse(BD_FILE_H *fp)
 
     if (bs_init(&bs, fp) < 0) {
         BD_DEBUG(DBG_NAV, "MovieObject.bdmv: read error\n");
-        goto error;;
+        goto error;
     }
 
     if (!_mobj_parse_header(&bs, &extension_data_start)) {
@@ -150,7 +152,10 @@ static MOBJ_OBJECTS *_mobj_parse(BD_FILE_H *fp)
         BD_DEBUG(DBG_NAV | DBG_CRIT, "MovieObject.bdmv: unknown extension data at %d\n", extension_data_start);
     }
 
-    bs_seek_byte(&bs, 40);
+    if (bs_seek_byte(&bs, 40) < 0) {
+        BD_DEBUG(DBG_NAV, "MovieObject.bdmv: read error\n");
+        goto error;
+    }
 
     data_len = bs_read(&bs, 32);
 

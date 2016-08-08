@@ -41,7 +41,9 @@ static int _parse_header(BITSTREAM *bs, uint32_t *data_start, uint32_t *extensio
 {
     uint32_t sig1, sig2;
 
-    bs_seek_byte(bs, 0);
+    if (bs_seek_byte(bs, 0) < 0) {
+        return 0;
+    }
 
     sig1 = bs_read(bs, 32);
     sig2 = bs_read(bs, 32);
@@ -77,9 +79,16 @@ static BDID_DATA *_bdid_parse(BD_FILE_H *fp)
         return NULL;
     }
 
-    bdid = calloc(1, sizeof(BDID_DATA));
+    if (bs_seek_byte(&bs, 40) < 0) {
+        BD_DEBUG(DBG_NAV, "id.bdmv: read error\n");
+        return NULL;
+    }
 
-    bs_seek_byte(&bs, 40);
+    bdid = calloc(1, sizeof(BDID_DATA));
+    if (!bdid) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return NULL;
+    }
 
     bs_read_bytes(&bs, tmp, 4);
     str_print_hex(bdid->org_id, tmp, 4);

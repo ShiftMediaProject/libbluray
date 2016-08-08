@@ -117,14 +117,19 @@ _parse_stream_attr(BITSTREAM *bits, CLPI_PROG_STREAM *ss)
     ss->lang[3] = '\0';
 
     // Skip over any padding
-    bs_seek_byte(bits, pos + len);
+    if (bs_seek_byte(bits, pos + len) < 0) {
+        return 0;
+    }
     return 1;
 }
 
 static int
 _parse_header(BITSTREAM *bits, CLPI_CL *cl)
 {
-    bs_seek_byte(bits, 0);
+    if (bs_seek_byte(bits, 0) < 0) {
+        return 0;
+    }
+
     cl->type_indicator  = bs_read(bits, 32);
     cl->type_indicator2 = bs_read(bits, 32);
     if (cl->type_indicator != CLPI_SIG1 || 
@@ -155,7 +160,10 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
     int len;
     int ii;
 
-    bs_seek_byte(bits, 40);
+    if (bs_seek_byte(bits, 40) < 0) {
+        return 0;
+    }
+
     // ClipInfo len
     bs_skip(bits, 32);
     // reserved
@@ -178,7 +186,9 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
         cl->clip.ts_type_info.validity = bs_read(bits, 8);
         bs_read_string(bits, cl->clip.ts_type_info.format_id, 4);
         // Seek past the stuff we don't know anything about
-        bs_seek_byte(bits, pos + len);
+        if (bs_seek_byte(bits, pos + len) < 0) {
+            return 0;
+        }
     }
     if (cl->clip.is_atc_delta) {
         // Skip reserved bytes
@@ -215,7 +225,9 @@ _parse_sequence(BITSTREAM *bits, CLPI_CL *cl)
 {
     int ii, jj;
 
-    bs_seek_byte(bits, cl->sequence_info_start_addr);
+    if (bs_seek_byte(bits, cl->sequence_info_start_addr) < 0) {
+        return 0;
+    }
 
     // Skip the length field, and a reserved byte
     bs_skip(bits, 5 * 8);
@@ -278,7 +290,9 @@ _parse_program(BITSTREAM *bits, CLPI_PROG_INFO *program)
 static int
 _parse_program_info(BITSTREAM *bits, CLPI_CL *cl)
 {
-    bs_seek_byte(bits, cl->program_info_start_addr);
+    if (bs_seek_byte(bits, cl->program_info_start_addr) < 0) {
+        return 0;
+    }
 
     return _parse_program(bits, &cl->program);
 }
@@ -291,7 +305,9 @@ _parse_ep_map_stream(BITSTREAM *bits, CLPI_EP_MAP_ENTRY *ee)
     CLPI_EP_COARSE   * coarse;
     CLPI_EP_FINE     * fine;
 
-    bs_seek_byte(bits, ee->ep_map_stream_start_addr);
+    if (bs_seek_byte(bits, ee->ep_map_stream_start_addr) < 0) {
+        return 0;
+    }
     fine_start = bs_read(bits, 32);
 
     coarse = malloc(ee->num_ep_coarse * sizeof(CLPI_EP_COARSE));
@@ -302,7 +318,9 @@ _parse_ep_map_stream(BITSTREAM *bits, CLPI_EP_MAP_ENTRY *ee)
         coarse[ii].spn_ep         = bs_read(bits, 32);
     }
 
-    bs_seek_byte(bits, ee->ep_map_stream_start_addr+fine_start);
+    if (bs_seek_byte(bits, ee->ep_map_stream_start_addr+fine_start) < 0) {
+        return 0;
+    }
 
     fine = malloc(ee->num_ep_fine * sizeof(CLPI_EP_FINE));
     ee->fine = fine;
@@ -346,7 +364,9 @@ _parse_cpi(BITSTREAM *bits, CLPI_CPI *cpi)
         entry[ii].ep_map_stream_start_addr = bs_read(bits, 32) + ep_map_pos;
     }
     for (ii = 0; ii < cpi->num_stream_pid; ii++) {
-        _parse_ep_map_stream(bits, &cpi->entry[ii]);
+        if (!_parse_ep_map_stream(bits, &cpi->entry[ii])) {
+            return 0;
+        }
     }
     return 1;
 }
@@ -354,7 +374,9 @@ _parse_cpi(BITSTREAM *bits, CLPI_CPI *cpi)
 static int
 _parse_cpi_info(BITSTREAM *bits, CLPI_CL *cl)
 {
-    bs_seek_byte(bits, cl->cpi_start_addr);
+    if (bs_seek_byte(bits, cl->cpi_start_addr) < 0) {
+        return 0;
+    }
 
     return _parse_cpi(bits, &cl->cpi);
 }
