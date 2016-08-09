@@ -82,6 +82,13 @@ public class BDRootWindow extends Frame {
         return null;
     }
 
+    private boolean isBackBufferClear() {
+        int v = 0;
+        for (int i = 0; i < height * width; i++)
+            v |= backBuffer[i];
+        return v == 0;
+    }
+
     public void notifyChanged() {
         if (!isVisible()) {
             logger.error("sync(): not visible");
@@ -113,6 +120,13 @@ public class BDRootWindow extends Frame {
 
             if (!a.isEmpty()) {
                 if (!overlay_open) {
+
+                    /* delay opening overlay until something has been drawn */
+                    if (isBackBufferClear()) {
+                        logger.info("sync() ignored (overlay not open, empty overlay)");
+                        return;
+                    }
+
                     Libbluray.updateGraphic(getWidth(), getHeight(), null);
                     overlay_open = true;
                     a = new Area(getWidth(), getHeight()); /* force full plane update */
