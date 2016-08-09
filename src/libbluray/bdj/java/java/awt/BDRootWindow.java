@@ -115,6 +115,15 @@ public class BDRootWindow extends Frame {
             }
             changeCount = 0;
 
+            if (!isVisible()) {
+                if (overlay_open) {
+                    logger.info("sync(): close OSD (not visible)");
+                    close();
+                }
+                logger.info("sync() ignored (not visible)");
+                return;
+            }
+
             Area a = dirty.getBounds();
             dirty.clear();
 
