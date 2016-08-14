@@ -111,12 +111,12 @@ _parse_uo(BITSTREAM *bits, BD_UO_MASK *uo)
 static int
 _parse_appinfo(BITSTREAM *bits, MPLS_AI *ai)
 {
-    int64_t pos, len;
+    int64_t /*pos,*/ len;
 
     if (!bs_is_align(bits, 0x07)) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_appinfo: alignment error\n");
     }
-    pos = bs_pos(bits) >> 3;
+    //pos = bs_pos(bits) >> 3;
     len = bs_read(bits, 32);
 
     if (bs_avail(bits) < len * 8) {
@@ -137,9 +137,11 @@ _parse_appinfo(BITSTREAM *bits, MPLS_AI *ai)
     ai->random_access_flag = bs_read(bits, 1);
     ai->audio_mix_flag = bs_read(bits, 1);
     ai->lossless_bypass_flag = bs_read(bits, 1);
+#if 0
     // Reserved
     bs_skip(bits, 13);
     bs_seek_byte(bits, pos + len);
+#endif
     return 1;
 }
 
