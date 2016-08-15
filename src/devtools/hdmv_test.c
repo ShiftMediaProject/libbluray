@@ -24,6 +24,7 @@
 
 #include "util/log_control.h"
 #include "libbluray/bluray.h"
+#include "libbluray/decoders/overlay.h"
 
 
 #define PRINT_EV0(e)                                \
@@ -136,6 +137,30 @@ static void _play_pl(BLURAY *bd)
     printf("\n");
 }
 
+static void _overlay_cb(void *h, const struct bd_overlay_s * const ov)
+{
+    (void)h;
+
+    if (ov) {
+        printf("OVERLAY @%ld p%d %d: %d,%d %dx%d\n", (long)ov->pts, ov->plane, ov->cmd, ov->x, ov->y, ov->w, ov->h);
+
+    } else {
+        printf("OVERLAY CLOSE\n");
+    }
+}
+
+static void _argb_overlay_cb(void *h, const struct bd_argb_overlay_s * const ov)
+{
+    (void)h;
+
+    if (ov) {
+      printf("ARGB OVERLAY @%ld p%d %d: %d,%d %dx%d\n", (long)ov->pts, ov->plane, ov->cmd, ov->x, ov->y, ov->w, ov->h);
+
+    } else {
+        printf("ARGB OVERLAY CLOSE\n");
+    }
+}
+
 int main(int argc, char *argv[])
 {
     int title = -1;
@@ -186,6 +211,9 @@ int main(int argc, char *argv[])
     bd_set_player_setting_str(bd, BLURAY_PLAYER_SETTING_PG_LANG,      "eng");
     bd_set_player_setting_str(bd, BLURAY_PLAYER_SETTING_MENU_LANG,    "eng");
     bd_set_player_setting_str(bd, BLURAY_PLAYER_SETTING_COUNTRY_CODE, NULL);
+
+    bd_register_overlay_proc(bd, bd, _overlay_cb);
+    bd_register_argb_overlay_proc(bd, bd, _argb_overlay_cb, NULL);
 
     /*
      * play
