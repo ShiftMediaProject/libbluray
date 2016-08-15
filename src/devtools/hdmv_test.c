@@ -25,94 +25,73 @@
 #include "util/log_control.h"
 #include "libbluray/bluray.h"
 
+
+#define PRINT_EV0(e)                                \
+  case BD_EVENT_##e:                                \
+      printf(#e "\n");                              \
+      break
+#define PRINT_EV1(e,f)                              \
+  case BD_EVENT_##e:                                \
+    printf("%-25s " f "\n", #e ":", ev->param);     \
+      break
+
 static void _print_event(BD_EVENT *ev)
 {
-    switch (ev->event) {
+    switch ((bd_event_e)ev->event) {
+
         case BD_EVENT_NONE:
             break;
-        case BD_EVENT_ERROR:
-            printf("EVENT_ERROR:\t%d\n", ev->param);
-            break;
-        case BD_EVENT_READ_ERROR:
-            printf("EVENT_READ_ERROR:\t%d\n", ev->param);
-            break;
-        case BD_EVENT_ENCRYPTED:
-            printf("EVENT_ENCRYPTED:\t%d\n", ev->param);
-            break;
+
+        /* errors */
+
+        PRINT_EV1(ERROR,      "%u");
+        PRINT_EV1(READ_ERROR, "%u");
+        PRINT_EV1(ENCRYPTED,  "%u");
 
         /* current playback position */
 
-        case BD_EVENT_ANGLE:
-            printf("EVENT_ANGLE:\t%d\n", ev->param);
-            break;
-        case BD_EVENT_TITLE:
-            printf("EVENT_TITLE:\t%d\n", ev->param);
-            break;
-        case BD_EVENT_PLAYLIST:
-            printf("EVENT_PLAYLIST:\t%d\n", ev->param);
-            break;
-        case BD_EVENT_PLAYITEM:
-            printf("EVENT_PLAYITEM:\t%d\n", ev->param);
-            break;
-        case BD_EVENT_CHAPTER:
-            printf("EVENT_CHAPTER:\t%d\n", ev->param);
-            break;
+        PRINT_EV1(ANGLE,    "%u");
+        PRINT_EV1(TITLE,    "%u");
+        PRINT_EV1(PLAYLIST, "%05u.mpls");
+        PRINT_EV1(PLAYITEM, "%u");
+        PRINT_EV1(PLAYMARK, "%u");
+        PRINT_EV1(CHAPTER,  "%u");
+        PRINT_EV0(END_OF_TITLE);
 
-        /* */
+        PRINT_EV1(STEREOSCOPIC_STATUS,  "%u");
 
-        case BD_EVENT_STILL:
-            printf("EVENT_STILL:\t%d\n", ev->param);
-            break;
+        PRINT_EV1(SEEK,     "%u");
+        PRINT_EV0(DISCONTINUITY);
+        PRINT_EV0(PLAYLIST_STOP);
 
-        case BD_EVENT_SEEK:
-            printf("EVENT_SEEK:\t%d\n", ev->param);
-            break;
+        /* Interactive */
 
-        case BD_EVENT_STILL_TIME:
-            if (ev->param) {
-                printf("EVENT_STILL_TIME:\t%d\n", ev->param);
-            } else {
-                printf("EVENT_STILL_TIME:\tinfinite\n");
-            }
-            break;
+        PRINT_EV1(STILL_TIME,           "%u");
+        PRINT_EV1(STILL,                "%u");
+        PRINT_EV1(SOUND_EFFECT,         "%u");
+        PRINT_EV1(IDLE,                 "%u");
+        PRINT_EV1(POPUP,                "%u");
+        PRINT_EV1(MENU,                 "%u");
+        PRINT_EV1(UO_MASK_CHANGED,      "0x%04x");
+        PRINT_EV1(KEY_INTEREST_TABLE,   "0x%04x");
 
         /* stream selection */
 
-        case BD_EVENT_AUDIO_STREAM:
-            printf("EVENT_AUDIO_STREAM:\t%d\n", ev->param);
-            break;
-        case BD_EVENT_IG_STREAM:
-            printf("EVENT_IG_STREAM:\t%d\n", ev->param);
-            break;
-        case BD_EVENT_PG_TEXTST_STREAM:
-            printf("EVENT_PG_TEXTST_STREAM:\t%d\n", ev->param);
-            break;
-        case BD_EVENT_SECONDARY_AUDIO_STREAM:
-            printf("EVENT_SECONDARY_AUDIO_STREAM:\t%d\n", ev->param);
-            break;
-        case BD_EVENT_SECONDARY_VIDEO_STREAM:
-            printf("EVENT_SECONDARY_VIDEO_STREAM:\t%d\n", ev->param);
-            break;
+        PRINT_EV1(PG_TEXTST,              "%u");
+        PRINT_EV1(SECONDARY_AUDIO,        "%u");
+        PRINT_EV1(SECONDARY_VIDEO,        "%u");
+        PRINT_EV1(PIP_PG_TEXTST,          "%u");
 
-        case BD_EVENT_PG_TEXTST:
-            printf("EVENT_PG_TEXTST:\t%s\n", ev->param ? "enable" : "disable");
-            break;
-        case BD_EVENT_SECONDARY_AUDIO:
-            printf("EVENT_SECONDARY_AUDIO:\t%s\n", ev->param ? "enable" : "disable");
-            break;
-        case BD_EVENT_SECONDARY_VIDEO:
-            printf("EVENT_SECONDARY_VIDEO:\t%s\n", ev->param ? "enable" : "disable");
-            break;
-        case BD_EVENT_SECONDARY_VIDEO_SIZE:
-            printf("EVENT_SECONDARY_VIDEO_SIZE:\t%s\n", ev->param==0 ? "PIP" : "fullscreen");
-            break;
+        PRINT_EV1(AUDIO_STREAM,           "%u");
+        PRINT_EV1(IG_STREAM,              "%u");
+        PRINT_EV1(PG_TEXTST_STREAM,       "%u");
+        PRINT_EV1(SECONDARY_AUDIO_STREAM, "%u");
+        PRINT_EV1(SECONDARY_VIDEO_STREAM, "%u");
+        PRINT_EV1(SECONDARY_VIDEO_SIZE,   "%u");
+        PRINT_EV1(PIP_PG_TEXTST_STREAM,   "%u");
+    }
 
-        default:
-            printf("UNKNOWN EVENT %d:\t%d\n", ev->event, ev->param);
-            break;
-      }
-
-      fflush(stdout);
+    fflush(stdout);
 }
 
 static void _read_to_eof(BLURAY *bd)
