@@ -124,8 +124,7 @@ public class BDRootWindow extends Frame {
                 return;
             }
 
-            Area a = dirty.getBounds();
-            dirty.clear();
+            Area a = dirty.getBoundsAndClear();
 
             if (!a.isEmpty()) {
                 if (!overlay_open) {
@@ -188,8 +187,8 @@ public class BDRootWindow extends Frame {
             if (overlay_open) {
                 logger.error("clearOverlay() ignored (overlay is visible)");
             } else {
+                dirty.getBoundsAndClear();
                 Arrays.fill(backBuffer, 0);
-                dirty.clear();
             }
         }
     }
