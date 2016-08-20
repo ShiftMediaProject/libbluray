@@ -456,6 +456,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         case Unrealized:
             state = Realizing;
             notifyListeners(new TransitionEvent(this, Unrealized, Realizing, Realized));
+            /* fall thru */
         case Realizing:
             ControllerErrorEvent error = doRealize();
             if (error == null) {
@@ -479,9 +480,11 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         case Realizing:
             if (!doRealizeAction())
                 return false;
+            /* fall thru */
         case Realized:
             state = Prefetching;
             notifyListeners(new TransitionEvent(this, Realized, Prefetching, Prefetched));
+            /* fall thru */
         case Prefetching:
 
             if (!PlayerManager.getInstance().allocateResource(this)) {
@@ -510,10 +513,12 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         case Realizing:
             if (!doRealizeAction())
                 return false;
+            /* fall thru */
         case Realized:
         case Prefetching:
             if (!doPrefetchAction())
                 return false;
+            /* fall thru */
         case Prefetched:
             ControllerErrorEvent error = doStart(at);
             if (error == null) {
