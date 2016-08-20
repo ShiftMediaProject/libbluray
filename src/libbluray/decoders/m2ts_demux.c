@@ -243,7 +243,7 @@ PES_BUFFER *m2ts_demux(M2TS_DEMUX *p, uint8_t *buf)
                 pes_buffer_free(&p->buf);
             }
             p->buf = pes_buffer_alloc();
-            if (!buf) {
+            if (!p->buf) {
                 continue;
             }
             int r = _parse_pes(p->buf, buf + 4 + payload_offset, 188 - payload_offset);
