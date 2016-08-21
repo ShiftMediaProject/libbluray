@@ -2589,9 +2589,18 @@ int bd_get_main_title(BLURAY *bd)
     return bd->title_list->main_title_idx;
 }
 
-static void _copy_streams(NAV_CLIP *clip, BLURAY_STREAM_INFO *streams, MPLS_STREAM *si, int count)
+static int _copy_streams(NAV_CLIP *clip, BLURAY_STREAM_INFO **pstreams, MPLS_STREAM *si, int count)
 {
+    BLURAY_STREAM_INFO *streams;
     int ii;
+
+    if (!count) {
+        return 1;
+    }
+    streams = *pstreams = calloc(count, sizeof(BLURAY_STREAM_INFO));
+    if (!streams) {
+        return 0;
+    }
 
     for (ii = 0; ii < count; ii++) {
         streams[ii].coding_type = si[ii].coding_type;
@@ -2606,6 +2615,8 @@ static void _copy_streams(NAV_CLIP *clip, BLURAY_STREAM_INFO *streams, MPLS_STRE
         else
             streams[ii].subpath_id = -1;
     }
+
+    return 1;
 }
 
 static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx, uint32_t playlist)
@@ -2614,12 +2625,19 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
     unsigned int ii;
 
     title_info = calloc(1, sizeof(BLURAY_TITLE_INFO));
+    if (!title_info) {
+        goto error;
+    }
     title_info->idx = title_idx;
     title_info->playlist = playlist;
     title_info->duration = (uint64_t)title->duration * 2;
     title_info->angle_count = title->angle_count;
     title_info->chapter_count = title->chap_list.count;
+    if (title_info->chapter_count) {
     title_info->chapters = calloc(title_info->chapter_count, sizeof(BLURAY_TITLE_CHAPTER));
+    if (!title_info->chapters) {
+        goto error;
+    }
     for (ii = 0; ii < title_info->chapter_count; ii++) {
         title_info->chapters[ii].idx = ii;
         title_info->chapters[ii].start = (uint64_t)title->chap_list.mark[ii].title_time * 2;
@@ -2627,8 +2645,13 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
         title_info->chapters[ii].offset = (uint64_t)title->chap_list.mark[ii].title_pkt * 192L;
         title_info->chapters[ii].clip_ref = title->chap_list.mark[ii].clip_ref;
     }
+    }
     title_info->mark_count = title->mark_list.count;
+    if (title_info->mark_count) {
     title_info->marks = calloc(title_info->mark_count, sizeof(BLURAY_TITLE_MARK));
+    if (!title_info->marks) {
+        goto error;
+    }
     for (ii = 0; ii < title_info->mark_count; ii++) {
         title_info->marks[ii].idx = ii;
         title_info->marks[ii].type = title->mark_list.mark[ii].mark_type;
@@ -2637,8 +2660,13 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
         title_info->marks[ii].offset = (uint64_t)title->mark_list.mark[ii].title_pkt * 192L;
         title_info->marks[ii].clip_ref = title->mark_list.mark[ii].clip_ref;
     }
+    }
     title_info->clip_count = title->clip_list.count;
+    if (title_info->clip_count) {
     title_info->clips = calloc(title_info->clip_count, sizeof(BLURAY_CLIP_INFO));
+        if (!title_info->clips) {
+        goto error;
+    }
     for (ii = 0; ii < title_info->clip_count; ii++) {
         MPLS_PI *pi = &title->pl->play_item[ii];
         BLURAY_CLIP_INFO *ci = &title_info->clips[ii];
@@ -2656,21 +2684,24 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
         ci->ig_stream_count = pi->stn.num_ig;
         ci->sec_video_stream_count = pi->stn.num_secondary_video;
         ci->sec_audio_stream_count = pi->stn.num_secondary_audio;
-        ci->video_streams = calloc(ci->video_stream_count, sizeof(BLURAY_STREAM_INFO));
-        ci->audio_streams = calloc(ci->audio_stream_count, sizeof(BLURAY_STREAM_INFO));
-        ci->pg_streams = calloc(ci->pg_stream_count, sizeof(BLURAY_STREAM_INFO));
-        ci->ig_streams = calloc(ci->ig_stream_count, sizeof(BLURAY_STREAM_INFO));
-        ci->sec_video_streams = calloc(ci->sec_video_stream_count, sizeof(BLURAY_STREAM_INFO));
-        ci->sec_audio_streams = calloc(ci->sec_audio_stream_count, sizeof(BLURAY_STREAM_INFO));
-        _copy_streams(nc, ci->video_streams, pi->stn.video, ci->video_stream_count);
-        _copy_streams(nc, ci->audio_streams, pi->stn.audio, ci->audio_stream_count);
-        _copy_streams(nc, ci->pg_streams, pi->stn.pg, ci->pg_stream_count);
-        _copy_streams(nc, ci->ig_streams, pi->stn.ig, ci->ig_stream_count);
-        _copy_streams(nc, ci->sec_video_streams, pi->stn.secondary_video, ci->sec_video_stream_count);
-        _copy_streams(nc, ci->sec_audio_streams, pi->stn.secondary_audio, ci->sec_audio_stream_count);
+        if (!_copy_streams(nc, &ci->video_streams, pi->stn.video, ci->video_stream_count) ||
+            !_copy_streams(nc, &ci->audio_streams, pi->stn.audio, ci->audio_stream_count) ||
+            !_copy_streams(nc, &ci->pg_streams, pi->stn.pg, ci->pg_stream_count) ||
+            !_copy_streams(nc, &ci->ig_streams, pi->stn.ig, ci->ig_stream_count) ||
+            !_copy_streams(nc, &ci->sec_video_streams, pi->stn.secondary_video, ci->sec_video_stream_count) ||
+            !_copy_streams(nc, &ci->sec_audio_streams, pi->stn.secondary_audio, ci->sec_audio_stream_count)) {
+
+            goto error;
+        }
+    }
     }
 
     return title_info;
+
+ error:
+    BD_DEBUG(DBG_CRIT, "Out of memory\n");
+    bd_free_title_info(title_info);
+    return NULL;
 }
 
 static BLURAY_TITLE_INFO *_get_title_info(BLURAY *bd, uint32_t title_idx, uint32_t playlist, const char *mpls_name,
@@ -2729,8 +2760,10 @@ void bd_free_title_info(BLURAY_TITLE_INFO *title_info)
 {
     unsigned int ii;
 
+    if (title_info) {
     X_FREE(title_info->chapters);
     X_FREE(title_info->marks);
+    if (title_info->clips) {
     for (ii = 0; ii < title_info->clip_count; ii++) {
         X_FREE(title_info->clips[ii].video_streams);
         X_FREE(title_info->clips[ii].audio_streams);
@@ -2740,7 +2773,9 @@ void bd_free_title_info(BLURAY_TITLE_INFO *title_info)
         X_FREE(title_info->clips[ii].sec_audio_streams);
     }
     X_FREE(title_info->clips);
+    }
     X_FREE(title_info);
+    }
 }
 
 /*
