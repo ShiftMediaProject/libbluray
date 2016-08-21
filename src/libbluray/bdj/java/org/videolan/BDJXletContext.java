@@ -468,9 +468,11 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
 
         exitXlet();
 
-        callbackQueue.shutdown();
-        userEventQueue.shutdown();
-        mediaQueue.shutdown();
+        synchronized (cbLock) {
+            callbackQueue.shutdown();
+            userEventQueue.shutdown();
+            mediaQueue.shutdown();
+        }
 
         EventQueue eq = eventQueue;
         eventQueue = null;
