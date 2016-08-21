@@ -44,12 +44,14 @@ public class GUIManager extends BDRootWindow {
         }
     }
 
-    public static synchronized GUIManager getInstance() {
-        if (instance == null) {
-            Logger.getLogger("GUIManager").error("getInstance(): no instance !");
-            throw new Error("no GUIManager instance");
+    public static GUIManager getInstance() {
+        synchronized (instanceLock) {
+            if (instance == null) {
+                Logger.getLogger("GUIManager").error("getInstance(): no instance !");
+                throw new Error("no GUIManager instance");
+            }
+            return instance;
         }
-        return instance;
     }
 
     public BufferedImage createBufferedImage(int width, int height)
