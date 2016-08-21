@@ -346,7 +346,7 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
     MPLS_PL *pl = NULL;
     unsigned int ii, pl_list_size = 0;
     int res;
-    NAV_TITLE_LIST *title_list;
+    NAV_TITLE_LIST *title_list = NULL;
     unsigned int title_info_alloc = 100;
 
     dir = disc_open_dir(disc, "BDMV" DIR_SEP "PLAYLIST");
@@ -355,7 +355,16 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
     }
 
     title_list = calloc(1, sizeof(NAV_TITLE_LIST));
+    if (!title_list) {
+        dir_close(dir);
+        return NULL;
+    }
     title_list->title_info = calloc(title_info_alloc, sizeof(NAV_TITLE_INFO));
+    if (!title_list->title_info) {
+        X_FREE(title_list);
+        dir_close(dir);
+        return NULL;
+    }
 
     ii = 0;
     for (res = dir_read(dir, &ent); !res; res = dir_read(dir, &ent)) {
