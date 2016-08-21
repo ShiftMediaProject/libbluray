@@ -768,7 +768,7 @@ main(int argc, char *argv[])
             }
             struct dirent *ent;
             int jj = 0;
-            for (ent = readdir(dir); ent != NULL; ent = readdir(dir)) {
+            for (ent = readdir(dir); ent != NULL && jj < 1000; ent = readdir(dir)) {
                 char *s = (char*)malloc(strlen(ent->d_name) + 1);
                 if (s) {
                     dirlist[jj++] = strcpy(s, ent->d_name);
