@@ -124,8 +124,12 @@ public class Libbluray {
             System.err.println("Cache creation failed: " + e);
             /* not fatal with most discs */
         }
-        persistentRoot = canonicalize(persistentRoot, true);
-        budaRoot       = canonicalize(budaRoot, true);
+        if (persistentRoot != null) {
+            persistentRoot = canonicalize(persistentRoot, true);
+        }
+        if (budaRoot != null) {
+            budaRoot       = canonicalize(budaRoot, true);
+        }
 
         System.setProperty("dvb.persistent.root", persistentRoot);
         System.setProperty("bluray.bindingunit.root", budaRoot);
