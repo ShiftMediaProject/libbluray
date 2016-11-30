@@ -213,6 +213,7 @@ static void *_load_jvm(const char **p_java_home)
     static const char *jvm_path[] = {NULL, JDK_HOME,
                                      "/usr/lib/jvm/default-java",
                                      "/usr/lib/jvm/default",
+                                     "/usr/lib/jvm/",
                                      "/etc/java-config-2/current-system-vm",
                                      "/usr/lib/jvm/java-7-openjdk",
                                      "/usr/lib/jvm/java-8-openjdk",
