@@ -39,6 +39,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __APPLE__
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <limits.h>
+#include <unistd.h>
+#endif
+
 #ifdef _WIN32
 #include <windows.h>
 #include <winreg.h>
@@ -177,6 +184,71 @@ static inline char *_utf8_to_cp(const char *utf8)
 }
 #endif
 
+#if defined(__APPLE__) && !defined(HAVE_BDJ_J2ME)
+
+#define MACOS_JAVA_HOME "/usr/libexec/java_home"
+static char *_java_home_macos()
+{
+    static char result[PATH_MAX] = "";
+
+    if (result[0])
+        return result;
+
+    pid_t java_home_pid;
+    int fd[2], exitcode;
+
+    if (pipe(fd)) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "unable to set up pipes\n");
+        return NULL;
+    }
+
+    switch (java_home_pid = vfork())
+    {
+        case -1:
+            BD_DEBUG(DBG_BDJ | DBG_CRIT, "vfork failed\n");
+            return NULL;
+
+        case 0:
+            if (dup2(fd[1], STDOUT_FILENO) == -1) {
+                _exit(-1);
+            }
+
+            close(fd[1]);
+            close(fd[0]);
+
+            execl(MACOS_JAVA_HOME, MACOS_JAVA_HOME);
+
+            _exit(-1);
+
+        default:
+            close(fd[1]);
+
+            for (int len = 0; ;) {
+                int n = read(fd[0], result + len, sizeof result - len);
+                if (n <= 0)
+                    break;
+
+                len += n;
+                result[len-1] = '\0';
+            }
+
+            waitpid(java_home_pid, &exitcode, 0);
+    }
+
+    if (result[0] == '\0' || exitcode) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT,
+                 "Unable to read path from " MACOS_JAVA_HOME "\n");
+        result[0] = '\0';
+        return NULL;
+    }
+
+    BD_DEBUG(DBG_BDJ, "macos java home: '%s'\n", result );
+    return result;
+}
+#undef MACOS_JAVA_HOME
+
+#endif
+
 static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char *jvm_lib)
 {
     if (java_home) {
@@ -234,6 +306,10 @@ static void *_load_jvm(const char **p_java_home)
     static const char  jvm_dir[]  = "jre\\bin\\server";
     static const char  jvm_lib[]  = "jvm";
 # else
+#  ifdef __APPLE__
+    static const char *jvm_path[] = {NULL, JDK_HOME};
+    static const char  jvm_dir[]  = "jre/lib/server";
+#  else
     static const char *jvm_path[] = {NULL, JDK_HOME,
                                      "/usr/lib/jvm/default-java",
                                      "/usr/lib/jvm/default",
@@ -244,6 +320,7 @@ static void *_load_jvm(const char **p_java_home)
                                      "/usr/lib/jvm/java-6-openjdk",
     };
     static const char  jvm_dir[]  = "jre/lib/" JAVA_ARCH "/server";
+#  endif
     static const char  jvm_lib[]  = "libjvm";
 # endif
 #endif
@@ -262,6 +339,14 @@ static void *_load_jvm(const char **p_java_home)
     handle = _load_jvm_win32(p_java_home);
     if (handle) {
         return handle;
+    }
+#endif
+
+#if defined(__APPLE__) && !defined(HAVE_BDJ_J2ME)
+    java_home = _java_home_macos();
+    if (java_home) {
+        *p_java_home = java_home;
+        return _jvm_dlopen(java_home, jvm_dir, jvm_lib);
     }
 #endif
 
