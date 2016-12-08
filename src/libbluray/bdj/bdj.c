@@ -51,6 +51,9 @@
 #endif
 
 struct bdjava_s {
+#if defined(__APPLE__) && !defined(HAVE_BDJ_J2ME)
+    void   *h_libjli;
+#endif
     void   *h_libjvm;
     JavaVM *jvm;
 };
@@ -191,6 +194,27 @@ static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char 
         return dl_dlopen(jvm_lib, NULL);
     }
 }
+
+#if defined(__APPLE__) && !defined(HAVE_BDJ_J2ME)
+static void *_load_jli_macos()
+{
+    const char *java_home = NULL;
+    static const char jli_dir[] = "jre/lib/jli";
+    static const char jli_lib[] = "libjli";
+
+    /* JAVA_HOME set, use it */
+    java_home = getenv("JAVA_HOME");
+    if (java_home) {
+        return _jvm_dlopen(java_home, jli_dir, jli_lib);
+    }
+
+    java_home = _java_home_macos();
+    if (java_home) {
+        return _jvm_dlopen(java_home, jli_dir, jli_lib);
+    }
+    return NULL;
+}
+#endif
 
 static void *_load_jvm(const char **p_java_home)
 {
@@ -632,6 +656,16 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
         return NULL;
     }
 
+#if defined(__APPLE__) && !defined(HAVE_BDJ_J2ME)
+    /* On macOS we need to load libjli to workaround a bug where the wrong
+     * version would be used: https://bugs.openjdk.java.net/browse/JDK-7131356
+     */
+    void* jli_lib = _load_jli_macos();
+    if (!jli_lib) {
+        BD_DEBUG(DBG_BDJ, "Wasn't able to load JLI\n");
+    }
+#endif
+
     // first load the jvm using dlopen
     const char *java_home = NULL;
     void* jvm_lib = _load_jvm(&java_home);
@@ -657,6 +691,9 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
         return NULL;
     }
 
+#if defined(__APPLE__) && !defined(HAVE_BDJ_J2ME)
+    bdjava->h_libjli = jli_lib;
+#endif
     bdjava->h_libjvm = jvm_lib;
     bdjava->jvm = jvm;
 
@@ -718,6 +755,12 @@ void bdj_close(BDJAVA *bdjava)
     if (bdjava->h_libjvm) {
         dl_dlclose(bdjava->h_libjvm);
     }
+
+#if defined(__APPLE__) && !defined(HAVE_BDJ_J2ME)
+    if (bdjava->h_libjli) {
+        dl_dlclose(bdjava->h_libjli);
+    }
+#endif
 
     X_FREE(bdjava);
 }
