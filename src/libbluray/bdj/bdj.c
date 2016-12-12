@@ -305,12 +305,11 @@ static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
 {
     // pre-defined search paths for libbluray.jar
     static const char * const jar_paths[] = {
-#ifdef _WIN32
-        "" BDJ_JARFILE,
-#else
+#ifndef _WIN32
         "/usr/share/java/" BDJ_JARFILE,
         "/usr/share/libbluray/lib/" BDJ_JARFILE,
 #endif
+        BDJ_JARFILE,
     };
 
     unsigned i;
@@ -373,13 +372,6 @@ static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
             BD_DEBUG(DBG_BDJ, "using %s\n", storage->classpath);
             return storage->classpath;
         }
-    }
-
-    // try from current directory
-    if (_can_read_file(BDJ_JARFILE)) {
-        storage->classpath = str_dup(BDJ_JARFILE);
-        BD_DEBUG(DBG_BDJ, "using %s\n", storage->classpath);
-        return storage->classpath;
     }
 
     BD_DEBUG(DBG_BDJ | DBG_CRIT, BDJ_JARFILE" not found.\n");
