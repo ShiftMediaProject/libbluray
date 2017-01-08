@@ -987,6 +987,7 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
         BLURAY_TITLE **titles = (BLURAY_TITLE**)array_alloc(index->num_titles + 2, sizeof(BLURAY_TITLE));
         if (!titles) {
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Can't allocate memory\n");
+            indx_free(&index);
             return;
         }
         bd->titles = titles;
