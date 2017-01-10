@@ -217,7 +217,7 @@ public class BDJLoader {
                     }
                 }
                 if (proxy != null) {
-                    logger.info("Terminating xlet " + (entry == null ? "?" : entry.getInitialClass()));
+                    logger.info("Terminating xlet " + entry.getInitialClass());
                     proxy.release();
                 }
             }
