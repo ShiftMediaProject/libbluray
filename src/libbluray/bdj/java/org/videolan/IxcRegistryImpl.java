@@ -359,7 +359,7 @@ public class IxcRegistryImpl {
      * store
      */
 
-    private class WrappedRemoteObj
+    private static class WrappedRemoteObj
     {
         final Remote         object;
         final BDJXletContext context;

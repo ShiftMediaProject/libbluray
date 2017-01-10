@@ -593,7 +593,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
         PlayerManager.getInstance().unregisterPlayer(this);
     }
 
-    private class PlayerAction extends BDJAction {
+    private static class PlayerAction extends BDJAction {
         private PlayerAction(BDHandler player, int action, Object param) {
             this(player, action, param, -1);
         }

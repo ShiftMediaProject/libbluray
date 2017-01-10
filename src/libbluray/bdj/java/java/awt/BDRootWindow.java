@@ -144,7 +144,7 @@ public class BDRootWindow extends Frame {
         }
     }
 
-    private class RefreshTimerTask extends TimerTask {
+    private static class RefreshTimerTask extends TimerTask {
         public RefreshTimerTask(BDRootWindow window) {
             this.window = window;
             this.changeCount = window.changeCount;
