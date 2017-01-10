@@ -86,10 +86,8 @@ public class SIManagerImpl extends SIManager {
     }
 
     public Service getService(Locator locator) throws InvalidLocatorException, SecurityException {
-
-        BDLocator bdLocator = null;
         try {
-            bdLocator = new BDLocator(locator.toExternalForm());
+            new BDLocator(locator.toExternalForm());
         } catch (org.davic.net.InvalidLocatorException e) {
             System.err.println("invalid locator: " + locator.toExternalForm() + "\n" + org.videolan.Logger.dumpStack(e));
             throw new javax.tv.locator.InvalidLocatorException(locator);
