@@ -325,7 +325,9 @@ public class BDJLoader {
             while (ids.hasMoreElements()) {
                 AppID id = (AppID)ids.nextElement();
                 BDJAppProxy proxy = (BDJAppProxy)db.getAppProxy(id);
-                proxy.release();
+                if (proxy != null) {
+                    proxy.release();
+                }
             }
 
             ((BDJAppsDatabase)db).newDatabase(null, null);
