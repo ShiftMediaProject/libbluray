@@ -30,4 +30,8 @@ public class S3DProperty {
     protected S3DProperty(String name) {
         this.name = name;
     }
+
+    public String toString() {
+        return getClass().getName() + "[" + name + "]";
+    }
 }
