@@ -244,6 +244,7 @@ typedef struct bd_clip {
     uint64_t           start_time;  /* start media time, 90kHz, ("playlist time") */
     uint64_t           in_time;     /* start timestamp, 90kHz */
     uint64_t           out_time;    /* end timestamp, 90kHz */
+    char               clip_id[6];
 } BLURAY_CLIP_INFO;
 
 typedef struct bd_chapter {
