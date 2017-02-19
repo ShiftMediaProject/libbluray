@@ -26,7 +26,7 @@ class Area {
     public int y1;
 
     public Area() {
-        clear();
+        this(Integer.MAX_VALUE, Integer.MAX_VALUE, -1, -1);
     }
 
     public Area(int width, int height) {
