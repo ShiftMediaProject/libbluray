@@ -570,9 +570,18 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle);
  *
  *  Select stream (PG / TextST track)
  *
+ *  When playing with on-disc menus:
+ *
+ *  Stream selection is controlled by on-disc menus.
+ *  If user can change stream selection also in player GUI, this function
+ *  should be used to keep on-disc menus in sync with player GUI.
+ *
+ *  When playing the disc without on-disc menus:
+ *
+ *  Initial stream selection is done using preferred language settings.
  *  This function can be used to override automatic stream selection.
- *  Selecting the stream is useful only when using libbluray internal decoders
- *  or stream is stored in a sub-path.
+ *  Without on-disc menus selecting the stream is useful only when using
+ *  libbluray internal decoders or the stream is stored in a sub-path.
  *
  * @param bd  BLURAY object
  * @param stream_type  BLURAY_*_STREAM
@@ -997,9 +1006,8 @@ int bd_set_rate(BLURAY *bd, uint32_t rate);
 
 /**
  *
- *  Pass user input to graphics controller.
+ *  Pass user input to graphics controller or BD-J.
  *  Keys are defined in libbluray/keys.h.
- *  Current pts can be updated by using BD_VK_NONE key. This is required for animated menus.
  *
  * @param bd  BLURAY object
  * @param pts current playback position (1/90000s) or -1
@@ -1011,6 +1019,8 @@ int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key);
 /**
  *
  *  Select menu button at location (x,y).
+ *
+ *  This function has no effect with BD-J menus.
  *
  * @param bd  BLURAY object
  * @param pts current playback position (1/90000s) or -1
