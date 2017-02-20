@@ -1,3 +1,20 @@
+- Add support for Java VM (BD-J) on MacOS.
+- Add clip_id to BLURAY_CLIP_INFO.
+- Add a suitable JVM path for Fedora/RHEL and clones.
+- Add support for AVCHD 8.3 filenames.
+- Add player setting for disabling persistent storage.
+- Add bd_set_rate().
+- Add playback time position to BD_EVENT_SEEK.
+- Add BD_VK_ROOT_MENU handling.
+- Add support for heavily fragmented 3D .m2ts files.
+- Improve playback resume position accuracy.
+- Improve error resilience and stability.
+- Fix using libmmbd with unmounted discs.
+- Fix leaks.
+- Delay BD-J overlay opening until something visible has been drawn.
+- Close BD-J overlay when window is not visible.
+- Use temporary storage when cache or persistent root location is unknown.
+
 2016-05-15: Version 0.9.3
 - Add bd_open_files(). This function deprecates old global file system hooks.
 - Add flag for on-disc menu support to DISC_INFO.
