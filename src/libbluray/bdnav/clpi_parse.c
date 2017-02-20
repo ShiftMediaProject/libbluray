@@ -635,8 +635,12 @@ _parse_extent_start_points(BITSTREAM *bits, CLPI_EXTENT_START *es)
     bs_skip(bits, 32); // length
     es->num_point = bs_read(bits, 32);
 
-    es->point = malloc(es->num_point * sizeof(uint32_t));
-
+    es->point = calloc(es->num_point, sizeof(uint32_t));
+    if (es->num_point && !es->point) {
+        es->num_point = 0;
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
     for (ii = 0; ii < es->num_point; ii++) {
         es->point[ii] = bs_read(bits, 32);
     }
