@@ -69,39 +69,33 @@ typedef struct {
 typedef struct {
     uint8_t  bluray_detected;
 
+    /* Disc ID */
+    const char *disc_name;     /* optional disc name in preferred language */
+    const char *udf_volume_id; /* optional UDF volume identifier */
+    uint8_t     disc_id[20];
+
+    /* HDMV / BD-J titles */
+    uint8_t  no_menu_support;            /* 1 if this disc can't be played using on-disc menus */
     uint8_t  first_play_supported;
     uint8_t  top_menu_supported;
+
+    uint32_t             num_titles;
+    const BLURAY_TITLE  *const *titles;  /* index is title number 1 ... N */
+    const BLURAY_TITLE  *first_play;     /* titles[N+1].   NULL if not present on the disc. */
+    const BLURAY_TITLE  *top_menu;       /* titles[0]. NULL if not present on the disc. */
 
     uint32_t num_hdmv_titles;
     uint32_t num_bdj_titles;
     uint32_t num_unsupported_titles;
 
-    uint8_t  aacs_detected;
-    uint8_t  libaacs_detected;
-    uint8_t  aacs_handled;
-
-    uint8_t  bdplus_detected;
-    uint8_t  libbdplus_detected;
-    uint8_t  bdplus_handled;
-
-    /* aacs error code */
-    int      aacs_error_code;
-    /* aacs MKB version */
-    int      aacs_mkbv;
-
-    /* Disc ID */
-    uint8_t  disc_id[20];
-
-    /* BD-J */
+    /* BD-J info  (valid only if disc uses BD-J) */
     uint8_t  bdj_detected;     /* 1 if disc uses BD-J */
     uint8_t  bdj_supported;    /* 1 if BD-J support was compiled in */
     uint8_t  libjvm_detected;  /* 1 if usable Java VM was found */
     uint8_t  bdj_handled;      /* 1 if usable Java VM + libbluray.jar was found */
 
-    /* BD+ content code generation */
-    uint8_t  bdplus_gen;
-    /* BD+ content code relese date */
-    uint32_t bdplus_date;      /* (year << 16) | (month << 8) | day */
+    char bdj_org_id[9];        /* (BD-J) disc organization ID */
+    char bdj_disc_id[33];      /* (BD-J) disc ID */
 
     /* disc application info */
     uint8_t video_format;             /* bd_video_format_e */
@@ -110,18 +104,21 @@ typedef struct {
     uint8_t initial_output_mode_preference;   /* 0 - 2D, 1 - 3D */
     uint8_t provider_data[32];
 
-    /* HDMV / BD-J titles */
-    uint32_t             num_titles;
-    const BLURAY_TITLE  *const *titles;  /* index is title number 1 ... N */
-    const BLURAY_TITLE  *first_play;     /* titles[N+1].   NULL if not present on the disc. */
-    const BLURAY_TITLE  *top_menu;       /* titles[0]. NULL if not present on the disc. */
+    /* AACS info  (valid only if disc uses AACS) */
+    uint8_t  aacs_detected;       /* 1 if disc is using AACS encoding */
+    uint8_t  libaacs_detected;    /* 1 if usable AACS decoding library was found */
+    uint8_t  aacs_handled;        /* 1 if disc is using supported AACS encoding */
 
-    char bdj_org_id[9];      /* (BD-J) disc organization ID */
-    char bdj_disc_id[33];    /* (BD-J) disc ID */
+    int      aacs_error_code;     /* AACS error code (BD_AACS_*) */
+    int      aacs_mkbv;           /* AACS MKB version */
 
-    const char *udf_volume_id; /* optional UDF volume identifier */
+    /* BD+ info  (valid only if disc uses BD+) */
+    uint8_t  bdplus_detected;     /* 1 if disc is using BD+ encoding */
+    uint8_t  libbdplus_detected;  /* 1 if usable BD+ decoding library was found */
+    uint8_t  bdplus_handled;      /* 1 if disc is using supporred BD+ encoding */
 
-    uint8_t no_menu_support;   /* 1 if this disc can't be played using on-disc menus */
+    uint8_t  bdplus_gen;          /* BD+ content code generation */
+    uint32_t bdplus_date;         /* BD+ content code relese date ((year<<16)|(month<<8)|day) */
 
 } BLURAY_DISC_INFO;
 
@@ -271,10 +268,9 @@ typedef struct bd_title_info {
     uint32_t             clip_count;
     uint8_t              angle_count;
     uint32_t             chapter_count;
+    uint32_t             mark_count;
     BLURAY_CLIP_INFO     *clips;
     BLURAY_TITLE_CHAPTER *chapters;
-
-    uint32_t             mark_count;
     BLURAY_TITLE_MARK    *marks;
 } BLURAY_TITLE_INFO;
 

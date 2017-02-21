@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010-2012  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2010-2017  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -71,6 +71,8 @@ typedef struct bd_overlay_s {
     uint8_t  plane; /* bd_overlay_plane_e */
     uint8_t  cmd;   /* bd_overlay_cmd_e */
 
+    uint8_t  palette_update_flag; /* only palette was changed */
+
     uint16_t x;
     uint16_t y;
     uint16_t w;
@@ -79,7 +81,6 @@ typedef struct bd_overlay_s {
     const BD_PG_PALETTE_ENTRY * palette;
     const BD_PG_RLE_ELEM      * img;
 
-    uint8_t palette_update_flag; /* only palette was changed */
 } BD_OVERLAY;
 
 /*
@@ -143,15 +144,14 @@ typedef struct bd_argb_overlay_s {
      * frame buffer
      */
 
-    /* destination clip on the overlay plane
-     */
+    /* destination clip on the overlay plane */
     uint16_t x;
     uint16_t y;
     uint16_t w;
     uint16_t h;
+    uint16_t stride;       /* buffer stride */
 
     const uint32_t * argb; /* 'h' lines, line length 'stride' pixels */
-    uint16_t stride;       /* buffer stride */
 
 } BD_ARGB_OVERLAY;
 
