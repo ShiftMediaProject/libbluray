@@ -2146,8 +2146,8 @@ static int _preload_textst_subpath(BLURAY *bd)
 
     /* set fonts and encoding from clip info */
     gc_add_font(bd->graphics_controller, NULL, -1);
-    for (ii = 0; ii < bd->st_textst.clip->cl->font_info.font_count; ii++) {
-        char *file = str_printf("%s.otf", bd->st_textst.clip->cl->font_info.font[ii].file_id);
+    for (ii = 0; ii < bd->st_textst.clip->cl->clip.font_info.font_count; ii++) {
+        char *file = str_printf("%s.otf", bd->st_textst.clip->cl->clip.font_info.font[ii].file_id);
         if (file) {
             uint8_t *data = NULL;
             size_t size = disc_read_file(bd->disc, "BDMV" DIR_SEP "AUXDATA", file, &data);

@@ -220,10 +220,10 @@ _show_clip_info(CLPI_CL *cl, int level)
         indent_printf(level+2, "File Code %s", ci->atc_delta[ii].file_code);
     }
     // show fonts
-    if (cl->font_info.font_count) {
+    if (cl->clip.font_info.font_count) {
         indent_printf(level+1, "Font files");
-        for (ii = 0; ii < cl->font_info.font_count; ii++) {
-            indent_printf(level+2, "Font file %d: %s.otf", ii+1, cl->font_info.font[ii].file_id);
+        for (ii = 0; ii < cl->clip.font_info.font_count; ii++) {
+            indent_printf(level+2, "Font file %d: %s.otf", ii+1, cl->clip.font_info.font[ii].file_id);
         }
     }
 
