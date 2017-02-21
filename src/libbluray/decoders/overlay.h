@@ -178,7 +178,7 @@ typedef struct bd_argb_buffer_s {
      * - buffer can be replaced in overlay callback or lock().
      */
 
-    uint32_t *buf[2]; /* [0] - PG plane, [1] - IG plane */
+    uint32_t *buf[4]; /* [0] - PG plane, [1] - IG plane. [2], [3] reserved for stereoscopic overlay. */
 
     /* size of buffers
      * - Set by application
