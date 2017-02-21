@@ -909,19 +909,6 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
 }
 
 /*
- * meta open
- */
-
-static int _meta_open(BLURAY *bd)
-{
-    if (!bd->meta) {
-        bd->meta = meta_parse(bd->disc);
-    }
-
-    return !!bd->meta;
-}
-
-/*
  * disc info
  */
 
@@ -3783,7 +3770,7 @@ const struct meta_dl *bd_get_meta(BLURAY *bd)
     }
 
     if (!bd->meta) {
-        _meta_open(bd);
+        bd->meta = meta_parse(bd->disc);
     }
 
     uint32_t psr_menu_lang = bd_psr_read(bd->regs, PSR_MENU_LANG);
