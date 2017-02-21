@@ -35,18 +35,18 @@ typedef enum {
 
 typedef enum {
     /* following events are executed immediately */
-    BD_OVERLAY_INIT = 0,    /* init overlay plane. Size and position of plane in x,y,w,h */
-    BD_OVERLAY_CLOSE = 5,   /* close overlay plane */
+    BD_OVERLAY_INIT  = 0,    /* init overlay plane. Size and position of plane in x,y,w,h */
+    BD_OVERLAY_CLOSE = 1,    /* close overlay plane */
 
     /* following events can be processed immediately, but changes
      * should not be flushed to display before next FLUSH event
      */
-    BD_OVERLAY_CLEAR = 1,   /* clear plane */
-    BD_OVERLAY_DRAW = 2,    /* draw bitmap (x,y,w,h,img,palette,crop) */
-    BD_OVERLAY_WIPE = 3,    /* clear area (x,y,w,h) */
-    BD_OVERLAY_HIDE = 6,    /* overlay is empty and can be hidden */
+    BD_OVERLAY_CLEAR = 2,    /* clear plane */
+    BD_OVERLAY_DRAW  = 3,    /* draw bitmap (x,y,w,h,img,palette,crop) */
+    BD_OVERLAY_WIPE  = 4,    /* clear area (x,y,w,h) */
+    BD_OVERLAY_HIDE  = 5,    /* overlay is empty and can be hidden */
 
-    BD_OVERLAY_FLUSH = 4,   /* all changes have been done, flush overlay to display at given pts */
+    BD_OVERLAY_FLUSH = 6,    /* all changes have been done, flush overlay to display at given pts */
 
 } bd_overlay_cmd_e;
 
@@ -125,14 +125,14 @@ void bd_overlay_free(BD_OVERLAY **pov)
 
 typedef enum {
     /* following events are executed immediately */
-    BD_ARGB_OVERLAY_INIT = 0,    /* init overlay plane. Size and position of plane in x,y,w,h */
-    BD_ARGB_OVERLAY_CLOSE = 5,   /* close overlay */
+    BD_ARGB_OVERLAY_INIT  = 0,    /* init overlay plane. Size and position of plane in x,y,w,h */
+    BD_ARGB_OVERLAY_CLOSE = 1,    /* close overlay */
 
     /* following events can be processed immediately, but changes
      * should not be flushed to display before next FLUSH event
      */
-    BD_ARGB_OVERLAY_DRAW = 2,    /* draw image */
-    BD_ARGB_OVERLAY_FLUSH = 4,   /* all changes have been done, flush overlay to display at given pts */
+    BD_ARGB_OVERLAY_DRAW  = 3,    /* draw image */
+    BD_ARGB_OVERLAY_FLUSH = 6,    /* all changes have been done, flush overlay to display at given pts */
 } bd_argb_overlay_cmd_e;
 
 typedef struct bd_argb_overlay_s {
