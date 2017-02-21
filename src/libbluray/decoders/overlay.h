@@ -79,11 +79,6 @@ typedef struct bd_overlay_s {
     const BD_PG_PALETTE_ENTRY * palette;
     const BD_PG_RLE_ELEM      * img;
 
-    uint16_t crop_x; /* deprecated: cropping is executed by libbluray */
-    uint16_t crop_y; /* deprecated: cropping is executed by libbluray */
-    uint16_t crop_w; /* deprecated: cropping is executed by libbluray */
-    uint16_t crop_h; /* deprecated: cropping is executed by libbluray */
-
     uint8_t palette_update_flag; /* only palette was changed */
 } BD_OVERLAY;
 
