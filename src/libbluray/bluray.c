@@ -3790,6 +3790,7 @@ const struct meta_dl *bd_get_meta(BLURAY *bd)
                 bd->titles[meta->toc_entries[ii].title_number]->name = meta->toc_entries[ii].title_name;
             }
         }
+        bd->disc_info.disc_name = meta->di_name;
     }
 
     return meta;
