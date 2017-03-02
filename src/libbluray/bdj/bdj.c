@@ -135,7 +135,7 @@ static void *_load_jvm_win32(const char **p_java_home)
 
     SetDllDirectoryW(java_path);
     void *result = LoadLibraryW(buf_loc);
-    SetDllDirectoryW(NULL);
+    SetDllDirectoryW(L"");
 
     if (!WideCharToMultiByte(CP_UTF8, 0, buf_loc, -1, strbuf, sizeof(strbuf), NULL, NULL)) {
         strbuf[0] = 0;
