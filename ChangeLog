@@ -1,3 +1,4 @@
+2017-03-02: Version 1.0.0
 - Add support for Java VM (BD-J) on MacOS.
 - Add clip_id to BLURAY_CLIP_INFO.
 - Add a suitable JVM path for Fedora/RHEL and clones.
