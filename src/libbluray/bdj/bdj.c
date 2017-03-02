@@ -68,6 +68,33 @@ struct bdjava_s {
 typedef jint (JNICALL * fptr_JNI_CreateJavaVM) (JavaVM **pvm, void **penv,void *args);
 typedef jint (JNICALL * fptr_JNI_GetCreatedJavaVMs) (JavaVM **vmBuf, jsize bufLen, jsize *nVMs);
 
+
+#if defined(_WIN32) && !defined(HAVE_BDJ_J2ME)
+static void *_load_dll(const wchar_t *lib_path, const wchar_t *dll_search_path)
+{
+    void *result;
+
+    PVOID WINAPI (*pAddDllDirectory)   (PCWSTR);
+    BOOL  WINAPI (*pRemoveDllDirectory)(PVOID);
+    pAddDllDirectory    = (__typeof__(pAddDllDirectory))    GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "AddDllDirectory");
+    pRemoveDllDirectory = (__typeof__(pRemoveDllDirectory)) GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "RemoveDllDirectory");
+
+    if (pAddDllDirectory && pRemoveDllDirectory) {
+        PVOID cookie = pAddDllDirectory(dll_search_path);
+        result = LoadLibraryExW(lib_path, NULL,
+                                LOAD_LIBRARY_SEARCH_SYSTEM32 |
+                                LOAD_LIBRARY_SEARCH_USER_DIRS);
+        pRemoveDllDirectory(cookie);
+    } else {
+        SetDllDirectoryW(dll_search_path);
+        result = LoadLibraryW(lib_path);
+        SetDllDirectoryW(L"");
+    }
+
+    return result;
+}
+#endif
+
 #if defined(_WIN32) && !defined(HAVE_BDJ_J2ME)
 static void *_load_jvm_win32(const char **p_java_home)
 {
@@ -133,9 +160,8 @@ static void *_load_jvm_win32(const char **p_java_home)
         return NULL;
     }
 
-    SetDllDirectoryW(java_path);
-    void *result = LoadLibraryW(buf_loc);
-    SetDllDirectoryW(L"");
+
+    void *result = _load_dll(buf_loc, java_path);
 
     if (!WideCharToMultiByte(CP_UTF8, 0, buf_loc, -1, strbuf, sizeof(strbuf), NULL, NULL)) {
         strbuf[0] = 0;
