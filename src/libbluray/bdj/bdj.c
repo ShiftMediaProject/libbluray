@@ -85,18 +85,18 @@ static void *_load_dll(const wchar_t *lib_path, const wchar_t *dll_search_path)
                                LOAD_LIBRARY_SEARCH_SYSTEM32);
 
         if (!result) {
-        PVOID cookie = pAddDllDirectory(dll_search_path);
-        result = LoadLibraryExW(lib_path, NULL,
-                                LOAD_LIBRARY_SEARCH_SYSTEM32 |
-                                LOAD_LIBRARY_SEARCH_USER_DIRS);
-        pRemoveDllDirectory(cookie);
+            PVOID cookie = pAddDllDirectory(dll_search_path);
+            result = LoadLibraryExW(lib_path, NULL,
+                                    LOAD_LIBRARY_SEARCH_SYSTEM32 |
+                                    LOAD_LIBRARY_SEARCH_USER_DIRS);
+            pRemoveDllDirectory(cookie);
         }
     } else {
         result = LoadLibraryW(lib_path);
         if (!result) {
-        SetDllDirectoryW(dll_search_path);
-        result = LoadLibraryW(lib_path);
-        SetDllDirectoryW(L"");
+            SetDllDirectoryW(dll_search_path);
+            result = LoadLibraryW(lib_path);
+            SetDllDirectoryW(L"");
         }
     }
 
