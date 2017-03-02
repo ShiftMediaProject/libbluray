@@ -7,6 +7,7 @@
 - Add playback time position to BD_EVENT_SEEK.
 - Add BD_VK_ROOT_MENU handling.
 - Add support for heavily fragmented 3D .m2ts files.
+- Improve Win32 dll loading security.
 - Improve playback resume position accuracy.
 - Improve error resilience and stability.
 - Fix using libmmbd with unmounted discs.
