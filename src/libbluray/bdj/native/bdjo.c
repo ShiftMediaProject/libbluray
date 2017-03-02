@@ -44,7 +44,7 @@
 #define JNICHK(a) \
   do {                                                              \
       if ((*env)->ExceptionOccurred(env)) {                         \
-          BD_DEBUG(DBG_BDJ | DBG_CRIT, "Exception occured\n");      \
+          BD_DEBUG(DBG_BDJ | DBG_CRIT, "Exception occurred\n");     \
           (*env)->ExceptionDescribe(env);                           \
       }                                                             \
       if (!(a)) {                                                   \
