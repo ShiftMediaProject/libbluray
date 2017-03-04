@@ -208,12 +208,17 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
     }
 
     public Font getFont() {
+        if (font == null)
+            return DEFAULT_FONT;
         return font;
     }
 
     public FontMetrics getFontMetrics() {
         if (font != null && fontMetrics == null) {
             fontMetrics = BDFontMetrics.getFontMetrics(font);
+        }
+        if (fontMetrics == null) {
+            logger.error("getFontMetrics() failed");
         }
         return fontMetrics;
     }
@@ -240,6 +245,8 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
     }
 
     public GraphicsConfiguration getDeviceConfiguration() {
+        if (gc == null)
+            logger.error("getDeviceConfiguration() failed");
         return gc;
     }
 

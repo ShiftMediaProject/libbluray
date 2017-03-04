@@ -30,7 +30,7 @@ import org.videolan.StreamInfo;
 
 public class VideoControl implements VideoPresentationControl {
     protected VideoControl(Handler player) {
-        this.player = player;
+        //this.player = player;
     }
 
     protected HScreenRectangle getNormalizedRectangle(Dimension dimension, Rectangle rectangle) {
@@ -146,7 +146,7 @@ public class VideoControl implements VideoPresentationControl {
         throw new Error("Not implemented"); // TODO implement
     }
 
-    private Handler player;
+    //private Handler player;
     private HScreenRectangle srcArea = new HScreenRectangle(0.0f, 0.0f, 1.0f, 1.0f);
     private HScreenRectangle dstArea = new HScreenRectangle(0.0f, 0.0f, 1.0f, 1.0f);
 }

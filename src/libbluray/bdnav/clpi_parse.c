@@ -117,14 +117,19 @@ _parse_stream_attr(BITSTREAM *bits, CLPI_PROG_STREAM *ss)
     ss->lang[3] = '\0';
 
     // Skip over any padding
-    bs_seek_byte(bits, pos + len);
+    if (bs_seek_byte(bits, pos + len) < 0) {
+        return 0;
+    }
     return 1;
 }
 
 static int
 _parse_header(BITSTREAM *bits, CLPI_CL *cl)
 {
-    bs_seek_byte(bits, 0);
+    if (bs_seek_byte(bits, 0) < 0) {
+        return 0;
+    }
+
     cl->type_indicator  = bs_read(bits, 32);
     cl->type_indicator2 = bs_read(bits, 32);
     if (cl->type_indicator != CLPI_SIG1 || 
@@ -155,7 +160,10 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
     int len;
     int ii;
 
-    bs_seek_byte(bits, 40);
+    if (bs_seek_byte(bits, 40) < 0) {
+        return 0;
+    }
+
     // ClipInfo len
     bs_skip(bits, 32);
     // reserved
@@ -178,7 +186,9 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
         cl->clip.ts_type_info.validity = bs_read(bits, 8);
         bs_read_string(bits, cl->clip.ts_type_info.format_id, 4);
         // Seek past the stuff we don't know anything about
-        bs_seek_byte(bits, pos + len);
+        if (bs_seek_byte(bits, pos + len) < 0) {
+            return 0;
+        }
     }
     if (cl->clip.is_atc_delta) {
         // Skip reserved bytes
@@ -186,6 +196,10 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
         cl->clip.atc_delta_count = bs_read(bits, 8);
         cl->clip.atc_delta = 
             malloc(cl->clip.atc_delta_count * sizeof(CLPI_ATC_DELTA));
+        if (cl->clip.atc_delta_count && !cl->clip.atc_delta) {
+            BD_DEBUG(DBG_CRIT, "out of memory\n");
+            return 0;
+        }
         for (ii = 0; ii < cl->clip.atc_delta_count; ii++) {
             cl->clip.atc_delta[ii].delta = bs_read(bits, 32);
             bs_read_string(bits, cl->clip.atc_delta[ii].file_id, 5);
@@ -196,12 +210,17 @@ _parse_clipinfo(BITSTREAM *bits, CLPI_CL *cl)
 
     // font info
     if (cl->clip.application_type == 6 /* Sub TS for a sub-path of Text subtitle */) {
+        CLPI_FONT_INFO *fi = &cl->clip.font_info;
         bs_skip(bits, 8);
-        cl->font_info.font_count = bs_read(bits, 8);
-        if (cl->font_info.font_count) {
-            cl->font_info.font = malloc(cl->font_info.font_count * sizeof(CLPI_FONT));
-            for (ii = 0; ii < cl->font_info.font_count; ii++) {
-                bs_read_string(bits, cl->font_info.font[ii].file_id, 5);
+        fi->font_count = bs_read(bits, 8);
+        if (fi->font_count) {
+            fi->font = malloc(fi->font_count * sizeof(CLPI_FONT));
+            if (!fi->font) {
+                BD_DEBUG(DBG_CRIT, "out of memory\n");
+                return 0;
+            }
+            for (ii = 0; ii < fi->font_count; ii++) {
+                bs_read_string(bits, fi->font[ii].file_id, 5);
                 bs_skip(bits, 8);
             }
         }
@@ -215,7 +234,9 @@ _parse_sequence(BITSTREAM *bits, CLPI_CL *cl)
 {
     int ii, jj;
 
-    bs_seek_byte(bits, cl->sequence_info_start_addr);
+    if (bs_seek_byte(bits, cl->sequence_info_start_addr) < 0) {
+        return 0;
+    }
 
     // Skip the length field, and a reserved byte
     bs_skip(bits, 5 * 8);
@@ -225,6 +246,10 @@ _parse_sequence(BITSTREAM *bits, CLPI_CL *cl)
     CLPI_ATC_SEQ *atc_seq;
     atc_seq = calloc(cl->sequence.num_atc_seq, sizeof(CLPI_ATC_SEQ));
     cl->sequence.atc_seq = atc_seq;
+    if (cl->sequence.num_atc_seq && !atc_seq) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
     for (ii = 0; ii < cl->sequence.num_atc_seq; ii++) {
         atc_seq[ii].spn_atc_start = bs_read(bits, 32);
         atc_seq[ii].num_stc_seq   = bs_read(bits, 8);
@@ -232,6 +257,10 @@ _parse_sequence(BITSTREAM *bits, CLPI_CL *cl)
 
         CLPI_STC_SEQ *stc_seq;
         stc_seq = malloc(atc_seq[ii].num_stc_seq * sizeof(CLPI_STC_SEQ));
+        if (atc_seq[ii].num_stc_seq && !stc_seq) {
+            BD_DEBUG(DBG_CRIT, "out of memory\n");
+            return 0;
+        }
         atc_seq[ii].stc_seq = stc_seq;
         for (jj = 0; jj < atc_seq[ii].num_stc_seq; jj++) {
             stc_seq[jj].pcr_pid                 = bs_read(bits, 16);
@@ -256,6 +285,10 @@ _parse_program(BITSTREAM *bits, CLPI_PROG_INFO *program)
     CLPI_PROG *progs;
     progs = calloc(program->num_prog, sizeof(CLPI_PROG));
     program->progs = progs;
+    if (program->num_prog && !progs) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
     for (ii = 0; ii < program->num_prog; ii++) {
         progs[ii].spn_program_sequence_start = bs_read(bits, 32);
         progs[ii].program_map_pid            = bs_read(bits, 16);
@@ -264,6 +297,10 @@ _parse_program(BITSTREAM *bits, CLPI_PROG_INFO *program)
 
         CLPI_PROG_STREAM *ps;
         ps = calloc(progs[ii].num_streams, sizeof(CLPI_PROG_STREAM));
+        if (progs[ii].num_streams && !ps) {
+            BD_DEBUG(DBG_CRIT, "out of memory\n");
+            return 0;
+        }
         progs[ii].streams = ps;
         for (jj = 0; jj < progs[ii].num_streams; jj++) {
             ps[jj].pid = bs_read(bits, 16);
@@ -278,7 +315,9 @@ _parse_program(BITSTREAM *bits, CLPI_PROG_INFO *program)
 static int
 _parse_program_info(BITSTREAM *bits, CLPI_CL *cl)
 {
-    bs_seek_byte(bits, cl->program_info_start_addr);
+    if (bs_seek_byte(bits, cl->program_info_start_addr) < 0) {
+        return 0;
+    }
 
     return _parse_program(bits, &cl->program);
 }
@@ -291,26 +330,38 @@ _parse_ep_map_stream(BITSTREAM *bits, CLPI_EP_MAP_ENTRY *ee)
     CLPI_EP_COARSE   * coarse;
     CLPI_EP_FINE     * fine;
 
-    bs_seek_byte(bits, ee->ep_map_stream_start_addr);
+    if (bs_seek_byte(bits, ee->ep_map_stream_start_addr) < 0) {
+        return 0;
+    }
     fine_start = bs_read(bits, 32);
 
     coarse = malloc(ee->num_ep_coarse * sizeof(CLPI_EP_COARSE));
     ee->coarse = coarse;
+    if (ee->num_ep_coarse && !coarse) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
     for (ii = 0; ii < ee->num_ep_coarse; ii++) {
         coarse[ii].ref_ep_fine_id = bs_read(bits, 18);
         coarse[ii].pts_ep         = bs_read(bits, 14);
         coarse[ii].spn_ep         = bs_read(bits, 32);
     }
 
-    bs_seek_byte(bits, ee->ep_map_stream_start_addr+fine_start);
+    if (bs_seek_byte(bits, ee->ep_map_stream_start_addr+fine_start) < 0) {
+        return 0;
+    }
 
     fine = malloc(ee->num_ep_fine * sizeof(CLPI_EP_FINE));
     ee->fine = fine;
+    if (ee->num_ep_fine && !fine) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
     for (ii = 0; ii < ee->num_ep_fine; ii++) {
         fine[ii].is_angle_change_point = bs_read(bits, 1);
         fine[ii].i_end_position_offset = bs_read(bits, 3);
-        fine[ii].pts_ep                =  bs_read(bits, 11);
-        fine[ii].spn_ep                =  bs_read(bits, 17);
+        fine[ii].pts_ep                = bs_read(bits, 11);
+        fine[ii].spn_ep                = bs_read(bits, 17);
     }
     return 1;
 }
@@ -337,6 +388,10 @@ _parse_cpi(BITSTREAM *bits, CLPI_CPI *cpi)
     CLPI_EP_MAP_ENTRY *entry;
     entry = calloc(cpi->num_stream_pid, sizeof(CLPI_EP_MAP_ENTRY));
     cpi->entry = entry;
+    if (cpi->num_stream_pid && !entry) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
     for (ii = 0; ii < cpi->num_stream_pid; ii++) {
         entry[ii].pid                      = bs_read(bits, 16);
         bs_skip(bits, 10);
@@ -346,7 +401,9 @@ _parse_cpi(BITSTREAM *bits, CLPI_CPI *cpi)
         entry[ii].ep_map_stream_start_addr = bs_read(bits, 32) + ep_map_pos;
     }
     for (ii = 0; ii < cpi->num_stream_pid; ii++) {
-        _parse_ep_map_stream(bits, &cpi->entry[ii]);
+        if (!_parse_ep_map_stream(bits, &cpi->entry[ii])) {
+            return 0;
+        }
     }
     return 1;
 }
@@ -354,7 +411,9 @@ _parse_cpi(BITSTREAM *bits, CLPI_CPI *cpi)
 static int
 _parse_cpi_info(BITSTREAM *bits, CLPI_CL *cl)
 {
-    bs_seek_byte(bits, cl->cpi_start_addr);
+    if (bs_seek_byte(bits, cl->cpi_start_addr) < 0) {
+        return 0;
+    }
 
     return _parse_cpi(bits, &cl->cpi);
 }
@@ -577,8 +636,12 @@ _parse_extent_start_points(BITSTREAM *bits, CLPI_EXTENT_START *es)
     bs_skip(bits, 32); // length
     es->num_point = bs_read(bits, 32);
 
-    es->point = malloc(es->num_point * sizeof(uint32_t));
-
+    es->point = calloc(es->num_point, sizeof(uint32_t));
+    if (es->num_point && !es->point) {
+        es->num_point = 0;
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
     for (ii = 0; ii < es->num_point; ii++) {
         es->point[ii] = bs_read(bits, 32);
     }
@@ -652,7 +715,10 @@ clpi_free(CLPI_CL *cl)
     if (cl == NULL) {
         return;
     }
+
     X_FREE(cl->clip.atc_delta);
+    X_FREE(cl->clip.font_info.font);
+
     if (cl->sequence.atc_seq) {
         for (ii = 0; ii < cl->sequence.num_atc_seq; ii++) {
             X_FREE(cl->sequence.atc_seq[ii].stc_seq);
@@ -669,8 +735,6 @@ clpi_free(CLPI_CL *cl)
     _clean_program(&cl->program_ss);
     _clean_cpi(&cl->cpi_ss);
 
-    X_FREE(cl->font_info.font);
-
     X_FREE(cl);
 }
 
@@ -680,13 +744,17 @@ _clpi_parse(BD_FILE_H *fp)
     BITSTREAM  bits;
     CLPI_CL   *cl;
 
+    if (bs_init(&bits, fp) < 0) {
+        BD_DEBUG(DBG_NAV, "?????.clpi: read error\n");
+        return NULL;
+    }
+
     cl = calloc(1, sizeof(CLPI_CL));
     if (cl == NULL) {
         BD_DEBUG(DBG_CRIT, "out of memory\n");
         return NULL;
     }
 
-    bs_init(&bits, fp);
     if (!_parse_header(&bits, cl)) {
         clpi_free(cl);
         return NULL;
@@ -775,6 +843,9 @@ clpi_copy(const CLPI_CL* src_cl)
 
     if (src_cl) {
         dest_cl = (CLPI_CL*) calloc(1, sizeof(CLPI_CL));
+        if (!dest_cl) {
+            goto fail;
+        }
         dest_cl->clip.clip_stream_type = src_cl->clip.clip_stream_type;
         dest_cl->clip.application_type = src_cl->clip.application_type;
         dest_cl->clip.is_atc_delta = src_cl->clip.is_atc_delta;
@@ -784,6 +855,9 @@ clpi_copy(const CLPI_CL* src_cl)
         dest_cl->clip.ts_type_info.validity = src_cl->clip.ts_type_info.validity;
         memcpy(dest_cl->clip.ts_type_info.format_id, src_cl->clip.ts_type_info.format_id, 5);
         dest_cl->clip.atc_delta = malloc(src_cl->clip.atc_delta_count * sizeof(CLPI_ATC_DELTA));
+        if (src_cl->clip.atc_delta_count && !dest_cl->clip.atc_delta) {
+            goto fail;
+        }
         for (ii = 0; ii < src_cl->clip.atc_delta_count; ii++) {
             dest_cl->clip.atc_delta[ii].delta =  src_cl->clip.atc_delta[ii].delta;
             memcpy(dest_cl->clip.atc_delta[ii].file_id, src_cl->clip.atc_delta[ii].file_id, 6);
@@ -792,11 +866,17 @@ clpi_copy(const CLPI_CL* src_cl)
 
         dest_cl->sequence.num_atc_seq = src_cl->sequence.num_atc_seq;
         dest_cl->sequence.atc_seq = calloc(src_cl->sequence.num_atc_seq, sizeof(CLPI_ATC_SEQ));
+        if (dest_cl->sequence.num_atc_seq && !dest_cl->sequence.atc_seq) {
+            goto fail;
+        }
         for (ii = 0; ii < src_cl->sequence.num_atc_seq; ii++) {
             dest_cl->sequence.atc_seq[ii].spn_atc_start = src_cl->sequence.atc_seq[ii].spn_atc_start;
             dest_cl->sequence.atc_seq[ii].offset_stc_id = src_cl->sequence.atc_seq[ii].offset_stc_id;
             dest_cl->sequence.atc_seq[ii].num_stc_seq = src_cl->sequence.atc_seq[ii].num_stc_seq;
             dest_cl->sequence.atc_seq[ii].stc_seq = malloc(src_cl->sequence.atc_seq[ii].num_stc_seq * sizeof(CLPI_STC_SEQ));
+            if (dest_cl->sequence.atc_seq[ii].num_stc_seq && !dest_cl->sequence.atc_seq[ii].stc_seq) {
+                goto fail;
+            }
             for (jj = 0; jj < src_cl->sequence.atc_seq[ii].num_stc_seq; jj++) {
                 dest_cl->sequence.atc_seq[ii].stc_seq[jj].spn_stc_start = src_cl->sequence.atc_seq[ii].stc_seq[jj].spn_stc_start;
                 dest_cl->sequence.atc_seq[ii].stc_seq[jj].pcr_pid = src_cl->sequence.atc_seq[ii].stc_seq[jj].pcr_pid;
@@ -807,12 +887,18 @@ clpi_copy(const CLPI_CL* src_cl)
 
         dest_cl->program.num_prog = src_cl->program.num_prog;
         dest_cl->program.progs = calloc(src_cl->program.num_prog, sizeof(CLPI_PROG));
+        if (dest_cl->program.num_prog && !dest_cl->program.progs) {
+            goto fail;
+        }
         for (ii = 0; ii < src_cl->program.num_prog; ii++) {
             dest_cl->program.progs[ii].spn_program_sequence_start = src_cl->program.progs[ii].spn_program_sequence_start;
             dest_cl->program.progs[ii].program_map_pid = src_cl->program.progs[ii].program_map_pid;
             dest_cl->program.progs[ii].num_streams = src_cl->program.progs[ii].num_streams;
             dest_cl->program.progs[ii].num_groups = src_cl->program.progs[ii].num_groups;
             dest_cl->program.progs[ii].streams = malloc(src_cl->program.progs[ii].num_streams * sizeof(CLPI_PROG_STREAM));
+            if (src_cl->program.progs[ii].num_streams && !dest_cl->program.progs[ii].streams) {
+                goto fail;
+            }
             for (jj = 0; jj < src_cl->program.progs[ii].num_streams; jj++) {
                 dest_cl->program.progs[ii].streams[jj].coding_type = src_cl->program.progs[ii].streams[jj].coding_type;
                 dest_cl->program.progs[ii].streams[jj].pid = src_cl->program.progs[ii].streams[jj].pid;
@@ -827,6 +913,9 @@ clpi_copy(const CLPI_CL* src_cl)
 
         dest_cl->cpi.num_stream_pid = src_cl->cpi.num_stream_pid;
         dest_cl->cpi.entry = calloc(src_cl->cpi.num_stream_pid, sizeof(CLPI_EP_MAP_ENTRY));
+        if (dest_cl->cpi.num_stream_pid && !dest_cl->cpi.entry) {
+            goto fail;
+        }
         for (ii = 0; ii < dest_cl->cpi.num_stream_pid; ii++) {
             dest_cl->cpi.entry[ii].pid = src_cl->cpi.entry[ii].pid;
             dest_cl->cpi.entry[ii].ep_stream_type = src_cl->cpi.entry[ii].ep_stream_type;
@@ -834,12 +923,18 @@ clpi_copy(const CLPI_CL* src_cl)
             dest_cl->cpi.entry[ii].num_ep_fine = src_cl->cpi.entry[ii].num_ep_fine;
             dest_cl->cpi.entry[ii].ep_map_stream_start_addr = src_cl->cpi.entry[ii].ep_map_stream_start_addr;
             dest_cl->cpi.entry[ii].coarse = malloc(src_cl->cpi.entry[ii].num_ep_coarse * sizeof(CLPI_EP_COARSE));
+            if (dest_cl->cpi.entry[ii].num_ep_coarse && !dest_cl->cpi.entry[ii].coarse) {
+                goto fail;
+            }
             for (jj = 0; jj < src_cl->cpi.entry[ii].num_ep_coarse; jj++) {
                 dest_cl->cpi.entry[ii].coarse[jj].ref_ep_fine_id = src_cl->cpi.entry[ii].coarse[jj].ref_ep_fine_id;
                 dest_cl->cpi.entry[ii].coarse[jj].pts_ep = src_cl->cpi.entry[ii].coarse[jj].pts_ep;
                 dest_cl->cpi.entry[ii].coarse[jj].spn_ep = src_cl->cpi.entry[ii].coarse[jj].spn_ep;
             }
             dest_cl->cpi.entry[ii].fine = malloc(src_cl->cpi.entry[ii].num_ep_fine * sizeof(CLPI_EP_FINE));
+            if (dest_cl->cpi.entry[ii].num_ep_fine && !dest_cl->cpi.entry[ii].fine) {
+                goto fail;
+            }
             for (jj = 0; jj < src_cl->cpi.entry[ii].num_ep_fine; jj++) {
                 dest_cl->cpi.entry[ii].fine[jj].is_angle_change_point = src_cl->cpi.entry[ii].fine[jj].is_angle_change_point;
                 dest_cl->cpi.entry[ii].fine[jj].i_end_position_offset = src_cl->cpi.entry[ii].fine[jj].i_end_position_offset;
@@ -848,12 +943,20 @@ clpi_copy(const CLPI_CL* src_cl)
             }
         }
 
-        dest_cl->font_info.font_count = src_cl->font_info.font_count;
-        if (dest_cl->font_info.font_count) {
-            dest_cl->font_info.font = malloc(dest_cl->font_info.font_count * sizeof(CLPI_FONT));
-            memcpy(dest_cl->font_info.font, src_cl->font_info.font, dest_cl->font_info.font_count * sizeof(CLPI_FONT));
+        dest_cl->clip.font_info.font_count = src_cl->clip.font_info.font_count;
+        if (dest_cl->clip.font_info.font_count) {
+            dest_cl->clip.font_info.font = malloc(dest_cl->clip.font_info.font_count * sizeof(CLPI_FONT));
+            if (!dest_cl->clip.font_info.font) {
+                goto fail;
+            }
+            memcpy(dest_cl->clip.font_info.font, src_cl->clip.font_info.font, dest_cl->clip.font_info.font_count * sizeof(CLPI_FONT));
         }
     }
 
     return dest_cl;
+
+ fail:
+    BD_DEBUG(DBG_CRIT, "out of memory\n");
+    clpi_free(dest_cl);
+    return NULL;
 }

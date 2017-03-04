@@ -152,7 +152,10 @@ int file_unlink(const char *file)
 {
     wchar_t wfile[MAX_PATH];
 
-    MultiByteToWideChar(CP_UTF8, 0, file, -1, wfile, MAX_PATH);
+    if (!MultiByteToWideChar(CP_UTF8, 0, file, -1, wfile, MAX_PATH)) {
+        return -1;
+    }
+
     return _wremove(wfile);
 }
 
@@ -160,7 +163,9 @@ int file_path_exists(const char *path)
 {
     wchar_t wpath[MAX_PATH];
 
-    MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, MAX_PATH);
+    if (!MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, MAX_PATH)) {
+        return -1;
+    }
 
     DWORD dwAttrib = GetFileAttributesW(wpath);
     if (dwAttrib != INVALID_FILE_ATTRIBUTES) {
@@ -173,7 +178,9 @@ int file_mkdir(const char *dir)
 {
     wchar_t wdir[MAX_PATH];
 
-    MultiByteToWideChar(CP_UTF8, 0, dir, -1, wdir, MAX_PATH);
+    if (!MultiByteToWideChar(CP_UTF8, 0, dir, -1, wdir, MAX_PATH)) {
+        return -1;
+    }
     if (!CreateDirectoryW(wdir, NULL))
         return -1;
     return 0;

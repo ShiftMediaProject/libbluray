@@ -36,11 +36,11 @@ public class PlayerManager {
     private ArrayList registeredPlayers = new ArrayList(1);
 
     private BDHandler playlistPlayer = null;
-    private BDHandler videoDripPlayer = null;
+    //private BDHandler videoDripPlayer = null;
     //private ArrayList audioPlayerList = new ArrayList(8);
 
     private Object playlistPlayerLock = new Object();
-    private Object videoDripPlayerLock = new Object();
+    //private Object videoDripPlayerLock = new Object();
     //private Object audioPlayerLock = new Object();
     private Object  stoppingLock = new Object();
     private boolean stopping = false;
@@ -138,24 +138,15 @@ public class PlayerManager {
      *
      */
 
-    public void onEvent(int event, int param) {
+    public boolean onEvent(int event, int param) {
         synchronized (stoppingLock) {
-            if (stopping) return;
+            if (stopping) return false;
             synchronized (playlistPlayerLock) {
                 if (playlistPlayer != null)
-                    playlistPlayer.statusEvent(event, param);
+                    return playlistPlayer.statusEvent(event, param);
             }
         }
-    }
-
-    public void onRateChange(float rate) {
-        synchronized (stoppingLock) {
-            if (stopping) return;
-        synchronized (playlistPlayerLock) {
-            if (playlistPlayer != null)
-                playlistPlayer.rateChanged(rate);
-        }
-        }
+        return false;
     }
 
     private static final Logger logger = Logger.getLogger(PlayerManager.class.getName());

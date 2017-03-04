@@ -274,10 +274,10 @@ public class EventManager implements ResourceServer {
             }
         }
 
-        public BDJXletContext context;
-        public UserEventListener listener;
-        public ResourceClient client;
-        public UserEventRepository userEvents;
+        public final BDJXletContext context;
+        public final UserEventListener listener;
+        public final ResourceClient client;
+        public final UserEventRepository userEvents;
     }
 
     private static class UserEventAction extends BDJAction {

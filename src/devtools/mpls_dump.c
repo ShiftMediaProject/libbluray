@@ -160,10 +160,11 @@ _mk_path(const char *base, const char *sub)
     size_t n1 = strlen(base);
     size_t n2 = strlen(sub);
     char *result = (char*)malloc(n1 + n2 + strlen(DIR_SEP) + 1);
-    strcpy(result, base);
-    strcat(result, DIR_SEP);
-    strcat(result, sub);
-
+    if (result) {
+        strcpy(result, base);
+        strcat(result, DIR_SEP);
+        strcat(result, sub);
+    }
     return result;
 }
 
@@ -762,15 +763,24 @@ main(int argc, char *argv[])
         }
         if (dir != NULL) {
             char **dirlist = (char**)calloc(10001, sizeof(char*));
+            if (!dirlist) {
+                continue;
+            }
             struct dirent *ent;
             int jj = 0;
-            for (ent = readdir(dir); ent != NULL; ent = readdir(dir)) {
-                dirlist[jj++] = strcpy((char*)malloc(strlen(ent->d_name)), ent->d_name);
+            for (ent = readdir(dir); ent != NULL && jj < 1000; ent = readdir(dir)) {
+                char *s = (char*)malloc(strlen(ent->d_name) + 1);
+                if (s) {
+                    dirlist[jj++] = strcpy(s, ent->d_name);
+                }
             }
             qsort(dirlist, jj, sizeof(char*), _qsort_str_cmp);
             for (jj = 0; dirlist[jj] != NULL && pl_ii < 1000; jj++) {
                 char *name = NULL;
                 name = _mk_path(path, dirlist[jj]);
+                if (name == NULL) {
+                    continue;
+                }
                 free(dirlist[jj]);
                 if (stat(name, &st)) {
                     free(name);

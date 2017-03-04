@@ -25,6 +25,7 @@ import java.util.LinkedList;
 
 public class UserPreferenceManager {
     private UserPreferenceManager() {
+        org.videolan.Logger.getLogger("UserPreferenceManager").unimplemented("UserPreferenceManager");
     }
 
     private static final Object instanceLock = new Object();

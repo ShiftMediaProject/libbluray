@@ -368,7 +368,7 @@ class BDJAppProxy implements DVBJProxy, Runnable {
     private Thread thread;
     private static final Logger logger = Logger.getLogger(BDJAppProxy.class.getName());
 
-    private class AppCommand {
+    private static class AppCommand {
         public AppCommand(int cmd, Object arg) {
             this.cmd = cmd;
             this.arg = arg;

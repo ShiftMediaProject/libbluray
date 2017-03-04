@@ -120,7 +120,7 @@ public class ServiceListImpl implements ServiceList {
         services.add(service);
     }
 
-    private class TitleComparator implements Comparator {
+    private static class TitleComparator implements Comparator {
         public int compare(Object obj1, Object obj2) {
             return ((TitleImpl)obj1).getTitleNum() - ((TitleImpl)obj2).getTitleNum();
         }

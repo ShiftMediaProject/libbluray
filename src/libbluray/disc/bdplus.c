@@ -30,6 +30,7 @@
 #include "util/strutl.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 
 struct bd_bdplus {
@@ -166,7 +167,7 @@ BD_BDPLUS *libbdplus_load()
     return _load(0);
 }
 
-int libbdplus_init(BD_BDPLUS *p, const char *root,
+int libbdplus_init(BD_BDPLUS *p, const char *root, const char *device,
                    void *file_open_handle, void *file_open_fp,
                    const uint8_t *vid, const uint8_t *mk)
 {
@@ -183,7 +184,7 @@ int libbdplus_init(BD_BDPLUS *p, const char *root,
     if (mk == NULL && p->impl_id == IMPL_LIBBDPLUS) {
         BD_BDPLUS *p2 = _load(IMPL_LIBMMBD);
         if (p2) {
-            if (!libbdplus_init(p2, root, file_open_handle, file_open_fp, vid, mk)) {
+            if (!libbdplus_init(p2, root, device, file_open_handle, file_open_fp, vid, mk)) {
                 /* succeed - swap implementations */
                 _unload(p);
                 *p = *p2;
@@ -206,10 +207,23 @@ int libbdplus_init(BD_BDPLUS *p, const char *root,
     }
 
     if (set_fopen) {
+        /* New libbdplus. Use libbluray for file I/O */
         p->bdplus = bdplus_init(NULL, NULL, vid);
         set_fopen(p->bdplus, file_open_handle, file_open_fp);
-    } else {
+    } else if (root) {
+        /* Old libbdplus or libmmbd. Disc is mounted. */
         p->bdplus = bdplus_init(root, NULL, vid);
+    } else if (device) {
+        /* Unmounted device */
+        if (p->impl_id == IMPL_LIBMMBD && !strncmp(device, "/dev/", 5)) {
+            char *tmp = str_printf("dev:%s", device);
+            if (tmp) {
+                p->bdplus = bdplus_init(tmp, NULL, vid);
+                X_FREE(tmp);
+            }
+        } else {
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Too old libbdplus detected. Disc must be mounted first.\n");
+        }
     }
 
     if (!p->bdplus) {

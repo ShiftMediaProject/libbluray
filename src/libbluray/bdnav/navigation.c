@@ -154,6 +154,12 @@ static int _pl_cmp(MPLS_PL *pl1, MPLS_PL *pl2)
     if (pl1->mark_count != pl2->mark_count) {
         return 1;
     }
+    if (pl1->sub_count != pl2->sub_count) {
+        return 1;
+    }
+    if (pl1->ext_sub_count != pl2->ext_sub_count) {
+        return 1;
+    }
 
     for (ii = 0; ii < pl1->mark_count; ii++) {
         if (_pm_cmp(&pl1->play_mark[ii], &pl2->play_mark[ii])) {
@@ -340,7 +346,7 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
     MPLS_PL *pl = NULL;
     unsigned int ii, pl_list_size = 0;
     int res;
-    NAV_TITLE_LIST *title_list;
+    NAV_TITLE_LIST *title_list = NULL;
     unsigned int title_info_alloc = 100;
 
     dir = disc_open_dir(disc, "BDMV" DIR_SEP "PLAYLIST");
@@ -349,7 +355,16 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
     }
 
     title_list = calloc(1, sizeof(NAV_TITLE_LIST));
+    if (!title_list) {
+        dir_close(dir);
+        return NULL;
+    }
     title_list->title_info = calloc(title_info_alloc, sizeof(NAV_TITLE_INFO));
+    if (!title_list->title_info) {
+        X_FREE(title_list);
+        dir_close(dir);
+        return NULL;
+    }
 
     ii = 0;
     for (res = dir_read(dir, &ent); !res; res = dir_read(dir, &ent)) {
@@ -776,6 +791,24 @@ NAV_CLIP* nav_mark_search(NAV_TITLE *title, unsigned mark, uint32_t *clip_pkt, u
     return clip;
 }
 
+void nav_clip_packet_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *clip_pkt, uint32_t *clip_time)
+{
+    *clip_time = clip->in_time;
+    if (clip->cl != NULL) {
+        *clip_pkt = clpi_access_point(clip->cl, pkt, 0, 0, clip_time);
+        if (*clip_pkt < clip->start_pkt) {
+            *clip_pkt = clip->start_pkt;
+        }
+        if (*clip_time && *clip_time < clip->in_time) {
+            /* EP map does not store lowest 8 bits of timestamp */
+            *clip_time = clip->in_time;
+        }
+
+    } else {
+        *clip_pkt = clip->start_pkt;
+    }
+}
+
 // Search for random access point closest to the requested packet
 // Packets are 192 byte TS packets
 // pkt is relative to the beginning of the title
@@ -801,14 +834,7 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, 
         *clip_pkt = clip->end_pkt;
     } else {
         clip = &title->clip_list.clip[ii];
-        if (clip->cl != NULL) {
-            *clip_pkt = clpi_access_point(clip->cl, pkt - pos + clip->start_pkt, 0, 0, out_time);
-            if (*clip_pkt < clip->start_pkt) {
-                *clip_pkt = clip->start_pkt;
-            }
-        } else {
-            *clip_pkt = clip->start_pkt;
-        }
+        nav_clip_packet_search(clip, pkt - pos + clip->start_pkt, clip_pkt, out_time);
     }
     if(*out_time < clip->in_time)
         *out_time = 0;
@@ -878,22 +904,14 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, u
         *clip_pkt = clip->end_pkt;
     } else {
         clip = &title->clip_list.clip[ii];
-        if (clip->cl != NULL) {
-            *clip_pkt = clpi_lookup_spn(clip->cl, tick - pos + pi->in_time, 1,
-                      title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
-            if (*clip_pkt < clip->start_pkt) {
-                *clip_pkt = clip->start_pkt;
-            }
-        } else {
-            *clip_pkt = clip->start_pkt;
-        }
+        nav_clip_time_search(clip, tick - pos + pi->in_time, clip_pkt, out_pkt);
     }
     *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
     return clip;
 }
 
 // Search for random access point closest to the requested time
-// Time is in 45khz ticks relative to the beginning of a specific clip
+// Time is in 45khz ticks, between clip in_time and out_time.
 void nav_clip_time_search(NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt)
 {
     if (tick >= clip->out_time) {
@@ -902,6 +920,10 @@ void nav_clip_time_search(NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uin
         if (clip->cl != NULL) {
             *clip_pkt = clpi_lookup_spn(clip->cl, tick, 1,
                clip->title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
+            if (*clip_pkt < clip->start_pkt) {
+                *clip_pkt = clip->start_pkt;
+            }
+
         } else {
             *clip_pkt = clip->start_pkt;
         }

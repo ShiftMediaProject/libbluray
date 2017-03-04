@@ -141,7 +141,7 @@ public class BDJListeners {
         }
     }
 
-    private class PSR102Status {
+    private static class PSR102Status {
         private PSR102Status(int value) {
             this.value = value;
         }
