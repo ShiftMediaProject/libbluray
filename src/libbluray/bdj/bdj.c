@@ -74,10 +74,12 @@ static void *_load_dll(const wchar_t *lib_path, const wchar_t *dll_search_path)
 {
     void *result;
 
-    PVOID WINAPI (*pAddDllDirectory)   (PCWSTR);
-    BOOL  WINAPI (*pRemoveDllDirectory)(PVOID);
-    pAddDllDirectory    = (__typeof__(pAddDllDirectory))    GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "AddDllDirectory");
-    pRemoveDllDirectory = (__typeof__(pRemoveDllDirectory)) GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "RemoveDllDirectory");
+    typedef PVOID(WINAPI *AddDllDirectoryF)  (PCWSTR);
+    typedef BOOL(WINAPI *RemoveDllDirectoryF)(PVOID);
+    AddDllDirectoryF pAddDllDirectory;
+    RemoveDllDirectoryF pRemoveDllDirectory;
+    pAddDllDirectory = (AddDllDirectoryF)GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "AddDllDirectory");
+    pRemoveDllDirectory = (RemoveDllDirectoryF)GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "RemoveDllDirectory");
 
     if (pAddDllDirectory && pRemoveDllDirectory) {
 
