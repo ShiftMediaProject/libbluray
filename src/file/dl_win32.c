@@ -82,7 +82,6 @@ void *dl_dlopen(const char *path, const char *version)
                        "SetDefaultDllDirectories") != NULL)
 #endif
         flags = LOAD_LIBRARY_SEARCH_APPLICATION_DIR |
-                LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
                 LOAD_LIBRARY_SEARCH_SYSTEM32;
 
     result = LoadLibraryExW(wname, NULL, flags);
