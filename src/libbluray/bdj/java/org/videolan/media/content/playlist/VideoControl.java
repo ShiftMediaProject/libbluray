@@ -30,7 +30,7 @@ import org.videolan.StreamInfo;
 
 public abstract class VideoControl extends StreamControl implements VideoPresentationControl {
     protected VideoControl(int plane) {
-        this.plane = plane;
+        //this.plane = plane;
     }
 
     protected HScreenRectangle getNormalizedRectangle(Dimension dimension, Rectangle rectangle) {
@@ -153,7 +153,7 @@ public abstract class VideoControl extends StreamControl implements VideoPresent
         return null;
     }
 
-    private int plane = 0;
+    //private int plane = 0;
     private HScreenRectangle srcArea = new HScreenRectangle(0.0f, 0.0f, 1.0f, 1.0f);
     private HScreenRectangle dstArea = new HScreenRectangle(0.0f, 0.0f, 1.0f, 1.0f);
 }
