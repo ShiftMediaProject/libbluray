@@ -79,7 +79,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     }
 
     private void doInitAction() {
-        commandQueue = new BDJActionQueue("MediaPlayer");
+        commandQueue = BDJActionQueue.create("MediaPlayer");
         PlayerManager.getInstance().registerPlayer(this);
     }
 
