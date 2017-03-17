@@ -49,5 +49,9 @@ jobject bdj_make_object(JNIEnv* env, const char* name, const char* sig, ...)
 jobjectArray bdj_make_array(JNIEnv* env, const char* name, int count)
 {
     jclass arr_class = (*env)->FindClass(env, name);
+    if (!arr_class) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Class %s not found\n", name);
+        return NULL;
+    }
     return (*env)->NewObjectArray(env, count, arr_class, NULL);
 }
