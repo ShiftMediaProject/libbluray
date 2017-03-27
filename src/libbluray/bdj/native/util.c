@@ -30,18 +30,30 @@
 
 jobject bdj_make_object(JNIEnv* env, const char* name, const char* sig, ...)
 {
-    jclass obj_class = (*env)->FindClass(env, name);
-    jmethodID obj_constructor = (*env)->GetMethodID(env, obj_class, "<init>", sig);
+    va_list ap;
+    jclass obj_class;
+    jmethodID obj_constructor;
+    jobject obj;
 
+    obj_class = (*env)->FindClass(env, name);
     if (!obj_class) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Class %s not found\n", name);
         return NULL;
     }
 
-    va_list ap;
+    obj_constructor = (*env)->GetMethodID(env, obj_class, "<init>", sig);
+    if (!obj_constructor) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Class %s constructor %s not found\n", name, sig);
+        return NULL;
+    }
+
     va_start(ap, sig);
-    jobject obj = (*env)->NewObjectV(env, obj_class, obj_constructor, ap);
+    obj = (*env)->NewObjectV(env, obj_class, obj_constructor, ap);
     va_end(ap);
+
+    if (!obj) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create %s\n", name);
+    }
 
     return obj;
 }
