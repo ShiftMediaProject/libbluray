@@ -933,7 +933,7 @@ int bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param)
 
     if (_get_method(env, &event_class, &event_id,
                        "org/videolan/Libbluray", "processEvent", "(II)Z")) {
-        if ((*env)->CallStaticBooleanMethod(env, event_class, event_id, ev, param)) {
+        if ((*env)->CallStaticBooleanMethod(env, event_class, event_id, (jint)ev, (jint)param)) {
             result = 0;
         }
 
