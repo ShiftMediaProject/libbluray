@@ -74,13 +74,18 @@ static jobject _make_title_info(JNIEnv* env, const BLURAY_TITLE *title, int titl
 static jobjectArray _make_title_infos(JNIEnv * env, const BLURAY_DISC_INFO *disc_info)
 {
     jobjectArray titleArr = bdj_make_array(env, "org/videolan/TitleInfo", disc_info->num_titles + 2);
+    jobject titleInfo;
+
+    if (!titleArr) {
+        return NULL;
+    }
 
     for (unsigned i = 0; i <= disc_info->num_titles; i++) {
-        jobject titleInfo = _make_title_info(env, disc_info->titles[i], i);
+        titleInfo = _make_title_info(env, disc_info->titles[i], i);
         (*env)->SetObjectArrayElement(env, titleArr, i, titleInfo);
     }
 
-    jobject titleInfo = _make_title_info(env, disc_info->first_play, 65535);
+    titleInfo = _make_title_info(env, disc_info->first_play, 65535);
     (*env)->SetObjectArrayElement(env, titleArr, disc_info->num_titles + 1, titleInfo);
 
     return titleArr;
@@ -94,6 +99,11 @@ static jobjectArray _make_stream_array(JNIEnv* env, int count, BLURAY_STREAM_INF
 {
     jobjectArray streamArr = bdj_make_array(env,
                     "org/videolan/StreamInfo", count);
+
+    if (!streamArr) {
+        return NULL;
+    }
+
     for (int i = 0; i < count; i++) {
         BLURAY_STREAM_INFO s = streams[i];
         jstring lang = (*env)->NewStringUTF(env, (char*)s.lang);
@@ -115,6 +125,7 @@ static jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
     jobjectArray marks = bdj_make_array(env, "org/videolan/TIMark",
             ti->mark_count);
 
+    if (marks) {
     for (uint32_t i = 0; i < ti->mark_count; i++) {
         BLURAY_TITLE_MARK m = ti->marks[i];
         jobject mark = bdj_make_object(env,
@@ -124,10 +135,12 @@ static jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
                 (jlong)m.offset, (jint)m.clip_ref);
         (*env)->SetObjectArrayElement(env, marks, i, mark);
     }
+    }
 
     jobjectArray clips = bdj_make_array(env, "org/videolan/TIClip",
             ti->clip_count);
 
+    if (clips) {
     for (uint32_t i = 0; i < ti->clip_count; i++) {
         BLURAY_CLIP_INFO info = ti->clips[i];
 
@@ -155,6 +168,7 @@ static jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
                 (jint)i, videoStreams, audioStreams, pgStreams, igStreams, secVideoStreams, secAudioStreams);
 
         (*env)->SetObjectArrayElement(env, clips, i, clip);
+    }
     }
 
     return bdj_make_object(env,
