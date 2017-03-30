@@ -186,9 +186,11 @@ JNIEXPORT jobjectArray JNICALL Java_org_videolan_Libbluray_getTitleInfosN
   (JNIEnv * env, jclass cls, jlong np)
  {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
-    const BLURAY_DISC_INFO *disc_info = bd_get_disc_info(bd);
+    const BLURAY_DISC_INFO *disc_info;
 
     BD_DEBUG(DBG_JNI, "getTitleInfosN()\n");
+
+    disc_info = bd_get_disc_info(bd);
 
     return  _make_title_infos(env, disc_info);
 }
