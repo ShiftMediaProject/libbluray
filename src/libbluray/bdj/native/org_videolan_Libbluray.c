@@ -66,7 +66,7 @@ static jobject _make_title_info(JNIEnv* env, const BLURAY_TITLE *title, int titl
         int playback_type = (!!title->interactive) + ((!!title->bdj) << 1);
         ti = bdj_make_object(env, "org/videolan/TitleInfo",
                              "(IIII)V",
-                             title_number, title_type, playback_type, title->id_ref);
+                             (jint)title_number, (jint)title_type, (jint)playback_type, (jint)title->id_ref);
     }
     return ti;
 }
@@ -97,9 +97,13 @@ static jobjectArray _make_stream_array(JNIEnv* env, int count, BLURAY_STREAM_INF
     for (int i = 0; i < count; i++) {
         BLURAY_STREAM_INFO s = streams[i];
         jstring lang = (*env)->NewStringUTF(env, (char*)s.lang);
-        jobject streamObj = bdj_make_object(env, "org/videolan/StreamInfo",
-                "(BBBCLjava/lang/String;BB)V", s.coding_type, s.format,
-                s.rate, s.char_code, lang, s.aspect, s.subpath_id);
+        jobject streamObj = bdj_make_object(env,
+                "org/videolan/StreamInfo",
+                "(BBBCLjava/lang/String;BB)V",
+                (jbyte)s.coding_type, (jbyte)s.format,
+                (jbyte)s.rate, (jchar)s.char_code,
+                lang,
+                (jbyte)s.aspect, (jbyte)s.subpath_id);
         (*env)->SetObjectArrayElement(env, streamArr, i, streamObj);
     }
 
@@ -113,8 +117,11 @@ static jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
 
     for (uint32_t i = 0; i < ti->mark_count; i++) {
         BLURAY_TITLE_MARK m = ti->marks[i];
-        jobject mark = bdj_make_object(env, "org/videolan/TIMark",
-                "(IIJJJI)V", m.idx, m.type, m.start, m.duration, m.offset, m.clip_ref);
+        jobject mark = bdj_make_object(env,
+                "org/videolan/TIMark",
+                "(IIJJJI)V",
+                (jint)m.idx, (jint)m.type, (jlong)m.start, (jlong)m.duration,
+                (jlong)m.offset, (jint)m.clip_ref);
         (*env)->SetObjectArrayElement(env, marks, i, mark);
     }
 
@@ -142,16 +149,19 @@ static jobject _make_playlist_info(JNIEnv* env, BLURAY_TITLE_INFO* ti)
         jobjectArray secAudioStreams = _make_stream_array(env, info.sec_audio_stream_count,
                 info.sec_audio_streams);
 
-        jobject clip = bdj_make_object(env, "org/videolan/TIClip",
+        jobject clip = bdj_make_object(env,
+                "org/videolan/TIClip",
                 "(I[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;[Lorg/videolan/StreamInfo;)V",
-                i, videoStreams, audioStreams, pgStreams, igStreams, secVideoStreams, secAudioStreams);
+                (jint)i, videoStreams, audioStreams, pgStreams, igStreams, secVideoStreams, secAudioStreams);
 
         (*env)->SetObjectArrayElement(env, clips, i, clip);
     }
 
-    return bdj_make_object(env, "org/videolan/PlaylistInfo",
-            "(IJI[Lorg/videolan/TIMark;[Lorg/videolan/TIClip;)V",
-            ti->playlist, ti->duration, ti->angle_count, marks, clips);
+    return bdj_make_object(env,
+             "org/videolan/PlaylistInfo",
+             "(IJI[Lorg/videolan/TIMark;[Lorg/videolan/TIClip;)V",
+             (jint)ti->playlist, (jlong)ti->duration, (jint)ti->angle_count,
+             marks, clips);
 }
 
 /*
