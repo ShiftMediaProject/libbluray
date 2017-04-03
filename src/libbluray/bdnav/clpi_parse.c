@@ -707,14 +707,10 @@ _clean_cpi(CLPI_CPI *cpi)
     }
 }
 
-void
-clpi_free(CLPI_CL *cl)
+static void
+_clpi_free(CLPI_CL *cl)
 {
     int ii;
-
-    if (cl == NULL) {
-        return;
-    }
 
     X_FREE(cl->clip.atc_delta);
     X_FREE(cl->clip.font_info.font);
@@ -738,6 +734,15 @@ clpi_free(CLPI_CL *cl)
     X_FREE(cl);
 }
 
+void
+clpi_free(CLPI_CL **cl)
+{
+    if (*cl) {
+        _clpi_free(*cl);
+        *cl = NULL;
+    }
+}
+
 static CLPI_CL*
 _clpi_parse(BD_FILE_H *fp)
 {
@@ -756,7 +761,7 @@ _clpi_parse(BD_FILE_H *fp)
     }
 
     if (!_parse_header(&bits, cl)) {
-        clpi_free(cl);
+        _clpi_free(cl);
         return NULL;
     }
 
@@ -768,19 +773,19 @@ _clpi_parse(BD_FILE_H *fp)
     }
 
     if (!_parse_clipinfo(&bits, cl)) {
-        clpi_free(cl);
+        _clpi_free(cl);
         return NULL;
     }
     if (!_parse_sequence(&bits, cl)) {
-        clpi_free(cl);
+        _clpi_free(cl);
         return NULL;
     }
     if (!_parse_program_info(&bits, cl)) {
-        clpi_free(cl);
+        _clpi_free(cl);
         return NULL;
     }
     if (!_parse_cpi_info(&bits, cl)) {
-        clpi_free(cl);
+        _clpi_free(cl);
         return NULL;
     }
 
@@ -957,6 +962,6 @@ clpi_copy(const CLPI_CL* src_cl)
 
  fail:
     BD_DEBUG(DBG_CRIT, "out of memory\n");
-    clpi_free(dest_cl);
+    clpi_free(&dest_cl);
     return NULL;
 }

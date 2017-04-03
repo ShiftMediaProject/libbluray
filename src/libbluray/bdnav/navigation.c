@@ -386,16 +386,16 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
         if (pl != NULL) {
             if ((flags & TITLES_FILTER_DUP_TITLE) &&
                 !_filter_dup(pl_list, ii, pl)) {
-                mpls_free(pl);
+                mpls_free(&pl);
                 continue;
             }
             if ((flags & TITLES_FILTER_DUP_CLIP) && !_filter_repeats(pl, 2)) {
-                mpls_free(pl);
+                mpls_free(&pl);
                 continue;
             }
             if (min_title_length > 0 &&
                 _pl_duration(pl) < min_title_length*45000) {
-                mpls_free(pl);
+                mpls_free(&pl);
                 continue;
             }
             if (ii >= title_info_alloc) {
@@ -432,7 +432,7 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
 
     title_list->count = ii;
     for (ii = 0; ii < title_list->count; ii++) {
-        mpls_free(pl_list[ii]);
+        mpls_free(&pl_list[ii]);
     }
     X_FREE(pl_list);
     return title_list;
@@ -581,8 +581,7 @@ static void _fill_clip(NAV_TITLE *title,
     strncpy(&clip->name[5], ".m2ts", 6);
     clip->clip_id = atoi(mpls_clip[clip->angle].clip_id);
 
-    clpi_free(clip->cl);
-    clip->cl = NULL;
+    clpi_free(&clip->cl);
 
     file = str_printf("%s.clpi", mpls_clip[clip->angle].clip_id);
     if (file) {
@@ -711,7 +710,7 @@ void nav_title_close(NAV_TITLE *title)
         for (ss = 0; ss < title->sub_path_count; ss++) {
             if (title->sub_path[ss].clip_list.clip) {
                 for (ii = 0; ii < title->sub_path[ss].clip_list.count; ii++) {
-                    clpi_free(title->sub_path[ss].clip_list.clip[ii].cl);
+                    clpi_free(&title->sub_path[ss].clip_list.clip[ii].cl);
                 }
                 X_FREE(title->sub_path[ss].clip_list.clip);
             }
@@ -721,12 +720,12 @@ void nav_title_close(NAV_TITLE *title)
 
     if (title->clip_list.clip) {
         for (ii = 0; ii < title->clip_list.count; ii++) {
-            clpi_free(title->clip_list.clip[ii].cl);
+            clpi_free(&title->clip_list.clip[ii].cl);
         }
         X_FREE(title->clip_list.clip);
     }
 
-    mpls_free(title->pl);
+    mpls_free(&title->pl);
     X_FREE(title->chap_list.mark);
     X_FREE(title->mark_list.mark);
     X_FREE(title);

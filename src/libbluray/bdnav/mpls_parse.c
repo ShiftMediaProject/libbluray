@@ -770,9 +770,6 @@ _clean_playlist(MPLS_PL *pl)
 {
     int ii;
 
-    if (pl == NULL) {
-        return;
-    }
     if (pl->play_item != NULL) {
         for (ii = 0; ii < pl->list_count; ii++) {
             _clean_playitem(&pl->play_item[ii]);
@@ -803,9 +800,12 @@ _clean_playlist(MPLS_PL *pl)
 }
 
 void
-mpls_free(MPLS_PL *pl)
+mpls_free(MPLS_PL **pl)
 {
-    _clean_playlist(pl);
+    if (*pl) {
+        _clean_playlist(*pl);
+        *pl = NULL;
+    }
 }
 
 static int

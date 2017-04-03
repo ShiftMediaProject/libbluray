@@ -3821,7 +3821,7 @@ struct clpi_cl *bd_read_clpi(const char *path)
 
 void bd_free_clpi(struct clpi_cl *cl)
 {
-    clpi_free(cl);
+    clpi_free(&cl);
 }
 
 struct mpls_pl *bd_read_mpls(const char *mpls_file)
@@ -3831,7 +3831,7 @@ struct mpls_pl *bd_read_mpls(const char *mpls_file)
 
 void bd_free_mpls(struct mpls_pl *pl)
 {
-    mpls_free(pl);
+    mpls_free(&pl);
 }
 
 struct mobj_objects *bd_read_mobj(const char *mobj_file)
