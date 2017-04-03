@@ -31,11 +31,7 @@ class BDJThreadGroup extends ThreadGroup {
 
         String stack = "";
         if (e != null) {
-            StackTraceElement elems[] = e.getStackTrace();
-            if (elems != null) {
-                for (int i = 0; i < elems.length; i++)
-                    stack += "\n\t" + elems[i].toString();
-            }
+            stack = Logger.dumpStack(e);
         }
 
         if (e instanceof ThreadDeath) {
