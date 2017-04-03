@@ -323,14 +323,14 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
                 return 0;
             }
             // Read Secondary Audio Extra Attributes
-            ss->sa_num_primary_audio_ref = bs_read(bits, 8);
+            ss[ii].sa_num_primary_audio_ref = bs_read(bits, 8);
             bs_skip(bits, 8);
-            if (ss->sa_num_primary_audio_ref) {
-                ss->sa_primary_audio_ref = calloc(ss->sa_num_primary_audio_ref, sizeof(uint8_t));
-                for (jj = 0; jj < ss->sa_num_primary_audio_ref; jj++) {
-                   ss->sa_primary_audio_ref[jj] = bs_read(bits, 8);
+            if (ss[ii].sa_num_primary_audio_ref) {
+                ss[ii].sa_primary_audio_ref = calloc(ss[ii].sa_num_primary_audio_ref, sizeof(uint8_t));
+                for (jj = 0; jj < ss[ii].sa_num_primary_audio_ref; jj++) {
+                   ss[ii].sa_primary_audio_ref[jj] = bs_read(bits, 8);
                 }
-                if (ss->sa_num_primary_audio_ref % 2) {
+                if (ss[ii].sa_num_primary_audio_ref % 2) {
                     bs_skip(bits, 8);
                 }
             }
@@ -349,25 +349,25 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
                 return 0;
             }
             // Read Secondary Video Extra Attributes
-            ss->sv_num_secondary_audio_ref = bs_read(bits, 8);
-           bs_skip(bits, 8);
-            if (ss->sv_num_secondary_audio_ref) {
-                ss->sv_secondary_audio_ref = calloc(ss->sv_num_secondary_audio_ref, sizeof(uint8_t));
-                for (jj = 0; jj < ss->sv_num_secondary_audio_ref; jj++) {
-                    ss->sv_secondary_audio_ref[jj] = bs_read(bits, 8);
+            ss[ii].sv_num_secondary_audio_ref = bs_read(bits, 8);
+            bs_skip(bits, 8);
+            if (ss[ii].sv_num_secondary_audio_ref) {
+                ss[ii].sv_secondary_audio_ref = calloc(ss[ii].sv_num_secondary_audio_ref, sizeof(uint8_t));
+                for (jj = 0; jj < ss[ii].sv_num_secondary_audio_ref; jj++) {
+                    ss[ii].sv_secondary_audio_ref[jj] = bs_read(bits, 8);
                 }
-                if (ss->sv_num_secondary_audio_ref % 2) {
+                if (ss[ii].sv_num_secondary_audio_ref % 2) {
                     bs_skip(bits, 8);
                 }
             }
-            ss->sv_num_pip_pg_ref = bs_read(bits, 8);
+            ss[ii].sv_num_pip_pg_ref = bs_read(bits, 8);
             bs_skip(bits, 8);
-            if (ss->sv_num_pip_pg_ref) {
-                ss->sv_pip_pg_ref = calloc(ss->sv_num_pip_pg_ref, sizeof(uint8_t));
-                for (jj = 0; jj < ss->sv_num_pip_pg_ref; jj++) {
-                    ss->sv_pip_pg_ref[jj] = bs_read(bits, 8);
+            if (ss[ii].sv_num_pip_pg_ref) {
+                ss[ii].sv_pip_pg_ref = calloc(ss[ii].sv_num_pip_pg_ref, sizeof(uint8_t));
+                for (jj = 0; jj < ss[ii].sv_num_pip_pg_ref; jj++) {
+                    ss[ii].sv_pip_pg_ref[jj] = bs_read(bits, 8);
                 }
-                if (ss->sv_num_pip_pg_ref % 2) {
+                if (ss[ii].sv_num_pip_pg_ref % 2) {
                     bs_skip(bits, 8);
                 }
             }
