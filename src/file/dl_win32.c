@@ -89,6 +89,8 @@ void *dl_dlopen(const char *path, const char *version)
     if (!result) {
         char buf[128];
         BD_DEBUG(DBG_FILE, "can't open library '%s': %s\n", path, dlerror(buf, sizeof(buf)));
+    } else {
+        BD_DEBUG(DBG_FILE, "opened library '%s'\n", path);
     }
 
     return result;
