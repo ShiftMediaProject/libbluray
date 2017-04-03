@@ -222,8 +222,6 @@ class VFSCache {
 
     protected synchronized File addFont(InputStream is) {
 
-        new File(fontRoot).mkdirs();
-
         // copy stream to tmp file in fontRoot. freetype can not read streams.
         File tmpFile = null;
         for (int i = 0; i < 100; i++) {
