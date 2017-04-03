@@ -1501,12 +1501,8 @@ void bd_close(BLURAY *bd)
     _close_preload(&bd->st_ig);
     _close_preload(&bd->st_textst);
 
-    if (bd->title_list != NULL) {
-        nav_free_title_list(bd->title_list);
-    }
-    if (bd->title != NULL) {
-        nav_title_close(bd->title);
-    }
+    nav_free_title_list(&bd->title_list);
+    nav_title_close(&bd->title);
 
     hdmv_vm_free(&bd->hdmv_vm);
 
@@ -2290,10 +2286,7 @@ static void _close_playlist(BLURAY *bd)
     _close_preload(&bd->st_ig);
     _close_preload(&bd->st_textst);
 
-    if (bd->title) {
-        nav_title_close(bd->title);
-        bd->title = NULL;
-    }
+    nav_title_close(&bd->title);
 
     /* reset UO mask */
     memset(&bd->st0.uo_mask, 0, sizeof(BD_UO_MASK));
@@ -2545,9 +2538,7 @@ uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length)
         return 0;
     }
 
-    if (bd->title_list != NULL) {
-        nav_free_title_list(bd->title_list);
-    }
+    nav_free_title_list(&bd->title_list);
     bd->title_list = nav_get_title_list(bd->disc, flags, min_title_length);
 
     if (!bd->title_list) {
@@ -2707,7 +2698,7 @@ static BLURAY_TITLE_INFO *_get_title_info(BLURAY *bd, uint32_t title_idx, uint32
 
     title_info = _fill_title_info(title, title_idx, playlist);
 
-    nav_title_close(title);
+    nav_title_close(&title);
     return title_info;
 }
 

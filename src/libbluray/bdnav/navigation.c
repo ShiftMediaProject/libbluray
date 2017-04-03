@@ -438,10 +438,12 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
     return title_list;
 }
 
-void nav_free_title_list(NAV_TITLE_LIST *title_list)
+void nav_free_title_list(NAV_TITLE_LIST **title_list)
 {
-    X_FREE(title_list->title_info);
-    X_FREE(title_list);
+    if (*title_list) {
+        X_FREE((*title_list)->title_info);
+        X_FREE((*title_list));
+    }
 }
 
 /*
@@ -699,12 +701,10 @@ NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
     return title;
 }
 
-void nav_title_close(NAV_TITLE *title)
+static
+void _nav_title_close(NAV_TITLE *title)
 {
     unsigned ii, ss;
-
-    if (!title)
-        return;
 
     if (title->sub_path) {
         for (ss = 0; ss < title->sub_path_count; ss++) {
@@ -729,6 +729,14 @@ void nav_title_close(NAV_TITLE *title)
     X_FREE(title->chap_list.mark);
     X_FREE(title->mark_list.mark);
     X_FREE(title);
+}
+
+void nav_title_close(NAV_TITLE **title)
+{
+    if (*title) {
+        _nav_title_close(*title);
+        *title = NULL;
+    }
 }
 
 // Search for random access point closest to the requested packet
