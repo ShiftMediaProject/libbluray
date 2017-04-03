@@ -693,6 +693,10 @@ _parse_playlistmark(BITSTREAM *bits, MPLS_PL *pl)
     pl->mark_count = bs_read(bits, 16);
 
     plm = calloc(pl->mark_count, sizeof(MPLS_PLM));
+    if (pl->mark_count && !plm) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
     for (ii = 0; ii < pl->mark_count; ii++) {
         bs_skip(bits, 8); /* reserved */
         plm[ii].mark_type     = bs_read(bits, 8);
