@@ -24,7 +24,7 @@ import java.util.ArrayList;
 public class StrUtil {
     public static String Join(String[] strings, String separator) {
         String result = "";
-        if (strings != null) {
+        if (strings != null && strings.length > 0) {
             result = strings[0];
             for (int i = 1; i < strings.length; i++) {
                 result = result + separator + strings[i];
