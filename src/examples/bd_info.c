@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
         printf("BD-J titles         : %d\n", info->num_bdj_titles);
         printf("UNSUPPORTED titles  : %d\n", info->num_unsupported_titles);
 
-        printf("\nBD-J detected       : %s\n", _yes_no(info->bdj_supported));
+        printf("\nBD-J detected       : %s\n", _yes_no(info->bdj_detected));
         if (info->bdj_detected) {
             printf("BD-J supported      : %s\n", _yes_no(info->bdj_supported));
             if (info->bdj_supported) {
