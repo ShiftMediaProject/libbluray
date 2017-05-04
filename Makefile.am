@@ -11,11 +11,6 @@ else
 POSIX_C_SOURCE=200112L
 endif
 
-SET_FEATURES = -D_ISOC99_SOURCE -D_POSIX_C_SOURCE=$(POSIX_C_SOURCE) -D_REENTRANT
-SET_INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)/src/libbluray -I$(top_builddir)/src/libbluray $(BDJAVA_CFLAGS)
-
-AM_CFLAGS = -std=c99 $(SET_FEATURES) $(SET_INCLUDES) $(LIBXML2_CFLAGS) $(FT2_CFLAGS) $(FONTCONFIG_CFLAGS) $(UDF_CFLAGS)
-
 EXTRA_DIST = \
 	bootstrap \
 	ChangeLog \
@@ -29,7 +24,26 @@ EXTRA_DIST = \
 	src/libbluray/bdj/java-j2se \
 	contrib/asm
 
+AM_CFLAGS = \
+	-std=c99
+
+AM_CPPFLAGS = \
+	-D_ISOC99_SOURCE \
+	-D_POSIX_C_SOURCE=$(POSIX_C_SOURCE) \
+	-D_REENTRANT \
+	\
+	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/src/libbluray
+
 lib_LTLIBRARIES=libbluray.la
+libbluray_la_CPPFLAGS = \
+	$(AM_CPPFLAGS) \
+	-I$(top_builddir)/src/libbluray \
+	$(BDJAVA_CFLAGS) \
+	$(UDF_CFLAGS) \
+	$(LIBXML2_CFLAGS) \
+	$(FT2_CFLAGS) \
+	$(FONTCONFIG_CFLAGS)
 libbluray_la_SOURCES = \
 	src/file/dirs.h \
 	src/file/dl.h \
