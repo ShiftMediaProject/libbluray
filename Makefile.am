@@ -216,8 +216,6 @@ libbluray_la_SOURCES += \
 	src/libbluray/bdj/native/util.h \
 	src/libbluray/bdj/native/util.c
 
-AM_CFLAGS += $(BDJAVA_CFLAGS)
-
 if USING_BDJAVA_BUILD_JAR
 all-local:
 	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml \
