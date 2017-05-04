@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "libbluray/bluray.h"
+#include "bluray.h"
 
 #if defined(_WIN32)
 #include <windows.h>

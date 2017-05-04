@@ -25,12 +25,12 @@
 #include "bdjo.h"
 #include "util.h"
 
-#include "libbluray/bdj/bdjo_parse.h"
+#include "bdj/bdjo_parse.h"
 
-#include "libbluray/bluray.h"
-#include "libbluray/bluray_internal.h"
-#include "libbluray/decoders/overlay.h"
-#include "libbluray/disc/disc.h"
+#include "bluray.h"
+#include "bluray_internal.h"
+#include "decoders/overlay.h"
+#include "disc/disc.h"
 
 #include "file/file.h"
 #include "util/logging.h"

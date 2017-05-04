@@ -17,10 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "libbluray/bluray.h"
+#include "bluray.h"
 
-#include "libbluray/hdmv/mobj_data.h"
-#include "libbluray/hdmv/mobj_print.h"
+#include "hdmv/mobj_data.h"
+#include "hdmv/mobj_print.h"
 
 #include <stdio.h>
 #include <string.h>

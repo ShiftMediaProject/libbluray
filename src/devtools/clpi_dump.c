@@ -23,8 +23,8 @@
 #include <unistd.h>
 #include <inttypes.h>
 
-#include "libbluray/bdnav/clpi_data.h"
-#include "libbluray/bluray.h"
+#include "bluray.h"
+#include "bdnav/clpi_data.h"
 
 #include "util.h"
 

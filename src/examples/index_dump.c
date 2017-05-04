@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 
-#include "libbluray/bluray.h"
+#include "bluray.h"
 
 static void _indx_print_title(const BLURAY_TITLE *title, int normal_title)
 {

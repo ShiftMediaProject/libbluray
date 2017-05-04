@@ -31,7 +31,7 @@
 
 #include "util.h"
 
-#include "libbluray/bdj/bdjo_data.h"
+#include "bdj/bdjo_data.h"
 
 #include "util/logging.h"
 

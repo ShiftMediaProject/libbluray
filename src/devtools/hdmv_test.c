@@ -22,9 +22,9 @@
 #include <string.h>
 #include <inttypes.h>
 
+#include "decoders/overlay.h"
 #include "util/log_control.h"
-#include "libbluray/bluray.h"
-#include "libbluray/decoders/overlay.h"
+#include "bluray.h"
 
 
 #define PRINT_EV0(e)                                \

@@ -27,7 +27,7 @@
 #include <libgen.h>
 #include <inttypes.h>
 
-#include "libbluray/bluray.h"
+#include "bluray.h"
 
 #define PKT_SIZE 192
 #define BUF_SIZE (PKT_SIZE * 1024)

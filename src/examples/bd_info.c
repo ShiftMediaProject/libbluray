@@ -22,8 +22,8 @@
 #include <inttypes.h>
 #include <unistd.h>
 
-#include "libbluray/bdnav/meta_data.h"
-#include "libbluray/bluray.h"
+#include "bdnav/meta_data.h"
+#include "bluray.h"
 
 static const char *_yes_no(int i)
 {
