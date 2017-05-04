@@ -143,8 +143,12 @@ static void _print_app_info(const BLURAY_DISC_INFO *info)
 
 int main(int argc, char *argv[])
 {
+    int major, minor, micro;
     const char *disc_root = (argc > 1) ? argv[1] : NULL;
     const char *keyfile   = (argc > 2) ? argv[2] : NULL;
+
+    bd_get_version(&major, &minor, &micro);
+    printf("Using libbluray version %d.%d.%d\n", major, minor, micro);
 
     if (!disc_root) {
         fprintf(stderr,
