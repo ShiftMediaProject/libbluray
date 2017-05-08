@@ -41,6 +41,7 @@
 #include "bdnav/meta_data.h"
 #include "bdnav/clpi_parse.h"
 #include "bdnav/sound_parse.h"
+#include "bdnav/uo_mask.h"
 #include "hdmv/hdmv_vm.h"
 #include "hdmv/mobj_parse.h"
 #include "decoders/graphics_controller.h"
@@ -3800,6 +3801,8 @@ int bd_get_meta_file(BLURAY *bd, const char *name, void **data, int64_t *size)
 /*
  * Database access
  */
+
+#include "bdnav/mpls_parse.h"
 
 struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref)
 {

@@ -35,6 +35,8 @@
 #include "util/mutex.h"
 #include "util/time.h"
 
+#include "bdnav/uo_mask.h"
+
 #include "../register.h"
 #include "../keys.h"
 

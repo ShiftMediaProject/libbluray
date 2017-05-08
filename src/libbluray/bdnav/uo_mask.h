@@ -1,7 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2009-2010  John Stebbins
- * Copyright (C) 2012-2016  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2010-2015  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,22 +17,37 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#if !defined(_MPLS_PARSE_H_)
-#define _MPLS_PARSE_H_
+#if !defined(_BD_UO_MASK_H_)
+#define _BD_UO_MASK_H_
 
-#include "mpls_data.h"
 #include "uo_mask_table.h"
-
-#include "util/attributes.h"
 
 #include <stdint.h>
 
-struct bd_disc;
+static inline BD_UO_MASK bd_uo_mask_combine(BD_UO_MASK a, BD_UO_MASK b)
+{
+    union {
+        uint64_t   u64;
+        BD_UO_MASK mask;
+    } mask_a = {0}, mask_b = {0}, result;
 
-BD_PRIVATE MPLS_PL* mpls_parse(const char *path) BD_ATTR_MALLOC;
-BD_PRIVATE MPLS_PL* mpls_get(struct bd_disc *disc, const char *file);
-BD_PRIVATE void mpls_free(MPLS_PL **pl);
+    mask_a.mask = a;
+    mask_b.mask = b;
+    result.u64 = mask_a.u64 | mask_b.u64;
 
-BD_PRIVATE int  mpls_parse_uo(uint8_t *buf, BD_UO_MASK *uo);
+    return result.mask;
+}
 
-#endif // _MPLS_PARSE_H_
+#define EMPTY_UO_MASK  {0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0}
+
+static inline BD_UO_MASK bd_empty_uo_mask(void)
+{
+    static const union {
+        const uint64_t   u64;
+        const BD_UO_MASK mask;
+    } empty = {0};
+
+    return empty.mask;
+}
+
+#endif // _BD_UO_MASK_H_

@@ -22,7 +22,7 @@
 
 #include "util/attributes.h"
 
-#include "mpls_parse.h"
+#include "mpls_data.h"
 #include "clpi_data.h"
 
 struct bd_disc;
