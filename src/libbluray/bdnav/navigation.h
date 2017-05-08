@@ -50,10 +50,7 @@ struct nav_mark_s
     uint32_t title_pkt;
     uint32_t title_time;
     uint32_t duration;
-
-    MPLS_PLM *plm;
 };
-
 
 typedef struct nav_mark_list_s NAV_MARK_LIST;
 struct nav_mark_list_s

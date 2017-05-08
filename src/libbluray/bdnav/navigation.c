@@ -482,7 +482,6 @@ _fill_mark(NAV_TITLE *title, NAV_MARK *mark, int entry)
 
     plm = &pl->play_mark[entry];
 
-    mark->plm = plm;
     mark->mark_type = plm->mark_type;
     mark->clip_ref = plm->play_item_ref;
     clip = &title->clip_list.clip[mark->clip_ref];
