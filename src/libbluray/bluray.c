@@ -2690,6 +2690,11 @@ static BLURAY_TITLE_INFO *_get_title_info(BLURAY *bd, uint32_t title_idx, uint32
     NAV_TITLE *title;
     BLURAY_TITLE_INFO *title_info;
 
+    /* current title ? => no need to load mpls file */
+    if (bd->title && bd->title->angle == angle && !strcmp(bd->title->name, mpls_name)) {
+        return _fill_title_info(bd->title, title_idx, playlist);
+    }
+
     title = nav_title_open(bd->disc, mpls_name, angle);
     if (title == NULL) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Unable to open title %s!\n", mpls_name);
