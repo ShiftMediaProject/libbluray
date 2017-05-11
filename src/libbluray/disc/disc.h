@@ -103,7 +103,8 @@ BD_PRIVATE int   disc_property_put(BD_DISC *disc, const char *property, const ch
 BD_PRIVATE char *disc_property_get(BD_DISC *disc, const char *property);
 
 /* "Known" playlists */
-#define DISC_PROPERTY_PLAYLISTS "Playlists"
+#define DISC_PROPERTY_PLAYLISTS    "Playlists"
+#define DISC_PROPERTY_MAIN_FEATURE "MainFeature"
 
 /*
  *

@@ -290,7 +290,9 @@ static int _cmp_audio_props(const MPLS_PL *p1, const MPLS_PL *p2)
     return hda2 - hda1;
 }
 
-static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
+static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2,
+                                const char *mpls_id1, const char *mpls_id2,
+                                const char *known_mpls_ids)
 {
     uint32_t d1 = _pl_duration(p1);
     uint32_t d2 = _pl_duration(p2);
@@ -321,6 +323,18 @@ static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2)
             BD_DEBUG(DBG_MAIN_PL, "main title: audio properties difference %d\n", aud_diff);
             return aud_diff;
         }
+
+        /* prefer "known good" playlists */
+        if (known_mpls_ids) {
+            int known1 = !!str_strcasestr(known_mpls_ids, mpls_id1);
+            int known2 = !!str_strcasestr(known_mpls_ids, mpls_id2);
+            int known_diff = known2 - known1;
+            if (known_diff) {
+                BD_DEBUG(DBG_MAIN_PL, "main title (%s,%s): prefer \"known\" playlist %s\n",
+                         mpls_id1, mpls_id2, known_diff < 0 ? mpls_id1 : mpls_id2);
+                return known_diff;
+            }
+        }
     }
 
     /* compare playlist duration, select longer playlist */
@@ -348,6 +362,7 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
     int res;
     NAV_TITLE_LIST *title_list = NULL;
     unsigned int title_info_alloc = 100;
+    char *known_mpls_ids;
 
     dir = disc_open_dir(disc, "BDMV" DIR_SEP "PLAYLIST");
     if (dir == NULL) {
@@ -364,6 +379,11 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
         X_FREE(title_list);
         dir_close(dir);
         return NULL;
+    }
+
+    known_mpls_ids = disc_property_get(disc, DISC_PROPERTY_MAIN_FEATURE);
+    if (!known_mpls_ids) {
+        known_mpls_ids = disc_property_get(disc, DISC_PROPERTY_PLAYLISTS);
     }
 
     ii = 0;
@@ -415,7 +435,10 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
             if (_filter_dup(pl_list, ii, pl) &&
                 _filter_repeats(pl, 2)) {
 
-                if (_pl_guess_main_title(pl_list[ii], pl_list[title_list->main_title_idx]) <= 0) {
+                if (_pl_guess_main_title(pl_list[ii], pl_list[title_list->main_title_idx],
+                                         ent.d_name,
+                                         title_list->title_info[title_list->main_title_idx].name,
+                                         known_mpls_ids) <= 0) {
                     title_list->main_title_idx = ii;
                 }
             }
@@ -434,6 +457,7 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
     for (ii = 0; ii < title_list->count; ii++) {
         mpls_free(&pl_list[ii]);
     }
+    X_FREE(known_mpls_ids);
     X_FREE(pl_list);
     return title_list;
 }
