@@ -113,6 +113,8 @@ libbluray_la_SOURCES = \
 	src/libbluray/disc/disc.h \
 	src/libbluray/disc/disc.c \
 	src/libbluray/disc/enc_info.h \
+	src/libbluray/disc/properties.h \
+	src/libbluray/disc/properties.c \
 	src/libbluray/hdmv/hdmv_insn.h \
 	src/libbluray/hdmv/hdmv_vm.h \
 	src/libbluray/hdmv/hdmv_vm.c \

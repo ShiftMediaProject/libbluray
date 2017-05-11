@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2014  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2014-2017  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,7 @@
 #include "disc.h"
 
 #include "dec.h"
+#include "properties.h"
 
 #include "util/logging.h"
 #include "util/macro.h"
@@ -31,8 +32,10 @@
 #include "util/strutl.h"
 #include "file/file.h"
 #include "file/mount.h"
+#include "file/dirs.h"
 
 #include <ctype.h>
+#include <stdio.h>
 #include <string.h>
 
 #ifdef ENABLE_UDF
@@ -41,6 +44,7 @@
 
 struct bd_disc {
     BD_MUTEX  ovl_mutex;     /* protect access to overlay root */
+    BD_MUTEX  properties_mutex; /* protect access to properties file */
 
     char     *disc_root;     /* disc filesystem root (if disc is mounted) */
     char     *overlay_root;  /* overlay filesystem root (if set) */
@@ -53,6 +57,7 @@ struct bd_disc {
     void        (*pf_fs_close)(void *);
 
     const char   *udf_volid;
+    char         *properties_file;  /* NULL if not yet used */
 
     int8_t        avchd;  /* -1 - unknown. 0 - no. 1 - yes */
 };
@@ -265,6 +270,7 @@ static BD_DISC *_disc_init()
     BD_DISC *p = calloc(1, sizeof(BD_DISC));
     if (p) {
         bd_mutex_init(&p->ovl_mutex);
+        bd_mutex_init(&p->properties_mutex);
 
         /* default file access functions */
         p->fs_handle          = (void*)p;
@@ -351,8 +357,10 @@ void disc_close(BD_DISC **pp)
         }
 
         bd_mutex_destroy(&p->ovl_mutex);
+        bd_mutex_destroy(&p->properties_mutex);
 
         X_FREE(p->disc_root);
+        X_FREE(p->properties_file);
         X_FREE(*pp);
     }
 }
@@ -571,6 +579,84 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
     file_close(fp_out);
     file_close(fp_in);
     return 0;
+}
+
+/*
+ * persistent properties storage
+ */
+
+static char *_properties_file(BD_DISC *p)
+{
+    const uint8_t *disc_id = NULL;
+    uint8_t  pseudo_id[20];
+    char     id_type, id_str[41];
+    char    *cache_home;
+    char    *properties_file;
+
+    cache_home = file_get_cache_home();
+    if (!cache_home) {
+        return NULL;
+    }
+
+    /* get disc ID */
+    if (p->dec) {
+        id_type = 'A';
+        disc_id = dec_disc_id(p->dec);
+    }
+    if (!disc_id) {
+        id_type = 'P';
+        disc_pseudo_id(p, pseudo_id);
+        disc_id = pseudo_id;
+    }
+
+    properties_file = str_printf("%s" DIR_SEP "bluray" DIR_SEP "properties" DIR_SEP "%c%s",
+                                 cache_home, id_type,
+                                 str_print_hex(id_str, disc_id, 20));
+
+    X_FREE(cache_home);
+
+    return properties_file;
+}
+
+static int _ensure_properties_file(BD_DISC *p)
+{
+    bd_mutex_lock(&p->properties_mutex);
+    if (!p->properties_file) {
+        p->properties_file = _properties_file(p);
+    }
+    bd_mutex_unlock(&p->properties_mutex);
+
+    return p->properties_file ? 0 : -1;
+}
+
+int disc_property_put(BD_DISC *p, const char *property, const char *val)
+{
+    int result;
+
+    if (_ensure_properties_file(p) < 0) {
+        return -1;
+    }
+
+    bd_mutex_lock(&p->properties_mutex);
+    result = properties_put(p->properties_file, property, val);
+    bd_mutex_unlock(&p->properties_mutex);
+
+    return result;
+}
+
+char *disc_property_get(BD_DISC *p, const char *property)
+{
+    char *result;
+
+    if (_ensure_properties_file(p) < 0) {
+        return NULL;
+    }
+
+    bd_mutex_lock(&p->properties_mutex);
+    result = properties_get(p->properties_file, property);
+    bd_mutex_unlock(&p->properties_mutex);
+
+    return result;
 }
 
 /*
