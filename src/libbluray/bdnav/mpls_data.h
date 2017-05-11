@@ -121,9 +121,19 @@ typedef struct
     MPLS_CLIP       *clip;
 } MPLS_SUB_PI;
 
+typedef enum {
+  //mpls_sub_path_        = 2,  /* Primary audio of the Browsable slideshow */
+  mpls_sub_path_ig_menu   = 3,  /* Interactive Graphics presentation menu */
+  mpls_sub_path_textst    = 4,  /* Text Subtitle */
+  //mpls_sub_path_        = 5,  /* Out-of-mux Synchronous elementary streams */
+  mpls_sub_path_async_pip = 6,  /* Out-of-mux Asynchronous Picture-in-Picture presentation */
+  mpls_sub_path_sync_pip  = 7,  /* In-mux Synchronous Picture-in-Picture presentation */
+  mpls_sub_path_ss_viseo  = 8,  /* SS Video */
+} mpls_sub_path_type;
+
 typedef struct
 {
-    uint8_t         type;
+    uint8_t         type;       /* enum mpls_sub_path_type */
     uint8_t         is_repeat;
     uint8_t         sub_playitem_count;
     MPLS_SUB_PI     *sub_play_item;
