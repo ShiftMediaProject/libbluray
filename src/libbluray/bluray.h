@@ -90,7 +90,7 @@ typedef struct {
 
     /* BD-J info  (valid only if disc uses BD-J) */
     uint8_t  bdj_detected;     /* 1 if disc uses BD-J */
-    uint8_t  bdj_supported;    /* 1 if BD-J support was compiled in */
+    uint8_t  bdj_supported;    /* (deprecated) */
     uint8_t  libjvm_detected;  /* 1 if usable Java VM was found */
     uint8_t  bdj_handled;      /* 1 if usable Java VM + libbluray.jar was found */
 
