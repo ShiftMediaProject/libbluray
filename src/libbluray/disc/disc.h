@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2014  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2014-2017  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -101,6 +101,9 @@ BD_PRIVATE struct bd_file_s *disc_open_stream(BD_DISC *disc, const char *file);
 
 BD_PRIVATE int   disc_property_put(BD_DISC *disc, const char *property, const char *value);
 BD_PRIVATE char *disc_property_get(BD_DISC *disc, const char *property);
+
+/* "Known" playlists */
+#define DISC_PROPERTY_PLAYLISTS "Playlists"
 
 /*
  *

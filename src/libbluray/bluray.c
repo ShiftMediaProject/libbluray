@@ -2295,6 +2295,33 @@ static void _close_playlist(BLURAY *bd)
     _update_uo_mask(bd);
 }
 
+static int _add_known_playlist(BD_DISC *p, const char *mpls_id)
+{
+    char *old_mpls_ids;
+    char *new_mpls_ids = NULL;
+    int result = -1;
+
+    old_mpls_ids = disc_property_get(p, DISC_PROPERTY_PLAYLISTS);
+    if (!old_mpls_ids) {
+        return disc_property_put(p, DISC_PROPERTY_PLAYLISTS, mpls_id);
+    }
+
+    /* no duplicates */
+    if (str_strcasestr(old_mpls_ids, mpls_id)) {
+        goto out;
+    }
+
+    new_mpls_ids = str_printf("%s,%s", old_mpls_ids, mpls_id);
+    if (new_mpls_ids) {
+        result = disc_property_put(p, DISC_PROPERTY_PLAYLISTS, new_mpls_ids);
+    }
+
+ out:
+    X_FREE(old_mpls_ids);
+    X_FREE(new_mpls_ids);
+    return result;
+}
+
 static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
 {
     _close_playlist(bd);
@@ -2324,6 +2351,11 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
         _preload_subpaths(bd);
 
         bd->st0.seek_flag = 1;
+
+        /* remember played playlists when using menus */
+        if (bd->title_type != title_undef) {
+            _add_known_playlist(bd->disc, bd->title->name);
+        }
 
         return 1;
     }
