@@ -139,6 +139,41 @@ libbluray_la_SOURCES = \
 	src/util/time.h \
 	src/util/time.c
 
+# bd-j
+libbluray_la_SOURCES += \
+	src/libbluray/bdj/bdj.h \
+	src/libbluray/bdj/bdj.c \
+	src/libbluray/bdj/bdjo_data.h \
+	src/libbluray/bdj/bdjo_parse.h \
+	src/libbluray/bdj/bdjo_parse.c \
+	src/libbluray/bdj/native/bdjo.h \
+	src/libbluray/bdj/native/bdjo.c \
+	src/libbluray/bdj/native/java_awt_BDFontMetrics.h \
+	src/libbluray/bdj/native/java_awt_BDFontMetrics.c \
+	src/libbluray/bdj/native/java_awt_BDGraphics.h \
+	src/libbluray/bdj/native/java_awt_BDGraphics.c \
+	src/libbluray/bdj/native/org_videolan_Libbluray.h \
+	src/libbluray/bdj/native/org_videolan_Libbluray.c \
+	src/libbluray/bdj/native/org_videolan_Logger.h \
+	src/libbluray/bdj/native/org_videolan_Logger.c \
+	src/libbluray/bdj/native/register_native.h \
+	src/libbluray/bdj/native/register_native.c \
+	src/libbluray/bdj/native/util.h \
+	src/libbluray/bdj/native/util.c
+
+# libudfread
+libbluray_la_SOURCES += \
+	src/libbluray/disc/udf_fs.h \
+	src/libbluray/disc/udf_fs.c\
+	\
+	contrib/libudfread/src/blockinput.h \
+	contrib/libudfread/src/default_blockinput.h \
+	contrib/libudfread/src/default_blockinput.c \
+	contrib/libudfread/src/ecma167.h \
+	contrib/libudfread/src/ecma167.c \
+	contrib/libudfread/src/udfread.h \
+	contrib/libudfread/src/udfread.c
+
 if HAVE_DARWIN
 libbluray_la_SOURCES+= \
 	src/file/dir_posix.c \
@@ -184,48 +219,13 @@ pkginclude_HEADERS = \
 	src/libbluray/decoders/overlay.h \
 	src/util/log_control.h
 
-libbluray_la_SOURCES += \
-	src/libbluray/disc/udf_fs.h \
-	src/libbluray/disc/udf_fs.c\
-	\
-	contrib/libudfread/src/blockinput.h \
-	contrib/libudfread/src/default_blockinput.h \
-	contrib/libudfread/src/default_blockinput.c \
-	contrib/libudfread/src/ecma167.h \
-	contrib/libudfread/src/ecma167.c \
-	contrib/libudfread/src/udfread.h \
-	contrib/libudfread/src/udfread.c
-
 
 if USING_BDJAVA_BUILD_JAR
 jardir=$(datadir)/java/
 jar_DATA=$(top_builddir)/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar
 
 $(top_builddir)/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar: all-local
-endif
 
-libbluray_la_SOURCES += \
-	src/libbluray/bdj/bdj.h \
-	src/libbluray/bdj/bdj.c \
-	src/libbluray/bdj/bdjo_data.h \
-	src/libbluray/bdj/bdjo_parse.h \
-	src/libbluray/bdj/bdjo_parse.c \
-	src/libbluray/bdj/native/bdjo.h \
-	src/libbluray/bdj/native/bdjo.c \
-	src/libbluray/bdj/native/java_awt_BDFontMetrics.h \
-	src/libbluray/bdj/native/java_awt_BDFontMetrics.c \
-	src/libbluray/bdj/native/java_awt_BDGraphics.h \
-	src/libbluray/bdj/native/java_awt_BDGraphics.c \
-	src/libbluray/bdj/native/org_videolan_Libbluray.h \
-	src/libbluray/bdj/native/org_videolan_Libbluray.c \
-	src/libbluray/bdj/native/org_videolan_Logger.h \
-	src/libbluray/bdj/native/org_videolan_Logger.c \
-	src/libbluray/bdj/native/register_native.h \
-	src/libbluray/bdj/native/register_native.c \
-	src/libbluray/bdj/native/util.h \
-	src/libbluray/bdj/native/util.c
-
-if USING_BDJAVA_BUILD_JAR
 all-local:
 	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml \
 	    -Dbuild='$(abs_builddir)/src/libbluray/bdj/build' \

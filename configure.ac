@@ -193,40 +193,40 @@ dnl use examples
 AM_CONDITIONAL([USING_EXAMPLES], [ test $use_examples = "yes" ])
 
 dnl use bdjava
-  case $host_cpu in
-       x86_64) java_arch=amd64 ;;
-       i?86)   java_arch=i386 ;;
-       arm*)   java_arch=arm ;;
-       *)      java_arch=$host_cpu ;;
-  esac
-  case $host_os in
-       linux*)   java_os=linux ;;
-       win*)     java_os=win32 ;;
-       mingw*)   java_os=win32 ;;
-       freebsd*) java_os=freebsd ;;
-       solaris*) java_os=solaris ;;
-       darwin*)  java_os=darwin ;;
-       *)        java_os=$host_os ;;
-  esac
+case $host_cpu in
+     x86_64) java_arch=amd64 ;;
+     i?86)   java_arch=i386 ;;
+     arm*)   java_arch=arm ;;
+     *)      java_arch=$host_cpu ;;
+esac
+case $host_os in
+     linux*)   java_os=linux ;;
+     win*)     java_os=win32 ;;
+     mingw*)   java_os=win32 ;;
+     freebsd*) java_os=freebsd ;;
+     solaris*) java_os=solaris ;;
+     darwin*)  java_os=darwin ;;
+     *)        java_os=$host_os ;;
+esac
 
-  AS_IF([test "x${JDK_HOME}" != "x"], [
+AS_IF([test "x${JDK_HOME}" != "x"], [
     BDJAVA_CFLAGS="-I${JDK_HOME}/include -I${JDK_HOME}/include/$java_os"
 
     temp_CPPFLAGS="$CPPFLAGS"
     CPPFLAGS="$BDJAVA_CFLAGS $CPPFLAGS"
     AC_CHECK_HEADERS([jni.h], [], [AC_MSG_ERROR(could not find jni.h)])
     CPPFLAGS="$temp_CPPFLAGS"
-  ], [
+], [
     BDJAVA_CFLAGS='-I${abs_top_srcdir}/jni -I${abs_top_srcdir}/jni/'"${java_os}"
-  ])
+])
 
-  AC_CHECK_PROG(HAVE_ANT, [ant], yes, no)
-  if test "x$use_bdjava_jar" = "xyes" && test "x$HAVE_ANT" = "xno"; then
-      AC_MSG_ERROR([BD-J requires ANT, but ant was not found. Please install it.])
-  fi
+AC_CHECK_PROG(HAVE_ANT, [ant], yes, no)
+if test "x$use_bdjava_jar" = "xyes" && test "x$HAVE_ANT" = "xno"; then
+    AC_MSG_ERROR([BD-J requires ANT, but ant was not found. Please install it.])
+fi
 
-  AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
-  AC_DEFINE_UNQUOTED([JDK_HOME], ["$JDK_HOME"], [""])
+AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
+AC_DEFINE_UNQUOTED([JDK_HOME], ["$JDK_HOME"], [""])
 AM_CONDITIONAL([USING_BDJAVA_BUILD_JAR], [ test $use_bdjava_jar = "yes" ])
 
 dnl BD-J type
@@ -240,13 +240,13 @@ dnl bootclasspath
 AC_SUBST(BDJ_BOOTCLASSPATH)
 
 dnl udf support (using git submodule)
-    if test ! -f "${srcdir}/contrib/libudfread/src/udfread.h"; then
-        AC_MSG_ERROR("libudfread source tree not found")
-    fi
-    AC_CHECK_HEADERS([unistd.h fcntl.h])
-    AS_IF([test "${SYS}" != "mingw32"], [
-      AC_CHECK_FUNC([pread],, [AC_DEFINE([NEED_PREAD_IMPL], [1], [Define to 1 to use inefficient pread() replacement])])
-    ])
+if test ! -f "${srcdir}/contrib/libudfread/src/udfread.h"; then
+    AC_MSG_ERROR("libudfread source tree not found")
+fi
+AC_CHECK_HEADERS([unistd.h fcntl.h])
+AS_IF([test "${SYS}" != "mingw32"], [
+    AC_CHECK_FUNC([pread],, [AC_DEFINE([NEED_PREAD_IMPL], [1], [Define to 1 to use inefficient pread() replacement])])
+])
 
 dnl generate documentation
 DX_INIT_DOXYGEN(libbluray, doc/doxygen-config, [doc/doxygen])
