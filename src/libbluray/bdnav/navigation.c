@@ -306,21 +306,24 @@ static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2,
         int chap_diff = chap2 - chap1;
         if ((chap1 < 2 || chap2 < 2) && (chap_diff < -5 || chap_diff > 5)) {
             /* chapter count differs by more than 5 */
-            BD_DEBUG(DBG_MAIN_PL, "main title: chapter count difference %d\n", chap_diff);
+            BD_DEBUG(DBG_MAIN_PL, "main title (%s,%s): chapter count difference %d\n",
+                     mpls_id1, mpls_id2, chap_diff);
             return chap_diff;
         }
 
         /* Check video: prefer HD over SD, H.264/VC1 over MPEG1/2 */
         int vid_diff = _cmp_video_props(p1, p2);
         if (vid_diff) {
-            BD_DEBUG(DBG_MAIN_PL, "main title: video properties difference %d\n", vid_diff);
+            BD_DEBUG(DBG_MAIN_PL, "main title (%s,%s): video properties difference %d\n",
+                     mpls_id1, mpls_id2, vid_diff);
             return vid_diff;
         }
 
         /* compare audio: prefer HD audio */
         int aud_diff = _cmp_audio_props(p1, p2);
         if (aud_diff) {
-            BD_DEBUG(DBG_MAIN_PL, "main title: audio properties difference %d\n", aud_diff);
+            BD_DEBUG(DBG_MAIN_PL, "main title (%s,%s): audio properties difference %d\n",
+                     mpls_id1, mpls_id2, aud_diff);
             return aud_diff;
         }
 
