@@ -329,25 +329,25 @@ static void *_load_jvm(const char **p_java_home)
 {
 #ifdef HAVE_BDJ_J2ME
 # ifdef _WIN32
-    static const char *jvm_path[] = {NULL, JDK_HOME};
+    static const char * const jvm_path[] = {NULL, JDK_HOME};
     static const char  jvm_dir[]  = "bin";
     static const char  jvm_lib[]  = "cvmi";
 # else
-    static const char *jvm_path[] = {NULL, JDK_HOME, "/opt/PhoneME"};
+    static const char * const jvm_path[] = {NULL, JDK_HOME, "/opt/PhoneME"};
     static const char  jvm_dir[]  = "bin";
     static const char  jvm_lib[]  = "libcvm";
 # endif
 #else
 # ifdef _WIN32
-    static const char *jvm_path[] = {NULL, JDK_HOME};
+    static const char * const jvm_path[] = {NULL, JDK_HOME};
     static const char  jvm_dir[]  = "jre\\bin\\server";
     static const char  jvm_lib[]  = "jvm";
 # else
 #  ifdef __APPLE__
-    static const char *jvm_path[] = {NULL, JDK_HOME};
+    static const char * const jvm_path[] = {NULL, JDK_HOME};
     static const char  jvm_dir[]  = "jre/lib/server";
 #  else
-    static const char *jvm_path[] = {NULL, JDK_HOME,
+    static const char * const jvm_path[] = {NULL, JDK_HOME,
                                      "/usr/lib/jvm/default-java",
                                      "/usr/lib/jvm/default",
                                      "/usr/lib/jvm/",
