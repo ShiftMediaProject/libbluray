@@ -184,11 +184,8 @@ int main(int argc, char *argv[])
 
         printf("\nBD-J detected       : %s\n", _yes_no(info->bdj_detected));
         if (info->bdj_detected) {
-            printf("BD-J supported      : %s\n", _yes_no(info->bdj_supported));
-            if (info->bdj_supported) {
-                printf("Java VM found       : %s\n", _yes_no(info->libjvm_detected));
-                printf("BD-J handled        : %s\n", _yes_no(info->bdj_handled));
-            }
+            printf("Java VM found       : %s\n", _yes_no(info->libjvm_detected));
+            printf("BD-J handled        : %s\n", _yes_no(info->bdj_handled));
             printf("BD-J organization ID: %s\n", info->bdj_org_id);
             printf("BD-J disc ID        : %s\n", info->bdj_disc_id);
         }
