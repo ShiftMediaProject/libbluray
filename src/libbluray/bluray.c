@@ -524,8 +524,8 @@ static void _update_uo_mask(BLURAY *bd)
     BD_UO_MASK old_mask = bd->uo_mask;
     BD_UO_MASK new_mask;
 
-    new_mask = bd_uo_mask_combine(bd->title_uo_mask, bd->st0.uo_mask);
-    new_mask = bd_uo_mask_combine(bd->gc_uo_mask,    new_mask);
+    new_mask = uo_mask_combine(bd->title_uo_mask, bd->st0.uo_mask);
+    new_mask = uo_mask_combine(bd->gc_uo_mask,    new_mask);
     if (_compressed_mask(old_mask) != _compressed_mask(new_mask)) {
         _queue_event(bd, BD_EVENT_UO_MASK_CHANGED, _compressed_mask(new_mask));
     }
@@ -589,8 +589,8 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
                 MPLS_PL *pl = st->clip->title->pl;
                 MPLS_STN *stn = &pl->play_item[st->clip->ref].stn;
 
-                st->uo_mask = bd_uo_mask_combine(pl->app_info.uo_mask,
-                                                 pl->play_item[st->clip->ref].uo_mask);
+                st->uo_mask = uo_mask_combine(pl->app_info.uo_mask,
+                                              pl->play_item[st->clip->ref].uo_mask);
                 _update_uo_mask(bd);
 
                 st->m2ts_filter = m2ts_filter_init((int64_t)st->clip->in_time << 1,

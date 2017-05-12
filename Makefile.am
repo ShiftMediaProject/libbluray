@@ -74,6 +74,8 @@ libbluray_la_SOURCES = \
 	src/libbluray/bdnav/navigation.c \
 	src/libbluray/bdnav/sound_parse.h \
 	src/libbluray/bdnav/sound_parse.c \
+	src/libbluray/bdnav/uo_mask.h \
+	src/libbluray/bdnav/uo_mask.c \
 	src/libbluray/bdnav/uo_mask_table.h \
 	src/libbluray/decoders/graphics_controller.h \
 	src/libbluray/decoders/graphics_controller.c \

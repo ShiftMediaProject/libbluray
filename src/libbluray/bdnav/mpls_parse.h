@@ -34,6 +34,4 @@ BD_PRIVATE MPLS_PL* mpls_parse(const char *path) BD_ATTR_MALLOC;
 BD_PRIVATE MPLS_PL* mpls_get(struct bd_disc *disc, const char *file);
 BD_PRIVATE void mpls_free(MPLS_PL **pl);
 
-BD_PRIVATE int  mpls_parse_uo(uint8_t *buf, BD_UO_MASK *uo);
-
 #endif // _MPLS_PARSE_H_

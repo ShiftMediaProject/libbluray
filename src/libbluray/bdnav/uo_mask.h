@@ -22,9 +22,11 @@
 
 #include "uo_mask_table.h"
 
+#include "util/attributes.h"
+
 #include <stdint.h>
 
-static inline BD_UO_MASK bd_uo_mask_combine(BD_UO_MASK a, BD_UO_MASK b)
+static inline BD_UO_MASK uo_mask_combine(BD_UO_MASK a, BD_UO_MASK b)
 {
     union {
         uint64_t   u64;
@@ -40,7 +42,7 @@ static inline BD_UO_MASK bd_uo_mask_combine(BD_UO_MASK a, BD_UO_MASK b)
 
 #define EMPTY_UO_MASK  {0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0}
 
-static inline BD_UO_MASK bd_empty_uo_mask(void)
+static inline BD_UO_MASK uo_mask_get_empty(void)
 {
     static const union {
         const uint64_t   u64;
@@ -49,5 +51,7 @@ static inline BD_UO_MASK bd_empty_uo_mask(void)
 
     return empty.mask;
 }
+
+BD_PRIVATE int uo_mask_parse(const uint8_t *buf, BD_UO_MASK *uo);
 
 #endif // _BD_UO_MASK_H_
