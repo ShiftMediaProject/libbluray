@@ -289,6 +289,5 @@ echo "  Use system fonts:              yes"
 fi
 fi
 echo "  Metadata support (libxml2):    $with_libxml2"
-echo "  UDF filesystem support:        yes"
 echo "  Build examples:                $use_examples"
 

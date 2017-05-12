@@ -1,7 +1,6 @@
 include $(top_srcdir)/doxygen-include.am
 
 ACLOCAL_AMFLAGS = -I m4
-DISTCHECK_CONFIGURE_FLAGS = --enable-bdjava --enable-udf
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
