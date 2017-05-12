@@ -345,11 +345,11 @@ static void *_load_jvm(const char **p_java_home)
 # ifdef _WIN32
     static const char * const jvm_path[] = {NULL, JDK_HOME};
     static const char * const jvm_dir[]  = {"bin"};
-    static const char  jvm_lib[]  = "cvmi";
+    static const char         jvm_lib[]  = "cvmi";
 # else
     static const char * const jvm_path[] = {NULL, JDK_HOME, "/opt/PhoneME"};
     static const char * const jvm_dir[]  = {"bin"};
-    static const char  jvm_lib[]  = "libcvm";
+    static const char         jvm_lib[]  = "libcvm";
 # endif
 #else /* HAVE_BDJ_J2ME */
 # ifdef _WIN32
@@ -359,24 +359,25 @@ static void *_load_jvm(const char **p_java_home)
                                             "jre\\bin\\client",
                                             "bin\\client",
     };
-    static const char  jvm_lib[]  = "jvm";
+    static const char         jvm_lib[]  = "jvm";
 # else
 #  ifdef __APPLE__
     static const char * const jvm_path[] = {NULL, JDK_HOME};
     static const char * const jvm_dir[]  = {"jre/lib/server"};
 #  else
-    static const char * const jvm_path[] = {NULL, JDK_HOME,
-                                     "/usr/lib/jvm/default-java",
-                                     "/usr/lib/jvm/default",
-                                     "/usr/lib/jvm/",
-                                     "/etc/java-config-2/current-system-vm",
-                                     "/usr/lib/jvm/java-7-openjdk",
-                                     "/usr/lib/jvm/java-8-openjdk",
-                                     "/usr/lib/jvm/java-6-openjdk",
+    static const char * const jvm_path[] = {NULL,
+                                            JDK_HOME,
+                                            "/usr/lib/jvm/default-java",
+                                            "/usr/lib/jvm/default",
+                                            "/usr/lib/jvm/",
+                                            "/etc/java-config-2/current-system-vm",
+                                            "/usr/lib/jvm/java-7-openjdk",
+                                            "/usr/lib/jvm/java-8-openjdk",
+                                            "/usr/lib/jvm/java-6-openjdk",
     };
     static const char * const jvm_dir[]  = {"jre/lib/" JAVA_ARCH "/server"};
 #  endif
-    static const char  jvm_lib[]  = "libjvm";
+    static const char         jvm_lib[]  = "libjvm";
 # endif
 #endif
     const unsigned num_jvm_dir  = sizeof(jvm_dir)  / sizeof(jvm_dir[0]);
