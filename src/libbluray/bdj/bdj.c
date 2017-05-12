@@ -304,6 +304,20 @@ static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char 
     }
 }
 
+static void *_jvm_dlopen_a(const char *java_home,
+                           const char * const *jvm_dir, unsigned num_jvm_dir,
+                           const char *jvm_lib)
+{
+  unsigned ii;
+  void *dll = NULL;
+
+  for (ii = 0; !dll && ii < num_jvm_dir; ii++) {
+      dll = _jvm_dlopen(java_home, jvm_dir[ii], jvm_lib);
+  }
+
+  return dll;
+}
+
 #if defined(__APPLE__) && !defined(HAVE_BDJ_J2ME)
 static void *_load_jli_macos()
 {
@@ -330,22 +344,26 @@ static void *_load_jvm(const char **p_java_home)
 #ifdef HAVE_BDJ_J2ME
 # ifdef _WIN32
     static const char * const jvm_path[] = {NULL, JDK_HOME};
-    static const char  jvm_dir[]  = "bin";
+    static const char * const jvm_dir[]  = {"bin"};
     static const char  jvm_lib[]  = "cvmi";
 # else
     static const char * const jvm_path[] = {NULL, JDK_HOME, "/opt/PhoneME"};
-    static const char  jvm_dir[]  = "bin";
+    static const char * const jvm_dir[]  = {"bin"};
     static const char  jvm_lib[]  = "libcvm";
 # endif
-#else
+#else /* HAVE_BDJ_J2ME */
 # ifdef _WIN32
     static const char * const jvm_path[] = {NULL, JDK_HOME};
-    static const char  jvm_dir[]  = "jre\\bin\\server";
+    static const char * const jvm_dir[]  = {"jre\\bin\\server",
+                                            "bin\\server",
+                                            "jre\\bin\\client",
+                                            "bin\\client",
+    };
     static const char  jvm_lib[]  = "jvm";
 # else
 #  ifdef __APPLE__
     static const char * const jvm_path[] = {NULL, JDK_HOME};
-    static const char  jvm_dir[]  = "jre/lib/server";
+    static const char * const jvm_dir[]  = {"jre/lib/server"};
 #  else
     static const char * const jvm_path[] = {NULL, JDK_HOME,
                                      "/usr/lib/jvm/default-java",
@@ -356,11 +374,14 @@ static void *_load_jvm(const char **p_java_home)
                                      "/usr/lib/jvm/java-8-openjdk",
                                      "/usr/lib/jvm/java-6-openjdk",
     };
-    static const char  jvm_dir[]  = "jre/lib/" JAVA_ARCH "/server";
+    static const char * const jvm_dir[]  = {"jre/lib/" JAVA_ARCH "/server"};
 #  endif
     static const char  jvm_lib[]  = "libjvm";
 # endif
 #endif
+    const unsigned num_jvm_dir  = sizeof(jvm_dir)  / sizeof(jvm_dir[0]);
+    const unsigned num_jvm_path = sizeof(jvm_path) / sizeof(jvm_path[0]);
+
     const char *java_home = NULL;
     unsigned    path_ind;
     void       *handle = NULL;
@@ -369,7 +390,7 @@ static void *_load_jvm(const char **p_java_home)
     java_home = getenv("JAVA_HOME");
     if (java_home) {
         *p_java_home = java_home;
-        return _jvm_dlopen(java_home, jvm_dir, jvm_lib);
+        return _jvm_dlopen_a(java_home, jvm_dir, num_jvm_dir, jvm_lib);
     }
 
 #if defined(_WIN32) && !defined(HAVE_BDJ_J2ME)
@@ -383,16 +404,16 @@ static void *_load_jvm(const char **p_java_home)
     java_home = _java_home_macos();
     if (java_home) {
         *p_java_home = java_home;
-        return _jvm_dlopen(java_home, jvm_dir, jvm_lib);
+        return _jvm_dlopen_a(java_home, jvm_dir, num_jvm_dir, jvm_lib);
     }
 #endif
 
     BD_DEBUG(DBG_BDJ, "JAVA_HOME not set, trying default locations\n");
 
     /* try our pre-defined locations */
-    for (path_ind = 0; !handle && path_ind < sizeof(jvm_path) / sizeof(jvm_path[0]); path_ind++) {
+    for (path_ind = 0; !handle && path_ind < num_jvm_path; path_ind++) {
         *p_java_home = jvm_path[path_ind];
-        handle = _jvm_dlopen(jvm_path[path_ind], jvm_dir, jvm_lib);
+        handle = _jvm_dlopen_a(jvm_path[path_ind], jvm_dir, num_jvm_dir, jvm_lib);
     }
 
     if (!*p_java_home) {
