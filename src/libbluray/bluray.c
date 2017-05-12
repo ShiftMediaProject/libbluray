@@ -2095,7 +2095,7 @@ static int _preload_textst_subpath(BLURAY *bd)
     gc_run(bd->graphics_controller, GC_CTRL_PG_RESET, 0, NULL);
 
     bd->st_textst.clip = &bd->title->sub_path[textst_subpath].clip_list.clip[textst_subclip];
-    if (!bd->st0.clip->cl) {
+    if (!bd->st_textst.clip->cl) {
         /* required for fonts */
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_preload_textst_subpath(): missing clip data\n");
         return -1;
