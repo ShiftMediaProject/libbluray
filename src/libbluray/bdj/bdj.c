@@ -701,7 +701,9 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
 {
     (void)java_home;  /* used only with J2ME */
 
-    fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp = (fptr_JNI_CreateJavaVM)(intptr_t)dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
+    fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp;
+
+    *(void **)&JNI_CreateJavaVM_fp = dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
     if (JNI_CreateJavaVM_fp == NULL) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't find symbol JNI_CreateJavaVM.\n");
         return 0;
