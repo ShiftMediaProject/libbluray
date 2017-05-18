@@ -55,6 +55,11 @@
 
 #define MAX_META_FILE_SIZE  0xfffff
 
+struct meta_root {
+    uint8_t              dl_count;
+    META_DL *            dl_entries;
+};
+
 #ifdef HAVE_LIBXML2
 static void _parseManifestNode(xmlNode * a_node, META_DL *disclib)
 {
