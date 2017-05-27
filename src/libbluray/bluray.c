@@ -904,20 +904,20 @@ const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd)
 
 static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
 {
-    bd->disc_info.aacs_detected      = enc_info->aacs_detected;
-    bd->disc_info.libaacs_detected   = enc_info->libaacs_detected;
-    bd->disc_info.aacs_error_code    = enc_info->aacs_error_code;
-    bd->disc_info.aacs_handled       = enc_info->aacs_handled;
-    bd->disc_info.aacs_mkbv          = enc_info->aacs_mkbv;
-    memcpy(bd->disc_info.disc_id, enc_info->disc_id, 20);
-    bd->disc_info.bdplus_detected    = enc_info->bdplus_detected;
-    bd->disc_info.libbdplus_detected = enc_info->libbdplus_detected;
-    bd->disc_info.bdplus_handled     = enc_info->bdplus_handled;
-    bd->disc_info.bdplus_gen         = enc_info->bdplus_gen;
-    bd->disc_info.bdplus_date        = enc_info->bdplus_date;
-    bd->disc_info.no_menu_support    = enc_info->no_menu_support;
-
-    bd->disc_info.udf_volume_id      = disc_volume_id(bd->disc);
+    if (enc_info) {
+        bd->disc_info.aacs_detected      = enc_info->aacs_detected;
+        bd->disc_info.libaacs_detected   = enc_info->libaacs_detected;
+        bd->disc_info.aacs_error_code    = enc_info->aacs_error_code;
+        bd->disc_info.aacs_handled       = enc_info->aacs_handled;
+        bd->disc_info.aacs_mkbv          = enc_info->aacs_mkbv;
+        memcpy(bd->disc_info.disc_id, enc_info->disc_id, 20);
+        bd->disc_info.bdplus_detected    = enc_info->bdplus_detected;
+        bd->disc_info.libbdplus_detected = enc_info->libbdplus_detected;
+        bd->disc_info.bdplus_handled     = enc_info->bdplus_handled;
+        bd->disc_info.bdplus_gen         = enc_info->bdplus_gen;
+        bd->disc_info.bdplus_date        = enc_info->bdplus_date;
+        bd->disc_info.no_menu_support    = enc_info->no_menu_support;
+    }
 
     bd->disc_info.bluray_detected        = 0;
     bd->disc_info.top_menu_supported     = 0;
@@ -928,8 +928,14 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
 
     bd->disc_info.bdj_detected    = 0;
     bd->disc_info.bdj_supported   = 1;
-    bd->disc_info.libjvm_detected = 0;
-    bd->disc_info.bdj_handled     = 0;
+
+
+    /* Check if jvm + jar can be loaded ? */
+    switch (bdj_jvm_available(&bd->bdjstorage)) {
+    case 2: bd->disc_info.bdj_handled = 1;
+    case 1: bd->disc_info.libjvm_detected = 1;
+    default:;
+    }
 
     bd->disc_info.num_titles  = 0;
     bd->disc_info.titles      = NULL;
@@ -940,6 +946,12 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
 
     memset(bd->disc_info.bdj_org_id,  0, sizeof(bd->disc_info.bdj_org_id));
     memset(bd->disc_info.bdj_disc_id, 0, sizeof(bd->disc_info.bdj_disc_id));
+
+    if (!bd->disc) {
+      return;
+    }
+
+    bd->disc_info.udf_volume_id = disc_volume_id(bd->disc);
 
     INDX_ROOT *index = indx_get(bd->disc);
     if (index) {
@@ -1008,16 +1020,6 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
         if (pi->object_type == indx_object_type_hdmv && pi->hdmv.id_ref != 0xffff) {
             titles[0]->interactive = (pi->hdmv.playback_type == indx_hdmv_playback_type_interactive);
             titles[0]->id_ref = pi->hdmv.id_ref;
-        }
-
-        /* check for BD-J capability */
-        if (bd->disc_info.bdj_detected) {
-            /* BD-J titles found. Check if jvm + jar can be loaded ? */
-            switch (bdj_jvm_available(&bd->bdjstorage)) {
-                case 2: bd->disc_info.bdj_handled     = 1;
-                case 1: bd->disc_info.libjvm_detected = 1;
-                default:;
-            }
         }
 
         /* mark supported titles */
@@ -1387,7 +1389,7 @@ BLURAY *bd_init(void)
         int v = (!strcmp(env, "yes")) ? 1 : (!strcmp(env, "no")) ? 0 : atoi(env);
         bd->bdjstorage.no_persistent_storage = !v;
     }
-
+    _fill_disc_info(bd, NULL);
     BD_DEBUG(DBG_BLURAY, "BLURAY initialized!\n");
 
     return bd;
