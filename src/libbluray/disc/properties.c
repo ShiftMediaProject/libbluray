@@ -84,7 +84,7 @@ static int _read_prop_file(const char *file, char **data)
     }
     file_unlink(file);
     *data = str_dup("");
-    return data ? 0 : -1;
+    return *data ? 0 : -1;
 }
 
 static int _write_prop_file(const char *file, const char *data)
