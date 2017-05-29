@@ -48,6 +48,9 @@ static int _read_prop_file(const char *file, char **data)
     if (file_path_exists(file) < 0) {
         BD_DEBUG(DBG_FILE, "Properties file %s does not exist\n", file);
         *data = str_dup("");
+        if (!*data) {
+            return -1;
+        }
         return 0;
     }
 
