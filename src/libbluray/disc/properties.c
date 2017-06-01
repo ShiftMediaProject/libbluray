@@ -85,7 +85,9 @@ static int _read_prop_file(const char *file, char **data)
     if (fp) {
         file_close(fp);
     }
-    file_unlink(file);
+    if (file_unlink(file) < 0) {
+        BD_DEBUG(DBG_FILE, "Error removing invalid properties file\n");
+    }
     *data = str_dup("");
     return *data ? 0 : -1;
 }
@@ -115,7 +117,10 @@ static int _write_prop_file(const char *file, const char *data)
     file_close(fp);
 
     if (written != (int64_t)size) {
-        file_unlink(file);
+        BD_DEBUG(DBG_FILE, "Writing properties file %s failed\n", file);
+        if (file_unlink(file) < 0) {
+            BD_DEBUG(DBG_FILE, "Error removing properties file %s\n", file);
+        }
         return -1;
     }
 
