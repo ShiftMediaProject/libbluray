@@ -926,14 +926,6 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
     bd->disc_info.bdj_detected    = 0;
     bd->disc_info.bdj_supported   = 1;
 
-
-    /* Check if jvm + jar can be loaded ? */
-    switch (bdj_jvm_available(&bd->bdjstorage)) {
-    case 2: bd->disc_info.bdj_handled = 1;
-    case 1: bd->disc_info.libjvm_detected = 1;
-    default:;
-    }
-
     bd->disc_info.num_titles  = 0;
     bd->disc_info.titles      = NULL;
     bd->disc_info.top_menu    = NULL;
@@ -944,12 +936,10 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
     memset(bd->disc_info.bdj_org_id,  0, sizeof(bd->disc_info.bdj_org_id));
     memset(bd->disc_info.bdj_disc_id, 0, sizeof(bd->disc_info.bdj_disc_id));
 
-    if (!bd->disc) {
-      return;
-    }
-
+    if (bd->disc) {
         bd->disc_info.udf_volume_id = disc_volume_id(bd->disc);
         index = indx_get(bd->disc);
+    }
 
     if (index) {
         INDX_PLAY_ITEM *pi;
@@ -1072,10 +1062,27 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
             bdid_free(&bdid);
         }
     }
+
+    if (!bd->disc_info.bdj_handled) {
+        if (!bd->disc || bd->disc_info.bdj_detected) {
+
+            /* Check if jvm + jar can be loaded ? */
+            switch (bdj_jvm_available(&bd->bdjstorage)) {
+            case 2: bd->disc_info.bdj_handled = 1;
+            case 1: bd->disc_info.libjvm_detected = 1;
+            default:;
+            }
+        }
+    }
 }
 
 const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd)
 {
+    if (!bd->disc) {
+        BD_ENC_INFO enc_info;
+        memset(&enc_info, 0, sizeof(enc_info));
+        _fill_disc_info(bd, &enc_info);
+    }
     return &bd->disc_info;
 }
 
@@ -1391,7 +1398,7 @@ BLURAY *bd_init(void)
         int v = (!strcmp(env, "yes")) ? 1 : (!strcmp(env, "no")) ? 0 : atoi(env);
         bd->bdjstorage.no_persistent_storage = !v;
     }
-    _fill_disc_info(bd, NULL);
+
     BD_DEBUG(DBG_BLURAY, "BLURAY initialized!\n");
 
     return bd;
