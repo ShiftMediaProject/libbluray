@@ -897,13 +897,10 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
  * disc info
  */
 
-const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd)
-{
-    return &bd->disc_info;
-}
-
 static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
 {
+    INDX_ROOT *index = NULL;
+
     if (enc_info) {
         bd->disc_info.aacs_detected      = enc_info->aacs_detected;
         bd->disc_info.libaacs_detected   = enc_info->libaacs_detected;
@@ -951,9 +948,9 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
       return;
     }
 
-    bd->disc_info.udf_volume_id = disc_volume_id(bd->disc);
+        bd->disc_info.udf_volume_id = disc_volume_id(bd->disc);
+        index = indx_get(bd->disc);
 
-    INDX_ROOT *index = indx_get(bd->disc);
     if (index) {
         INDX_PLAY_ITEM *pi;
         unsigned        ii;
@@ -1075,6 +1072,11 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
             bdid_free(&bdid);
         }
     }
+}
+
+const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd)
+{
+    return &bd->disc_info;
 }
 
 /*
