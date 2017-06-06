@@ -1,3 +1,13 @@
+2017-06-07: Version 1.0.1
+- Add possibility to check whether BD-J is functional without opening a disc.
+- Improve main title selection.
+- Improve error resilience and stability.
+- Fix Windows dll loading.
+- Fix JAVA_HOME environment variable handling in Windows.
+- Fix build issues when CPPFLAGS is given in make command line.
+- Fix MSVC build issues.
+- Remove --disable-bdjava and --disable-udf configure options.
+
 2017-03-02: Version 1.0.0
 - Add support for Java VM (BD-J) on MacOS.
 - Add clip_id to BLURAY_CLIP_INFO.
