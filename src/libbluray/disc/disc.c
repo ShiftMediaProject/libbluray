@@ -688,7 +688,7 @@ const uint8_t *disc_get_data(BD_DISC *disc, int type)
 
 void disc_event(BD_DISC *disc, uint32_t event, uint32_t param)
 {
-    if (disc->dec) {
+    if (disc && disc->dec) {
         switch (event) {
             case DISC_EVENT_START:
                 dec_start(disc->dec, param);
