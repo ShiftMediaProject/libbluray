@@ -897,6 +897,21 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
  * disc info
  */
 
+static void _check_bdj(BLURAY *bd)
+{
+    if (!bd->disc_info.bdj_handled) {
+        if (!bd->disc || bd->disc_info.bdj_detected) {
+
+            /* Check if jvm + jar can be loaded ? */
+            switch (bdj_jvm_available(&bd->bdjstorage)) {
+            case 2: bd->disc_info.bdj_handled = 1;
+            case 1: bd->disc_info.libjvm_detected = 1;
+            default:;
+            }
+        }
+    }
+}
+
 static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
 {
     INDX_ROOT *index = NULL;
@@ -1011,6 +1026,8 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
 
         /* mark supported titles */
 
+        _check_bdj(bd);
+
         if (bd->disc_info.bdj_detected && !bd->disc_info.bdj_handled) {
             bd->disc_info.num_unsupported_titles = bd->disc_info.num_bdj_titles;
         }
@@ -1063,17 +1080,7 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
         }
     }
 
-    if (!bd->disc_info.bdj_handled) {
-        if (!bd->disc || bd->disc_info.bdj_detected) {
-
-            /* Check if jvm + jar can be loaded ? */
-            switch (bdj_jvm_available(&bd->bdjstorage)) {
-            case 2: bd->disc_info.bdj_handled = 1;
-            case 1: bd->disc_info.libjvm_detected = 1;
-            default:;
-            }
-        }
-    }
+    _check_bdj(bd);
 }
 
 const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd)
