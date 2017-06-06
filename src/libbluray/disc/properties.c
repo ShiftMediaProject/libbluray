@@ -70,7 +70,7 @@ static int _read_prop_file(const char *file, char **data)
         return -1;
     }
 
-    if (file_read(fp, *data, size) != (size_t)size) {
+    if (file_read(fp, (uint8_t*)*data, size) != (size_t)size) {
         goto unlink;
     }
 
