@@ -68,6 +68,7 @@ libbluray_la_SOURCES = \
 	src/libbluray/bdnav/meta_parse.h \
 	src/libbluray/bdnav/meta_parse.c \
 	src/libbluray/bdnav/mpls_parse.h \
+	src/libbluray/bdnav/mpls_data.h \
 	src/libbluray/bdnav/mpls_parse.c \
 	src/libbluray/bdnav/navigation.h \
 	src/libbluray/bdnav/navigation.c \
