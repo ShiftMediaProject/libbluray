@@ -677,7 +677,7 @@ static int _find_jvm(void *jvm_lib, JNIEnv **env, JavaVM **jvm)
 {
     fptr_JNI_GetCreatedJavaVMs JNI_GetCreatedJavaVMs_fp;
 
-    *(void **)&JNI_GetCreatedJavaVMs_fp = dl_dlsym(jvm_lib, "JNI_GetCreatedJavaVMs");
+    *(void **)(&JNI_GetCreatedJavaVMs_fp) = dl_dlsym(jvm_lib, "JNI_GetCreatedJavaVMs");
     if (JNI_GetCreatedJavaVMs_fp == NULL) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't find symbol JNI_GetCreatedJavaVMs.\n");
         return 0;
@@ -703,7 +703,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
 
     fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp;
 
-    *(void **)&JNI_CreateJavaVM_fp = dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
+    *(void **)(&JNI_CreateJavaVM_fp) = dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
     if (JNI_CreateJavaVM_fp == NULL) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Couldn't find symbol JNI_CreateJavaVM.\n");
         return 0;
