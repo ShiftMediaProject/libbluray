@@ -198,6 +198,10 @@ public class BDLocator extends Locator {
      *
      */
 
+    public int hashCode() {
+        return url.hashCode();
+    }
+
     public boolean equals(Object obj) {
         if (obj == null)
             return false;
