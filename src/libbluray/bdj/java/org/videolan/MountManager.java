@@ -102,7 +102,9 @@ public class MountManager {
                     File out = new File(mountPoint.getMountPoint() + File.separator + entry.getName());
 
                     if (entry.isDirectory()) {
-                        out.mkdirs();
+                        if (!out.isDirectory() && !out.mkdirs()) {
+                            logger.error("Error creating directory " + out.getPath());
+                        }
                     } else if (!classFiles && entry.getName().endsWith(".class")) {
                         // logger.info("skip " + entry.getName());
                     } else {
@@ -112,7 +114,9 @@ public class MountManager {
                         /* make sure path exists */
                         File dir = out.getParentFile();
                         if (dir != null) {
-                            dir.mkdirs();
+                            if (!dir.isDirectory() && !dir.mkdirs()) {
+                                logger.error("Error creating directory " + dir.getPath());
+                            }
                         }
 
                         try {

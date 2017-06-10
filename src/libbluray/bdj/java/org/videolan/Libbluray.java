@@ -93,8 +93,8 @@ public class Libbluray {
     private static String canonicalize(String path, boolean create) {
         try {
             File dir = new File(path);
-            if (create) {
-                dir.mkdirs();
+            if (create && !dir.isDirectory() && !dir.mkdirs()) {
+                System.err.println("error creating directory " + path);
             }
             return dir.getCanonicalPath();
         } catch (Exception ioe) {
