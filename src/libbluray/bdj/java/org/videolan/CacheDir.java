@@ -75,7 +75,9 @@ class CacheDir {
             InitializeBaseDir();
             File tmpDir = new File(System.getProperty("java.io.tmpdir"));
             sm.setCacheRoot(tmpDir.getCanonicalPath());
-            baseDir.mkdirs();
+            if (!baseDir.isDirectory() && !baseDir.mkdirs()) {
+                logger.error("Error creating directory " + baseDir.getPath());
+            }
             sm.setCacheRoot(baseDir.getCanonicalPath());
         }
 
@@ -106,8 +108,8 @@ class CacheDir {
     public static synchronized File create(String domain) throws IOException {
 
         File tmpDir = new File(getCacheRoot(), domain);
-        if (!tmpDir.exists() && !tmpDir.mkdirs()) {
-            logger.error("Error creating " + tmpDir.getPath());
+        if (!tmpDir.isDirectory() && !tmpDir.mkdirs()) {
+            logger.error("Error creating directory " + tmpDir.getPath());
             throw new IOException();
         }
 

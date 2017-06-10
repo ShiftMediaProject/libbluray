@@ -213,7 +213,7 @@ class BDJAppProxy implements DVBJProxy, Runnable {
                     (String)context.getXletProperty("dvb.org.id") + File.separator +
                     (String)context.getXletProperty("dvb.app.id");
                 File f = new File(persistent);
-                if (!f.exists() && !f.mkdirs()) {
+                if (!f.isDirectory() && !f.mkdirs()) {
                     logger.error("Error creating persistent storage " + persistent);
                 }
                 xlet.initXlet(context);
