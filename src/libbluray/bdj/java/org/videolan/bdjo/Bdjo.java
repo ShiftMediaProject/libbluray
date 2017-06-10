@@ -24,8 +24,7 @@ import org.videolan.Arrays;
 public class Bdjo {
     public Bdjo(TerminalInfo terminalInfo, AppCache[] appCaches,
             PlayListTable accessiblePlaylists, AppEntry[] appTable,
-            int keyInterestTable, String fileAccessInfo)
-    {
+            int keyInterestTable, String fileAccessInfo) {
         this.terminalInfo = terminalInfo;
         this.appCaches = appCaches;
         this.accessiblePlaylists = accessiblePlaylists;
@@ -34,38 +33,31 @@ public class Bdjo {
         this.fileAccessInfo = fileAccessInfo;
     }
 
-    public TerminalInfo getTerminalInfo()
-    {
+    public TerminalInfo getTerminalInfo() {
         return terminalInfo;
     }
 
-    public AppCache[] getAppCaches()
-    {
+    public AppCache[] getAppCaches() {
         return appCaches;
     }
 
-    public PlayListTable getAccessiblePlaylists()
-    {
+    public PlayListTable getAccessiblePlaylists() {
         return accessiblePlaylists;
     }
 
-    public AppEntry[] getAppTable()
-    {
+    public AppEntry[] getAppTable() {
         return appTable;
     }
 
-    public int getKeyInterestTable()
-    {
+    public int getKeyInterestTable() {
         return keyInterestTable;
     }
 
-    public String getFileAccessInfo()
-    {
+    public String getFileAccessInfo() {
         return fileAccessInfo;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "Bdjo [accessiblePlaylists=" + accessiblePlaylists
                 + ", appCaches=" + Arrays.toString(appCaches) + ", appTable="
                 + Arrays.toString(appTable) + ", fileAccessInfo="

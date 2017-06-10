@@ -43,12 +43,15 @@ class Area {
     public synchronized int getX0() {
         return x0;
     }
+
     public synchronized int getY0() {
         return y0;
     }
+
     public synchronized int getX1() {
         return x1;
     }
+
     public synchronized int getY1() {
         return y1;
     }

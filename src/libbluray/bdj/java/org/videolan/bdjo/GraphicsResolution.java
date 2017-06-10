@@ -27,8 +27,7 @@ public class GraphicsResolution {
     public static final GraphicsResolution SD_60HZ_720_480 = new GraphicsResolution(5, 720, 480);
     public static final GraphicsResolution QHD_960_540 = new GraphicsResolution(6, 960, 540);
 
-    GraphicsResolution(int id, int width, int height)
-    {
+    GraphicsResolution(int id, int width, int height) {
         this.id = id;
         this.width = width;
         this.height = height;

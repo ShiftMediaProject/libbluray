@@ -67,7 +67,7 @@ public class TIMark {
     private long duration;
     private long offset;
     private int clip;
-    
+
     public static final int MARK_TYPE_ENTRY = 1;
     public static final int MARK_TYPE_LINK = 2;
 }

@@ -223,7 +223,7 @@ public class BDLocator extends Locator {
     public int getComponentTagsCount() {
         if (!isPlayListItem())
             return 0;
-        int nTags = 0;;
+        int nTags = 0;
         if (primaryVideoNum > 0)
             nTags++;
         if (primaryAudioNum > 0)
@@ -441,7 +441,7 @@ public class BDLocator extends Locator {
             throw new InvalidLocatorException();
         try {
             jar = Integer.parseInt(str.substring(4, 9));
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new InvalidLocatorException();
         }
         if (str.length() > 9)

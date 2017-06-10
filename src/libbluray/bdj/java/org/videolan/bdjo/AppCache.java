@@ -20,30 +20,25 @@
 package org.videolan.bdjo;
 
 public class AppCache {
-    public AppCache(int type, String refToName, String language)
-    {
+    public AppCache(int type, String refToName, String language) {
         this.type = type;
         this.refToName = refToName;
         this.language = language;
     }
 
-    public int getType()
-    {
+    public int getType() {
         return type;
     }
 
-    public String getRefToName()
-    {
+    public String getRefToName() {
         return refToName;
     }
 
-    public String getLanguage()
-    {
+    public String getLanguage() {
         return language;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "AppCache [language=" + language + ", refToName=" + refToName + ", type=" + type + "]";
     }
 

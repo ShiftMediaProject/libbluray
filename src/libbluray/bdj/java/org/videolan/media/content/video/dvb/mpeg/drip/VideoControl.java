@@ -78,7 +78,7 @@ public class VideoControl implements VideoPresentationControl {
     }
 
     public Dimension getInputVideoSize() {
-            return new Dimension(0, 0);
+        return new Dimension(0, 0);
     }
 
     public Dimension getVideoSize() {

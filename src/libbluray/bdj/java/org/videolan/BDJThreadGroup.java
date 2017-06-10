@@ -58,7 +58,8 @@ class BDJThreadGroup extends ThreadGroup {
                (System.currentTimeMillis() < endTime)) {
             try {
                 Thread.sleep(10);
-            } catch (InterruptedException e) { }
+            } catch (InterruptedException e) {
+            }
         }
 
         boolean result = (activeCount() <= maxThreads);
@@ -81,7 +82,9 @@ class BDJThreadGroup extends ThreadGroup {
             waitForShutdown(500, 0);
         }
 
-        if (destroyed) return;
+        if (destroyed) {
+            return;
+        }
 
         try {
             destroy();

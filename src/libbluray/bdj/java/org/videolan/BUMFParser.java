@@ -163,7 +163,3 @@ public class BUMFParser extends DefaultHandler {
 
     private static final Logger logger = Logger.getLogger(BUMFParser.class.getName());
 }
-
-
-
-

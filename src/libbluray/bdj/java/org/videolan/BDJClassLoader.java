@@ -156,7 +156,9 @@ public class BDJClassLoader extends URLClassLoader {
             byte[] buffer = new byte[0xffff];
             while (true) {
                 int r = is.read(buffer);
-                if (r == -1) break;
+                if (r == -1) {
+                    break;
+                }
                 os.write(buffer, 0, r);
             }
 
