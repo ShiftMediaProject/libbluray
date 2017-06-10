@@ -171,7 +171,7 @@ public class MountManager {
             return mountPoint.getMountPoint();
         }
     }
-
+    /*
     private static void unmount(int jarId) {
         logger.info("Unmounting JAR: " + jarId);
 
@@ -197,6 +197,7 @@ public class MountManager {
                 });
         }
     }
+    */
 
     /* package private, called from Libbluray.shutdown() */
     protected static void unmountAll() {
