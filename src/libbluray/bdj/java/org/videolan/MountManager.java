@@ -106,10 +106,14 @@ public class MountManager {
                     } else if (!classFiles && entry.getName().endsWith(".class")) {
                         // logger.info("skip " + entry.getName());
                     } else {
-                        /* make sure path exists */
-                        out.getParentFile().mkdirs();
 
                         logger.info("   mount: " + entry.getName());
+
+                        /* make sure path exists */
+                        File dir = out.getParentFile();
+                        if (dir != null) {
+                            dir.mkdirs();
+                        }
 
                         try {
                             inStream = jar.getInputStream(entry);
