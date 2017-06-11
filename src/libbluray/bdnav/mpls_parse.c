@@ -25,6 +25,7 @@
 #include "mpls_parse.h"
 
 #include "extdata_parse.h"
+#include "uo_mask.h"
 
 #include "disc/disc.h"
 
@@ -54,58 +55,12 @@ _human_readable_sig(char *sig, uint32_t s1, uint32_t s2)
     sig[8] = 0;
 }
 
-int
-mpls_parse_uo(uint8_t *buf, BD_UO_MASK *uo)
-{
-    BITBUFFER bb;
-    bb_init(&bb, buf, 8);
-
-    memset(uo, 0, sizeof(BD_UO_MASK));
-
-    uo->menu_call                       = bb_read(&bb, 1);
-    uo->title_search                    = bb_read(&bb, 1);
-    uo->chapter_search                  = bb_read(&bb, 1);
-    uo->time_search                     = bb_read(&bb, 1);
-    uo->skip_to_next_point              = bb_read(&bb, 1);
-    uo->skip_to_prev_point              = bb_read(&bb, 1);
-    uo->play_firstplay                  = bb_read(&bb, 1);
-    uo->stop                            = bb_read(&bb, 1);
-    uo->pause_on                        = bb_read(&bb, 1);
-    uo->pause_off                       = bb_read(&bb, 1);
-    uo->still_off                       = bb_read(&bb, 1);
-    uo->forward                         = bb_read(&bb, 1);
-    uo->backward                        = bb_read(&bb, 1);
-    uo->resume                          = bb_read(&bb, 1);
-    uo->move_up                         = bb_read(&bb, 1);
-    uo->move_down                       = bb_read(&bb, 1);
-    uo->move_left                       = bb_read(&bb, 1);
-    uo->move_right                      = bb_read(&bb, 1);
-    uo->select                          = bb_read(&bb, 1);
-    uo->activate                        = bb_read(&bb, 1);
-    uo->select_and_activate             = bb_read(&bb, 1);
-    uo->primary_audio_change            = bb_read(&bb, 1);
-    bb_skip(&bb, 1);
-    uo->angle_change                    = bb_read(&bb, 1);
-    uo->popup_on                        = bb_read(&bb, 1);
-    uo->popup_off                       = bb_read(&bb, 1);
-    uo->pg_enable_disable               = bb_read(&bb, 1);
-    uo->pg_change                       = bb_read(&bb, 1);
-    uo->secondary_video_enable_disable  = bb_read(&bb, 1);
-    uo->secondary_video_change          = bb_read(&bb, 1);
-    uo->secondary_audio_enable_disable  = bb_read(&bb, 1);
-    uo->secondary_audio_change          = bb_read(&bb, 1);
-    bb_skip(&bb, 1);
-    uo->pip_pg_change                   = bb_read(&bb, 1);
-    bb_skip(&bb, 30);
-    return 1;
-}
-
 static int
 _parse_uo(BITSTREAM *bits, BD_UO_MASK *uo)
 {
     uint8_t buf[8];
     bs_read_bytes(bits, buf, 8);
-    return mpls_parse_uo(buf, uo);
+    return uo_mask_parse(buf, uo);
 }
 
 static int
@@ -693,6 +648,10 @@ _parse_playlistmark(BITSTREAM *bits, MPLS_PL *pl)
     pl->mark_count = bs_read(bits, 16);
 
     plm = calloc(pl->mark_count, sizeof(MPLS_PLM));
+    if (pl->mark_count && !plm) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
     for (ii = 0; ii < pl->mark_count; ii++) {
         bs_skip(bits, 8); /* reserved */
         plm[ii].mark_type     = bs_read(bits, 8);
@@ -766,9 +725,6 @@ _clean_playlist(MPLS_PL *pl)
 {
     int ii;
 
-    if (pl == NULL) {
-        return;
-    }
     if (pl->play_item != NULL) {
         for (ii = 0; ii < pl->list_count; ii++) {
             _clean_playitem(&pl->play_item[ii]);
@@ -799,9 +755,12 @@ _clean_playlist(MPLS_PL *pl)
 }
 
 void
-mpls_free(MPLS_PL *pl)
+mpls_free(MPLS_PL **pl)
 {
-    _clean_playlist(pl);
+    if (*pl) {
+        _clean_playlist(*pl);
+        *pl = NULL;
+    }
 }
 
 static int

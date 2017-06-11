@@ -39,12 +39,12 @@ static void *_dl_dlopen(const char *path)
 {
     void *result;
 
-    BD_DEBUG(DBG_FILE, "searching for library '%s' ...\n", path);
-
     result = dlopen(path, RTLD_LAZY);
 
     if (!result) {
         BD_DEBUG(DBG_FILE, "can't open library '%s': %s\n", path, dlerror());
+    } else {
+        BD_DEBUG(DBG_FILE, "opened library '%s'\n", path);
     }
 
     return result;
@@ -85,8 +85,6 @@ void *dl_dlopen(const char *path, const char *version)
             BD_DEBUG(DBG_FILE | DBG_CRIT, "out of memory\n");
             continue;
         }
-
-        BD_DEBUG(DBG_FILE, "Attempting to open %s\n", name);
 
         dll = _dl_dlopen (name);
         X_FREE(name);

@@ -218,10 +218,10 @@ public class BDRootWindow extends Frame {
     }
 
     private int[] backBuffer = null;
-    private Area dirty = new Area();
-    private int changeCount = 0;
-    private Timer timer = new Timer();
-    private TimerTask timerTask = null;
+    private transient Area dirty = new Area();
+    private transient int changeCount = 0;
+    private transient Timer timer = new Timer();
+    private transient TimerTask timerTask = null;
     private boolean overlay_open = false;
     private Font defaultFont = null;
 

@@ -90,7 +90,7 @@ typedef struct {
 
     /* BD-J info  (valid only if disc uses BD-J) */
     uint8_t  bdj_detected;     /* 1 if disc uses BD-J */
-    uint8_t  bdj_supported;    /* 1 if BD-J support was compiled in */
+    uint8_t  bdj_supported;    /* (deprecated) */
     uint8_t  libjvm_detected;  /* 1 if usable Java VM was found */
     uint8_t  bdj_handled;      /* 1 if usable Java VM + libbluray.jar was found */
 
@@ -262,7 +262,7 @@ typedef struct bd_mark {
 } BLURAY_TITLE_MARK;
 
 typedef struct bd_title_info {
-    uint32_t             idx;
+    uint32_t             idx;            /* filled only with bd_get_title_info() */
     uint32_t             playlist;
     uint64_t             duration;
     uint32_t             clip_count;

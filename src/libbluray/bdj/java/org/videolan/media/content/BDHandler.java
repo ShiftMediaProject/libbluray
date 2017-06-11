@@ -79,7 +79,7 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     }
 
     private void doInitAction() {
-        commandQueue = new BDJActionQueue("MediaPlayer");
+        commandQueue = BDJActionQueue.create("MediaPlayer");
         PlayerManager.getInstance().registerPlayer(this);
     }
 
@@ -313,8 +313,6 @@ public abstract class BDHandler implements Player, ServiceContentHandler {
     public void deallocate() {
         if (isClosed) return;
 
-        if (state == Started) {
-        }
         PlayerAction action = new PlayerAction(this, PlayerAction.ACTION_DEALLOCATE, null);
         commandQueue.put(action);
         action.waitEnd();

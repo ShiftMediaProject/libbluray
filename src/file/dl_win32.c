@@ -82,7 +82,6 @@ void *dl_dlopen(const char *path, const char *version)
                        "SetDefaultDllDirectories") != NULL)
 #endif
         flags = LOAD_LIBRARY_SEARCH_APPLICATION_DIR |
-                LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR |
                 LOAD_LIBRARY_SEARCH_SYSTEM32;
 
     result = LoadLibraryExW(wname, NULL, flags);
@@ -90,6 +89,8 @@ void *dl_dlopen(const char *path, const char *version)
     if (!result) {
         char buf[128];
         BD_DEBUG(DBG_FILE, "can't open library '%s': %s\n", path, dlerror(buf, sizeof(buf)));
+    } else {
+        BD_DEBUG(DBG_FILE, "opened library '%s'\n", path);
     }
 
     return result;

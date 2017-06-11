@@ -30,7 +30,7 @@ class CacheDir {
         return LockFile.create(path + File.separator + "lock");
     }
 
-    private static void InitializeBaseDir() throws IOException {
+    private static synchronized void InitializeBaseDir() throws IOException {
         if (baseDir == null) {
             try {
                 File tmpDir = new File(System.getProperty("java.io.tmpdir"), "libbluray-bdj-cache");

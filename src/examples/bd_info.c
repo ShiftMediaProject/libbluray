@@ -22,8 +22,8 @@
 #include <inttypes.h>
 #include <unistd.h>
 
-#include "libbluray/bdnav/meta_data.h"
-#include "libbluray/bluray.h"
+#include "bdnav/meta_data.h"
+#include "bluray.h"
 
 static const char *_yes_no(int i)
 {
@@ -143,8 +143,12 @@ static void _print_app_info(const BLURAY_DISC_INFO *info)
 
 int main(int argc, char *argv[])
 {
+    int major, minor, micro;
     const char *disc_root = (argc > 1) ? argv[1] : NULL;
     const char *keyfile   = (argc > 2) ? argv[2] : NULL;
+
+    bd_get_version(&major, &minor, &micro);
+    printf("Using libbluray version %d.%d.%d\n", major, minor, micro);
 
     if (!disc_root) {
         fprintf(stderr,
@@ -178,13 +182,10 @@ int main(int argc, char *argv[])
         printf("BD-J titles         : %d\n", info->num_bdj_titles);
         printf("UNSUPPORTED titles  : %d\n", info->num_unsupported_titles);
 
-        printf("\nBD-J detected       : %s\n", _yes_no(info->bdj_supported));
+        printf("\nBD-J detected       : %s\n", _yes_no(info->bdj_detected));
         if (info->bdj_detected) {
-            printf("BD-J supported      : %s\n", _yes_no(info->bdj_supported));
-            if (info->bdj_supported) {
-                printf("Java VM found       : %s\n", _yes_no(info->libjvm_detected));
-                printf("BD-J handled        : %s\n", _yes_no(info->bdj_handled));
-            }
+            printf("Java VM found       : %s\n", _yes_no(info->libjvm_detected));
+            printf("BD-J handled        : %s\n", _yes_no(info->bdj_handled));
             printf("BD-J organization ID: %s\n", info->bdj_org_id);
             printf("BD-J disc ID        : %s\n", info->bdj_disc_id);
         }

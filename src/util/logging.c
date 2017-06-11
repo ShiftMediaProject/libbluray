@@ -84,6 +84,7 @@ void bd_debug(const char *file, int line, uint32_t mask, const char *format, ...
         char buffer[4096];
         va_list args;
         int len, len2;
+        BD_LOG_FUNC lf;
 
         len = sprintf(buffer, "%s:%d: ", f ? f + 1 : file, line);
         if (len < 0) {
@@ -97,10 +98,10 @@ void bd_debug(const char *file, int line, uint32_t mask, const char *format, ...
         if (len2 < 0) {
             return;
         }
-
-        if (log_func) {
+        lf = log_func;
+        if (lf) {
             buffer[sizeof(buffer)-1] = 0;
-            log_func(buffer);
+            lf(buffer);
 
         } else {
             len += len2;

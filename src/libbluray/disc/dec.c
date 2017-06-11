@@ -345,6 +345,11 @@ const uint8_t *dec_data(BD_DEC *dec, int type)
     return NULL;
 }
 
+const uint8_t *dec_disc_id(BD_DEC *dec)
+{
+    return dec_data(dec, BD_AACS_DISC_ID);
+}
+
 void dec_start(BD_DEC *dec, uint32_t num_titles)
 {
     if (num_titles == 0) {

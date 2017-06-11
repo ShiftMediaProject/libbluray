@@ -54,9 +54,9 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                                               entry.getInitialClass(),
                                               this);
 
-        callbackQueue = new BDJActionQueue(this.threadGroup, "CallbackQueue");
-        mediaQueue = new BDJActionQueue(this.threadGroup, "MediaQueue");
-        userEventQueue = new BDJActionQueue(this.threadGroup, "UserEventQueue");
+        callbackQueue  = BDJActionQueue.create(this.threadGroup, "CallbackQueue");
+        mediaQueue     = BDJActionQueue.create(this.threadGroup, "MediaQueue");
+        userEventQueue = BDJActionQueue.create(this.threadGroup, "UserEventQueue");
 
         mountHomeDir(entry);
     }

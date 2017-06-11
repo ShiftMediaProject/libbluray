@@ -362,9 +362,9 @@ void bd_psr_restore_state(BD_REGISTERS *p)
  * GPR read / write
  */
 
-int bd_gpr_write(BD_REGISTERS *p, int reg, uint32_t val)
+int bd_gpr_write(BD_REGISTERS *p, unsigned int reg, uint32_t val)
 {
-    if (reg < 0 || reg >= BD_GPR_COUNT) {
+    if (reg >= BD_GPR_COUNT) {
         BD_DEBUG(DBG_BLURAY, "bd_gpr_write(%d): invalid register\n", reg);
         return -1;
     }
@@ -373,9 +373,9 @@ int bd_gpr_write(BD_REGISTERS *p, int reg, uint32_t val)
     return 0;
 }
 
-uint32_t bd_gpr_read(BD_REGISTERS *p, int reg)
+uint32_t bd_gpr_read(BD_REGISTERS *p, unsigned int reg)
 {
-    if (reg < 0 || reg >= BD_GPR_COUNT) {
+    if (reg >= BD_GPR_COUNT) {
         BD_DEBUG(DBG_BLURAY, "bd_gpr_read(%d): invalid register\n", reg);
         return 0;
     }
@@ -387,11 +387,11 @@ uint32_t bd_gpr_read(BD_REGISTERS *p, int reg)
  * PSR read / write
  */
 
-uint32_t bd_psr_read(BD_REGISTERS *p, int reg)
+uint32_t bd_psr_read(BD_REGISTERS *p, unsigned int reg)
 {
     uint32_t val;
 
-    if (reg < 0 || reg >= BD_PSR_COUNT) {
+    if (reg >= BD_PSR_COUNT) {
         BD_DEBUG(DBG_BLURAY, "bd_psr_read(%d): invalid register\n", reg);
         return -1;
     }
@@ -405,9 +405,9 @@ uint32_t bd_psr_read(BD_REGISTERS *p, int reg)
     return val;
 }
 
-int bd_psr_setting_write(BD_REGISTERS *p, int reg, uint32_t val)
+int bd_psr_setting_write(BD_REGISTERS *p, unsigned int reg, uint32_t val)
 {
-    if (reg < 0 || reg >= BD_PSR_COUNT) {
+    if (reg >= BD_PSR_COUNT) {
         BD_DEBUG(DBG_BLURAY, "bd_psr_write(%d, %d): invalid register\n", reg, val);
         return -1;
     }
@@ -447,7 +447,7 @@ int bd_psr_setting_write(BD_REGISTERS *p, int reg, uint32_t val)
     return 0;
 }
 
-int bd_psr_write(BD_REGISTERS *p, int reg, uint32_t val)
+int bd_psr_write(BD_REGISTERS *p, unsigned int reg, uint32_t val)
 {
     if ((reg == 13) ||
         (reg >= 15 && reg <= 21) ||
@@ -461,7 +461,7 @@ int bd_psr_write(BD_REGISTERS *p, int reg, uint32_t val)
   return bd_psr_setting_write(p, reg, val);
 }
 
-int bd_psr_write_bits(BD_REGISTERS *p, int reg, uint32_t val, uint32_t mask)
+int bd_psr_write_bits(BD_REGISTERS *p, unsigned int reg, uint32_t val, uint32_t mask)
 {
     int result;
 

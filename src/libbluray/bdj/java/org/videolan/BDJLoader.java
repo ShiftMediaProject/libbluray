@@ -136,7 +136,7 @@ public class BDJLoader {
             return false;
         synchronized (BDJLoader.class) {
             if (queue == null)
-                queue = new BDJActionQueue(null, "BDJLoader");
+                queue = BDJActionQueue.create("BDJLoader");
         }
         queue.put(new BDJLoaderAction(title, restart, callback));
         return true;
@@ -147,7 +147,7 @@ public class BDJLoader {
 
         synchronized (BDJLoader.class) {
             if (queue == null)
-                queue = new BDJActionQueue(null, "BDJLoader");
+                queue = BDJActionQueue.create("BDJLoader");
         }
         queue.put(new BDJLoaderAction(null, false, callback));
         return true;
@@ -318,7 +318,9 @@ public class BDJLoader {
             while (ids.hasMoreElements()) {
                 AppID id = (AppID)ids.nextElement();
                 BDJAppProxy proxy = (BDJAppProxy)db.getAppProxy(id);
-                proxy.stop(true);
+                if (proxy != null) {
+                    proxy.stop(true);
+                }
             }
 
             ids = db.getAppIDs(new CurrentServiceFilter());

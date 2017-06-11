@@ -25,8 +25,8 @@
 #include <string.h>
 #include <libgen.h>
 
-#include "libbluray/bdnav/mpls_parse.h"
-#include "libbluray/bluray.h"
+#include "bdnav/mpls_data.h"
+#include "bluray.h"
 
 #include "util.h"
 

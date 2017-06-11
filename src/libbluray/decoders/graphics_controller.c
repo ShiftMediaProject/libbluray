@@ -35,6 +35,8 @@
 #include "util/mutex.h"
 #include "util/time.h"
 
+#include "bdnav/uo_mask.h"
+
 #include "../register.h"
 #include "../keys.h"
 
@@ -737,7 +739,7 @@ static void _gc_reset(GRAPHICS_CONTROLLER *gc)
 
     gc->popup_visible = 0;
     gc->valid_mouse_position = 0;
-    gc->page_uo_mask = bd_empty_uo_mask();
+    gc->page_uo_mask = uo_mask_get_empty();
 
     graphics_processor_free(&gc->igp);
     graphics_processor_free(&gc->pgp);
@@ -1391,7 +1393,7 @@ static int _render_page(GRAPHICS_CONTROLLER *gc,
 
     if (s->ics->interactive_composition.ui_model == IG_UI_MODEL_POPUP && !gc->popup_visible) {
 
-        gc->page_uo_mask = bd_empty_uo_mask();
+        gc->page_uo_mask = uo_mask_get_empty();
 
         if (gc->ig_open) {
             GC_TRACE("_render_page(): popup menu not visible\n");
@@ -1946,7 +1948,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         cmds->nav_cmds     = NULL;
         cmds->sound_id_ref = -1;
         cmds->status       = GC_STATUS_NONE;
-        cmds->page_uo_mask = bd_empty_uo_mask();
+        cmds->page_uo_mask = uo_mask_get_empty();
     }
 
     if (!gc) {

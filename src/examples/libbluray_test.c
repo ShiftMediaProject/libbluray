@@ -23,7 +23,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "libbluray/bluray.h"
+#include "bluray.h"
 
 int main(int argc, char *argv[])
 {

@@ -525,6 +525,10 @@ public class Libbluray {
         try {
             BDLocator locator = new BDLocator(null, titleNumber, -1);
             TitleImpl title   = (TitleImpl)SIManager.createInstance().getService(locator);
+            if (title == null) {
+                System.err.println("startTitle() failed: title " + titleNumber + " not found");
+                return false;
+            }
 
             titleContext = (TitleContext)ServiceContextFactory.getInstance().getServiceContext(null);
             titleContext.start(title, true);
