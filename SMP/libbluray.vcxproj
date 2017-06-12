@@ -59,6 +59,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="contrib\libudfread\src\blockinput.h" />
+    <ClInclude Include="contrib\libudfread\src\default_blockinput.h" />
+    <ClInclude Include="contrib\libudfread\src\ecma167.h" />
+    <ClInclude Include="contrib\libudfread\src\udfread.h" />
     <ClInclude Include="..\src\file\dirs.h" />
     <ClInclude Include="..\src\file\dl.h" />
     <ClInclude Include="..\src\file\file.h" />
@@ -82,9 +86,11 @@
     <ClInclude Include="..\src\libbluray\bdnav\index_parse.h" />
     <ClInclude Include="..\src\libbluray\bdnav\meta_data.h" />
     <ClInclude Include="..\src\libbluray\bdnav\meta_parse.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\mpls_data.h" />
     <ClInclude Include="..\src\libbluray\bdnav\mpls_parse.h" />
     <ClInclude Include="..\src\libbluray\bdnav\navigation.h" />
     <ClInclude Include="..\src\libbluray\bdnav\sound_parse.h" />
+    <ClInclude Include="..\src\libbluray\bdnav\uo_mask.h" />
     <ClInclude Include="..\src\libbluray\bdnav\uo_mask_table.h" />
     <ClInclude Include="..\src\libbluray\bluray.h" />
     <ClInclude Include="..\src\libbluray\bluray_internal.h" />
@@ -108,6 +114,8 @@
     <ClInclude Include="..\src\libbluray\disc\dec.h" />
     <ClInclude Include="..\src\libbluray\disc\disc.h" />
     <ClInclude Include="..\src\libbluray\disc\enc_info.h" />
+    <ClInclude Include="..\src\libbluray\disc\properties.h" />
+    <ClInclude Include="..\src\libbluray\disc\udf_fs.h" />
     <ClInclude Include="..\src\libbluray\hdmv\hdmv_insn.h" />
     <ClInclude Include="..\src\libbluray\hdmv\hdmv_vm.h" />
     <ClInclude Include="..\src\libbluray\hdmv\mobj_data.h" />
@@ -132,6 +140,9 @@
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="contrib\libudfread\src\default_blockinput.c" />
+    <ClCompile Include="contrib\libudfread\src\ecma167.c" />
+    <ClCompile Include="contrib\libudfread\src\udfread.c" />
     <ClCompile Include="..\src\file\dirs_win32.c" />
     <ClCompile Include="..\src\file\dir_win32.c" />
     <ClCompile Include="..\src\file\dl_win32.c" />
@@ -156,6 +167,7 @@
     <ClCompile Include="..\src\libbluray\bdnav\mpls_parse.c" />
     <ClCompile Include="..\src\libbluray\bdnav\navigation.c" />
     <ClCompile Include="..\src\libbluray\bdnav\sound_parse.c" />
+    <ClCompile Include="..\src\libbluray\bdnav\uo_mask.c" />
     <ClCompile Include="..\src\libbluray\bluray.c" />
     <ClCompile Include="..\src\libbluray\decoders\graphics_controller.c" />
     <ClCompile Include="..\src\libbluray\decoders\graphics_processor.c" />
@@ -171,6 +183,8 @@
     <ClCompile Include="..\src\libbluray\disc\bdplus.c" />
     <ClCompile Include="..\src\libbluray\disc\dec.c" />
     <ClCompile Include="..\src\libbluray\disc\disc.c" />
+    <ClCompile Include="..\src\libbluray\disc\properties.c" />
+    <ClCompile Include="..\src\libbluray\disc\udf_fs.c" />
     <ClCompile Include="..\src\libbluray\hdmv\hdmv_vm.c" />
     <ClCompile Include="..\src\libbluray\hdmv\mobj_parse.c" />
     <ClCompile Include="..\src\libbluray\hdmv\mobj_print.c" />
@@ -448,11 +462,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0502;_DEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0502;_DEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(OutDir)\lib\x86\$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -494,9 +509,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -526,11 +541,12 @@ del /f /q $(OutDir)\bin\*.jar
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0600;_DEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0600;_DEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(OutDir)\lib\x64\$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -572,9 +588,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -604,12 +620,13 @@ del /f /q $(OutDir)\bin\*.jar
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0502;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0502;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\bin\x86\$(TargetName)$(TargetExt)</OutputFile>
@@ -654,9 +671,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -686,12 +703,13 @@ del /f /q $(OutDir)\bin\*.jar
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0502;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0502;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\bin\x86\$(TargetName)$(TargetExt)</OutputFile>
@@ -736,9 +754,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -768,11 +786,12 @@ del /f /q $(OutDir)\bin\*.jar
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0600;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0600;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\bin\x64\$(TargetName)$(TargetExt)</OutputFile>
@@ -816,9 +835,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -848,11 +867,12 @@ del /f /q $(OutDir)\bin\*.jar
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0600;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0600;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\bin\x64\$(TargetName)$(TargetExt)</OutputFile>
@@ -896,9 +916,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -938,12 +958,13 @@ del /f /q $(OutDir)\bin\*.jar
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0502;NDEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0502;NDEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
       <ProgramDataBaseFileName>$(OutDir)\lib\x86\$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -987,9 +1008,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1029,12 +1050,13 @@ del /f /q $(OutDir)\bin\*.jar
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0502;NDEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0502;NDEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
       <ProgramDataBaseFileName>$(OutDir)\lib\x86\$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -1078,9 +1100,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1120,12 +1142,13 @@ del /f /q $(OutDir)\bin\*.jar
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0600;NDEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0600;NDEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
       <ProgramDataBaseFileName>$(OutDir)\lib\x64\$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -1169,9 +1192,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1211,12 +1234,13 @@ del /f /q $(OutDir)\bin\*.jar
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0600;NDEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0600;NDEBUG;_WINDOWS;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
       <ProgramDataBaseFileName>$(OutDir)\lib\x64\$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -1260,9 +1284,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1302,11 +1326,12 @@ del /f /q $(OutDir)\bin\*.jar
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0502;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0502;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -1353,9 +1378,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1395,11 +1420,12 @@ del /f /q $(OutDir)\bin\*.jar
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0502;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0502;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -1446,9 +1472,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1488,11 +1514,12 @@ del /f /q $(OutDir)\bin\*.jar
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0600;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0600;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -1538,9 +1565,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1580,11 +1607,12 @@ del /f /q $(OutDir)\bin\*.jar
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=_inline;strncasecmp=_strnicmp;_WIN32_WINNT=0x0600;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;_WIN32_WINNT=0x0600;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;..\jni;..\jni\win32;$(OutDir)\include;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <DisableSpecificWarnings>4996;4244;4018;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <ForcedIncludeFiles>compat.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -1630,9 +1658,9 @@ rd /s /q $(OutDir)\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.0.0.jar (
+if not exist .\src\libbluray-j2se-1.0.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.0.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -1660,4 +1688,4 @@ del /f /q $(OutDir)\bin\*.jar
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-</Project>
+</Project>

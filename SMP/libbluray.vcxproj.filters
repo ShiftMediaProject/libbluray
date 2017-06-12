@@ -58,11 +58,23 @@
     <Filter Include="Header Files\libbluray\bdj\native">
       <UniqueIdentifier>{bae98ff5-1d78-48b3-8ec1-2cc3fe001c3c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\disc">
+    <Filter Include="Header Files\libbluray\disc">
       <UniqueIdentifier>{25bb1b92-1b24-4c74-925d-bbe0dabbb8bd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\disc">
+    <Filter Include="Source Files\libbluray\disc">
       <UniqueIdentifier>{cf64b6b0-44d1-46c3-946b-17dc2785bd49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\contrib">
+      <UniqueIdentifier>{946baabd-0880-4f58-b19a-076f00e291f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\contrib">
+      <UniqueIdentifier>{040b497c-8088-4918-b7e7-7a052959e0b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\contrib\libudfread">
+      <UniqueIdentifier>{40af3393-9fbd-49a6-998b-a685d822f228}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\contrib\libudfread">
+      <UniqueIdentifier>{f084a993-efdd-42bd-ba19-50b8bec8cebd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -262,22 +274,46 @@
       <Filter>Header Files\libbluray\hdmv</Filter>
     </ClInclude>
     <ClInclude Include="..\src\libbluray\disc\bdplus.h">
-      <Filter>Header Files\disc</Filter>
+      <Filter>Header Files\libbluray\disc</Filter>
     </ClInclude>
     <ClInclude Include="..\src\libbluray\disc\aacs.h">
-      <Filter>Header Files\disc</Filter>
+      <Filter>Header Files\libbluray\disc</Filter>
     </ClInclude>
     <ClInclude Include="..\src\libbluray\disc\enc_info.h">
-      <Filter>Header Files\disc</Filter>
+      <Filter>Header Files\libbluray\disc</Filter>
     </ClInclude>
     <ClInclude Include="..\src\libbluray\disc\dec.h">
-      <Filter>Header Files\disc</Filter>
+      <Filter>Header Files\libbluray\disc</Filter>
     </ClInclude>
     <ClInclude Include="..\src\libbluray\disc\disc.h">
-      <Filter>Header Files\disc</Filter>
+      <Filter>Header Files\libbluray\disc</Filter>
     </ClInclude>
     <ClInclude Include="..\src\util\event_queue.h">
       <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\libbluray\bdnav\mpls_data.h">
+      <Filter>Header Files\libbluray\bdnav</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\libbluray\bdnav\uo_mask.h">
+      <Filter>Header Files\libbluray\bdnav</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\libbluray\disc\properties.h">
+      <Filter>Header Files\libbluray\disc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\libbluray\disc\udf_fs.h">
+      <Filter>Header Files\libbluray\disc</Filter>
+    </ClInclude>
+    <ClInclude Include="contrib\libudfread\src\blockinput.h">
+      <Filter>Header Files\contrib\libudfread</Filter>
+    </ClInclude>
+    <ClInclude Include="contrib\libudfread\src\default_blockinput.h">
+      <Filter>Header Files\contrib\libudfread</Filter>
+    </ClInclude>
+    <ClInclude Include="contrib\libudfread\src\ecma167.h">
+      <Filter>Header Files\contrib\libudfread</Filter>
+    </ClInclude>
+    <ClInclude Include="contrib\libudfread\src\udfread.h">
+      <Filter>Header Files\contrib\libudfread</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -417,22 +453,40 @@
       <Filter>Source Files\libbluray\bdj\native</Filter>
     </ClCompile>
     <ClCompile Include="..\src\libbluray\disc\aacs.c">
-      <Filter>Source Files\disc</Filter>
+      <Filter>Source Files\libbluray\disc</Filter>
     </ClCompile>
     <ClCompile Include="..\src\libbluray\disc\bdplus.c">
-      <Filter>Source Files\disc</Filter>
+      <Filter>Source Files\libbluray\disc</Filter>
     </ClCompile>
     <ClCompile Include="..\src\util\time.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
     <ClCompile Include="..\src\libbluray\disc\dec.c">
-      <Filter>Source Files\disc</Filter>
+      <Filter>Source Files\libbluray\disc</Filter>
     </ClCompile>
     <ClCompile Include="..\src\libbluray\disc\disc.c">
-      <Filter>Source Files\disc</Filter>
+      <Filter>Source Files\libbluray\disc</Filter>
     </ClCompile>
     <ClCompile Include="..\src\util\event_queue.c">
       <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libbluray\bdnav\uo_mask.c">
+      <Filter>Source Files\libbluray\bdnav</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libbluray\disc\properties.c">
+      <Filter>Source Files\libbluray\disc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libbluray\disc\udf_fs.c">
+      <Filter>Source Files\libbluray\disc</Filter>
+    </ClCompile>
+    <ClCompile Include="contrib\libudfread\src\default_blockinput.c">
+      <Filter>Source Files\contrib\libudfread</Filter>
+    </ClCompile>
+    <ClCompile Include="contrib\libudfread\src\ecma167.c">
+      <Filter>Source Files\contrib\libudfread</Filter>
+    </ClCompile>
+    <ClCompile Include="contrib\libudfread\src\udfread.c">
+      <Filter>Source Files\contrib\libudfread</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,8 @@
 /*
- * This file is part of libbluray
- * Copyright (C) 2011 hpi1
+ * This file is part of libudfread
+ * Copyright (C) 2014 VLC authors and VideoLAN
+ *
+ * Authors: Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,21 +19,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BLURAY_VERSION_H_
-#define BLURAY_VERSION_H_
+#ifndef UDFREAD_DEFAULT_BLOCKINPUT_H_
+#define UDFREAD_DEFAULT_BLOCKINPUT_H_
 
-#define BLURAY_VERSION_CODE(major, minor, micro) \
-    (((major) * 10000) +                         \
-     ((minor) *   100) +                         \
-     ((micro) *     1))
+#include "blockinput.h"
 
-#define BLURAY_VERSION_MAJOR 1
-#define BLURAY_VERSION_MINOR 0
-#define BLURAY_VERSION_MICRO 1
 
-#define BLURAY_VERSION_STRING "1.0.1"
+udfread_block_input *block_input_new(const char *path);
 
-#define BLURAY_VERSION \
-    BLURAY_VERSION_CODE(BLURAY_VERSION_MAJOR, BLURAY_VERSION_MINOR, BLURAY_VERSION_MICRO)
-
-#endif /* BLURAY_VERSION_H_ */
+#endif /* UDFREAD_DEFAULT_BLOCKINPUT_H_ */
