@@ -3192,7 +3192,7 @@ static int _play_title(BLURAY *bd, unsigned title)
     }
 
     if (bd->disc_info.no_menu_support) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_play(): no menu support\n");
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_play_title(): no menu support\n");
         return 0;
     }
 
