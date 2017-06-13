@@ -62,11 +62,15 @@ class CacheDir {
 
     private static synchronized File getCacheRoot() throws IOException {
 
+        BDJSecurityManager sm = (BDJSecurityManager)System.getSecurityManager();
+
         if (cacheRoot != null) {
+            if (sm != null) {
+                sm.setCacheRoot(cacheRoot.getPath());
+            }
             return cacheRoot;
         }
 
-        BDJSecurityManager sm = (BDJSecurityManager)System.getSecurityManager();
         if (sm != null) {
             InitializeBaseDir();
             File tmpDir = new File(System.getProperty("java.io.tmpdir"));
