@@ -59,28 +59,43 @@ public class BDJClassLoader extends URLClassLoader {
             path = basePath + "/" + classPath;
         if (path.length() < 5)
             return null;
-        String protocol = null;
-        String url = path.substring(0, 5);
-        for (int i = 0; i < appCaches.length; i++) {
-            if (appCaches[i].getRefToName().equals(url)) {
-                if (appCaches[i].getType() == AppCache.JAR_FILE) {
-                    protocol = "file:";
-                    url = url + ".jar";
-                } else if (appCaches[i].getType() == AppCache.DIRECTORY) {
-                    protocol = "file:/";
-                }
+
+        String name = path.substring(0, 5); /* entry name in BDMV/JAR/ */
+        String dir  = path.substring(5);    /* optional sub directory */
+
+        /* find bdjo AppCache entry */
+        int i;
+        for (i = 0; i < appCaches.length; i++) {
+            if (appCaches[i].getRefToName().equals(name)) {
                 break;
             }
         }
-        if (protocol == null)
+        if (i >= appCaches.length)
             return null;
-        url = protocol +
-            BDJLoader.getCachedFile(System.getProperty("bluray.vfs.root") + File.separator +
-                                    "BDMV" + File.separator +
-                                    "JAR" + File.separator +
-                                    url) + path.substring(5);
-        //if (!url.endsWith("/"))
-        //    url += "/";
+
+        /* check AppCache type */
+        String protocol;
+        if (appCaches[i].getType() == AppCache.JAR_FILE) {
+            protocol = "file:";
+            name = name + ".jar";
+        } else if (appCaches[i].getType() == AppCache.DIRECTORY) {
+            protocol = "file:/";
+        } else {
+            return null;
+        }
+
+        /* map to disc root */
+        String fullPath =
+            System.getProperty("bluray.vfs.root") + File.separator +
+            "BDMV" + File.separator + "JAR" + File.separator +
+            name;
+
+        /* find from cache */
+        String cachePath = BDJLoader.getCachedFile(fullPath);
+
+        /* build final url */
+        String url = protocol + cachePath + dir;
+
         try {
             return new URL(url);
         } catch (MalformedURLException e) {
