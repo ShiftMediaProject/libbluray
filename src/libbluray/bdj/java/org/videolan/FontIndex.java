@@ -54,7 +54,7 @@ public class FontIndex extends DefaultHandler implements EntityResolver {
             if (stream != null) {
                 try {
                     stream.close();
-                } catch (Exception e) {
+                } catch (IOException ioe) {
                 }
             }
         }
