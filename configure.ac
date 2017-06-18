@@ -13,8 +13,8 @@ dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
 m4_define([lt_current],  2)
-m4_define([lt_revision], 0)
-m4_define([lt_age],      1)
+m4_define([lt_revision], 1)
+m4_define([lt_age],      0)
 
 dnl initilization
 AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
