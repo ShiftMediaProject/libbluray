@@ -639,8 +639,8 @@ _parse_playlistmark(BITSTREAM *bits, MPLS_PL *pl)
     // length field
     len = bs_read(bits, 32);
 
-    if (bs_avail(bits) < len * 8) {
-        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_playlistmark: unexpected end of file\n");
+    if (bs_avail(bits)/8 < len) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_playlistmark: unexpected EOF\n");
         return 0;
     }
 
