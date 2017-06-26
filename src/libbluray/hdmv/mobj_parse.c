@@ -98,6 +98,10 @@ static int _mobj_parse_object(BITSTREAM *bs, MOBJ_OBJECT *obj)
     bs_skip(bs, 13); /* padding */
 
     obj->num_cmds = bs_read(bs, 16);
+    if (!obj->num_cmds) {
+        BD_DEBUG(DBG_HDMV|DBG_CRIT, "MovieObject.bdmv: empty object\n");
+        return 1;
+    }
     obj->cmds     = calloc(obj->num_cmds, sizeof(MOBJ_CMD));
     if (!obj->cmds) {
         BD_DEBUG(DBG_CRIT, "out of memory\n");
