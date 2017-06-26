@@ -110,6 +110,10 @@ static int _mobj_parse_object(BITSTREAM *bs, MOBJ_OBJECT *obj)
 
     for (i = 0; i < obj->num_cmds; i++) {
         uint8_t buf[12];
+        if (bs_avail(bs) < 12*8) {
+            BD_DEBUG(DBG_HDMV|DBG_CRIT, "MovieObject.bdmv: unexpected EOF\n");
+            return 0;
+        }
         bs_read_bytes(bs, buf, 12);
         mobj_parse_cmd(buf, &obj->cmds[i]);
     }
