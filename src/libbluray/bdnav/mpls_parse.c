@@ -418,6 +418,15 @@ _parse_playitem(BITSTREAM *bits, MPLS_PI *pi)
     len = bs_read(bits, 16);
     pos = bs_pos(bits) >> 3;
 
+    if (len < 18) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_playitem: invalid length %d\n", len);
+        return 0;
+    }
+    if (bs_avail(bits)/8 < len) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_playitem: unexpected EOF\n");
+        return 0;
+    }
+
     // Primary Clip identifer
     bs_read_string(bits, clip_id, 5);
 
@@ -511,6 +520,16 @@ _parse_subplayitem(BITSTREAM *bits, MPLS_SUB_PI *spi)
     // PlayItem Length
     len = bs_read(bits, 16);
     pos = bs_pos(bits) >> 3;
+
+    if (len < 24) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_subplayitem: invalid length %d\n", len);
+        return 0;
+    }
+
+    if (bs_avail(bits)/8 < len) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_subplayitem: unexpected EOF\n");
+        return 0;
+    }
 
     // Primary Clip identifer
     bs_read_string(bits, clip_id, 5);
@@ -652,6 +671,12 @@ _parse_playlistmark(BITSTREAM *bits, MPLS_PL *pl)
         BD_DEBUG(DBG_CRIT, "out of memory\n");
         return 0;
     }
+
+    if (bs_avail(bits)/(8*14) < pl->mark_count) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_playlistmark: unexpected EOF\n");
+        return 0;
+    }
+
     for (ii = 0; ii < pl->mark_count; ii++) {
         bs_skip(bits, 8); /* reserved */
         plm[ii].mark_type     = bs_read(bits, 8);
