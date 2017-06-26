@@ -335,6 +335,11 @@ _parse_ep_map_stream(BITSTREAM *bits, CLPI_EP_MAP_ENTRY *ee)
     }
     fine_start = bs_read(bits, 32);
 
+    if (bs_avail(bits)/(8*8) < ee->num_ep_coarse) {
+        BD_DEBUG(DBG_HDMV|DBG_CRIT, "clpi_parse: unexpected EOF (EP coarse)\n");
+        return 0;
+    }
+
     coarse = malloc(ee->num_ep_coarse * sizeof(CLPI_EP_COARSE));
     ee->coarse = coarse;
     if (ee->num_ep_coarse && !coarse) {
@@ -348,6 +353,11 @@ _parse_ep_map_stream(BITSTREAM *bits, CLPI_EP_MAP_ENTRY *ee)
     }
 
     if (bs_seek_byte(bits, ee->ep_map_stream_start_addr+fine_start) < 0) {
+        return 0;
+    }
+
+    if (bs_avail(bits)/(8*4) < ee->num_ep_fine) {
+        BD_DEBUG(DBG_HDMV|DBG_CRIT, "clpi_parse: unexpected EOF (EP fine)\n");
         return 0;
     }
 
