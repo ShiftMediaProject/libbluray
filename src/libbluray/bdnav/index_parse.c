@@ -114,6 +114,11 @@ static int _parse_index(BITSTREAM *bs, INDX_ROOT *index)
         return 0;
     }
 
+    if (bs_avail(bs)/(12*8) < index->num_titles) {
+        BD_DEBUG(DBG_HDMV|DBG_CRIT, "index.bdmv: unexpected EOF\n");
+        return 0;
+    }
+
     for (i = 0; i < index->num_titles; i++) {
 
         index->titles[i].object_type = bs_read(bs, 2);
