@@ -313,12 +313,11 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
     stn->ig = ss;
 
     // Secondary Audio Streams
-    ss = NULL;
     if (stn->num_secondary_audio) {
         ss = calloc(stn->num_secondary_audio, sizeof(MPLS_STREAM));
+        stn->secondary_audio = ss;
         for (ii = 0; ii < stn->num_secondary_audio; ii++) {
             if (!_parse_stream(bits, &ss[ii])) {
-                X_FREE(ss);
                 BD_DEBUG(DBG_NAV | DBG_CRIT, "error parsing secondary audio entry\n");
                 return 0;
             }
@@ -336,15 +335,13 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
             }
         }
     }
-    stn->secondary_audio = ss;
 
     // Secondary Video Streams
-    ss = NULL;
     if (stn->num_secondary_video) {
         ss = calloc(stn->num_secondary_video, sizeof(MPLS_STREAM));
+        stn->secondary_video = ss;
         for (ii = 0; ii < stn->num_secondary_video; ii++) {
             if (!_parse_stream(bits, &ss[ii])) {
-                X_FREE(ss);
                 BD_DEBUG(DBG_NAV | DBG_CRIT, "error parsing secondary video entry\n");
                 return 0;
             }
@@ -374,7 +371,6 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
 
         }
     }
-    stn->secondary_video = ss;
 
     if (bs_seek_byte(bits, pos + len) < 0) {
         return 0;
@@ -621,15 +617,16 @@ _parse_subpath(BITSTREAM *bits, MPLS_SUB *sp)
     bs_skip(bits, 8);
     sp->sub_playitem_count = bs_read(bits, 8);
 
+    if (sp->sub_playitem_count) {
     spi = calloc(sp->sub_playitem_count,  sizeof(MPLS_SUB_PI));
+    sp->sub_play_item = spi;
     for (ii = 0; ii < sp->sub_playitem_count; ii++) {
         if (!_parse_subplayitem(bits, &spi[ii])) {
-            X_FREE(spi);
             BD_DEBUG(DBG_NAV | DBG_CRIT, "error parsing sub play item\n");
             return 0;
         }
     }
-    sp->sub_play_item = spi;
+    }
 
     // Seek to end of subpath
     if (bs_seek_byte(bits, pos + len) < 0) {
@@ -721,27 +718,29 @@ _parse_playlist(BITSTREAM *bits, MPLS_PL *pl)
     pl->list_count = bs_read(bits, 16);
     pl->sub_count = bs_read(bits, 16);
 
+    if (pl->list_count) {
     pi = calloc(pl->list_count,  sizeof(MPLS_PI));
+    pl->play_item = pi;
     for (ii = 0; ii < pl->list_count; ii++) {
         if (!_parse_playitem(bits, &pi[ii])) {
-            X_FREE(pi);
             BD_DEBUG(DBG_NAV | DBG_CRIT, "error parsing play list item\n");
             return 0;
         }
     }
-    pl->play_item = pi;
+    }
 
+    if (pl->sub_count) {
     sub_path = calloc(pl->sub_count,  sizeof(MPLS_SUB));
+    pl->sub_path = sub_path;
     for (ii = 0; ii < pl->sub_count; ii++)
     {
         if (!_parse_subpath(bits, &sub_path[ii]))
         {
-            X_FREE(sub_path);
             BD_DEBUG(DBG_NAV | DBG_CRIT, "error parsing subpath\n");
             return 0;
         }
     }
-    pl->sub_path = sub_path;
+    }
 
     return 1;
 }
