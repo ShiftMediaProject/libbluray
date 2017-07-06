@@ -705,14 +705,14 @@ _parse_playlistmark(BITSTREAM *bits, MPLS_PL *pl)
     // Then get the number of marks
     pl->mark_count = bs_read(bits, 16);
 
-    plm = calloc(pl->mark_count, sizeof(MPLS_PLM));
-    if (pl->mark_count && !plm) {
-        BD_DEBUG(DBG_CRIT, "out of memory\n");
+    if (bs_avail(bits)/(8*14) < pl->mark_count) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_playlistmark: unexpected EOF\n");
         return 0;
     }
 
-    if (bs_avail(bits)/(8*14) < pl->mark_count) {
-        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_playlistmark: unexpected EOF\n");
+    plm = calloc(pl->mark_count, sizeof(MPLS_PLM));
+    if (pl->mark_count && !plm) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
         return 0;
     }
 
