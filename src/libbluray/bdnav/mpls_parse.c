@@ -259,6 +259,9 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
     ss = NULL;
     if (stn->num_video) {
         ss = calloc(stn->num_video, sizeof(MPLS_STREAM));
+        if (!ss) {
+            return 0;
+        }
         for (ii = 0; ii < stn->num_video; ii++) {
             if (!_parse_stream(bits, &ss[ii])) {
                 X_FREE(ss);
@@ -273,6 +276,9 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
     ss = NULL;
     if (stn->num_audio) {
         ss = calloc(stn->num_audio, sizeof(MPLS_STREAM));
+        if (!ss) {
+            return 0;
+        }
         for (ii = 0; ii < stn->num_audio; ii++) {
 
             if (!_parse_stream(bits, &ss[ii])) {
@@ -288,6 +294,9 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
     ss = NULL;
     if (stn->num_pg  || stn->num_pip_pg) {
         ss = calloc(stn->num_pg + stn->num_pip_pg, sizeof(MPLS_STREAM));
+        if (!ss) {
+            return 0;
+        }
         for (ii = 0; ii < (stn->num_pg + stn->num_pip_pg); ii++) {
             if (!_parse_stream(bits, &ss[ii])) {
                 X_FREE(ss);
@@ -302,6 +311,9 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
     ss = NULL;
     if (stn->num_ig) {
         ss = calloc(stn->num_ig, sizeof(MPLS_STREAM));
+        if (!ss) {
+            return 0;
+        }
         for (ii = 0; ii < stn->num_ig; ii++) {
             if (!_parse_stream(bits, &ss[ii])) {
                 X_FREE(ss);
@@ -315,6 +327,9 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
     // Secondary Audio Streams
     if (stn->num_secondary_audio) {
         ss = calloc(stn->num_secondary_audio, sizeof(MPLS_STREAM));
+        if (!ss) {
+            return 0;
+        }
         stn->secondary_audio = ss;
         for (ii = 0; ii < stn->num_secondary_audio; ii++) {
             if (!_parse_stream(bits, &ss[ii])) {
@@ -326,6 +341,9 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
             bs_skip(bits, 8);
             if (ss[ii].sa_num_primary_audio_ref) {
                 ss[ii].sa_primary_audio_ref = calloc(ss[ii].sa_num_primary_audio_ref, sizeof(uint8_t));
+                if (!ss[ii].sa_primary_audio_ref) {
+                    return 0;
+                }
                 for (jj = 0; jj < ss[ii].sa_num_primary_audio_ref; jj++) {
                    ss[ii].sa_primary_audio_ref[jj] = bs_read(bits, 8);
                 }
@@ -339,6 +357,9 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
     // Secondary Video Streams
     if (stn->num_secondary_video) {
         ss = calloc(stn->num_secondary_video, sizeof(MPLS_STREAM));
+        if (!ss) {
+            return 0;
+        }
         stn->secondary_video = ss;
         for (ii = 0; ii < stn->num_secondary_video; ii++) {
             if (!_parse_stream(bits, &ss[ii])) {
@@ -350,6 +371,9 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
             bs_skip(bits, 8);
             if (ss[ii].sv_num_secondary_audio_ref) {
                 ss[ii].sv_secondary_audio_ref = calloc(ss[ii].sv_num_secondary_audio_ref, sizeof(uint8_t));
+                if (!ss[ii].sv_secondary_audio_ref) {
+                    return 0;
+                }
                 for (jj = 0; jj < ss[ii].sv_num_secondary_audio_ref; jj++) {
                     ss[ii].sv_secondary_audio_ref[jj] = bs_read(bits, 8);
                 }
@@ -361,6 +385,9 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
             bs_skip(bits, 8);
             if (ss[ii].sv_num_pip_pg_ref) {
                 ss[ii].sv_pip_pg_ref = calloc(ss[ii].sv_num_pip_pg_ref, sizeof(uint8_t));
+                if (!ss[ii].sv_pip_pg_ref) {
+                    return 0;
+                }
                 for (jj = 0; jj < ss[ii].sv_num_pip_pg_ref; jj++) {
                     ss[ii].sv_pip_pg_ref[jj] = bs_read(bits, 8);
                 }
@@ -476,6 +503,9 @@ _parse_playitem(BITSTREAM *bits, MPLS_PI *pi)
         pi->is_seamless_angle = bs_read(bits, 1);
     }
     pi->clip = calloc(pi->angle_count, sizeof(MPLS_CLIP));
+    if (!pi->clip) {
+        return 0;
+    }
     strcpy(pi->clip[0].clip_id, clip_id);
     strcpy(pi->clip[0].codec_id, codec_id);
     pi->clip[0].stc_id = stc_id;
@@ -566,6 +596,9 @@ _parse_subplayitem(BITSTREAM *bits, MPLS_SUB_PI *spi)
         }
     }
     spi->clip = calloc(spi->clip_count, sizeof(MPLS_CLIP));
+    if (!spi->clip) {
+        return 0;
+    }
     strcpy(spi->clip[0].clip_id, clip_id);
     strcpy(spi->clip[0].codec_id, codec_id);
     spi->clip[0].stc_id = stc_id;
@@ -619,6 +652,9 @@ _parse_subpath(BITSTREAM *bits, MPLS_SUB *sp)
 
     if (sp->sub_playitem_count) {
     spi = calloc(sp->sub_playitem_count,  sizeof(MPLS_SUB_PI));
+        if (!spi) {
+            return 0;
+        }
     sp->sub_play_item = spi;
     for (ii = 0; ii < sp->sub_playitem_count; ii++) {
         if (!_parse_subplayitem(bits, &spi[ii])) {
@@ -720,6 +756,9 @@ _parse_playlist(BITSTREAM *bits, MPLS_PL *pl)
 
     if (pl->list_count) {
     pi = calloc(pl->list_count,  sizeof(MPLS_PI));
+        if (!pi) {
+            return 0;
+        }
     pl->play_item = pi;
     for (ii = 0; ii < pl->list_count; ii++) {
         if (!_parse_playitem(bits, &pi[ii])) {
@@ -731,6 +770,9 @@ _parse_playlist(BITSTREAM *bits, MPLS_PL *pl)
 
     if (pl->sub_count) {
     sub_path = calloc(pl->sub_count,  sizeof(MPLS_SUB));
+        if (!sub_path) {
+            return 0;
+        }
     pl->sub_path = sub_path;
     for (ii = 0; ii < pl->sub_count; ii++)
     {
