@@ -386,12 +386,18 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
 static void
 _clean_stn(MPLS_STN *stn)
 {
+    unsigned ii;
+
     if(stn->secondary_audio) {
-        X_FREE(stn->secondary_audio->sa_primary_audio_ref);
+        for (ii = 0; ii < stn->num_secondary_audio; ii++) {
+            X_FREE(stn->secondary_audio[ii].sa_primary_audio_ref);
+        }
     }
     if(stn->secondary_video) {
-        X_FREE(stn->secondary_video->sv_secondary_audio_ref);
-        X_FREE(stn->secondary_video->sv_pip_pg_ref);
+        for (ii = 0; ii < stn->num_secondary_video; ii++) {
+            X_FREE(stn->secondary_video[ii].sv_secondary_audio_ref);
+            X_FREE(stn->secondary_video[ii].sv_pip_pg_ref);
+        }
     }
 
     X_FREE(stn->video);
