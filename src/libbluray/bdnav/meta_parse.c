@@ -35,7 +35,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
 #ifdef HAVE_STRINGS_H
 #include <strings.h>

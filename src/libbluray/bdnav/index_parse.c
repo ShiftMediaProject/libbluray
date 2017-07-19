@@ -33,7 +33,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
 static int _parse_hdmv_obj(BITSTREAM *bs, INDX_HDMV_OBJ *hdmv)
 {
