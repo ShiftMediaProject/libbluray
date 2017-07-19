@@ -2003,8 +2003,9 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
                 result = _user_input(gc, param, cmds);
                 break;
             }
+            /* BD_VK_POPUP => GC_CTRL_POPUP */
             param = !gc->popup_visible;
-            /* fall thru (BD_VK_POPUP) */
+            /* fall thru */
 
         case GC_CTRL_POPUP:
             if (gc->igs->ics->interactive_composition.ui_model != IG_UI_MODEL_POPUP) {
