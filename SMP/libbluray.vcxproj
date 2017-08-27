@@ -477,17 +477,17 @@
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -500,8 +500,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -521,8 +521,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -556,17 +556,17 @@ del /f /q $(OutDir)\bin\*.jar
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -579,8 +579,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -600,8 +600,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -639,17 +639,17 @@ del /f /q $(OutDir)\bin\*.jar
       <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -662,8 +662,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -683,8 +683,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -722,17 +722,17 @@ del /f /q $(OutDir)\bin\*.jar
       <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -745,8 +745,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -766,8 +766,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -803,17 +803,17 @@ del /f /q $(OutDir)\bin\*.jar
       <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -826,8 +826,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -847,8 +847,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -884,17 +884,17 @@ del /f /q $(OutDir)\bin\*.jar
       <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -907,8 +907,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -928,8 +928,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -972,17 +972,17 @@ del /f /q $(OutDir)\bin\*.jar
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -995,8 +995,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -1016,8 +1016,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -1060,17 +1060,17 @@ del /f /q $(OutDir)\bin\*.jar
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -1083,8 +1083,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -1104,8 +1104,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -1148,17 +1148,17 @@ del /f /q $(OutDir)\bin\*.jar
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -1171,8 +1171,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -1192,8 +1192,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -1236,17 +1236,17 @@ del /f /q $(OutDir)\bin\*.jar
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -1259,8 +1259,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -1280,8 +1280,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -1326,17 +1326,17 @@ del /f /q $(OutDir)\bin\*.jar
       <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -1349,8 +1349,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -1370,8 +1370,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -1416,17 +1416,17 @@ del /f /q $(OutDir)\bin\*.jar
       <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -1439,8 +1439,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -1460,8 +1460,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -1505,17 +1505,17 @@ del /f /q $(OutDir)\bin\*.jar
       <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -1528,8 +1528,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -1549,8 +1549,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
@@ -1594,17 +1594,17 @@ del /f /q $(OutDir)\bin\*.jar
       <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\libbluray
-copy ..\src\libbluray\bluray.h $(OutDir)\include\libbluray
-copy .\src\libbluray\bluray-version.h $(OutDir)\include\libbluray
-copy ..\src\file\filesystem.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\clpi_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\bdnav\meta_data.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\decoders\overlay.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\player_settings.h $(OutDir)\include\libbluray
-copy ..\src\libbluray\keys.h $(OutDir)\include\libbluray
-copy ..\src\util\log_control.h $(OutDir)\include\libbluray
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bluray.h "$(OutDir)"\include\libbluray
+copy .\src\libbluray\bluray-version.h "$(OutDir)"\include\libbluray
+copy ..\src\file\filesystem.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\clpi_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\bdnav\meta_data.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\decoders\overlay.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\player_settings.h "$(OutDir)"\include\libbluray
+copy ..\src\libbluray\keys.h "$(OutDir)"\include\libbluray
+copy ..\src\util\log_control.h "$(OutDir)"\include\libbluray
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\libbluray.txt
 mkdir $(OutDir)\bin
@@ -1617,8 +1617,8 @@ del ..\config.h
 if exist ..\src\libbluray\bluray-version.h (
 del ..\src\libbluray\bluray-version.h
 )
-if exist $(OutDir)\include\libbluray (
-rd /s /q $(OutDir)\include\libbluray
+if exist "$(OutDir)"\include\libbluray (
+rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
@@ -1638,8 +1638,8 @@ del $(OutDir)\bin\*.jar
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\libbluray (
-rmdir /s /q $(OutDir)\include\libbluray
+      <Command>if exist "$(OutDir)"\include\libbluray (
+rmdir /s /q "$(OutDir)"\include\libbluray
 )
 if exist $(OutDir)\licenses\libbluray.txt (
 del /f /q $(OutDir)\licenses\libbluray.txt
