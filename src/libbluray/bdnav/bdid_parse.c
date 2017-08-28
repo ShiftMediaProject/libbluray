@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2012  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2012-2017  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -95,6 +95,10 @@ static BDID_DATA *_bdid_parse(BD_FILE_H *fp)
 
     bs_read_bytes(&bs, tmp, 16);
     str_print_hex(bdid->disc_id, tmp, 16);
+
+    if (extension_data_start) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "id.bdmv: ignoring unknown extension data\n");
+    }
 
     return bdid;
 }
