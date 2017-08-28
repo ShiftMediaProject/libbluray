@@ -75,6 +75,7 @@ _parse_stream_attr(BITSTREAM *bits, CLPI_PROG_STREAM *ss)
         case 0xea:
         case 0x1b:
         case 0x20:
+        case 0x24:
             ss->format = bs_read(bits, 4);
             ss->rate   = bs_read(bits, 4);
             ss->aspect = bs_read(bits, 4);

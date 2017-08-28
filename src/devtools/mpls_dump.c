@@ -115,6 +115,7 @@ _show_stream(MPLS_STREAM *ss, int level)
         case 0x02:
         case 0xea:
         case 0x1b:
+        case 0x24:
             indent_printf(level, "Format %02x: %s", ss->format,
                         _lookup_str(video_format_map, ss->format));
             indent_printf(level, "Rate %02x: %s", ss->rate,

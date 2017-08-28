@@ -39,6 +39,7 @@ const VALUE_MAP codec_map[] = {
     {0xea, "VC-1"},
     {0x1b, "H.264"},
     {0x20, "H.264 MVC dep."},
+    {0x24, "HEVC"},
     {0x90, "Presentation Graphics"},
     {0x91, "Presentation Graphics"},
     {0x92, "Interactive Graphics"},
@@ -54,6 +55,7 @@ const VALUE_MAP video_format_map[] = {
     {5, "720p"},
     {6, "1080p"},
     {7, "576p"},
+    {8, "2160p"},
     {0, NULL}
 };
 

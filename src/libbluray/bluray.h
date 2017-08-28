@@ -140,6 +140,7 @@ typedef enum {
     BLURAY_STREAM_TYPE_AUDIO_DTSHD_MASTER       = 0x86,
     BLURAY_STREAM_TYPE_VIDEO_VC1                = 0xea,
     BLURAY_STREAM_TYPE_VIDEO_H264               = 0x1b,
+    BLURAY_STREAM_TYPE_VIDEO_HEVC               = 0x24,
     BLURAY_STREAM_TYPE_SUB_PG                   = 0x90,
     BLURAY_STREAM_TYPE_SUB_IG                   = 0x91,
     BLURAY_STREAM_TYPE_SUB_TEXT                 = 0x92,
@@ -154,7 +155,8 @@ typedef enum {
     BLURAY_VIDEO_FORMAT_1080I             = 4,  // SMPTE 274M
     BLURAY_VIDEO_FORMAT_720P              = 5,  // SMPTE 296M
     BLURAY_VIDEO_FORMAT_1080P             = 6,  // SMPTE 274M
-    BLURAY_VIDEO_FORMAT_576P              = 7   // ITU-R BT.1358
+    BLURAY_VIDEO_FORMAT_576P              = 7,  // ITU-R BT.1358
+    BLURAY_VIDEO_FORMAT_2160P             = 8,  //
 } bd_video_format_e;
 
 typedef enum {

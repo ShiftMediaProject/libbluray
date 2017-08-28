@@ -183,6 +183,7 @@ _parse_stream(BITSTREAM *bits, MPLS_STREAM *s)
         case 0x02:
         case 0xea:
         case 0x1b:
+        case 0x24:
             s->format = bs_read(bits, 4);
             s->rate   = bs_read(bits, 4);
             break;
