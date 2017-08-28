@@ -48,8 +48,8 @@ public class AppProfile {
                 + minor + ", profile=" + profile + "]";
     }
 
-    private short profile;
-    private byte major;
-    private byte minor;
-    private byte micro;
+    private final short profile;
+    private final byte major;
+    private final byte minor;
+    private final byte micro;
 }

@@ -49,8 +49,8 @@ public class TerminalInfo {
                 + ", titleSearchMask=" + titleSearchMask + "]";
     }
 
-    private String defaultFont;
-    private GraphicsResolution resolution;
-    private boolean menuCallMask;
-    private boolean titleSearchMask;
+    private final String defaultFont;
+    private final GraphicsResolution resolution;
+    private final boolean menuCallMask;
+    private final boolean titleSearchMask;
 }

@@ -63,7 +63,7 @@ public class GraphicsResolution {
         return null;
     }
 
-    private int id;
-    private int width;
-    private int height;
+    private final int id;
+    private final int width;
+    private final int height;
 }

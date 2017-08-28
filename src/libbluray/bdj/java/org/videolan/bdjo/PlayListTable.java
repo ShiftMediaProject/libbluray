@@ -44,7 +44,7 @@ public class PlayListTable {
         return "PlayListTable [accessToAll=" + accessToAll + ", playLists=" + Arrays.toString(playLists) + "]";
     }
 
-    private boolean accessToAll;
-    private boolean autostartFirst;
-    private String[] playLists;
+    private final boolean accessToAll;
+    private final boolean autostartFirst;
+    private final String[] playLists;
 }

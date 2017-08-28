@@ -45,7 +45,7 @@ public class AppCache {
     public static final int JAR_FILE = 1;
     public static final int DIRECTORY = 2;
 
-    private int type;
-    private String refToName;
-    private String language;
+    private final int type;
+    private final String refToName;
+    private final String language;
 }

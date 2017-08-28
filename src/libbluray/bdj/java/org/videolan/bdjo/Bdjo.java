@@ -65,10 +65,10 @@ public class Bdjo {
                 + ", terminalInfo=" + terminalInfo + "]";
     }
 
-    private TerminalInfo terminalInfo;
-    private AppCache[] appCaches;
-    private PlayListTable accessiblePlaylists;
-    private AppEntry[] appTable;
-    private int keyInterestTable;
-    private String fileAccessInfo;
+    private final TerminalInfo terminalInfo;
+    private final AppCache[] appCaches;
+    private final PlayListTable accessiblePlaylists;
+    private final AppEntry[] appTable;
+    private final int keyInterestTable;
+    private final String fileAccessInfo;
 }
