@@ -63,7 +63,9 @@ public class GraphicsResolution {
         case 7:
             return UHD_1920_1080;
         }
-        return null;
+
+        org.videolan.Logger.getLogger(GraphicsResolution.class.getName()).error("unknown graphics resolution ID " + id);
+        return HD_1920_1080;
     }
 
     private final int id;
