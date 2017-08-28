@@ -73,11 +73,14 @@ int main(int argc, const char *argv[])
 
     mobj = bd_read_mobj(argv[argc-1]);
 
-    if (mobj) {
-        _mobj_print(mobj, disasm);
-
-        bd_free_mobj(mobj);
+    if (!mobj) {
+      fprintf(stderr, "Error loading %s\n", argv[argc-1]);
+      return 1;
     }
+
+    _mobj_print(mobj, disasm);
+
+    bd_free_mobj(mobj);
 
     return 0;
 }
