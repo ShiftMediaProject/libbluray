@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010  hpi1
+ * Copyright (C) 2010-2017  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,8 @@
 #endif
 
 #include "index_parse.h"
+#include "extdata_parse.h"
+#include "bdmv_parse.h"
 
 #include "disc/disc.h"
 
@@ -172,25 +174,13 @@ static int _parse_app_info(BITSTREAM *bs, INDX_APP_INFO *app_info)
 }
 
 #define INDX_SIG1  ('I' << 24 | 'N' << 16 | 'D' << 8 | 'X')
-#define INDX_SIG2A ('0' << 24 | '2' << 16 | '0' << 8 | '0')
-#define INDX_SIG2B ('0' << 24 | '1' << 16 | '0' << 8 | '0')
 
-static int _parse_header(BITSTREAM *bs, int *index_start, int *extension_data_start)
+static int _parse_header(BITSTREAM *bs,
+                         int *index_start, int *extension_data_start,
+                         uint32_t *indx_version)
 {
-    uint32_t sig1, sig2;
-
-    if (bs_seek_byte(bs, 0) < 0) {
+    if (!bdmv_parse_header(bs, INDX_SIG1, indx_version)) {
         return 0;
-    }
-
-    sig1 = bs_read(bs, 32);
-    sig2 = bs_read(bs, 32);
-
-    if (sig1 != INDX_SIG1 ||
-       (sig2 != INDX_SIG2A &&
-        sig2 != INDX_SIG2B)) {
-       BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv failed signature match: expected INDX0100 got %8.8s\n", bs->buf);
-       return 0;
     }
 
     *index_start          = bs_read(bs, 32);
@@ -216,7 +206,7 @@ static INDX_ROOT *_indx_parse(BD_FILE_H *fp)
         return NULL;
     }
 
-    if (!_parse_header(&bs, &indexes_start, &extension_data_start) ||
+    if (!_parse_header(&bs, &indexes_start, &extension_data_start, &index->indx_version) ||
         !_parse_app_info(&bs, &index->app_info)) {
 
         indx_free(&index);
