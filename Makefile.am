@@ -57,6 +57,8 @@ libbluray_la_SOURCES = \
 	src/libbluray/register.c \
 	src/libbluray/bdnav/bdid_parse.h \
 	src/libbluray/bdnav/bdid_parse.c \
+	src/libbluray/bdnav/bdmv_parse.h \
+	src/libbluray/bdnav/bdmv_parse.c \
 	src/libbluray/bdnav/bdparse.h \
 	src/libbluray/bdnav/clpi_parse.c \
 	src/libbluray/bdnav/clpi_parse.h \
