@@ -1,3 +1,5 @@
+- Add initial support for UHD BluRay discs (without BD-J menus).
+
 2017-06-07: Version 1.0.1
 - Add possibility to check whether BD-J is functional without opening a disc.
 - Improve main title selection.
