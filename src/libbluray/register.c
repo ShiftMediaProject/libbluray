@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010-2014  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2010-2017  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -76,10 +76,10 @@ static const uint32_t bd_psr_init[BD_PSR_COUNT] = {
     0,           /*     PSR22: Stereoscopic status */
     0,           /* PS: PSR23: Display capability */
     0,           /* PS: PSR24: 3D capability */
-    0,           /*     PSR25 */
-    0,           /*     PSR26 */
-    0,           /*     PSR27 */
-    0,           /*     PSR28 */
+    0,           /* PS: PSR25: UHD capability */
+    0,           /* PS: PSR26: UHD display capability */
+    0,           /* PS: PSR27: HDR preference */
+    0,           /* PS: PSR28: SDR conversion preference */
                  /* PS: PSR29: player capability for video */
     BLURAY_VCAP_SECONDARY_HD |
     BLURAY_VCAP_25Hz_50Hz,
@@ -451,10 +451,9 @@ int bd_psr_write(BD_REGISTERS *p, unsigned int reg, uint32_t val)
 {
     if ((reg == 13) ||
         (reg >= 15 && reg <= 21) ||
-        (reg >= 23 && reg <= 24) ||
-        (reg >= 29 && reg <= 31) ||
+        (reg >= 23 && reg <= 31) ||
         (reg >= 48 && reg <= 61)) {
-      BD_DEBUG(DBG_BLURAY, "bd_psr_write(%d, %d): read-only register !\n", reg, val);
+      BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_psr_write(%d, %d): read-only register !\n", reg, val);
       return -2;
   }
 

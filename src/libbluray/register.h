@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2010-2014  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2010-2017  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -58,6 +58,10 @@ typedef enum {
     PSR_3D_STATUS        = 22,
     PSR_DISPLAY_CAP      = 23,
     PSR_3D_CAP           = 24,
+    PSR_UHD_CAP          = 25,
+    PSR_UHD_DISPLAY_CAP  = 26,
+    PSR_UHD_HDR_PREFER   = 27,
+    PSR_UHD_SDR_CONV_PREFER = 28,
     PSR_VIDEO_CAP        = 29,
     PSR_TEXT_CAP         = 30, /* text subtitles */
     PSR_PROFILE_VERSION  = 31, /* player profile and version */

@@ -2,7 +2,7 @@
  * This file is part of libbluray
  * Copyright (C) 2009-2010  Obliter0n
  * Copyright (C) 2009-2010  John Stebbins
- * Copyright (C) 2010       hpi1
+ * Copyright (C) 2010-2017  Petri Hintukainen
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -2786,6 +2786,10 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
         { BLURAY_PLAYER_SETTING_OUTPUT_PREFER,  PSR_OUTPUT_PREFER },
         { BLURAY_PLAYER_SETTING_DISPLAY_CAP,    PSR_DISPLAY_CAP },
         { BLURAY_PLAYER_SETTING_3D_CAP,         PSR_3D_CAP },
+        { BLURAY_PLAYER_SETTING_UHD_CAP,         PSR_UHD_CAP },
+        { BLURAY_PLAYER_SETTING_UHD_DISPLAY_CAP, PSR_UHD_DISPLAY_CAP },
+        { BLURAY_PLAYER_SETTING_HDR_PREFERENCE,  PSR_UHD_HDR_PREFER },
+        { BLURAY_PLAYER_SETTING_SDR_CONV_PREFER, PSR_UHD_SDR_CONV_PREFER },
         { BLURAY_PLAYER_SETTING_VIDEO_CAP,      PSR_VIDEO_CAP },
         { BLURAY_PLAYER_SETTING_TEXT_CAP,       PSR_TEXT_CAP },
         { BLURAY_PLAYER_SETTING_PLAYER_PROFILE, PSR_PROFILE_VERSION },
