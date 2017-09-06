@@ -230,9 +230,9 @@ public class Libbluray {
         System.setProperty("bluray.localstorage.upgradable", "NO");
         System.setProperty("bluray.localstorage.name", "HDD");
 
-        System.setProperty("bluray.memory.images", "65536");
+        System.setProperty("bluray.memory.images", "131072");
         System.setProperty("bluray.memory.audio", "8192");
-        System.setProperty("bluray.memory.audio_plus_img", "73728");
+        System.setProperty("bluray.memory.audio_plus_img", "139264");
         System.setProperty("bluray.memory.java_heap", "32768");
         System.setProperty("bluray.memory.font_cache", "4096");
 
