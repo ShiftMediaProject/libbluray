@@ -269,6 +269,18 @@ void bd_psr_unregister_cb(BD_REGISTERS *, void (*callback)(void*,BD_PSR_EVENT*),
 
 BD_PRIVATE void psr_init_3D(BD_REGISTERS *, int initial_mode);
 
+/**
+ *
+ * Initialize registers for profile 6 (UHD) playback.
+ *
+ * Profiles 5 (3D) and 6 (UHD) can't be enabld at the same time.
+ *
+ * @param registers  BD_REGISTERS object
+ * @return 0 on success, -1 on error (invalid state)
+ *
+ */
+BD_PRIVATE int psr_init_UHD(BD_REGISTERS *, int force);
+
 
 /*
  * save / restore registers between playback sessions

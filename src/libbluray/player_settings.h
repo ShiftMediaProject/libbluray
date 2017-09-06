@@ -148,6 +148,8 @@ enum {
     BLURAY_PLAYER_PROFILE_6_v3_1 = ((0x00 << 16) | (0x0310)),   /* Profile 6, version 3.1 (UHD) */
 };
 
+#define BLURAY_PLAYER_PROFILE_3D_FLAG       0x100000
+#define BLURAY_PLAYER_PROFILE_VERSION_MASK  0xffff
 
 /*
  * BLURAY_PLAYER_SETTING_DECODE_PG
