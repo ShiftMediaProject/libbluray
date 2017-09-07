@@ -103,6 +103,33 @@ public class Libbluray {
         return path;
     }
 
+    private static void removeProperty(String property) {
+        try {
+            System.getProperties().remove(property);
+        } catch (Exception e) {
+            System.err.println(""+ e);
+        }
+    }
+
+    private static void resetProfile() {
+        removeProperty("bluray.profile.1");
+        removeProperty("bluray.p1.version.major");
+        removeProperty("bluray.p1.version.minor");
+        removeProperty("bluray.p1.version.micro");
+        removeProperty("bluray.profile.2");
+        removeProperty("bluray.p2.version.major");
+        removeProperty("bluray.p2.version.minor");
+        removeProperty("bluray.p2.version.micro");
+        removeProperty("bluray.profile.5");
+        removeProperty("bluray.p5.version.major");
+        removeProperty("bluray.p5.version.minor");
+        removeProperty("bluray.p5.version.micro");
+        removeProperty("bluray.profile.6");
+        removeProperty("bluray.p6.version.major");
+        removeProperty("bluray.p6.version.minor");
+        removeProperty("bluray.p6.version.micro");
+    }
+
     /* called only from native code */
     private static void init(long nativePointer, String discID, String discRoot,
                                String persistentRoot, String budaRoot) {
@@ -182,30 +209,42 @@ public class Libbluray {
 
         /* get profile from PSR */
         int psr31 = readPSR(PSR_PROFILE_VERSION);
+        int version = psr31 & 0xffff;
         int profile = psr31 >> 16;
         boolean p11 = (profile & 0x01) != 0;
         boolean p2  = (profile & 0x02) != 0;
         boolean p5  = (profile & 0x10) != 0;
+        boolean p6  = ((profile & 0x1f) == 0) && (version >= 0x0300);
 
-        System.setProperty("bluray.profile.1", "YES");
-        System.setProperty("bluray.p1.version.major", "1");
-        System.setProperty("bluray.p1.version.minor", p11 ? "1" : "0");
-        System.setProperty("bluray.p1.version.micro", "0");
+        if (!p6) {
+            System.setProperty("bluray.profile.1", "YES");
+            System.setProperty("bluray.p1.version.major", "1");
+            System.setProperty("bluray.p1.version.minor", p11 ? "1" : "0");
+            System.setProperty("bluray.p1.version.micro", "0");
 
-        System.setProperty("bluray.profile.2", p2 ? "YES" : "NO");
-        System.setProperty("bluray.p2.version.major", "1");
-        System.setProperty("bluray.p2.version.minor", "0");
-        System.setProperty("bluray.p2.version.micro", "0");
-
-        System.setProperty("bluray.profile.5", p5 ? "YES" : "NO");
-        System.setProperty("bluray.p5.version.major", "1");
-        System.setProperty("bluray.p5.version.minor", "0");
-        System.setProperty("bluray.p5.version.micro", "0");
+            System.setProperty("bluray.profile.2", p2 ? "YES" : "NO");
+            System.setProperty("bluray.p2.version.major", "1");
+            System.setProperty("bluray.p2.version.minor", "0");
+            System.setProperty("bluray.p2.version.micro", "0");
+        }
+        if (p5) {
+            System.setProperty("bluray.profile.5", "YES");
+            System.setProperty("bluray.p5.version.major", "1");
+            System.setProperty("bluray.p5.version.minor", "0");
+            System.setProperty("bluray.p5.version.micro", "0");
+        }
+        if (p6) {
+            System.setProperty("bluray.profile.6", "YES");
+            System.setProperty("bluray.p6.version.major", "1");
+            System.setProperty("bluray.p6.version.minor", "0");
+            System.setProperty("bluray.p6.version.micro", "0");
+        }
 
         System.setProperty("bluray.disc.avplayback.readcapability", "NO");
 
         System.setProperty("bluray.video.fullscreenSD", "YES");
         System.setProperty("bluray.video.fullscreenSDPG", "YES");
+        System.setProperty("bluray.DynamicRangeConversion.Level", "0");
 
         System.setProperty("aacs.bluray.online.capability", "YES");
         System.setProperty("aacs.bluray.mc.capability", "NO");
