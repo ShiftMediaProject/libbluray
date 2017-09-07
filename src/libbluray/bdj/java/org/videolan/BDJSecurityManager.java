@@ -189,6 +189,14 @@ final class BDJSecurityManager extends SecurityManager {
             return;
         }
 
+        else if (perm instanceof java.awt.AWTPermission) {
+            /* silence failures from clipboard access */
+            if (perm.getName().equals("accessClipboard")) {
+                java.security.AccessController.checkPermission(perm);
+                return;
+            }
+        }
+
         try {
             java.security.AccessController.checkPermission(perm);
         } catch (java.security.AccessControlException ex) {
