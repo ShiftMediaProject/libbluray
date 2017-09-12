@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
     BLURAY  *bd = bd_open(argv[1+args], argv[2+args]);
 
     if (!bd) {
-        printf("bd_open(\'%s\') failed\n", argv[1]);
+        printf("bd_open(\'%s\') failed\n", argv[1+args]);
         return -1;
     }
 
