@@ -32,15 +32,48 @@ package org.videolan;
  *       in class file com/tcs/blr/bluray/pal/fox/controller/d
  */
 
+import java.util.Map;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Attribute;
+import org.objectweb.asm.commons.SimpleRemapper;
+import org.objectweb.asm.commons.RemappingClassAdapter;
 
-class BDJClassFileTransformer
+public class BDJClassFileTransformer
 {
+    public byte[] rename(byte[] b, int off, int len, Map mappings)
+        throws ClassFormatError
+    {
+        byte[] r = new byte[len];
+        for (int i = 0; i < len; i++)
+            r[i] = b[i+off];
+
+        return rename(r, mappings);
+    }
+
+    public byte[] rename(byte[] b, Map mappings)
+        throws ClassFormatError
+    {
+        logger.info("Trying to rename class (" + b.length + " bytes)");
+
+        try {
+            SimpleRemapper m = new SimpleRemapper(mappings);
+            ClassReader cr = new ClassReader(b);
+            ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES/* | ClassWriter.COMPUTE_MAXS*/);
+            ClassVisitor cv = new RemappingClassAdapter(cw, m);
+            cr.accept(cv, ClassReader.SKIP_DEBUG);
+            return cw.toByteArray();
+        } catch (Exception e) {
+            logger.error("Failed renaming class: " + e);
+        }
+
+        return null;
+    }
+
     public byte[] strip(byte[] b, int off, int len)
         throws ClassFormatError
     {
