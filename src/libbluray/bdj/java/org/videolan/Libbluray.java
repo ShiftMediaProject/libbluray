@@ -68,6 +68,35 @@ public class Libbluray {
         System.setProperties(p);
     }
 
+    /*
+     * Loader hooks
+     */
+
+    private static BDJClassLoaderAdapter loaderAdapter = null;
+
+    protected static BDJClassLoaderAdapter getLoaderAdapter() {
+        return loaderAdapter;
+    }
+
+    private static void loadAdapter(String pkg) {
+        if (pkg == null)
+            return;
+        try {
+            final Object obj = Class.forName("org.videolan." + pkg + ".Adapter").newInstance();
+            if (obj instanceof BDJClassLoaderAdapter) {
+                loaderAdapter = (BDJClassLoaderAdapter)obj;
+            } else {
+                System.err.println("Unsupported interface in " + obj);
+            }
+        } catch (Exception e) {
+            System.err.println("" + e);
+        }
+    }
+
+    /*
+     *
+     */
+
     private static boolean initOnce = false;
     private static void initOnce() {
         if (initOnce) {
@@ -289,6 +318,9 @@ public class Libbluray {
             System.err.println("System.setSecurityManager() failed: " + ex);
             throw new SecurityException("Failed initializing SecurityManager");
         }
+
+        loadAdapter(System.getProperty("org.videolan.loader.adapter"));
+        loadAdapter(pkg);
     }
 
     /* called only from native code */
@@ -329,6 +361,7 @@ public class Libbluray {
         synchronized (bdjoFilesLock) {
             bdjoFiles = null;
         }
+        loaderAdapter = null;
     }
 
     /*
