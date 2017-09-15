@@ -176,7 +176,7 @@ static int _parse_app_info(BITSTREAM *bs, INDX_APP_INFO *app_info)
 #define INDX_SIG1  ('I' << 24 | 'N' << 16 | 'D' << 8 | 'X')
 
 static int _parse_header(BITSTREAM *bs,
-                         int *index_start, int *extension_data_start,
+                         uint32_t *index_start, uint32_t *extension_data_start,
                          uint32_t *indx_version)
 {
     if (!bdmv_parse_header(bs, INDX_SIG1, indx_version)) {
@@ -193,7 +193,7 @@ static INDX_ROOT *_indx_parse(BD_FILE_H *fp)
 {
     BITSTREAM  bs;
     INDX_ROOT *index;
-    int        indexes_start, extension_data_start;
+    uint32_t   indexes_start, extension_data_start;
 
     if (bs_init(&bs, fp) < 0) {
         BD_DEBUG(DBG_NAV, "index.bdmv: read error\n");
@@ -224,7 +224,7 @@ static INDX_ROOT *_indx_parse(BD_FILE_H *fp)
     }
 
     if (extension_data_start) {
-        BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: unknown extension data at %d\n", extension_data_start);
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: unknown extension data at %u\n", (unsigned)extension_data_start);
     }
 
     return index;
