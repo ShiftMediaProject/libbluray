@@ -235,6 +235,9 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getAacsDataN
     if (type == 8/*BD_AACS_BDJ_ROOT_CERT_HASH*/) {
         data_size = 20;
     }
+    if (type == 0x1000/*BD_BDPLUS_TYPE*/) {
+        data_size = strlen((const char*)data);
+    }
 
     jbyteArray array = (*env)->NewByteArray(env, data_size);
     (*env)->SetByteArrayRegion(env, array, 0, data_size, (const jbyte *)data);
