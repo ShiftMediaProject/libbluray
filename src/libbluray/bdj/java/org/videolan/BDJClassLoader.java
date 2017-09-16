@@ -212,7 +212,7 @@ public class BDJClassLoader extends URLClassLoader {
                 throw ce;
             }
             try {
-                b = new BDJClassFileTransformer().transform(b, 0, b.length);
+                b = new BDJClassFileTransformer().strip(b, 0, b.length);
                 return defineClass(b, 0, b.length);
             } catch (ThreadDeath td) {
                 throw td;

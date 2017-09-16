@@ -41,7 +41,7 @@ import org.objectweb.asm.Attribute;
 
 class BDJClassFileTransformer
 {
-    public byte[] transform(byte[] b, int off, int len)
+    public byte[] strip(byte[] b, int off, int len)
         throws ClassFormatError
     {
         logger.info("Trying to transform broken class file (" + len + " bytes)");
