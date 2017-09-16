@@ -262,7 +262,7 @@ const uint8_t *libbdplus_get_data(BD_BDPLUS *p, int type)
 {
     switch (type) {
         case BD_BDPLUS_TYPE:
-            if (libbdplus_is_mmbd(p->bdplus)) {
+            if (libbdplus_is_mmbd(p)) {
                 return (const uint8_t *)"mmbd";
             }
     }

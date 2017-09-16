@@ -187,6 +187,12 @@ public class Libbluray {
         } catch (Throwable t) {
         }
 
+        byte[] type = getAacsData(4096);
+        String pkg = type != null ? new String(type) : null;
+        if (pkg != null) {
+            System.out.println("using " + pkg);
+        }
+
         System.setProperty("mhp.profile.enhanced_broadcast", "YES");
         System.setProperty("mhp.profile.interactive_broadcast", "YES");
         System.setProperty("mhp.profile.internet_access", "YES");
