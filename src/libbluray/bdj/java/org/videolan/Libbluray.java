@@ -35,6 +35,7 @@ import javax.tv.service.selection.ServiceContextFactory;
 import javax.tv.service.selection.ServiceContextFactoryImpl;
 import org.bluray.bdplus.Status;
 import org.bluray.net.BDLocator;
+import org.bluray.system.RegisterAccess;
 import org.bluray.ti.DiscManager;
 import org.bluray.ti.TitleImpl;
 import org.bluray.ti.selection.TitleContext;
@@ -243,7 +244,7 @@ public class Libbluray {
         System.setProperty("dvb.returnchannel.timeout", "30");
 
         /* get profile from PSR */
-        int psr31 = readPSR(PSR_PROFILE_VERSION);
+        int psr31 = readPSR(RegisterAccess.PSR_PLAYER_PROFILE);
         int version = psr31 & 0xffff;
         int profile = psr31 >> 16;
         boolean p11 = (profile & 0x01) != 0;
@@ -426,7 +427,7 @@ public class Libbluray {
 
     /* used by org/bluray/ti/PlayListImpl */
     public static int getCurrentTitle() {
-        return readPSR(PSR_TITLE_NUMBER);
+        return readPSR(RegisterAccess.PSR_TITLE_NR);
     }
 
 
@@ -525,7 +526,7 @@ public class Libbluray {
     }
 
     public static int getCurrentAngle() {
-        return readPSR(PSR_ANGLE_NUMBER);
+        return readPSR(RegisterAccess.PSR_ANGLE_NR);
     }
 
     public static long getUOMask() {
