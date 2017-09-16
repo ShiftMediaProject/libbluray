@@ -159,7 +159,7 @@ public class BDJClassLoader extends URLClassLoader {
 
         URL res = super.findResource(path);
         if (res == null) {
-            logger.error("loadClassCode(): resource for class " + name + "not found");
+            logger.error("loadClassCode(): resource for class " + name + " not found");
             throw new ClassNotFoundException(name);
         }
 
