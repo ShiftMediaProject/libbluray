@@ -50,6 +50,15 @@ static void _dir_close_posix(BD_DIR_H *dir)
     }
 }
 
+static void _error(const char *msg, int errnum, void *dir)
+{
+    char buf[128];
+    if (strerror_r(errnum, buf, sizeof(buf))) {
+        strcpy(buf, "?");
+    }
+    BD_DEBUG(DBG_DIR | DBG_CRIT, "%s: %d %s (%p)\n", msg, errnum, buf, dir);
+}
+
 static int _dir_read_posix(BD_DIR_H *dir, BD_DIRENT *entry)
 {
     struct dirent *p_e;
@@ -58,6 +67,7 @@ static int _dir_read_posix(BD_DIR_H *dir, BD_DIRENT *entry)
     errno = 0;
     p_e = readdir((DIR*)dir->internal);
     if (!p_e && errno) {
+        _error("Error reading directory", errno, dir);
         return -1;
     }
 #else /* USE_READDIR */
@@ -66,6 +76,7 @@ static int _dir_read_posix(BD_DIR_H *dir, BD_DIRENT *entry)
 
     result = readdir_r((DIR*)dir->internal, &e, &p_e);
     if (result) {
+        _error("Error reading directory", result, dir);
         return -result;
     }
 #endif /* USE_READDIR */
