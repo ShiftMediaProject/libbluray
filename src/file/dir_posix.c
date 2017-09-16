@@ -32,6 +32,13 @@
 #   include <dirent.h>
 #endif
 
+#if defined(__GLIBC__) && defined(__GLIBC_MINOR__)
+#  if __GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 24)
+#    define USE_READDIR
+#    include <errno.h>
+#  endif
+#endif
+
 static void _dir_close_posix(BD_DIR_H *dir)
 {
     if (dir) {
@@ -45,17 +52,28 @@ static void _dir_close_posix(BD_DIR_H *dir)
 
 static int _dir_read_posix(BD_DIR_H *dir, BD_DIRENT *entry)
 {
-    struct dirent e, *p_e;
+    struct dirent *p_e;
+
+#ifdef USE_READDIR
+    errno = 0;
+    p_e = readdir((DIR*)dir->internal);
+    if (!p_e && errno) {
+        return -1;
+    }
+#else /* USE_READDIR */
     int result;
+    struct dirent e;
 
     result = readdir_r((DIR*)dir->internal, &e, &p_e);
     if (result) {
         return -result;
     }
+#endif /* USE_READDIR */
+
     if (p_e == NULL) {
         return 1;
     }
-    strncpy(entry->d_name, e.d_name, sizeof(entry->d_name));
+    strncpy(entry->d_name, p_e->d_name, sizeof(entry->d_name));
     entry->d_name[sizeof(entry->d_name) - 1] = 0;
 
     return 0;
