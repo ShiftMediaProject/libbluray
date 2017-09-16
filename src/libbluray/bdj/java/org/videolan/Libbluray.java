@@ -631,7 +631,7 @@ public class Libbluray {
             break;
 
         case BDJ_EVENT_PSR102:
-            org.bluray.bdplus.Status.getInstance().receive(param);
+            Status.getInstance().receive(param);
             break;
 
         case BDJ_EVENT_VK_KEY:
