@@ -51,7 +51,8 @@ static int _dir_read_posix(BD_DIR_H *dir, BD_DIRENT *entry)
     result = readdir_r((DIR*)dir->internal, &e, &p_e);
     if (result) {
         return -result;
-    } else if (p_e == NULL) {
+    }
+    if (p_e == NULL) {
         return 1;
     }
     strncpy(entry->d_name, e.d_name, sizeof(entry->d_name));
