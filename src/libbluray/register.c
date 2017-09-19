@@ -534,9 +534,23 @@ void registers_restore(BD_REGISTERS *p, const uint32_t *psr, const uint32_t *gpr
  *
  */
 
-void psr_init_3D(BD_REGISTERS *p, int initial_mode)
+int psr_init_3D(BD_REGISTERS *p, int initial_mode, int force)
 {
     bd_psr_lock(p);
+
+    /* make automatic initialization to fail if app has already changed player profile */
+    if (!force) {
+        if ((bd_psr_read(p, PSR_PROFILE_VERSION) & BLURAY_PLAYER_PROFILE_VERSION_MASK) >= 0x0300) {
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "psr_init_3D() failed: profile version already set to >= 0x0300 (profile 6)\n");
+            bd_psr_unlock(p);
+            return -1;
+        }
+        if (bd_psr_read(p, PSR_PROFILE_VERSION) & BLURAY_PLAYER_PROFILE_3D_FLAG) {
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "psr_init_3D() failed: 3D already set in profile\n");
+            bd_psr_unlock(p);
+            return -1;
+        }
+    }
 
     bd_psr_setting_write(p, PSR_OUTPUT_PREFER,
                          BLURAY_OUTPUT_PREFER_3D);
@@ -558,6 +572,8 @@ void psr_init_3D(BD_REGISTERS *p, int initial_mode)
                  !!initial_mode);
 
     bd_psr_unlock(p);
+
+    return 0;
 }
 
 int psr_init_UHD(BD_REGISTERS *p, int force)

@@ -267,7 +267,7 @@ void bd_psr_register_cb(BD_REGISTERS *, void (*callback)(void*,BD_PSR_EVENT*), v
  */
 void bd_psr_unregister_cb(BD_REGISTERS *, void (*callback)(void*,BD_PSR_EVENT*), void *cb_handle);
 
-BD_PRIVATE void psr_init_3D(BD_REGISTERS *, int initial_mode);
+BD_PRIVATE int psr_init_3D(BD_REGISTERS *, int initial_mode, int force);
 
 /**
  *
