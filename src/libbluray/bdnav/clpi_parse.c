@@ -117,6 +117,11 @@ _parse_header(BITSTREAM *bits, CLPI_CL *cl)
         return 0;
     }
 
+    if (bs_avail(bits) < 5 * 32) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_header: unexpected end of file\n");
+        return 0;
+    }
+
     cl->sequence_info_start_addr = bs_read(bits, 32);
     cl->program_info_start_addr = bs_read(bits, 32);
     cl->cpi_start_addr = bs_read(bits, 32);
