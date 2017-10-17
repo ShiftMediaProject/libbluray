@@ -149,18 +149,21 @@ AS_IF([test "x$with_libxml2" != "xno"], [
   PKG_CHECK_MODULES([LIBXML2], [libxml-2.0 >= 2.6],
     [with_libxml2=yes; AC_DEFINE([HAVE_LIBXML2], [1],
         [Define to 1 if libxml2 is to be used for metadata parsing])])
+  PACKAGES="$PACKAGES libxml-2.0"
 ])
 
 dnl FreeType2
 AS_IF([test "x$with_freetype" != "xno"], [
   PKG_CHECK_MODULES([FT2], [freetype2],
     [with_freetype=yes; AC_DEFINE([HAVE_FT2], 1, [Define this if you have FreeType2 library])])
+  PACKAGES="$PACKAGES freetype2"
 
   dnl fontconfig support
   AS_IF([test "${SYS}" != "mingw32"], [
     AS_IF([test "x$with_fontconfig" != "xno"], [
       PKG_CHECK_MODULES([FONTCONFIG], [fontconfig],
         [with_fontconfig=yes; AC_DEFINE([HAVE_FONTCONFIG], 1, [Define this if you have fontconfig library])])
+      PACKAGES="$PACKAGES fontconfig"
     ])
   ],[
     FONTCONFIG_LIBS="-lgdi32"
@@ -268,6 +271,7 @@ AC_SUBST(BDJAVA_CFLAGS)
 AC_CONFIG_FILES([Makefile src/libbluray.pc src/libbluray/bluray-version.h])
 AC_OUTPUT
 
+AC_SUBST([PACKAGES])
 
 dnl ---------------------------------------------
 dnl Some infos:
