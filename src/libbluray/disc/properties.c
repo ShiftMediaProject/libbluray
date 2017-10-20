@@ -28,9 +28,15 @@
 #include "util/macro.h"
 #include "util/strutl.h"
 
+#ifdef _WIN32
+/* mingw: PRId64 requires stdio.h ... */
+#include <stdio.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+
 
 #define MAX_PROP_FILE_SIZE   (64*1024)
 
