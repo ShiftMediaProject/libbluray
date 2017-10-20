@@ -1376,13 +1376,6 @@ static void _close_bdj(BLURAY *bd)
     }
 }
 
-static void _storage_free(BLURAY *bd)
-{
-    X_FREE(bd->bdjstorage.cache_root);
-    X_FREE(bd->bdjstorage.persistent_root);
-    X_FREE(bd->bdjstorage.classpath);
-}
-
 /*
  * open / close
  */
@@ -1524,7 +1517,7 @@ void bd_close(BLURAY *bd)
 
     event_queue_destroy(&bd->event_queue);
     array_free((void**)&bd->titles);
-    _storage_free(bd);
+    bdj_storage_cleanup(&bd->bdjstorage);
 
     disc_close(&bd->disc);
 

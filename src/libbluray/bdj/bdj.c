@@ -466,6 +466,13 @@ static int _can_read_file(const char *fn)
     return 0;
 }
 
+void bdj_storage_cleanup(BDJ_STORAGE *p)
+{
+    X_FREE(p->cache_root);
+    X_FREE(p->persistent_root);
+    X_FREE(p->classpath);
+}
+
 static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
 {
     // pre-defined search paths for libbluray.jar
