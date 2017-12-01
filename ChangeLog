@@ -1,4 +1,12 @@
+2017-12-01: Version 1.0.2
 - Add initial support for UHD BluRay discs (without BD-J menus).
+- Detect JRE (from the Java Applet plugin) on MacOS.
+- Improve error resilience and stability.
+- Improve libmmbd support.
+- Fix static build dependencies in pkgconfig file.
+- Fix creation of cache (sub-)directories on windows platforms.
+- Fix BD-J temporary storage when persistent storage is disabled.
+- Fix leaks.
 
 2017-06-07: Version 1.0.1
 - Add possibility to check whether BD-J is functional without opening a disc.
