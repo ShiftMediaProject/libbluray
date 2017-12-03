@@ -287,6 +287,7 @@ bdjo_dump_LDADD = libbluray.la
 clpi_dump_CFLAGS = $(AM_CFLAGS)
 clpi_dump_SOURCES = \
 	src/devtools/clpi_dump.c \
+	src/devtools/strings.h \
 	src/devtools/util.c \
 	src/devtools/util.h
 clpi_dump_LDADD = libbluray.la
@@ -304,13 +305,15 @@ list_titles_SOURCES = src/examples/list_titles.c
 list_titles_LDADD = libbluray.la
 
 mobj_dump_CFLAGS = $(AM_CFLAGS)
-mobj_dump_SOURCES = src/devtools/mobj_dump.c \
+mobj_dump_SOURCES = \
+	src/devtools/mobj_dump.c \
 	src/libbluray/hdmv/mobj_print.c
 mobj_dump_LDADD = libbluray.la
 
 mpls_dump_CFLAGS = $(AM_CFLAGS)
 mpls_dump_SOURCES = \
 	src/devtools/mpls_dump.c \
+	src/devtools/strings.h \
 	src/devtools/util.c \
 	src/devtools/util.h
 mpls_dump_LDADD = libbluray.la
