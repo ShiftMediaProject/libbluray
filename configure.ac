@@ -111,6 +111,7 @@ AC_ARG_WITH([bdj-bootclasspath],
 dnl required programs
 AC_PROG_CC
 AM_PROG_CC_C_O
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 AC_PROG_LIBTOOL
 
 dnl required types
