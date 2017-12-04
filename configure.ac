@@ -21,7 +21,7 @@ AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libblur
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE([foreign tar-ustar dist-bzip2 no-dist-gzip subdir-objects])
+AM_INIT_AUTOMAKE([foreign tar-ustar dist-bzip2 no-dist-gzip subdir-objects -Wall])
 AC_CONFIG_HEADERS(config.h)
 
 dnl Enable silent rules only when available (automake 1.11 or later).
