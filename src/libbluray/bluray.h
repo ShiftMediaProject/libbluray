@@ -2,7 +2,7 @@
  * This file is part of libbluray
  * Copyright (C) 2009-2010  Obliter0n
  * Copyright (C) 2009-2010  John Stebbins
- * Copyright (C) 2010-2014  Petri Hintukainen
+ * Copyright (C) 2010-2017  Petri Hintukainen
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -140,6 +140,7 @@ typedef enum {
     BLURAY_STREAM_TYPE_AUDIO_DTSHD_MASTER       = 0x86,
     BLURAY_STREAM_TYPE_VIDEO_VC1                = 0xea,
     BLURAY_STREAM_TYPE_VIDEO_H264               = 0x1b,
+    BLURAY_STREAM_TYPE_VIDEO_HEVC               = 0x24,
     BLURAY_STREAM_TYPE_SUB_PG                   = 0x90,
     BLURAY_STREAM_TYPE_SUB_IG                   = 0x91,
     BLURAY_STREAM_TYPE_SUB_TEXT                 = 0x92,
@@ -154,7 +155,8 @@ typedef enum {
     BLURAY_VIDEO_FORMAT_1080I             = 4,  // SMPTE 274M
     BLURAY_VIDEO_FORMAT_720P              = 5,  // SMPTE 296M
     BLURAY_VIDEO_FORMAT_1080P             = 6,  // SMPTE 274M
-    BLURAY_VIDEO_FORMAT_576P              = 7   // ITU-R BT.1358
+    BLURAY_VIDEO_FORMAT_576P              = 7,  // ITU-R BT.1358
+    BLURAY_VIDEO_FORMAT_2160P             = 8,  //
 } bd_video_format_e;
 
 typedef enum {
@@ -668,6 +670,10 @@ typedef enum {
     BLURAY_PLAYER_SETTING_VIDEO_CAP      = 29,    /* Video capability.            Bit mask. */
     BLURAY_PLAYER_SETTING_DISPLAY_CAP    = 23,    /* Display capability.          Bit mask. */
     BLURAY_PLAYER_SETTING_3D_CAP         = 24,    /* 3D capability.               Bit mask. */
+    BLURAY_PLAYER_SETTING_UHD_CAP         = 25,   /* UHD capability.              */
+    BLURAY_PLAYER_SETTING_UHD_DISPLAY_CAP = 26,   /* UHD display capability.      */
+    BLURAY_PLAYER_SETTING_HDR_PREFERENCE  = 27,   /* HDR preference.              */
+    BLURAY_PLAYER_SETTING_SDR_CONV_PREFER = 28,   /* SDR conversion preference.   */
     BLURAY_PLAYER_SETTING_TEXT_CAP       = 30,    /* Text Subtitle capability.    Bit mask. */
     BLURAY_PLAYER_SETTING_PLAYER_PROFILE = 31,    /* Player profile and version. */
 

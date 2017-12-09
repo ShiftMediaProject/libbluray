@@ -221,6 +221,12 @@ static inline char *_utf8_to_cp(const char *utf8)
 }
 #endif
 
+#ifdef __APPLE__
+// The current official JRE is installed by Oracle's Java Applet internet plugin:
+#define MACOS_JRE_HOME "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home"
+static const char *jre_plugin_path = MACOS_JRE_HOME;
+#endif
+
 #if defined(__APPLE__) && !defined(HAVE_BDJ_J2ME)
 
 #define MACOS_JAVA_HOME "/usr/libexec/java_home"
@@ -324,6 +330,7 @@ static void *_load_jli_macos()
     const char *java_home = NULL;
     static const char jli_dir[] = "jre/lib/jli";
     static const char jli_lib[] = "libjli";
+    void *handle;
 
     /* JAVA_HOME set, use it */
     java_home = getenv("JAVA_HOME");
@@ -333,9 +340,13 @@ static void *_load_jli_macos()
 
     java_home = _java_home_macos();
     if (java_home) {
-        return _jvm_dlopen(java_home, jli_dir, jli_lib);
+        handle = _jvm_dlopen(java_home, jli_dir, jli_lib);
+        if (handle) {
+            return handle;
+        }
     }
-    return NULL;
+    // check if the JRE is installed:
+    return _jvm_dlopen(jre_plugin_path, "lib/jli", jli_lib);
 }
 #endif
 
@@ -362,8 +373,9 @@ static void *_load_jvm(const char **p_java_home)
     static const char         jvm_lib[]  = "jvm";
 # else
 #  ifdef __APPLE__
-    static const char * const jvm_path[] = {NULL, JDK_HOME};
-    static const char * const jvm_dir[]  = {"jre/lib/server"};
+    static const char * const jvm_path[] = {NULL, JDK_HOME, MACOS_JRE_HOME};
+    static const char * const jvm_dir[]  = {"jre/lib/server",
+                                            "lib/server"};
 #  else
     static const char * const jvm_path[] = {NULL,
                                             JDK_HOME,
@@ -404,8 +416,17 @@ static void *_load_jvm(const char **p_java_home)
 #if defined(__APPLE__) && !defined(HAVE_BDJ_J2ME)
     java_home = _java_home_macos();
     if (java_home) {
-        *p_java_home = java_home;
-        return _jvm_dlopen_a(java_home, jvm_dir, num_jvm_dir, jvm_lib);
+        handle = _jvm_dlopen_a(java_home, jvm_dir, num_jvm_dir, jvm_lib);
+        if (handle) {
+            *p_java_home = java_home;
+            return handle;
+        }
+    }
+    // check if the JRE is installed:
+    handle = _jvm_dlopen(jre_plugin_path, "lib/server", jvm_lib);
+    if (handle) {
+        *p_java_home = jre_plugin_path;
+        return handle;
     }
 #endif
 
@@ -443,6 +464,13 @@ static int _can_read_file(const char *fn)
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error reading %s\n", fn);
     }
     return 0;
+}
+
+void bdj_storage_cleanup(BDJ_STORAGE *p)
+{
+    X_FREE(p->cache_root);
+    X_FREE(p->persistent_root);
+    X_FREE(p->classpath);
 }
 
 static const char *_find_libbluray_jar(BDJ_STORAGE *storage)

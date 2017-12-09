@@ -29,6 +29,7 @@
 #include "bluray.h"
 
 #include "util.h"
+#include "strings.h"
 
 #ifdef _WIN32
 # define DIR_SEP "\\"
@@ -41,80 +42,6 @@
 
 static int verbose;
 
-typedef struct {
-    int value;
-    const char *str;
-} VALUE_MAP;
-
-const VALUE_MAP codec_map[] = {
-    {0x01, "MPEG-1 Video"},
-    {0x02, "MPEG-2 Video"},
-    {0x03, "MPEG-1 Audio"},
-    {0x04, "MPEG-2 Audio"},
-    {0x80, "LPCM"},
-    {0x81, "AC-3"},
-    {0x82, "DTS"},
-    {0x83, "TrueHD"},
-    {0x84, "AC-3 Plus"},
-    {0x85, "DTS-HD"},
-    {0x86, "DTS-HD Master"},
-    {0xa1, "AC-3 Plus for secondary audio"},
-    {0xa2, "DTS-HD for secondary audio"},
-    {0xea, "VC-1"},
-    {0x1b, "H.264"},
-    {0x90, "Presentation Graphics"},
-    {0x91, "Interactive Graphics"},
-    {0x92, "Text Subtitle"},
-    {0, NULL}
-};
-
-const VALUE_MAP video_format_map[] = {
-    {0, "Reserved"},
-    {1, "480i"},
-    {2, "576i"},
-    {3, "480p"},
-    {4, "1080i"},
-    {5, "720p"},
-    {6, "1080p"},
-    {7, "576p"},
-    {0, NULL}
-};
-
-const VALUE_MAP video_rate_map[] = {
-    {0, "Reserved1"},
-    {1, "23.976"},
-    {2, "24"},
-    {3, "25"},
-    {4, "29.97"},
-    {5, "Reserved2"},
-    {6, "50"},
-    {7, "59.94"},
-    {0, NULL}
-};
-
-const VALUE_MAP audio_format_map[] = {
-    {0, "Reserved1"},
-    {1, "Mono"},
-    {2, "Reserved2"},
-    {3, "Stereo"},
-    {4, "Reserved3"},
-    {5, "Reserved4"},
-    {6, "Multi Channel"},
-    {12, "Combo"},
-    {0, NULL}
-};
-
-const VALUE_MAP audio_rate_map[] = {
-    {0, "Reserved1"},
-    {1, "48 Khz"},
-    {2, "Reserved2"},
-    {3, "Reserved3"},
-    {4, "96 Khz"},
-    {5, "192 Khz"},
-    {12, "48/192 Khz"},
-    {14, "48/96 Khz"},
-    {0, NULL}
-};
 
 const VALUE_MAP subpath_type_map[] = {
   {2, "Primary audio of the Browsable slideshow"},
@@ -141,18 +68,6 @@ const VALUE_MAP connection_type_map[] = {
   {0, NULL}
 };
 
-static const char*
-_lookup_str(const VALUE_MAP *map, int val)
-{
-    int ii;
-
-    for (ii = 0; map[ii].str; ii++) {
-        if (val == map[ii].value) {
-            return map[ii].str;
-        }
-    }
-    return "?";
-}
 
 static char *
 _mk_path(const char *base, const char *sub)
@@ -200,6 +115,7 @@ _show_stream(MPLS_STREAM *ss, int level)
         case 0x02:
         case 0xea:
         case 0x1b:
+        case 0x24:
             indent_printf(level, "Format %02x: %s", ss->format,
                         _lookup_str(video_format_map, ss->format));
             indent_printf(level, "Rate %02x: %s", ss->rate,

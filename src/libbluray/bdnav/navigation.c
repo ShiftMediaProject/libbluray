@@ -244,7 +244,12 @@ static void _video_props(MPLS_STN *s, int *full_hd, int *mpeg12)
             *mpeg12 = 0;
         }
         if (s->video[ii].format == BD_VIDEO_FORMAT_1080I || s->video[ii].format == BD_VIDEO_FORMAT_1080P) {
-            *full_hd = 1;
+            if (*full_hd < 1) {
+                *full_hd = 1;
+            }
+        }
+        if (s->video[ii].format == BD_VIDEO_FORMAT_2160P) {
+            *full_hd = 2;
         }
     }
 }
@@ -269,7 +274,7 @@ static int _cmp_video_props(const MPLS_PL *p1, const MPLS_PL *p2)
     _video_props(s1, &fhd1, &mp12_1);
     _video_props(s2, &fhd2, &mp12_2);
 
-    /* prefer Full HD over HD/SD */
+    /* prefer UHD over FHD over HD/SD */
     if (fhd1 != fhd2)
         return fhd2 - fhd1;
 

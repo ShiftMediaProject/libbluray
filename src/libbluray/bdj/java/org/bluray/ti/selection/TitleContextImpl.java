@@ -156,8 +156,7 @@ public class TitleContextImpl implements TitleContext {
         }
     }
 
-    private void postEvent(ServiceContextEvent event)
-    {
+    private void postEvent(ServiceContextEvent event) {
         listeners.putCallback(event);
     }
 

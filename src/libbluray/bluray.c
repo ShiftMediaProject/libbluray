@@ -2,7 +2,7 @@
  * This file is part of libbluray
  * Copyright (C) 2009-2010  Obliter0n
  * Copyright (C) 2009-2010  John Stebbins
- * Copyright (C) 2010       hpi1
+ * Copyright (C) 2010-2017  Petri Hintukainen
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -905,6 +905,7 @@ static void _check_bdj(BLURAY *bd)
             /* Check if jvm + jar can be loaded ? */
             switch (bdj_jvm_available(&bd->bdjstorage)) {
             case 2: bd->disc_info.bdj_handled = 1;
+                    /* fall thru */
             case 1: bd->disc_info.libjvm_detected = 1;
             default:;
             }
@@ -1061,6 +1062,15 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
 
         /* populate title names */
         bd_get_meta(bd);
+
+        /* no BD-J menu support for profile 6 */
+        if (bd->disc_info.num_bdj_titles) {
+            // XXX actually, should check from bdjo files ...
+            if (index->indx_version >= ('0' << 24 | '3' << 16 | '0' << 8 | '0')) {
+                BD_DEBUG(DBG_CRIT | DBG_BLURAY, "WARNING: BluRay profile 6 BD-J menus are not supported\n");
+                bd->disc_info.no_menu_support = 1;
+            }
+        }
 
         indx_free(&index);
     }
@@ -1366,13 +1376,6 @@ static void _close_bdj(BLURAY *bd)
     }
 }
 
-static void _storage_free(BLURAY *bd)
-{
-    X_FREE(bd->bdjstorage.cache_root);
-    X_FREE(bd->bdjstorage.persistent_root);
-    X_FREE(bd->bdjstorage.classpath);
-}
-
 /*
  * open / close
  */
@@ -1514,7 +1517,7 @@ void bd_close(BLURAY *bd)
 
     event_queue_destroy(&bd->event_queue);
     array_free((void**)&bd->titles);
-    _storage_free(bd);
+    bdj_storage_cleanup(&bd->bdjstorage);
 
     disc_close(&bd->disc);
 
@@ -2776,6 +2779,10 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
         { BLURAY_PLAYER_SETTING_OUTPUT_PREFER,  PSR_OUTPUT_PREFER },
         { BLURAY_PLAYER_SETTING_DISPLAY_CAP,    PSR_DISPLAY_CAP },
         { BLURAY_PLAYER_SETTING_3D_CAP,         PSR_3D_CAP },
+        { BLURAY_PLAYER_SETTING_UHD_CAP,         PSR_UHD_CAP },
+        { BLURAY_PLAYER_SETTING_UHD_DISPLAY_CAP, PSR_UHD_DISPLAY_CAP },
+        { BLURAY_PLAYER_SETTING_HDR_PREFERENCE,  PSR_UHD_HDR_PREFER },
+        { BLURAY_PLAYER_SETTING_SDR_CONV_PREFER, PSR_UHD_SDR_CONV_PREFER },
         { BLURAY_PLAYER_SETTING_VIDEO_CAP,      PSR_VIDEO_CAP },
         { BLURAY_PLAYER_SETTING_TEXT_CAP,       PSR_TEXT_CAP },
         { BLURAY_PLAYER_SETTING_PLAYER_PROFILE, PSR_PROFILE_VERSION },
@@ -3192,7 +3199,7 @@ static int _play_title(BLURAY *bd, unsigned title)
     }
 
     if (bd->disc_info.no_menu_support) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_play(): no menu support\n");
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_play_title(): no menu support\n");
         return 0;
     }
 

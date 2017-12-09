@@ -174,8 +174,8 @@ typedef struct {
 
 typedef struct mpls_pl
 {
-    uint32_t        type_indicator;
-    uint32_t        type_indicator2;
+    uint32_t        type_indicator;   /* 'MPLS' */
+    uint32_t        type_indicator2;  /* version */
     uint32_t        list_pos;
     uint32_t        mark_pos;
     uint32_t        ext_pos;

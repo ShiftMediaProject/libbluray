@@ -139,7 +139,9 @@ public class BDRootWindow extends Frame {
                     overlay_open = true;
                     a = new Area(getWidth(), getHeight()); /* force full plane update */
                 }
-                Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer, a.x0, a.y0, a.x1, a.y1);
+
+                Libbluray.updateGraphic(getWidth(), getHeight(), backBuffer,
+                                        a.getX0(), a.getY0(), a.getX1(), a.getY1());
             }
         }
     }
