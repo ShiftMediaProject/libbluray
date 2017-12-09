@@ -147,7 +147,7 @@ static int _def_read(udfread_block_input *p_gen, uint32_t lba, void *buf, uint32
     pos   = (off_t)lba * UDF_BLOCK_SIZE;
 
     while (got < bytes) {
-        ssize_t ret = pread(p->fd, ((char*)buf) + got, bytes - got, pos + got);
+        ssize_t ret = pread(p->fd, ((char*)buf) + got, bytes - got, pos + (off_t)got);
 
         if (ret <= 0) {
             if (ret < 0 && errno == EINTR) {
@@ -158,7 +158,7 @@ static int _def_read(udfread_block_input *p_gen, uint32_t lba, void *buf, uint32
             }
             break;
         }
-        got += ret;
+        got += (size_t)ret;
     }
 
     return got / UDF_BLOCK_SIZE;

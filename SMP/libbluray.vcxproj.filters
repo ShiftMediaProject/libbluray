@@ -315,6 +315,9 @@
     <ClInclude Include="contrib\libudfread\src\udfread.h">
       <Filter>Header Files\contrib\libudfread</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\libbluray\bdnav\bdmv_parse.h">
+      <Filter>Header Files\libbluray\bdnav</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\file\file_win32.c">
@@ -487,6 +490,9 @@
     </ClCompile>
     <ClCompile Include="contrib\libudfread\src\udfread.c">
       <Filter>Source Files\contrib\libudfread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\libbluray\bdnav\bdmv_parse.c">
+      <Filter>Source Files\libbluray\bdnav</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
