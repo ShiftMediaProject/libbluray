@@ -35,7 +35,7 @@ public class UHDCodingType {
                         Class classCodingType = Class.forName("org.bluray.ti.CodingType");
                         Constructor constructor = classCodingType.getDeclaredConstructor(new Class[] { String.class });
                         constructor.setAccessible(true);
-                        type = (CodingType)constructor.newInstance(new String[] { "HEVC_VIDEO" });
+                        type = (CodingType)constructor.newInstance((Object [])new String[] { "HEVC_VIDEO" });
                     }
                     catch (Exception e) {
                         System.err.println("UHDCodingType.HEVC_VIDEO initialization failed");
