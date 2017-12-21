@@ -387,7 +387,8 @@ static void *_load_jvm(const char **p_java_home)
                                             "/usr/lib/jvm/java-8-openjdk",
                                             "/usr/lib/jvm/java-6-openjdk",
     };
-    static const char * const jvm_dir[]  = {"jre/lib/" JAVA_ARCH "/server"};
+    static const char * const jvm_dir[]  = {"jre/lib/" JAVA_ARCH "/server",
+                                            "lib/server"};
 #  endif
     static const char         jvm_lib[]  = "libjvm";
 # endif
