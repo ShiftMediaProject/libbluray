@@ -655,6 +655,44 @@ static void _fill_clip(NAV_TITLE *title,
     clip->stc_spn = clpi_find_stc_spn(clip->cl, mpls_clip[clip->angle].stc_id);
 }
 
+static
+void _nav_title_close(NAV_TITLE *title)
+{
+    unsigned ii, ss;
+
+    if (title->sub_path) {
+        for (ss = 0; ss < title->sub_path_count; ss++) {
+            if (title->sub_path[ss].clip_list.clip) {
+                for (ii = 0; ii < title->sub_path[ss].clip_list.count; ii++) {
+                    clpi_free(&title->sub_path[ss].clip_list.clip[ii].cl);
+                }
+                X_FREE(title->sub_path[ss].clip_list.clip);
+            }
+        }
+        X_FREE(title->sub_path);
+    }
+
+    if (title->clip_list.clip) {
+        for (ii = 0; ii < title->clip_list.count; ii++) {
+            clpi_free(&title->clip_list.clip[ii].cl);
+        }
+        X_FREE(title->clip_list.clip);
+    }
+
+    mpls_free(&title->pl);
+    X_FREE(title->chap_list.mark);
+    X_FREE(title->mark_list.mark);
+    X_FREE(title);
+}
+
+void nav_title_close(NAV_TITLE **title)
+{
+    if (*title) {
+        _nav_title_close(*title);
+        *title = NULL;
+    }
+}
+
 NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
 {
     NAV_TITLE *title = NULL;
@@ -734,44 +772,6 @@ NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
     }
 
     return title;
-}
-
-static
-void _nav_title_close(NAV_TITLE *title)
-{
-    unsigned ii, ss;
-
-    if (title->sub_path) {
-        for (ss = 0; ss < title->sub_path_count; ss++) {
-            if (title->sub_path[ss].clip_list.clip) {
-                for (ii = 0; ii < title->sub_path[ss].clip_list.count; ii++) {
-                    clpi_free(&title->sub_path[ss].clip_list.clip[ii].cl);
-                }
-                X_FREE(title->sub_path[ss].clip_list.clip);
-            }
-        }
-        X_FREE(title->sub_path);
-    }
-
-    if (title->clip_list.clip) {
-        for (ii = 0; ii < title->clip_list.count; ii++) {
-            clpi_free(&title->clip_list.clip[ii].cl);
-        }
-        X_FREE(title->clip_list.clip);
-    }
-
-    mpls_free(&title->pl);
-    X_FREE(title->chap_list.mark);
-    X_FREE(title->mark_list.mark);
-    X_FREE(title);
-}
-
-void nav_title_close(NAV_TITLE **title)
-{
-    if (*title) {
-        _nav_title_close(*title);
-        *title = NULL;
-    }
 }
 
 // Search for random access point closest to the requested packet
