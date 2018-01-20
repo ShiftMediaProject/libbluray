@@ -719,9 +719,13 @@ NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
     }
 
     title->chap_list.count = _pl_chapter_count(title->pl);
-    title->chap_list.mark = calloc(title->chap_list.count, sizeof(NAV_MARK));
+    if (title->chap_list.count) {
+        title->chap_list.mark = calloc(title->chap_list.count, sizeof(NAV_MARK));
+    }
     title->mark_list.count = title->pl->mark_count;
-    title->mark_list.mark = calloc(title->pl->mark_count, sizeof(NAV_MARK));
+    if (title->mark_list.count) {
+        title->mark_list.mark = calloc(title->pl->mark_count, sizeof(NAV_MARK));
+    }
 
     _extrapolate_title(title);
 
