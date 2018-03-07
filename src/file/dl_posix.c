@@ -27,6 +27,11 @@
 #include "util/logging.h"
 #include "util/strutl.h"
 
+#ifdef __APPLE__
+// Required to make dladdr available
+#    define _DARWIN_C_SOURCE
+#endif
+
 #if defined(HAVE_DLFCN_H)
 #   include <dlfcn.h>
 #elif defined(HAVE_SYS_DL_H)
@@ -112,6 +117,7 @@ int dl_dlclose(void *handle)
     return dlclose(handle);
 }
 
+#define PATH_SEPARATOR '/'
 const char *dl_get_path(void)
 {
     static char *lib_path    = NULL;
@@ -120,7 +126,25 @@ const char *dl_get_path(void)
     if (!initialized) {
         initialized = 1;
 
+#ifdef __APPLE__
+        Dl_info dl_info;
+        int ret = dladdr((void *)dl_get_path, &dl_info);
+
+        if (ret != 0) {
+            lib_path = strdup(dl_info.dli_fname);
+
+            /* cut library name from path */
+            char *p = strrchr(lib_path, PATH_SEPARATOR);
+            if (p) {
+                *(p+1) = 0;
+            }
+            BD_DEBUG(DBG_FILE, "library file is %s\n", lib_path);
+        } else {
+            BD_DEBUG(DBG_FILE, "Can't determine libbluray.so install path\n");
+        }
+#else
         BD_DEBUG(DBG_FILE, "Can't determine libbluray.so install path\n");
+#endif
     }
 
     return lib_path;
