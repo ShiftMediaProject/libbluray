@@ -718,24 +718,24 @@ NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
 
     // Find length in packets and end_pkt for each clip
     if (title->pl->list_count) {
-    title->clip_list.count = title->pl->list_count;
-    title->clip_list.clip = calloc(title->pl->list_count, sizeof(NAV_CLIP));
-    if (!title->clip_list.clip) {
-      _nav_title_close(title);
-      return NULL;
-    }
-    title->packets = 0;
-    for (ii = 0; ii < title->pl->list_count; ii++) {
-        MPLS_PI *pi;
-        NAV_CLIP *clip;
+        title->clip_list.count = title->pl->list_count;
+        title->clip_list.clip = calloc(title->pl->list_count, sizeof(NAV_CLIP));
+        if (!title->clip_list.clip) {
+            _nav_title_close(title);
+            return NULL;
+        }
+        title->packets = 0;
+        for (ii = 0; ii < title->pl->list_count; ii++) {
+            MPLS_PI *pi;
+            NAV_CLIP *clip;
 
-        pi = &title->pl->play_item[ii];
+            pi = &title->pl->play_item[ii];
 
-        clip = &title->clip_list.clip[ii];
+            clip = &title->clip_list.clip[ii];
 
-        _fill_clip(title, pi->clip, pi->connection_condition, pi->in_time, pi->out_time, pi->angle_count,
-                   clip, ii, &pos, &time);
-    }
+            _fill_clip(title, pi->clip, pi->connection_condition, pi->in_time, pi->out_time, pi->angle_count,
+                       clip, ii, &pos, &time);
+        }
     }
 
     // sub paths
