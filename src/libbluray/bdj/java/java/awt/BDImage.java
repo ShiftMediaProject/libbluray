@@ -35,7 +35,7 @@ import java.awt.image.ImageObserver;
 import java.awt.image.ColorModel;
 import java.awt.image.BufferedImage;
 
-class BDImageBase extends Image {
+class BDImage extends Image {
     private static Constructor bufferedImageConstructor;
 
     private Component component;
@@ -78,7 +78,7 @@ class BDImageBase extends Image {
         return null;
     }
 
-    BDImageBase(Component component, int width, int height, GraphicsConfiguration gc) {
+    BDImage(Component component, int width, int height, GraphicsConfiguration gc) {
 
         this.component = component;
         this.width = width;
@@ -96,7 +96,7 @@ class BDImageBase extends Image {
     }
 
     public Graphics getGraphics() {
-        return new BDGraphics((BDImage)this);
+        return new BDGraphics(this);
     }
 
     public int getWidth() {
