@@ -24,6 +24,7 @@ import java.awt.peer.KeyboardFocusManagerPeer;
 
 import sun.awt.ComponentFactory;
 import sun.awt.KeyboardFocusManagerPeerProvider;
+import sun.awt.datatransfer.DataTransferer;
 
 import java.awt.peer.BDFramePeer;
 import java.awt.peer.BDKeyboardFocusManagerPeer;
@@ -184,5 +185,10 @@ public class BDToolkit extends BDToolkitBase
     public java.awt.peer.FontPeer getFontPeer(String name, int style) {
         logger.unimplemented();
         throw new Error("Not implemented");
+    }
+
+    /* required for Java < 9 */
+    public DataTransferer getDataTransferer() {
+        return null;
     }
 }
