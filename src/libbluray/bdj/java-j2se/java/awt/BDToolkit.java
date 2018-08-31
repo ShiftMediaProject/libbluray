@@ -22,12 +22,15 @@ package java.awt;
 
 import java.awt.peer.KeyboardFocusManagerPeer;
 
+import sun.awt.ComponentFactory;
 import sun.awt.KeyboardFocusManagerPeerProvider;
 
 import java.awt.peer.BDFramePeer;
 import java.awt.peer.BDKeyboardFocusManagerPeer;
 
-public class BDToolkit extends BDToolkitBase implements KeyboardFocusManagerPeerProvider {
+public class BDToolkit extends BDToolkitBase
+    implements KeyboardFocusManagerPeerProvider, ComponentFactory {
+
     public BDToolkit () {
     }
 
@@ -74,29 +77,29 @@ public class BDToolkit extends BDToolkitBase implements KeyboardFocusManagerPeer
     public  boolean isModalityTypeSupported(Dialog.ModalityType modalityType) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.FramePeer createFrame(Frame target) {
+    public java.awt.peer.FramePeer createFrame(Frame target) {
         return new BDFramePeer(target, (BDRootWindow)target);
     }
 
-    protected java.awt.peer.ButtonPeer createButton(Button target) {
+    public java.awt.peer.ButtonPeer createButton(Button target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.CanvasPeer createCanvas(Canvas target) {
+    public java.awt.peer.CanvasPeer createCanvas(Canvas target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.CheckboxPeer createCheckbox(Checkbox target) {
+    public java.awt.peer.CheckboxPeer createCheckbox(Checkbox target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.CheckboxMenuItemPeer createCheckboxMenuItem(CheckboxMenuItem target) {
+    public java.awt.peer.CheckboxMenuItemPeer createCheckboxMenuItem(CheckboxMenuItem target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.ChoicePeer createChoice(Choice target) {
+    public java.awt.peer.ChoicePeer createChoice(Choice target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.DesktopPeer createDesktopPeer(Desktop target) {
+    public java.awt.peer.DesktopPeer createDesktopPeer(Desktop target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.DialogPeer createDialog(Dialog target) {
+    public java.awt.peer.DialogPeer createDialog(Dialog target) {
         throw new Error("Not implemented");
     }
     public java.awt.dnd.peer.DragSourceContextPeer createDragSourceContextPeer(java.awt.dnd.DragGestureEvent dge) {
@@ -105,40 +108,40 @@ public class BDToolkit extends BDToolkitBase implements KeyboardFocusManagerPeer
     public java.awt.peer.FileDialogPeer createFileDialog(FileDialog target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.LabelPeer createLabel(Label target) {
+    public java.awt.peer.LabelPeer createLabel(Label target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.ListPeer createList(List target) {
+    public java.awt.peer.ListPeer createList(List target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.MenuPeer createMenu(Menu target) {
+    public java.awt.peer.MenuPeer createMenu(Menu target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.MenuBarPeer createMenuBar(MenuBar target) {
+    public java.awt.peer.MenuBarPeer createMenuBar(MenuBar target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.MenuItemPeer createMenuItem(MenuItem target) {
+    public java.awt.peer.MenuItemPeer createMenuItem(MenuItem target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.PanelPeer createPanel(Panel target) {
+    public java.awt.peer.PanelPeer createPanel(Panel target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.PopupMenuPeer createPopupMenu(PopupMenu target) {
+    public java.awt.peer.PopupMenuPeer createPopupMenu(PopupMenu target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.ScrollbarPeer createScrollbar(Scrollbar target) {
+    public java.awt.peer.ScrollbarPeer createScrollbar(Scrollbar target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.ScrollPanePeer createScrollPane(ScrollPane target) {
+    public java.awt.peer.ScrollPanePeer createScrollPane(ScrollPane target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.TextAreaPeer createTextArea(TextArea target) {
+    public java.awt.peer.TextAreaPeer createTextArea(TextArea target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.TextFieldPeer createTextField(TextField target) {
+    public java.awt.peer.TextFieldPeer createTextField(TextField target) {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.WindowPeer createWindow(Window target) {
+    public java.awt.peer.WindowPeer createWindow(Window target) {
         throw new Error("Not implemented");
     }
     public java.awt.datatransfer.Clipboard getSystemClipboard() {
@@ -147,7 +150,7 @@ public class BDToolkit extends BDToolkitBase implements KeyboardFocusManagerPeer
     public PrintJob getPrintJob(Frame frame, String jobtitle, java.util.Properties props)  {
         throw new Error("Not implemented");
     }
-    protected java.awt.peer.FontPeer getFontPeer(String name, int style) {
+    public java.awt.peer.FontPeer getFontPeer(String name, int style) {
         throw new Error("Not implemented");
     }
 }
