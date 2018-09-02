@@ -750,7 +750,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
 
     fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp;
     JavaVMOption option[20];
-    int n = 0, result;
+    int n = 0, result, java_9;
     JavaVMInitArgs args;
 
     *(void **)(&JNI_CreateJavaVM_fp) = dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
@@ -759,12 +759,19 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
         return 0;
     }
 
+#ifdef HAVE_BDJ_J2ME
+    java_9 = 0;
+#else
+    java_9 = !!dl_dlsym(jvm_lib, "JVM_DefineModule");
+    if (java_9) {
+        BD_DEBUG(DBG_CRIT | DBG_BDJ, "Detected Java 9 or later JVM - support is experimental !\n");
+    }
+#endif
+
     memset(option, 0, sizeof(option));
 
     option[n++].optionString = str_dup   ("-Dawt.toolkit=java.awt.BDToolkit");
     option[n++].optionString = str_dup   ("-Djava.awt.graphicsenv=java.awt.BDGraphicsEnvironment");
-    option[n++].optionString = str_dup   ("-Djavax.accessibility.assistive_technologies= ");
-    option[n++].optionString = str_printf("-Xbootclasspath/p:%s", jar_file);
     option[n++].optionString = str_dup   ("-Xms256M");
     option[n++].optionString = str_dup   ("-Xmx256M");
     option[n++].optionString = str_dup   ("-Xss2048k");
@@ -774,7 +781,15 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     option[n++].optionString = str_dup   ("-XfullShutdown");
 #endif
 
+    if (!java_9) {
+      option[n++].optionString = str_dup   ("-Djavax.accessibility.assistive_technologies= ");
+      option[n++].optionString = str_printf("-Xbootclasspath/p:%s", jar_file);
+    } else {
+      option[n++].optionString = str_printf("--patch-module=java.base=%s", jar_file);
+    }
+
     /* JVM debug options */
+
     if (getenv("BDJ_JVM_DEBUG")) {
         option[n++].optionString = str_dup("-ea");
         //option[n++].optionString = str_dup("-verbose");
