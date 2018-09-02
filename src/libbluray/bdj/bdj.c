@@ -749,6 +749,9 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     (void)java_home;  /* used only with J2ME */
 
     fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp;
+    JavaVMOption option[20];
+    int n = 0, result;
+    JavaVMInitArgs args;
 
     *(void **)(&JNI_CreateJavaVM_fp) = dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
     if (JNI_CreateJavaVM_fp == NULL) {
@@ -756,14 +759,8 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
         return 0;
     }
 
-    JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 20);
-    if (!option) {
-        BD_DEBUG(DBG_CRIT, "out of memory\n");
-        return 0;
-    }
+    memset(option, 0, sizeof(option));
 
-    int n = 0;
-    JavaVMInitArgs args;
     option[n++].optionString = str_dup   ("-Dawt.toolkit=java.awt.BDToolkit");
     option[n++].optionString = str_dup   ("-Djava.awt.graphicsenv=java.awt.BDGraphicsEnvironment");
     option[n++].optionString = str_dup   ("-Djavax.accessibility.assistive_technologies= ");
@@ -817,12 +814,11 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     }
 #endif
 
-    int result = JNI_CreateJavaVM_fp(jvm, (void**) env, &args);
+    result = JNI_CreateJavaVM_fp(jvm, (void**) env, &args);
 
     while (--n >= 0) {
         X_FREE(option[n].optionString);
     }
-    X_FREE(option);
 
     if (result != JNI_OK || !*env) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM. JNI_CreateJavaVM result: %d\n", result);
