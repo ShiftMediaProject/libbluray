@@ -105,8 +105,14 @@ static int _parse_index(BITSTREAM *bs, INDX_ROOT *index)
 
     index->num_titles = bs_read(bs, 16);
     if (!index->num_titles) {
-        BD_DEBUG(DBG_CRIT, "empty index\n");
-        return 0;
+        /* no "normal" titles - check for first play and top menu */
+        if ((index->first_play.object_type == indx_object_type_hdmv && index->first_play.hdmv.id_ref == 0xffff) &&
+            (index->top_menu.object_type == indx_object_type_hdmv && index->top_menu.hdmv.id_ref == 0xffff)) {
+
+            BD_DEBUG(DBG_CRIT, "empty index\n");
+            return 0;
+        }
+        return 1;
     }
 
     index->titles = calloc(index->num_titles, sizeof(INDX_TITLE));
