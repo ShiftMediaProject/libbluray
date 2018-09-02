@@ -3232,27 +3232,16 @@ static int _play_title(BLURAY *bd, unsigned title)
 
     /* top menu ? */
     if (title == BLURAY_TITLE_TOP_MENU) {
-
-        bd_psr_write(bd->regs, PSR_TITLE_NUMBER, 0); /* 5.2.3.3 */
-
         if (!bd->disc_info.top_menu_supported) {
             /* no top menu (5.2.3.3) */
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_play_title(): No top menu title\n");
             bd->title_type = title_hdmv;
             return 0;
         }
-
-        if (bd->disc_info.top_menu->bdj) {
-            return _play_bdj(bd, title);
-        } else {
-            return _play_hdmv(bd, bd->disc_info.top_menu->id_ref);
-        }
-
-        return 0;
     }
 
     /* valid title from disc index ? */
-    if (title > 0 && title <= bd->disc_info.num_titles) {
+    if (title <= bd->disc_info.num_titles) {
 
         bd_psr_write(bd->regs, PSR_TITLE_NUMBER, title); /* 5.2.3.3 */
         if (bd->disc_info.titles[title]->bdj) {
