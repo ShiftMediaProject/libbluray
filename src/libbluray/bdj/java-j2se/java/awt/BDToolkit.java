@@ -21,6 +21,7 @@
 package java.awt;
 
 import java.awt.peer.KeyboardFocusManagerPeer;
+import java.awt.peer.RobotPeer;
 
 import sun.awt.ComponentFactory;
 import sun.awt.KeyboardFocusManagerPeerProvider;
@@ -191,4 +192,9 @@ public class BDToolkit extends BDToolkitBase
     public DataTransferer getDataTransferer() {
         return null;
     }
+    public RobotPeer createRobot(Robot target, GraphicsDevice screen) {
+        logger.unimplemented();
+        throw new Error("Not implemented");
+    }
+
 }
