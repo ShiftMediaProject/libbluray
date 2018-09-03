@@ -35,7 +35,9 @@ import java.awt.image.ImageObserver;
 import java.awt.image.ColorModel;
 import java.awt.image.BufferedImage;
 
-class BDImage extends Image {
+import sun.awt.image.BufferedImagePeer;
+
+class BDImage extends Image implements BufferedImagePeer {
     private static Constructor bufferedImageConstructor;
 
     private Component component;
