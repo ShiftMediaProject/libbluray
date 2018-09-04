@@ -225,10 +225,13 @@ pkginclude_HEADERS = \
 
 
 if USING_BDJAVA_BUILD_JAR
-jardir=$(datadir)/java/
-jar_DATA=$(top_builddir)/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar
 
-$(top_builddir)/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar: all-local
+jardir=$(datadir)/java/
+jar_DATA = \
+	$(top_builddir)/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar \
+	$(top_builddir)/.libs/libbluray-awt-$(BDJ_TYPE)-$(VERSION).jar
+
+$(jar_DATA): all-local
 
 all-local:
 	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml \

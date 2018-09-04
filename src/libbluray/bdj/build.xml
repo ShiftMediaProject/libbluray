@@ -34,7 +34,14 @@
     </target>
     <target name="dist" depends="compile"
             description="generate the distribution" >
-        <jar jarfile="${dist}/libbluray-${version}.jar" basedir="${build}" />
+        <jar jarfile="${dist}/libbluray-${version}.jar" basedir="${build}">
+            <exclude name="java/awt/**" />
+            <exclude name="sun/**" />
+        </jar>
+        <jar jarfile="${dist}/libbluray-awt-${version}.jar" basedir="${build}">
+          <include name="java/awt/**" />
+          <include name="sun/**" />
+        </jar>
     </target>
 
     <target name="clean"
