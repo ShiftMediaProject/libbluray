@@ -52,11 +52,11 @@ public class GUIManager extends BDRootWindow {
         }
     }
 
-    public HScene getFocusHScene() {
+    BDJXletContext getFocusHSceneContext() {
         Component component = getFocusOwner();
         while (component != null) {
             if (component instanceof HScene)
-                return (HScene)component;
+                return ((HScene)component).getXletContext();
             component = component.getParent();
         }
         return null;

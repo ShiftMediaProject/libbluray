@@ -431,6 +431,14 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         return ((BDJThreadGroup)obj).getContext();
     }
 
+    public static BDJXletContext getFocusContext() {
+        if (BDJXletContext.getCurrentContext() != null) {
+            logger.error("getFocusContext() called from Xlet code:\n" + Logger.dumpStack());
+            return null;
+        }
+        return GUIManager.getInstance().getFocusHSceneContext();
+    }
+
     protected void setArgs(String[] args) {
         this.args = args;
     }
