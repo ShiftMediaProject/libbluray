@@ -155,7 +155,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             return null;
         }
 
-        ClassLoader cldr = (ClassLoader)ctx.getClassLoader();
+        ClassLoader cldr = ctx.getClassLoader();
         if (cldr == null) {
             logger.error("getCurrentClassLoader(): no class loader: " + Logger.dumpStack());
             return null;
