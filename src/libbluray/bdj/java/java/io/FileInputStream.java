@@ -119,9 +119,6 @@ public class FileInputStream extends InputStream
     //public  native int  available() throws IOException;
 
     public int available() throws IOException {
-        if (fd != null && fd.slave != null) {
-            return fd.slave.available();
-        }
         return available;
     }
 
@@ -142,10 +139,6 @@ public class FileInputStream extends InputStream
         }
         if (off < 0 || len < 0 || off > b.length || (off + len) > b.length || (off + len) < 0) {
             throw new IndexOutOfBoundsException();
-        }
-
-        if (fd != null && fd.slave != null) {
-            return fd.slave.read(b, off, len);
         }
 
         int r = readBytes(b, off, len);
@@ -174,11 +167,6 @@ public class FileInputStream extends InputStream
         available = 0;
 
         if (fd != null) {
-            if (fd.slave != null) {
-                fd.slave.close();
-                return;
-            }
-
             int n = fd.decrementAndGetUseCount();
             if (n > 0 && !force) {
                 return;

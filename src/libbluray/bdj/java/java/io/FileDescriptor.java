@@ -28,19 +28,11 @@ public final class FileDescriptor {
     private int  fd;
     private long handle;
 
-    /* for files in BD VFS */
-    private long fp;
-
-    /* for files inside .jar */
-    protected InputStream slave;
-
     private int useCount;
 
     public FileDescriptor() {
 	fd = -1;
         handle = -1;
-        fp = 0;
-        slave = null;
         useCount = 0;
     }
 
@@ -54,7 +46,7 @@ public final class FileDescriptor {
     public static final FileDescriptor err = new FileDescriptor(2);
 
     public boolean valid() {
-	return (fd != -1) || (handle != -1) || (fp != 0) || (slave != null);
+	return (fd != -1) || (handle != -1);
     }
 
     public native void sync() throws SyncFailedException;
