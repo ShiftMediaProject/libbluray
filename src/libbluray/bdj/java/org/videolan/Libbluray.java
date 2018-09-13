@@ -65,6 +65,7 @@ public class Libbluray {
                     }
                     return super.getProperty(key);
                 }
+                private static final long serialVersionUID = -6253354431747524430L;
             };
         System.setProperties(p);
     }
