@@ -780,13 +780,69 @@ static int _find_jvm(void *jvm_lib, JNIEnv **env, JavaVM **jvm)
     return 0;
 }
 
+/* Export packages for Xlets */
+static const char * const java_base_exports[] = {
+        "javax.media" ,
+        "javax.media.protocol",
+        "javax.tv.graphics",
+        "javax.tv.service",
+        "javax.tv.service.guide",
+        "javax.tv.service.selection",
+        "javax.tv.service.transport",
+        "javax.tv.service.navigation",
+        "javax.tv.net",
+        "javax.tv.locator",
+        "javax.tv.util",
+        "javax.tv.media",
+        "javax.tv.xlet",
+        "javax.microedition.xlet",
+        "org.davic.resources",
+        "org.davic.net",
+        "org.davic.media",
+        "org.davic.mpeg",
+        "org.dvb.user",
+        "org.dvb.dsmcc",
+        "org.dvb.application",
+        "org.dvb.ui",
+        "org.dvb.test",
+        "org.dvb.lang",
+        "org.dvb.event",
+        "org.dvb.io.ixc",
+        "org.dvb.io.persistent",
+        "org.dvb.media",
+        "org.havi.ui",
+        "org.havi.ui.event",
+        "org.bluray.application",
+        "org.bluray.ui",
+        "org.bluray.ui.event",
+        "org.bluray.net",
+        "org.bluray.storage",
+        "org.bluray.vfs",
+        "org.bluray.bdplus",
+        "org.bluray.system",
+        "org.bluray.media",
+        "org.bluray.ti",
+        "org.bluray.ti.selection",
+        "org.blurayx.s3d.ui",
+        "org.blurayx.s3d.system",
+        "org.blurayx.s3d.media",
+        "org.blurayx.s3d.ti",
+        "org.blurayx.uhd.ui",
+        "org.blurayx.uhd.system",
+        "org.blurayx.uhd.ti",
+        "com.aacsla.bluray.online",
+        "com.aacsla.bluray.mc",
+        "com.aacsla.bluray.mt",
+};
+static const size_t num_java_base_exports = sizeof(java_base_exports) / sizeof(java_base_exports[0]);
+
 static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_file[2],
                        JNIEnv **env, JavaVM **jvm)
 {
     (void)java_home;  /* used only with J2ME */
 
     fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp;
-    JavaVMOption option[20];
+    JavaVMOption option[64];
     int n = 0, result, java_9;
     JavaVMInitArgs args;
 
@@ -824,6 +880,13 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     } else {
       option[n++].optionString = str_printf("--patch-module=java.base=%s", jar_file[0]);
       option[n++].optionString = str_printf("--patch-module=java.desktop=%s", jar_file[1]);
+
+      /* Fix module graph */
+
+      /* Export BluRay packages to Xlets */
+      for (size_t idx = 0; idx < num_java_base_exports; idx++) {
+          option[n++].optionString = str_printf("--add-exports=java.base/%s=ALL-UNNAMED", java_base_exports[idx]);
+      }
     }
 
     /* JVM debug options */
