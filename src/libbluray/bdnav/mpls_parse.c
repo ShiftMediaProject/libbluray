@@ -981,6 +981,14 @@ _parse_mpls_extension(BITSTREAM *bits, int id1, int id2, void *handle)
         }
     }
 
+    if (id1 == 3) {
+        if (id2 == 5) {
+            // UHD extension
+            BD_DEBUG(DBG_NAV, "_parse_mpls_extension(): unhandled extension %d.%d\n", id1, id2);
+            return 0;
+        }
+    }
+
     BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_mpls_extension(): unhandled extension %d.%d\n", id1, id2);
 
     return 0;
