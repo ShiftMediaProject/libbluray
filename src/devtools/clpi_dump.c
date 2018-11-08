@@ -48,6 +48,7 @@ const VALUE_MAP application_type_map[] = {
     {5, "Sub TS for a sub-path of Interactive Graphics menu"},
     {6, "Sub TS for a sub-path of Text subtitle"},
     {7, "Sub TS for a sub-path of one or more elementary streams path"},
+    {8, "Sub TS for a main-path of Enhanced LR View"},
     {0, NULL},
 };
 
