@@ -322,24 +322,8 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
     /* Update selected audio and subtitle stream PSRs when not using menus.
      * Selection is based on language setting PSRs and clip STN.
      */
-    if (bd->title_type == title_undef) {
-
-        if (stn->num_audio) {
-            _update_stream_psr_by_lang(bd->regs,
-                                       PSR_AUDIO_LANG, PSR_PRIMARY_AUDIO_ID, 0,
-                                       stn->audio, stn->num_audio,
-                                       &audio_lang, 0);
-        }
-
-        if (stn->num_pg) {
-            _update_stream_psr_by_lang(bd->regs,
-                                       PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
-                                       stn->pg, stn->num_pg,
-                                       NULL, audio_lang);
-        }
-
     /* Validate selected audio, subtitle and IG stream PSRs when using menus */
-    } else {
+    {
         uint32_t psr_val;
 
         if (stn->num_audio) {
@@ -366,7 +350,7 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
             }
             bd_psr_unlock(bd->regs);
         }
-        if (stn->num_ig) {
+        if (stn->num_ig && bd->title_type != title_undef) {
             bd_psr_lock(bd->regs);
             psr_val = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
             if ((psr_val == 0) || (psr_val > stn->num_ig)) {
