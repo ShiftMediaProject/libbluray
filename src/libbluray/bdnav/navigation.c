@@ -234,22 +234,22 @@ _filter_repeats(MPLS_PL *pl, unsigned repeats)
 
 #define DBG_MAIN_PL DBG_NAV
 
-static void _video_props(MPLS_STN *s, int *full_hd, int *mpeg12)
+static void _video_props(MPLS_STN *s, int *format, int *codec)
 {
     unsigned ii;
-    *mpeg12 = 1;
-    *full_hd = 0;
+    *codec = 1;
+    *format = 0;
     for (ii = 0; ii < s->num_video; ii++) {
         if (s->video[ii].coding_type > 4) {
-            *mpeg12 = 0;
+            *codec = 0;
         }
         if (s->video[ii].format == BD_VIDEO_FORMAT_1080I || s->video[ii].format == BD_VIDEO_FORMAT_1080P) {
-            if (*full_hd < 1) {
-                *full_hd = 1;
+            if (*format < 1) {
+                *format = 1;
             }
         }
         if (s->video[ii].format == BD_VIDEO_FORMAT_2160P) {
-            *full_hd = 2;
+            *format = 2;
         }
     }
 }
@@ -269,17 +269,17 @@ static int _cmp_video_props(const MPLS_PL *p1, const MPLS_PL *p2)
 {
     MPLS_STN *s1 = &p1->play_item[0].stn;
     MPLS_STN *s2 = &p2->play_item[0].stn;
-    int fhd1, fhd2, mp12_1, mp12_2;
+    int format1, format2, codec1, codec2;
 
-    _video_props(s1, &fhd1, &mp12_1);
-    _video_props(s2, &fhd2, &mp12_2);
+    _video_props(s1, &format1, &codec1);
+    _video_props(s2, &format2, &codec2);
 
     /* prefer UHD over FHD over HD/SD */
-    if (fhd1 != fhd2)
-        return fhd2 - fhd1;
+    if (format1 != format2)
+        return format2 - format1;
 
     /* prefer H.264/VC1 over MPEG1/2 */
-    return mp12_2 - mp12_1;
+    return codec2 - codec1;
 }
 
 static int _cmp_audio_props(const MPLS_PL *p1, const MPLS_PL *p2)
