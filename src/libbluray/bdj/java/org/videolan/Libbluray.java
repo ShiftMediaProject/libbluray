@@ -74,10 +74,10 @@ public class Libbluray {
      * Loader hooks
      */
 
-    private static BDJClassLoaderAdapter loaderAdapter = null;
+    private static BDJClassLoaderAdapter classLoaderAdapter = null;
 
-    protected static BDJClassLoaderAdapter getLoaderAdapter() {
-        return loaderAdapter;
+    protected static BDJClassLoaderAdapter getClassLoaderAdapter() {
+        return classLoaderAdapter;
     }
 
     private static void loadAdapter(String pkg) {
@@ -86,7 +86,7 @@ public class Libbluray {
         try {
             final Object obj = Class.forName("org.videolan." + pkg + ".Adapter").newInstance();
             if (obj instanceof BDJClassLoaderAdapter) {
-                loaderAdapter = (BDJClassLoaderAdapter)obj;
+                classLoaderAdapter = (BDJClassLoaderAdapter)obj;
             } else {
                 System.err.println("Unsupported interface in " + obj);
             }
@@ -363,7 +363,7 @@ public class Libbluray {
         synchronized (bdjoFilesLock) {
             bdjoFiles = null;
         }
-        loaderAdapter = null;
+        classLoaderAdapter = null;
     }
 
     /*
