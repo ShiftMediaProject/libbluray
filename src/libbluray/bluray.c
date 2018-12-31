@@ -39,7 +39,6 @@
 #include "bdnav/index_parse.h"
 #include "bdnav/meta_parse.h"
 #include "bdnav/meta_data.h"
-#include "bdnav/clpi_parse.h"
 #include "bdnav/sound_parse.h"
 #include "bdnav/uo_mask.h"
 #include "hdmv/hdmv_vm.h"
@@ -488,8 +487,8 @@ static void _update_textst_timer(BLURAY *bd)
                 /* find event position in main path clip */
                 NAV_CLIP *clip = bd->st0.clip;
                 if (clip->cl) {
-                    uint32_t spn = clpi_lookup_spn(clip->cl, cmds.wakeup_time, /*before=*/1,
-                                                   bd->title->pl->play_item[clip->ref].clip[clip->angle].stc_id);
+                    uint32_t spn;
+                    nav_clip_time_search(clip, cmds.wakeup_time, &spn, NULL);
                     if (spn) {
                         bd->gc_wakeup_pos = (uint64_t)spn * 192L;
                   }
@@ -502,8 +501,8 @@ static void _update_textst_timer(BLURAY *bd)
 static void _init_textst_timer(BLURAY *bd)
 {
     if (bd->st_textst.clip && bd->st0.clip->cl) {
-        uint32_t clip_time;
-        clpi_access_point(bd->st0.clip->cl, SPN(bd->st0.clip_block_pos), /*next=*/0, /*angle_change=*/0, &clip_time);
+        uint32_t clip_time, clip_pkt;
+        nav_clip_packet_search(bd->st0.clip, SPN(bd->st0.clip_block_pos), &clip_pkt, &clip_time);
         bd->gc_wakeup_time = clip_time;
         bd->gc_wakeup_pos = 0;
         _update_textst_timer(bd);
@@ -3772,6 +3771,7 @@ int bd_get_meta_file(BLURAY *bd, const char *name, void **data, int64_t *size)
  * Database access
  */
 
+#include "bdnav/clpi_parse.h"
 #include "bdnav/mpls_parse.h"
 
 struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref)
