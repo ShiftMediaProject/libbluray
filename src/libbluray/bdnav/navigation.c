@@ -987,7 +987,9 @@ void nav_clip_time_search(NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uin
             *clip_pkt = clip->start_pkt;
         }
     }
-    *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
+    if (out_pkt) {
+        *out_pkt = clip->title_pkt + *clip_pkt - clip->start_pkt;
+    }
 }
 
 /*
