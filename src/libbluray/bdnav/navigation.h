@@ -23,11 +23,11 @@
 #include "util/attributes.h"
 
 #include "mpls_data.h"
-#include "clpi_data.h"
 
 #include <stdint.h>
 
 struct bd_disc;
+struct clpi_cl;
 
 #define CONNECT_NON_SEAMLESS 0
 #define CONNECT_SEAMLESS 1
@@ -83,9 +83,9 @@ struct nav_clip_s
 
     NAV_TITLE *title;
 
-    CLPI_CL  *cl;
-
     uint32_t stc_spn;  /* start packet of clip STC sequence */
+
+    struct clpi_cl *cl;
 };
 
 typedef struct nav_clip_list_s NAV_CLIP_LIST;
