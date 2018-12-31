@@ -25,6 +25,8 @@
 #include "mpls_data.h"
 #include "clpi_data.h"
 
+#include <stdint.h>
+
 struct bd_disc;
 
 #define CONNECT_NON_SEAMLESS 0

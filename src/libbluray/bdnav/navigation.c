@@ -25,7 +25,9 @@
 #include "navigation.h"
 
 #include "clpi_parse.h"
+#include "clpi_data.h"
 #include "mpls_parse.h"
+#include "mpls_data.h"
 #include "bdparse.h"
 
 #include "disc/disc.h"

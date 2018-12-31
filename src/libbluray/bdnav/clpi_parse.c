@@ -23,6 +23,7 @@
 #endif
 
 #include "clpi_parse.h"
+#include "clpi_data.h"
 
 #include "extdata_parse.h"
 #include "bdmv_parse.h"

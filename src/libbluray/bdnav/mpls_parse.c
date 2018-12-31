@@ -26,6 +26,7 @@
 
 #include "extdata_parse.h"
 #include "bdmv_parse.h"
+#include "mpls_data.h"
 #include "uo_mask.h"
 
 #include "disc/disc.h"
