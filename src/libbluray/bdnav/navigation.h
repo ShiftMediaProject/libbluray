@@ -156,4 +156,6 @@ BD_PRIVATE NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, unsigned an
 BD_PRIVATE NAV_TITLE_LIST* nav_get_title_list(struct bd_disc *disc, uint32_t flags, uint32_t min_title_length) BD_ATTR_MALLOC;
 BD_PRIVATE void nav_free_title_list(NAV_TITLE_LIST **title_list);
 
+BD_PRIVATE char *nav_clip_textst_font(NAV_CLIP *clip, int index);
+
 #endif // _NAVIGATION_H_

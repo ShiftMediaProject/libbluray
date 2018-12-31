@@ -2089,6 +2089,7 @@ static int _preload_textst_subpath(BLURAY *bd)
     unsigned       textst_subclip = 0;
     uint16_t       textst_pid     = 0;
     unsigned       ii;
+    char          *file;
 
     if (!bd->graphics_controller) {
         return 0;
@@ -2131,17 +2132,15 @@ static int _preload_textst_subpath(BLURAY *bd)
 
     /* set fonts and encoding from clip info */
     gc_add_font(bd->graphics_controller, NULL, -1);
-    for (ii = 0; ii < bd->st_textst.clip->cl->clip.font_info.font_count; ii++) {
-        char *file = str_printf("%s.otf", bd->st_textst.clip->cl->clip.font_info.font[ii].file_id);
-        if (file) {
+    for (ii = 0; NULL != (file = nav_clip_textst_font(bd->st_textst.clip, ii)); ii++) {
             uint8_t *data = NULL;
             size_t size = disc_read_file(bd->disc, "BDMV" DIR_SEP "AUXDATA", file, &data);
             if (data && size > 0 && gc_add_font(bd->graphics_controller, data, size) < 0) {
                 X_FREE(data);
             }
             X_FREE(file);
-        }
     }
+
     gc_run(bd->graphics_controller, GC_CTRL_PG_CHARCODE, char_code, NULL);
 
     /* start presentation timer */

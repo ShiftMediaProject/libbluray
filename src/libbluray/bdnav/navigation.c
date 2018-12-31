@@ -1048,3 +1048,13 @@ NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, unsigned angle)
     return clip;
 }
 
+char *nav_clip_textst_font(NAV_CLIP *clip, int index)
+{
+    char *file;
+
+    if (index < 0 || index >= clip->cl->clip.font_info.font_count)
+        return NULL;
+
+    file = str_printf("%s.otf", clip->cl->clip.font_info.font[index].file_id);
+    return file;
+}
