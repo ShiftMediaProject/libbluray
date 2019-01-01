@@ -75,21 +75,36 @@ public class Libbluray {
      */
 
     private static BDJClassLoaderAdapter classLoaderAdapter = null;
+    private static BDJLoaderAdapter      loaderAdapter = null;
 
     protected static BDJClassLoaderAdapter getClassLoaderAdapter() {
         return classLoaderAdapter;
+    }
+    protected static BDJLoaderAdapter getLoaderAdapter() {
+        return loaderAdapter;
     }
 
     private static void loadAdapter(String pkg) {
         if (pkg == null)
             return;
+        if (pkg.indexOf(';') > 0) {
+            pkg = pkg.substring(0, pkg.indexOf(';'));
+        }
         try {
             final Object obj = Class.forName("org.videolan." + pkg + ".Adapter").newInstance();
+            if (!((obj instanceof BDJClassLoaderAdapter) ||
+                  (obj instanceof BDJLoaderAdapter))) {
+                System.err.println("Unsupported interface in " + obj);
+                return;
+            }
+            if (obj instanceof BDJLoaderAdapter) {
+                loaderAdapter = (BDJLoaderAdapter)obj;
+            }
             if (obj instanceof BDJClassLoaderAdapter) {
                 classLoaderAdapter = (BDJClassLoaderAdapter)obj;
-            } else {
-                System.err.println("Unsupported interface in " + obj);
             }
+        } catch (ClassNotFoundException ce) {
+            System.out.println("" + ce);  /* not really an error */
         } catch (Exception e) {
             System.err.println("" + e);
         }
@@ -364,6 +379,7 @@ public class Libbluray {
             bdjoFiles = null;
         }
         classLoaderAdapter = null;
+        loaderAdapter = null;
     }
 
     /*

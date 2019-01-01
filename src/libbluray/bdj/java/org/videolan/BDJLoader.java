@@ -240,6 +240,14 @@ public class BDJLoader {
                 vfsCache.add(bdjo.getAppCaches());
             }
 
+            try {
+                BDJLoaderAdapter a = Libbluray.getLoaderAdapter();
+                if (a != null)
+                    appTable = a.patchAppTable(appTable, title.getTitleNum());
+            } catch (Throwable t) {
+                logger.error("" + t);
+            }
+
             // initialize appProxys
             for (int i = 0; i < appTable.length; i++) {
                 if (proxys[i] == null) {
