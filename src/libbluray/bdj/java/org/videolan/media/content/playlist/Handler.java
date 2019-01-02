@@ -1,7 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010      William Hahne
- * Copyright (C) 2012-2014 Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2012-2019 Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -138,18 +138,18 @@ public class Handler extends BDHandler {
                 int stream;
                 stream = sourceLocator.getPrimaryAudioStreamNumber();
                 if (stream > 0)
-                    Libbluray.writePSR(Libbluray.PSR_PRIMARY_AUDIO_ID, stream);
+                    Libbluray.writePSR(RegisterAccess.PSR_AUDIO_STN, stream);
                 stream = sourceLocator.getPGTextStreamNumber();
                 if (stream > 0) {
-                    Libbluray.writePSR(Libbluray.PSR_PG_STREAM, stream, 0x00000fff);
+                    Libbluray.writePSR(RegisterAccess.PSR_PG_TXTST_STN, stream, 0x00000fff);
                 }
                 stream = sourceLocator.getSecondaryVideoStreamNumber();
                 if (stream > 0) {
-                    Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, stream << 8, 0x0000ff00);
+                    Libbluray.writePSR(RegisterAccess.PSR_SECONDARY_AUDIO_STN, stream << 8, 0x0000ff00);
                 }
                 stream = sourceLocator.getSecondaryAudioStreamNumber();
                 if (stream > 0) {
-                    Libbluray.writePSR(Libbluray.PSR_SECONDARY_AUDIO_VIDEO, stream, 0x000000ff);
+                    Libbluray.writePSR(RegisterAccess.PSR_SECONDARY_AUDIO_STN, stream, 0x000000ff);
                 }
 
                 int plId = sourceLocator.getPlayListId();

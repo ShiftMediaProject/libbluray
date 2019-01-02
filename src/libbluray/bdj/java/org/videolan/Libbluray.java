@@ -1,7 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010      William Hahne
- * Copyright (C) 2012-2014 Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2012-2019 Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -765,40 +765,6 @@ public class Libbluray {
     private static final int BDJ_EVENT_VK_KEY                   = 16;
     public  static final int BDJ_EVENT_UO_MASKED                = 17;
     private static final int BDJ_EVENT_MOUSE                    = 18;
-
-    /* TODO: use org/bluray/system/RegisterAccess instead */
-    public static final int PSR_IG_STREAM_ID     = 0;
-    public static final int PSR_PRIMARY_AUDIO_ID = 1;
-    public static final int PSR_PG_STREAM        = 2;
-    public static final int PSR_ANGLE_NUMBER     = 3;
-    public static final int PSR_TITLE_NUMBER     = 4;
-    public static final int PSR_CHAPTER          = 5;
-    public static final int PSR_PLAYLIST         = 6;
-    public static final int PSR_PLAYITEM         = 7;
-    public static final int PSR_TIME             = 8;
-    public static final int PSR_NAV_TIMER        = 9;
-    public static final int PSR_SELECTED_BUTTON_ID = 10;
-    public static final int PSR_MENU_PAGE_ID     = 11;
-    public static final int PSR_STYLE            = 12;
-    public static final int PSR_PARENTAL         = 13;
-    public static final int PSR_SECONDARY_AUDIO_VIDEO = 14;
-    public static final int PSR_AUDIO_CAP        = 15;
-    public static final int PSR_AUDIO_LANG       = 16;
-    public static final int PSR_PG_AND_SUB_LANG  = 17;
-    public static final int PSR_MENU_LANG        = 18;
-    public static final int PSR_COUNTRY          = 19;
-    public static final int PSR_REGION           = 20;
-    public static final int PSR_VIDEO_CAP        = 29;
-    public static final int PSR_TEXT_CAP         = 30;
-    public static final int PSR_PROFILE_VERSION  = 31;
-    public static final int PSR_BACKUP_PSR4      = 36;
-    public static final int PSR_BACKUP_PSR5      = 37;
-    public static final int PSR_BACKUP_PSR6      = 38;
-    public static final int PSR_BACKUP_PSR7      = 39;
-    public static final int PSR_BACKUP_PSR8      = 40;
-    public static final int PSR_BACKUP_PSR10     = 42;
-    public static final int PSR_BACKUP_PSR11     = 43;
-    public static final int PSR_BACKUP_PSR12     = 44;
 
     public static final int AACS_DISC_ID           = 1;
     public static final int AACS_MEDIA_VID         = 2;
