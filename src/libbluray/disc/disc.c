@@ -683,6 +683,15 @@ const uint8_t *disc_get_data(BD_DISC *disc, int type)
     if (disc->dec) {
         return dec_data(disc->dec, type);
     }
+    if (type == 0x1000) {
+        /* this shouldn't cause any extra optical disc access */
+        BD_DIR_H *d = disc->pf_dir_open_bdrom(disc->fs_handle, "MAKEMKV");
+        if (d) {
+            dir_close(d);
+            BD_DEBUG(DBG_FILE, "Detected MakeMKV backup data\n");
+            return (const uint8_t *)"mmbd;backup";
+        }
+    }
     return NULL;
 }
 
