@@ -42,7 +42,7 @@ import org.videolan.Logger;
 
 abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphics {
     private static final Color DEFAULT_COLOR = Color.BLACK;
-    private static final Font DEFAULT_FONT = new Font("Dialog", Font.PLAIN, 12);
+    private static Font DEFAULT_FONT;
 
     private int width;
     private int height;
@@ -126,6 +126,12 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
         postInit();
     }
 
+    private static Font getDefaultFont() {
+        if (DEFAULT_FONT == null)
+            DEFAULT_FONT = new Font("Dialog", Font.PLAIN, 12);
+        return DEFAULT_FONT;
+    }
+
     private void postInit() {
         if (foreground == null)
             foreground = DEFAULT_COLOR;
@@ -136,7 +142,7 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
         if (font == null) {
             font = GUIManager.getInstance().getDefaultFont();
             if (font == null) {
-                font = DEFAULT_FONT;
+                font = getDefaultFont();
             }
         }
         fontMetrics = null;
@@ -209,7 +215,7 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
 
     public Font getFont() {
         if (font == null)
-            return DEFAULT_FONT;
+            return getDefaultFont();
         return font;
     }
 
