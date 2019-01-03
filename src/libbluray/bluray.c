@@ -2102,6 +2102,10 @@ static int _preload_textst_subpath(BLURAY *bd)
     if (textst_subpath < 0) {
         return 0;
     }
+    if (textst_pid != 0x1800) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_preload_textst_subpath(): ignoring pid 0x%x\n", (unsigned)textst_pid);
+        return 0;
+    }
 
     if ((unsigned)textst_subpath >= bd->title->sub_path_count) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_preload_textst_subpath(): invalid subpath id\n");
@@ -2131,7 +2135,7 @@ static int _preload_textst_subpath(BLURAY *bd)
         return 0;
     }
 
-    gc_decode_ts(bd->graphics_controller, 0x1800, bd->st_textst.buf, SPN(bd->st_textst.clip_size) / 32, -1);
+    gc_decode_ts(bd->graphics_controller, textst_pid, bd->st_textst.buf, SPN(bd->st_textst.clip_size) / 32, -1);
 
     /* set fonts and encoding from clip info */
     gc_add_font(bd->graphics_controller, NULL, -1); /* reset fonts */
