@@ -2103,6 +2103,10 @@ static int _preload_textst_subpath(BLURAY *bd)
         return 0;
     }
 
+    if ((unsigned)textst_subpath >= bd->title->sub_path_count) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_preload_textst_subpath(): invalid subpath id\n");
+        return -1;
+    }
     if (textst_subclip >= bd->title->sub_path[textst_subpath].clip_list.count) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "_preload_textst_subpath(): invalid subclip id\n");
         return -1;
