@@ -239,11 +239,16 @@ _filter_repeats(MPLS_PL *pl, unsigned repeats)
 static void _video_props(MPLS_STN *s, int *format, int *codec)
 {
     unsigned ii;
-    *codec = 1;
+    *codec = 0;
     *format = 0;
     for (ii = 0; ii < s->num_video; ii++) {
         if (s->video[ii].coding_type > 4) {
-            *codec = 0;
+            if (*codec < 1) {
+                *codec = 1;
+            }
+        }
+        if (s->video[ii].coding_type == BD_STREAM_TYPE_VIDEO_HEVC) {
+            *codec = 2;
         }
         if (s->video[ii].format == BD_VIDEO_FORMAT_1080I || s->video[ii].format == BD_VIDEO_FORMAT_1080P) {
             if (*format < 1) {
@@ -280,7 +285,7 @@ static int _cmp_video_props(const MPLS_PL *p1, const MPLS_PL *p2)
     if (format1 != format2)
         return format2 - format1;
 
-    /* prefer H.264/VC1 over MPEG1/2 */
+    /* prefer H.265 over H.264/VC1 over MPEG1/2 */
     return codec2 - codec1;
 }
 
