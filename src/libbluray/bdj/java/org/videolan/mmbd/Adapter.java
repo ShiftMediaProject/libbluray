@@ -46,7 +46,7 @@ import javax.tv.xlet.XletContext;
 import javax.tv.xlet.XletStateChangeException;
 import org.bluray.bdplus.StatusListener;
 
-public class Adapter implements BDJClassLoaderAdapter {
+public class Adapter extends LoaderAdapter implements BDJClassLoaderAdapter {
 
     public Map getHideClasses() {
         return null;
