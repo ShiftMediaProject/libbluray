@@ -34,6 +34,7 @@ import java.security.PrivilegedAction;
 
 import org.videolan.BDJClassFileTransformer;
 import org.videolan.BDJClassLoaderAdapter;
+import org.videolan.BDJXletContext;
 import org.videolan.Logger;
 
 import javax.media.ClockStartedError;
@@ -60,6 +61,10 @@ public class Adapter implements BDJClassLoaderAdapter {
     }
 
     public Adapter() throws ClassNotFoundException {
+
+        if (BDJXletContext.getCurrentContext() != null)
+            throw new ClassNotFoundException();
+
         /* relocate classes to avoid runtime package collisions */
 
         final String s1 = "org/videolan/mmbd/Adapter$Xlet";
