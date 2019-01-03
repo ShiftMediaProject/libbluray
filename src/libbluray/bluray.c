@@ -2219,7 +2219,7 @@ static int _preload_subpaths(BLURAY *bd)
     _close_preload(&bd->st_ig);
     _close_preload(&bd->st_textst);
 
-    if (bd->title->pl->sub_count <= 0) {
+    if (bd->title->sub_path_count <= 0) {
         return 0;
     }
 
