@@ -195,6 +195,55 @@ static int _parse_header(BITSTREAM *bs,
     return 1;
 }
 
+static int _parse_indx_extension_hevc(BITSTREAM *bs, INDX_ROOT *index)
+{
+  uint32_t len;
+  unsigned unk0, unk1, unk2, unk3, unk4;
+
+  len = bs_read(bs, 32);
+  if (len < 8) {
+      BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: unsupported extension 3.1 length (%d)\n", len);
+      return 0;
+  }
+
+  index->disc_type     = bs_read(bs, 4);
+  unk0                 = bs_read(bs, 3);
+  index->exist_4k_flag = bs_read(bs, 1);
+  unk1                 = bs_read(bs, 8);
+  unk2                 = bs_read(bs, 6);
+  index->hdr_flags     = bs_read(bs, 2);
+  unk3                 = bs_read(bs, 8);
+  unk4                 = bs_read(bs, 32);
+
+  BD_DEBUG(DBG_NAV, "UHD disc type: %d, 4k: %d, HDR: %d\n",
+           index->disc_type, index->exist_4k_flag, index->hdr_flags);
+
+  if (unk0 | unk1 | unk2 | unk3 | unk4) {
+      BD_DEBUG(DBG_CRIT|DBG_NAV,
+               "index.bdmv: unknown data in extension 3.1: "
+               "0x%02x 0x%02x 0x%02x 0x%02x 0x%08x\n", unk0, unk1, unk2, unk3, unk4);
+  }
+
+  return 1;
+}
+
+static int
+_parse_indx_extension(BITSTREAM *bits, int id1, int id2, void *handle)
+{
+    INDX_ROOT *index = (INDX_ROOT *)handle;
+    (void)bits;
+
+    if (id1 == 3) {
+        if (id2 == 1) {
+            return _parse_indx_extension_hevc(bits, index);
+        }
+    }
+
+    BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_indx_extension(): unknown extension %d.%d\n", id1, id2);
+
+    return 0;
+}
+
 static INDX_ROOT *_indx_parse(BD_FILE_H *fp)
 {
     BITSTREAM  bs;
@@ -230,7 +279,10 @@ static INDX_ROOT *_indx_parse(BD_FILE_H *fp)
     }
 
     if (extension_data_start) {
-        BD_DEBUG(DBG_NAV | DBG_CRIT, "index.bdmv: unknown extension data at %u\n", (unsigned)extension_data_start);
+        bdmv_parse_extension_data(&bs,
+                                  extension_data_start,
+                                  _parse_indx_extension,
+                                  index);
     }
 
     return index;
