@@ -45,11 +45,11 @@
  */
 
 static uint32_t
-_pl_duration(MPLS_PL *pl)
+_pl_duration(const MPLS_PL *pl)
 {
     unsigned ii;
     uint32_t duration = 0;
-    MPLS_PI *pi;
+    const MPLS_PI *pi;
 
     for (ii = 0; ii < pl->list_count; ii++) {
         pi = &pl->play_item[ii];
@@ -59,7 +59,7 @@ _pl_duration(MPLS_PL *pl)
 }
 
 static uint32_t
-_pl_chapter_count(MPLS_PL *pl)
+_pl_chapter_count(const MPLS_PL *pl)
 {
     unsigned ii, chapters = 0;
 
@@ -77,7 +77,7 @@ _pl_chapter_count(MPLS_PL *pl)
  * Check if two playlists are the same
  */
 
-static int _stream_cmp(MPLS_STREAM *a, MPLS_STREAM *b)
+static int _stream_cmp(const MPLS_STREAM *a, const MPLS_STREAM *b)
 {
     if (a->stream_type == b->stream_type &&
         a->coding_type == b->coding_type &&
@@ -93,7 +93,7 @@ static int _stream_cmp(MPLS_STREAM *a, MPLS_STREAM *b)
     return 1;
 }
 
-static int _streams_cmp(MPLS_STREAM *s1, MPLS_STREAM *s2, unsigned count)
+static int _streams_cmp(const MPLS_STREAM *s1, const MPLS_STREAM *s2, unsigned count)
 {
     unsigned ii;
     for (ii = 0; ii < count; ii++) {
@@ -104,7 +104,7 @@ static int _streams_cmp(MPLS_STREAM *s1, MPLS_STREAM *s2, unsigned count)
     return 0;
 }
 
-static int _pi_cmp(MPLS_PI *pi1, MPLS_PI *pi2)
+static int _pi_cmp(const MPLS_PI *pi1, const MPLS_PI *pi2)
 {
     if (memcmp(pi1->clip[0].clip_id, pi2->clip[0].clip_id, 5) != 0 ||
         pi1->in_time != pi2->in_time ||
@@ -133,7 +133,7 @@ static int _pi_cmp(MPLS_PI *pi1, MPLS_PI *pi2)
     return 0;
 }
 
-static int _pm_cmp(MPLS_PLM *pm1, MPLS_PLM *pm2)
+static int _pm_cmp(const MPLS_PLM *pm1, const MPLS_PLM *pm2)
 {
     if (pm1->mark_type     == pm2->mark_type     &&
         pm1->play_item_ref == pm2->play_item_ref &&
@@ -146,7 +146,7 @@ static int _pm_cmp(MPLS_PLM *pm1, MPLS_PLM *pm2)
     return 1;
 }
 
-static int _pl_cmp(MPLS_PL *pl1, MPLS_PL *pl2)
+static int _pl_cmp(const MPLS_PL *pl1, const MPLS_PL *pl2)
 {
     unsigned ii;
 
@@ -182,7 +182,7 @@ static int _pl_cmp(MPLS_PL *pl1, MPLS_PL *pl2)
  */
 
 /* return 0 if duplicate playlist */
-static int _filter_dup(MPLS_PL *pl_list[], unsigned count, MPLS_PL *pl)
+static int _filter_dup(MPLS_PL *pl_list[], unsigned count, const MPLS_PL *pl)
 {
     unsigned ii;
 
@@ -195,12 +195,12 @@ static int _filter_dup(MPLS_PL *pl_list[], unsigned count, MPLS_PL *pl)
 }
 
 static unsigned int
-_find_repeats(MPLS_PL *pl, const char *m2ts, uint32_t in_time, uint32_t out_time)
+_find_repeats(const MPLS_PL *pl, const char *m2ts, uint32_t in_time, uint32_t out_time)
 {
     unsigned ii, count = 0;
 
     for (ii = 0; ii < pl->list_count; ii++) {
-        MPLS_PI *pi;
+        const MPLS_PI *pi;
 
         pi = &pl->play_item[ii];
         // Ignore titles with repeated segments
@@ -214,12 +214,12 @@ _find_repeats(MPLS_PL *pl, const char *m2ts, uint32_t in_time, uint32_t out_time
 }
 
 static int
-_filter_repeats(MPLS_PL *pl, unsigned repeats)
+_filter_repeats(const MPLS_PL *pl, unsigned repeats)
 {
     unsigned ii;
 
     for (ii = 0; ii < pl->list_count; ii++) {
-      MPLS_PI *pi;
+      const MPLS_PI *pi;
 
       pi = &pl->play_item[ii];
       // Ignore titles with repeated segments
@@ -236,7 +236,7 @@ _filter_repeats(MPLS_PL *pl, unsigned repeats)
 
 #define DBG_MAIN_PL DBG_NAV
 
-static void _video_props(MPLS_STN *s, int *format, int *codec)
+static void _video_props(const MPLS_STN *s, int *format, int *codec)
 {
     unsigned ii;
     *codec = 0;
@@ -261,7 +261,7 @@ static void _video_props(MPLS_STN *s, int *format, int *codec)
     }
 }
 
-static void _audio_props(MPLS_STN *s, int *hd_audio)
+static void _audio_props(const MPLS_STN *s, int *hd_audio)
 {
     unsigned ii;
     *hd_audio = 0;
@@ -274,8 +274,8 @@ static void _audio_props(MPLS_STN *s, int *hd_audio)
 
 static int _cmp_video_props(const MPLS_PL *p1, const MPLS_PL *p2)
 {
-    MPLS_STN *s1 = &p1->play_item[0].stn;
-    MPLS_STN *s2 = &p2->play_item[0].stn;
+    const MPLS_STN *s1 = &p1->play_item[0].stn;
+    const MPLS_STN *s2 = &p2->play_item[0].stn;
     int format1, format2, codec1, codec2;
 
     _video_props(s1, &format1, &codec1);
@@ -291,8 +291,8 @@ static int _cmp_video_props(const MPLS_PL *p1, const MPLS_PL *p2)
 
 static int _cmp_audio_props(const MPLS_PL *p1, const MPLS_PL *p2)
 {
-    MPLS_STN *s1 = &p1->play_item[0].stn;
-    MPLS_STN *s2 = &p2->play_item[0].stn;
+    const MPLS_STN *s1 = &p1->play_item[0].stn;
+    const MPLS_STN *s2 = &p2->play_item[0].stn;
     int hda1, hda2;
 
     _audio_props(s1, &hda1);
@@ -302,7 +302,7 @@ static int _cmp_audio_props(const MPLS_PL *p1, const MPLS_PL *p2)
     return hda2 - hda1;
 }
 
-static int _pl_guess_main_title(MPLS_PL *p1, MPLS_PL *p2,
+static int _pl_guess_main_title(const MPLS_PL *p1, const MPLS_PL *p2,
                                 const char *mpls_id1, const char *mpls_id2,
                                 const char *known_mpls_ids)
 {
@@ -512,12 +512,12 @@ uint8_t nav_lookup_aspect(NAV_CLIP *clip, int pid)
 }
 
 static void
-_fill_mark(NAV_TITLE *title, NAV_MARK *mark, int entry)
+_fill_mark(const NAV_TITLE *title, NAV_MARK *mark, int entry)
 {
-    MPLS_PL *pl = title->pl;
-    MPLS_PLM *plm;
-    MPLS_PI *pi;
-    NAV_CLIP *clip;
+    const MPLS_PL *pl = title->pl;
+    const MPLS_PLM *plm;
+    const MPLS_PI *pi;
+    const NAV_CLIP *clip;
 
     plm = &pl->play_mark[entry];
 
@@ -547,9 +547,9 @@ _extrapolate_title(NAV_TITLE *title)
     uint32_t duration = 0;
     uint32_t pkt = 0;
     unsigned ii, jj;
-    MPLS_PL *pl = title->pl;
-    MPLS_PI *pi;
-    MPLS_PLM *plm;
+    const MPLS_PL *pl = title->pl;
+    const MPLS_PI *pi;
+    const MPLS_PLM *plm;
     NAV_MARK *mark, *prev = NULL;
     NAV_CLIP *clip;
 
@@ -599,7 +599,7 @@ _extrapolate_title(NAV_TITLE *title)
 }
 
 static void _fill_clip(NAV_TITLE *title,
-                       MPLS_CLIP *mpls_clip,
+                       const MPLS_CLIP *mpls_clip,
                        uint8_t connection_condition, uint32_t in_time, uint32_t out_time,
                        unsigned pi_angle_count,
                        NAV_CLIP *clip,
@@ -733,7 +733,7 @@ NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
         }
         title->packets = 0;
         for (ii = 0; ii < title->pl->list_count; ii++) {
-            MPLS_PI *pi;
+            const MPLS_PI *pi;
             NAV_CLIP *clip;
 
             pi = &title->pl->play_item[ii];
@@ -771,7 +771,7 @@ NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
 
             pos = time = 0;
             for (ii = 0; ii < sub_path->clip_list.count; ii++) {
-                MPLS_SUB_PI *pi   = &title->pl->sub_path[ss].sub_play_item[ii];
+                const MPLS_SUB_PI *pi   = &title->pl->sub_path[ss].sub_play_item[ii];
                 NAV_CLIP    *clip = &sub_path->clip_list.clip[ii];
 
                 _fill_clip(title, pi->clip, pi->connection_condition, pi->in_time, pi->out_time, 0,
@@ -944,7 +944,7 @@ uint32_t nav_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time)
 NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt)
 {
     uint32_t pos, len;
-    MPLS_PI *pi = NULL;
+    const MPLS_PI *pi = NULL;
     NAV_CLIP *clip;
     unsigned ii;
 
@@ -1040,7 +1040,7 @@ NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, unsigned angle)
     // Find length in packets and end_pkt for each clip
     title->packets = 0;
     for (ii = 0; ii < title->pl->list_count; ii++) {
-        MPLS_PI *pi;
+        const MPLS_PI *pi;
         NAV_CLIP *cl;
 
         pi = &title->pl->play_item[ii];
