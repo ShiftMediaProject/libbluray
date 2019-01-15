@@ -1059,9 +1059,6 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
             bd->disc_info.top_menu = titles[0];
         }
 
-        /* populate title names */
-        bd_get_meta(bd);
-
         /* no BD-J menu support for profile 6 */
         if (bd->disc_info.num_bdj_titles) {
             // XXX actually, should check from bdjo files ...
@@ -1072,6 +1069,9 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
         }
 
         indx_free(&index);
+
+        /* populate title names */
+        bd_get_meta(bd);
     }
 
 #if 0
