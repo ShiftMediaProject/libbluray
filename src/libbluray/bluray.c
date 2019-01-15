@@ -1095,9 +1095,7 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
 const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd)
 {
     if (!bd->disc) {
-        BD_ENC_INFO enc_info;
-        memset(&enc_info, 0, sizeof(enc_info));
-        _fill_disc_info(bd, &enc_info);
+        _fill_disc_info(bd, NULL);
     }
     return &bd->disc_info;
 }
