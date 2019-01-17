@@ -1,7 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
- * Copyright (C) 2012  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2012-2019  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -743,18 +743,18 @@ int bdj_jvm_available(BDJ_STORAGE *storage)
     void* jvm_lib = _load_jvm(&java_home);
     if (!jvm_lib) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J check: Failed to load JVM library\n");
-        return 0;
+        return BDJ_CHECK_NO_JVM;
     }
     dl_dlclose(jvm_lib);
 
     if (!_find_libbluray_jar(storage)) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J check: Failed to load libbluray.jar\n");
-        return 1;
+        return BDJ_CHECK_NO_JAR;
     }
 
     BD_DEBUG(DBG_BDJ, "BD-J check: OK\n");
 
-    return 2;
+    return BDJ_CHECK_OK;
 }
 
 static int _find_jvm(void *jvm_lib, JNIEnv **env, JavaVM **jvm)

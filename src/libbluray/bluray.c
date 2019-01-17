@@ -903,10 +903,13 @@ static void _check_bdj(BLURAY *bd)
 
             /* Check if jvm + jar can be loaded ? */
             switch (bdj_jvm_available(&bd->bdjstorage)) {
-            case 2: bd->disc_info.bdj_handled = 1;
+                case BDJ_CHECK_OK:
+                    bd->disc_info.bdj_handled = 1;
                     /* fall thru */
-            case 1: bd->disc_info.libjvm_detected = 1;
-            default:;
+                case BDJ_CHECK_NO_JAR:
+                    bd->disc_info.libjvm_detected = 1;
+                    /* fall thru */
+                default:;
             }
         }
     }
