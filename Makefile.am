@@ -226,6 +226,12 @@ pkginclude_HEADERS = \
 
 if USING_BDJAVA_BUILD_JAR
 
+if USING_JAVAC_9
+java_versions = -Djava_version_asm=1.6 -Djava_version_bdj=1.6
+else
+java_versions = -Djava_version_asm=1.5 -Djava_version_bdj=1.4
+endif
+
 if BDJ_J2SE
 awt_src = java-$(BDJ_TYPE):java-build-support
 else
@@ -244,6 +250,7 @@ all-local:
 	    -Dbuild='$(abs_builddir)/src/libbluray/bdj/build' \
 	    -Ddist='$(abs_builddir)/.libs' \
 	    -Dsrc_awt=:$(awt_src) \
+	    $(java_versions) \
 	    -Dbootclasspath="$(BDJ_BOOTCLASSPATH)" \
 	    -Dversion='$(BDJ_TYPE)-$(VERSION)'
 

@@ -112,6 +112,9 @@ AC_ARG_WITH([bdj-bootclasspath],
   [BDJ_BOOTCLASSPATH=$withval],
   [BDJ_BOOTCLASSPATH=])
 
+AC_ARG_WITH([java9],
+  [AS_HELP_STRING([--with-java9], [build with Java 9+ (drop support for Java <1.6) @<:@default=without@:>@])])
+
 dnl required programs
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -239,6 +242,7 @@ AS_IF([test "x$use_bdjava_jar" = "xyes"], [
 AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
 AC_DEFINE_UNQUOTED([JDK_HOME], ["$JDK_HOME"], [""])
 AM_CONDITIONAL([USING_BDJAVA_BUILD_JAR], [ test $use_bdjava_jar = "yes" ])
+AM_CONDITIONAL([USING_JAVAC_9], [ test x"$with_java9" = x"yes" ])
 
 dnl BD-J type
 if test "$BDJ_TYPE" = "j2me"; then

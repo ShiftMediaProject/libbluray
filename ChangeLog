@@ -1,3 +1,5 @@
+- Add support for compiling .jar file with Java 9+ compiler.
+
 2017-12-01: Version 1.0.2
 - Add initial support for UHD BluRay discs (without BD-J menus).
 - Detect JRE (from the Java Applet plugin) on MacOS.
