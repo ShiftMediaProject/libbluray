@@ -228,10 +228,13 @@ AS_IF([test "x${JDK_HOME}" != "x"], [
     BDJAVA_CFLAGS='-I${abs_top_srcdir}/jni -I${abs_top_srcdir}/jni/'"${java_os}"
 ])
 
-AC_CHECK_PROG(HAVE_ANT, [ant], yes, no)
-if test "x$use_bdjava_jar" = "xyes" && test "x$HAVE_ANT" = "xno"; then
-    AC_MSG_ERROR([BD-J requires ANT, but ant was not found. Please install it.])
-fi
+AS_IF([test "x$use_bdjava_jar" = "xyes"], [
+    dnl check for ant
+    AC_CHECK_PROG(HAVE_ANT, [ant], yes, no)
+    AS_IF([test "x$HAVE_ANT" = "xno"], [
+        AC_MSG_ERROR([BD-J requires ANT, but ant was not found. Install ant or disable jar file building (--disable-bdjava-jar)])
+    ])
+])
 
 AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
 AC_DEFINE_UNQUOTED([JDK_HOME], ["$JDK_HOME"], [""])
