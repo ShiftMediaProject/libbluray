@@ -41,6 +41,9 @@
         <jar jarfile="${dist}/libbluray-awt-${version}.jar" basedir="${build}">
           <include name="java/awt/**" />
           <include name="sun/**" />
+          <!-- following classes are used only at build time -->
+          <exclude name="sun/awt/CausedFocusEvent**" />
+          <exclude name="java/awt/event/FocusEvent**" />
         </jar>
     </target>
 

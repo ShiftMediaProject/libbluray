@@ -226,6 +226,12 @@ pkginclude_HEADERS = \
 
 if USING_BDJAVA_BUILD_JAR
 
+if BDJ_J2SE
+awt_src = java-$(BDJ_TYPE):java-build-support
+else
+awt_src = java-$(BDJ_TYPE)
+endif
+
 jardir=$(datadir)/java/
 jar_DATA = \
 	$(top_builddir)/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar \
@@ -237,7 +243,7 @@ all-local:
 	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml \
 	    -Dbuild='$(abs_builddir)/src/libbluray/bdj/build' \
 	    -Ddist='$(abs_builddir)/.libs' \
-	    -Dsrc_awt=:java-$(BDJ_TYPE) \
+	    -Dsrc_awt=:$(awt_src) \
 	    -Dbootclasspath="$(BDJ_BOOTCLASSPATH)" \
 	    -Dversion='$(BDJ_TYPE)-$(VERSION)'
 

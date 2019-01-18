@@ -247,6 +247,7 @@ else
   BDJ_TYPE=j2se
 fi
 AC_SUBST(BDJ_TYPE)
+AM_CONDITIONAL([BDJ_J2SE], [ test x"$BDJ_TYPE" != x"j2me" ])
 dnl bootclasspath
 AC_SUBST(BDJ_BOOTCLASSPATH)
 
