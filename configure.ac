@@ -232,11 +232,28 @@ AS_IF([test "x${JDK_HOME}" != "x"], [
 ])
 
 AS_IF([test "x$use_bdjava_jar" = "xyes"], [
+
     dnl check for ant
     AC_CHECK_PROG(HAVE_ANT, [ant], yes, no)
     AS_IF([test "x$HAVE_ANT" = "xno"], [
         AC_MSG_ERROR([BD-J requires ANT, but ant was not found. Install ant or disable jar file building (--disable-bdjava-jar)])
     ])
+
+    AS_IF([test "x$with_java9" = "x" -a "$BDJ_TYPE" != "j2me"], [
+
+        dnl check for javac
+        AS_IF([test "x${JAVA_HOME}" != "x"],
+              [AC_PATH_PROG(JAVAC, javac, none, ["${JAVA_HOME}/bin"])],
+              [AC_PATH_PROG(JAVAC, javac, none)])
+        AS_IF([test x"$JAVAC" = x"none"],
+            [AC_MSG_WARN([javac not found. Disable jar file building (--disable-bdjava-jar), set JAVA_HOME or javac type with --with[out]-java9 option.])])
+
+        dnl check for Java 9+
+        javac_version=`"$JAVAC" -version 2>&1 | head -n 1`
+        [with_java9=`echo "$javac_version" | grep -E -q '^javac\ (9|1[0-9])' && echo yes`]
+    ])
+
+    AS_IF([test "x$with_java9" = "xyes" -a "$BDJ_TYPE" != "j2me"], [java_code_version=1.6], [java_code_version=1.4])
 ])
 
 AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
@@ -294,6 +311,12 @@ echo "  Summary:"
 echo "  --------"
 echo "  BD-J type:                     $BDJ_TYPE"
 echo "  build JAR:                     $use_bdjava_jar"
+if test "x$use_bdjava_jar" = "xyes"; then
+if test "x$javac_version" != "x"; then
+echo "      javac version:             $javac_version"
+fi
+echo "      Java binary version:       $java_code_version"
+fi
 if test x"$BDJ_BOOTCLASSPATH" != x""; then
 echo "  BD-J bootclasspath:            $BDJ_BOOTCLASSPATH"
 fi
