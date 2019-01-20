@@ -85,6 +85,9 @@ struct nav_clip_s
 
     uint32_t stc_spn;  /* start packet of clip STC sequence */
 
+    uint8_t  still_mode;
+    uint16_t still_time;
+
     struct clpi_cl *cl;
 };
 

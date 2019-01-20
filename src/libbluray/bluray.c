@@ -2,7 +2,7 @@
  * This file is part of libbluray
  * Copyright (C) 2009-2010  Obliter0n
  * Copyright (C) 2009-2010  John Stebbins
- * Copyright (C) 2010-2017  Petri Hintukainen
+ * Copyright (C) 2010-2019  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -1934,16 +1934,14 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
                         return out_len;
                     }
 
-                    MPLS_PI *pi = &st->clip->title->pl->play_item[st->clip->ref];
-
                     // handle still mode clips
-                    if (pi->still_mode == BLURAY_STILL_INFINITE) {
+                    if (st->clip->still_mode == BLURAY_STILL_INFINITE) {
                         _queue_event(bd, BD_EVENT_STILL_TIME, 0);
                         return 0;
                     }
-                    if (pi->still_mode == BLURAY_STILL_TIME) {
+                    if (st->clip->still_mode == BLURAY_STILL_TIME) {
                         if (bd->event_queue) {
-                            _queue_event(bd, BD_EVENT_STILL_TIME, pi->still_time);
+                            _queue_event(bd, BD_EVENT_STILL_TIME, st->clip->still_time);
                             return 0;
                         }
                     }
@@ -2063,9 +2061,7 @@ int bd_read_skip_still(BLURAY *bd)
     bd_mutex_lock(&bd->mutex);
 
     if (st->clip) {
-        MPLS_PI *pi = &st->clip->title->pl->play_item[st->clip->ref];
-
-        if (pi->still_mode == BLURAY_STILL_TIME) {
+        if (st->clip->still_mode == BLURAY_STILL_TIME) {
             st->clip = nav_next_clip(bd->title, st->clip);
             if (st->clip) {
                 ret = _open_m2ts(bd, st);

@@ -1,7 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2009-2010  John Stebbins
- * Copyright (C) 2010-2016  Petri Hintukainen
+ * Copyright (C) 2010-2019  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -601,7 +601,7 @@ _extrapolate_title(NAV_TITLE *title)
 static void _fill_clip(NAV_TITLE *title,
                        const MPLS_CLIP *mpls_clip,
                        uint8_t connection_condition, uint32_t in_time, uint32_t out_time,
-                       unsigned pi_angle_count,
+                       unsigned pi_angle_count, unsigned still_mode, unsigned still_time,
                        NAV_CLIP *clip,
                        unsigned ref, uint32_t *pos, uint32_t *time)
 
@@ -610,6 +610,8 @@ static void _fill_clip(NAV_TITLE *title,
 
     clip->title = title;
     clip->ref   = ref;
+    clip->still_mode = still_mode;
+    clip->still_time = still_time;
 
     if (title->angle >= pi_angle_count) {
         clip->angle = 0;
@@ -741,7 +743,7 @@ NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
             clip = &title->clip_list.clip[ii];
 
             _fill_clip(title, pi->clip, pi->connection_condition, pi->in_time, pi->out_time, pi->angle_count,
-                       clip, ii, &pos, &time);
+                       pi->still_mode, pi->still_time, clip, ii, &pos, &time);
         }
     }
 
@@ -775,7 +777,7 @@ NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
                 NAV_CLIP    *clip = &sub_path->clip_list.clip[ii];
 
                 _fill_clip(title, pi->clip, pi->connection_condition, pi->in_time, pi->out_time, 0,
-                           clip, ii, &pos, &time);
+                           0, 0, clip, ii, &pos, &time);
             }
         }
     }
@@ -1047,7 +1049,7 @@ NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, unsigned angle)
         cl = &title->clip_list.clip[ii];
 
         _fill_clip(title, pi->clip, pi->connection_condition, pi->in_time, pi->out_time, pi->angle_count,
-                   cl, ii, &pos, &time);
+                   pi->still_mode, pi->still_time, cl, ii, &pos, &time);
     }
     _extrapolate_title(title);
     return clip;
