@@ -18,6 +18,7 @@
 
 package java.io;
 
+import java.lang.reflect.InvocationTargetException;
 
 import org.videolan.BDJLoader;
 import org.videolan.BDJXletContext;
@@ -46,7 +47,7 @@ public class FileInputStream extends InputStream
         }
 
         fd = new FileDescriptor();
-        fd.incrementAndGetUseCount();
+        fdAttach();
 
         if (file.isAbsolute()) {
             String cachedName = BDJLoader.getCachedFile(name);
@@ -82,9 +83,9 @@ public class FileInputStream extends InputStream
         if (security != null) {
             security.checkRead(fdObj);
         }
-        fdObj.incrementAndGetUseCount();
         fd = fdObj;
         available = 1024;
+        fdAttach();
     }
 
     /* open()/open0() wrapper to select correct native method at runtime */
@@ -98,6 +99,7 @@ public class FileInputStream extends InputStream
     }
 
     private native int  readBytes(byte b[], int off, int len) throws IOException;
+    /* OpenJDK < 10 */
     private native int  close0();
     /* OpenJDK 6, OpenJDK 7, PhoneME, ... */
     private native void open(String name) throws FileNotFoundException;
@@ -146,7 +148,7 @@ public class FileInputStream extends InputStream
         close(true);
     }
 
-    public void close(boolean force) throws IOException {
+    private void close(boolean force) throws IOException {
         synchronized (closeLock) {
             if (closed) {
                 return;
@@ -156,14 +158,7 @@ public class FileInputStream extends InputStream
 
         available = 0;
 
-        if (fd != null) {
-            int n = fd.decrementAndGetUseCount();
-            if (n > 0 && !force) {
-                return;
-            }
-        }
-
-        close0();
+        fdClose(force);
     }
 
     public final FileDescriptor getFD() throws IOException {
@@ -197,6 +192,113 @@ public class FileInputStream extends InputStream
             if (fd != FileDescriptor.in) {
                 close(false);
             }
+        }
+    }
+
+    /*
+     * compat layer
+     */
+
+    private boolean useFdCount = false;
+
+    private void fdAttach() {
+
+        /*
+         * Reflection fails at very early stage in JVM bootstrap.
+         * -> hide all errors in this function.
+         */
+        try {
+            try {
+                fd.getClass().getDeclaredMethod("attach", new Class[] { Closeable.class })
+                    .invoke(fd, new Object[] { (Object)this });
+                return;
+            } catch (NoSuchMethodException e) {
+                /* older RT libs */
+            }
+
+            try {
+                fd.getClass().getDeclaredMethod("incrementAndGetUseCount", new Class[0]).invoke((Object)fd, new Object[0]);
+                useFdCount = true;
+                return;
+            } catch (NoSuchMethodException e) {
+                getLogger().error("internal error in FileDescriptor usage");
+            }
+
+        } catch (Throwable t) {
+            if (logger != null)
+                logger.error("" + t);
+        }
+    }
+
+    private void closeImpl() throws IOException {
+
+        /* OpenJDK 10+ */
+        try {
+            fd.getClass().getDeclaredMethod("close", new Class[0])
+                .invoke(fd, new Object[0]);
+            return;
+        } catch (InvocationTargetException ite) {
+            Throwable t = ite.getTargetException();
+            getLogger().error("" + t);
+            if (t instanceof IOException) {
+                throw (IOException)t;
+            }
+            throw new IOException();
+        } catch (IllegalAccessException iae) {
+            getLogger().error("internal error in FileDescriptor usage: " + iae);
+            return;
+        } catch (NoSuchMethodException no_jdk10) {
+            /* JDK < 10 */
+        }
+
+        /* JDK < 10 */
+        try {
+            close0();
+        } catch (UnsatisfiedLinkError no_close0) {
+            getLogger().error("internal error in FileDescriptor usage: " + no_close0);
+        }
+    }
+
+    private void fdClose(boolean force) throws IOException {
+
+        try {
+
+            if (useFdCount) {
+                try {
+                    Integer i = (Integer) fd.getClass().getDeclaredMethod("decrementAndGetUseCount", new Class[0]).invoke((Object)fd, new Object[0]);
+                    if (i.intValue() > 0 && !force) {
+                        return;
+                    }
+                    closeImpl();
+                } catch (NoSuchMethodException no_method) {
+                    getLogger().error("internal error in FileDescriptor usage: " + no_method);
+                }
+                return;
+            }
+
+            try {
+                fd.getClass().getDeclaredMethod("closeAll", new Class[] { Closeable.class })
+                    .invoke(fd, new Object[] { (Object)
+                                               new Closeable() {
+                                                   public void close() throws IOException {
+                                                       closeImpl();
+                                                   }
+                                               }});
+                return;
+            } catch (NoSuchMethodException no_closeAll) {
+                getLogger().error("internal error in FileDescriptor usage: " + no_closeAll);
+            }
+
+        } catch (IllegalAccessException iae) {
+            getLogger().error("internal error in FileDescriptor usage: " + iae);
+            return;
+        } catch (InvocationTargetException ite) {
+            Throwable t = ite.getTargetException();
+            getLogger().error("" + t);
+            if (t instanceof IOException) {
+                throw (IOException)t;
+            }
+            throw new IOException();
         }
     }
 }
