@@ -122,7 +122,7 @@ static void *_load_jvm_win32(const char **p_java_home)
     HKEY hkey;
 
     r = RegOpenKeyExW(HKEY_LOCAL_MACHINE, buf_loc, 0, KEY_READ, &hkey);
-# if 0
+# ifndef NO_JAVA9_SUPPORT
     if (r != ERROR_SUCCESS) {
         /* Try Java 9 */
         wcscpy(buf_loc, L"SOFTWARE\\JavaSoft\\JRE\\");
@@ -309,13 +309,14 @@ static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char 
         }
         BD_DEBUG(DBG_BDJ, "Opening %s ...\n", path);
         void *h = dl_dlopen(path, NULL);
-
+# ifdef NO_JAVA9_SUPPORT
+        /* ignore Java 9+ */
         if (h && dl_dlsym(h, "JVM_DefineModule")) {
             BD_DEBUG(DBG_CRIT | DBG_BDJ, "Ignoring JVM %s: looks like Java 9 or later\n", path);
             dl_dlclose(h);
             h = NULL;
         }
-
+# endif
         X_FREE(path);
         return h;
     } else {
