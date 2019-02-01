@@ -574,7 +574,7 @@ public class Libbluray {
      */
 
     public static void writeGPR(int num, int value) {
-        int ret = writeGPRN(nativePointer, num, value);
+        int ret = writeRegN(nativePointer, 0, num, value, 0xffffffff);
 
         if (ret == -1)
             throw new IllegalArgumentException("Invalid GPR");
@@ -585,7 +585,7 @@ public class Libbluray {
     }
 
     public static void writePSR(int num, int value, int psr_value_mask) {
-        int ret = writePSRN(nativePointer, num, value, psr_value_mask);
+        int ret = writeRegN(nativePointer, 1, num, value, psr_value_mask);
 
         if (ret == -1)
             throw new IllegalArgumentException("Invalid PSR");
@@ -595,14 +595,14 @@ public class Libbluray {
         if (num < 0 || (num >= 4096))
             throw new IllegalArgumentException("Invalid GPR");
 
-        return readGPRN(nativePointer, num);
+        return readRegN(nativePointer, 0, num);
     }
 
     public static int readPSR(int num) {
         if (num < 0 || (num >= 128))
             throw new IllegalArgumentException("Invalid PSR");
 
-        return readPSRN(nativePointer, num);
+        return readRegN(nativePointer, 1, num);
     }
 
     /*
@@ -796,11 +796,9 @@ public class Libbluray {
     private static native void setKeyInterestN(long np, int mask);
     private static native long tellTimeN(long np);
     private static native int selectRateN(long np, float rate, int reason);
-    private static native int writeGPRN(long np, int num, int value);
-    private static native int writePSRN(long np, int num, int value, int psr_value_mask);
-    private static native int readGPRN(long np, int num);
+    private static native int writeRegN(long np, int is_psr, int num, int value, int psr_value_mask);
+    private static native int readRegN(long np, int is_psr, int num);
     private static native int setVirtualPackageN(long np, String vpPath, boolean psrBackup);
-    private static native int readPSRN(long np, int num);
     private static native int cacheBdRomFileN(long np, String path, String cachePath);
     private static native String[] listBdFilesN(long np, String path, boolean onlyBdRom);
     private static native Bdjo getBdjoN(long np, String name);
