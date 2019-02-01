@@ -1062,13 +1062,12 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
             bd->disc_info.top_menu = titles[0];
         }
 
-        /* no BD-J menu support for profile 6 */
-        if (bd->disc_info.num_bdj_titles) {
-            // XXX actually, should check from bdjo files ...
+        /* increase player profile and version when UHD disc is detected */
+
             if (index->indx_version >= ('0' << 24 | '3' << 16 | '0' << 8 | '0')) {
-                BD_DEBUG(DBG_CRIT | DBG_BLURAY, "WARNING: BluRay profile 6 BD-J menus are not supported\n");
-                bd->disc_info.no_menu_support = 1;
-            }
+                BD_DEBUG(DBG_CRIT | DBG_BLURAY, "WARNING: BluRay profile 6 BD-J menu support is experimental\n");
+                /* Switch to UHD profile */
+                psr_init_UHD(bd->regs, 1);
         }
 
         indx_free(&index);
