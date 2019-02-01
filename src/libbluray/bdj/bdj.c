@@ -883,6 +883,18 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
 
       /* Fix module graph */
 
+      option[n++].optionString = str_dup("--add-reads=java.base=java.desktop");
+      /* org.videolan.IxcRegistryImpl -> java.rmi.Remote */
+      option[n++].optionString = str_dup("--add-reads=java.base=java.rmi");
+      /* org.videolan.FontIndex -> java.xml. */
+      option[n++].optionString = str_dup("--add-reads=java.base=java.xml");
+      /* AWT needs to access logger and Xlet context */
+      option[n++].optionString = str_dup("--add-opens=java.base/org.videolan=java.desktop");
+      /* AWT needs to acess DVBGraphics */
+      option[n++].optionString = str_dup("--add-exports=java.base/org.dvb.ui=java.desktop");
+      /* org.havi.ui.HBackgroundImage needs to access sun.awt.image.FileImageSource */
+      option[n++].optionString = str_dup("--add-exports=java.desktop/sun.awt.image=java.base");
+
       /* Export BluRay packages to Xlets */
       for (size_t idx = 0; idx < num_java_base_exports; idx++) {
           option[n++].optionString = str_printf("--add-exports=java.base/%s=ALL-UNNAMED", java_base_exports[idx]);
