@@ -218,6 +218,31 @@ final class BDJSecurityManager extends SecurityManager {
     }
 
     /*
+     * Allow package access (Java 11)
+     */
+
+    private static String pkgPrefixes[] = {
+        "javax.media" ,
+        "javax.tv",
+        "javax.microedition",
+        "org.davic",
+        "org.dvb",
+        "org.havi",
+        "org.bluray",
+        "org.blurayx",
+        "com.aacsla.bluray",
+    };
+
+    public void checkPackageAccess(String pkg) {
+
+        for (int i = 0; i < pkgPrefixes.length; i++)
+            if (pkg.startsWith(pkgPrefixes[i]))
+                return;
+
+        super.checkPackageAccess(pkg);
+    }
+
+    /*
      *
      */
 
