@@ -65,7 +65,7 @@ public class BDJClassFileTransformer
             ClassReader cr = new ClassReader(b);
             ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES/* | ClassWriter.COMPUTE_MAXS*/);
             ClassVisitor cv = new RemappingClassAdapter(cw, m);
-            cr.accept(cv, ClassReader.SKIP_DEBUG);
+            cr.accept(cv, ClassReader.SKIP_DEBUG | ClassReader.EXPAND_FRAMES);
             return cw.toByteArray();
         } catch (Exception e) {
             logger.error("Failed renaming class: " + e);
@@ -87,7 +87,7 @@ public class BDJClassFileTransformer
             ClassReader cr = new ClassReader(r);
             ClassWriter cw = new ClassWriter(cr, 0/*ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS*/);
             ClassVisitor cv = new MyClassVisitor(cw);
-            cr.accept(cv, ClassReader.SKIP_DEBUG);
+            cr.accept(cv, ClassReader.SKIP_DEBUG | ClassReader.EXPAND_FRAMES);
             return cw.toByteArray();
         } catch (Exception e) {
             logger.error("Failed transforming class: " + e);
