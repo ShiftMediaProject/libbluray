@@ -73,6 +73,25 @@ _pl_chapter_count(const MPLS_PL *pl)
     return chapters;
 }
 
+static uint32_t
+_pl_streams_score(MPLS_PL *pl)
+{
+    MPLS_PI *pi;
+    uint32_t i_num_audio = 0;
+    uint32_t i_num_pg = 0;
+
+    for (int ii = 0; ii < pl->list_count; ii++) {
+        pi = &pl->play_item[ii];
+        if(pi->stn.num_audio > i_num_audio)
+            i_num_audio= pi->stn.num_audio;
+
+        if(pi->stn.num_pg > i_num_pg)
+            i_num_pg = pi->stn.num_pg;
+    }
+
+    return i_num_audio * 2 + i_num_pg;
+}
+
 /*
  * Check if two playlists are the same
  */
@@ -360,7 +379,10 @@ static int _pl_guess_main_title(const MPLS_PL *p1, const MPLS_PL *p2,
         return -1;
     }
 
-    return 0;
+    /* prefer playlist with higher number of tracks */
+    int sc1 = _pl_streams_score(p1);
+    int sc2 = _pl_streams_score(p2);
+    return sc2 - sc1;
 }
 
 /*
