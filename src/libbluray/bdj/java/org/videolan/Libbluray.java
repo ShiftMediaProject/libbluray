@@ -53,6 +53,8 @@ public class Libbluray {
 
     /* hook system properties: make "user.dir" point to current Xlet home directory */
 
+    private static boolean booted;
+
     private static void hookProperties() {
         java.util.Properties p = new java.util.Properties(System.getProperties()) {
                 public String getProperty(String key) {
@@ -61,7 +63,9 @@ public class Libbluray {
                         if (ctx != null) {
                             return ctx.getXletHome();
                         }
-                        System.err.println("getProperty(user.dir): no context !  " + Logger.dumpStack());
+                        if (booted) {
+                            System.err.println("getProperty(user.dir): no context !  " + Logger.dumpStack());
+                        }
                     }
                     return super.getProperty(key);
                 }
@@ -338,6 +342,8 @@ public class Libbluray {
 
         loadAdapter(System.getProperty("org.videolan.loader.adapter"));
         loadAdapter(pkg);
+
+        booted = true;
     }
 
     /* called only from native code */
