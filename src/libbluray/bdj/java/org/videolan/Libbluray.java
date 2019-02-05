@@ -272,6 +272,7 @@ public class Libbluray {
         boolean p5  = (profile & 0x10) != 0;
         boolean p6  = ((profile & 0x1f) == 0) && (version >= 0x0300);
 
+        resetProfile();
         if (!p6) {
             System.setProperty("bluray.profile.1", "YES");
             System.setProperty("bluray.p1.version.major", "1");
@@ -386,6 +387,7 @@ public class Libbluray {
         }
         classLoaderAdapter = null;
         loaderAdapter = null;
+        booted = false;
     }
 
     /*
