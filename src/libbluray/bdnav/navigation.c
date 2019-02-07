@@ -74,9 +74,9 @@ _pl_chapter_count(const MPLS_PL *pl)
 }
 
 static uint32_t
-_pl_streams_score(MPLS_PL *pl)
+_pl_streams_score(const MPLS_PL *pl)
 {
-    MPLS_PI *pi;
+    const MPLS_PI *pi;
     uint32_t i_num_audio = 0;
     uint32_t i_num_pg = 0;
 
