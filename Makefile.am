@@ -15,6 +15,7 @@ EXTRA_DIST = \
 	README.txt \
 	src/libbluray/bdj/build.xml \
 	src/libbluray/bdj/java \
+	src/libbluray/bdj/java-build-support \
 	src/libbluray/bdj/java-j2me \
 	src/libbluray/bdj/java-j2se \
 	contrib/asm
