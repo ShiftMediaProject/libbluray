@@ -1,3 +1,4 @@
+2019-02-12: Version 1.1.0
 - Add initial support for OpenJDK 11.
 - Add initial support for UHD disc BD-J menus.
 - Add support for compiling .jar file with Java 9+ compiler.
