@@ -2244,7 +2244,7 @@ static int _init_ig_stream(BLURAY *bd)
 
     bd->st0.ig_pid = 0;
 
-    if (!bd->graphics_controller) {
+    if (!bd->title || !bd->graphics_controller) {
         return 0;
     }
 
