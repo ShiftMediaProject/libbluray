@@ -957,6 +957,15 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
     if (bd->disc) {
         bd->disc_info.udf_volume_id = disc_volume_id(bd->disc);
         index = indx_get(bd->disc);
+        if (!index) {
+            /* check for incomplete disc */
+            int r = bd_get_titles(bd, 0, 0);
+            if (r > 0) {
+                BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Possible incomplete BluRay image detected. No menu support.\n");
+                bd->disc_info.bluray_detected = 1;
+                bd->disc_info.no_menu_support = 1;
+            }
+        }
     }
 
     if (index) {
