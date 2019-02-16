@@ -2298,6 +2298,8 @@ static void _close_playlist(BLURAY *bd)
 
     nav_title_close(&bd->title);
 
+    bd->st0.clip = NULL;
+
     /* reset UO mask */
     memset(&bd->st0.uo_mask, 0, sizeof(BD_UO_MASK));
     memset(&bd->gc_uo_mask,  0, sizeof(BD_UO_MASK));
