@@ -784,7 +784,7 @@ static int _hash_file(BD_DISC *p, const char *dir, const char *file, void *hash)
     return sz > 16;
 }
 
-BD_PRIVATE void disc_pseudo_id(BD_DISC *p, uint8_t *id/*[20]*/)
+void disc_pseudo_id(BD_DISC *p, uint8_t *id/*[20]*/)
 {
     uint8_t h[2][20];
     int i;
