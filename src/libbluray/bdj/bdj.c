@@ -843,7 +843,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     (void)java_home;  /* used only with J2ME */
 
     fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp;
-    JavaVMOption option[64];
+    JavaVMOption option[96];
     int n = 0, result, java_9;
     JavaVMInitArgs args;
 
