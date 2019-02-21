@@ -91,10 +91,10 @@ public class FileInputStream extends InputStream
     /* open()/open0() wrapper to select correct native method at runtime */
     private void openImpl(String name) throws FileNotFoundException {
         try {
-            open(name);
-        } catch (UnsatisfiedLinkError e) {
             /* OpenJDK 8 b40 */
             open0(name);
+        } catch (UnsatisfiedLinkError e) {
+            open(name);
         }
     }
 
