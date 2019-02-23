@@ -92,7 +92,7 @@ public class BDToolkit extends BDToolkitBase
             logger.error("createFrame(): not BDRootWindow");
             throw new Error("Not implemented");
         }
-        return new BDFramePeer(target, (BDRootWindow)target);
+        return new BDFramePeer((BDRootWindow)target);
     }
 
     public java.awt.peer.ButtonPeer createButton(Button target) {
