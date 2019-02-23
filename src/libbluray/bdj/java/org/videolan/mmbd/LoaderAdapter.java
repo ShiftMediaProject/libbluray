@@ -60,17 +60,22 @@ public class LoaderAdapter implements BDJLoaderAdapter {
         if (title != 65535)
             return in;
 
+        try {
         for (i1 = 0; i1 < in.length; i1++) {
             if (in[i1].getParams() != null &&
                 in[i1].getParams().length == 1 &&
                 in[i1].getControlCode() == AppEntry.AUTOSTART &&
-                match(in[i1].getInitialClass().getBytes(),0,0) == 0 &&
-                match(in[i1].getParams()[0].substring(0,9).getBytes(),1,0) == 0) {
+                match(in[i1].getInitialClass().getBytes("UTF-8"),0,0) == 0 &&
+                match(in[i1].getParams()[0].substring(0,9).getBytes("UTF-8"),1,0) == 0) {
                 break;
             }
         }
         if (i1 == in.length)
             return in;
+        } catch (java.io.UnsupportedEncodingException uee) {
+            logger.error("" + uee);
+            return in;
+        }
 
         xlet = "." + StrUtil.split(in[i1].getParams()[0], ':')[1];
         for (i2 = 0; i2 < in.length; i2++) {
