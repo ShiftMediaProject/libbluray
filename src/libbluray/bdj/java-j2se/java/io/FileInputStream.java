@@ -177,8 +177,8 @@ public class FileInputStream extends InputStream
             if (logger == null) {
                 logger = Logger.getLogger(FileInputStream.class.getName());
             }
+            return logger;
         }
-        return logger;
     }
 
     private static native void initIDs();
