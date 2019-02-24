@@ -44,7 +44,7 @@ public class FocusEvent extends ComponentEvent {
             throw new Error("This class should not be included at run time");
     }
 
-    public class /* enum */ Cause {
+    public static class /* enum */ Cause {
     }
 
     /* Needed when compiling for HaVi */
