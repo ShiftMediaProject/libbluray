@@ -98,6 +98,9 @@ static void *_libbdplus_open(int *impl_id)
       getenv("LIBBDPLUS_PATH"),
       "libbdplus",
       "libmmbd",
+#ifdef _WIN64
+      "libmmbd64",
+#endif
     };
     unsigned ii;
 

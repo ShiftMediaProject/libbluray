@@ -94,6 +94,9 @@ static void *_open_libaacs(int *impl_id)
       getenv("LIBAACS_PATH"),
       "libaacs",
       "libmmbd",
+#ifdef _WIN64
+      "libmmbd64",
+#endif
     };
     unsigned ii;
 
