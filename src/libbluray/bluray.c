@@ -2536,7 +2536,6 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle)
 uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length)
 {
     if (!bd) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_get_titles(NULL) failed\n");
         return 0;
     }
 
