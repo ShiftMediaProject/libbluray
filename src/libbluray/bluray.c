@@ -2521,8 +2521,8 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle)
     bd_mutex_lock(&bd->mutex);
 
     clip_pkt = SPN(bd->st0.clip_pos + 191);
-    bd->angle_change_pkt = nav_angle_change_search(bd->st0.clip, clip_pkt,
-                                                   &bd->angle_change_time);
+    bd->angle_change_pkt = nav_clip_angle_change_search(bd->st0.clip, clip_pkt,
+                                                        &bd->angle_change_time);
     bd->request_angle = angle;
     bd->seamless_angle_change = 1;
 
@@ -2589,7 +2589,7 @@ static int _copy_streams(NAV_CLIP *clip, BLURAY_STREAM_INFO **pstreams, MPLS_STR
         streams[ii].char_code = si[ii].char_code;
         memcpy(streams[ii].lang, si[ii].lang, 4);
         streams[ii].pid = si[ii].pid;
-        streams[ii].aspect = nav_lookup_aspect(clip, si[ii].pid);
+        streams[ii].aspect = nav_clip_lookup_aspect(clip, si[ii].pid);
         if ((si->stream_type == 2) || (si->stream_type == 3))
             streams[ii].subpath_id = si->subpath_id;
         else
