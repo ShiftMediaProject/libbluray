@@ -1,3 +1,14 @@
+2019-??-??: Version 1.1.1
+- Enable playback without menus when index.bdmv is missing.
+- Improve error resilience and stability.
+- Improve BD-J compability.
+- Fix loading libraries on MacOS / hardened runtime.
+- Fix resetting user-selected streams when playing without menus.
+- Fix stack overflow when using Java9+ with debugger connection.
+- Fix polygon-based BD-J graphics primitives.
+- Fix loading libmmbd in Windows 64-bit.
+- Fix build with Java 1.6.
+
 2019-02-12: Version 1.1.0
 - Add initial support for OpenJDK 11.
 - Add initial support for UHD disc BD-J menus.
