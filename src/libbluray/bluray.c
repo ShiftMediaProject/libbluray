@@ -356,6 +356,13 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
     }
 }
 
+static void _update_playlist_psrs(BLURAY *bd)
+{
+    bd_psr_write(bd->regs, PSR_PLAYLIST, atoi(bd->title->name));
+    bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
+    bd_psr_write(bd->regs, PSR_CHAPTER, 0xffff);
+}
+
 static int _is_interactive_title(BLURAY *bd)
 {
     if (bd->titles && bd->title_type != title_undef) {
@@ -2335,12 +2342,11 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
     bd->end_of_playlist = 0;
     bd->st0.ig_pid = 0;
 
-    bd_psr_write(bd->regs, PSR_PLAYLIST, atoi(bd->title->name));
-    bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
-    bd_psr_write(bd->regs, PSR_CHAPTER, 0xffff);
-
     // Get the initial clip of the playlist
     bd->st0.clip = nav_next_clip(bd->title, NULL);
+
+    _update_playlist_psrs(bd);
+
     if (_open_m2ts(bd, &bd->st0)) {
         BD_DEBUG(DBG_BLURAY, "Title %s selected\n", f_name);
 
