@@ -3369,7 +3369,7 @@ int bd_menu_call(BLURAY *bd, int64_t pts)
 
 static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
 {
-    BD_DEBUG(DBG_BLURAY, "HDMV event: %d %d\n", hev->event, hev->param);
+    BD_DEBUG(DBG_BLURAY, "HDMV event: %s(%d): %d\n", hdmv_event_str(hev->event), hev->event, hev->param);
 
     switch (hev->event) {
         case HDMV_EVENT_TITLE:
@@ -3425,7 +3425,7 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
 
         case HDMV_EVENT_END:
         case HDMV_EVENT_NONE:
-        default:
+      //default:
             break;
     }
 }
