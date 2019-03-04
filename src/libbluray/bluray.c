@@ -315,50 +315,44 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
 {
     MPLS_STN *stn = &clip->title->pl->play_item[clip->ref].stn;
     uint32_t audio_lang = 0;
+    uint32_t psr_val;
 
     bd_psr_write(bd->regs, PSR_PLAYITEM, clip->ref);
     bd_psr_write(bd->regs, PSR_TIME,     clip->in_time);
 
-    /* Update selected audio and subtitle stream PSRs when not using menus.
-     * Selection is based on language setting PSRs and clip STN.
-     */
-    /* Validate selected audio, subtitle and IG stream PSRs when using menus */
-    {
-        uint32_t psr_val;
-
-        if (stn->num_audio) {
-            bd_psr_lock(bd->regs);
-            psr_val = bd_psr_read(bd->regs, PSR_PRIMARY_AUDIO_ID);
-            if (psr_val == 0 || psr_val > stn->num_audio) {
-                _update_stream_psr_by_lang(bd->regs,
-                                           PSR_AUDIO_LANG, PSR_PRIMARY_AUDIO_ID, 0,
-                                           stn->audio, stn->num_audio,
-                                           &audio_lang, 0);
-            } else {
-                audio_lang = str_to_uint32((const char *)stn->audio[psr_val - 1].lang, 3);
-            }
-            bd_psr_unlock(bd->regs);
+    /* Validate selected audio, subtitle and IG stream PSRs */
+    if (stn->num_audio) {
+        bd_psr_lock(bd->regs);
+        psr_val = bd_psr_read(bd->regs, PSR_PRIMARY_AUDIO_ID);
+        if (psr_val == 0 || psr_val > stn->num_audio) {
+            _update_stream_psr_by_lang(bd->regs,
+                                       PSR_AUDIO_LANG, PSR_PRIMARY_AUDIO_ID, 0,
+                                       stn->audio, stn->num_audio,
+                                       &audio_lang, 0);
+        } else {
+            audio_lang = str_to_uint32((const char *)stn->audio[psr_val - 1].lang, 3);
         }
-        if (stn->num_pg) {
-            bd_psr_lock(bd->regs);
-            psr_val = bd_psr_read(bd->regs, PSR_PG_STREAM) & 0xfff;
-            if ((psr_val == 0) || (psr_val > stn->num_pg)) {
-                _update_stream_psr_by_lang(bd->regs,
-                                           PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
-                                           stn->pg, stn->num_pg,
-                                           NULL, audio_lang);
-            }
-            bd_psr_unlock(bd->regs);
+        bd_psr_unlock(bd->regs);
+    }
+    if (stn->num_pg) {
+        bd_psr_lock(bd->regs);
+        psr_val = bd_psr_read(bd->regs, PSR_PG_STREAM) & 0xfff;
+        if ((psr_val == 0) || (psr_val > stn->num_pg)) {
+            _update_stream_psr_by_lang(bd->regs,
+                                       PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
+                                       stn->pg, stn->num_pg,
+                                       NULL, audio_lang);
         }
-        if (stn->num_ig && bd->title_type != title_undef) {
-            bd_psr_lock(bd->regs);
-            psr_val = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
-            if ((psr_val == 0) || (psr_val > stn->num_ig)) {
-                bd_psr_write(bd->regs, PSR_IG_STREAM_ID, 1);
-                BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Selected IG stream 1 (stream %d not available)\n", psr_val);
-            }
-            bd_psr_unlock(bd->regs);
+        bd_psr_unlock(bd->regs);
+    }
+    if (stn->num_ig && bd->title_type != title_undef) {
+        bd_psr_lock(bd->regs);
+        psr_val = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
+        if ((psr_val == 0) || (psr_val > stn->num_ig)) {
+            bd_psr_write(bd->regs, PSR_IG_STREAM_ID, 1);
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Selected IG stream 1 (stream %d not available)\n", psr_val);
         }
+        bd_psr_unlock(bd->regs);
     }
 }
 
