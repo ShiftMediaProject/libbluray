@@ -358,9 +358,36 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
 
 static void _update_playlist_psrs(BLURAY *bd)
 {
+    NAV_CLIP *clip = bd->st0.clip;
+
     bd_psr_write(bd->regs, PSR_PLAYLIST, atoi(bd->title->name));
     bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
     bd_psr_write(bd->regs, PSR_CHAPTER, 0xffff);
+
+    if (clip && bd->title_type == title_undef) {
+        /* Initialize selected audio and subtitle stream PSRs when not using menus.
+         * Selection is based on language setting PSRs and clip STN.
+         */
+        MPLS_STN *stn = &clip->title->pl->play_item[clip->ref].stn;
+        uint32_t audio_lang = 0;
+
+        /* make sure clip is up-to-date before STREAM events are triggered */
+        bd_psr_write(bd->regs, PSR_PLAYITEM, clip->ref);
+
+        if (stn->num_audio) {
+            _update_stream_psr_by_lang(bd->regs,
+                                       PSR_AUDIO_LANG, PSR_PRIMARY_AUDIO_ID, 0,
+                                       stn->audio, stn->num_audio,
+                                       &audio_lang, 0);
+        }
+
+        if (stn->num_pg) {
+            _update_stream_psr_by_lang(bd->regs,
+                                       PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
+                                       stn->pg, stn->num_pg,
+                                       NULL, audio_lang);
+        }
+    }
 }
 
 static int _is_interactive_title(BLURAY *bd)
