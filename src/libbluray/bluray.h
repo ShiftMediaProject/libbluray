@@ -1094,6 +1094,26 @@ void bd_stop_bdj(BLURAY *bd); // shutdown BD-J and clean up resources
  */
 int bd_read_file(BLURAY *, const char *path, void **data, int64_t *size);
 
+/**
+ *
+ *  Open a file/dir from BluRay Virtual File System.
+ *
+ *  encrypted streams are decrypted, and because of how
+ *  decryption works, it can only seek to (N*6144) bytes,
+ *  and read 6144 bytes at a time.
+ *  DO NOT mix any play functionalities with these functions.
+ *  It might cause broken stream. In general, accessing
+ *  mutiple file on disk at the same time is a bad idea.
+ *  Caller must close with file_close()/dir_close().
+ *
+ * @param bd  BLURAY object
+ * @param dir  target directory (relative to disc root)
+ * @param path  path to the file (relative to disc root)
+ * @return BD_DIR_H * or BD_FILE_H *, NULL if failed
+ */
+struct bd_dir_s *bd_open_dir(BLURAY *, const char *dir);
+struct bd_file_s *bd_open_file_dec(BLURAY *, const char *path);
+
 
 #ifdef __cplusplus
 }

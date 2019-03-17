@@ -3765,6 +3765,21 @@ int bd_read_file(BLURAY *bd, const char *path, void **data, int64_t *size)
     return _bd_read_file(bd, NULL, path, data, size);
 }
 
+struct bd_dir_s *bd_open_dir(BLURAY *bd, const char *dir)
+{
+    if (!bd || dir == NULL) {
+        return NULL;
+    }
+    return disc_open_dir(bd->disc, dir);
+}
+
+struct bd_file_s *bd_open_file_dec(BLURAY *bd, const char *path)
+{
+    if (!bd || path == NULL) {
+        return NULL;
+    }
+    return disc_open_path_dec(bd->disc, path);
+}
 
 /*
  * Metadata
