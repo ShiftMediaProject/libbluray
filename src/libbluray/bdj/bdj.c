@@ -875,9 +875,15 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     option[n++].optionString = str_dup   ("-XfullShutdown");
 #endif
 
+#ifdef _WIN32
+# define CLASSPATH_FORMAT_P "%s;%s"
+#else
+# define CLASSPATH_FORMAT_P "%s:%s"
+#endif
+
     if (!java_9) {
       option[n++].optionString = str_dup   ("-Djavax.accessibility.assistive_technologies= ");
-      option[n++].optionString = str_printf("-Xbootclasspath/p:%s:%s", jar_file[0], jar_file[1]);
+      option[n++].optionString = str_printf("-Xbootclasspath/p:" CLASSPATH_FORMAT_P, jar_file[0], jar_file[1]);
     } else {
       option[n++].optionString = str_printf("--patch-module=java.base=%s", jar_file[0]);
       option[n++].optionString = str_printf("--patch-module=java.desktop=%s", jar_file[1]);
