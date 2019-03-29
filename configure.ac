@@ -174,8 +174,7 @@ AS_IF([test "x$with_freetype" != "xno"], [
       PACKAGES="$PACKAGES fontconfig"
     ])
   ],[
-    FONTCONFIG_LIBS="-lgdi32"
-    AC_SUBST([FONTCONFIG_LIBS])
+    EXTRA_LIBS="$EXTRA_LIBS -lgdi32"
   ])
 ])
 
@@ -302,6 +301,7 @@ AC_CONFIG_FILES([Makefile src/libbluray.pc src/libbluray/bluray-version.h])
 AC_OUTPUT
 
 AC_SUBST([PACKAGES])
+AC_SUBST([EXTRA_LIBS])
 
 dnl ---------------------------------------------
 dnl Some infos:
