@@ -29,14 +29,9 @@ import java.util.ArrayList;
 import org.havi.ui.event.HBackgroundImageEvent;
 import org.havi.ui.event.HBackgroundImageListener;
 
-import sun.awt.image.ByteArrayImageSource;
-import sun.awt.image.FileImageSource;
-import sun.awt.image.URLImageSource;
-
 public class HBackgroundImage implements ImageObserver {
     public HBackgroundImage(String filename) {
-        producer = new FileImageSource(filename);
-        img = Toolkit.getDefaultToolkit().createImage(producer);
+        img = Toolkit.getDefaultToolkit().createImage(filename);
     }
 
     public HBackgroundImage(byte pixels[]) {
@@ -44,13 +39,11 @@ public class HBackgroundImage implements ImageObserver {
             System.err.println("null pixels from " + org.videolan.Logger.dumpStack());
             return;
         }
-        producer = new ByteArrayImageSource(pixels);
-        img = Toolkit.getDefaultToolkit().createImage(producer);
+        img = Toolkit.getDefaultToolkit().createImage(pixels, 0, pixels.length);
     }
 
     public HBackgroundImage(URL contents) {
-        producer = new URLImageSource(contents);
-        img = Toolkit.getDefaultToolkit().createImage(producer);
+        img = Toolkit.getDefaultToolkit().createImage(contents);
     }
 
    public void load(HBackgroundImageListener listener) {
