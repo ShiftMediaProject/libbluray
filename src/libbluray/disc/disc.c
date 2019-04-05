@@ -539,7 +539,7 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
 
     /* plain directory ? */
     size = strlen(rel_path);
-    if (rel_path[size - 1] == '/' || rel_path[size - 1] == '\\') {
+    if (size < 1 || rel_path[size - 1] == '/' || rel_path[size - 1] == '\\') {
         return 0;
     }
 
