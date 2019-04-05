@@ -702,7 +702,7 @@ public class Libbluray {
             break;
 
         case BDJ_EVENT_VK_KEY:
-            switch (param) {
+            switch (param & 0xffff) {
             case  0: key = KeyEvent.VK_0; break;
             case  1: key = KeyEvent.VK_1; break;
             case  2: key = KeyEvent.VK_2; break;
@@ -733,9 +733,16 @@ public class Libbluray {
                 break;
             }
             if (key > 0) {
-                boolean r1 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_PRESSED, 0, key);
-                boolean r2 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_TYPED, 0, key);
-                boolean r3 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_RELEASED, 0, key);
+                boolean r1 = false, r2 = false, r3 = false;
+                if ((param & 0x80000000) != 0) {
+                    r1 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_PRESSED, 0, key);
+                }
+                if ((param & 0x40000000) != 0) {
+                    r2 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_TYPED, 0, key);
+                }
+                if ((param & 0x20000000) != 0) {
+                    r3 = EventManager.getInstance().receiveKeyEventN(KeyEvent.KEY_RELEASED, 0, key);
+                }
                 result = r1 || r2 || r3;
             }
             break;

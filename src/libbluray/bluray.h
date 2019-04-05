@@ -1013,9 +1013,14 @@ int bd_set_rate(BLURAY *bd, uint32_t rate);
  *  Pass user input to graphics controller or BD-J.
  *  Keys are defined in libbluray/keys.h.
  *
+ *  Two user input models are supported:
+ *    - Single event when a key is typed once.
+ *    - Separate events when key is pressed and released.
+ *      VD_VK_KEY_PRESSED, BD_VK_TYPED and BD_VK_KEY_RELEASED are or'd with the key.
+ *
  * @param bd  BLURAY object
  * @param pts current playback position (1/90000s) or -1
- * @param key input key
+ * @param key input key (@see keys.h)
  * @return <0 on error, 0 on success, >0 if selection/activation changed
  */
 int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key);

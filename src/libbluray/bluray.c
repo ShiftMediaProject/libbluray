@@ -3654,12 +3654,21 @@ int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
     return result;
 }
 
+#define BD_VK_FLAGS_MASK (BD_VK_KEY_PRESSED | BD_VK_KEY_TYPED | BD_VK_KEY_RELEASED)
+#define BD_VK_KEY(k)     ((k) & ~(BD_VK_FLAGS_MASK))
+#define BD_VK_FLAGS(k)   ((k) & BD_VK_FLAGS_MASK)
+/* HDMV: key is triggered when pressed down */
+#define BD_KEY_TYPED(k)  (!((k) & (BD_VK_KEY_TYPED | BD_VK_KEY_RELEASED)))
+
 int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
 {
     int result = -1;
 
-    if (key == BD_VK_ROOT_MENU) {
-        return bd_menu_call(bd, pts);
+    if (BD_VK_KEY(key) == BD_VK_ROOT_MENU) {
+        if (BD_KEY_TYPED(key)) {
+            return bd_menu_call(bd, pts);
+        }
+        return 0;
     }
 
     bd_mutex_lock(&bd->mutex);
@@ -3667,8 +3676,17 @@ int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
     _set_scr(bd, pts);
 
     if (bd->title_type == title_hdmv) {
-        result = _run_gc(bd, GC_CTRL_VK_KEY, key);
+        if (BD_KEY_TYPED(key)) {
+            result = _run_gc(bd, GC_CTRL_VK_KEY, BD_VK_KEY(key));
+        } else {
+            result = 0;
+        }
+
     } else if (bd->title_type == title_bdj) {
+        if (!BD_VK_FLAGS(key)) {
+            /* No flags --> single key press event */
+            key |= BD_VK_KEY_PRESSED | BD_VK_KEY_TYPED | BD_VK_KEY_RELEASED;
+        }
         result = _bdj_event(bd, BDJ_EVENT_VK_KEY, key);
     }
 
