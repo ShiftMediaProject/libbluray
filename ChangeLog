@@ -1,4 +1,4 @@
-2019-??-??: Version 1.1.1
+2019-04-05: Version 1.1.1
 - Enable playback without menus when index.bdmv is missing.
 - Improve error resilience and stability.
 - Improve BD-J compability.
@@ -7,7 +7,9 @@
 - Fix stack overflow when using Java9+ with debugger connection.
 - Fix polygon-based BD-J graphics primitives.
 - Fix loading libmmbd in Windows 64-bit.
+- Fix loading classes with Windows Java 8.
 - Fix build with Java 1.6.
+- Fix pkg-config Libs.private.
 
 2019-02-12: Version 1.1.0
 - Add initial support for OpenJDK 11.
