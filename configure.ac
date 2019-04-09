@@ -157,7 +157,7 @@ AS_IF([test "x$with_libxml2" != "xno"], [
   PKG_CHECK_MODULES([LIBXML2], [libxml-2.0 >= 2.6],
     [with_libxml2=yes; AC_DEFINE([HAVE_LIBXML2], [1],
         [Define to 1 if libxml2 is to be used for metadata parsing])])
-  PACKAGES="$PACKAGES libxml-2.0"
+  PACKAGES="$PACKAGES libxml-2.0 >= 2.6"
 ])
 
 dnl FreeType2
