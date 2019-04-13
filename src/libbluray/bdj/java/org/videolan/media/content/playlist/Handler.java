@@ -253,8 +253,26 @@ public class Handler extends BDHandler {
         }
     }
 
-    protected void doChapterReached(int param) {
-        ((PlaybackControlImpl)controls[9]).onChapterReach(param);
+    protected void doChapterReached(int chapter) {
+        if (chapter <= 0)
+            return;
+        chapter--;
+        synchronized (this) {
+            if (pi == null)
+                return;
+            org.videolan.TIMark[] marks = pi.getMarks();
+            if (marks == null)
+                return;
+            for (int i = 0, j = 0; i < marks.length; i++) {
+                if (marks[i].getType() == org.videolan.TIMark.MARK_TYPE_ENTRY) {
+                    if (j == chapter) {
+                        ((PlaybackControlImpl)controls[9]).onMarkReach(i);
+                        return;
+                    }
+                    j++;
+                }
+            }
+        }
     }
 
     protected void doMarkReached(int param) {
