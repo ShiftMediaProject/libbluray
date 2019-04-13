@@ -253,6 +253,7 @@ public class Handler extends BDHandler {
         }
     }
 
+    BDLocator lastMarkLocator = null;
     protected void doChapterReached(int chapter) {
         if (chapter <= 0)
             return;
@@ -266,7 +267,9 @@ public class Handler extends BDHandler {
             for (int i = 0, j = 0; i < marks.length; i++) {
                 if (marks[i].getType() == org.videolan.TIMark.MARK_TYPE_ENTRY) {
                     if (j == chapter) {
-                        ((PlaybackControlImpl)controls[9]).onMarkReach(i);
+                        if (currentLocator == null || lastMarkLocator != currentLocator || i != currentLocator.getMarkId()) {
+                            ((PlaybackControlImpl)controls[9]).onMarkReach(i);
+                        }
                         return;
                     }
                     j++;
@@ -276,10 +279,14 @@ public class Handler extends BDHandler {
     }
 
     protected void doMarkReached(int param) {
+        synchronized (this) {
         ((PlaybackControlImpl)controls[9]).onMarkReach(param);
 
         if (currentLocator != null)
             currentLocator.setMarkId(param);
+
+        lastMarkLocator = currentLocator;
+        }
     }
 
     protected void doPlaylistStarted(int param) {
