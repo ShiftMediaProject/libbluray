@@ -19,6 +19,7 @@
 /*
  * Wrapper for java.io.FileSystem class.
  *
+ * - resolve relative files to Xlet home directory.
  * - replace getBooleanAttributes() for relative paths.
  *   Pretend files exist, if those are in xlet home directory (inside .jar).
  *   No other relative paths are allowed.
@@ -40,9 +41,11 @@ import org.videolan.Logger;
 
 public abstract class BDFileSystem extends FileSystem {
 
-    private static final Logger logger = Logger.getLogger(BDFileSystem.class.getName());
-
-    protected final FileSystem fs;
+    /*
+     * Access to native filesystem
+     *
+     * (for org.videolan.VFSCache, org.videolan.CacheDir)
+     */
 
     private static FileSystem nativeFileSystem;
 
@@ -62,6 +65,22 @@ public abstract class BDFileSystem extends FileSystem {
             }
         }
     }
+
+    /* org.videolan.CacheDir uses this function to clean up cache directory */
+    public static String[] nativeList(File f) {
+        return nativeFileSystem.list(f);
+    }
+
+    /* org.videolan.VFSCache uses this function to check if file has been cached */
+    public static boolean nativeFileExists(String path) {
+        return nativeFileSystem.getBooleanAttributes(new File(path)) != 0;
+    }
+
+    /*
+     * Replace File.fs for Xlets
+     *
+     * (called by org.videolan.BDJClassLoader)
+     */
 
     public static void init(final Class c) {
         AccessController.doPrivileged(
@@ -95,16 +114,13 @@ public abstract class BDFileSystem extends FileSystem {
         }
     }
 
-    public static String[] nativeList(File f) {
-        return nativeFileSystem.list(f);
-    }
-
-    public static boolean nativeFileExists(String path) {
-        return nativeFileSystem.getBooleanAttributes(new File(path)) != 0;
-    }
-
     /*
+     *
      */
+
+    private static final Logger logger = Logger.getLogger(BDFileSystem.class.getName());
+
+    protected final FileSystem fs;
 
     public BDFileSystem(FileSystem fs) {
         this.fs = fs;
