@@ -83,6 +83,9 @@ public abstract class BDFileSystem extends FileSystem {
      */
 
     public static void init(final Class c) {
+
+        setBooted();
+
         AccessController.doPrivileged(
             new PrivilegedAction() {
                 public Object run() {
@@ -110,15 +113,34 @@ public abstract class BDFileSystem extends FileSystem {
                 filesystem.set(null, new BDFileSystemImpl(fs));
             }
         } catch (Exception t) {
-            System.err.print("Hooking FileSystem class failed: " + t);
+            error("Hooking FileSystem class failed: " + t);
+        }
+    }
+
+    /*
+     * enable after JVM boot is completed
+     */
+
+    private static Logger logger = null;
+    private static boolean booted = false;
+
+    /* Called by org.videolan.Libbluray.initOnce() */
+    public static void setBooted() {
+        if (!booted) {
+            booted = true;
+            logger = Logger.getLogger(BDFileSystem.class.getName());
+        }
+    }
+
+    private static void error(String msg) {
+        if (logger != null) {
+            logger.error(msg);
         }
     }
 
     /*
      *
      */
-
-    private static final Logger logger = Logger.getLogger(BDFileSystem.class.getName());
 
     protected final FileSystem fs;
 
@@ -155,6 +177,9 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public String resolve(String parent, String child) {
+        if (!booted)
+            return fs.resolve(parent, child);
+
         if (parent == null || parent.equals("") || parent.equals(".")) {
             parent = getHomeDir();
         }
@@ -184,6 +209,9 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public String resolve(File f) {
+        if (!booted)
+            return fs.resolve(f);
+
         if (!f.isAbsolute()) {
             logger.info("resolve relative file " + f.getPath());
             return resolve(BDJXletContext.getCurrentXletHome(), f.getPath());
@@ -198,6 +226,9 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public String canonicalize(String path) throws IOException {
+        if (!booted)
+            return fs.canonicalize(path);
+
         String canonPath = fs.canonicalize(path);
         String cachePath = BDJLoader.getCachedFile(canonPath);
         if (cachePath != canonPath) {
@@ -207,6 +238,9 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public int getBooleanAttributes(File f) {
+        if (!booted)
+            return fs.getBooleanAttributes(f);
+
         if (f.isAbsolute()) {
             return fs.getBooleanAttributes(f);
         }
@@ -233,6 +267,9 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public long getLength(File f) {
+        if (!booted)
+            return fs.getLength(f);
+
         if (f.isAbsolute()) {
             return fs.getLength(f);
         }
@@ -279,7 +316,7 @@ public abstract class BDFileSystem extends FileSystem {
                 args = new Object[] {(Object)path, (Object)new Boolean(restrictive)};
             }
         } catch (NoSuchMethodException e) {
-            logger.error("no matching FileSystem.createFileExclusively found !");
+            error("no matching FileSystem.createFileExclusively found !");
             throw new IOException();
         }
 
@@ -288,14 +325,14 @@ public abstract class BDFileSystem extends FileSystem {
             Boolean result = (Boolean)m.invoke(fs, args);
             return result.booleanValue();
         } catch (IllegalAccessException e) {
-            logger.error("" + e);
+            error("" + e);
             throw new IOException();
         } catch (InvocationTargetException e) {
             Throwable t = e.getTargetException();
             if (t instanceof IOException) {
                 throw (IOException)t;
             }
-            logger.error("" + t);
+            error("" + t);
             throw new IOException();
         }
     }
@@ -315,6 +352,8 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public String[] list(File f) {
+        if (!booted)
+            return fs.list(f);
 
         String path = f.getPath();
         String root = System.getProperty("bluray.vfs.root");
