@@ -50,18 +50,17 @@ public abstract class BDFileSystem extends FileSystem {
     private static FileSystem nativeFileSystem;
 
     static {
-        /* Java 8: getFileSystem() no longer exists on java.io.FileSystem */
         try {
-            nativeFileSystem = (FileSystem)Class.forName("java.io.DefaultFileSystem")
-                .getDeclaredMethod("getFileSystem", new Class[0])
+            /* Java < 8 */
+            nativeFileSystem = (FileSystem)FileSystem.class
+                .getDeclaredMethod("getFileSystem",new Class[0])
                 .invoke(null, new Object[0]);
         } catch (Exception e) {
             try {
-                nativeFileSystem = (FileSystem)FileSystem.class
-                    .getDeclaredMethod("getFileSystem",new Class[0])
-                    .invoke(null, new Object[0]);
-            } catch (Exception t) {
-                System.err.print("Couldn't find native filesystem: " + t);
+                /* Just use our wrapper.  If it fails, JVM won't be booted anyway ... */
+                nativeFileSystem = DefaultFileSystem.getNativeFileSystem();
+            } catch (Throwable t) {
+                System.err.print("Couldn't find native filesystem: " + e);
             }
         }
     }
@@ -77,7 +76,7 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     /*
-     * Replace File.fs for Xlets
+     * Replace File.fs for Xlets (required with Java < 8 where this is not done unconditionally)
      *
      * (called by org.videolan.BDJClassLoader)
      */
@@ -101,15 +100,15 @@ public abstract class BDFileSystem extends FileSystem {
             filesystem = c.getDeclaredField("fs");
             filesystem.setAccessible(true);
 
-            /* Java 8: remove "final" modifier from the field */
-            Field modifiersField = Field.class.getDeclaredField("modifiers");
-            modifiersField.setAccessible(true);
-            modifiersField.setInt(filesystem, filesystem.getModifiers() & ~Modifier.FINAL);
-
             FileSystem fs = (FileSystem)filesystem.get(null);
             if (fs instanceof BDFileSystemImpl) {
                 //System.err.print("FileSystem already wrapped");
             } else {
+                /* Java 8: we should never end up here ... */
+                /* Java 8: remove "final" modifier from the field */
+                //Field modifiersField = Field.class.getDeclaredField("modifiers");
+                //modifiersField.setAccessible(true);
+                //modifiersField.setInt(filesystem, filesystem.getModifiers() & ~Modifier.FINAL);
                 filesystem.set(null, new BDFileSystemImpl(fs));
             }
         } catch (Exception t) {
