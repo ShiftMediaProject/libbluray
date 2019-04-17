@@ -1581,19 +1581,20 @@ static void _playmark_reached(BLURAY *bd)
 {
     while (bd->next_mark >= 0 && bd->s_pos > bd->next_mark_pos) {
 
-    BD_DEBUG(DBG_BLURAY, "PlayMark %d reached (%"PRIu64")\n", bd->next_mark, bd->next_mark_pos);
+        BD_DEBUG(DBG_BLURAY, "PlayMark %d reached (%"PRIu64")\n", bd->next_mark, bd->next_mark_pos);
 
-    _queue_event(bd, BD_EVENT_PLAYMARK, bd->next_mark);
-    _bdj_event(bd, BDJ_EVENT_MARK, bd->next_mark);
+        _queue_event(bd, BD_EVENT_PLAYMARK, bd->next_mark);
+        _bdj_event(bd, BDJ_EVENT_MARK, bd->next_mark);
 
-    /* update next mark */
-    bd->next_mark++;
-    if ((unsigned)bd->next_mark < bd->title->mark_list.count) {
-        bd->next_mark_pos = (uint64_t)bd->title->mark_list.mark[bd->next_mark].title_pkt * 192L;
-    } else {
-        bd->next_mark = -1;
-        bd->next_mark_pos = (uint64_t)-1;
-    }
+        /* update next mark */
+        bd->next_mark++;
+        if ((unsigned)bd->next_mark < bd->title->mark_list.count) {
+            bd->next_mark_pos = (uint64_t)bd->title->mark_list.mark[bd->next_mark].title_pkt * 192L;
+        } else {
+            /* no marks left */
+            bd->next_mark = -1;
+            bd->next_mark_pos = (uint64_t)-1;
+        }
     };
 
     /* chapter tracking */
