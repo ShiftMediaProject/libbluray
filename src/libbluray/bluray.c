@@ -1579,6 +1579,8 @@ static void _find_next_playmark(BLURAY *bd)
 
 static void _playmark_reached(BLURAY *bd)
 {
+    while (bd->next_mark >= 0 && bd->s_pos > bd->next_mark_pos) {
+
     BD_DEBUG(DBG_BLURAY, "PlayMark %d reached (%"PRIu64")\n", bd->next_mark, bd->next_mark_pos);
 
     _queue_event(bd, BD_EVENT_PLAYMARK, bd->next_mark);
@@ -1592,6 +1594,7 @@ static void _playmark_reached(BLURAY *bd)
         bd->next_mark = -1;
         bd->next_mark_pos = (uint64_t)-1;
     }
+    };
 
     /* chapter tracking */
     _update_chapter_psr(bd);
