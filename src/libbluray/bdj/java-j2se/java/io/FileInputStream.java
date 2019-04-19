@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.videolan.BDJLoader;
 import org.videolan.BDJXletContext;
 import org.videolan.Logger;
+import org.videolan.MountManager;
 
 public class FileInputStream extends InputStream
 {
@@ -37,6 +38,27 @@ public class FileInputStream extends InputStream
 
     public FileInputStream(File file) throws FileNotFoundException {
         String name = file != null ? file.getPath() : null;
+
+        /* Resolve resource urls obtained from URL.getPath(). */
+        /* Ex. Aeon Flux, Petit Prince: file:/tmp/libbluray-bdj-cache/100d22e59d6d4/VFSCache/BDMV/JAR/00001.jar!/menu.bin */
+        if (name != null && name.startsWith("file:")) {
+            int idx;
+            if ((idx = name.indexOf(".jar!/")) > 0 || (idx = name.indexOf(".jar!\\")) > 0) {
+                try {
+                    String mountPoint = MountManager.getMount(Integer.parseInt(name.substring(idx - 5, idx)));
+                    if (mountPoint != null) {
+                        name = mountPoint + name.substring(idx + 5);
+                        getLogger().info("Fixing invalid resource url " + file + " --> " + name);
+                        file = new File(name);
+                    }
+                } catch (Exception e) {
+                    getLogger().error("" + e);
+                }
+            }
+        }
+        if (name.startsWith("file:")) {
+            System.err.println("ERROR: URL in FileInputStream: " + name);
+        }
 
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
