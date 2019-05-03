@@ -216,6 +216,7 @@ case $host_os in
      freebsd*) java_os=freebsd ;;
      solaris*) java_os=solaris ;;
      darwin*)  java_os=darwin ;;
+     netbsd*)  java_os=netbsd ;;
      *)        java_os=$host_os ;;
 esac
 
