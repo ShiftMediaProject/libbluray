@@ -55,9 +55,9 @@ public class FileInputStream extends InputStream
                     getLogger().error("" + e);
                 }
             }
-        }
-        if (name.startsWith("file:")) {
-            System.err.println("ERROR: URL in FileInputStream: " + name);
+            if (name.startsWith("file:")) {
+                System.err.println("ERROR: unresolved URL in FileInputStream: " + name);
+            }
         }
 
         SecurityManager security = System.getSecurityManager();
