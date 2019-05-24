@@ -22,7 +22,6 @@ package org.havi.ui;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -104,7 +103,6 @@ public class HBackgroundImage implements ImageObserver {
         }
     }
 
-    private ImageProducer producer;
     private Image img;
     private ArrayList listeners = new ArrayList();
 }
