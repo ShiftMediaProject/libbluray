@@ -150,7 +150,7 @@ struct bluray {
 
     /* BD-J */
     BDJAVA         *bdjava;
-    BDJ_STORAGE     bdjstorage;
+    BDJ_CONFIG      bdj_config;
     uint8_t         bdj_wait_start;  /* BD-J has selected playlist (prefetch) but not yet started playback */
 
     /* HDMV graphics */
@@ -914,7 +914,7 @@ static void _check_bdj(BLURAY *bd)
         if (!bd->disc || bd->disc_info.bdj_detected) {
 
             /* Check if jvm + jar can be loaded ? */
-            switch (bdj_jvm_available(&bd->bdjstorage)) {
+            switch (bdj_jvm_available(&bd->bdj_config)) {
                 case BDJ_CHECK_OK:
                     bd->disc_info.bdj_handled = 1;
                     /* fall thru */
@@ -1368,7 +1368,7 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 {
     if (bd->bdjava == NULL) {
         const char *root = disc_root(bd->disc);
-        bd->bdjava = bdj_open(root, bd, bd->disc_info.bdj_disc_id, &bd->bdjstorage);
+        bd->bdjava = bdj_open(root, bd, bd->disc_info.bdj_disc_id, &bd->bdj_config);
         if (!bd->bdjava) {
             return 0;
         }
@@ -1432,7 +1432,7 @@ BLURAY *bd_init(void)
     env = getenv("LIBBLURAY_PERSISTENT_STORAGE");
     if (env) {
         int v = (!strcmp(env, "yes")) ? 1 : (!strcmp(env, "no")) ? 0 : atoi(env);
-        bd->bdjstorage.no_persistent_storage = !v;
+        bd->bdj_config.no_persistent_storage = !v;
     }
 
     BD_DEBUG(DBG_BLURAY, "BLURAY initialized!\n");
@@ -1543,7 +1543,7 @@ void bd_close(BLURAY *bd)
 
     event_queue_destroy(&bd->event_queue);
     array_free((void**)&bd->titles);
-    bdj_storage_cleanup(&bd->bdjstorage);
+    bdj_config_cleanup(&bd->bdj_config);
 
     disc_close(&bd->disc);
 
@@ -2851,7 +2851,7 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Can't disable persistent storage during playback\n");
             return 0;
         }
-        bd->bdjstorage.no_persistent_storage = !value;
+        bd->bdj_config.no_persistent_storage = !value;
         return 1;
     }
 
@@ -2880,18 +2880,18 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
 
         case BLURAY_PLAYER_CACHE_ROOT:
             bd_mutex_lock(&bd->mutex);
-            X_FREE(bd->bdjstorage.cache_root);
-            bd->bdjstorage.cache_root = str_dup(s);
+            X_FREE(bd->bdj_config.cache_root);
+            bd->bdj_config.cache_root = str_dup(s);
             bd_mutex_unlock(&bd->mutex);
-            BD_DEBUG(DBG_BDJ, "Cache root dir set to %s\n", bd->bdjstorage.cache_root);
+            BD_DEBUG(DBG_BDJ, "Cache root dir set to %s\n", bd->bdj_config.cache_root);
             return 1;
 
         case BLURAY_PLAYER_PERSISTENT_ROOT:
             bd_mutex_lock(&bd->mutex);
-            X_FREE(bd->bdjstorage.persistent_root);
-            bd->bdjstorage.persistent_root = str_dup(s);
+            X_FREE(bd->bdj_config.persistent_root);
+            bd->bdj_config.persistent_root = str_dup(s);
             bd_mutex_unlock(&bd->mutex);
-            BD_DEBUG(DBG_BDJ, "Persistent root dir set to %s\n", bd->bdjstorage.persistent_root);
+            BD_DEBUG(DBG_BDJ, "Persistent root dir set to %s\n", bd->bdj_config.persistent_root);
             return 1;
 
         default:
