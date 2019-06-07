@@ -121,7 +121,9 @@ final class BDJSecurityManager extends SecurityManager {
             if (perm.getActions().equals("read")) {
                 String prop = perm.getName();
                 if (prop.startsWith("bluray.") || prop.startsWith("dvb.") || prop.startsWith("mhp.") || prop.startsWith("aacs.")) {
-                    //logger.info(perm + " granted");
+                    return;
+                }
+                if (prop.equals("dolbyvision.graphicspriority.available")) {
                     return;
                 }
                 if (prop.startsWith("user.dir")) {
