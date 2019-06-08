@@ -1,3 +1,6 @@
+2019-??-??: Version 1.2.0
+- Add functions to list and read BD-ROM files.
+
 2019-06-07: Version 1.1.2
 - Add libxml version to pkg-config Requires.private.
 - Improve support for NetBSD operating system.
