@@ -23,6 +23,7 @@ package org.videolan;
 import java.awt.BDFontMetrics;
 import java.awt.BDToolkit;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -724,7 +725,16 @@ public class Libbluray {
             case 405: key = HRcEvent.VK_COLORED_KEY_2; break;
             case 406: key = HRcEvent.VK_COLORED_KEY_3; break;
             case 17:
-                result = java.awt.BDJHelper.postMouseEvent(0);
+                result = false;
+                if ((param & 0x80000000) != 0) {
+                    result = java.awt.BDJHelper.postMouseEvent(MouseEvent.MOUSE_PRESSED) || result;
+                }
+                if ((param & 0x40000000) != 0) {
+                    result = java.awt.BDJHelper.postMouseEvent(MouseEvent.MOUSE_CLICKED) || result;
+                }
+                if ((param & 0x20000000) != 0) {
+                    result = java.awt.BDJHelper.postMouseEvent(MouseEvent.MOUSE_RELEASED) || result;
+                }
                 key = -1;
                 break;
             default:

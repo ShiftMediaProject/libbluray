@@ -1,6 +1,7 @@
 2019-??-??: Version 1.2.0
 - Add functions to list and read BD-ROM files.
 - Add support for separate key pressed / typed / released user input events.
+- Add support for AWT mouse events (BD-J).
 
 2019-06-07: Version 1.1.2
 - Add libxml version to pkg-config Requires.private.
