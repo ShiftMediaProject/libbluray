@@ -23,6 +23,8 @@ package java.awt;
 import java.awt.event.InvocationEvent;
 import java.awt.event.KeyEvent;
 
+import org.videolan.Logger;
+
 public class BDJHelper {
 
     public static EventDispatchThread getEventDispatchThread(EventQueue eq) {
@@ -62,7 +64,7 @@ public class BDJHelper {
             } catch (InterruptedException e) {
             }
             if (t.isAlive()) {
-                org.videolan.Logger.getLogger("BDRootWindow").error("stopEventQueue() failed for " + t);
+                logger.error("stopEventQueue() failed for " + t);
                 org.videolan.PortingHelper.stopThread(t);
             }
         }
@@ -93,12 +95,14 @@ public class BDJHelper {
                     return true;
                 }
             } catch (Exception e) {
-                org.videolan.Logger.getLogger("BDJHelper").error("postKeyEvent failed: " + e);
+                logger.error("postKeyEvent failed: " + e);
             }
         } else {
-            org.videolan.Logger.getLogger("BDJHelper").error("*** KEY event dropped ***");
+            logger.error("KEY event dropped (no focus owner)");
         }
 
         return false;
     }
+
+    private static final Logger logger = Logger.getLogger(BDJHelper.class.getName());
 }
