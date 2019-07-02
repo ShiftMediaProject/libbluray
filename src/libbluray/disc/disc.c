@@ -582,7 +582,7 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
 BD_FILE_H *disc_open_path_dec(BD_DISC *p, const char *rel_path)
 {
     size_t size = strlen(rel_path);
-    char *suf = (size > 5) ? rel_path + (size - 5) : rel_path;
+    const char *suf = (size > 5) ? rel_path + (size - 5) : rel_path;
 
     /* check if it's a stream */
     if (strncmp(rel_path, "BDMV" DIR_SEP "STREAM", 11)) { // not equal
