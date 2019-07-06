@@ -89,7 +89,7 @@ public class MountManager {
                     } catch (IOException e1) {
                     }
                 }
-                throw new MountException();
+                throw new MountException(e);
             }
 
             InputStream inStream = null;
@@ -139,7 +139,7 @@ public class MountManager {
             } catch (IOException e) {
                 logger.error("Error uncompressing " + path + ": " + e);
                 mountPoint.remove();
-                throw new MountException();
+                throw new MountException(e);
             } finally {
                 if (inStream != null) {
                     try {
