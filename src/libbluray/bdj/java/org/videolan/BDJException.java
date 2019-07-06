@@ -28,5 +28,13 @@ public class BDJException extends Exception {
         super(message);
     }
 
+    public BDJException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public BDJException(Throwable cause) {
+        super(cause);
+    }
+
     private static final long serialVersionUID = -9115687236654567595L;
 }
