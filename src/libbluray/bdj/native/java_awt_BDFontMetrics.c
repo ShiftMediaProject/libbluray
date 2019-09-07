@@ -38,7 +38,7 @@
 #include <fontconfig/fontconfig.h>
 #endif
 
-#if defined(_WIN32) && defined (HAVE_FT2)
+#if defined(_WIN32) && defined (HAVE_FT2) && !defined(HAVE_FONTCONFIG)
 #define NEED_WIN32_FONTS
 #endif
 

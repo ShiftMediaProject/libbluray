@@ -49,6 +49,9 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <winreg.h>
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+#define getenv(x) NULL
+#endif
 #endif
 
 #ifdef HAVE_BDJ_J2ME

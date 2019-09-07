@@ -1,12 +1,10 @@
-
 /* Define to 1 if libudfread is to be used for disc image access */
 /* #undef ENABLE_UDF */
 
 /* Define to 1 if using libbluray J2ME stack */
 /* #undef HAVE_BDJ_J2ME */
 
-/* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
-   */
+/* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'. */
 /* #undef HAVE_DIRENT_H */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
@@ -72,12 +70,10 @@
 /* Define to 1 if `d_type' is a member of `struct dirent'. */
 /* #undef HAVE_STRUCT_DIRENT_D_TYPE */
 
-/* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
-   */
+/* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'. */
 /* #undef HAVE_SYS_DIR_H */
 
-/* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
-   */
+/* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'. */
 /* #undef HAVE_SYS_NDIR_H */
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
@@ -93,7 +89,7 @@
 #define HAVE_TIME_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#define HAVE_UNISTD_H 1
+/* #undef HAVE_UNISTD_H */
 
 /* "Defines the architecture of the java vm." */
 #if defined(__x86_64) || defined(_M_X64)
@@ -115,17 +111,3 @@
 
 /* "Define to 1 if using BD-Java" */
 #define USING_BDJAVA 1
-
-#ifdef _M_IX86
-/* Define to '0x0501' for IE 5.01. */
-#define _WIN32_IE 0x0502
-
-/* Define to '0x0500' for Windows XP APIs. */
-#define _WIN32_WINNT 0x0502
-#else
-/* Define to '0x0600' for IE 6.0. */
-#define _WIN32_IE 0x0600
-
-/* Define to '0x0600' for Windows Vista APIs. */
-#define _WIN32_WINNT 0x0600
-#endif

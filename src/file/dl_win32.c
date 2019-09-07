@@ -77,6 +77,7 @@ void *dl_dlopen(const char *path, const char *version)
         return NULL;
     }
 
+#if !defined(WINAPI_FAMILY) || !(WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
 #if (_WIN32_WINNT < _WIN32_WINNT_WIN8)
     if (GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")),
                        "SetDefaultDllDirectories") != NULL)
@@ -85,6 +86,9 @@ void *dl_dlopen(const char *path, const char *version)
                 LOAD_LIBRARY_SEARCH_SYSTEM32;
 
     result = LoadLibraryExW(wname, NULL, flags);
+#else
+    result = LoadPackagedLibrary(wname, 0);
+#endif
 
     if (!result) {
         char buf[128];
@@ -125,6 +129,7 @@ const char *dl_get_path(void)
     if (!initialized) {
         initialized = 1;
 
+#if !defined(WINAPI_FAMILY) || !(WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
         static char path[MAX_PATH];
         HMODULE hModule;
         wchar_t wpath[MAX_PATH];
@@ -142,6 +147,10 @@ const char *dl_get_path(void)
                 }
             }
         }
+#else
+        extern char *file_get_install_dir(void);
+        lib_path = file_get_install_dir();
+#endif
 
         if (lib_path) {
             /* cut library name from path */

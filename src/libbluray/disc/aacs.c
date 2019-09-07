@@ -32,6 +32,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+#define getenv(x) NULL
+#endif
+#endif
+
 
 struct bd_aacs {
     void           *h_libaacs;   /* library handle from dlopen */

@@ -31,6 +31,12 @@
 #include <stdarg.h>
 #include <string.h>
 
+#ifdef _WIN32
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+#define getenv(x) NULL
+#endif
+#endif
+
 uint32_t            debug_mask = (uint32_t)-1; /* set all bits to make sure bd_debug() is called for initialization */
 static BD_LOG_FUNC  log_func   = NULL;
 

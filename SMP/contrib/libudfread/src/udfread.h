@@ -28,6 +28,10 @@ extern "C" {
 
 #include <stdint.h>    /* *int_t */
 #include <sys/types.h> /* *size_t */
+#ifdef _WIN32
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
 
 /**
  * @file udfread/udfread.h

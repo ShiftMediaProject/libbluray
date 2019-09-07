@@ -494,6 +494,9 @@
     <ClCompile Include="..\src\libbluray\bdnav\bdmv_parse.c">
       <Filter>Source Files\libbluray\bdnav</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\file\dirs_uwp.cpp">
+      <Filter>Source Files\file</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="libbluray.def">

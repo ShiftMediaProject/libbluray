@@ -46,6 +46,10 @@
 #include <libxml/tree.h>
 #endif
 
+#ifdef _WIN32
+#define strncasecmp _strnicmp
+#endif
+
 #define DEFAULT_LANGUAGE  "eng"
 
 

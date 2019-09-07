@@ -1,25 +1,28 @@
 
-This is a small list of steps in order to build libbluray into a msvc DLL and lib file.
+This is a small list of steps in order to build libbz2 into a msvc dll and/or lib file.
 
 The project contains Release and Debug builds for static lib files (Debug/Release)
-  as well as dynamic shared dll files (DebugDLL/ReleaseDLL).
+  as well as dynamic shared dll files (DebugDLL/ReleaseDLL). Along with the standard
+  windows dll/lib configurations mentioned above there are also equivalent variants that
+  can be used to compile for WinRT/UWP (These configurations have a WinRT suffix).
+There are also architecture configurations for either 32bit (x86) or 64bit (x64) compilation.
 Choose whichever project configuration meets your requirements.
 
+The project configurations support being built with various different windows SDK versions.
+  By default they will use the lowest SDK version that would be available for Visual Studio
+  version 2013 and up (This is the 8.1 SDK). However a batch file is also included 
+  (libbluray_with_latest_sdk.bat) which can be used to auto detect the newest available SDK 
+  installed on the host machine and then open the project using that as the compilation SDK.
+  
+When using the WinRT/UWP project configurations the projects will automatically compile towards
+  the default application target for the Version of Visual Studio being used:
+  VS 2013: 8.1
+  VS 2015: 8.1
+  VS 2017: 10.0.10240.0
 
-*** Generating jar file ***
+By default when compiling a static lib the project will include static libs for any dependencies.
+  Conversely when compiling a shared dll the project will link against shared libs for the dependencies.
+  This behaviour can be changed by adding 1 of the following tags to the projects Preprocessor Definitions:
+  SHARED_DEPS: To include all dependencies as shared libs.
+  STATIC_DEPS: To include all dependencies as static libs.
 
-The build system requires the .jar file to be built automatically. This should have already been done and the resulting
-source file being found in the SMC\src directory. If this file is missing then the project will try and automatically
-generate a new one. If the file needs to be forced to update then it can be simply deleted which will result in new file
-being generated the next time the project is built.
-
-In order for a new file to be generated the project needs access to 'Java SDK' and 'Apache Ant'. Ensure that these are accessible by Visual Studio.
-
-Java SDK can be downloaded from here:
-http://www.oracle.com/technetwork/java/javase/downloads/index.html
-Ant for Windows can be donwloaded from here:
-http://ant.apache.org/bindownload.cgi
-
-Pre-built windows binaries can also be found in the above link. To enable generation of new files ant should be extracted 
-and added somewhere accessible to the Visual Studio path (e.g. extract it into JAVA_HOME) project folder.
-The Java SDK should also bee installed and available through the 'JAVA_HOME' environment variable.

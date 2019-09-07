@@ -39,6 +39,9 @@
 
 #ifdef _WIN32
 #define strtok_r strtok_s
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+#define getenv(x) NULL
+#endif
 #endif
 
 

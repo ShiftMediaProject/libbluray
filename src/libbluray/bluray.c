@@ -59,6 +59,12 @@
 #include <inttypes.h>
 #include <string.h>
 
+#ifdef _WIN32
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+#define getenv(x) NULL
+#endif
+#endif
+
 
 typedef enum {
     title_undef = 0,
