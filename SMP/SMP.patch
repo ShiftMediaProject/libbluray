@@ -190,7 +190,7 @@ index 20da1253..1b7bef5d 100644
  
  #define DEFAULT_LANGUAGE  "eng"
 diff --git a/src/libbluray/bluray.c b/src/libbluray/bluray.c
-index 05b881a6..f685d1e1 100644
+index 3a356050..0c070e38 100644
 --- a/src/libbluray/bluray.c
 +++ b/src/libbluray/bluray.c
 @@ -58,6 +58,12 @@
