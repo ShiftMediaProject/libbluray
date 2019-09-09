@@ -1,6 +1,6 @@
 /*
  * This file is part of libbluray
- * Copyright (C) 2012  libbluray
+ * Copyright (C) 2018  VideoLAN
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,12 +17,16 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package java.awt;
+package org.videolan;
 
-import sun.awt.image.BufferedImagePeer;
+import org.videolan.bdjo.AppEntry;
 
-public class BDImage extends BDImageBase implements BufferedImagePeer {
-    BDImage(Component component, int width, int height, GraphicsConfiguration gc) {
-        super(component, width, height, gc);
-    }
+public interface BDJLoaderAdapter {
+
+    /*
+     * Modify BDJO at run time
+     */
+
+    /* patch application table */
+    public abstract AppEntry[] patchAppTable(AppEntry[] in, int title);
 }

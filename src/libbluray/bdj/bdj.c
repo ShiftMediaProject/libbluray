@@ -1,7 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
- * Copyright (C) 2012  Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2012-2019  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -125,6 +125,13 @@ static void *_load_jvm_win32(const char **p_java_home)
     HKEY hkey;
 
     r = RegOpenKeyExW(HKEY_LOCAL_MACHINE, buf_loc, 0, KEY_READ, &hkey);
+# ifndef NO_JAVA9_SUPPORT
+    if (r != ERROR_SUCCESS) {
+        /* Try Java 9 */
+        wcscpy(buf_loc, L"SOFTWARE\\JavaSoft\\JRE\\");
+        r = RegOpenKeyExW(HKEY_LOCAL_MACHINE, buf_loc, 0, KEY_READ, &hkey);
+    }
+# endif
     if (r != ERROR_SUCCESS) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error opening registry key SOFTWARE\\JavaSoft\\Java Runtime Environment\\\n");
         return NULL;
@@ -305,6 +312,14 @@ static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char 
         }
         BD_DEBUG(DBG_BDJ, "Opening %s ...\n", path);
         void *h = dl_dlopen(path, NULL);
+# ifdef NO_JAVA9_SUPPORT
+        /* ignore Java 9+ */
+        if (h && dl_dlsym(h, "JVM_DefineModule")) {
+            BD_DEBUG(DBG_CRIT | DBG_BDJ, "Ignoring JVM %s: looks like Java 9 or later\n", path);
+            dl_dlclose(h);
+            h = NULL;
+        }
+# endif
         X_FREE(path);
         return h;
     } else {
@@ -387,10 +402,15 @@ static void *_load_jvm(const char **p_java_home)
                                             "/usr/lib/jvm/",
                                             "/etc/java-config-2/current-system-vm",
                                             "/usr/lib/jvm/java-7-openjdk",
+                                            "/usr/lib/jvm/java-7-openjdk-" JAVA_ARCH,
                                             "/usr/lib/jvm/java-8-openjdk",
+                                            "/usr/lib/jvm/java-8-openjdk-" JAVA_ARCH,
                                             "/usr/lib/jvm/java-6-openjdk",
     };
-    static const char * const jvm_dir[]  = {"jre/lib/" JAVA_ARCH "/server"};
+    static const char * const jvm_dir[]  = {"jre/lib/" JAVA_ARCH "/server",
+                                            "lib/server",
+                                            "lib/client",
+    };
 #  endif
     static const char         jvm_lib[]  = "libjvm";
 # endif
@@ -473,10 +493,11 @@ void bdj_storage_cleanup(BDJ_STORAGE *p)
 {
     X_FREE(p->cache_root);
     X_FREE(p->persistent_root);
-    X_FREE(p->classpath);
+    X_FREE(p->classpath[0]);
+    X_FREE(p->classpath[1]);
 }
 
-static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
+static char *_find_libbluray_jar0()
 {
     // pre-defined search paths for libbluray.jar
     static const char * const jar_paths[] = {
@@ -489,32 +510,29 @@ static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
 
     unsigned i;
 
-    if (storage->classpath) {
-        return storage->classpath;
-    }
-
     // check if overriding the classpath
     const char *classpath = getenv("LIBBLURAY_CP");
     if (classpath) {
         size_t cp_len = strlen(classpath);
+        char *jar;
 
         // directory or file ?
         if (cp_len > 0 && (classpath[cp_len - 1] == '/' || classpath[cp_len - 1] == '\\')) {
-            storage->classpath = str_printf("%s%s", classpath, BDJ_JARFILE);
+            jar = str_printf("%s%s", classpath, BDJ_JARFILE);
         } else {
-            storage->classpath = str_dup(classpath);
+            jar = str_dup(classpath);
         }
 
-        if (!storage->classpath) {
+        if (!jar) {
             BD_DEBUG(DBG_CRIT, "out of memory\n");
             return NULL;
         }
 
-        if (_can_read_file(storage->classpath)) {
-            return storage->classpath;
+        if (_can_read_file(jar)) {
+            return jar;
         }
 
-        X_FREE(storage->classpath);
+        X_FREE(jar);
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "invalid LIBBLURAY_CP %s\n", classpath);
         return NULL;
     }
@@ -532,7 +550,6 @@ static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
 
         BD_DEBUG(DBG_BDJ, "Checking %s ...\n", cp);
         if (_can_read_file(cp)) {
-            storage->classpath = cp;
             BD_DEBUG(DBG_BDJ, "using %s\n", cp);
             return cp;
         }
@@ -543,14 +560,54 @@ static const char *_find_libbluray_jar(BDJ_STORAGE *storage)
     for (i = 0; i < sizeof(jar_paths) / sizeof(jar_paths[0]); i++) {
         BD_DEBUG(DBG_BDJ, "Checking %s ...\n", jar_paths[i]);
         if (_can_read_file(jar_paths[i])) {
-            storage->classpath = str_dup(jar_paths[i]);
-            BD_DEBUG(DBG_BDJ, "using %s\n", storage->classpath);
-            return storage->classpath;
+            BD_DEBUG(DBG_BDJ, "using %s\n", jar_paths[i]);
+            return str_dup(jar_paths[i]);
         }
     }
 
     BD_DEBUG(DBG_BDJ | DBG_CRIT, BDJ_JARFILE" not found.\n");
     return NULL;
+}
+
+static char *_find_libbluray_jar1(const char *jar0)
+{
+    char *jar1;
+    int   cut;
+
+    cut = (int)strlen(jar0) - (int)strlen(VERSION) - 9;
+    if (cut <= 0)
+        return NULL;
+
+    jar1 = str_printf("%.*sawt-%s", cut, jar0, jar0 + cut);
+    if (!jar1)
+        return NULL;
+
+    if (!_can_read_file(jar1)) {
+        BD_DEBUG(DBG_BDJ | DBG_CRIT, "Cant access AWT jar file %s\n", jar1);
+        X_FREE(jar1);
+    }
+
+    return jar1;
+}
+
+static int _find_libbluray_jar(BDJ_STORAGE *storage)
+{
+    if (!storage->classpath[0]) {
+        storage->classpath[0] = _find_libbluray_jar0();
+        X_FREE(storage->classpath[1]);
+        if (!storage->classpath[0])
+            return 0;
+    }
+
+    if (!storage->classpath[1]) {
+        storage->classpath[1] = _find_libbluray_jar1(storage->classpath[0]);
+        if (!storage->classpath[1]) {
+            X_FREE(storage->classpath[0]);
+            X_FREE(storage->classpath[1]);
+        }
+    }
+
+    return !!storage->classpath[0];
 }
 
 static const char *_bdj_persistent_root(BDJ_STORAGE *storage)
@@ -690,18 +747,18 @@ int bdj_jvm_available(BDJ_STORAGE *storage)
     void* jvm_lib = _load_jvm(&java_home);
     if (!jvm_lib) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J check: Failed to load JVM library\n");
-        return 0;
+        return BDJ_CHECK_NO_JVM;
     }
     dl_dlclose(jvm_lib);
 
     if (!_find_libbluray_jar(storage)) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J check: Failed to load libbluray.jar\n");
-        return 1;
+        return BDJ_CHECK_NO_JAR;
     }
 
     BD_DEBUG(DBG_BDJ, "BD-J check: OK\n");
 
-    return 2;
+    return BDJ_CHECK_OK;
 }
 
 static int _find_jvm(void *jvm_lib, JNIEnv **env, JavaVM **jvm)
@@ -727,12 +784,71 @@ static int _find_jvm(void *jvm_lib, JNIEnv **env, JavaVM **jvm)
     return 0;
 }
 
-static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_file,
+/* Export packages for Xlets */
+static const char * const java_base_exports[] = {
+        "javax.media" ,
+        "javax.media.protocol",
+        "javax.tv.graphics",
+        "javax.tv.service",
+        "javax.tv.service.guide",
+        "javax.tv.service.selection",
+        "javax.tv.service.transport",
+        "javax.tv.service.navigation",
+        "javax.tv.net",
+        "javax.tv.locator",
+        "javax.tv.util",
+        "javax.tv.media",
+        "javax.tv.xlet",
+        "javax.microedition.xlet",
+        "org.davic.resources",
+        "org.davic.net",
+        "org.davic.media",
+        "org.davic.mpeg",
+        "org.dvb.user",
+        "org.dvb.dsmcc",
+        "org.dvb.application",
+        "org.dvb.ui",
+        "org.dvb.test",
+        "org.dvb.lang",
+        "org.dvb.event",
+        "org.dvb.io.ixc",
+        "org.dvb.io.persistent",
+        "org.dvb.media",
+        "org.havi.ui",
+        "org.havi.ui.event",
+        "org.bluray.application",
+        "org.bluray.ui",
+        "org.bluray.ui.event",
+        "org.bluray.net",
+        "org.bluray.storage",
+        "org.bluray.vfs",
+        "org.bluray.bdplus",
+        "org.bluray.system",
+        "org.bluray.media",
+        "org.bluray.ti",
+        "org.bluray.ti.selection",
+        "org.blurayx.s3d.ui",
+        "org.blurayx.s3d.system",
+        "org.blurayx.s3d.media",
+        "org.blurayx.s3d.ti",
+        "org.blurayx.uhd.ui",
+        "org.blurayx.uhd.system",
+        "org.blurayx.uhd.ti",
+        "com.aacsla.bluray.online",
+        "com.aacsla.bluray.mc",
+        "com.aacsla.bluray.mt",
+};
+static const size_t num_java_base_exports = sizeof(java_base_exports) / sizeof(java_base_exports[0]);
+
+static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_file[2],
                        JNIEnv **env, JavaVM **jvm)
 {
     (void)java_home;  /* used only with J2ME */
 
     fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp;
+    JavaVMOption option[64];
+    int n = 0, result, java_9;
+    JavaVMInitArgs args;
 
     *(void **)(&JNI_CreateJavaVM_fp) = dl_dlsym(jvm_lib, "JNI_CreateJavaVM");
     if (JNI_CreateJavaVM_fp == NULL) {
@@ -740,18 +856,19 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
         return 0;
     }
 
-    JavaVMOption* option = calloc(1, sizeof(JavaVMOption) * 20);
-    if (!option) {
-        BD_DEBUG(DBG_CRIT, "out of memory\n");
-        return 0;
+#ifdef HAVE_BDJ_J2ME
+    java_9 = 0;
+#else
+    java_9 = !!dl_dlsym(jvm_lib, "JVM_DefineModule");
+    if (java_9) {
+        BD_DEBUG(DBG_CRIT | DBG_BDJ, "Detected Java 9 or later JVM - support is experimental !\n");
     }
+#endif
 
-    int n = 0;
-    JavaVMInitArgs args;
+    memset(option, 0, sizeof(option));
+
     option[n++].optionString = str_dup   ("-Dawt.toolkit=java.awt.BDToolkit");
     option[n++].optionString = str_dup   ("-Djava.awt.graphicsenv=java.awt.BDGraphicsEnvironment");
-    option[n++].optionString = str_dup   ("-Djavax.accessibility.assistive_technologies= ");
-    option[n++].optionString = str_printf("-Xbootclasspath/p:%s", jar_file);
     option[n++].optionString = str_dup   ("-Xms256M");
     option[n++].optionString = str_dup   ("-Xmx256M");
     option[n++].optionString = str_dup   ("-Xss2048k");
@@ -761,7 +878,35 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     option[n++].optionString = str_dup   ("-XfullShutdown");
 #endif
 
+    if (!java_9) {
+      option[n++].optionString = str_dup   ("-Djavax.accessibility.assistive_technologies= ");
+      option[n++].optionString = str_printf("-Xbootclasspath/p:%s:%s", jar_file[0], jar_file[1]);
+    } else {
+      option[n++].optionString = str_printf("--patch-module=java.base=%s", jar_file[0]);
+      option[n++].optionString = str_printf("--patch-module=java.desktop=%s", jar_file[1]);
+
+      /* Fix module graph */
+
+      option[n++].optionString = str_dup("--add-reads=java.base=java.desktop");
+      /* org.videolan.IxcRegistryImpl -> java.rmi.Remote */
+      option[n++].optionString = str_dup("--add-reads=java.base=java.rmi");
+      /* org.videolan.FontIndex -> java.xml. */
+      option[n++].optionString = str_dup("--add-reads=java.base=java.xml");
+      /* AWT needs to access logger and Xlet context */
+      option[n++].optionString = str_dup("--add-opens=java.base/org.videolan=java.desktop");
+      /* AWT needs to acess DVBGraphics */
+      option[n++].optionString = str_dup("--add-exports=java.base/org.dvb.ui=java.desktop");
+      /* org.havi.ui.HBackgroundImage needs to access sun.awt.image.FileImageSource */
+      option[n++].optionString = str_dup("--add-exports=java.desktop/sun.awt.image=java.base");
+
+      /* Export BluRay packages to Xlets */
+      for (size_t idx = 0; idx < num_java_base_exports; idx++) {
+          option[n++].optionString = str_printf("--add-exports=java.base/%s=ALL-UNNAMED", java_base_exports[idx]);
+      }
+    }
+
     /* JVM debug options */
+
     if (getenv("BDJ_JVM_DEBUG")) {
         option[n++].optionString = str_dup("-ea");
         //option[n++].optionString = str_dup("-verbose");
@@ -801,12 +946,11 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     }
 #endif
 
-    int result = JNI_CreateJavaVM_fp(jvm, (void**) env, &args);
+    result = JNI_CreateJavaVM_fp(jvm, (void**) env, &args);
 
     while (--n >= 0) {
         X_FREE(option[n].optionString);
     }
-    X_FREE(option);
 
     if (result != JNI_OK || !*env) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM. JNI_CreateJavaVM result: %d\n", result);
@@ -821,8 +965,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 {
     BD_DEBUG(DBG_BDJ, "bdj_open()\n");
 
-    const char *jar_file = _find_libbluray_jar(storage);
-    if (!jar_file) {
+    if (!_find_libbluray_jar(storage)) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J start failed: " BDJ_JARFILE " not found.\n");
         return NULL;
     }
@@ -854,8 +997,9 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 
     JNIEnv* env = NULL;
     JavaVM *jvm = NULL;
+    const char *jar[2] = { storage->classpath[0], storage->classpath[1] };
     if (!_find_jvm(jvm_lib, &env, &jvm) &&
-        !_create_jvm(jvm_lib, java_home, jar_file, &env, &jvm)) {
+        !_create_jvm(jvm_lib, java_home, jar, &env, &jvm)) {
 
         X_FREE(bdjava);
         dl_dlclose(jvm_lib);

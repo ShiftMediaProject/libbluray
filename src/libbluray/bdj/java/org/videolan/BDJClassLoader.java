@@ -109,7 +109,7 @@ public class BDJClassLoader extends URLClassLoader {
         super(urls);
         this.xletClass = xletClass;
 
-        BDJClassLoaderAdapter a = Libbluray.getLoaderAdapter();
+        BDJClassLoaderAdapter a = Libbluray.getClassLoaderAdapter();
         if (a != null) {
             hideClasses = a.getHideClasses();
             bootClasses = a.getBootClasses();

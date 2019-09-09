@@ -155,7 +155,7 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
             return null;
         }
 
-        ClassLoader cldr = (ClassLoader)ctx.getClassLoader();
+        ClassLoader cldr = ctx.getClassLoader();
         if (cldr == null) {
             logger.error("getCurrentClassLoader(): no class loader: " + Logger.dumpStack());
             return null;
@@ -429,6 +429,14 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
         if (obj == null)
             return null;
         return ((BDJThreadGroup)obj).getContext();
+    }
+
+    public static BDJXletContext getFocusContext() {
+        if (BDJXletContext.getCurrentContext() != null) {
+            logger.error("getFocusContext() called from Xlet code:\n" + Logger.dumpStack());
+            return null;
+        }
+        return GUIManager.getInstance().getFocusHSceneContext();
     }
 
     protected void setArgs(String[] args) {

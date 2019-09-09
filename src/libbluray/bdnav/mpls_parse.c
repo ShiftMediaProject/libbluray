@@ -26,6 +26,7 @@
 
 #include "extdata_parse.h"
 #include "bdmv_parse.h"
+#include "mpls_data.h"
 #include "uo_mask.h"
 
 #include "disc/disc.h"
@@ -77,9 +78,10 @@ _parse_appinfo(BITSTREAM *bits, MPLS_AI *ai)
     ai->random_access_flag = bs_read(bits, 1);
     ai->audio_mix_flag = bs_read(bits, 1);
     ai->lossless_bypass_flag = bs_read(bits, 1);
+    ai->mvc_base_view_r_flag = bs_read(bits, 1);
 #if 0
     // Reserved
-    bs_skip(bits, 13);
+    bs_skip(bits, 12);
     bs_seek_byte(bits, pos + len);
 #endif
     return 1;
@@ -977,6 +979,14 @@ _parse_mpls_extension(BITSTREAM *bits, int id1, int id2, void *handle)
         if (id2 == 2) {
             // SubPath entries extension
             return _parse_subpath_extension(bits, pl);
+        }
+    }
+
+    if (id1 == 3) {
+        if (id2 == 5) {
+            // UHD extension
+            BD_DEBUG(DBG_NAV, "_parse_mpls_extension(): unhandled extension %d.%d\n", id1, id2);
+            return 0;
         }
     }
 

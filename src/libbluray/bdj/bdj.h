@@ -1,6 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010  William Hahne
+ * Copyright (C) 2012-2019  Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -66,7 +67,7 @@ typedef struct {
     char *persistent_root;   /* BD-J Xlet persistent storage */
     char *cache_root;        /* BD-J binding unit data area */
 
-    char *classpath;         /* BD-J implementation class path (location of libbluray.jar) */
+    char *classpath[2];      /* BD-J implementation class path (location of libbluray.jar) */
 
     uint8_t no_persistent_storage; /* disable persistent storage (remove files at close) */
 } BDJ_STORAGE;
@@ -80,7 +81,13 @@ BD_PRIVATE BDJAVA* bdj_open(const char *path, struct bluray *bd,
 BD_PRIVATE void bdj_close(BDJAVA *bdjava);
 BD_PRIVATE int  bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
 
-BD_PRIVATE int  bdj_jvm_available(BDJ_STORAGE *storage); /* 0: no. 1: only jvm. 2: jvm + libbluray.jar. */
+enum {
+    BDJ_CHECK_OK     = 0,
+    BDJ_CHECK_NO_JVM = 1,
+    BDJ_CHECK_NO_JAR = 2,
+};
+
+BD_PRIVATE int  bdj_jvm_available(BDJ_STORAGE *storage);  /* rreturn: BDJ_CHECK_* */
 
 BD_PRIVATE void bdj_storage_cleanup(BDJ_STORAGE *);
 

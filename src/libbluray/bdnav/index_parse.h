@@ -114,6 +114,11 @@ typedef struct indx_root_s {
     INDX_TITLE    *titles;
 
     uint32_t       indx_version;
+
+    /* UHD extension */
+    uint8_t        disc_type;
+    uint8_t        exist_4k_flag;
+    uint8_t        hdr_flags;
 } INDX_ROOT;
 
 

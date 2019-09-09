@@ -107,6 +107,7 @@ typedef struct
     uint8_t         random_access_flag;
     uint8_t         audio_mix_flag;
     uint8_t         lossless_bypass_flag;
+    uint8_t         mvc_base_view_r_flag;
 } MPLS_AI;
 
 typedef struct

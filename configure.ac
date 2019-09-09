@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([bluray_major], 1)
-m4_define([bluray_minor], 0)
-m4_define([bluray_micro], 2)
+m4_define([bluray_minor], 1)
+m4_define([bluray_micro], 0)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
 dnl shared library version (.so version)
@@ -12,16 +12,16 @@ dnl - If interfaces have been changed or removed, increase current and set age a
 dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
-m4_define([lt_current],  2)
-m4_define([lt_revision], 2)
-m4_define([lt_age],      0)
+m4_define([lt_current],  3)
+m4_define([lt_revision], 0)
+m4_define([lt_age],      1)
 
 dnl initilization
 AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE([foreign tar-ustar dist-bzip2 no-dist-gzip subdir-objects])
+AM_INIT_AUTOMAKE([foreign tar-ustar dist-bzip2 no-dist-gzip subdir-objects -Wall])
 AC_CONFIG_HEADERS(config.h)
 
 dnl Enable silent rules only when available (automake 1.11 or later).
@@ -50,6 +50,10 @@ case "${host_os}" in
   netbsd*)
     SYS=netbsd
     CFLAGS="${CFLAGS} -D_NETBSD_SOURCE"
+    ;;
+  freebsd*)
+    SYS=freebsd
+    CFLAGS="${CFLAGS} -D_XOPEN_SOURCE=700"
     ;;
   *)
     SYS="${host_os}"
@@ -108,9 +112,13 @@ AC_ARG_WITH([bdj-bootclasspath],
   [BDJ_BOOTCLASSPATH=$withval],
   [BDJ_BOOTCLASSPATH=])
 
+AC_ARG_WITH([java9],
+  [AS_HELP_STRING([--with-java9], [build with Java 9+ (drop support for Java <1.6) @<:@default=without@:>@])])
+
 dnl required programs
 AC_PROG_CC
 AM_PROG_CC_C_O
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 AC_PROG_LIBTOOL
 
 dnl required types
@@ -223,14 +231,35 @@ AS_IF([test "x${JDK_HOME}" != "x"], [
     BDJAVA_CFLAGS='-I${abs_top_srcdir}/jni -I${abs_top_srcdir}/jni/'"${java_os}"
 ])
 
-AC_CHECK_PROG(HAVE_ANT, [ant], yes, no)
-if test "x$use_bdjava_jar" = "xyes" && test "x$HAVE_ANT" = "xno"; then
-    AC_MSG_ERROR([BD-J requires ANT, but ant was not found. Please install it.])
-fi
+AS_IF([test "x$use_bdjava_jar" = "xyes"], [
+
+    dnl check for ant
+    AC_CHECK_PROG(HAVE_ANT, [ant], yes, no)
+    AS_IF([test "x$HAVE_ANT" = "xno"], [
+        AC_MSG_ERROR([BD-J requires ANT, but ant was not found. Install ant or disable jar file building (--disable-bdjava-jar)])
+    ])
+
+    AS_IF([test "x$with_java9" = "x" -a "$BDJ_TYPE" != "j2me"], [
+
+        dnl check for javac
+        AS_IF([test "x${JAVA_HOME}" != "x"],
+              [AC_PATH_PROG(JAVAC, javac, none, ["${JAVA_HOME}/bin"])],
+              [AC_PATH_PROG(JAVAC, javac, none)])
+        AS_IF([test x"$JAVAC" = x"none"],
+            [AC_MSG_WARN([javac not found. Disable jar file building (--disable-bdjava-jar), set JAVA_HOME or javac type with --with[out]-java9 option.])])
+
+        dnl check for Java 9+
+        javac_version=`"$JAVAC" -version 2>&1 | head -n 1`
+        [with_java9=`echo "$javac_version" | grep -E -q '^javac\ (9|1[0-9])' && echo yes`]
+    ])
+
+    AS_IF([test "x$with_java9" = "xyes" -a "$BDJ_TYPE" != "j2me"], [java_code_version=1.6], [java_code_version=1.4])
+])
 
 AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
 AC_DEFINE_UNQUOTED([JDK_HOME], ["$JDK_HOME"], [""])
 AM_CONDITIONAL([USING_BDJAVA_BUILD_JAR], [ test $use_bdjava_jar = "yes" ])
+AM_CONDITIONAL([USING_JAVAC_9], [ test x"$with_java9" = x"yes" ])
 
 dnl BD-J type
 if test "$BDJ_TYPE" = "j2me"; then
@@ -239,6 +268,7 @@ else
   BDJ_TYPE=j2se
 fi
 AC_SUBST(BDJ_TYPE)
+AM_CONDITIONAL([BDJ_J2SE], [ test x"$BDJ_TYPE" != x"j2me" ])
 dnl bootclasspath
 AC_SUBST(BDJ_BOOTCLASSPATH)
 
@@ -281,6 +311,12 @@ echo "  Summary:"
 echo "  --------"
 echo "  BD-J type:                     $BDJ_TYPE"
 echo "  build JAR:                     $use_bdjava_jar"
+if test "x$use_bdjava_jar" = "xyes"; then
+if test "x$javac_version" != "x"; then
+echo "      javac version:             $javac_version"
+fi
+echo "      Java binary version:       $java_code_version"
+fi
 if test x"$BDJ_BOOTCLASSPATH" != x""; then
 echo "  BD-J bootclasspath:            $BDJ_BOOTCLASSPATH"
 fi

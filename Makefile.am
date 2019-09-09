@@ -15,6 +15,7 @@ EXTRA_DIST = \
 	README.txt \
 	src/libbluray/bdj/build.xml \
 	src/libbluray/bdj/java \
+	src/libbluray/bdj/java-build-support \
 	src/libbluray/bdj/java-j2me \
 	src/libbluray/bdj/java-j2se \
 	contrib/asm
@@ -225,16 +226,32 @@ pkginclude_HEADERS = \
 
 
 if USING_BDJAVA_BUILD_JAR
-jardir=$(datadir)/java/
-jar_DATA=$(top_builddir)/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar
 
-$(top_builddir)/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar: all-local
+if USING_JAVAC_9
+java_versions = -Djava_version_asm=1.6 -Djava_version_bdj=1.6
+else
+java_versions = -Djava_version_asm=1.5 -Djava_version_bdj=1.4
+endif
+
+if BDJ_J2SE
+awt_src = java-$(BDJ_TYPE):java-build-support
+else
+awt_src = java-$(BDJ_TYPE)
+endif
+
+jardir=$(datadir)/java/
+jar_DATA = \
+	$(top_builddir)/.libs/libbluray-$(BDJ_TYPE)-$(VERSION).jar \
+	$(top_builddir)/.libs/libbluray-awt-$(BDJ_TYPE)-$(VERSION).jar
+
+$(jar_DATA): all-local
 
 all-local:
 	ant -f $(top_srcdir)/src/libbluray/bdj/build.xml \
 	    -Dbuild='$(abs_builddir)/src/libbluray/bdj/build' \
 	    -Ddist='$(abs_builddir)/.libs' \
-	    -Dsrc_awt=:java-$(BDJ_TYPE) \
+	    -Dsrc_awt=:$(awt_src) \
+	    $(java_versions) \
 	    -Dbootclasspath="$(BDJ_BOOTCLASSPATH)" \
 	    -Dversion='$(BDJ_TYPE)-$(VERSION)'
 

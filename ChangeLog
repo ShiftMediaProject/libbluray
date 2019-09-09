@@ -1,3 +1,15 @@
+2019-02-12: Version 1.1.0
+- Add initial support for OpenJDK 11.
+- Add initial support for UHD disc BD-J menus.
+- Add support for compiling .jar file with Java 9+ compiler.
+- Move AWT classes to separate .jar file.
+- Update libudfread submodule repository URL.
+- Improve main title selection.
+- Improve error resilience and stability.
+- Improve BD-J compability.
+- Fix playback of some broken BD-J discs.
+- Fix playback of discs without normal titles (only TopMenu / FirstPlay title).
+
 2017-12-01: Version 1.0.2
 - Add initial support for UHD BluRay discs (without BD-J menus).
 - Detect JRE (from the Java Applet plugin) on MacOS.

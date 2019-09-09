@@ -225,7 +225,7 @@ class VFSCache {
         // copy stream to tmp file in fontRoot. freetype can not read streams.
         File tmpFile = null;
         for (int i = 0; i < 100; i++) {
-            tmpFile = new File(fontRoot + System.nanoTime() + ".otf");
+            tmpFile = new File(fontRoot + Long.toHexString(System.nanoTime() + i) + ".otf");
             try {
                 tmpFile = new File(tmpFile.getCanonicalPath());
                 if (!tmpFile.exists()) {

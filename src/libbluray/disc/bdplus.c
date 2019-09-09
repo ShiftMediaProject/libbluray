@@ -111,6 +111,13 @@ static void *_libbdplus_open(int *impl_id)
         if (libbdplus[ii]) {
             void *handle = dl_dlopen(libbdplus[ii], "0");
             if (handle) {
+                /* One more libmmbd check. This is needed if libbdplus is just a link to libmmbd ... */
+                fptr_int32 fp;
+                *(void **)(&fp) = dl_dlsym(handle, "bdplus_get_code_date");
+                if (fp && fp(NULL) == 0) {
+                    ii = IMPL_LIBMMBD;
+                }
+
                 *impl_id = ii;
                 BD_DEBUG(DBG_BLURAY, "Using %s for BD+\n", libbdplus[ii]);
                 return handle;

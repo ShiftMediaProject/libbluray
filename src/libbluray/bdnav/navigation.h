@@ -23,9 +23,11 @@
 #include "util/attributes.h"
 
 #include "mpls_data.h"
-#include "clpi_data.h"
+
+#include <stdint.h>
 
 struct bd_disc;
+struct clpi_cl;
 
 #define CONNECT_NON_SEAMLESS 0
 #define CONNECT_SEAMLESS 1
@@ -81,9 +83,12 @@ struct nav_clip_s
 
     NAV_TITLE *title;
 
-    CLPI_CL  *cl;
-
     uint32_t stc_spn;  /* start packet of clip STC sequence */
+
+    uint8_t  still_mode;
+    uint16_t still_time;
+
+    struct clpi_cl *cl;
 };
 
 typedef struct nav_clip_list_s NAV_CLIP_LIST;
@@ -153,5 +158,7 @@ BD_PRIVATE NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, unsigned an
 
 BD_PRIVATE NAV_TITLE_LIST* nav_get_title_list(struct bd_disc *disc, uint32_t flags, uint32_t min_title_length) BD_ATTR_MALLOC;
 BD_PRIVATE void nav_free_title_list(NAV_TITLE_LIST **title_list);
+
+BD_PRIVATE char *nav_clip_textst_font(NAV_CLIP *clip, int index);
 
 #endif // _NAVIGATION_H_

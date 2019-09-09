@@ -1,7 +1,7 @@
 /*
  * This file is part of libbluray
  * Copyright (C) 2010      William Hahne
- * Copyright (C) 2012-2014 Petri Hintukainen <phintuka@users.sourceforge.net>
+ * Copyright (C) 2012-2019 Petri Hintukainen <phintuka@users.sourceforge.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -53,6 +53,8 @@ public class Libbluray {
 
     /* hook system properties: make "user.dir" point to current Xlet home directory */
 
+    private static boolean booted;
+
     private static void hookProperties() {
         java.util.Properties p = new java.util.Properties(System.getProperties()) {
                 public String getProperty(String key) {
@@ -61,10 +63,13 @@ public class Libbluray {
                         if (ctx != null) {
                             return ctx.getXletHome();
                         }
-                        System.err.println("getProperty(user.dir): no context !  " + Logger.dumpStack());
+                        if (booted) {
+                            System.err.println("getProperty(user.dir): no context !  " + Logger.dumpStack());
+                        }
                     }
                     return super.getProperty(key);
                 }
+                private static final long serialVersionUID = -6253354431747524430L;
             };
         System.setProperties(p);
     }
@@ -73,22 +78,37 @@ public class Libbluray {
      * Loader hooks
      */
 
-    private static BDJClassLoaderAdapter loaderAdapter = null;
+    private static BDJClassLoaderAdapter classLoaderAdapter = null;
+    private static BDJLoaderAdapter      loaderAdapter = null;
 
-    protected static BDJClassLoaderAdapter getLoaderAdapter() {
+    protected static BDJClassLoaderAdapter getClassLoaderAdapter() {
+        return classLoaderAdapter;
+    }
+    protected static BDJLoaderAdapter getLoaderAdapter() {
         return loaderAdapter;
     }
 
     private static void loadAdapter(String pkg) {
         if (pkg == null)
             return;
+        if (pkg.indexOf(';') > 0) {
+            pkg = pkg.substring(0, pkg.indexOf(';'));
+        }
         try {
             final Object obj = Class.forName("org.videolan." + pkg + ".Adapter").newInstance();
-            if (obj instanceof BDJClassLoaderAdapter) {
-                loaderAdapter = (BDJClassLoaderAdapter)obj;
-            } else {
+            if (!((obj instanceof BDJClassLoaderAdapter) ||
+                  (obj instanceof BDJLoaderAdapter))) {
                 System.err.println("Unsupported interface in " + obj);
+                return;
             }
+            if (obj instanceof BDJLoaderAdapter) {
+                loaderAdapter = (BDJLoaderAdapter)obj;
+            }
+            if (obj instanceof BDJClassLoaderAdapter) {
+                classLoaderAdapter = (BDJClassLoaderAdapter)obj;
+            }
+        } catch (ClassNotFoundException ce) {
+            System.out.println("" + ce);  /* not really an error */
         } catch (Exception e) {
             System.err.println("" + e);
         }
@@ -252,6 +272,7 @@ public class Libbluray {
         boolean p5  = (profile & 0x10) != 0;
         boolean p6  = ((profile & 0x1f) == 0) && (version >= 0x0300);
 
+        resetProfile();
         if (!p6) {
             System.setProperty("bluray.profile.1", "YES");
             System.setProperty("bluray.p1.version.major", "1");
@@ -322,6 +343,8 @@ public class Libbluray {
 
         loadAdapter(System.getProperty("org.videolan.loader.adapter"));
         loadAdapter(pkg);
+
+        booted = true;
     }
 
     /* called only from native code */
@@ -362,7 +385,9 @@ public class Libbluray {
         synchronized (bdjoFilesLock) {
             bdjoFiles = null;
         }
+        classLoaderAdapter = null;
         loaderAdapter = null;
+        booted = false;
     }
 
     /*
@@ -549,7 +574,7 @@ public class Libbluray {
      */
 
     public static void writeGPR(int num, int value) {
-        int ret = writeGPRN(nativePointer, num, value);
+        int ret = writeRegN(nativePointer, 0, num, value, 0xffffffff);
 
         if (ret == -1)
             throw new IllegalArgumentException("Invalid GPR");
@@ -560,7 +585,7 @@ public class Libbluray {
     }
 
     public static void writePSR(int num, int value, int psr_value_mask) {
-        int ret = writePSRN(nativePointer, num, value, psr_value_mask);
+        int ret = writeRegN(nativePointer, 1, num, value, psr_value_mask);
 
         if (ret == -1)
             throw new IllegalArgumentException("Invalid PSR");
@@ -570,14 +595,14 @@ public class Libbluray {
         if (num < 0 || (num >= 4096))
             throw new IllegalArgumentException("Invalid GPR");
 
-        return readGPRN(nativePointer, num);
+        return readRegN(nativePointer, 0, num);
     }
 
     public static int readPSR(int num) {
         if (num < 0 || (num >= 128))
             throw new IllegalArgumentException("Invalid PSR");
 
-        return readPSRN(nativePointer, num);
+        return readRegN(nativePointer, 1, num);
     }
 
     /*
@@ -749,40 +774,6 @@ public class Libbluray {
     public  static final int BDJ_EVENT_UO_MASKED                = 17;
     private static final int BDJ_EVENT_MOUSE                    = 18;
 
-    /* TODO: use org/bluray/system/RegisterAccess instead */
-    public static final int PSR_IG_STREAM_ID     = 0;
-    public static final int PSR_PRIMARY_AUDIO_ID = 1;
-    public static final int PSR_PG_STREAM        = 2;
-    public static final int PSR_ANGLE_NUMBER     = 3;
-    public static final int PSR_TITLE_NUMBER     = 4;
-    public static final int PSR_CHAPTER          = 5;
-    public static final int PSR_PLAYLIST         = 6;
-    public static final int PSR_PLAYITEM         = 7;
-    public static final int PSR_TIME             = 8;
-    public static final int PSR_NAV_TIMER        = 9;
-    public static final int PSR_SELECTED_BUTTON_ID = 10;
-    public static final int PSR_MENU_PAGE_ID     = 11;
-    public static final int PSR_STYLE            = 12;
-    public static final int PSR_PARENTAL         = 13;
-    public static final int PSR_SECONDARY_AUDIO_VIDEO = 14;
-    public static final int PSR_AUDIO_CAP        = 15;
-    public static final int PSR_AUDIO_LANG       = 16;
-    public static final int PSR_PG_AND_SUB_LANG  = 17;
-    public static final int PSR_MENU_LANG        = 18;
-    public static final int PSR_COUNTRY          = 19;
-    public static final int PSR_REGION           = 20;
-    public static final int PSR_VIDEO_CAP        = 29;
-    public static final int PSR_TEXT_CAP         = 30;
-    public static final int PSR_PROFILE_VERSION  = 31;
-    public static final int PSR_BACKUP_PSR4      = 36;
-    public static final int PSR_BACKUP_PSR5      = 37;
-    public static final int PSR_BACKUP_PSR6      = 38;
-    public static final int PSR_BACKUP_PSR7      = 39;
-    public static final int PSR_BACKUP_PSR8      = 40;
-    public static final int PSR_BACKUP_PSR10     = 42;
-    public static final int PSR_BACKUP_PSR11     = 43;
-    public static final int PSR_BACKUP_PSR12     = 44;
-
     public static final int AACS_DISC_ID           = 1;
     public static final int AACS_MEDIA_VID         = 2;
     public static final int AACS_MEDIA_PMSN        = 3;
@@ -805,11 +796,9 @@ public class Libbluray {
     private static native void setKeyInterestN(long np, int mask);
     private static native long tellTimeN(long np);
     private static native int selectRateN(long np, float rate, int reason);
-    private static native int writeGPRN(long np, int num, int value);
-    private static native int writePSRN(long np, int num, int value, int psr_value_mask);
-    private static native int readGPRN(long np, int num);
+    private static native int writeRegN(long np, int is_psr, int num, int value, int psr_value_mask);
+    private static native int readRegN(long np, int is_psr, int num);
     private static native int setVirtualPackageN(long np, String vpPath, boolean psrBackup);
-    private static native int readPSRN(long np, int num);
     private static native int cacheBdRomFileN(long np, String path, String cachePath);
     private static native String[] listBdFilesN(long np, String path, boolean onlyBdRom);
     private static native Bdjo getBdjoN(long np, String name);
