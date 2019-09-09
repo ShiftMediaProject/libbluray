@@ -280,8 +280,11 @@ public class BDJClassLoader extends URLClassLoader {
     }
 
     public URL getResource(String name) {
+        URL url;
         name = name.replace('\\', '/');
-        return super.getResource(name);
+        url = super.getResource(name);
+        logger.info("getResource(" + name + ") --> " + url);
+        return url;
     }
 
     /* final in J2ME
@@ -292,8 +295,11 @@ public class BDJClassLoader extends URLClassLoader {
     */
 
     public URL findResource(String name) {
+        URL url;
         name = name.replace('\\', '/');
-        return super.findResource(name);
+        url = super.findResource(name);
+        logger.info("findResource(" + name + ") --> " + url);
+        return url;
     }
 
     public Enumeration findResources(String name) throws IOException {
@@ -302,8 +308,13 @@ public class BDJClassLoader extends URLClassLoader {
     }
 
     public InputStream getResourceAsStream(String name) {
+        InputStream is;
         name = name.replace('\\', '/');
-        return super.getResourceAsStream(name);
+        is = super.getResourceAsStream(name);
+        if (is == null) {
+            logger.info("getResourceAsStream(" + name + ") failed");
+        }
+        return is;
     }
 
     private String xletClass;

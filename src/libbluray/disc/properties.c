@@ -60,7 +60,7 @@ static int _read_prop_file(const char *file, char **data)
         return 0;
     }
 
-    fp = file_open(file, "rt");
+    fp = file_open(file, "rb");
     if (!fp) {
         goto unlink;
     }
@@ -114,7 +114,7 @@ static int _write_prop_file(const char *file, const char *data)
         return -1;
     }
 
-    fp = file_open(file, "wt");
+    fp = file_open(file, "wb");
     if (!fp) {
         return -1;
     }

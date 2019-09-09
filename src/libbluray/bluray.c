@@ -1585,19 +1585,23 @@ static void _find_next_playmark(BLURAY *bd)
 
 static void _playmark_reached(BLURAY *bd)
 {
-    BD_DEBUG(DBG_BLURAY, "PlayMark %d reached (%"PRIu64")\n", bd->next_mark, bd->next_mark_pos);
+    while (bd->next_mark >= 0 && bd->s_pos > bd->next_mark_pos) {
 
-    _queue_event(bd, BD_EVENT_PLAYMARK, bd->next_mark);
-    _bdj_event(bd, BDJ_EVENT_MARK, bd->next_mark);
+        BD_DEBUG(DBG_BLURAY, "PlayMark %d reached (%"PRIu64")\n", bd->next_mark, bd->next_mark_pos);
 
-    /* update next mark */
-    bd->next_mark++;
-    if ((unsigned)bd->next_mark < bd->title->mark_list.count) {
-        bd->next_mark_pos = (uint64_t)bd->title->mark_list.mark[bd->next_mark].title_pkt * 192L;
-    } else {
-        bd->next_mark = -1;
-        bd->next_mark_pos = (uint64_t)-1;
-    }
+        _queue_event(bd, BD_EVENT_PLAYMARK, bd->next_mark);
+        _bdj_event(bd, BDJ_EVENT_MARK, bd->next_mark);
+
+        /* update next mark */
+        bd->next_mark++;
+        if ((unsigned)bd->next_mark < bd->title->mark_list.count) {
+            bd->next_mark_pos = (uint64_t)bd->title->mark_list.mark[bd->next_mark].title_pkt * 192L;
+        } else {
+            /* no marks left */
+            bd->next_mark = -1;
+            bd->next_mark_pos = (uint64_t)-1;
+        }
+    };
 
     /* chapter tracking */
     _update_chapter_psr(bd);
@@ -1914,19 +1918,7 @@ static int64_t _clip_seek_time(BLURAY *bd, uint32_t tick)
 static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
 {
     BD_STREAM *st = &bd->st0;
-    int out_len;
-
-    if (st->fp) {
-        out_len = 0;
-        BD_DEBUG(DBG_STREAM, "Reading [%d bytes] at %"PRIu64"...\n", len, bd->s_pos);
-
-        if (st->clip == NULL) {
-            // We previously reached the last clip.  Nothing
-            // else to read.
-            _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
-            bd->end_of_playlist |= 1;
-            return 0;
-        }
+    int out_len = 0;
 
         while (len > 0) {
             uint32_t clip_pkt;
@@ -2060,18 +2052,38 @@ static int _bd_read(BLURAY *bd, unsigned char *buf, int len)
             bd->s_pos += size;
         }
 
-        /* mark tracking */
-        if (bd->next_mark >= 0 && bd->s_pos > bd->next_mark_pos) {
-            _playmark_reached(bd);
-        }
-
         BD_DEBUG(DBG_STREAM, "%d bytes read OK!\n", out_len);
         return out_len;
+}
+
+static int _bd_read_locked(BLURAY *bd, unsigned char *buf, int len)
+{
+    BD_STREAM *st = &bd->st0;
+    int r;
+
+    if (!st->fp) {
+        BD_DEBUG(DBG_STREAM | DBG_CRIT, "bd_read(): no valid title selected!\n");
+        return -1;
     }
 
-    BD_DEBUG(DBG_STREAM | DBG_CRIT, "bd_read(): no valid title selected!\n");
+    if (st->clip == NULL) {
+        // We previously reached the last clip.  Nothing
+        // else to read.
+        _queue_event(bd, BD_EVENT_END_OF_TITLE, 0);
+        bd->end_of_playlist |= 1;
+        return 0;
+    }
 
-    return -1;
+    BD_DEBUG(DBG_STREAM, "Reading [%d bytes] at %"PRIu64"...\n", len, bd->s_pos);
+
+    r = _bd_read(bd, buf, len);
+
+    /* mark tracking */
+    if (bd->next_mark >= 0 && bd->s_pos > bd->next_mark_pos) {
+        _playmark_reached(bd);
+    }
+
+    return r;
 }
 
 int bd_read(BLURAY *bd, unsigned char *buf, int len)
@@ -2079,7 +2091,7 @@ int bd_read(BLURAY *bd, unsigned char *buf, int len)
     int result;
 
     bd_mutex_lock(&bd->mutex);
-    result = _bd_read(bd, buf, len);
+    result = _bd_read_locked(bd, buf, len);
     bd_mutex_unlock(&bd->mutex);
 
     return result;
@@ -3550,7 +3562,7 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
         }
     }
 
-    int bytes = _bd_read(bd, buf, len);
+    int bytes = _bd_read_locked(bd, buf, len);
 
     if (bytes == 0) {
 

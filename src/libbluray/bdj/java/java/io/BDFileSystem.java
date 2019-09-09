@@ -19,6 +19,7 @@
 /*
  * Wrapper for java.io.FileSystem class.
  *
+ * - resolve relative files to Xlet home directory.
  * - replace getBooleanAttributes() for relative paths.
  *   Pretend files exist, if those are in xlet home directory (inside .jar).
  *   No other relative paths are allowed.
@@ -40,30 +41,50 @@ import org.videolan.Logger;
 
 public abstract class BDFileSystem extends FileSystem {
 
-    private static final Logger logger = Logger.getLogger(BDFileSystem.class.getName());
-
-    protected final FileSystem fs;
+    /*
+     * Access to native filesystem
+     *
+     * (for org.videolan.VFSCache, org.videolan.CacheDir)
+     */
 
     private static FileSystem nativeFileSystem;
 
     static {
-        /* Java 8: getFileSystem() no longer exists on java.io.FileSystem */
         try {
-            nativeFileSystem = (FileSystem)Class.forName("java.io.DefaultFileSystem")
-                .getDeclaredMethod("getFileSystem", new Class[0])
+            /* Java < 8 */
+            nativeFileSystem = (FileSystem)FileSystem.class
+                .getDeclaredMethod("getFileSystem",new Class[0])
                 .invoke(null, new Object[0]);
         } catch (Exception e) {
             try {
-                nativeFileSystem = (FileSystem)FileSystem.class
-                    .getDeclaredMethod("getFileSystem",new Class[0])
-                    .invoke(null, new Object[0]);
-            } catch (Exception t) {
-                System.err.print("Couldn't find native filesystem: " + t);
+                /* Just use our wrapper.  If it fails, JVM won't be booted anyway ... */
+                nativeFileSystem = DefaultFileSystem.getNativeFileSystem();
+            } catch (Throwable t) {
+                System.err.print("Couldn't find native filesystem: " + e);
             }
         }
     }
 
+    /* org.videolan.CacheDir uses this function to clean up cache directory */
+    public static String[] nativeList(File f) {
+        return nativeFileSystem.list(f);
+    }
+
+    /* org.videolan.VFSCache uses this function to check if file has been cached */
+    public static boolean nativeFileExists(String path) {
+        return nativeFileSystem.getBooleanAttributes(new File(path)) != 0;
+    }
+
+    /*
+     * Replace File.fs for Xlets (required with Java < 8 where this is not done unconditionally)
+     *
+     * (called by org.videolan.BDJClassLoader)
+     */
+
     public static void init(final Class c) {
+
+        setBooted();
+
         AccessController.doPrivileged(
             new PrivilegedAction() {
                 public Object run() {
@@ -79,32 +100,48 @@ public abstract class BDFileSystem extends FileSystem {
             filesystem = c.getDeclaredField("fs");
             filesystem.setAccessible(true);
 
-            /* Java 8: remove "final" modifier from the field */
-            Field modifiersField = Field.class.getDeclaredField("modifiers");
-            modifiersField.setAccessible(true);
-            modifiersField.setInt(filesystem, filesystem.getModifiers() & ~Modifier.FINAL);
-
             FileSystem fs = (FileSystem)filesystem.get(null);
             if (fs instanceof BDFileSystemImpl) {
                 //System.err.print("FileSystem already wrapped");
             } else {
+                /* Java 8: we should never end up here ... */
+                /* Java 8: remove "final" modifier from the field */
+                //Field modifiersField = Field.class.getDeclaredField("modifiers");
+                //modifiersField.setAccessible(true);
+                //modifiersField.setInt(filesystem, filesystem.getModifiers() & ~Modifier.FINAL);
                 filesystem.set(null, new BDFileSystemImpl(fs));
             }
         } catch (Exception t) {
-            System.err.print("Hooking FileSystem class failed: " + t);
+            error("Hooking FileSystem class failed: " + t);
         }
     }
 
-    public static String[] nativeList(File f) {
-        return nativeFileSystem.list(f);
+    /*
+     * enable after JVM boot is completed
+     */
+
+    private static Logger logger = null;
+    private static boolean booted = false;
+
+    /* Called by org.videolan.Libbluray.initOnce() */
+    public static void setBooted() {
+        if (!booted) {
+            booted = true;
+            logger = Logger.getLogger(BDFileSystem.class.getName());
+        }
     }
 
-    public static boolean nativeFileExists(String path) {
-        return nativeFileSystem.getBooleanAttributes(new File(path)) != 0;
+    private static void error(String msg) {
+        if (logger != null) {
+            logger.error(msg);
+        }
     }
 
     /*
+     *
      */
+
+    protected final FileSystem fs;
 
     public BDFileSystem(FileSystem fs) {
         this.fs = fs;
@@ -139,6 +176,9 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public String resolve(String parent, String child) {
+        if (!booted)
+            return fs.resolve(parent, child);
+
         if (parent == null || parent.equals("") || parent.equals(".")) {
             parent = getHomeDir();
         }
@@ -168,6 +208,9 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public String resolve(File f) {
+        if (!booted)
+            return fs.resolve(f);
+
         if (!f.isAbsolute()) {
             logger.info("resolve relative file " + f.getPath());
             return resolve(BDJXletContext.getCurrentXletHome(), f.getPath());
@@ -182,6 +225,9 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public String canonicalize(String path) throws IOException {
+        if (!booted)
+            return fs.canonicalize(path);
+
         String canonPath = fs.canonicalize(path);
         String cachePath = BDJLoader.getCachedFile(canonPath);
         if (cachePath != canonPath) {
@@ -191,6 +237,9 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public int getBooleanAttributes(File f) {
+        if (!booted)
+            return fs.getBooleanAttributes(f);
+
         if (f.isAbsolute()) {
             return fs.getBooleanAttributes(f);
         }
@@ -217,6 +266,9 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public long getLength(File f) {
+        if (!booted)
+            return fs.getLength(f);
+
         if (f.isAbsolute()) {
             return fs.getLength(f);
         }
@@ -263,7 +315,7 @@ public abstract class BDFileSystem extends FileSystem {
                 args = new Object[] {(Object)path, (Object)new Boolean(restrictive)};
             }
         } catch (NoSuchMethodException e) {
-            logger.error("no matching FileSystem.createFileExclusively found !");
+            error("no matching FileSystem.createFileExclusively found !");
             throw new IOException();
         }
 
@@ -272,14 +324,14 @@ public abstract class BDFileSystem extends FileSystem {
             Boolean result = (Boolean)m.invoke(fs, args);
             return result.booleanValue();
         } catch (IllegalAccessException e) {
-            logger.error("" + e);
+            error("" + e);
             throw new IOException();
         } catch (InvocationTargetException e) {
             Throwable t = e.getTargetException();
             if (t instanceof IOException) {
                 throw (IOException)t;
             }
-            logger.error("" + t);
+            error("" + t);
             throw new IOException();
         }
     }
@@ -299,6 +351,8 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public String[] list(File f) {
+        if (!booted)
+            return fs.list(f);
 
         String path = f.getPath();
         String root = System.getProperty("bluray.vfs.root");

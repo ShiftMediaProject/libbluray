@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([bluray_major], 1)
 m4_define([bluray_minor], 1)
-m4_define([bluray_micro], 1)
+m4_define([bluray_micro], 2)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
 dnl shared library version (.so version)
@@ -13,7 +13,7 @@ dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
 m4_define([lt_current],  3)
-m4_define([lt_revision], 1)
+m4_define([lt_revision], 2)
 m4_define([lt_age],      1)
 
 dnl initilization
@@ -157,7 +157,7 @@ AS_IF([test "x$with_libxml2" != "xno"], [
   PKG_CHECK_MODULES([LIBXML2], [libxml-2.0 >= 2.6],
     [with_libxml2=yes; AC_DEFINE([HAVE_LIBXML2], [1],
         [Define to 1 if libxml2 is to be used for metadata parsing])])
-  PACKAGES="$PACKAGES libxml-2.0"
+  PACKAGES="$PACKAGES libxml-2.0 >= 2.6"
 ])
 
 dnl FreeType2
@@ -216,6 +216,7 @@ case $host_os in
      freebsd*) java_os=freebsd ;;
      solaris*) java_os=solaris ;;
      darwin*)  java_os=darwin ;;
+     netbsd*)  java_os=netbsd ;;
      *)        java_os=$host_os ;;
 esac
 

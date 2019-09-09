@@ -138,6 +138,9 @@ public class Libbluray {
         } catch (Throwable t) {
             System.err.println("Hooking socket factory failed: " + t + "\n" + Logger.dumpStack(t));
         }
+
+        /* enable filesystem hooks */
+        java.io.BDFileSystem.setBooted();
     }
 
     private static String canonicalize(String path, boolean create) {
