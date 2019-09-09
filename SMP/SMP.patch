@@ -148,7 +148,7 @@ index 6155ad6a..a7e24757 100644
          if (lib_path) {
              /* cut library name from path */
 diff --git a/src/libbluray/bdj/bdj.c b/src/libbluray/bdj/bdj.c
-index 5cf9478d..9baae232 100644
+index ded6062a..fad408fd 100644
 --- a/src/libbluray/bdj/bdj.c
 +++ b/src/libbluray/bdj/bdj.c
 @@ -49,6 +49,9 @@
@@ -190,7 +190,7 @@ index 20da1253..1b7bef5d 100644
  
  #define DEFAULT_LANGUAGE  "eng"
 diff --git a/src/libbluray/bluray.c b/src/libbluray/bluray.c
-index c6dbcfa5..483bbf63 100644
+index 05b881a6..f685d1e1 100644
 --- a/src/libbluray/bluray.c
 +++ b/src/libbluray/bluray.c
 @@ -58,6 +58,12 @@
@@ -207,7 +207,7 @@ index c6dbcfa5..483bbf63 100644
  typedef enum {
      title_undef = 0,
 diff --git a/src/libbluray/disc/aacs.c b/src/libbluray/disc/aacs.c
-index b66ddd41..ca200ecf 100644
+index dce2c0b9..a7baf678 100644
 --- a/src/libbluray/disc/aacs.c
 +++ b/src/libbluray/disc/aacs.c
 @@ -32,6 +32,12 @@
@@ -224,7 +224,7 @@ index b66ddd41..ca200ecf 100644
  struct bd_aacs {
      void           *h_libaacs;   /* library handle from dlopen */
 diff --git a/src/libbluray/disc/bdplus.c b/src/libbluray/disc/bdplus.c
-index 4eaf1a75..d462a6e6 100644
+index 3d896a9c..2879f953 100644
 --- a/src/libbluray/disc/bdplus.c
 +++ b/src/libbluray/disc/bdplus.c
 @@ -32,6 +32,12 @@
