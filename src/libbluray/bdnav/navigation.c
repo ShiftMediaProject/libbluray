@@ -511,7 +511,7 @@ void nav_free_title_list(NAV_TITLE_LIST **title_list)
  *
  */
 
-uint8_t nav_lookup_aspect(NAV_CLIP *clip, int pid)
+uint8_t nav_clip_lookup_aspect(NAV_CLIP *clip, int pid)
 {
     CLPI_PROG *progs;
     int ii, jj;
@@ -955,7 +955,7 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, 
 //    Search to the timestamp obtained from nav_angle_change_search using
 //    nav_clip_time_search. Otherwise start at the start_pkt defined 
 //    by the clip.
-uint32_t nav_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time)
+uint32_t nav_clip_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time)
 {
     if (clip->cl == NULL) {
         return pkt;

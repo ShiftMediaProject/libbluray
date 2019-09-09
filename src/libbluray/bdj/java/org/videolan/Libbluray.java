@@ -238,9 +238,14 @@ public class Libbluray {
         }
 
         byte[] type = getAacsData(4096);
-        String pkg = type != null ? new String(type) : null;
-        if (pkg != null) {
-            System.out.println("using " + pkg);
+        String pkg;
+        try {
+            pkg = type != null ? new String(type, "UTF-8") : null;
+            if (pkg != null) {
+                System.out.println("using " + pkg);
+            }
+        } catch (java.io.UnsupportedEncodingException uee) {
+            pkg = null;
         }
 
         System.setProperty("mhp.profile.enhanced_broadcast", "YES");

@@ -31,12 +31,15 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Map;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import javax.tv.xlet.Xlet;
 
 import org.videolan.bdjo.AppCache;
 
 public class BDJClassLoader extends URLClassLoader {
-    public static BDJClassLoader newInstance(AppCache[] appCaches, String basePath, String classPathExt, String xletClass) {
+    public static BDJClassLoader newInstance(AppCache[] appCaches, String basePath, String classPathExt, final String xletClass) {
         ArrayList classPath = new ArrayList();
         URL url = translateClassPath(appCaches, basePath, null);
         if (url != null)
@@ -47,7 +50,14 @@ public class BDJClassLoader extends URLClassLoader {
             if ((url != null) && (classPath.indexOf(url) < 0))
                 classPath.add(url);
         }
-        return new BDJClassLoader((URL[])classPath.toArray(new URL[classPath.size()]) , xletClass);
+
+        final URL[] urls = (URL[])classPath.toArray(new URL[classPath.size()]);
+        return (BDJClassLoader)AccessController.doPrivileged(
+                new PrivilegedAction() {
+                    public Object run() {
+                        return new BDJClassLoader(urls, xletClass);
+                    }
+                });
     }
 
     private static URL translateClassPath(AppCache[] appCaches, String basePath, String classPath) {

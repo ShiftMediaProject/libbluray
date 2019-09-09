@@ -301,6 +301,28 @@ static void _fetch_operands(HDMV_VM *p, MOBJ_CMD *cmd, uint32_t *dst, uint32_t *
  * event queue
  */
 
+const char *hdmv_event_str(hdmv_event_e event)
+{
+    switch (event) {
+#define EVENT_ENTRY(e) case e : return #e
+        EVENT_ENTRY(HDMV_EVENT_NONE);
+        EVENT_ENTRY(HDMV_EVENT_END);
+        EVENT_ENTRY(HDMV_EVENT_IG_END);
+        EVENT_ENTRY(HDMV_EVENT_TITLE);
+        EVENT_ENTRY(HDMV_EVENT_PLAY_PL);
+        EVENT_ENTRY(HDMV_EVENT_PLAY_PI);
+        EVENT_ENTRY(HDMV_EVENT_PLAY_PM);
+        EVENT_ENTRY(HDMV_EVENT_PLAY_STOP);
+        EVENT_ENTRY(HDMV_EVENT_STILL);
+        EVENT_ENTRY(HDMV_EVENT_SET_BUTTON_PAGE);
+        EVENT_ENTRY(HDMV_EVENT_ENABLE_BUTTON);
+        EVENT_ENTRY(HDMV_EVENT_DISABLE_BUTTON);
+        EVENT_ENTRY(HDMV_EVENT_POPUP_OFF);
+#undef EVENT_ENTRY
+    }
+    return "???";
+}
+
 static int _get_event(HDMV_VM *p, HDMV_EVENT *ev)
 {
     if (p->event[0].event != HDMV_EVENT_NONE) {
@@ -325,7 +347,7 @@ static int _queue_event(HDMV_VM *p, hdmv_event_e event, uint32_t param)
         }
     }
 
-    BD_DEBUG(DBG_HDMV|DBG_CRIT, "_queue_event(%d, %d): queue overflow !\n", event, param);
+    BD_DEBUG(DBG_HDMV|DBG_CRIT, "_queue_event(%d:%s, %d): queue overflow !\n", event, hdmv_event_str(event), param);
     return -1;
 }
 

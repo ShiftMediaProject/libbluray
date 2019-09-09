@@ -71,8 +71,13 @@ public class Adapter extends LoaderAdapter implements BDJClassLoaderAdapter {
         final String s2 = "org/videolan/mmbd/Adapter$If";
         Map m = new HashMap();
         String d1, d2;
-        m.put(s1, d1 = (new String(b0) + new String(b1)));
-        m.put(s2, d2 = (new String(b0) + new String(b2)));
+
+        try {
+            m.put(s1, d1 = (new String(b0, "UTF-8") + new String(b1, "UTF-8")));
+            m.put(s2, d2 = (new String(b0, "UTF-8") + new String(b2, "UTF-8")));
+        } catch (java.io.UnsupportedEncodingException uee) {
+            throw new ClassNotFoundException();
+        }
 
         BDJClassFileTransformer t = new BDJClassFileTransformer();
         byte[] c1 = t.rename(loadBootClassCode(s1), m);

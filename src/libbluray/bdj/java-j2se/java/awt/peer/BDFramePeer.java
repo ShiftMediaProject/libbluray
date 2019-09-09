@@ -30,8 +30,8 @@ import org.videolan.Logger;
 
 public class BDFramePeer extends BDComponentPeer implements FramePeer
 {
-    public BDFramePeer(Frame frame, BDRootWindow rootWindow) {
-        super(frame.getToolkit(), frame);
+    public BDFramePeer(BDRootWindow rootWindow) {
+        super(rootWindow.getToolkit(), rootWindow);
         this.rootWindow = rootWindow;
     }
 

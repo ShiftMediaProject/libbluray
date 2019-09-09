@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([bluray_major], 1)
 m4_define([bluray_minor], 1)
-m4_define([bluray_micro], 0)
+m4_define([bluray_micro], 1)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
 dnl shared library version (.so version)
@@ -13,7 +13,7 @@ dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
 m4_define([lt_current],  3)
-m4_define([lt_revision], 0)
+m4_define([lt_revision], 1)
 m4_define([lt_age],      1)
 
 dnl initilization
@@ -174,8 +174,7 @@ AS_IF([test "x$with_freetype" != "xno"], [
       PACKAGES="$PACKAGES fontconfig"
     ])
   ],[
-    FONTCONFIG_LIBS="-lgdi32"
-    AC_SUBST([FONTCONFIG_LIBS])
+    EXTRA_LIBS="$EXTRA_LIBS -lgdi32"
   ])
 ])
 
@@ -302,6 +301,7 @@ AC_CONFIG_FILES([Makefile src/libbluray.pc src/libbluray/bluray-version.h])
 AC_OUTPUT
 
 AC_SUBST([PACKAGES])
+AC_SUBST([EXTRA_LIBS])
 
 dnl ---------------------------------------------
 dnl Some infos:

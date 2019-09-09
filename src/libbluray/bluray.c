@@ -321,14 +321,64 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
 {
     MPLS_STN *stn = &clip->title->pl->play_item[clip->ref].stn;
     uint32_t audio_lang = 0;
+    uint32_t psr_val;
 
     bd_psr_write(bd->regs, PSR_PLAYITEM, clip->ref);
     bd_psr_write(bd->regs, PSR_TIME,     clip->in_time);
 
-    /* Update selected audio and subtitle stream PSRs when not using menus.
-     * Selection is based on language setting PSRs and clip STN.
-     */
-    if (bd->title_type == title_undef) {
+    /* Validate selected audio, subtitle and IG stream PSRs */
+    if (stn->num_audio) {
+        bd_psr_lock(bd->regs);
+        psr_val = bd_psr_read(bd->regs, PSR_PRIMARY_AUDIO_ID);
+        if (psr_val == 0 || psr_val > stn->num_audio) {
+            _update_stream_psr_by_lang(bd->regs,
+                                       PSR_AUDIO_LANG, PSR_PRIMARY_AUDIO_ID, 0,
+                                       stn->audio, stn->num_audio,
+                                       &audio_lang, 0);
+        } else {
+            audio_lang = str_to_uint32((const char *)stn->audio[psr_val - 1].lang, 3);
+        }
+        bd_psr_unlock(bd->regs);
+    }
+    if (stn->num_pg) {
+        bd_psr_lock(bd->regs);
+        psr_val = bd_psr_read(bd->regs, PSR_PG_STREAM) & 0xfff;
+        if ((psr_val == 0) || (psr_val > stn->num_pg)) {
+            _update_stream_psr_by_lang(bd->regs,
+                                       PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
+                                       stn->pg, stn->num_pg,
+                                       NULL, audio_lang);
+        }
+        bd_psr_unlock(bd->regs);
+    }
+    if (stn->num_ig && bd->title_type != title_undef) {
+        bd_psr_lock(bd->regs);
+        psr_val = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
+        if ((psr_val == 0) || (psr_val > stn->num_ig)) {
+            bd_psr_write(bd->regs, PSR_IG_STREAM_ID, 1);
+            BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Selected IG stream 1 (stream %d not available)\n", psr_val);
+        }
+        bd_psr_unlock(bd->regs);
+    }
+}
+
+static void _update_playlist_psrs(BLURAY *bd)
+{
+    NAV_CLIP *clip = bd->st0.clip;
+
+    bd_psr_write(bd->regs, PSR_PLAYLIST, atoi(bd->title->name));
+    bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
+    bd_psr_write(bd->regs, PSR_CHAPTER, 0xffff);
+
+    if (clip && bd->title_type == title_undef) {
+        /* Initialize selected audio and subtitle stream PSRs when not using menus.
+         * Selection is based on language setting PSRs and clip STN.
+         */
+        MPLS_STN *stn = &clip->title->pl->play_item[clip->ref].stn;
+        uint32_t audio_lang = 0;
+
+        /* make sure clip is up-to-date before STREAM events are triggered */
+        bd_psr_write(bd->regs, PSR_PLAYITEM, clip->ref);
 
         if (stn->num_audio) {
             _update_stream_psr_by_lang(bd->regs,
@@ -342,44 +392,6 @@ static void _update_clip_psrs(BLURAY *bd, NAV_CLIP *clip)
                                        PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
                                        stn->pg, stn->num_pg,
                                        NULL, audio_lang);
-        }
-
-    /* Validate selected audio, subtitle and IG stream PSRs when using menus */
-    } else {
-        uint32_t psr_val;
-
-        if (stn->num_audio) {
-            bd_psr_lock(bd->regs);
-            psr_val = bd_psr_read(bd->regs, PSR_PRIMARY_AUDIO_ID);
-            if (psr_val == 0 || psr_val > stn->num_audio) {
-                _update_stream_psr_by_lang(bd->regs,
-                                           PSR_AUDIO_LANG, PSR_PRIMARY_AUDIO_ID, 0,
-                                           stn->audio, stn->num_audio,
-                                           &audio_lang, 0);
-            } else {
-                audio_lang = str_to_uint32((const char *)stn->audio[psr_val - 1].lang, 3);
-            }
-            bd_psr_unlock(bd->regs);
-        }
-        if (stn->num_pg) {
-            bd_psr_lock(bd->regs);
-            psr_val = bd_psr_read(bd->regs, PSR_PG_STREAM) & 0xfff;
-            if ((psr_val == 0) || (psr_val > stn->num_pg)) {
-                _update_stream_psr_by_lang(bd->regs,
-                                           PSR_PG_AND_SUB_LANG, PSR_PG_STREAM, 0x80000000,
-                                           stn->pg, stn->num_pg,
-                                           NULL, audio_lang);
-            }
-            bd_psr_unlock(bd->regs);
-        }
-        if (stn->num_ig) {
-            bd_psr_lock(bd->regs);
-            psr_val = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
-            if ((psr_val == 0) || (psr_val > stn->num_ig)) {
-                bd_psr_write(bd->regs, PSR_IG_STREAM_ID, 1);
-                BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Selected IG stream 1 (stream %d not available)\n", psr_val);
-            }
-            bd_psr_unlock(bd->regs);
         }
     }
 }
@@ -963,6 +975,15 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
     if (bd->disc) {
         bd->disc_info.udf_volume_id = disc_volume_id(bd->disc);
         index = indx_get(bd->disc);
+        if (!index) {
+            /* check for incomplete disc */
+            int r = bd_get_titles(bd, 0, 0);
+            if (r > 0) {
+                BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Possible incomplete BluRay image detected. No menu support.\n");
+                bd->disc_info.bluray_detected = 1;
+                bd->disc_info.no_menu_support = 1;
+            }
+        }
     }
 
     if (index) {
@@ -2304,6 +2325,8 @@ static void _close_playlist(BLURAY *bd)
 
     nav_title_close(&bd->title);
 
+    bd->st0.clip = NULL;
+
     /* reset UO mask */
     memset(&bd->st0.uo_mask, 0, sizeof(BD_UO_MASK));
     memset(&bd->gc_uo_mask,  0, sizeof(BD_UO_MASK));
@@ -2352,12 +2375,11 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
     bd->end_of_playlist = 0;
     bd->st0.ig_pid = 0;
 
-    bd_psr_write(bd->regs, PSR_PLAYLIST, atoi(bd->title->name));
-    bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
-    bd_psr_write(bd->regs, PSR_CHAPTER, 0xffff);
-
     // Get the initial clip of the playlist
     bd->st0.clip = nav_next_clip(bd->title, NULL);
+
+    _update_playlist_psrs(bd);
+
     if (_open_m2ts(bd, &bd->st0)) {
         BD_DEBUG(DBG_BLURAY, "Title %s selected\n", f_name);
 
@@ -2532,8 +2554,8 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle)
     bd_mutex_lock(&bd->mutex);
 
     clip_pkt = SPN(bd->st0.clip_pos + 191);
-    bd->angle_change_pkt = nav_angle_change_search(bd->st0.clip, clip_pkt,
-                                                   &bd->angle_change_time);
+    bd->angle_change_pkt = nav_clip_angle_change_search(bd->st0.clip, clip_pkt,
+                                                        &bd->angle_change_time);
     bd->request_angle = angle;
     bd->seamless_angle_change = 1;
 
@@ -2547,7 +2569,6 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle)
 uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length)
 {
     if (!bd) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_get_titles(NULL) failed\n");
         return 0;
     }
 
@@ -2601,7 +2622,7 @@ static int _copy_streams(NAV_CLIP *clip, BLURAY_STREAM_INFO **pstreams, MPLS_STR
         streams[ii].char_code = si[ii].char_code;
         memcpy(streams[ii].lang, si[ii].lang, 4);
         streams[ii].pid = si[ii].pid;
-        streams[ii].aspect = nav_lookup_aspect(clip, si[ii].pid);
+        streams[ii].aspect = nav_clip_lookup_aspect(clip, si[ii].pid);
         if ((si->stream_type == 2) || (si->stream_type == 3))
             streams[ii].subpath_id = si->subpath_id;
         else
@@ -3381,7 +3402,7 @@ int bd_menu_call(BLURAY *bd, int64_t pts)
 
 static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
 {
-    BD_DEBUG(DBG_BLURAY, "HDMV event: %d %d\n", hev->event, hev->param);
+    BD_DEBUG(DBG_BLURAY, "HDMV event: %s(%d): %d\n", hdmv_event_str(hev->event), hev->event, hev->param);
 
     switch (hev->event) {
         case HDMV_EVENT_TITLE:
@@ -3437,7 +3458,7 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
 
         case HDMV_EVENT_END:
         case HDMV_EVENT_NONE:
-        default:
+      //default:
             break;
     }
 }

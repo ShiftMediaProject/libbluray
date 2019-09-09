@@ -44,7 +44,7 @@ public class CausedFocusEvent extends FocusEvent {
             throw new Error("This class should not be included at run time");
     }
 
-    public class /* enum */ Cause {
+    public static class /* enum */ Cause {
     };
 
     public CausedFocusEvent(Component src, int id) {

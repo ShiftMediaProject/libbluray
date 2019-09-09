@@ -670,7 +670,7 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
             drawPoint(xPoints[0], yPoints[0], foreground.getRGB());
         } else {
             for (int i = 0; i < (nPoints - 1); i++)
-                drawLine(xPoints[i], xPoints[i], xPoints[i + 1], xPoints[i + 1]);
+                drawLine(xPoints[i], yPoints[i], xPoints[i + 1], yPoints[i + 1]);
         }
     }
 
@@ -680,9 +680,9 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
             drawPoint(xPoints[0], yPoints[0], foreground.getRGB());
         } else {
             for (int i = 0; i < (nPoints - 1); i++)
-                drawLine(xPoints[i], xPoints[i], xPoints[i + 1], xPoints[i + 1]);
+                drawLine(xPoints[i], yPoints[i], xPoints[i + 1], yPoints[i + 1]);
             if (nPoints > 2)
-                drawLine(xPoints[0], xPoints[0], xPoints[nPoints - 1], xPoints[nPoints - 1]);
+                drawLine(xPoints[0], yPoints[0], xPoints[nPoints - 1], yPoints[nPoints - 1]);
         }
     }
 

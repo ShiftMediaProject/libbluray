@@ -7,6 +7,6 @@ Name: libbluray
 Description: library supporting Blu-ray playback
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -lbluray
-Libs.private: @DLOPEN_LIBS@ @FONTCONFIG_LIBS@
+Libs.private: @DLOPEN_LIBS@ @EXTRA_LIBS@
 Requires.private: @PACKAGES@
 Cflags: -I${includedir}

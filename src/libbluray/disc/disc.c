@@ -539,7 +539,7 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
 
     /* plain directory ? */
     size = strlen(rel_path);
-    if (rel_path[size - 1] == '/' || rel_path[size - 1] == '\\') {
+    if (size < 1 || rel_path[size - 1] == '/' || rel_path[size - 1] == '\\') {
         return 0;
     }
 
@@ -591,11 +591,6 @@ static char *_properties_file(BD_DISC *p)
     char    *cache_home;
     char    *properties_file;
 
-    cache_home = file_get_cache_home();
-    if (!cache_home) {
-        return NULL;
-    }
-
     /* get disc ID */
     if (p->dec) {
         id_type = 'A';
@@ -603,8 +598,17 @@ static char *_properties_file(BD_DISC *p)
     }
     if (!disc_id) {
         id_type = 'P';
-        disc_pseudo_id(p, pseudo_id);
-        disc_id = pseudo_id;
+        if (disc_pseudo_id(p, pseudo_id) > 0) {
+            disc_id = pseudo_id;
+        }
+    }
+    if (!disc_id) {
+        return NULL;
+    }
+
+    cache_home = file_get_cache_home();
+    if (!cache_home) {
+        return NULL;
     }
 
     properties_file = str_printf("%s" DIR_SEP "bluray" DIR_SEP "properties" DIR_SEP "%c%s",
@@ -784,16 +788,18 @@ static int _hash_file(BD_DISC *p, const char *dir, const char *file, void *hash)
     return sz > 16;
 }
 
-BD_PRIVATE void disc_pseudo_id(BD_DISC *p, uint8_t *id/*[20]*/)
+int disc_pseudo_id(BD_DISC *p, uint8_t *id/*[20]*/)
 {
     uint8_t h[2][20];
-    int i;
+    int i, r = 0;
 
     memset(h, 0, sizeof(h));
-    _hash_file(p, "BDMV", "MovieObject.bdmv", h[0]);
-    _hash_file(p, "BDMV", "index.bdmv", h[1]);
+    r += _hash_file(p, "BDMV", "MovieObject.bdmv", h[0]);
+    r += _hash_file(p, "BDMV", "index.bdmv", h[1]);
 
     for (i = 0; i < 20; i++) {
         id[i] = h[0][i] ^ h[1][i];
     }
+
+    return r > 0;
 }

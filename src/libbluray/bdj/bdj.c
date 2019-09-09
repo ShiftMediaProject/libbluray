@@ -846,7 +846,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     (void)java_home;  /* used only with J2ME */
 
     fptr_JNI_CreateJavaVM JNI_CreateJavaVM_fp;
-    JavaVMOption option[64];
+    JavaVMOption option[96];
     int n = 0, result, java_9;
     JavaVMInitArgs args;
 
@@ -878,9 +878,15 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
     option[n++].optionString = str_dup   ("-XfullShutdown");
 #endif
 
+#ifdef _WIN32
+# define CLASSPATH_FORMAT_P "%s;%s"
+#else
+# define CLASSPATH_FORMAT_P "%s:%s"
+#endif
+
     if (!java_9) {
       option[n++].optionString = str_dup   ("-Djavax.accessibility.assistive_technologies= ");
-      option[n++].optionString = str_printf("-Xbootclasspath/p:%s:%s", jar_file[0], jar_file[1]);
+      option[n++].optionString = str_printf("-Xbootclasspath/p:" CLASSPATH_FORMAT_P, jar_file[0], jar_file[1]);
     } else {
       option[n++].optionString = str_printf("--patch-module=java.base=%s", jar_file[0]);
       option[n++].optionString = str_printf("--patch-module=java.desktop=%s", jar_file[1]);
