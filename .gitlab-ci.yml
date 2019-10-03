@@ -22,9 +22,9 @@ build-macos:
     tags:
         - macos
     script:
-        - curl -sS -O https://nightlies.videolan.org/build/contribs/vlc-contrib-x86_64-apple-darwin17-latest.tar.bz2
-        - tar xf vlc-contrib-x86_64-apple-darwin17-latest.tar.bz2
-        - cd x86_64-apple-darwin17
+        - curl -sS -O https://nightlies.videolan.org/build/contribs/vlc-contrib-x86_64-apple-darwin18-latest.tar.bz2
+        - tar xf vlc-contrib-x86_64-apple-darwin18-latest.tar.bz2
+        - cd x86_64-apple-darwin18
         - curl -sS -o ./change_prefix.sh 'https://git.videolan.org/?p=vlc.git;a=blob_plain;f=contrib/src/change_prefix.sh;hb=HEAD'
         - chmod +x ./change_prefix.sh
         - ./change_prefix.sh
