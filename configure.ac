@@ -46,6 +46,7 @@ case "${host_os}" in
     ;;
   *darwin*)
     SYS=darwin
+    EXTRA_LIBS="${EXTRA_LIBS} -framework CoreFoundation -framework DiskArbitration"
     ;;
   netbsd*)
     SYS=netbsd
