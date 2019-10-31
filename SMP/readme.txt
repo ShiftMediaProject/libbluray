@@ -20,9 +20,3 @@ When using the WinRT/UWP project configurations the projects will automatically 
   VS 2015: 8.1
   VS 2017: 10.0.10240.0
 
-By default when compiling a static lib the project will include static libs for any dependencies.
-  Conversely when compiling a shared dll the project will link against shared libs for the dependencies.
-  This behaviour can be changed by adding 1 of the following tags to the projects Preprocessor Definitions:
-  SHARED_DEPS: To include all dependencies as shared libs.
-  STATIC_DEPS: To include all dependencies as static libs.
-
