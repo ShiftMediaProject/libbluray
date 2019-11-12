@@ -343,19 +343,23 @@ static void *_jvm_dlopen_a(const char *java_home,
 static void *_load_jli_macos()
 {
     const char *java_home = NULL;
-    static const char jli_dir[] = "jre/lib/jli";
+    static const char * const jli_dir[]  = {
+        "jre/lib/jli", "lib/jli",
+    };
+    const unsigned num_jli_dir  = sizeof(jli_dir)  / sizeof(jli_dir[0]);
+
     static const char jli_lib[] = "libjli";
     void *handle;
 
     /* JAVA_HOME set, use it */
     java_home = getenv("JAVA_HOME");
     if (java_home) {
-        return _jvm_dlopen(java_home, jli_dir, jli_lib);
+        return _jvm_dlopen_a(java_home, jli_dir, num_jli_dir, jli_lib);
     }
 
     java_home = _java_home_macos();
     if (java_home) {
-        handle = _jvm_dlopen(java_home, jli_dir, jli_lib);
+        handle = _jvm_dlopen_a(java_home, jli_dir, num_jli_dir, jli_lib);
         if (handle) {
             return handle;
         }
