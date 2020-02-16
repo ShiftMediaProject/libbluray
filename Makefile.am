@@ -228,10 +228,14 @@ pkginclude_HEADERS = \
 
 if USING_BDJAVA_BUILD_JAR
 
+if USING_JAVAC_12
+java_versions = -Djava_version_asm=1.7 -Djava_version_bdj=1.7
+else
 if USING_JAVAC_9
 java_versions = -Djava_version_asm=1.6 -Djava_version_bdj=1.6
 else
 java_versions = -Djava_version_asm=1.5 -Djava_version_bdj=1.4
+endif
 endif
 
 if BDJ_J2SE

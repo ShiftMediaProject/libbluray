@@ -251,16 +251,19 @@ AS_IF([test "x$use_bdjava_jar" = "xyes"], [
 
         dnl check for Java 9+
         javac_version=`"$JAVAC" -version 2>&1 | head -n 1`
-        [with_java9=`echo "$javac_version" | grep -E -q '^javac\ (9|1[0-9])' && echo yes`]
+        [with_java9=`echo "$javac_version" | grep -E -q '^javac\ (9|1[0-1])' && echo yes`]
+        [with_java12=`echo "$javac_version" | grep -E -q '^javac\ (1[2-9])' && echo yes`]
     ])
 
     AS_IF([test "x$with_java9" = "xyes" -a "$BDJ_TYPE" != "j2me"], [java_code_version=1.6], [java_code_version=1.4])
+    AS_IF([test "x$with_java12" = "xyes" -a "$BDJ_TYPE" != "j2me"], [java_code_version=1.7])
 ])
 
 AC_DEFINE_UNQUOTED([JAVA_ARCH], ["$java_arch"], ["Defines the architecture of the java vm."])
 AC_DEFINE_UNQUOTED([JDK_HOME], ["$JDK_HOME"], [""])
 AM_CONDITIONAL([USING_BDJAVA_BUILD_JAR], [ test $use_bdjava_jar = "yes" ])
 AM_CONDITIONAL([USING_JAVAC_9], [ test x"$with_java9" = x"yes" ])
+AM_CONDITIONAL([USING_JAVAC_12], [ test x"$with_java12" = x"yes" ])
 
 dnl BD-J type
 if test "$BDJ_TYPE" = "j2me"; then
