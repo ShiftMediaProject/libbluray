@@ -225,7 +225,7 @@ main(int argc, char *argv[])
         total += wrote;
     }
     if (verbose) {
-        fprintf(stderr, "Wrote %"PRId64" bytes\n", total);
+        fprintf(stderr, "Wrote %" PRId64 " bytes\n", total);
     }
     bd_close(bd);
     fclose(out);

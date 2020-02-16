@@ -274,7 +274,7 @@ _show_cpi_info(CLPI_CPI *cpi, int level)
                     pts = ((uint64_t) (coarse->pts_ep & ~0x01) << 19) +
                             ((uint64_t)fine->pts_ep << 9);
                     spn = (coarse->spn_ep & ~0x1FFFF) + fine->spn_ep;
-                    indent_printf(level+4, "PTS %8"PRIu64"/%8"PRIu64" -- SPN %u",
+                    indent_printf(level+4, "PTS %8" PRIu64 "/%8" PRIu64 " -- SPN %u",
                         pts, pts >> 1, spn);
                 }
             }

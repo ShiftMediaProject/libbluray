@@ -1027,7 +1027,7 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
 
         /* next dialog too far in future ? */
         if (now < 1 || dialog[ii].start_pts >= now + 90000) {
-            GC_TRACE("_render_textst(): next event #%d in %"PRId64" seconds (pts %"PRId64")\n",
+            GC_TRACE("_render_textst(): next event #%d in %" PRId64 " seconds (pts %" PRId64 ")\n",
                      ii, (dialog[ii].start_pts - now)/90000, dialog[ii].start_pts);
             if (cmds) {
                 cmds->wakeup_time = (uint32_t)(dialog[ii].start_pts / 2);
@@ -1052,7 +1052,7 @@ static int _render_textst(GRAPHICS_CONTROLLER *p, uint32_t stc, GC_NAV_CMDS *cmd
             continue;
         }
 
-        GC_TRACE("_render_textst(): rendering dialog #%d (pts %"PRId64", diff %"PRId64"\n",
+        GC_TRACE("_render_textst(): rendering dialog #%d (pts %" PRId64 ", diff %" PRId64 "\n",
                  ii, dialog[ii].start_pts, dialog[ii].start_pts - now);
 
 

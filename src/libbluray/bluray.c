@@ -688,7 +688,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
     const size_t len = 6144;
 
     if (st->fp) {
-        BD_DEBUG(DBG_STREAM, "Reading unit at %"PRIu64"...\n", st->clip_block_pos);
+        BD_DEBUG(DBG_STREAM, "Reading unit at %" PRIu64 "...\n", st->clip_block_pos);
 
         if (len + st->clip_block_pos <= st->clip_size) {
             size_t read_len;
@@ -697,14 +697,14 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
                 int error;
 
                 if (read_len != len) {
-                    BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d !\n", (int)read_len, st->clip_block_pos, (int)len);
+                    BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %" PRIu64 " ; requested %d !\n", (int)read_len, st->clip_block_pos, (int)len);
                     return _skip_unit(bd, st);
                 }
                 st->clip_block_pos += len;
 
                 if ((error = _validate_unit(bd, st, buf)) <= 0) {
                     /* skip broken unit */
-                    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Skipping broken unit at %"PRId64"\n", st->clip_block_pos - len);
+                    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Skipping broken unit at %" PRId64 "\n", st->clip_block_pos - len);
                     st->clip_pos += len;
                     return error;
                 }
@@ -727,7 +727,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 #endif
             }
 
-            BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read unit at %"PRIu64" failed !\n", st->clip_block_pos);
+            BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read unit at %" PRIu64 " failed !\n", st->clip_block_pos);
 
             return _skip_unit(bd, st);
         }
@@ -775,7 +775,7 @@ static int _preload_m2ts(BLURAY *bd, BD_PRELOAD *p)
     st.clip = p->clip;
 
     if (st.clip_size > PRELOAD_SIZE_LIMIT) {
-        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_preload_m2ts(): too large clip (%"PRId64")\n", st.clip_size);
+        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_preload_m2ts(): too large clip (%" PRId64 ")\n", st.clip_size);
         return 0;
     }
 
@@ -802,7 +802,7 @@ static int _preload_m2ts(BLURAY *bd, BD_PRELOAD *p)
 
     for (; buf < end; buf += 6144) {
         if (_read_block(bd, &st, buf) <= 0) {
-            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_preload_m2ts(): error loading %s at %"PRIu64"\n",
+            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_preload_m2ts(): error loading %s at %" PRIu64 "\n",
                   st.clip->name, (uint64_t)(buf - p->buf));
             _close_m2ts(&st);
             _close_preload(p);
@@ -812,7 +812,7 @@ static int _preload_m2ts(BLURAY *bd, BD_PRELOAD *p)
 
     /* */
 
-    BD_DEBUG(DBG_BLURAY, "_preload_m2ts(): loaded %"PRIu64" bytes from %s\n",
+    BD_DEBUG(DBG_BLURAY, "_preload_m2ts(): loaded %" PRIu64 " bytes from %s\n",
           st.clip_size, st.clip->name);
 
     _close_m2ts(&st);
@@ -1581,7 +1581,7 @@ static void _playmark_reached(BLURAY *bd)
 {
     while (bd->next_mark >= 0 && bd->s_pos > bd->next_mark_pos) {
 
-        BD_DEBUG(DBG_BLURAY, "PlayMark %d reached (%"PRIu64")\n", bd->next_mark, bd->next_mark_pos);
+        BD_DEBUG(DBG_BLURAY, "PlayMark %d reached (%" PRIu64 ")\n", bd->next_mark, bd->next_mark_pos);
 
         _queue_event(bd, BD_EVENT_PLAYMARK, bd->next_mark);
         _bdj_event(bd, BDJ_EVENT_MARK, bd->next_mark);
@@ -1634,7 +1634,7 @@ static void _seek_internal(BLURAY *bd,
             _init_textst_timer(bd);
         }
 
-        BD_DEBUG(DBG_BLURAY, "Seek to %"PRIu64"\n", bd->s_pos);
+        BD_DEBUG(DBG_BLURAY, "Seek to %" PRIu64 "\n", bd->s_pos);
     }
 }
 
@@ -1657,7 +1657,7 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
     NAV_CLIP *clip;
 
     if (tick >> 33) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_seek_time(%"PRIu64") failed: invalid timestamp\n", tick);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_seek_time(%" PRIu64 ") failed: invalid timestamp\n", tick);
         return bd->s_pos;
     }
 
@@ -2068,7 +2068,7 @@ static int _bd_read_locked(BLURAY *bd, unsigned char *buf, int len)
         return 0;
     }
 
-    BD_DEBUG(DBG_STREAM, "Reading [%d bytes] at %"PRIu64"...\n", len, bd->s_pos);
+    BD_DEBUG(DBG_STREAM, "Reading [%d bytes] at %" PRIu64 "...\n", len, bd->s_pos);
 
     r = _bd_read(bd, buf, len);
 
@@ -3773,7 +3773,7 @@ static int _bd_read_file(BLURAY *bd, const char *dir, const char *file, void **d
         return 0;
     }
 
-    BD_DEBUG(DBG_BLURAY, "bd_read_file(): read %"PRId64" bytes from %s"DIR_SEP"%s\n",
+    BD_DEBUG(DBG_BLURAY, "bd_read_file(): read %" PRId64 " bytes from %s" DIR_SEP "%s\n",
              *size, dir ? dir : "", file);
     return 1;
 }

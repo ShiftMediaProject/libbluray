@@ -293,7 +293,7 @@ JNIEXPORT jlong JNICALL Java_org_videolan_Libbluray_seekN(JNIEnv * env,
         jclass cls, jlong np, jint playitem, jint playmark, jlong tick) {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
 
-    BD_DEBUG(DBG_JNI, "seekN(tick=%"PRId64", mark=%d, playitem=%d)\n", (int64_t)tick, (int)playmark, (int)playitem);
+    BD_DEBUG(DBG_JNI, "seekN(tick=%" PRId64 ", mark=%d, playitem=%d)\n", (int64_t)tick, (int)playmark, (int)playitem);
 
     return bd_bdj_seek(bd, playitem, playmark, tick);
 }

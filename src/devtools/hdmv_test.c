@@ -110,7 +110,7 @@ static void _read_to_eof(BLURAY *bd)
         _print_event(&ev);
     } while (bytes > 0);
 
-    printf("_read_to_eof(): read %"PRIu64" bytes\n", total);
+    printf("_read_to_eof(): read %" PRIu64 " bytes\n", total);
 }
 
 static void _print_events(BLURAY *bd)
