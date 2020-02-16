@@ -278,7 +278,7 @@ JNIEXPORT jint JNICALL Java_org_videolan_Libbluray_setVirtualPackageN(JNIEnv * e
         path = (*env)->GetStringUTFChars(env, vpPath, NULL);
     }
 
-    BD_DEBUG(DBG_JNI|DBG_CRIT, "setVirtualPackageN(%s,%d)\n", path, (int)psr_init_backup);
+    BD_DEBUG(DBG_JNI|DBG_CRIT, "setVirtualPackageN(%s,%d)\n", path ? path : "<null>", (int)psr_init_backup);
 
     result = bd_set_virtual_package(bd, path, (int)psr_init_backup);
 
