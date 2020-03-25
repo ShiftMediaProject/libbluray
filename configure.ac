@@ -146,6 +146,9 @@ AS_IF([test "${SYS}" != "mingw32"], [
     [AC_MSG_ERROR([pthread required])])
   AC_SEARCH_LIBS([pthread_create], [pthread], ,
     [AC_MSG_ERROR([pthread required])])
+  PTHREAD_LIBS="$ac_cv_search_pthread_create"
+  AS_IF([test x"$PTHREAD_LIBS" != x"none required"],
+        [EXTRA_LIBS="$EXTRA_LIBS $PTHREAD_LIBS"])
   AC_SEARCH_LIBS([dlopen], [dl])
   DLOPEN_LIBS="$ac_cv_search_dlopen"
   AS_CASE([$DLOPEN_LIBS],
