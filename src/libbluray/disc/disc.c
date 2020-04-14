@@ -579,6 +579,26 @@ int disc_cache_bdrom_file(BD_DISC *p, const char *rel_path, const char *cache_pa
     return 0;
 }
 
+BD_FILE_H *disc_open_path_dec(BD_DISC *p, const char *rel_path)
+{
+    size_t size = strlen(rel_path);
+    const char *suf = (size > 5) ? rel_path + (size - 5) : rel_path;
+
+    /* check if it's a stream */
+    if (strncmp(rel_path, "BDMV" DIR_SEP "STREAM", 11)) { // not equal
+        return disc_open_path(p, rel_path);
+    } else if (!strcmp(suf, ".m2ts")) { // equal
+        return disc_open_stream(p, suf - 5);
+    } else if (!strcmp(suf+1, ".MTS")) { // equal
+        return disc_open_stream(p, suf - 4);
+    } else if (!strcmp(suf, ".ssif")) { // equal
+        BD_DEBUG(DBG_FILE | DBG_CRIT, "error opening file %s, ssif is not yet supported.\n", rel_path);
+    } else {
+        BD_DEBUG(DBG_FILE | DBG_CRIT, "error opening file %s\n", rel_path);
+    }
+    return NULL;
+}
+
 /*
  * persistent properties storage
  */

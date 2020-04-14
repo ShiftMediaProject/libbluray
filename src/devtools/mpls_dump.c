@@ -68,6 +68,11 @@ const VALUE_MAP connection_type_map[] = {
   {0, NULL}
 };
 
+const VALUE_MAP mark_type_map[] = {
+  {BLURAY_MARK_ENTRY, "Entry (chapter)"},
+  {BLURAY_MARK_LINK,  "Link"},
+  {0, NULL}
+};
 
 static char *
 _mk_path(const char *base, const char *sub)
@@ -251,7 +256,9 @@ _show_marks(MPLS_PL *pl, int level)
 
         plm = &pl->play_mark[ii];
         indent_printf(level, "PlayMark %d", ii);
-        indent_printf(level+1, "Type: %02x", plm->mark_type);
+        indent_printf(level+1, "Type: %s (%02x)",
+                      _lookup_str(mark_type_map, plm->mark_type),
+                      plm->mark_type);
         if (plm->play_item_ref < pl->list_count) {
             pi = &pl->play_item[plm->play_item_ref];
             indent_printf(level+1, "PlayItem: %s", pi->clip[0].clip_id);

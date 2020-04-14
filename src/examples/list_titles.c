@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
         BLURAY_TITLE_INFO* ti;
         ti = bd_get_title_info(bd, ii, 0);
         printf(
-       "index: %3d duration: %02"PRIu64":%02"PRIu64":%02"PRIu64" chapters: %3d angles: %2u clips: %3u (playlist: %05d.mpls) "
+       "index: %3d duration: %02" PRIu64 ":%02" PRIu64 ":%02" PRIu64 " chapters: %3d angles: %2u clips: %3u (playlist: %05d.mpls) "
        "V:%d A:%-2d PG:%-2d IG:%-2d SV:%d SA:%d\n",
               ii + 1,
               (ti->duration / 90000) / (3600),

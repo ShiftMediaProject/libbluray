@@ -70,14 +70,14 @@ typedef struct {
     char *classpath[2];      /* BD-J implementation class path (location of libbluray.jar) */
 
     uint8_t no_persistent_storage; /* disable persistent storage (remove files at close) */
-} BDJ_STORAGE;
+} BDJ_CONFIG;
 
 typedef struct bdjava_s BDJAVA;
 
 struct bluray;
 
 BD_PRIVATE BDJAVA* bdj_open(const char *path, struct bluray *bd,
-                            const char *bdj_disc_id, BDJ_STORAGE *storage);
+                            const char *bdj_disc_id, BDJ_CONFIG *storage);
 BD_PRIVATE void bdj_close(BDJAVA *bdjava);
 BD_PRIVATE int  bdj_process_event(BDJAVA *bdjava, unsigned ev, unsigned param);
 
@@ -87,8 +87,8 @@ enum {
     BDJ_CHECK_NO_JAR = 2,
 };
 
-BD_PRIVATE int  bdj_jvm_available(BDJ_STORAGE *storage);  /* rreturn: BDJ_CHECK_* */
+BD_PRIVATE int  bdj_jvm_available(BDJ_CONFIG *storage);  /* rreturn: BDJ_CHECK_* */
 
-BD_PRIVATE void bdj_storage_cleanup(BDJ_STORAGE *);
+BD_PRIVATE void bdj_config_cleanup(BDJ_CONFIG *);
 
 #endif

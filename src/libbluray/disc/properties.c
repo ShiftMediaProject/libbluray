@@ -85,7 +85,7 @@ static int _read_prop_file(const char *file, char **data)
     return 0;
 
  unlink:
-    BD_DEBUG(DBG_FILE | DBG_CRIT, "Removing invalid properties file %s (%"PRId64" bytes)\n", file, size);
+    BD_DEBUG(DBG_FILE | DBG_CRIT, "Removing invalid properties file %s (%" PRId64 " bytes)\n", file, size);
 
     X_FREE(*data);
     if (fp) {

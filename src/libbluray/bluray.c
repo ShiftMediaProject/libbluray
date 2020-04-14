@@ -156,7 +156,7 @@ struct bluray {
 
     /* BD-J */
     BDJAVA         *bdjava;
-    BDJ_STORAGE     bdjstorage;
+    BDJ_CONFIG      bdj_config;
     uint8_t         bdj_wait_start;  /* BD-J has selected playlist (prefetch) but not yet started playback */
 
     /* HDMV graphics */
@@ -694,7 +694,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
     const size_t len = 6144;
 
     if (st->fp) {
-        BD_DEBUG(DBG_STREAM, "Reading unit at %"PRIu64"...\n", st->clip_block_pos);
+        BD_DEBUG(DBG_STREAM, "Reading unit at %" PRIu64 "...\n", st->clip_block_pos);
 
         if (len + st->clip_block_pos <= st->clip_size) {
             size_t read_len;
@@ -703,14 +703,14 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
                 int error;
 
                 if (read_len != len) {
-                    BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %"PRIu64" ; requested %d !\n", (int)read_len, st->clip_block_pos, (int)len);
+                    BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read %d bytes at %" PRIu64 " ; requested %d !\n", (int)read_len, st->clip_block_pos, (int)len);
                     return _skip_unit(bd, st);
                 }
                 st->clip_block_pos += len;
 
                 if ((error = _validate_unit(bd, st, buf)) <= 0) {
                     /* skip broken unit */
-                    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Skipping broken unit at %"PRId64"\n", st->clip_block_pos - len);
+                    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Skipping broken unit at %" PRId64 "\n", st->clip_block_pos - len);
                     st->clip_pos += len;
                     return error;
                 }
@@ -733,7 +733,7 @@ static int _read_block(BLURAY *bd, BD_STREAM *st, uint8_t *buf)
 #endif
             }
 
-            BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read unit at %"PRIu64" failed !\n", st->clip_block_pos);
+            BD_DEBUG(DBG_STREAM | DBG_CRIT, "Read unit at %" PRIu64 " failed !\n", st->clip_block_pos);
 
             return _skip_unit(bd, st);
         }
@@ -781,7 +781,7 @@ static int _preload_m2ts(BLURAY *bd, BD_PRELOAD *p)
     st.clip = p->clip;
 
     if (st.clip_size > PRELOAD_SIZE_LIMIT) {
-        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_preload_m2ts(): too large clip (%"PRId64")\n", st.clip_size);
+        BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_preload_m2ts(): too large clip (%" PRId64 ")\n", st.clip_size);
         return 0;
     }
 
@@ -808,7 +808,7 @@ static int _preload_m2ts(BLURAY *bd, BD_PRELOAD *p)
 
     for (; buf < end; buf += 6144) {
         if (_read_block(bd, &st, buf) <= 0) {
-            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_preload_m2ts(): error loading %s at %"PRIu64"\n",
+            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_preload_m2ts(): error loading %s at %" PRIu64 "\n",
                   st.clip->name, (uint64_t)(buf - p->buf));
             _close_m2ts(&st);
             _close_preload(p);
@@ -818,7 +818,7 @@ static int _preload_m2ts(BLURAY *bd, BD_PRELOAD *p)
 
     /* */
 
-    BD_DEBUG(DBG_BLURAY, "_preload_m2ts(): loaded %"PRIu64" bytes from %s\n",
+    BD_DEBUG(DBG_BLURAY, "_preload_m2ts(): loaded %" PRIu64 " bytes from %s\n",
           st.clip_size, st.clip->name);
 
     _close_m2ts(&st);
@@ -920,7 +920,7 @@ static void _check_bdj(BLURAY *bd)
         if (!bd->disc || bd->disc_info.bdj_detected) {
 
             /* Check if jvm + jar can be loaded ? */
-            switch (bdj_jvm_available(&bd->bdjstorage)) {
+            switch (bdj_jvm_available(&bd->bdj_config)) {
                 case BDJ_CHECK_OK:
                     bd->disc_info.bdj_handled = 1;
                     /* fall thru */
@@ -1374,7 +1374,7 @@ static int _start_bdj(BLURAY *bd, unsigned title)
 {
     if (bd->bdjava == NULL) {
         const char *root = disc_root(bd->disc);
-        bd->bdjava = bdj_open(root, bd, bd->disc_info.bdj_disc_id, &bd->bdjstorage);
+        bd->bdjava = bdj_open(root, bd, bd->disc_info.bdj_disc_id, &bd->bdj_config);
         if (!bd->bdjava) {
             return 0;
         }
@@ -1438,7 +1438,7 @@ BLURAY *bd_init(void)
     env = getenv("LIBBLURAY_PERSISTENT_STORAGE");
     if (env) {
         int v = (!strcmp(env, "yes")) ? 1 : (!strcmp(env, "no")) ? 0 : atoi(env);
-        bd->bdjstorage.no_persistent_storage = !v;
+        bd->bdj_config.no_persistent_storage = !v;
     }
 
     BD_DEBUG(DBG_BLURAY, "BLURAY initialized!\n");
@@ -1549,7 +1549,7 @@ void bd_close(BLURAY *bd)
 
     event_queue_destroy(&bd->event_queue);
     array_free((void**)&bd->titles);
-    bdj_storage_cleanup(&bd->bdjstorage);
+    bdj_config_cleanup(&bd->bdj_config);
 
     disc_close(&bd->disc);
 
@@ -1587,7 +1587,7 @@ static void _playmark_reached(BLURAY *bd)
 {
     while (bd->next_mark >= 0 && bd->s_pos > bd->next_mark_pos) {
 
-        BD_DEBUG(DBG_BLURAY, "PlayMark %d reached (%"PRIu64")\n", bd->next_mark, bd->next_mark_pos);
+        BD_DEBUG(DBG_BLURAY, "PlayMark %d reached (%" PRIu64 ")\n", bd->next_mark, bd->next_mark_pos);
 
         _queue_event(bd, BD_EVENT_PLAYMARK, bd->next_mark);
         _bdj_event(bd, BDJ_EVENT_MARK, bd->next_mark);
@@ -1640,7 +1640,7 @@ static void _seek_internal(BLURAY *bd,
             _init_textst_timer(bd);
         }
 
-        BD_DEBUG(DBG_BLURAY, "Seek to %"PRIu64"\n", bd->s_pos);
+        BD_DEBUG(DBG_BLURAY, "Seek to %" PRIu64 "\n", bd->s_pos);
     }
 }
 
@@ -1663,7 +1663,7 @@ int64_t bd_seek_time(BLURAY *bd, uint64_t tick)
     NAV_CLIP *clip;
 
     if (tick >> 33) {
-        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_seek_time(%"PRIu64") failed: invalid timestamp\n", tick);
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_seek_time(%" PRIu64 ") failed: invalid timestamp\n", tick);
         return bd->s_pos;
     }
 
@@ -2074,7 +2074,7 @@ static int _bd_read_locked(BLURAY *bd, unsigned char *buf, int len)
         return 0;
     }
 
-    BD_DEBUG(DBG_STREAM, "Reading [%d bytes] at %"PRIu64"...\n", len, bd->s_pos);
+    BD_DEBUG(DBG_STREAM, "Reading [%d bytes] at %" PRIu64 "...\n", len, bd->s_pos);
 
     r = _bd_read(bd, buf, len);
 
@@ -2857,7 +2857,7 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Can't disable persistent storage during playback\n");
             return 0;
         }
-        bd->bdjstorage.no_persistent_storage = !value;
+        bd->bdj_config.no_persistent_storage = !value;
         return 1;
     }
 
@@ -2886,18 +2886,18 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
 
         case BLURAY_PLAYER_CACHE_ROOT:
             bd_mutex_lock(&bd->mutex);
-            X_FREE(bd->bdjstorage.cache_root);
-            bd->bdjstorage.cache_root = str_dup(s);
+            X_FREE(bd->bdj_config.cache_root);
+            bd->bdj_config.cache_root = str_dup(s);
             bd_mutex_unlock(&bd->mutex);
-            BD_DEBUG(DBG_BDJ, "Cache root dir set to %s\n", bd->bdjstorage.cache_root);
+            BD_DEBUG(DBG_BDJ, "Cache root dir set to %s\n", bd->bdj_config.cache_root);
             return 1;
 
         case BLURAY_PLAYER_PERSISTENT_ROOT:
             bd_mutex_lock(&bd->mutex);
-            X_FREE(bd->bdjstorage.persistent_root);
-            bd->bdjstorage.persistent_root = str_dup(s);
+            X_FREE(bd->bdj_config.persistent_root);
+            bd->bdj_config.persistent_root = str_dup(s);
             bd_mutex_unlock(&bd->mutex);
-            BD_DEBUG(DBG_BDJ, "Persistent root dir set to %s\n", bd->bdjstorage.persistent_root);
+            BD_DEBUG(DBG_BDJ, "Persistent root dir set to %s\n", bd->bdj_config.persistent_root);
             return 1;
 
         default:
@@ -3660,12 +3660,21 @@ int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
     return result;
 }
 
+#define BD_VK_FLAGS_MASK (BD_VK_KEY_PRESSED | BD_VK_KEY_TYPED | BD_VK_KEY_RELEASED)
+#define BD_VK_KEY(k)     ((k) & ~(BD_VK_FLAGS_MASK))
+#define BD_VK_FLAGS(k)   ((k) & BD_VK_FLAGS_MASK)
+/* HDMV: key is triggered when pressed down */
+#define BD_KEY_TYPED(k)  (!((k) & (BD_VK_KEY_TYPED | BD_VK_KEY_RELEASED)))
+
 int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
 {
     int result = -1;
 
-    if (key == BD_VK_ROOT_MENU) {
-        return bd_menu_call(bd, pts);
+    if (BD_VK_KEY(key) == BD_VK_ROOT_MENU) {
+        if (BD_KEY_TYPED(key)) {
+            return bd_menu_call(bd, pts);
+        }
+        return 0;
     }
 
     bd_mutex_lock(&bd->mutex);
@@ -3673,8 +3682,17 @@ int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
     _set_scr(bd, pts);
 
     if (bd->title_type == title_hdmv) {
-        result = _run_gc(bd, GC_CTRL_VK_KEY, key);
+        if (BD_KEY_TYPED(key)) {
+            result = _run_gc(bd, GC_CTRL_VK_KEY, BD_VK_KEY(key));
+        } else {
+            result = 0;
+        }
+
     } else if (bd->title_type == title_bdj) {
+        if (!BD_VK_FLAGS(key)) {
+            /* No flags --> single key press event */
+            key |= BD_VK_KEY_PRESSED | BD_VK_KEY_TYPED | BD_VK_KEY_RELEASED;
+        }
         result = _bdj_event(bd, BDJ_EVENT_VK_KEY, key);
     }
 
@@ -3761,8 +3779,8 @@ static int _bd_read_file(BLURAY *bd, const char *dir, const char *file, void **d
         return 0;
     }
 
-    BD_DEBUG(DBG_BLURAY, "bd_read_file(): read %"PRId64" bytes from %s"DIR_SEP"%s\n",
-             *size, dir, file);
+    BD_DEBUG(DBG_BLURAY, "bd_read_file(): read %" PRId64 " bytes from %s" DIR_SEP "%s\n",
+             *size, dir ? dir : "", file);
     return 1;
 }
 
@@ -3771,6 +3789,21 @@ int bd_read_file(BLURAY *bd, const char *path, void **data, int64_t *size)
     return _bd_read_file(bd, NULL, path, data, size);
 }
 
+struct bd_dir_s *bd_open_dir(BLURAY *bd, const char *dir)
+{
+    if (!bd || dir == NULL) {
+        return NULL;
+    }
+    return disc_open_dir(bd->disc, dir);
+}
+
+struct bd_file_s *bd_open_file_dec(BLURAY *bd, const char *path)
+{
+    if (!bd || path == NULL) {
+        return NULL;
+    }
+    return disc_open_path_dec(bd->disc, path);
+}
 
 /*
  * Metadata
