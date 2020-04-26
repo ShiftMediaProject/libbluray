@@ -58,12 +58,14 @@ typedef struct
     uint8_t         num_secondary_audio;
     uint8_t         num_secondary_video;
     uint8_t         num_pip_pg;
+    uint8_t         num_dv;
     MPLS_STREAM    *video;
     MPLS_STREAM    *audio;
     MPLS_STREAM    *pg;
     MPLS_STREAM    *ig;
     MPLS_STREAM    *secondary_audio;
     MPLS_STREAM    *secondary_video;
+    MPLS_STREAM    *dv;
 } MPLS_STN;
 
 typedef struct

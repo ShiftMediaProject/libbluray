@@ -130,13 +130,13 @@ _parse_stream(BITSTREAM *bits, MPLS_STREAM *s)
             break;
 
         case 2:
-        case 4:
             s->subpath_id = bs_read(bits, 8);
             s->subclip_id = bs_read(bits, 8);
             s->pid        = bs_read(bits, 16);
             break;
 
         case 3:
+        case 4:
             s->subpath_id = bs_read(bits, 8);
             s->pid        = bs_read(bits, 16);
             break;
@@ -229,9 +229,10 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
     stn->num_secondary_audio = bs_read(bits, 8);
     stn->num_secondary_video = bs_read(bits, 8);
     stn->num_pip_pg          = bs_read(bits, 8);
+    stn->num_dv              = bs_read(bits, 8);
 
-    // 5 reserve bytes
-    bs_skip(bits, 5 * 8);
+    // 4 reserve bytes
+    bs_skip(bits, 4 * 8);
 
     // Primary Video Streams
     ss = NULL;
@@ -376,6 +377,23 @@ _parse_stn(BITSTREAM *bits, MPLS_STN *stn)
 
         }
     }
+
+    // Dolby Vision Enhancement Layer Streams
+    ss = NULL;
+    if (stn->num_dv) {
+        ss = calloc(stn->num_dv, sizeof(MPLS_STREAM));
+        if (!ss) {
+            return 0;
+        }
+        for (ii = 0; ii < stn->num_dv; ii++) {
+            if (!_parse_stream(bits, &ss[ii])) {
+                X_FREE(ss);
+                BD_DEBUG(DBG_NAV | DBG_CRIT, "error parsing dv entry\n");
+                return 0;
+            }
+        }
+    }
+    stn->dv = ss;
 
     if (bs_seek_byte(bits, pos + len) < 0) {
         return 0;
