@@ -118,6 +118,8 @@ typedef struct indx_root_s {
     /* UHD extension */
     uint8_t        disc_type;
     uint8_t        exist_4k_flag;
+    uint8_t        hdrplus_flag;
+    uint8_t        dv_flag;
     uint8_t        hdr_flags;
 } INDX_ROOT;
 
