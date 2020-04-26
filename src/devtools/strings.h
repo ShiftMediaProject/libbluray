@@ -41,8 +41,8 @@ const VALUE_MAP codec_map[] = {
     {0x20, "H.264 MVC dep."},
     {0x24, "HEVC"},
     {0x90, "Presentation Graphics"},
-    {0x91, "Presentation Graphics"},
-    {0x92, "Interactive Graphics"},
+    {0x91, "Interactive Graphics"},
+    {0x92, "Text subtitle"},
     {0, NULL}
 };
 
