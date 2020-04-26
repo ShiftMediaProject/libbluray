@@ -51,6 +51,7 @@ const VALUE_MAP subpath_type_map[] = {
   {6, "Out-of-mux Asynchronous Picture-in-Picture presentation"},
   {7, "In-mux Synchronous Picture-in-Picture presentation"},
   {8, "SS Video"},
+  {10, "Dolby Vision Enhancement Layer"},
   {0,NULL}
 };
 
@@ -99,13 +100,13 @@ _show_stream(MPLS_STREAM *ss, int level)
             break;
 
         case 2:
-        case 4:
             indent_printf(level, "SubPath Id: %02x", ss->subpath_id);
             indent_printf(level, "SubClip Id: %02x", ss->subclip_id);
             indent_printf(level, "PID: %04x", ss->pid);
             break;
 
         case 3:
+        case 4:
             indent_printf(level, "SubPath Id: %02x", ss->subpath_id);
             indent_printf(level, "PID: %04x", ss->pid);
             break;
@@ -193,6 +194,10 @@ _show_details(MPLS_PL *pl, int level)
         for (jj = 0; jj < pi->stn.num_video; jj++) {
             indent_printf(level+1, "Video Stream %d:", jj);
             _show_stream(&pi->stn.video[jj], level + 2);
+        }
+        for (jj = 0; jj < pi->stn.num_dv; jj++) {
+            indent_printf(level+1, "Dolby Vision Enhancement Layer Stream %d:", jj);
+            _show_stream(&pi->stn.dv[jj], level + 2);
         }
         for (jj = 0; jj < pi->stn.num_audio; jj++) {
             indent_printf(level+1, "Audio Stream %d:", jj);
