@@ -173,6 +173,25 @@ typedef struct {
     MPLS_PIP_DATA   *data;
 } MPLS_PIP_METADATA;
 
+typedef enum {
+    primary_green,
+    primary_blue,
+    primary_red
+} mpls_static_primaries;    /* They are stored as GBR, we would like to show them as RGB */
+
+typedef struct mpls_static_metadata
+{
+    uint8_t     dynamic_range_type;
+    uint16_t    display_primaries_x[3];
+    uint16_t    display_primaries_y[3];
+    uint16_t    white_point_x;
+    uint16_t    white_point_y;
+    uint16_t    max_display_mastering_luminance;
+    uint16_t    min_display_mastering_luminance;
+    uint16_t    max_CLL;
+    uint16_t    max_FALL;
+} MPLS_STATIC_METADATA;
+
 typedef struct mpls_pl
 {
     uint32_t        type_indicator;   /* 'MPLS' */
@@ -195,6 +214,10 @@ typedef struct mpls_pl
     // extension data (Picture-In-Picture metadata)
     uint16_t           ext_pip_data_count;
     MPLS_PIP_METADATA *ext_pip_data;  // pip metadata extension
+
+    // extension data (Static Metadata)
+    uint8_t         ext_static_metadata_count;
+    MPLS_STATIC_METADATA    *ext_static_metadata;
 
 } MPLS_PL;
 

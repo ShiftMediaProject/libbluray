@@ -373,6 +373,35 @@ _show_pip_metadata(MPLS_PL *pl, int level)
 }
 
 static void
+_show_static_metadata_entry(MPLS_STATIC_METADATA *entry, int level)
+{
+    indent_printf(level, "Dynamic Range Type: %d", entry->dynamic_range_type);
+    indent_printf(level, "Mastering Display Primary R (X, Y): (%f, %f)", (float)entry->display_primaries_x[primary_red]/50000L, (float)entry->display_primaries_y[primary_red]/50000L);
+    indent_printf(level, "Mastering Display Primary G (X, Y): (%f, %f)", (float)entry->display_primaries_x[primary_green]/50000L, (float)entry->display_primaries_y[primary_green]/50000L);
+    indent_printf(level, "Mastering Display Primary B (X, Y): (%f, %f)", (float)entry->display_primaries_x[primary_blue]/50000L, (float)entry->display_primaries_y[primary_blue]/50000L);
+    indent_printf(level, "White Point (X, Y): (%f, %f)", (float)entry->white_point_x/50000L, (float)entry->white_point_y/50000L);
+    indent_printf(level, "Display Mastering Luminance (min, max): (%.4f, %.4f)", (float)entry->min_display_mastering_luminance/10000L, (float)entry->max_display_mastering_luminance);
+    indent_printf(level, "Maximum Frame Average Light Level (MaxFALL): %d", entry->max_CLL);
+    indent_printf(level, "Maximum Content Light Level (MaxCLL): %d", entry->max_FALL);
+}
+
+static void
+_show_static_metadata(MPLS_PL *pl, int level)
+{
+    int ii;
+
+    for (ii = 0; ii < pl->ext_static_metadata_count; ii++) {
+        MPLS_STATIC_METADATA *data;
+
+        data = &pl->ext_static_metadata[ii];
+
+        indent_printf(level, "Static metadata entry %d:", ii);
+        _show_static_metadata_entry(data, level+1);
+    }
+    printf("\n");
+}
+
+static void
 _show_sub_paths(MPLS_PL *pl, int level)
 {
     int ss;
@@ -400,6 +429,7 @@ _show_sub_paths_ss(MPLS_PL *pl, int level)
         indent_printf(level, "Extension Sub Path %d:", ss);
         _show_sub_path(sub, level+1);
     }
+    printf("\n");
 }
 
 static uint32_t
@@ -490,7 +520,7 @@ _filter_repeats(MPLS_PL *pl, int repeats)
     return 1;
 }
 
-static int clip_list = 0, playlist_info = 0, chapter_marks = 0, sub_paths = 0, pip_metadata = 0;
+static int clip_list = 0, playlist_info = 0, chapter_marks = 0, sub_paths = 0, pip_metadata = 0, static_metadata = 0;
 static int repeats = 0, seconds = 0, dups = 0;
 
 static MPLS_PL*
@@ -551,6 +581,9 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
         _show_sub_paths(pl, 1);
         _show_sub_paths_ss(pl, 1);
     }
+    if (static_metadata) {
+        _show_static_metadata(pl, 1);
+    }
     return pl;
 }
 
@@ -567,6 +600,7 @@ _usage(char *cmd)
 "    c             - Show chapter marks\n"
 "    p             - Show sub paths\n"
 "    P             - Show picture-in-picture metadata\n"
+"    S             - Show static metadata\n"
 "    r <N>         - Filter out titles that have >N repeating clips\n"
 "    d             - Filter out duplicate titles\n"
 "    s <seconds>   - Filter out short titles\n"
@@ -576,7 +610,7 @@ _usage(char *cmd)
     exit(EXIT_FAILURE);
 }
 
-#define OPTS "vlicpPfr:ds:"
+#define OPTS "vlicpPSfr:ds:"
 
 static int
 _qsort_str_cmp(const void *a, const void *b)
@@ -626,6 +660,10 @@ main(int argc, char *argv[])
 
             case 'P':
                 pip_metadata = 1;
+                break;
+
+            case 'S':
+                static_metadata = 1;
                 break;
 
             case 'd':

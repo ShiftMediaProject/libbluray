@@ -961,6 +961,77 @@ _parse_subpath_extension(BITSTREAM *bits, MPLS_PL *pl)
 }
 
 static int
+_parse_static_metadata(BITSTREAM *bits, MPLS_STATIC_METADATA *data)
+{
+    int ii;
+
+    if (bs_avail(bits) < 28 * 8) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_static_metadata: unexpected end of file\n");
+        return 0;
+    }
+
+    data->dynamic_range_type              = bs_read(bits, 4);
+    bs_skip(bits,4);
+    bs_skip(bits,24);
+    for(ii = 0; ii < 3; ii++){
+        data->display_primaries_x[ii]     = bs_read(bits, 16);
+        data->display_primaries_y[ii]     = bs_read(bits, 16);
+    }
+    data->white_point_x                   = bs_read(bits, 16);
+    data->white_point_y                   = bs_read(bits, 16);
+    data->max_display_mastering_luminance = bs_read(bits, 16);
+    data->min_display_mastering_luminance = bs_read(bits, 16);
+    data->max_CLL                         = bs_read(bits, 16);
+    data->max_FALL                        = bs_read(bits, 16);
+
+    return 1;
+}
+
+static int
+_parse_static_metadata_extension(BITSTREAM *bits, MPLS_PL *pl)
+{
+    MPLS_STATIC_METADATA *static_metadata;
+    uint32_t len;
+    int ii;
+
+    len = bs_read(bits, 32);
+    if (len < 32) {     // At least one static metadata entry
+        return 0;
+    }
+    if (bs_avail(bits) < len * 8) {
+        BD_DEBUG(DBG_NAV | DBG_CRIT, "_parse_static_metadata_extension: unexpected end of file\n");
+        return 0;
+    }
+
+    uint8_t sm_count = bs_read(bits, 8);
+    if (sm_count < 1) {
+        return 0;
+    }
+    bs_skip(bits, 24);
+
+    static_metadata = calloc(sm_count,  sizeof(MPLS_STATIC_METADATA));
+    if (!static_metadata) {
+        BD_DEBUG(DBG_CRIT, "out of memory\n");
+        return 0;
+    }
+
+    for (ii = 0; ii < sm_count; ii++) {
+        if (!_parse_static_metadata(bits, &static_metadata[ii])) {
+            goto error;
+        }
+    }
+    pl->ext_static_metadata       = static_metadata;
+    pl->ext_static_metadata_count = sm_count;
+
+    return 1;
+
+ error:
+    BD_DEBUG(DBG_NAV | DBG_CRIT, "error parsing static metadata extension\n");
+    X_FREE(static_metadata);
+    return 0;
+}
+
+static int
 _parse_mpls_extension(BITSTREAM *bits, int id1, int id2, void *handle)
 {
     MPLS_PL *pl = (MPLS_PL*)handle;
@@ -984,9 +1055,7 @@ _parse_mpls_extension(BITSTREAM *bits, int id1, int id2, void *handle)
 
     if (id1 == 3) {
         if (id2 == 5) {
-            // UHD extension
-            BD_DEBUG(DBG_NAV, "_parse_mpls_extension(): unhandled extension %d.%d\n", id1, id2);
-            return 0;
+            return _parse_static_metadata_extension(bits, pl);
         }
     }
 
