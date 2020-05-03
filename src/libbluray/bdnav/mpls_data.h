@@ -37,6 +37,10 @@ typedef struct
     uint8_t         subclip_id;
     uint8_t         format;
     uint8_t         rate;
+    uint8_t         dynamic_range_type;
+    uint8_t         color_space;
+    uint8_t         cr_flag;
+    uint8_t         hdr_plus_flag;
     uint8_t         char_code;
     char            lang[4];
     // Secondary audio specific fields
@@ -110,6 +114,7 @@ typedef struct
     uint8_t         audio_mix_flag;
     uint8_t         lossless_bypass_flag;
     uint8_t         mvc_base_view_r_flag;
+    uint8_t         sdr_conversion_notification_flag;
 } MPLS_AI;
 
 typedef struct
@@ -131,7 +136,8 @@ typedef enum {
   //mpls_sub_path_        = 5,  /* Out-of-mux Synchronous elementary streams */
   mpls_sub_path_async_pip = 6,  /* Out-of-mux Asynchronous Picture-in-Picture presentation */
   mpls_sub_path_sync_pip  = 7,  /* In-mux Synchronous Picture-in-Picture presentation */
-  mpls_sub_path_ss_viseo  = 8,  /* SS Video */
+  mpls_sub_path_ss_video  = 8,  /* SS Video */
+  mpls_sub_path_dv_el     = 10, /* Dolby Vision Enhancement Layer */
 } mpls_sub_path_type;
 
 typedef struct
@@ -218,8 +224,8 @@ typedef struct mpls_pl
     MPLS_PIP_METADATA *ext_pip_data;  // pip metadata extension
 
     // extension data (Static Metadata)
-    uint8_t         ext_static_metadata_count;
-    MPLS_STATIC_METADATA    *ext_static_metadata;
+    uint8_t               ext_static_metadata_count;
+    MPLS_STATIC_METADATA *ext_static_metadata;
 
 } MPLS_PL;
 

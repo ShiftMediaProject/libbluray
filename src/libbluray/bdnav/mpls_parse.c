@@ -79,9 +79,10 @@ _parse_appinfo(BITSTREAM *bits, MPLS_AI *ai)
     ai->audio_mix_flag = bs_read(bits, 1);
     ai->lossless_bypass_flag = bs_read(bits, 1);
     ai->mvc_base_view_r_flag = bs_read(bits, 1);
+    ai->sdr_conversion_notification_flag = bs_read(bits, 1);
 #if 0
     // Reserved
-    bs_skip(bits, 12);
+    bs_skip(bits, 11);
     bs_seek_byte(bits, pos + len);
 #endif
     return 1;
@@ -163,6 +164,12 @@ _parse_stream(BITSTREAM *bits, MPLS_STREAM *s)
         case 0x24:
             s->format = bs_read(bits, 4);
             s->rate   = bs_read(bits, 4);
+            if (s->coding_type == 0x24) {
+                s->dynamic_range_type = bs_read(bits, 4);
+                s->color_space        = bs_read(bits, 4);
+                s->cr_flag            = bs_read(bits, 1);
+                s->hdr_plus_flag      = bs_read(bits, 1);
+            }
             break;
 
         case 0x03:
@@ -1073,6 +1080,7 @@ _parse_mpls_extension(BITSTREAM *bits, int id1, int id2, void *handle)
 
     if (id1 == 3) {
         if (id2 == 5) {
+            // Static metadata extension
             return _parse_static_metadata_extension(bits, pl);
         }
     }
