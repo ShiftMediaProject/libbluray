@@ -95,6 +95,19 @@ const VALUE_MAP audio_rate_map[] = {
     {0, NULL}
 };
 
+const VALUE_MAP dynamic_range_type_map[] = {
+    {0, "SDR"},
+    {1, "HDR10"},
+    {2, "Dolby Vision"},
+    {0, NULL}
+};
+
+const VALUE_MAP color_space_map[] = {
+    {1, "BT.709"},
+    {2, "BT.2020"},
+    {0, NULL}
+};
+
 static inline const char *
 _lookup_str(const VALUE_MAP *map, int val)
 {

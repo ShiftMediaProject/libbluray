@@ -72,6 +72,15 @@ _show_stream(CLPI_PROG_STREAM *ss, int level)
             indent_printf(level, "Aspect %02x: %s", ss->aspect,
                         _lookup_str(video_aspect_map, ss->aspect));
             indent_printf(level, "oc_flag %02x", ss->oc_flag);
+            if (ss->coding_type == 0x24) {
+                indent_printf(level, "cr_flag %02x", ss->cr_flag);
+                indent_printf(level, "Dynamic Range type %02x: %s", ss->dynamic_range_type,
+                            _lookup_str(dynamic_range_type_map, ss->dynamic_range_type));
+                indent_printf(level, "Color Space %02x: %s", ss->color_space,
+                            _lookup_str(color_space_map, ss->color_space));
+                indent_printf(level, "HDR10+ %02x: %s", ss->hdr_plus_flag,
+                            ss->hdr_plus_flag ? "Yes" : "No");
+            }
             break;
 
         case 0x03:
