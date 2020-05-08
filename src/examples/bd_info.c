@@ -135,11 +135,18 @@ static void _print_app_info(const BLURAY_DISC_INFO *info)
         "59.94 Hz"
     };
 
+    static const char initial_dynamic_range_type_str[16][16] = {
+        "SDR",
+        "HDR10",
+        "Dolby Vision"
+    };
+
     printf("\nApplication info:\n");
     printf("  initial mode preference : %s\n",        info->initial_output_mode_preference ? "3D"  : "2D");
     printf("  3D content exists       : %s\n",        info->content_exist_3D               ? "Yes" : "No");
     printf("  video format            : %s (0x%x)\n", video_format_str[info->video_format & 0xf], info->video_format);
     printf("  frame rate              : %s (0x%x)\n", frame_rate_str[info->frame_rate & 0xf],     info->frame_rate);
+    printf("  initial dynamic range   : %s (0x%x)\n", initial_dynamic_range_type_str[info->initial_dynamic_range_type & 0xf],     info->initial_dynamic_range_type);
     printf("  provider data           : \'%32s\'\n",  info->provider_data);
 }
 

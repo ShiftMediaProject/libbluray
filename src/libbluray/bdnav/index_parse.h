@@ -73,6 +73,7 @@ typedef enum {
 typedef struct {
     unsigned int       initial_output_mode_preference : 1; /* 0 - 2D, 1 - 3D */
     unsigned int       content_exist_flag : 1;
+    unsigned int       initial_dynamic_range_type : 4;
     unsigned int       video_format : 4;
     unsigned int       frame_rate : 4;
     uint8_t            user_data[32];

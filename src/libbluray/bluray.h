@@ -120,6 +120,9 @@ typedef struct {
     uint8_t  bdplus_gen;          /* BD+ content code generation */
     uint32_t bdplus_date;         /* BD+ content code relese date ((year<<16)|(month<<8)|day) */
 
+    /* disc application info (libbluray > 1.2.0) */
+    uint8_t initial_dynamic_range_type; /* bd_dynamic_range_type_e */
+
 } BLURAY_DISC_INFO;
 
 /*
@@ -211,6 +214,12 @@ typedef enum {
     BLURAY_MARK_ENTRY     = 0x01,  /* entry mark for chapter search */
     BLURAY_MARK_LINK      = 0x02,  /* link point */
 } bd_mark_type_e;
+
+typedef enum {
+    BLURAY_DYNAMIC_RANGE_SDR          = 0,
+    BLURAY_DYNAMIC_RANGE_HDR10        = 1,
+    BLURAY_DYNAMIC_RANGE_DOLBY_VISION = 2
+} bd_dynamic_range_type_e;
 
 typedef struct bd_stream_info {
     uint8_t     coding_type;
