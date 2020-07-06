@@ -480,7 +480,7 @@ NAV_TITLE_LIST* nav_get_title_list(BD_DISC *disc, uint32_t flags, uint32_t min_t
                 }
             }
 
-            strncpy(title_list->title_info[ii].name, ent.d_name, 11);
+            memcpy(title_list->title_info[ii].name, ent.d_name, 10);
             title_list->title_info[ii].name[10] = '\0';
             title_list->title_info[ii].ref = ii;
             title_list->title_info[ii].mpls_id  = atoi(ent.d_name);
@@ -641,8 +641,8 @@ static void _fill_clip(NAV_TITLE *title,
         clip->angle = title->angle;
     }
 
-    strncpy(clip->name, mpls_clip[clip->angle].clip_id, 5);
-    strncpy(&clip->name[5], ".m2ts", 6);
+    memcpy(clip->name, mpls_clip[clip->angle].clip_id, 5);
+    memcpy(&clip->name[5], ".m2ts", 6);
     clip->clip_id = atoi(mpls_clip[clip->angle].clip_id);
 
     clpi_free(&clip->cl);
