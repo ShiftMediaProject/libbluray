@@ -281,24 +281,24 @@ if USING_EXAMPLES
 noinst_PROGRAMS = \
 	bdj_test \
 	bdjo_dump \
-	bdsplice \
 	clpi_dump \
 	hdmv_test \
 	index_dump \
 	libbluray_test \
-	list_titles \
 	mobj_dump \
 	mpls_dump \
 	sound_dump
 
 bin_PROGRAMS = \
+	bd_list_titles \
+	bd_splice \
 	bd_info
 
 bd_info_SOURCES = src/examples/bd_info.c
 bd_info_LDADD = libbluray.la
 
-bdsplice_SOURCES = src/examples/bdsplice.c
-bdsplice_LDADD = libbluray.la
+bd_splice_SOURCES = src/examples/bdsplice.c
+bd_splice_LDADD = libbluray.la
 
 bdj_test_SOURCES = src/devtools/bdj_test.c
 bdj_test_LDADD = libbluray.la
@@ -323,8 +323,8 @@ index_dump_LDADD = libbluray.la
 libbluray_test_SOURCES = src/examples/libbluray_test.c
 libbluray_test_LDADD = libbluray.la
 
-list_titles_SOURCES = src/examples/list_titles.c
-list_titles_LDADD = libbluray.la
+bd_list_titles_SOURCES = src/examples/list_titles.c
+bd_list_titles_LDADD = libbluray.la
 
 mobj_dump_CFLAGS = $(AM_CFLAGS)
 mobj_dump_SOURCES = \
