@@ -51,6 +51,26 @@ public abstract class BDFileSystem extends FileSystem {
 
     static {
         try {
+            /* Workaround for Java 9 bootstrap issues:
+             * In some Java 9 versions this methods is called in VM init phase1
+             * before setJavaLangAccess() -> getDeclaredMethod() crashes in StringJoiner
+             */
+            String v = System.getProperty("java.version");
+            int i = 0;
+            if (v.startsWith("1."))
+                v = v.substring(2, 3);
+            if (v.indexOf(".") != -1)
+                v = v.substring(0, v.indexOf("."));
+            if (v.indexOf("-") != -1)
+                v = v.substring(0, v.indexOf("-"));
+            try {
+                i = Integer.parseInt(v);
+            } catch (Throwable t) {
+                i = 0;
+            }
+            if (i >= 8)
+                throw new Exception("java>7");
+
             /* Java < 8 */
             nativeFileSystem = (FileSystem)FileSystem.class
                 .getDeclaredMethod("getFileSystem",new Class[0])
