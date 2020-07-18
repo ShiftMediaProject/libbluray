@@ -39,6 +39,7 @@ libbluray_la_CPPFLAGS = \
 	-I${top_srcdir}/contrib/libudfread/src/ \
 	$(LIBXML2_CFLAGS) \
 	$(FT2_CFLAGS) \
+	$(LIBUDFREAD_CFLAGS) \
 	$(FONTCONFIG_CFLAGS)
 libbluray_la_SOURCES = \
 	src/file/dirs.h \
@@ -169,8 +170,9 @@ libbluray_la_SOURCES += \
 # libudfread
 libbluray_la_SOURCES += \
 	src/libbluray/disc/udf_fs.h \
-	src/libbluray/disc/udf_fs.c\
-	\
+	src/libbluray/disc/udf_fs.c
+if !HAVE_LIBUDFREAD
+libbluray_la_SOURCES += \
 	contrib/libudfread/src/blockinput.h \
 	contrib/libudfread/src/default_blockinput.h \
 	contrib/libudfread/src/default_blockinput.c \
@@ -178,6 +180,7 @@ libbluray_la_SOURCES += \
 	contrib/libudfread/src/ecma167.c \
 	contrib/libudfread/src/udfread.h \
 	contrib/libudfread/src/udfread.c
+endif
 
 if HAVE_DARWIN
 libbluray_la_SOURCES+= \
@@ -205,7 +208,7 @@ endif
 endif
 
 libbluray_la_LDFLAGS= -no-undefined -version-info $(LT_VERSION_INFO) -export-symbols-regex "^bd_"
-libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS) $(FONTCONFIG_LIBS) $(EXTRA_LIBS)
+libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS) $(FONTCONFIG_LIBS) $(LIBUDFREAD_LIBS) $(EXTRA_LIBS)
 
 noinst_HEADERS = \
 	jni/jni.h \

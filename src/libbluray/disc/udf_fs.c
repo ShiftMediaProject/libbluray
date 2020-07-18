@@ -28,8 +28,13 @@
 #include "util/mutex.h"
 #include "util/logging.h"
 
+#ifdef HAVE_LIBUDFREAD
+#include <udfread/udfread.h>
+#include <udfread/blockinput.h>
+#else
 #include "udfread.h"
 #include "blockinput.h"
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>   // SEEK_SET

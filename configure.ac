@@ -279,14 +279,19 @@ AM_CONDITIONAL([BDJ_J2SE], [ test x"$BDJ_TYPE" != x"j2me" ])
 dnl bootclasspath
 AC_SUBST(BDJ_BOOTCLASSPATH)
 
-dnl udf support (using git submodule)
-if test ! -f "${srcdir}/contrib/libudfread/src/udfread.h"; then
-    AC_MSG_ERROR("libudfread source tree not found")
-fi
-AC_CHECK_HEADERS([unistd.h fcntl.h])
-AS_IF([test "${SYS}" != "mingw32"], [
-    AC_CHECK_FUNC([pread],, [AC_DEFINE([NEED_PREAD_IMPL], [1], [Define to 1 to use inefficient pread() replacement])])
+PKG_CHECK_MODULES([LIBUDFREAD], [udfread >= 1.1.0],
+    [with_libudfread=yes
+     AC_DEFINE([HAVE_LIBUDFREAD], [1], [Define to 1 if external libudfread is to be used])
+     PACKAGES="$PACKAGES libudfread >= 1.1.0"
+    ],[
+     dnl udf support (using git submodule)
+     with_libudfread=no
+     AS_IF([test ! -f "${srcdir}/contrib/libudfread/src/udfread.h"], [AC_MSG_ERROR("libudfread source tree not found")])
+     AC_CHECK_HEADERS([unistd.h fcntl.h])
+     AS_IF([test "${SYS}" != "mingw32"], [
+         AC_CHECK_FUNC([pread],, [AC_DEFINE([NEED_PREAD_IMPL], [1], [Define to 1 to use inefficient pread() replacement])])])
 ])
+AM_CONDITIONAL([HAVE_LIBUDFREAD], [ test x"$with_libudfread" = x"yes" ])
 
 dnl generate documentation
 DX_INIT_DOXYGEN(libbluray, doc/doxygen-config, [doc/doxygen])
@@ -337,5 +342,6 @@ echo "  Use system fonts:              yes"
 fi
 fi
 echo "  Metadata support (libxml2):    $with_libxml2"
+echo "  External libudfread:           $with_libudfread"
 echo "  Build examples:                $use_examples"
 
