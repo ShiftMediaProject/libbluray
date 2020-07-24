@@ -85,6 +85,13 @@ final class BDJSecurityManager extends SecurityManager {
         throw new SecurityException("denied " + perm);
     }
 
+    private void checkNet(Permission perm) {
+        String enable = System.getProperty("bluray.network.connected");
+        if (enable != null && enable.equals("YES"))
+            return;
+        deny(perm);
+    }
+
     public void checkPermission(Permission perm) {
         if (perm instanceof RuntimePermission) {
             if (perm.implies(new RuntimePermission("createSecurityManager"))) {
@@ -164,6 +171,7 @@ final class BDJSecurityManager extends SecurityManager {
         /* Networking */
         else if (perm instanceof java.net.SocketPermission) {
             if (new java.net.SocketPermission("*", "connect,resolve").implies(perm)) {
+                checkNet(perm);
                 return;
             }
         }
