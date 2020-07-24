@@ -1218,10 +1218,8 @@ int bd_bdj_seek(BLURAY *bd, int playitem, int playmark, int64_t time)
     return 1;
 }
 
-int bd_set_virtual_package(BLURAY *bd, const char *vp_path, int psr_init_backup)
+static int _bd_set_virtual_package(BLURAY *bd, const char *vp_path, int psr_init_backup)
 {
-    bd_mutex_lock(&bd->mutex);
-
     if (bd->title) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "bd_set_virtual_package() failed: playlist is playing\n");
         return -1;
@@ -1239,9 +1237,16 @@ int bd_set_virtual_package(BLURAY *bd, const char *vp_path, int psr_init_backup)
 
     /* TODO: reload all cached information, update disc info, notify app */
 
-    bd_mutex_unlock(&bd->mutex);
-
     return 0;
+}
+
+int bd_set_virtual_package(BLURAY *bd, const char *vp_path, int psr_init_backup)
+{
+    int ret;
+    bd_mutex_lock(&bd->mutex);
+    ret = _bd_set_virtual_package(bd, vp_path, psr_init_backup);
+    bd_mutex_unlock(&bd->mutex);
+    return ret;
 }
 
 BD_DISC *bd_get_disc(BLURAY *bd)
