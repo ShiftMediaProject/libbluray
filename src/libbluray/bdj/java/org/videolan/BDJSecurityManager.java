@@ -174,6 +174,10 @@ final class BDJSecurityManager extends SecurityManager {
                 checkNet(perm);
                 return;
             }
+            if (new java.net.SocketPermission("*", "listen,resolve").implies(perm)) {
+                checkNet(perm);
+                return;
+            }
         }
         else if (urlPermission != null &&
                  urlPermission.isInstance(perm)) {
