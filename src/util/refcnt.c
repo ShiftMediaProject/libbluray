@@ -54,6 +54,10 @@ void bd_refcnt_inc(const void *obj)
     }
 
     ref = ((const BD_REFCNT *)obj)[-1].me;
+    if (obj != (const void *)&ref[1]) {
+        BD_DEBUG(DBG_CRIT, "bd_refcnt_inc(): invalid object\n");
+        return;
+    }
 
     if (!ref->counted) {
         bd_mutex_init(&ref->mutex);
@@ -76,6 +80,10 @@ void bd_refcnt_dec(const void *obj)
     }
 
     ref = ((const BD_REFCNT *)obj)[-1].me;
+    if (obj != (const void *)&ref[1]) {
+        BD_DEBUG(DBG_CRIT, "bd_refcnt_dec(): invalid object\n");
+        return;
+    }
 
     if (ref->counted) {
         int count;
