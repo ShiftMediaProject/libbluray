@@ -190,8 +190,8 @@ class VFSCache {
      * Add files from BD-ROM filesystem to cache
      * Called by BDJLoader when starting the title
      */
-    protected synchronized void add(AppCache[] appCaches) {
-
+    protected void add(AppCache[] appCaches) {
+        synchronized (lock) {
         for (int i = 0; i < appCaches.length; i++) {
             if (appCaches[i].getType() == AppCache.JAR_FILE) {
                 copyJarFile(appCaches[i].getRefToName() + ".jar");
@@ -201,14 +201,16 @@ class VFSCache {
                 logger.error("unknown AppCache type " + appCaches[i].getType());
             }
         }
+        }
     }
 
-    protected synchronized File addFont(String fontFile) {
+    protected File addFont(String fontFile) {
 
         String relPath = fontDir + fontFile;
         String dstPath = fontRoot + relPath;
         File dstFile = new File(dstPath);
 
+        synchronized (lock) {
         if (BDFileSystem.nativeFileExists(dstPath)) {
             //logger.info(dstPath + " already cached");
             return dstFile;
@@ -217,15 +219,18 @@ class VFSCache {
         if (!Libbluray.cacheBdRomFile(relPath, dstPath)) {
             return null;
         }
+        }
 
         logger.info("cached font " + fontFile);
         return dstFile;
     }
 
-    protected synchronized File addFont(InputStream is) {
+    protected File addFont(InputStream is) {
 
         // copy stream to tmp file in fontRoot. freetype can not read streams.
         File tmpFile = null;
+
+        synchronized (lock) {
         for (int i = 0; i < 100; i++) {
             tmpFile = new File(fontRoot + Long.toHexString(System.nanoTime() + i) + ".otf");
             try {
@@ -245,6 +250,7 @@ class VFSCache {
 
         if (!copyStream(is, tmpFile.getPath())) {
             return null;
+        }
         }
 
         logger.info("cached font stream to file " + tmpFile.getPath());
@@ -267,11 +273,7 @@ class VFSCache {
             return;
         }
 
-        accessFileSynced(absPath);
-    }
-
-    private synchronized void accessFileSynced(String absPath) {
-
+        synchronized (lock) {
         if (inAccessFile) {
             /* avoid recursion from SecurityManager checks */
             return;
@@ -282,6 +284,7 @@ class VFSCache {
             accessFileImp(absPath);
         } finally {
             inAccessFile = false;
+        }
         }
     }
 
@@ -313,12 +316,14 @@ class VFSCache {
     /*
      * Add file from binding unit data area to cache
      */
-    protected synchronized boolean add(String vpFile, String budaFile) {
+    protected boolean add(String vpFile, String budaFile) {
 
         String srcPath = System.getProperty("bluray.bindingunit.root") + File.separator + budaFile;
         String dstPath = cacheRoot + vpFile;
 
-        return copyFile(srcPath, dstPath);
+        synchronized (lock) {
+            return copyFile(srcPath, dstPath);
+        }
     }
 
     /*
@@ -327,7 +332,7 @@ class VFSCache {
      * absPath: path in BD VFS.
      * return: path of cached file, absPath if file is not in cache.
      */
-    public synchronized String map(String absPath) {
+    public String map(String absPath) {
 
         if (cacheAll) {
             return absPath;
@@ -339,15 +344,19 @@ class VFSCache {
         }
 
         String cachePath = cacheRoot + absPath.substring(vfsRootLength);
-        if (!BDFileSystem.nativeFileExists(cachePath)) {
-            //logger.info(cachePath + " not in VFS cache");
-            return absPath;
+
+        synchronized (lock) {
+            if (!BDFileSystem.nativeFileExists(cachePath)) {
+                //logger.info(cachePath + " not in VFS cache");
+                return absPath;
+            }
         }
 
         logger.info("using cached " + cachePath);
         return cachePath;
     }
 
+    private Object lock = new Object();
     private String cacheRoot = null;
     private String vfsRoot = null;
     private String fontRoot = null;
