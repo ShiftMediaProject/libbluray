@@ -2739,9 +2739,13 @@ static BLURAY_TITLE_INFO *_get_title_info(BLURAY *bd, uint32_t title_idx, uint32
     BLURAY_TITLE_INFO *title_info;
 
     /* current title ? => no need to load mpls file */
+    bd_mutex_lock(&bd->mutex);
     if (bd->title && bd->title->angle == angle && !strcmp(bd->title->name, mpls_name)) {
-        return _fill_title_info(bd->title, title_idx, playlist);
+        title_info = _fill_title_info(bd->title, title_idx, playlist);
+        bd_mutex_unlock(&bd->mutex);
+        return title_info;
     }
+    bd_mutex_unlock(&bd->mutex);
 
     title = nav_title_open(bd->disc, mpls_name, angle);
     if (title == NULL) {
