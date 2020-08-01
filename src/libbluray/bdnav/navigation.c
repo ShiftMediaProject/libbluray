@@ -642,7 +642,10 @@ static void _fill_clip(NAV_TITLE *title,
     }
 
     memcpy(clip->name, mpls_clip[clip->angle].clip_id, 5);
-    memcpy(&clip->name[5], ".m2ts", 6);
+    if (!memcmp(mpls_clip[clip->angle].codec_id, "FMTS", 4))
+        memcpy(&clip->name[5], ".fmts", 6);
+    else
+        memcpy(&clip->name[5], ".m2ts", 6);
     clip->clip_id = atoi(mpls_clip[clip->angle].clip_id);
 
     clpi_free(&clip->cl);

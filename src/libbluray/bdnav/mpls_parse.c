@@ -463,7 +463,7 @@ _parse_playitem(BITSTREAM *bits, MPLS_PI *pi)
     bs_read_string(bits, clip_id, 5);
 
     bs_read_string(bits, codec_id, 4);
-    if (memcmp(codec_id, "M2TS", 4) != 0) {
+    if (memcmp(codec_id, "M2TS", 4) != 0 && memcmp(codec_id, "FMTS", 4) != 0) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "Incorrect CodecIdentifier (%s)\n", codec_id);
     }
 
@@ -516,7 +516,7 @@ _parse_playitem(BITSTREAM *bits, MPLS_PI *pi)
         bs_read_string(bits, pi->clip[ii].clip_id, 5);
 
         bs_read_string(bits, pi->clip[ii].codec_id, 4);
-        if (memcmp(pi->clip[ii].codec_id, "M2TS", 4) != 0) {
+        if (memcmp(pi->clip[ii].codec_id, "M2TS", 4) != 0 && memcmp(pi->clip[ii].codec_id, "FMTS", 4) != 0) {
             BD_DEBUG(DBG_NAV | DBG_CRIT, "Incorrect CodecIdentifier (%s)\n", pi->clip[ii].codec_id);
         }
         pi->clip[ii].stc_id   = bs_read(bits, 8);
@@ -570,7 +570,7 @@ _parse_subplayitem(BITSTREAM *bits, MPLS_SUB_PI *spi)
     bs_read_string(bits, clip_id, 5);
 
     bs_read_string(bits, codec_id, 4);
-    if (memcmp(codec_id, "M2TS", 4) != 0) {
+    if (memcmp(codec_id, "M2TS", 4) != 0 && memcmp(codec_id, "FMTS", 4) != 0) {
         BD_DEBUG(DBG_NAV | DBG_CRIT, "Incorrect CodecIdentifier (%s)\n", codec_id);
     }
 
@@ -610,7 +610,7 @@ _parse_subplayitem(BITSTREAM *bits, MPLS_SUB_PI *spi)
         bs_read_string(bits, spi->clip[ii].clip_id, 5);
 
         bs_read_string(bits, spi->clip[ii].codec_id, 4);
-        if (memcmp(spi->clip[ii].codec_id, "M2TS", 4) != 0) {
+        if (memcmp(spi->clip[ii].codec_id, "M2TS", 4) != 0 && memcmp(spi->clip[ii].codec_id, "FMTS", 4) != 0) {
             BD_DEBUG(DBG_NAV | DBG_CRIT, "Incorrect CodecIdentifier (%s)\n", spi->clip[ii].codec_id);
         }
         spi->clip[ii].stc_id = bs_read(bits, 8);
