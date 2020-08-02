@@ -353,6 +353,13 @@ public class Libbluray {
         loadAdapter(System.getProperty("org.videolan.loader.adapter"));
         loadAdapter(pkg);
 
+        /* get title infos */
+        titleInfos = getTitleInfosN(nativePointer);
+        if (titleInfos == null) {
+            /* this is fatal */
+            throw new Error("getTitleInfos() failed");
+        }
+
         booted = true;
     }
 
@@ -388,9 +395,7 @@ public class Libbluray {
             System.err.println("shutdown() failed: " + e + "\n" + Logger.dumpStack(e));
         }
         nativePointer = 0;
-        synchronized (titleInfosLock) {
-            titleInfos = null;
-        }
+        titleInfos = null;
         synchronized (bdjoFilesLock) {
             bdjoFiles = null;
         }
@@ -430,20 +435,11 @@ public class Libbluray {
 
     /* used by javax/tv/service/SIManagerImpl */
     public static int numTitles() {
-        synchronized (titleInfosLock) {
-            if (titleInfos == null) {
-                titleInfos = getTitleInfosN(nativePointer);
-                if (titleInfos == null) {
-                    return -1;
-                }
-            }
-            return titleInfos.length - 2;
-        }
+        return titleInfos.length - 2;
     }
 
     /* used by org/bluray/ti/TitleImpl */
     public static TitleInfo getTitleInfo(int titleNum) {
-        synchronized (titleInfosLock) {
             int numTitles = numTitles();
             if (numTitles < 0)
                 return null;
@@ -456,7 +452,6 @@ public class Libbluray {
                 throw new IllegalArgumentException();
 
             return titleInfos[titleNum];
-        }
     }
 
     /* used by org/bluray/ti/PlayListImpl */
@@ -831,6 +826,5 @@ public class Libbluray {
                                               int x0, int y0, int x1, int y1);
 
     private static long nativePointer = 0;
-    private static Object titleInfosLock = new Object();
     private static TitleInfo[] titleInfos = null;
 }
