@@ -33,7 +33,8 @@
  *
  */
 
-typedef struct {
+typedef struct bd_refcnt {
+  struct bd_refcnt *me;
   void    (*cleanup)(void *);
   BD_MUTEX mutex;   /* initialized only if counted == 1 */
   int      count;   /* reference count */
@@ -46,11 +47,13 @@ typedef struct {
 
 void bd_refcnt_inc(const void *obj)
 {
+    BD_REFCNT *ref;
+
     if (!obj) {
         return;
     }
 
-    BD_REFCNT *ref = &(((BD_REFCNT *)(intptr_t)obj)[-1]);
+    ref = ((const BD_REFCNT *)obj)[-1].me;
 
     if (!ref->counted) {
         bd_mutex_init(&ref->mutex);
@@ -66,11 +69,13 @@ void bd_refcnt_inc(const void *obj)
 
 void bd_refcnt_dec(const void *obj)
 {
+    BD_REFCNT *ref;
+
     if (!obj) {
         return;
     }
 
-    BD_REFCNT *ref = &((BD_REFCNT *)(intptr_t)obj)[-1];
+    ref = ((const BD_REFCNT *)obj)[-1].me;
 
     if (ref->counted) {
         int count;
@@ -105,7 +110,7 @@ void *refcnt_realloc(void *obj, size_t sz, void (*cleanup)(void *))
     }
 
     if (obj) {
-        obj = realloc(&((BD_REFCNT *)obj)[-1], sz);
+        obj = realloc(((BD_REFCNT *)obj)[-1].me, sz);
         if (!obj) {
             /* do not call cleanup() - nothing is free'd here */
             return NULL;
@@ -119,6 +124,7 @@ void *refcnt_realloc(void *obj, size_t sz, void (*cleanup)(void *))
     }
 
     ((BD_REFCNT *)obj)->cleanup = cleanup;
+    ((BD_REFCNT *)obj)->me = obj;
     return &((BD_REFCNT *)obj)[1];
 }
 
