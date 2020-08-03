@@ -1648,7 +1648,7 @@ static void _seek_internal(BLURAY *bd,
 static void _change_angle(BLURAY *bd)
 {
     if (bd->seamless_angle_change) {
-        bd->st0.clip = nav_set_angle(bd->title, bd->st0.clip, bd->request_angle);
+        nav_set_angle(bd->title, bd->request_angle);
         bd->seamless_angle_change = 0;
         bd_psr_write(bd->regs, PSR_ANGLE_NUMBER, bd->title->angle + 1);
 
@@ -2520,7 +2520,7 @@ static int _bd_select_angle(BLURAY *bd, unsigned angle)
 
     orig_angle = bd->title->angle;
 
-    bd->st0.clip = nav_set_angle(bd->title, bd->st0.clip, angle);
+    nav_set_angle(bd->title, angle);
 
     if (orig_angle == bd->title->angle) {
         return 1;
@@ -3012,7 +3012,7 @@ static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
             return;
         case PSR_PLAYLIST:
             bd_select_playlist(bd, ev->new_val);
-            nav_set_angle(bd->title, bd->st0.clip, bd_psr_read(bd->regs, PSR_ANGLE_NUMBER) - 1);
+            nav_set_angle(bd->title, bd_psr_read(bd->regs, PSR_ANGLE_NUMBER) - 1);
             return;
         case PSR_PLAYITEM:
             bd_seek_playitem(bd, ev->new_val);

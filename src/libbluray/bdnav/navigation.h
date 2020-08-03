@@ -153,7 +153,7 @@ BD_PRIVATE void nav_title_close(NAV_TITLE **title);
 
 BD_PRIVATE NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip);
 BD_PRIVATE uint32_t  nav_chapter_get_current(NAV_TITLE *title, uint32_t title_pkt);
-BD_PRIVATE NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, unsigned angle);
+BD_PRIVATE void      nav_set_angle(NAV_TITLE *title, unsigned angle);
 
 BD_PRIVATE NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt,
                                        uint32_t *out_pkt, uint32_t *out_time);

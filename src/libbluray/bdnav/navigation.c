@@ -1045,22 +1045,22 @@ NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip)
     return &title->clip_list.clip[clip->ref + 1];
 }
 
-NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, unsigned angle)
+void nav_set_angle(NAV_TITLE *title, unsigned angle)
 {
     int ii;
     uint32_t pos = 0;
     uint32_t time = 0;
 
     if (title == NULL) {
-        return clip;
+        return;
     }
     if (angle > 8) {
         // invalid angle
-        return clip;
+        return;
     }
     if (angle == title->angle) {
         // no change
-        return clip;
+        return;
     }
 
     title->angle = angle;
@@ -1077,7 +1077,6 @@ NAV_CLIP* nav_set_angle(NAV_TITLE *title, NAV_CLIP *clip, unsigned angle)
                    pi->still_mode, pi->still_time, cl, ii, &pos, &time);
     }
     _extrapolate_title(title);
-    return clip;
 }
 
 char *nav_clip_textst_font(NAV_CLIP *clip, int index)
