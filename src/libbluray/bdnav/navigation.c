@@ -511,7 +511,7 @@ void nav_free_title_list(NAV_TITLE_LIST **title_list)
  *
  */
 
-uint8_t nav_clip_lookup_aspect(NAV_CLIP *clip, int pid)
+uint8_t nav_clip_lookup_aspect(const NAV_CLIP *clip, int pid)
 {
     CLPI_PROG *progs;
     int ii, jj;
@@ -884,7 +884,7 @@ NAV_CLIP* nav_mark_search(NAV_TITLE *title, unsigned mark, uint32_t *clip_pkt, u
     return clip;
 }
 
-void nav_clip_packet_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *clip_pkt, uint32_t *clip_time)
+void nav_clip_packet_search(const NAV_CLIP *clip, uint32_t pkt, uint32_t *clip_pkt, uint32_t *clip_time)
 {
     *clip_time = clip->in_time;
     if (clip->cl != NULL) {
@@ -958,7 +958,7 @@ NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, 
 //    Search to the timestamp obtained from nav_angle_change_search using
 //    nav_clip_time_search. Otherwise start at the start_pkt defined 
 //    by the clip.
-uint32_t nav_clip_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time)
+uint32_t nav_clip_angle_change_search(const NAV_CLIP *clip, uint32_t pkt, uint32_t *time)
 {
     if (clip->cl == NULL) {
         return pkt;
@@ -1005,7 +1005,7 @@ NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, u
 
 // Search for random access point closest to the requested time
 // Time is in 45khz ticks, between clip in_time and out_time.
-void nav_clip_time_search(NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt)
+void nav_clip_time_search(const NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt)
 {
     if (tick >= clip->out_time) {
         *clip_pkt = clip->end_pkt;
@@ -1034,7 +1034,7 @@ void nav_clip_time_search(NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uin
  * Pointer to NAV_CLIP struct
  * NULL - End of clip list
  */
-NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip)
+NAV_CLIP* nav_next_clip(NAV_TITLE *title, const NAV_CLIP *clip)
 {
     if (clip == NULL) {
         return &title->clip_list.clip[0];
@@ -1079,7 +1079,7 @@ void nav_set_angle(NAV_TITLE *title, unsigned angle)
     _extrapolate_title(title);
 }
 
-char *nav_clip_textst_font(NAV_CLIP *clip, int index)
+char *nav_clip_textst_font(const NAV_CLIP *clip, int index)
 {
     char *file;
 

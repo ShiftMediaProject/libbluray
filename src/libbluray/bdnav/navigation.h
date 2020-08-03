@@ -151,7 +151,7 @@ BD_PRIVATE void nav_free_title_list(NAV_TITLE_LIST **title_list);
 BD_PRIVATE NAV_TITLE* nav_title_open(struct bd_disc *disc, const char *playlist, unsigned angle) BD_ATTR_MALLOC;
 BD_PRIVATE void nav_title_close(NAV_TITLE **title);
 
-BD_PRIVATE NAV_CLIP* nav_next_clip(NAV_TITLE *title, NAV_CLIP *clip);
+BD_PRIVATE NAV_CLIP* nav_next_clip(NAV_TITLE *title, const NAV_CLIP *clip);
 BD_PRIVATE uint32_t  nav_chapter_get_current(NAV_TITLE *title, uint32_t title_pkt);
 BD_PRIVATE void      nav_set_angle(NAV_TITLE *title, unsigned angle);
 
@@ -163,11 +163,11 @@ BD_PRIVATE NAV_CLIP* nav_mark_search(NAV_TITLE *title, unsigned mark, uint32_t *
 
 /* clip ops */
 
-BD_PRIVATE uint32_t nav_clip_angle_change_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *time);
-BD_PRIVATE void nav_clip_time_search(NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt);
-BD_PRIVATE void nav_clip_packet_search(NAV_CLIP *clip, uint32_t pkt, uint32_t *clip_pkt, uint32_t *clip_time);
+BD_PRIVATE uint32_t nav_clip_angle_change_search(const NAV_CLIP *clip, uint32_t pkt, uint32_t *time);
+BD_PRIVATE void nav_clip_time_search(const NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt);
+BD_PRIVATE void nav_clip_packet_search(const NAV_CLIP *clip, uint32_t pkt, uint32_t *clip_pkt, uint32_t *clip_time);
 
-BD_PRIVATE char *nav_clip_textst_font(NAV_CLIP *clip, int index);
-BD_PRIVATE uint8_t nav_clip_lookup_aspect(NAV_CLIP *clip, int pid);
+BD_PRIVATE char *nav_clip_textst_font(const NAV_CLIP *clip, int index);
+BD_PRIVATE uint8_t nav_clip_lookup_aspect(const NAV_CLIP *clip, int pid);
 
 #endif // _NAVIGATION_H_
