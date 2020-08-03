@@ -862,7 +862,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
 #else
     java_9 = !!dl_dlsym(jvm_lib, "JVM_DefineModule");
     if (java_9) {
-        BD_DEBUG(DBG_CRIT | DBG_BDJ, "Detected Java 9 or later JVM - support is experimental !\n");
+        BD_DEBUG(DBG_BDJ, "Detected Java 9 or later JVM\n");
     }
 #endif
 
