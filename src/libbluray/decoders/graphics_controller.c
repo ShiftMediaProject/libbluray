@@ -639,9 +639,9 @@ static void _render_composition_object(GRAPHICS_CONTROLLER *gc,
 }
 
 /* exported */
-void bd_refcnt_inc(const void *obj)
+const void *bd_refcnt_inc(const void *obj)
 {
-    refcnt_inc(obj);
+    return refcnt_inc(obj);
 }
 
 /* exported */

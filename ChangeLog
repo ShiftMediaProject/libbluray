@@ -1,4 +1,5 @@
 - Add bd_event_name().
+- Add return value to bd_refcnt_inc().
 
 2020-10-25: Version 1.2.1
 - Add initial support for .fmts files.

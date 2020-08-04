@@ -45,30 +45,32 @@ typedef struct bd_refcnt {
  *
  */
 
-void refcnt_inc(const void *obj)
+const void *refcnt_inc(const void *obj)
 {
     BD_REFCNT *ref;
 
     if (!obj) {
-        return;
+        return NULL;
     }
 
     ref = ((const BD_REFCNT *)obj)[-1].me;
     if (obj != (const void *)&ref[1]) {
         BD_DEBUG(DBG_CRIT, "refcnt_inc(): invalid object\n");
-        return;
+        return NULL;
     }
 
     if (!ref->counted) {
         bd_mutex_init(&ref->mutex);
         ref->counted = 1;
         ref->count = 2;
-        return;
+        return obj;
     }
 
     bd_mutex_lock(&ref->mutex);
     ++ref->count;
     bd_mutex_unlock(&ref->mutex);
+
+    return obj;
 }
 
 void refcnt_dec(const void *obj)
