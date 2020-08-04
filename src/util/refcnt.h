@@ -50,6 +50,7 @@ extern "C" {
  *
  */
 
+BD_PRIVATE void *refcnt_calloc(size_t sz, void (*cleanup)(void *));
 BD_PRIVATE void *refcnt_realloc(void *obj, size_t sz, void (*cleanup)(void *));
 
 BD_PRIVATE const void *refcnt_inc(const void *obj) BD_USED;

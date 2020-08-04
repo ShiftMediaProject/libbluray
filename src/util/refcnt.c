@@ -108,6 +108,15 @@ void refcnt_dec(const void *obj)
     free(ref);
 }
 
+void *refcnt_calloc(size_t sz, void (*cleanup)(void *))
+{
+    void *p = refcnt_realloc(NULL, sz, cleanup);
+    if (p) {
+        memset(p, 0, sz);
+    }
+    return p;
+}
+
 void *refcnt_realloc(void *obj, size_t sz, void (*cleanup)(void *))
 {
     sz += sizeof(BD_REFCNT);
