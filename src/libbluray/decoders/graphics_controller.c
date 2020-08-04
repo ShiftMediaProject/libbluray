@@ -634,8 +634,20 @@ static void _render_composition_object(GRAPHICS_CONTROLLER *gc,
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
 
-        bd_refcnt_dec(cropped_img);
+        refcnt_dec(cropped_img);
     }
+}
+
+/* exported */
+void bd_refcnt_inc(const void *obj)
+{
+    refcnt_inc(obj);
+}
+
+/* exported */
+void bd_refcnt_dec(const void *obj)
+{
+    refcnt_dec(obj);
 }
 
 static void _render_rle(GRAPHICS_CONTROLLER *gc,

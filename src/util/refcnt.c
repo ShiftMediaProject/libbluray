@@ -45,7 +45,7 @@ typedef struct bd_refcnt {
  *
  */
 
-void bd_refcnt_inc(const void *obj)
+void refcnt_inc(const void *obj)
 {
     BD_REFCNT *ref;
 
@@ -55,7 +55,7 @@ void bd_refcnt_inc(const void *obj)
 
     ref = ((const BD_REFCNT *)obj)[-1].me;
     if (obj != (const void *)&ref[1]) {
-        BD_DEBUG(DBG_CRIT, "bd_refcnt_inc(): invalid object\n");
+        BD_DEBUG(DBG_CRIT, "refcnt_inc(): invalid object\n");
         return;
     }
 
@@ -71,7 +71,7 @@ void bd_refcnt_inc(const void *obj)
     bd_mutex_unlock(&ref->mutex);
 }
 
-void bd_refcnt_dec(const void *obj)
+void refcnt_dec(const void *obj)
 {
     BD_REFCNT *ref;
 
@@ -81,7 +81,7 @@ void bd_refcnt_dec(const void *obj)
 
     ref = ((const BD_REFCNT *)obj)[-1].me;
     if (obj != (const void *)&ref[1]) {
-        BD_DEBUG(DBG_CRIT, "bd_refcnt_dec(): invalid object\n");
+        BD_DEBUG(DBG_CRIT, "refcnt_dec(): invalid object\n");
         return;
     }
 
@@ -111,7 +111,7 @@ void *refcnt_realloc(void *obj, size_t sz, void (*cleanup)(void *))
 
     if (obj) {
         if (((BD_REFCNT *)obj)[-1].counted) {
-            bd_refcnt_dec(obj);
+            refcnt_dec(obj);
             BD_DEBUG(DBG_CRIT, "refcnt_realloc(): realloc locked object !\n");
             obj = NULL;
         }
