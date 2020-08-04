@@ -38,7 +38,7 @@ import org.bluray.bdplus.Status;
 import org.bluray.net.BDLocator;
 import org.bluray.system.RegisterAccess;
 import org.bluray.ti.DiscManager;
-import org.bluray.ti.TitleImpl;
+import org.bluray.ti.Title;
 import org.bluray.ti.selection.TitleContext;
 import org.bluray.ui.event.HRcEvent;
 import org.dvb.event.EventManager;
@@ -629,17 +629,15 @@ public class Libbluray {
      */
 
     private static boolean startTitle(int titleNumber) {
-
-        TitleContext titleContext = null;
         try {
             BDLocator locator = new BDLocator(null, titleNumber, -1);
-            TitleImpl title   = (TitleImpl)SIManager.createInstance().getService(locator);
+            Title title = (Title)SIManager.createInstance().getService(locator);
             if (title == null) {
                 System.err.println("startTitle() failed: title " + titleNumber + " not found");
                 return false;
             }
 
-            titleContext = (TitleContext)ServiceContextFactory.getInstance().getServiceContext(null);
+            TitleContext titleContext = (TitleContext)ServiceContextFactory.getInstance().getServiceContext(null);
             titleContext.start(title, true);
             return true;
 
@@ -650,9 +648,8 @@ public class Libbluray {
     }
 
     private static boolean stopTitle(boolean shutdown) {
-        TitleContext titleContext = null;
         try {
-            titleContext = (TitleContext)ServiceContextFactory.getInstance().getServiceContext(null);
+            TitleContext titleContext = (TitleContext)ServiceContextFactory.getInstance().getServiceContext(null);
             if (shutdown) {
                 titleContext.destroy();
             } else {
