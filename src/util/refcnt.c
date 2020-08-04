@@ -102,6 +102,7 @@ void refcnt_dec(const void *obj)
     if (ref->cleanup)
         ref->cleanup(&ref[1]);
 
+    memset(ref, 0, sizeof(*ref));
     free(ref);
 }
 
