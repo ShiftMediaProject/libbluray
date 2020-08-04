@@ -110,14 +110,17 @@ void *refcnt_realloc(void *obj, size_t sz, void (*cleanup)(void *))
     sz += sizeof(BD_REFCNT);
 
     if (obj) {
-        if (((BD_REFCNT *)obj)[-1].counted) {
-            refcnt_dec(obj);
-            BD_DEBUG(DBG_CRIT, "refcnt_realloc(): realloc locked object !\n");
-            obj = NULL;
+        const BD_REFCNT *ref = ((const BD_REFCNT *)obj)[-1].me;
+        if (obj != (const void *)&ref[1]) {
+            BD_DEBUG(DBG_CRIT, "refcnt_realloc(): invalid object\n");
+            return NULL;
         }
-    }
 
-    if (obj) {
+        if (ref->counted) {
+            BD_DEBUG(DBG_CRIT, "refcnt_realloc(): realloc locked object !\n");
+            return NULL;
+        }
+
         obj = realloc(((BD_REFCNT *)obj)[-1].me, sz);
         if (!obj) {
             /* do not call cleanup() - nothing is free'd here */
