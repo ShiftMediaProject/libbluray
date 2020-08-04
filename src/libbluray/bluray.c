@@ -190,6 +190,49 @@ void bd_get_version(int *major, int *minor, int *micro)
  * Navigation mode event queue
  */
 
+const char *bd_event_name(uint32_t event)
+{
+  switch ((bd_event_e)event) {
+#define EVENT_ENTRY(e) case e : return #e + 9
+        EVENT_ENTRY(BD_EVENT_NONE);
+        EVENT_ENTRY(BD_EVENT_ERROR);
+        EVENT_ENTRY(BD_EVENT_READ_ERROR);
+        EVENT_ENTRY(BD_EVENT_ENCRYPTED);
+        EVENT_ENTRY(BD_EVENT_ANGLE);
+        EVENT_ENTRY(BD_EVENT_TITLE);
+        EVENT_ENTRY(BD_EVENT_PLAYLIST);
+        EVENT_ENTRY(BD_EVENT_PLAYITEM);
+        EVENT_ENTRY(BD_EVENT_CHAPTER);
+        EVENT_ENTRY(BD_EVENT_PLAYMARK);
+        EVENT_ENTRY(BD_EVENT_END_OF_TITLE);
+        EVENT_ENTRY(BD_EVENT_AUDIO_STREAM);
+        EVENT_ENTRY(BD_EVENT_IG_STREAM);
+        EVENT_ENTRY(BD_EVENT_PG_TEXTST_STREAM);
+        EVENT_ENTRY(BD_EVENT_PIP_PG_TEXTST_STREAM);
+        EVENT_ENTRY(BD_EVENT_SECONDARY_AUDIO_STREAM);
+        EVENT_ENTRY(BD_EVENT_SECONDARY_VIDEO_STREAM);
+        EVENT_ENTRY(BD_EVENT_PG_TEXTST);
+        EVENT_ENTRY(BD_EVENT_PIP_PG_TEXTST);
+        EVENT_ENTRY(BD_EVENT_SECONDARY_AUDIO);
+        EVENT_ENTRY(BD_EVENT_SECONDARY_VIDEO);
+        EVENT_ENTRY(BD_EVENT_SECONDARY_VIDEO_SIZE);
+        EVENT_ENTRY(BD_EVENT_PLAYLIST_STOP);
+        EVENT_ENTRY(BD_EVENT_DISCONTINUITY);
+        EVENT_ENTRY(BD_EVENT_SEEK);
+        EVENT_ENTRY(BD_EVENT_STILL);
+        EVENT_ENTRY(BD_EVENT_STILL_TIME);
+        EVENT_ENTRY(BD_EVENT_SOUND_EFFECT);
+        EVENT_ENTRY(BD_EVENT_IDLE);
+        EVENT_ENTRY(BD_EVENT_POPUP);
+        EVENT_ENTRY(BD_EVENT_MENU);
+        EVENT_ENTRY(BD_EVENT_STEREOSCOPIC_STATUS);
+        EVENT_ENTRY(BD_EVENT_KEY_INTEREST_TABLE);
+        EVENT_ENTRY(BD_EVENT_UO_MASK_CHANGED);
+#undef EVENT_ENTRY
+    }
+    return NULL;
+}
+
 static int _get_event(BLURAY *bd, BD_EVENT *ev)
 {
     int result = event_queue_get(bd->event_queue, ev);
@@ -206,7 +249,8 @@ static int _queue_event(BLURAY *bd, uint32_t event, uint32_t param)
         BD_EVENT ev = { event, param };
         result = event_queue_put(bd->event_queue, &ev);
         if (!result) {
-            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_queue_event(%d, %d): queue overflow !\n", event, param);
+            const char *name = bd_event_name(event);
+            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_queue_event(%s:%d, %d): queue overflow !\n", name ? name : "?", event, param);
         }
     }
     return result;

@@ -850,6 +850,7 @@ typedef struct {
  */
 int  bd_get_event(BLURAY *bd, BD_EVENT *event);
 
+const char *bd_event_name(uint32_t /* bd_event_e */ event);
 
 /*
  * On-screen display
