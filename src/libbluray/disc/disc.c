@@ -26,6 +26,7 @@
 #include "dec.h"
 #include "properties.h"
 
+#include "util/refcnt.h"
 #include "util/logging.h"
 #include "util/macro.h"
 #include "util/mutex.h"
@@ -58,6 +59,14 @@ struct bd_disc {
     char         *properties_file;  /* NULL if not yet used */
 
     int8_t        avchd;  /* -1 - unknown. 0 - no. 1 - yes */
+
+    /* disc cache */
+    BD_MUTEX        cache_mutex;
+    size_t          cache_size;
+    struct {
+        char        name[11];
+        const void *data;
+    } *cache;
 };
 
 /*
@@ -269,6 +278,7 @@ static BD_DISC *_disc_init()
     if (p) {
         bd_mutex_init(&p->ovl_mutex);
         bd_mutex_init(&p->properties_mutex);
+        bd_mutex_init(&p->cache_mutex);
 
         /* default file access functions */
         p->fs_handle          = (void*)p;
@@ -354,8 +364,11 @@ void disc_close(BD_DISC **pp)
             p->pf_fs_close(p->fs_handle);
         }
 
+        disc_cache_clean(p, NULL);
+
         bd_mutex_destroy(&p->ovl_mutex);
         bd_mutex_destroy(&p->properties_mutex);
+        bd_mutex_destroy(&p->cache_mutex);
 
         X_FREE(p->disc_root);
         X_FREE(p->properties_file);
@@ -822,4 +835,106 @@ int disc_pseudo_id(BD_DISC *p, uint8_t *id/*[20]*/)
     }
 
     return r > 0;
+}
+
+/*
+ *
+ */
+
+const void *disc_cache_get(BD_DISC *p, const char *name)
+{
+    const void *data = NULL;
+
+    bd_mutex_lock(&p->cache_mutex);
+    if (p->cache) {
+        size_t i;
+        for (i = 0; p->cache[i].data; i++) {
+            if (!strcmp(p->cache[i].name, name)) {
+                data = refcnt_inc(p->cache[i].data);
+                break;
+            }
+        }
+    }
+    bd_mutex_unlock(&p->cache_mutex);
+
+    return data;
+}
+
+void disc_cache_put(BD_DISC *p, const char *name, const void *data)
+{
+    if (strlen(name) >= sizeof(p->cache[0].name)) {
+        BD_DEBUG(DBG_FILE|DBG_CRIT, "disc_cache_put: key %s too large\n", name);
+        return;
+    }
+    if (!data) {
+        BD_DEBUG(DBG_FILE|DBG_CRIT, "disc_cache_put: NULL for key %s ignored\n", name);
+        return;
+    }
+
+    bd_mutex_lock(&p->cache_mutex);
+
+    if (!p->cache) {
+        p->cache_size = 128;
+        p->cache = calloc(p->cache_size, sizeof(*p->cache));
+    }
+
+    if (p->cache && p->cache[p->cache_size - 2].data) {
+        void *tmp = realloc(p->cache, 2 * p->cache_size * sizeof(p->cache[0]));
+        if (tmp) {
+            p->cache = tmp;
+            memset(&p->cache[p->cache_size], 0, p->cache_size * sizeof(p->cache[0]));
+            p->cache_size *= 2;
+        }
+    }
+
+    if (p->cache && !p->cache[p->cache_size - 2].data) {
+        size_t i;
+        for (i = 0; p->cache[i].data; i++) {
+            if (!strcmp(p->cache[i].name, name)) {
+                BD_DEBUG(DBG_FILE|DBG_CRIT, "disc_cache_put(): duplicate key %s\n", name);
+                refcnt_dec(p->cache[i].data);
+                break;
+            }
+        }
+        strcpy(p->cache[i].name, name);
+        p->cache[i].data = refcnt_inc(data);
+        if (p->cache[i].data) {
+            BD_DEBUG(DBG_FILE, "disc_cache_put: added %s (%p)\n", name, data);
+        } else {
+            BD_DEBUG(DBG_FILE|DBG_CRIT, "disc_cache_put: error adding %s (%p): Invalid object type\n", name, data);
+        }
+    } else {
+        BD_DEBUG(DBG_FILE|DBG_CRIT, "disc_cache_put: error adding %s (%p): Out of memory\n", name, data);
+    }
+
+    bd_mutex_unlock(&p->cache_mutex);
+}
+
+void disc_cache_clean(BD_DISC *p, const char *name)
+{
+    bd_mutex_lock(&p->cache_mutex);
+
+    if (p->cache) {
+        size_t i;
+        if (name == NULL) {
+            for (i = 0; p->cache[i].data; i++) {
+                refcnt_dec(p->cache[i].data);
+            }
+            X_FREE(p->cache);
+            p->cache_size = 0;
+        } else {
+            for (i = 0; p->cache[i].data; i++) {
+                if (!strcmp(p->cache[i].name, name)) {
+                    BD_DEBUG(DBG_FILE, "disc_cache_clean: dropped %s (%p)\n", name, p->cache[i].data);
+                    refcnt_dec(p->cache[i].data);
+                    break;
+                }
+            }
+            for (; p->cache[i].data; i++) {
+                p->cache[i] = p->cache[i + 1];
+            }
+        }
+    }
+
+    bd_mutex_unlock(&p->cache_mutex);
 }
