@@ -147,6 +147,7 @@ struct bluray {
     /* HDMV */
     HDMV_VM        *hdmv_vm;
     uint8_t         hdmv_suspended;
+    uint8_t         hdmv_num_invalid_pl;
 
     /* BD-J */
     BDJAVA         *bdjava;
@@ -3427,7 +3428,23 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             break;
 
         case HDMV_EVENT_PLAY_PL:
-            bd_select_playlist(bd, hev->param);
+            if (!bd_select_playlist(bd, hev->param)) {
+                /* Missing playlist ?
+                 * Seen on some discs while checking UHD capability.
+                 * It seems only error message playlist is present, on success
+                 * non-existing playlist is selected ...
+                 */
+                bd->hdmv_num_invalid_pl++;
+                if (bd->hdmv_num_invalid_pl < 10) {
+                    hdmv_vm_resume(bd->hdmv_vm);
+                    bd->hdmv_suspended = !hdmv_vm_running(bd->hdmv_vm);
+                    BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Ignoring non-existing playlist %05d.mpls in HDMV mode\n", hev->param);
+                    break;
+                }
+            } else {
+                bd->hdmv_num_invalid_pl = 0;
+            }
+
             /* initialize menus */
             _init_ig_stream(bd);
             _run_gc(bd, GC_CTRL_INIT_MENU, 0);
