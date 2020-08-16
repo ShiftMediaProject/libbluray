@@ -139,7 +139,7 @@ public class FileInputStream extends InputStream
     public  int  read() throws IOException {
         byte b[] = new byte[1];
         if (read(b) == 1)
-            return b[0];
+            return ((int)b[0]) & 0xff;
         return -1;
     }
 
