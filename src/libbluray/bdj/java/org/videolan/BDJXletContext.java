@@ -49,10 +49,10 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
                 entry.getInitialClass());
         this.container = container;
 
-        this.threadGroup = new BDJThreadGroup(Integer.toHexString(appid.getOID()) + "." +
-                                              Integer.toHexString(appid.getAID()) + "." +
-                                              entry.getInitialClass(),
-                                              this);
+        this.threadGroup = BDJThreadGroup.create(Integer.toHexString(appid.getOID()) + "." +
+                                                 Integer.toHexString(appid.getAID()) + "." +
+                                                 entry.getInitialClass(),
+                                                 this);
 
         callbackQueue  = BDJActionQueue.create(this.threadGroup, "CallbackQueue");
         mediaQueue     = BDJActionQueue.create(this.threadGroup, "MediaQueue");
