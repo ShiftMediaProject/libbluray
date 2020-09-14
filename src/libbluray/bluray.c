@@ -263,7 +263,7 @@ static uint32_t _update_time_psr_from_stream(BLURAY *bd)
 static void _update_stream_psr_by_lang(BD_REGISTERS *regs,
                                        uint32_t psr_lang, uint32_t psr_stream,
                                        uint32_t enable_flag,
-                                       MPLS_STREAM *streams, unsigned num_streams,
+                                       const MPLS_STREAM *streams, unsigned num_streams,
                                        uint32_t *lang, uint32_t blacklist)
 {
     uint32_t preferred_lang;
@@ -314,7 +314,7 @@ static void _update_stream_psr_by_lang(BD_REGISTERS *regs,
 
 static void _update_clip_psrs(BLURAY *bd, const NAV_CLIP *clip)
 {
-    MPLS_STN *stn = &clip->title->pl->play_item[clip->ref].stn;
+    const MPLS_STN *stn = &clip->title->pl->play_item[clip->ref].stn;
     uint32_t audio_lang = 0;
     uint32_t psr_val;
 
@@ -369,7 +369,7 @@ static void _update_playlist_psrs(BLURAY *bd)
         /* Initialize selected audio and subtitle stream PSRs when not using menus.
          * Selection is based on language setting PSRs and clip STN.
          */
-        MPLS_STN *stn = &clip->title->pl->play_item[clip->ref].stn;
+        const MPLS_STN *stn = &clip->title->pl->play_item[clip->ref].stn;
         uint32_t audio_lang = 0;
 
         /* make sure clip is up-to-date before STREAM events are triggered */
@@ -420,8 +420,8 @@ static void _update_chapter_psr(BLURAY *bd)
 static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigned *sub_clip_idx, uint8_t *char_code)
 {
     unsigned  main_clip_idx = bd->st0.clip ? bd->st0.clip->ref : 0;
-    MPLS_PI  *pi        = &bd->title->pl->play_item[main_clip_idx];
     unsigned  pg_stream = bd_psr_read(bd->regs, PSR_PG_STREAM);
+    const MPLS_PI *pi = &bd->title->pl->play_item[main_clip_idx];
 
 #if 0
     /* Enable decoder unconditionally (required for forced subtitles).
@@ -598,8 +598,8 @@ static int _open_m2ts(BLURAY *bd, BD_STREAM *st)
             st->int_buf_off = 6144;
 
             if (st == &bd->st0) {
-                MPLS_PL *pl = st->clip->title->pl;
-                MPLS_STN *stn = &pl->play_item[st->clip->ref].stn;
+                const MPLS_PL *pl = st->clip->title->pl;
+                const MPLS_STN *stn = &pl->play_item[st->clip->ref].stn;
 
                 st->uo_mask = uo_mask_combine(pl->app_info.uo_mask,
                                               pl->play_item[st->clip->ref].uo_mask);
@@ -2205,8 +2205,8 @@ static int _preload_textst_subpath(BLURAY *bd)
 static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigned *sub_clip_idx)
 {
     unsigned  main_clip_idx = bd->st0.clip ? bd->st0.clip->ref : 0;
-    MPLS_PI  *pi        = &bd->title->pl->play_item[main_clip_idx];
     unsigned  ig_stream = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
+    const MPLS_PI *pi = &bd->title->pl->play_item[main_clip_idx];
 
     if (ig_stream > 0 && ig_stream <= pi->stn.num_ig) {
         ig_stream--; /* stream number to table index */
@@ -2615,7 +2615,8 @@ int bd_get_main_title(BLURAY *bd)
     return bd->title_list->main_title_idx;
 }
 
-static int _copy_streams(const NAV_CLIP *clip, BLURAY_STREAM_INFO **pstreams, MPLS_STREAM *si, int count)
+static int _copy_streams(const NAV_CLIP *clip, BLURAY_STREAM_INFO **pstreams,
+                         const MPLS_STREAM *si, int count)
 {
     BLURAY_STREAM_INFO *streams;
     int ii;
@@ -2694,8 +2695,8 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
             goto error;
         }
         for (ii = 0; ii < title_info->clip_count; ii++) {
-            MPLS_PI *pi = &title->pl->play_item[ii];
             BLURAY_CLIP_INFO *ci = &title_info->clips[ii];
+            const MPLS_PI *pi = &title->pl->play_item[ii];
             const NAV_CLIP *nc = &title->clip_list.clip[ii];
 
             memcpy(ci->clip_id, pi->clip->clip_id, sizeof(ci->clip_id));
