@@ -103,7 +103,7 @@ public class BDJClassFileTransformer
         return r;
     }
 
-    private static class MyClassVisitor extends ClassVisitor {
+    private static final class MyClassVisitor extends ClassVisitor {
         public MyClassVisitor(ClassVisitor cv) {
             super(Opcodes.ASM4, cv);
         }
@@ -116,7 +116,7 @@ public class BDJClassFileTransformer
         }
     }
 
-    private static class MyMethodVisitor extends MethodVisitor {
+    private static final class MyMethodVisitor extends MethodVisitor {
         public MyMethodVisitor(MethodVisitor mv) {
             super(Opcodes.ASM4, mv);
         }
