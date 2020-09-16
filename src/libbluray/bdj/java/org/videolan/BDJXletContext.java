@@ -40,13 +40,16 @@ import org.videolan.bdjo.AppEntry;
 
 public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedition.xlet.XletContext {
     public BDJXletContext(AppEntry entry, AppCache[] caches, Container container) {
+        BDJClassFilePatcher patcher = null;
+
         this.appid = entry.getIdentifier();
         this.args = entry.getParams();
         this.loader = BDJClassLoader.newInstance(
                 caches,
                 entry.getBasePath(),
                 entry.getClassPathExt(),
-                entry.getInitialClass());
+                entry.getInitialClass(),
+                patcher);
         this.container = container;
 
         this.threadGroup = BDJThreadGroup.create(Integer.toHexString(appid.getOID()) + "." +
