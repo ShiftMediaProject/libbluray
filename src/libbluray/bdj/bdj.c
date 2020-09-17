@@ -914,7 +914,12 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
 
     /* JVM debug options */
 
+    if (getenv("BDJ_JVM_DISABLE_JIT")) {
+        BD_DEBUG(DBG_CRIT | DBG_BDJ, "Disabling BD-J JIT\n");
+        option[n++].optionString = str_dup("-Xint");
+    }
     if (getenv("BDJ_JVM_DEBUG")) {
+        BD_DEBUG(DBG_CRIT | DBG_BDJ, "Enabling BD-J debug mode\n");
         option[n++].optionString = str_dup("-ea");
         //option[n++].optionString = str_dup("-verbose");
         //option[n++].optionString = str_dup("-verbose:class,gc,jni");
