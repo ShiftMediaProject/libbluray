@@ -42,6 +42,17 @@ public class BDJXletContext implements javax.tv.xlet.XletContext, javax.microedi
     public BDJXletContext(AppEntry entry, AppCache[] caches, Container container) {
         BDJClassFilePatcher patcher = null;
 
+        /* Disc-specific fixes */
+        if (org.bluray.ti.DiscManager.getDiscManager().getCurrentDisc().getId().equals("00000000000000000000000000000000")) {
+            if (entry.getIdentifier().getOID() == 0xffff27dd && entry.getIdentifier().getAID() == 0x1212 && entry.getInitialClass().equals("PlayMenuMain")) {
+                // "Evangelion, You are (not) alone"
+                // Disc uses unsynchronized flag to signal loading complete. Flag is read in busy loop, checking for timeout.
+                // Fix by triggering memory synchronization while Xlet is checking for timeout.
+                logger.error("Detected broken Xlet, applying patch");
+                patcher = new org.videolan.patchers.ReplaceMethodPatcher("java/lang/System", "currentTimeMillis", "org/videolan/backdoor/System", "currentTimeMillisSynced", "()J");
+            }
+        }
+
         this.appid = entry.getIdentifier();
         this.args = entry.getParams();
         this.loader = BDJClassLoader.newInstance(

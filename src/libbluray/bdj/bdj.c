@@ -838,6 +838,7 @@ static const char * const java_base_exports[] = {
         "com.aacsla.bluray.online",
         "com.aacsla.bluray.mc",
         "com.aacsla.bluray.mt",
+        "org.videolan.backdoor", /* entry for injected Xlet / runtime fixes */
 };
 static const size_t num_java_base_exports = sizeof(java_base_exports) / sizeof(java_base_exports[0]);
 
