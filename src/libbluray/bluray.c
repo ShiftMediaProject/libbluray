@@ -2407,6 +2407,16 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
             _add_known_playlist(bd->disc, bd->title->name);
         }
 
+        /* inform application about current streams (redundant) */
+        bd_psr_lock(bd->regs);
+        _queue_event(bd, BD_EVENT_AUDIO_STREAM, bd_psr_read(bd->regs, PSR_PRIMARY_AUDIO_ID));
+        {
+            uint32_t pgreg = bd_psr_read(bd->regs, PSR_PG_STREAM);
+            _queue_event(bd, BD_EVENT_PG_TEXTST,        !!(pgreg & 0x80000000));
+            _queue_event(bd, BD_EVENT_PG_TEXTST_STREAM,    pgreg & 0xfff);
+        }
+        bd_psr_unlock(bd->regs);
+
         return 1;
     }
     return 0;
