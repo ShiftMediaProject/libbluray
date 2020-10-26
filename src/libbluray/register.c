@@ -160,7 +160,7 @@ static const char * const bd_psr_name[BD_PSR_COUNT] = {
 
 typedef struct {
     void *handle;
-    void (*cb)(void *, BD_PSR_EVENT*);
+    void (*cb)(void *, const BD_PSR_EVENT*);
 } PSR_CB_DATA;
 
 struct bd_registers_s
@@ -221,7 +221,7 @@ void bd_psr_unlock(BD_REGISTERS *p)
  * PSR change callback register / unregister
  */
 
-void bd_psr_register_cb  (BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*), void *cb_handle)
+void bd_psr_register_cb  (BD_REGISTERS *p, void (*callback)(void*,const BD_PSR_EVENT*), void *cb_handle)
 {
     /* no duplicates ! */
     PSR_CB_DATA *cb;
@@ -250,7 +250,7 @@ void bd_psr_register_cb  (BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*)
     bd_psr_unlock(p);
 }
 
-void bd_psr_unregister_cb(BD_REGISTERS *p, void (*callback)(void*,BD_PSR_EVENT*), void *cb_handle)
+void bd_psr_unregister_cb(BD_REGISTERS *p, void (*callback)(void*,const BD_PSR_EVENT*), void *cb_handle)
 {
     unsigned i = 0;
 

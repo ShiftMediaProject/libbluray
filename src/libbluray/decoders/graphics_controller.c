@@ -759,7 +759,7 @@ static void _gc_reset(GRAPHICS_CONTROLLER *gc)
 /*
  * register hook
  */
-static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
+static void _process_psr_event(void *handle, const BD_PSR_EVENT *ev)
 {
     GRAPHICS_CONTROLLER *gc = (GRAPHICS_CONTROLLER *)handle;
 

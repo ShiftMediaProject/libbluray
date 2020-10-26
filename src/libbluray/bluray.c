@@ -3047,7 +3047,7 @@ static void _set_scr(BLURAY *bd, int64_t pts)
     }
 }
 
-static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
+static void _process_psr_restore_event(BLURAY *bd, const BD_PSR_EVENT *ev)
 {
     /* PSR restore events are handled internally.
      * Restore stored playback position.
@@ -3094,7 +3094,7 @@ static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
  * notification events to APP
  */
 
-static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
+static void _process_psr_write_event(BLURAY *bd, const BD_PSR_EVENT *ev)
 {
     if (ev->ev_type == BD_PSR_WRITE) {
         BD_DEBUG(DBG_BLURAY, "PSR write: psr%u = %u\n", ev->psr_idx, ev->new_val);
@@ -3134,7 +3134,7 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
     }
 }
 
-static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
+static void _process_psr_change_event(BLURAY *bd, const BD_PSR_EVENT *ev)
 {
     BD_DEBUG(DBG_BLURAY, "PSR change: psr%u = %u\n", ev->psr_idx, ev->new_val);
 
@@ -3209,7 +3209,7 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
     }
 }
 
-static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
+static void _process_psr_event(void *handle, const BD_PSR_EVENT *ev)
 {
     BLURAY *bd = (BLURAY*)handle;
 

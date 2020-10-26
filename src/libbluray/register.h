@@ -255,7 +255,7 @@ typedef struct {
  * @param callback  callback function pointer
  * @param handle  application-specific handle that is provided to callback function as first parameter
  */
-void bd_psr_register_cb(BD_REGISTERS *, void (*callback)(void*,BD_PSR_EVENT*), void *cb_handle);
+void bd_psr_register_cb(BD_REGISTERS *, void (*callback)(void*,const BD_PSR_EVENT*), void *cb_handle);
 
 /**
  *
@@ -265,7 +265,7 @@ void bd_psr_register_cb(BD_REGISTERS *, void (*callback)(void*,BD_PSR_EVENT*), v
  * @param callback  callback function to unregister
  * @param handle  application-specific handle that was used when callback was registered
  */
-void bd_psr_unregister_cb(BD_REGISTERS *, void (*callback)(void*,BD_PSR_EVENT*), void *cb_handle);
+void bd_psr_unregister_cb(BD_REGISTERS *, void (*callback)(void*,const BD_PSR_EVENT*), void *cb_handle);
 
 BD_PRIVATE int psr_init_3D(BD_REGISTERS *, int initial_mode, int force);
 
