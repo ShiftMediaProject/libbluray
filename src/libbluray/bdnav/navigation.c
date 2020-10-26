@@ -513,7 +513,7 @@ void nav_free_title_list(NAV_TITLE_LIST **title_list)
 
 uint8_t nav_clip_lookup_aspect(const NAV_CLIP *clip, int pid)
 {
-    CLPI_PROG *progs;
+    const CLPI_PROG *progs;
     int ii, jj;
 
     if (clip->cl == NULL) {
@@ -522,7 +522,7 @@ uint8_t nav_clip_lookup_aspect(const NAV_CLIP *clip, int pid)
 
     progs = clip->cl->program.progs;
     for (ii = 0; ii < clip->cl->program.num_prog; ii++) {
-        CLPI_PROG_STREAM *ps = progs[ii].streams;
+        const CLPI_PROG_STREAM *ps = progs[ii].streams;
         for (jj = 0; jj < progs[ii].num_streams; jj++) {
             if (ps[jj].pid == pid)
             {
@@ -827,9 +827,10 @@ NAV_TITLE* nav_title_open(BD_DISC *disc, const char *playlist, unsigned angle)
 
 // Search for random access point closest to the requested packet
 // Packets are 192 byte TS packets
-NAV_CLIP* nav_chapter_search(NAV_TITLE *title, unsigned chapter, uint32_t *clip_pkt, uint32_t *out_pkt)
+const NAV_CLIP* nav_chapter_search(const NAV_TITLE *title, unsigned chapter,
+                                   uint32_t *clip_pkt, uint32_t *out_pkt)
 {
-    NAV_CLIP *clip;
+    const NAV_CLIP *clip;
 
     if (chapter > title->chap_list.count) {
         clip = &title->clip_list.clip[0];
@@ -843,9 +844,9 @@ NAV_CLIP* nav_chapter_search(NAV_TITLE *title, unsigned chapter, uint32_t *clip_
     return clip;
 }
 
-uint32_t nav_chapter_get_current(NAV_TITLE * title, uint32_t title_pkt)
+uint32_t nav_chapter_get_current(const NAV_TITLE * title, uint32_t title_pkt)
 {
-    NAV_MARK * mark;
+    const NAV_MARK * mark;
     uint32_t ii;
 
     if (title == NULL) {
@@ -868,9 +869,10 @@ uint32_t nav_chapter_get_current(NAV_TITLE * title, uint32_t title_pkt)
 
 // Search for random access point closest to the requested packet
 // Packets are 192 byte TS packets
-NAV_CLIP* nav_mark_search(NAV_TITLE *title, unsigned mark, uint32_t *clip_pkt, uint32_t *out_pkt)
+const NAV_CLIP* nav_mark_search(const NAV_TITLE *title, unsigned mark,
+                                uint32_t *clip_pkt, uint32_t *out_pkt)
 {
-    NAV_CLIP *clip;
+    const NAV_CLIP *clip;
 
     if (mark > title->mark_list.count) {
         clip = &title->clip_list.clip[0];
@@ -884,7 +886,8 @@ NAV_CLIP* nav_mark_search(NAV_TITLE *title, unsigned mark, uint32_t *clip_pkt, u
     return clip;
 }
 
-void nav_clip_packet_search(const NAV_CLIP *clip, uint32_t pkt, uint32_t *clip_pkt, uint32_t *clip_time)
+void nav_clip_packet_search(const NAV_CLIP *clip, uint32_t pkt,
+                            uint32_t *clip_pkt, uint32_t *clip_time)
 {
     *clip_time = clip->in_time;
     if (clip->cl != NULL) {
@@ -906,10 +909,11 @@ void nav_clip_packet_search(const NAV_CLIP *clip, uint32_t pkt, uint32_t *clip_p
 // Packets are 192 byte TS packets
 // pkt is relative to the beginning of the title
 // out_pkt and out_time is relative to the the clip which the packet falls in
-NAV_CLIP* nav_packet_search(NAV_TITLE *title, uint32_t pkt, uint32_t *clip_pkt, uint32_t *out_pkt, uint32_t *out_time)
+const NAV_CLIP* nav_packet_search(const NAV_TITLE *title, uint32_t pkt,
+                                  uint32_t *clip_pkt, uint32_t *out_pkt, uint32_t *out_time)
 {
+    const NAV_CLIP *clip;
     uint32_t pos, len;
-    NAV_CLIP *clip;
     unsigned ii;
 
     *out_time = 0;
@@ -968,7 +972,8 @@ uint32_t nav_clip_angle_change_search(const NAV_CLIP *clip, uint32_t pkt, uint32
 
 // Search for random access point closest to the requested time
 // Time is in 45khz ticks
-NAV_CLIP* nav_time_search(NAV_TITLE *title, uint32_t tick, uint32_t *clip_pkt, uint32_t *out_pkt)
+const NAV_CLIP* nav_time_search(const NAV_TITLE *title, uint32_t tick,
+                                uint32_t *clip_pkt, uint32_t *out_pkt)
 {
     uint32_t pos, len;
     const MPLS_PI *pi = NULL;
@@ -1034,7 +1039,7 @@ void nav_clip_time_search(const NAV_CLIP *clip, uint32_t tick, uint32_t *clip_pk
  * Pointer to NAV_CLIP struct
  * NULL - End of clip list
  */
-NAV_CLIP* nav_next_clip(NAV_TITLE *title, const NAV_CLIP *clip)
+const NAV_CLIP* nav_next_clip(const NAV_TITLE *title, const NAV_CLIP *clip)
 {
     if (clip == NULL) {
         return &title->clip_list.clip[0];
