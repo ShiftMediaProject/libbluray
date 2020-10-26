@@ -465,7 +465,7 @@ static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigne
 {
     unsigned  main_clip_idx = bd->st0.clip ? bd->st0.clip->ref : 0;
     unsigned  pg_stream = bd_psr_read(bd->regs, PSR_PG_STREAM);
-    const MPLS_PI *pi = &bd->title->pl->play_item[main_clip_idx];
+    const MPLS_STN *stn = &bd->title->pl->play_item[main_clip_idx].stn;
 
 #if 0
     /* Enable decoder unconditionally (required for forced subtitles).
@@ -478,16 +478,16 @@ static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigne
 
     pg_stream &= 0xfff;
 
-    if (pg_stream > 0 && pg_stream <= pi->stn.num_pg) {
+    if (pg_stream > 0 && pg_stream <= stn->num_pg) {
         pg_stream--; /* stream number to table index */
-        if (pi->stn.pg[pg_stream].stream_type == 2) {
-            *sub_path_idx = pi->stn.pg[pg_stream].subpath_id;
-            *sub_clip_idx = pi->stn.pg[pg_stream].subclip_id;
+        if (stn->pg[pg_stream].stream_type == 2) {
+            *sub_path_idx = stn->pg[pg_stream].subpath_id;
+            *sub_clip_idx = stn->pg[pg_stream].subclip_id;
         }
-        *pid = pi->stn.pg[pg_stream].pid;
+        *pid = stn->pg[pg_stream].pid;
 
-        if (char_code && pi->stn.pg[pg_stream].coding_type == BLURAY_STREAM_TYPE_SUB_TEXT) {
-            *char_code = pi->stn.pg[pg_stream].char_code;
+        if (char_code && stn->pg[pg_stream].coding_type == BLURAY_STREAM_TYPE_SUB_TEXT) {
+            *char_code = stn->pg[pg_stream].char_code;
         }
 
         BD_DEBUG(DBG_BLURAY, "_find_pg_stream(): current PG stream pid 0x%04x sub-path %d\n",
@@ -2250,15 +2250,15 @@ static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigne
 {
     unsigned  main_clip_idx = bd->st0.clip ? bd->st0.clip->ref : 0;
     unsigned  ig_stream = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
-    const MPLS_PI *pi = &bd->title->pl->play_item[main_clip_idx];
+    const MPLS_STN *stn = &bd->title->pl->play_item[main_clip_idx].stn;
 
-    if (ig_stream > 0 && ig_stream <= pi->stn.num_ig) {
+    if (ig_stream > 0 && ig_stream <= stn->num_ig) {
         ig_stream--; /* stream number to table index */
-        if (pi->stn.ig[ig_stream].stream_type == 2) {
-            *sub_path_idx = pi->stn.ig[ig_stream].subpath_id;
-            *sub_clip_idx = pi->stn.ig[ig_stream].subclip_id;
+        if (stn->ig[ig_stream].stream_type == 2) {
+            *sub_path_idx = stn->ig[ig_stream].subpath_id;
+            *sub_clip_idx = stn->ig[ig_stream].subclip_id;
         }
-        *pid = pi->stn.ig[ig_stream].pid;
+        *pid = stn->ig[ig_stream].pid;
 
         BD_DEBUG(DBG_BLURAY, "_find_ig_stream(): current IG stream pid 0x%04x sub-path %d\n",
               *pid, *sub_path_idx);
