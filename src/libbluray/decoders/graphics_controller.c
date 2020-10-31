@@ -2060,7 +2060,11 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         case GC_CTRL_MOUSE_MOVE:
             result = _mouse_move(gc, param >> 16, param & 0xffff, cmds);
             break;
-
+#ifndef __COVERITY__
+        /* no "default:" :
+         * this chunk is used to trigger a warning when a new enum value is added,
+         * but not handled here.
+         */
         case GC_CTRL_RESET:
         case GC_CTRL_PG_RESET:
         case GC_CTRL_PG_UPDATE:
@@ -2068,6 +2072,7 @@ int gc_run(GRAPHICS_CONTROLLER *gc, gc_ctrl_e ctrl, uint32_t param, GC_NAV_CMDS 
         case GC_CTRL_STYLE_SELECT:
             /* already handled */
             break;
+#endif
     }
 
     if (cmds) {
