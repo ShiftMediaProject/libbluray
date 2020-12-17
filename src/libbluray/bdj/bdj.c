@@ -75,6 +75,9 @@ typedef jint (JNICALL * fptr_JNI_GetCreatedJavaVMs) (JavaVM **vmBuf, jsize bufLe
 #if defined(_WIN32) && !defined(HAVE_BDJ_J2ME)
 static void *_load_dll(const wchar_t *lib_path, const wchar_t *dll_search_path)
 {
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+    return NULL;
+#else
     void *result;
 
     typedef PVOID(WINAPI *AddDllDirectoryF)  (PCWSTR);
@@ -106,12 +109,16 @@ static void *_load_dll(const wchar_t *lib_path, const wchar_t *dll_search_path)
     }
 
     return result;
+#endif
 }
 #endif
 
 #if defined(_WIN32) && !defined(HAVE_BDJ_J2ME)
 static void *_load_jvm_win32(const char **p_java_home)
 {
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+    return NULL;
+#else
     static char java_home[256] = "";
 
     wchar_t buf_loc[4096] = L"SOFTWARE\\JavaSoft\\Java Runtime Environment\\";
@@ -194,6 +201,7 @@ static void *_load_jvm_win32(const char **p_java_home)
     }
 
     return result;
+#endif
 }
 #endif
 
