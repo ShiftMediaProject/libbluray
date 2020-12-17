@@ -1,21 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B67554E5-6253-4C94-8BCD-B8F87479970B}</ProjectGuid>
+    <ProjectGuid>{A67554E5-6253-4C94-8BCD-B8F87479970B}</ProjectGuid>
     <RootNamespace>bluray</RootNamespace>
   </PropertyGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="smp_deps.props" />
+    <Import Project="smp_winrt_deps.props" />
     <Import Project="libbluray_files.props" />
   </ImportGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugWinRT|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>libiconvd.lib;libfreetyped.lib;libxml2d.lib;libfontconfigd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libiconvd_winrt.lib;libfreetyped_winrt.lib;libxml2d_winrt.lib;libfontconfigd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
@@ -74,14 +74,14 @@ del /f /q $(OutDir)\bin\*.jar
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugWinRT|x64'">
     <ClCompile>
       <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>libiconvd.lib;libfreetyped.lib;libxml2d.lib;libfontconfigd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libiconvd_winrt.lib;libfreetyped_winrt.lib;libxml2d_winrt.lib;libfontconfigd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
@@ -140,7 +140,7 @@ del /f /q $(OutDir)\bin\*.jar
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLWinRT|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -148,7 +148,7 @@ del /f /q $(OutDir)\bin\*.jar
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
-      <AdditionalDependencies>iconvd.lib;freetyped.lib;xml2d.lib;fontconfigd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>iconvd_winrt.lib;freetyped_winrt.lib;xml2d_winrt.lib;fontconfigd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
@@ -207,7 +207,7 @@ del /f /q $(OutDir)\bin\*.jar
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLWinRT|x64'">
     <ClCompile>
       <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -215,7 +215,7 @@ del /f /q $(OutDir)\bin\*.jar
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
-      <AdditionalDependencies>iconvd.lib;freetyped.lib;xml2d.lib;fontconfigd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>iconvd_winrt.lib;freetyped_winrt.lib;xml2d_winrt.lib;fontconfigd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
@@ -274,14 +274,14 @@ del /f /q $(OutDir)\bin\*.jar
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWinRT|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;libfontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libiconv_winrt.lib;libfreetype_winrt.lib;libxml2_winrt.lib;libfontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
@@ -340,14 +340,14 @@ del /f /q $(OutDir)\bin\*.jar
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWinRT|x64'">
     <ClCompile>
       <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;libfontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libiconv_winrt.lib;libfreetype_winrt.lib;libxml2_winrt.lib;libfontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
@@ -406,7 +406,7 @@ del /f /q $(OutDir)\bin\*.jar
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLWinRT|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -414,7 +414,7 @@ del /f /q $(OutDir)\bin\*.jar
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
-      <AdditionalDependencies>iconv.lib;freetype.lib;xml2.lib;fontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>iconv_winrt.lib;freetype_winrt.lib;xml2_winrt.lib;fontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
@@ -473,7 +473,7 @@ del /f /q $(OutDir)\bin\*.jar
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLWinRTStaticDeps|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -481,7 +481,7 @@ del /f /q $(OutDir)\bin\*.jar
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
-      <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;libfontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libiconv_winrt.lib;libfreetype_winrt.lib;libxml2_winrt.lib;libfontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
@@ -540,7 +540,7 @@ del /f /q $(OutDir)\bin\*.jar
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLWinRT|x64'">
     <ClCompile>
       <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -548,7 +548,7 @@ del /f /q $(OutDir)\bin\*.jar
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
-      <AdditionalDependencies>iconv.lib;freetype.lib;xml2.lib;fontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>iconv_winrt.lib;freetype_winrt.lib;xml2_winrt.lib;fontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
@@ -607,7 +607,7 @@ del /f /q $(OutDir)\bin\*.jar
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLWinRTStaticDeps|x64'">
     <ClCompile>
       <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -615,7 +615,7 @@ del /f /q $(OutDir)\bin\*.jar
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
-      <AdditionalDependencies>libiconv.lib;libfreetype.lib;libxml2.lib;libfontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libiconv_winrt.lib;libfreetype_winrt.lib;libxml2_winrt.lib;libfontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
