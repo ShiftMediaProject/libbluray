@@ -849,6 +849,7 @@ static const char * const java_base_exports[] = {
         "com.aacsla.bluray.online",
         "com.aacsla.bluray.mc",
         "com.aacsla.bluray.mt",
+        "org.videolan.backdoor", /* entry for injected Xlet / runtime fixes */
 };
 static const size_t num_java_base_exports = sizeof(java_base_exports) / sizeof(java_base_exports[0]);
 
@@ -873,7 +874,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
 #else
     java_9 = !!dl_dlsym(jvm_lib, "JVM_DefineModule");
     if (java_9) {
-        BD_DEBUG(DBG_CRIT | DBG_BDJ, "Detected Java 9 or later JVM - support is experimental !\n");
+        BD_DEBUG(DBG_BDJ, "Detected Java 9 or later JVM\n");
     }
 #endif
 
@@ -925,7 +926,12 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
 
     /* JVM debug options */
 
+    if (getenv("BDJ_JVM_DISABLE_JIT")) {
+        BD_DEBUG(DBG_CRIT | DBG_BDJ, "Disabling BD-J JIT\n");
+        option[n++].optionString = str_dup("-Xint");
+    }
     if (getenv("BDJ_JVM_DEBUG")) {
+        BD_DEBUG(DBG_CRIT | DBG_BDJ, "Enabling BD-J debug mode\n");
         option[n++].optionString = str_dup("-ea");
         //option[n++].optionString = str_dup("-verbose");
         //option[n++].optionString = str_dup("-verbose:class,gc,jni");

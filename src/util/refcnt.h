@@ -50,7 +50,7 @@ extern "C" {
  *
  */
 
-BD_PRIVATE void *refcnt_realloc(void *obj, size_t sz);
+BD_PRIVATE void *refcnt_realloc(void *obj, size_t sz, void (*cleanup)(void *));
 
 #ifndef BD_OVERLAY_INTERFACE_VERSION
 void bd_refcnt_inc(const void *obj);

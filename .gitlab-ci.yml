@@ -5,10 +5,10 @@ variables:
     GIT_SUBMODULE_STRATEGY: normal
 
 build-debian:
-    image: registry.videolan.org:5000/vlc-debian-unstable:20181128113529
+    image: registry.videolan.org/vlc-debian-unstable:20181128113529
     stage: build
     tags:
-        - debian
+        - docker
         - amd64
     script:
         - mkdir build
@@ -37,12 +37,11 @@ build-macos:
         - make -j $(getconf _NPROCESSORS_ONLN)
 
 build-win64:
-    image: registry.videolan.org:5000/vlc-debian-win64:20181107154313
+    image: registry.videolan.org/vlc-debian-win64:20181107154313
     stage: build
     tags:
-        - debian
+        - docker
         - amd64
-        - win64
     script:
         - wget -nv https://nightlies.videolan.org/build/contribs/vlc-contrib-x86_64-w64-mingw32-latest.tar.bz2
         - tar xf vlc-contrib-x86_64-w64-mingw32-latest.tar.bz2
@@ -59,12 +58,11 @@ build-win64:
         - make -j $(getconf _NPROCESSORS_ONLN)
 
 build-win32:
-    image: registry.videolan.org:5000/vlc-debian-win32:20181107151708
+    image: registry.videolan.org/vlc-debian-win32:20181107151708
     stage: build
     tags:
         - debian
         - amd64
-        - win32
     script:
         - wget -nv https://nightlies.videolan.org/build/contribs/vlc-contrib-i686-w64-mingw32-latest.tar.bz2
         - tar xf vlc-contrib-i686-w64-mingw32-latest.tar.bz2

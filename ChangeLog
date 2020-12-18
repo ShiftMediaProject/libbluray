@@ -1,3 +1,16 @@
+2020-10-25: Version 1.2.1
+- Add initial support for .fmts files.
+- Improve missing/broken playlist handling ("Star Trek Beyond 4K").
+- Improve UHD metadata support.
+- Improve BD-J compability.
+- Improve error resilience and stability.
+- Fix long delay in "Evangelion, You are (not) alone" menu.
+- Fix JVM bootstrap issues with some Java 9 versions.
+- Fix sign extended bytes when reading single bytes in BDJ.
+- Fix creating organization and disc specific BD-J BUDA directories.
+- Use external libudfread when available.
+- Rename list_titles to bd_list_titles and add it to installed programs.
+
 2020-03-22: Version 1.2.0
 - Add functions to list and read BD-ROM files.
 - Add support for separate key pressed / typed / released user input events.

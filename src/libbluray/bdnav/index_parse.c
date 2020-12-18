@@ -169,10 +169,10 @@ static int _parse_app_info(BITSTREAM *bs, INDX_APP_INFO *app_info)
     bs_skip(bs, 1);
     app_info->initial_output_mode_preference = bs_read(bs, 1);
     app_info->content_exist_flag             = bs_read(bs, 1);
-    bs_skip(bs, 5);
-
-    app_info->video_format = bs_read(bs, 4);
-    app_info->frame_rate   = bs_read(bs, 4);
+    bs_skip(bs, 1);
+    app_info->initial_dynamic_range_type     = bs_read(bs, 4);
+    app_info->video_format                   = bs_read(bs, 4);
+    app_info->frame_rate                     = bs_read(bs, 4);
 
     bs_read_bytes(bs, app_info->user_data, 32);
 
@@ -198,7 +198,7 @@ static int _parse_header(BITSTREAM *bs,
 static int _parse_indx_extension_hevc(BITSTREAM *bs, INDX_ROOT *index)
 {
   uint32_t len;
-  unsigned unk0, unk1, unk2, unk3, unk4;
+  unsigned unk0, unk1, unk2, unk3, unk4, unk5;
 
   len = bs_read(bs, 32);
   if (len < 8) {
@@ -210,18 +210,21 @@ static int _parse_indx_extension_hevc(BITSTREAM *bs, INDX_ROOT *index)
   unk0                 = bs_read(bs, 3);
   index->exist_4k_flag = bs_read(bs, 1);
   unk1                 = bs_read(bs, 8);
-  unk2                 = bs_read(bs, 6);
+  unk2                 = bs_read(bs, 3);
+  index->hdrplus_flag  = bs_read(bs, 1);
+  unk3                 = bs_read(bs, 1);
+  index->dv_flag       = bs_read(bs, 1);
   index->hdr_flags     = bs_read(bs, 2);
-  unk3                 = bs_read(bs, 8);
-  unk4                 = bs_read(bs, 32);
+  unk4                 = bs_read(bs, 8);
+  unk5                 = bs_read(bs, 32);
 
-  BD_DEBUG(DBG_NAV, "UHD disc type: %d, 4k: %d, HDR: %d\n",
-           index->disc_type, index->exist_4k_flag, index->hdr_flags);
+  BD_DEBUG(DBG_NAV, "UHD disc type: %d, 4k: %d, HDR: %d, HDR10+: %d, Dolby Vision: %d\n",
+           index->disc_type, index->exist_4k_flag, index->hdr_flags, index->hdrplus_flag, index->dv_flag);
 
-  if (unk0 | unk1 | unk2 | unk3 | unk4) {
+  if (unk0 | unk1 | unk2 | unk3 | unk4 | unk5) {
       BD_DEBUG(DBG_CRIT|DBG_NAV,
                "index.bdmv: unknown data in extension 3.1: "
-               "0x%02x 0x%02x 0x%02x 0x%02x 0x%08x\n", unk0, unk1, unk2, unk3, unk4);
+               "0x%01x 0x%02x 0x%01x 0x%01x 0x%02x 0x%08x\n", unk0, unk1, unk2, unk3, unk4, unk5);
   }
 
   return 1;

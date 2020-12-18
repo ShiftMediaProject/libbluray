@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([bluray_major], 1)
 m4_define([bluray_minor], 2)
-m4_define([bluray_micro], 0)
+m4_define([bluray_micro], 1)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
 dnl shared library version (.so version)
@@ -12,9 +12,9 @@ dnl - If interfaces have been changed or removed, increase current and set age a
 dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
-m4_define([lt_current],  4)
+m4_define([lt_current],  5)
 m4_define([lt_revision], 0)
-m4_define([lt_age],      2)
+m4_define([lt_age],      3)
 
 dnl initilization
 AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
@@ -146,6 +146,9 @@ AS_IF([test "${SYS}" != "mingw32"], [
     [AC_MSG_ERROR([pthread required])])
   AC_SEARCH_LIBS([pthread_create], [pthread], ,
     [AC_MSG_ERROR([pthread required])])
+  PTHREAD_LIBS="$ac_cv_search_pthread_create"
+  AS_IF([test x"$PTHREAD_LIBS" != x"none required"],
+        [EXTRA_LIBS="$EXTRA_LIBS $PTHREAD_LIBS"])
   AC_SEARCH_LIBS([dlopen], [dl])
   DLOPEN_LIBS="$ac_cv_search_dlopen"
   AS_CASE([$DLOPEN_LIBS],
@@ -276,14 +279,19 @@ AM_CONDITIONAL([BDJ_J2SE], [ test x"$BDJ_TYPE" != x"j2me" ])
 dnl bootclasspath
 AC_SUBST(BDJ_BOOTCLASSPATH)
 
-dnl udf support (using git submodule)
-if test ! -f "${srcdir}/contrib/libudfread/src/udfread.h"; then
-    AC_MSG_ERROR("libudfread source tree not found")
-fi
-AC_CHECK_HEADERS([unistd.h fcntl.h])
-AS_IF([test "${SYS}" != "mingw32"], [
-    AC_CHECK_FUNC([pread],, [AC_DEFINE([NEED_PREAD_IMPL], [1], [Define to 1 to use inefficient pread() replacement])])
+PKG_CHECK_MODULES([LIBUDFREAD], [udfread >= 1.1.0],
+    [with_libudfread=yes
+     AC_DEFINE([HAVE_LIBUDFREAD], [1], [Define to 1 if external libudfread is to be used])
+     PACKAGES="$PACKAGES libudfread >= 1.1.0"
+    ],[
+     dnl udf support (using git submodule)
+     with_libudfread=no
+     AS_IF([test ! -f "${srcdir}/contrib/libudfread/src/udfread.h"], [AC_MSG_ERROR("libudfread source tree not found")])
+     AC_CHECK_HEADERS([unistd.h fcntl.h])
+     AS_IF([test "${SYS}" != "mingw32"], [
+         AC_CHECK_FUNC([pread],, [AC_DEFINE([NEED_PREAD_IMPL], [1], [Define to 1 to use inefficient pread() replacement])])])
 ])
+AM_CONDITIONAL([HAVE_LIBUDFREAD], [ test x"$with_libudfread" = x"yes" ])
 
 dnl generate documentation
 DX_INIT_DOXYGEN(libbluray, doc/doxygen-config, [doc/doxygen])
@@ -334,5 +342,6 @@ echo "  Use system fonts:              yes"
 fi
 fi
 echo "  Metadata support (libxml2):    $with_libxml2"
+echo "  External libudfread:           $with_libudfread"
 echo "  Build examples:                $use_examples"
 

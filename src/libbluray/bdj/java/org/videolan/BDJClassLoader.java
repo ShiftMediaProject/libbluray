@@ -38,8 +38,9 @@ import javax.tv.xlet.Xlet;
 
 import org.videolan.bdjo.AppCache;
 
-public class BDJClassLoader extends URLClassLoader {
-    public static BDJClassLoader newInstance(AppCache[] appCaches, String basePath, String classPathExt, final String xletClass) {
+class BDJClassLoader extends URLClassLoader {
+    public static BDJClassLoader newInstance(AppCache[] appCaches, String basePath, String classPathExt, final String xletClass,
+                                             final BDJClassFilePatcher patcher) {
         ArrayList classPath = new ArrayList();
         URL url = translateClassPath(appCaches, basePath, null);
         if (url != null)
@@ -55,7 +56,7 @@ public class BDJClassLoader extends URLClassLoader {
         return (BDJClassLoader)AccessController.doPrivileged(
                 new PrivilegedAction() {
                     public Object run() {
-                        return new BDJClassLoader(urls, xletClass);
+                        return new BDJClassLoader(urls, xletClass, patcher);
                     }
                 });
     }
@@ -115,7 +116,7 @@ public class BDJClassLoader extends URLClassLoader {
         }
     }
 
-    private BDJClassLoader(URL[] urls, String xletClass) {
+    private BDJClassLoader(URL[] urls, String xletClass, BDJClassFilePatcher patcher) {
         super(urls);
         this.xletClass = xletClass;
 
@@ -125,6 +126,7 @@ public class BDJClassLoader extends URLClassLoader {
             bootClasses = a.getBootClasses();
             xletClasses = a.getXletClasses();
         }
+        this.patcher = patcher;
     }
 
     protected Xlet loadXlet() throws ClassNotFoundException,
@@ -250,6 +252,19 @@ public class BDJClassLoader extends URLClassLoader {
     }
 
     protected Class findClass(String name) throws ClassNotFoundException {
+
+        if (patcher != null) {
+            try {
+                byte[] b = loadClassCode(name);
+                b = patcher.patch(b);
+                return defineClass(b, 0, b.length);
+            } catch (ThreadDeath td) {
+                throw td;
+            } catch (Throwable t) {
+                logger.error("Class patching failed: " + t);
+            }
+        }
+
         try {
             return super.findClass(name);
 
@@ -319,8 +334,9 @@ public class BDJClassLoader extends URLClassLoader {
 
     private String xletClass;
 
+    private final BDJClassFilePatcher patcher;
     private Map hideClasses;  /* classes that should be hidden from Xlet */
-    private Map bootClasses;  /* additional bootstrap clases */
+    private Map bootClasses;  /* additional bootstrap classes */
     private Map xletClasses;  /* fallback for possibly missing classes */
 
     private static final Logger logger = Logger.getLogger(BDJClassLoader.class.getName());

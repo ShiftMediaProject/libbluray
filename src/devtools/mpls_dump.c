@@ -51,6 +51,7 @@ const VALUE_MAP subpath_type_map[] = {
   {6, "Out-of-mux Asynchronous Picture-in-Picture presentation"},
   {7, "In-mux Synchronous Picture-in-Picture presentation"},
   {8, "SS Video"},
+  {10, "Dolby Vision Enhancement Layer"},
   {0,NULL}
 };
 
@@ -99,13 +100,13 @@ _show_stream(MPLS_STREAM *ss, int level)
             break;
 
         case 2:
-        case 4:
             indent_printf(level, "SubPath Id: %02x", ss->subpath_id);
             indent_printf(level, "SubClip Id: %02x", ss->subclip_id);
             indent_printf(level, "PID: %04x", ss->pid);
             break;
 
         case 3:
+        case 4:
             indent_printf(level, "SubPath Id: %02x", ss->subpath_id);
             indent_printf(level, "PID: %04x", ss->pid);
             break;
@@ -125,6 +126,15 @@ _show_stream(MPLS_STREAM *ss, int level)
                         _lookup_str(video_format_map, ss->format));
             indent_printf(level, "Rate %02x: %s", ss->rate,
                         _lookup_str(video_rate_map, ss->rate));
+            if (ss->coding_type == 0x24) {
+                indent_printf(level, "cr_flag %02x", ss->cr_flag);
+                indent_printf(level, "Dynamic Range type %02x: %s", ss->dynamic_range_type,
+                            _lookup_str(dynamic_range_type_map, ss->dynamic_range_type));
+                indent_printf(level, "Color Space %02x: %s", ss->color_space,
+                            _lookup_str(color_space_map, ss->color_space));
+                indent_printf(level, "HDR10+ %02x: %s", ss->hdr_plus_flag,
+                            ss->hdr_plus_flag ? "Yes" : "No");
+            }
             break;
 
         case 0x03:
@@ -193,6 +203,10 @@ _show_details(MPLS_PL *pl, int level)
         for (jj = 0; jj < pi->stn.num_video; jj++) {
             indent_printf(level+1, "Video Stream %d:", jj);
             _show_stream(&pi->stn.video[jj], level + 2);
+        }
+        for (jj = 0; jj < pi->stn.num_dv; jj++) {
+            indent_printf(level+1, "Dolby Vision Enhancement Layer Stream %d:", jj);
+            _show_stream(&pi->stn.dv[jj], level + 2);
         }
         for (jj = 0; jj < pi->stn.num_audio; jj++) {
             indent_printf(level+1, "Audio Stream %d:", jj);
@@ -373,6 +387,35 @@ _show_pip_metadata(MPLS_PL *pl, int level)
 }
 
 static void
+_show_static_metadata_entry(MPLS_STATIC_METADATA *entry, int level)
+{
+    indent_printf(level, "Dynamic Range Type: %d", entry->dynamic_range_type);
+    indent_printf(level, "Mastering Display Primary R (X, Y): (%f, %f)", (float)entry->display_primaries_x[primary_red]/50000L, (float)entry->display_primaries_y[primary_red]/50000L);
+    indent_printf(level, "Mastering Display Primary G (X, Y): (%f, %f)", (float)entry->display_primaries_x[primary_green]/50000L, (float)entry->display_primaries_y[primary_green]/50000L);
+    indent_printf(level, "Mastering Display Primary B (X, Y): (%f, %f)", (float)entry->display_primaries_x[primary_blue]/50000L, (float)entry->display_primaries_y[primary_blue]/50000L);
+    indent_printf(level, "White Point (X, Y): (%f, %f)", (float)entry->white_point_x/50000L, (float)entry->white_point_y/50000L);
+    indent_printf(level, "Display Mastering Luminance (min, max): (%.4f, %.4f)", (float)entry->min_display_mastering_luminance/10000L, (float)entry->max_display_mastering_luminance);
+    indent_printf(level, "Maximum Frame Average Light Level (MaxFALL): %d", entry->max_CLL);
+    indent_printf(level, "Maximum Content Light Level (MaxCLL): %d", entry->max_FALL);
+}
+
+static void
+_show_static_metadata(MPLS_PL *pl, int level)
+{
+    int ii;
+
+    for (ii = 0; ii < pl->ext_static_metadata_count; ii++) {
+        MPLS_STATIC_METADATA *data;
+
+        data = &pl->ext_static_metadata[ii];
+
+        indent_printf(level, "Static metadata entry %d:", ii);
+        _show_static_metadata_entry(data, level+1);
+    }
+    printf("\n");
+}
+
+static void
 _show_sub_paths(MPLS_PL *pl, int level)
 {
     int ss;
@@ -400,6 +443,7 @@ _show_sub_paths_ss(MPLS_PL *pl, int level)
         indent_printf(level, "Extension Sub Path %d:", ss);
         _show_sub_path(sub, level+1);
     }
+    printf("\n");
 }
 
 static uint32_t
@@ -490,7 +534,7 @@ _filter_repeats(MPLS_PL *pl, int repeats)
     return 1;
 }
 
-static int clip_list = 0, playlist_info = 0, chapter_marks = 0, sub_paths = 0, pip_metadata = 0;
+static int clip_list = 0, playlist_info = 0, chapter_marks = 0, sub_paths = 0, pip_metadata = 0, static_metadata = 0;
 static int repeats = 0, seconds = 0, dups = 0;
 
 static MPLS_PL*
@@ -551,6 +595,9 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
         _show_sub_paths(pl, 1);
         _show_sub_paths_ss(pl, 1);
     }
+    if (static_metadata) {
+        _show_static_metadata(pl, 1);
+    }
     return pl;
 }
 
@@ -567,6 +614,7 @@ _usage(char *cmd)
 "    c             - Show chapter marks\n"
 "    p             - Show sub paths\n"
 "    P             - Show picture-in-picture metadata\n"
+"    S             - Show static metadata\n"
 "    r <N>         - Filter out titles that have >N repeating clips\n"
 "    d             - Filter out duplicate titles\n"
 "    s <seconds>   - Filter out short titles\n"
@@ -576,7 +624,7 @@ _usage(char *cmd)
     exit(EXIT_FAILURE);
 }
 
-#define OPTS "vlicpPfr:ds:"
+#define OPTS "vlicpPSfr:ds:"
 
 static int
 _qsort_str_cmp(const void *a, const void *b)
@@ -626,6 +674,10 @@ main(int argc, char *argv[])
 
             case 'P':
                 pip_metadata = 1;
+                break;
+
+            case 'S':
+                static_metadata = 1;
                 break;
 
             case 'd':
