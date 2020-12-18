@@ -28,6 +28,13 @@ cd "%~dp0"
 REM Initialise error check value
 SET ERROR=0
 
+REM Init the required submodules
+IF "%MSVC_VER%"=="" (
+    cd ..\
+    git submodule update --init
+    CD "%CURRDIR%" >NUL
+)
+
 cd ..\..
 FOR %%I IN %DEPENDENCIES% DO (
     ECHO !PASSDEPENDENCIES! | FINDSTR /C:"%%I" >NUL 2>&1 || (
