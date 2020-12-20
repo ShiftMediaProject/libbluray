@@ -279,7 +279,7 @@ AM_CONDITIONAL([BDJ_J2SE], [ test x"$BDJ_TYPE" != x"j2me" ])
 dnl bootclasspath
 AC_SUBST(BDJ_BOOTCLASSPATH)
 
-PKG_CHECK_MODULES([LIBUDFREAD], [udfread >= 1.1.0],
+PKG_CHECK_MODULES([LIBUDFREAD], [libudfread >= 1.1.0],
     [with_libudfread=yes
      AC_DEFINE([HAVE_LIBUDFREAD], [1], [Define to 1 if external libudfread is to be used])
      PACKAGES="$PACKAGES libudfread >= 1.1.0"
