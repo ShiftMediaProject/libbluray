@@ -193,7 +193,7 @@ void bd_get_version(int *major, int *minor, int *micro)
 const char *bd_event_name(uint32_t event)
 {
   switch ((bd_event_e)event) {
-#define EVENT_ENTRY(e) case e : return #e + 9
+#define EVENT_ENTRY(e) case e : return & (#e [9])
         EVENT_ENTRY(BD_EVENT_NONE);
         EVENT_ENTRY(BD_EVENT_ERROR);
         EVENT_ENTRY(BD_EVENT_READ_ERROR);
