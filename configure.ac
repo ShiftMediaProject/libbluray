@@ -154,6 +154,23 @@ AS_IF([test "${SYS}" != "mingw32"], [
   AS_CASE([$DLOPEN_LIBS],
     [no|none\ required], [DLOPEN_LIBS=""])
   AC_SUBST([DLOPEN_LIBS])
+
+  AC_MSG_CHECKING([for dladdr])
+  saved_LIBS="$LIBS"
+  LIBS="$LIBS $DLOPEN_LIBS"
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+        #define _GNU_SOURCE
+        #include <dlfcn.h>
+      ]], [[
+        Dl_info dl_info;
+        return dladdr(&dl_info, &dl_info);
+    ]])], [
+      AC_MSG_RESULT([yes])
+      AC_DEFINE([HAVE_DLADDR], 1, [Define to 1 if you have a dladdr().])
+    ], [
+      AC_MSG_RESULT([no])
+    ])
+  LIBS="$saved_LIBS"
 ])
 
 dnl libxml2 for metadata parser

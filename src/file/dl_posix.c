@@ -22,6 +22,10 @@
 #include "config.h"
 #endif
 
+#ifdef HAVE_DLADDR
+#  define _GNU_SOURCE  /* dladdr */
+#endif
+
 #include "dl.h"
 #include "util/macro.h"
 #include "util/logging.h"
@@ -127,10 +131,9 @@ const char *dl_get_path(void)
     if (!initialized) {
         initialized = 1;
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(HAVE_DLADDR)
         Dl_info dl_info;
         int ret = dladdr((void *)dl_get_path, &dl_info);
-
         if (ret != 0) {
             lib_path = strdup(dl_info.dli_fname);
 
