@@ -301,7 +301,6 @@ static char *_java_home_macos()
 
 static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char *jvm_lib)
 {
-    if (java_home) {
         char *path = str_printf("%s" DIR_SEP "%s" DIR_SEP "%s", java_home, jvm_dir, jvm_lib);
         if (!path) {
             BD_DEBUG(DBG_CRIT, "out of memory\n");
@@ -319,10 +318,6 @@ static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char 
 # endif
         X_FREE(path);
         return h;
-    } else {
-        BD_DEBUG(DBG_BDJ, "Opening %s ...\n", jvm_lib);
-        return dl_dlopen(jvm_lib, NULL);
-    }
 }
 
 static void *_jvm_dlopen_a(const char *java_home,
@@ -331,6 +326,11 @@ static void *_jvm_dlopen_a(const char *java_home,
 {
   unsigned ii;
   void *dll = NULL;
+
+  if (!java_home) {
+      BD_DEBUG(DBG_BDJ, "Opening %s ...\n", jvm_lib);
+      return dl_dlopen(jvm_lib, NULL);
+  }
 
   for (ii = 0; !dll && ii < num_jvm_dir; ii++) {
       dll = _jvm_dlopen(java_home, jvm_dir[ii], jvm_lib);
