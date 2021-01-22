@@ -414,7 +414,10 @@ static void *_load_jvm(const char **p_java_home)
 #    endif
     };
     static const char * const jvm_dir[]  = {"jre/lib/" JAVA_ARCH "/server",
+                                            "lib/" JAVA_ARCH "/server",
                                             "lib/server",
+                                            "jre/lib/" JAVA_ARCH "/client",
+                                            "lib/" JAVA_ARCH "/client",
                                             "lib/client",
     };
 #  endif
