@@ -463,8 +463,14 @@ static void *_load_jvm(const char **p_java_home)
 
     /* try our pre-defined locations */
     for (path_ind = 0; !handle && path_ind < num_jvm_path; path_ind++) {
-        *p_java_home = jvm_path[path_ind];
-        handle = _jvm_dlopen_a(jvm_path[path_ind], jvm_dir, num_jvm_dir, jvm_lib);
+        if (jvm_path[path_ind] && !jvm_path[path_ind][0]) {
+            /* skip empty JVM_HOME */
+        } else if (jvm_path[path_ind] && file_path_exists(jvm_path[path_ind]) < 0) {
+            BD_DEBUG(DBG_BDJ, "Skipping %s (not found)\n", jvm_path[path_ind]);
+        } else {
+            *p_java_home = jvm_path[path_ind];
+            handle = _jvm_dlopen_a(jvm_path[path_ind], jvm_dir, num_jvm_dir, jvm_lib);
+        }
     }
 
     if (!*p_java_home) {
