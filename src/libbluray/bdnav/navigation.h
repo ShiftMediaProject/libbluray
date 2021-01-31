@@ -88,7 +88,7 @@ struct nav_clip_s
     uint8_t  still_mode;
     uint16_t still_time;
 
-    struct clpi_cl *cl;
+    const struct clpi_cl *cl;
 };
 
 typedef struct nav_clip_list_s NAV_CLIP_LIST;

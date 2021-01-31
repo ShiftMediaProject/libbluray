@@ -27,14 +27,16 @@
 struct clpi_cl;
 struct bd_disc;
 
-BD_PRIVATE struct clpi_cl* clpi_parse(const char *path);
-BD_PRIVATE struct clpi_cl* clpi_get(struct bd_disc *disc, const char *file);
-BD_PRIVATE struct clpi_cl* clpi_copy(const struct clpi_cl* src_cl);
-BD_PRIVATE void clpi_free(struct clpi_cl **cl);
+BD_PRIVATE const struct clpi_cl* clpi_get(struct bd_disc *disc, const char *file);
+BD_PRIVATE void                  clpi_unref(const struct clpi_cl **cl);
 
 BD_PRIVATE uint32_t clpi_find_stc_spn(const struct clpi_cl *cl, uint8_t stc_id);
 BD_PRIVATE uint32_t clpi_lookup_spn(const struct clpi_cl *cl, uint32_t timestamp, int before, uint8_t stc_id);
 BD_PRIVATE uint32_t clpi_access_point(const struct clpi_cl *cl, uint32_t pkt, int next, int angle_change, uint32_t *time);
 
+/* preserved for old clpi API */
+BD_PRIVATE struct clpi_cl* clpi_parse(const char *path);
+BD_PRIVATE struct clpi_cl* clpi_copy(const struct clpi_cl* src_cl);  /* deep copy */
+BD_PRIVATE void clpi_free(struct clpi_cl **cl);
 
 #endif // _CLPI_PARSE_H_

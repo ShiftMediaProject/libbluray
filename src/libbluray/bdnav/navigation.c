@@ -648,7 +648,7 @@ static void _fill_clip(NAV_TITLE *title,
         memcpy(&clip->name[5], ".m2ts", 6);
     clip->clip_id = atoi(mpls_clip[clip->angle].clip_id);
 
-    clpi_free(&clip->cl);
+    clpi_unref(&clip->cl);
 
     file = str_printf("%s.clpi", mpls_clip[clip->angle].clip_id);
     if (file) {
@@ -698,7 +698,7 @@ void _nav_title_close(NAV_TITLE *title)
         for (ss = 0; ss < title->sub_path_count; ss++) {
             if (title->sub_path[ss].clip_list.clip) {
                 for (ii = 0; ii < title->sub_path[ss].clip_list.count; ii++) {
-                    clpi_free(&title->sub_path[ss].clip_list.clip[ii].cl);
+                    clpi_unref(&title->sub_path[ss].clip_list.clip[ii].cl);
                 }
                 X_FREE(title->sub_path[ss].clip_list.clip);
             }
@@ -708,7 +708,7 @@ void _nav_title_close(NAV_TITLE *title)
 
     if (title->clip_list.clip) {
         for (ii = 0; ii < title->clip_list.count; ii++) {
-            clpi_free(&title->clip_list.clip[ii].cl);
+            clpi_unref(&title->clip_list.clip[ii].cl);
         }
         X_FREE(title->clip_list.clip);
     }
