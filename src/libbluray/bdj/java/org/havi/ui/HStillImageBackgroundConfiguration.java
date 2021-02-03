@@ -39,6 +39,7 @@ public class HStillImageBackgroundConfiguration extends
     public void displayImage(HBackgroundImage image, HScreenRectangle r)
             throws IOException, HPermissionDeniedException,
             HConfigurationException {
+        org.videolan.Logger.unimplemented("HStillImageBackgroundConfiguration", "displayImage()");
         this.image = image;
         this.rect = r;
     }
