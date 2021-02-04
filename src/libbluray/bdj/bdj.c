@@ -369,7 +369,7 @@ static void *_load_jli_macos()
 }
 #endif
 
-static void *_load_jvm(const char **p_java_home)
+static void *_load_jvm(const char **p_java_home, const char *app_java_home)
 {
 #ifdef HAVE_BDJ_J2ME
 # ifdef _WIN32
@@ -430,6 +430,13 @@ static void *_load_jvm(const char **p_java_home)
     const char *java_home = NULL;
     unsigned    path_ind;
     void       *handle = NULL;
+
+    /* Application provided JAVA_HOME overrides everything else */
+    if (app_java_home) {
+        BD_DEBUG(DBG_BDJ, "Using application-provided JAVA_HOME '%s'\n", app_java_home);
+        *p_java_home = app_java_home;
+        return _jvm_dlopen_a(app_java_home, jvm_dir, num_jvm_dir, jvm_lib);
+    }
 
     /* JAVA_HOME set, use it */
     java_home = getenv("JAVA_HOME");
@@ -508,6 +515,7 @@ void bdj_config_cleanup(BDJ_CONFIG *p)
 {
     X_FREE(p->cache_root);
     X_FREE(p->persistent_root);
+    X_FREE(p->java_home);
     X_FREE(p->classpath[0]);
     X_FREE(p->classpath[1]);
 }
@@ -763,7 +771,7 @@ static int _bdj_init(JNIEnv *env, struct bluray *bd, const char *disc_root, cons
 int bdj_jvm_available(BDJ_CONFIG *storage)
 {
     const char *java_home;
-    void* jvm_lib = _load_jvm(&java_home);
+    void* jvm_lib = _load_jvm(&java_home, storage->java_home);
     if (!jvm_lib) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J check: Failed to load JVM library\n");
         return BDJ_CHECK_NO_JVM;
@@ -1014,7 +1022,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 
     // first load the jvm using dlopen
     const char *java_home = NULL;
-    void* jvm_lib = _load_jvm(&java_home);
+    void* jvm_lib = _load_jvm(&java_home, cfg->java_home);
 
     if (!jvm_lib) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Wasn't able to load JVM\n");

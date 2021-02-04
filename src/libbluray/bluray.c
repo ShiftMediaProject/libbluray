@@ -2960,6 +2960,14 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
             BD_DEBUG(DBG_BDJ, "Persistent root dir set to %s\n", bd->bdj_config.persistent_root);
             return 1;
 
+        case BLURAY_PLAYER_JAVA_HOME:
+            bd_mutex_lock(&bd->mutex);
+            X_FREE(bd->bdj_config.java_home);
+            bd->bdj_config.java_home = s ? str_dup(s) : NULL;
+            bd_mutex_unlock(&bd->mutex);
+            BD_DEBUG(DBG_BDJ, "Java home set to %s\n", bd->bdj_config.java_home ? bd->bdj_config.java_home : "<auto>");
+            return 1;
+
         default:
             return 0;
     }

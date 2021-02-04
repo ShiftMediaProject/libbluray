@@ -693,6 +693,7 @@ typedef enum {
 
     BLURAY_PLAYER_PERSISTENT_ROOT            = 0x200, /* Root path to the BD_J persistent storage location. String. */
     BLURAY_PLAYER_CACHE_ROOT                 = 0x201, /* Root path to the BD_J cache storage location. String. */
+    BLURAY_PLAYER_JAVA_HOME                  = 0x202, /* Location of JRE. String. Default: NULL (autodetect). */
 } bd_player_setting;
 
 /**
