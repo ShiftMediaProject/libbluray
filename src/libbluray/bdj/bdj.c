@@ -441,11 +441,13 @@ static void *_load_jvm(const char **p_java_home, const char *app_java_home)
     /* JAVA_HOME set, use it */
     java_home = getenv("JAVA_HOME");
     if (java_home) {
+        BD_DEBUG(DBG_BDJ, "Using JAVA_HOME '%s'\n", java_home);
         *p_java_home = java_home;
         return _jvm_dlopen_a(java_home, jvm_dir, num_jvm_dir, jvm_lib);
     }
 
 #if defined(_WIN32) && !defined(HAVE_BDJ_J2ME)
+    /* Try Windows registry */
     handle = _load_jvm_win32(p_java_home);
     if (handle) {
         return handle;
@@ -996,6 +998,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM. JNI_CreateJavaVM result: %d\n", result);
         return 0;
     }
+    BD_DEBUG(DBG_BDJ , "Created Java VM %p (env %p)\n", (void *)jvm, (void *)*env);
 
     return 1;
 }
