@@ -870,7 +870,7 @@ static const char * const java_base_exports[] = {
 };
 static const size_t num_java_base_exports = sizeof(java_base_exports) / sizeof(java_base_exports[0]);
 
-static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_file[2],
+static int _create_jvm(void *jvm_lib, const char *java_home, BDJ_CONFIG *cfg,
                        JNIEnv **env, JavaVM **jvm)
 {
     (void)java_home;  /* used only with J2ME */
@@ -917,10 +917,10 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
 
     if (!java_9) {
       option[n++].optionString = str_dup   ("-Djavax.accessibility.assistive_technologies= ");
-      option[n++].optionString = str_printf("-Xbootclasspath/p:" CLASSPATH_FORMAT_P, jar_file[0], jar_file[1]);
+      option[n++].optionString = str_printf("-Xbootclasspath/p:" CLASSPATH_FORMAT_P, cfg->classpath[0], cfg->classpath[1]);
     } else {
-      option[n++].optionString = str_printf("--patch-module=java.base=%s", jar_file[0]);
-      option[n++].optionString = str_printf("--patch-module=java.desktop=%s", jar_file[1]);
+      option[n++].optionString = str_printf("--patch-module=java.base=%s", cfg->classpath[0]);
+      option[n++].optionString = str_printf("--patch-module=java.desktop=%s", cfg->classpath[1]);
 
       /* Fix module graph */
 
@@ -1040,9 +1040,8 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 
     JNIEnv* env = NULL;
     JavaVM *jvm = NULL;
-    const char *jar[2] = { cfg->classpath[0], cfg->classpath[1] };
     if (!_find_jvm(jvm_lib, &env, &jvm) &&
-        !_create_jvm(jvm_lib, java_home, jar, &env, &jvm)) {
+        !_create_jvm(jvm_lib, java_home, cfg, &env, &jvm)) {
 
         X_FREE(bdjava);
         dl_dlclose(jvm_lib);
