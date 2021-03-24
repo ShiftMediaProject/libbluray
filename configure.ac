@@ -31,12 +31,12 @@ case "${host_os}" in
   "")
     SYS=unknown
     ;;
-  *mingw32* | *cygwin* | *wince* | *mingwce*)
+  *mingw* | *cygwin* | *wince* | *mingwce*)
     case "${host_os}" in
       *wince* | *mingwce* | *mingw32ce*)
         SYS=mingwce
         ;;
-      *mingw32*)
+      *mingw*)
         SYS=mingw32
         AC_DEFINE([_WIN32_WINNT], 0x0502, [Define to '0x0502' for Windows XP SP2 APIs.])
         AC_DEFINE([_WIN32_IE], 0x0501, [Define to '0x0501' for IE 5.01.])
