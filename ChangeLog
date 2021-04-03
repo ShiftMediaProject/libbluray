@@ -1,6 +1,12 @@
+2021-??-??: Version 1.3.0
 - Add bd_event_name().
 - Add return value to bd_refcnt_inc().
-- Cache and reuse parsed clpi file data.
+- Add cache for parsed clpi file data.
+- Add player setting for JRE location (JAVA_HOME).
+- Improve FreeBSD BD-J support.
+- Improve portability.
+- Improve JVM and .jar file probing.
+- Fix leak.
 
 2020-10-25: Version 1.2.1
 - Add initial support for .fmts files.
