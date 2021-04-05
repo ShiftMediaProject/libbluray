@@ -6,6 +6,7 @@
 - Improve FreeBSD BD-J support.
 - Improve portability.
 - Improve JVM and .jar file probing.
+- Fix handling of non-ASCII .iso filenames in Windows (update libudfread to 1.1.2).
 - Fix leak.
 
 2020-10-25: Version 1.2.1
