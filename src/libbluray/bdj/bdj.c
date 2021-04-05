@@ -772,7 +772,7 @@ static int _bdj_init(JNIEnv *env, struct bluray *bd, const char *disc_root, cons
 
 int bdj_jvm_available(BDJ_CONFIG *storage)
 {
-    const char *java_home;
+    const char *java_home = NULL;
     void* jvm_lib = _load_jvm(&java_home, storage->java_home);
     if (!jvm_lib) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J check: Failed to load JVM library\n");
