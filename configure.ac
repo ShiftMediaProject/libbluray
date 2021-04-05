@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([bluray_major], 1)
-m4_define([bluray_minor], 2)
-m4_define([bluray_micro], 1)
+m4_define([bluray_minor], 3)
+m4_define([bluray_micro], 0)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
 dnl shared library version (.so version)
@@ -12,9 +12,9 @@ dnl - If interfaces have been changed or removed, increase current and set age a
 dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
-m4_define([lt_current],  5)
+m4_define([lt_current],  6)
 m4_define([lt_revision], 0)
-m4_define([lt_age],      3)
+m4_define([lt_age],      4)
 
 dnl initilization
 AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
