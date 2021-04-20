@@ -124,5 +124,16 @@ enum {
 
 BD_PRIVATE void disc_event(BD_DISC *, uint32_t event, uint32_t param);
 
+/*
+ * cache
+ *
+ * Cache can hold any reference-counted objects (= allocated with refcnt_*).
+ *
+ */
+
+BD_PRIVATE const void *disc_cache_get(BD_DISC *, const char *key);
+BD_PRIVATE void        disc_cache_put(BD_DISC *, const char *key, const void *data);
+BD_PRIVATE void        disc_cache_clean(BD_DISC *, const char *key);  /* NULL key == drop all */
+
 
 #endif /* _BD_DISC_H_ */

@@ -88,7 +88,7 @@ typedef struct bd_overlay_s {
   it needs to use bd_refcnt_inc() and bd_refcnt_dec().
 */
 
-void bd_refcnt_inc(const void *);
+const void *bd_refcnt_inc(const void *); /* return object or NULL on invalid object */
 void bd_refcnt_dec(const void *);
 
 #if 0

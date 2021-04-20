@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([bluray_major], 1)
-m4_define([bluray_minor], 2)
-m4_define([bluray_micro], 1)
+m4_define([bluray_minor], 3)
+m4_define([bluray_micro], 0)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
 dnl shared library version (.so version)
@@ -12,9 +12,9 @@ dnl - If interfaces have been changed or removed, increase current and set age a
 dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
-m4_define([lt_current],  5)
+m4_define([lt_current],  6)
 m4_define([lt_revision], 0)
-m4_define([lt_age],      3)
+m4_define([lt_age],      4)
 
 dnl initilization
 AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
@@ -31,12 +31,12 @@ case "${host_os}" in
   "")
     SYS=unknown
     ;;
-  *mingw32* | *cygwin* | *wince* | *mingwce*)
+  *mingw* | *cygwin* | *wince* | *mingwce*)
     case "${host_os}" in
       *wince* | *mingwce* | *mingw32ce*)
         SYS=mingwce
         ;;
-      *mingw32*)
+      *mingw*)
         SYS=mingw32
         AC_DEFINE([_WIN32_WINNT], 0x0502, [Define to '0x0502' for Windows XP SP2 APIs.])
         AC_DEFINE([_WIN32_IE], 0x0501, [Define to '0x0501' for IE 5.01.])
@@ -154,6 +154,23 @@ AS_IF([test "${SYS}" != "mingw32"], [
   AS_CASE([$DLOPEN_LIBS],
     [no|none\ required], [DLOPEN_LIBS=""])
   AC_SUBST([DLOPEN_LIBS])
+
+  AC_MSG_CHECKING([for dladdr])
+  saved_LIBS="$LIBS"
+  LIBS="$LIBS $DLOPEN_LIBS"
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+        #define _GNU_SOURCE
+        #include <dlfcn.h>
+      ]], [[
+        Dl_info dl_info;
+        return dladdr(&dl_info, &dl_info);
+    ]])], [
+      AC_MSG_RESULT([yes])
+      AC_DEFINE([HAVE_DLADDR], 1, [Define to 1 if you have a dladdr().])
+    ], [
+      AC_MSG_RESULT([no])
+    ])
+  LIBS="$saved_LIBS"
 ])
 
 dnl libxml2 for metadata parser
@@ -279,7 +296,7 @@ AM_CONDITIONAL([BDJ_J2SE], [ test x"$BDJ_TYPE" != x"j2me" ])
 dnl bootclasspath
 AC_SUBST(BDJ_BOOTCLASSPATH)
 
-PKG_CHECK_MODULES([LIBUDFREAD], [udfread >= 1.1.0],
+PKG_CHECK_MODULES([LIBUDFREAD], [libudfread >= 1.1.0],
     [with_libudfread=yes
      AC_DEFINE([HAVE_LIBUDFREAD], [1], [Define to 1 if external libudfread is to be used])
      PACKAGES="$PACKAGES libudfread >= 1.1.0"

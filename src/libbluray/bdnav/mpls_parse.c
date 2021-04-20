@@ -825,6 +825,7 @@ _clean_playlist(MPLS_PL *pl)
         X_FREE(pl->ext_pip_data);
     }
 
+    X_FREE(pl->ext_static_metadata);
     X_FREE(pl->play_mark);
     X_FREE(pl);
 }

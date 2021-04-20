@@ -634,8 +634,20 @@ static void _render_composition_object(GRAPHICS_CONTROLLER *gc,
 
         gc->overlay_proc(gc->overlay_proc_handle, &ov);
 
-        bd_refcnt_dec(cropped_img);
+        refcnt_dec(cropped_img);
     }
+}
+
+/* exported */
+const void *bd_refcnt_inc(const void *obj)
+{
+    return refcnt_inc(obj);
+}
+
+/* exported */
+void bd_refcnt_dec(const void *obj)
+{
+    refcnt_dec(obj);
 }
 
 static void _render_rle(GRAPHICS_CONTROLLER *gc,
@@ -747,7 +759,7 @@ static void _gc_reset(GRAPHICS_CONTROLLER *gc)
 /*
  * register hook
  */
-static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
+static void _process_psr_event(void *handle, const BD_PSR_EVENT *ev)
 {
     GRAPHICS_CONTROLLER *gc = (GRAPHICS_CONTROLLER *)handle;
 

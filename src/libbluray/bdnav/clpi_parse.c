@@ -31,6 +31,7 @@
 #include "disc/disc.h"
 
 #include "file/file.h"
+#include "util/refcnt.h"
 #include "util/bits.h"
 #include "util/macro.h"
 #include "util/logging.h"
@@ -707,8 +708,9 @@ _clean_cpi(CLPI_CPI *cpi)
 }
 
 static void
-_clpi_free(CLPI_CL *cl)
+_clpi_clean(void *p)
 {
+    CLPI_CL *cl = p;
     int ii;
 
     X_FREE(cl->clip.atc_delta);
@@ -729,8 +731,21 @@ _clpi_free(CLPI_CL *cl)
 
     _clean_program(&cl->program_ss);
     _clean_cpi(&cl->cpi_ss);
+}
 
-    X_FREE(cl);
+static void
+_clpi_free(const CLPI_CL *cl)
+{
+    refcnt_dec(cl);
+}
+
+void
+clpi_unref(const CLPI_CL **cl)
+{
+    if (*cl) {
+        _clpi_free(*cl);
+        *cl = NULL;
+    }
 }
 
 void
@@ -753,7 +768,7 @@ _clpi_parse(BD_FILE_H *fp)
         return NULL;
     }
 
-    cl = calloc(1, sizeof(CLPI_CL));
+    cl = refcnt_calloc(sizeof(CLPI_CL), _clpi_clean);
     if (cl == NULL) {
         BD_DEBUG(DBG_CRIT, "out of memory\n");
         return NULL;
@@ -824,18 +839,26 @@ _clpi_get(BD_DISC *disc, const char *dir, const char *file)
     return cl;
 }
 
-CLPI_CL*
+const CLPI_CL*
 clpi_get(BD_DISC *disc, const char *file)
 {
-    CLPI_CL *cl;
+    const CLPI_CL *cl;
 
-    cl = _clpi_get(disc, "BDMV" DIR_SEP "CLIPINF", file);
+    cl = disc_cache_get(disc, file);
     if (cl) {
         return cl;
     }
 
-    /* if failed, try backup file */
-    cl = _clpi_get(disc, "BDMV" DIR_SEP "BACKUP" DIR_SEP "CLIPINF", file);
+    cl = _clpi_get(disc, "BDMV" DIR_SEP "CLIPINF", file);
+    if (!cl) {
+        /* if failed, try backup file */
+        cl = _clpi_get(disc, "BDMV" DIR_SEP "BACKUP" DIR_SEP "CLIPINF", file);
+    }
+
+    if (cl) {
+        disc_cache_put(disc, file, cl);
+    }
+
     return cl;
 }
 
@@ -846,7 +869,7 @@ clpi_copy(const CLPI_CL* src_cl)
     int ii, jj;
 
     if (src_cl) {
-        dest_cl = (CLPI_CL*) calloc(1, sizeof(CLPI_CL));
+        dest_cl = refcnt_calloc(sizeof(CLPI_CL), _clpi_clean);
         if (!dest_cl) {
             goto fail;
         }
@@ -966,6 +989,6 @@ clpi_copy(const CLPI_CL* src_cl)
 
  fail:
     BD_DEBUG(DBG_CRIT, "out of memory\n");
-    clpi_free(&dest_cl);
+    _clpi_free(dest_cl);
     return NULL;
 }

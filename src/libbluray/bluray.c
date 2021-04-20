@@ -196,6 +196,49 @@ void bd_get_version(int *major, int *minor, int *micro)
  * Navigation mode event queue
  */
 
+const char *bd_event_name(uint32_t event)
+{
+  switch ((bd_event_e)event) {
+#define EVENT_ENTRY(e) case e : return & (#e [9])
+        EVENT_ENTRY(BD_EVENT_NONE);
+        EVENT_ENTRY(BD_EVENT_ERROR);
+        EVENT_ENTRY(BD_EVENT_READ_ERROR);
+        EVENT_ENTRY(BD_EVENT_ENCRYPTED);
+        EVENT_ENTRY(BD_EVENT_ANGLE);
+        EVENT_ENTRY(BD_EVENT_TITLE);
+        EVENT_ENTRY(BD_EVENT_PLAYLIST);
+        EVENT_ENTRY(BD_EVENT_PLAYITEM);
+        EVENT_ENTRY(BD_EVENT_CHAPTER);
+        EVENT_ENTRY(BD_EVENT_PLAYMARK);
+        EVENT_ENTRY(BD_EVENT_END_OF_TITLE);
+        EVENT_ENTRY(BD_EVENT_AUDIO_STREAM);
+        EVENT_ENTRY(BD_EVENT_IG_STREAM);
+        EVENT_ENTRY(BD_EVENT_PG_TEXTST_STREAM);
+        EVENT_ENTRY(BD_EVENT_PIP_PG_TEXTST_STREAM);
+        EVENT_ENTRY(BD_EVENT_SECONDARY_AUDIO_STREAM);
+        EVENT_ENTRY(BD_EVENT_SECONDARY_VIDEO_STREAM);
+        EVENT_ENTRY(BD_EVENT_PG_TEXTST);
+        EVENT_ENTRY(BD_EVENT_PIP_PG_TEXTST);
+        EVENT_ENTRY(BD_EVENT_SECONDARY_AUDIO);
+        EVENT_ENTRY(BD_EVENT_SECONDARY_VIDEO);
+        EVENT_ENTRY(BD_EVENT_SECONDARY_VIDEO_SIZE);
+        EVENT_ENTRY(BD_EVENT_PLAYLIST_STOP);
+        EVENT_ENTRY(BD_EVENT_DISCONTINUITY);
+        EVENT_ENTRY(BD_EVENT_SEEK);
+        EVENT_ENTRY(BD_EVENT_STILL);
+        EVENT_ENTRY(BD_EVENT_STILL_TIME);
+        EVENT_ENTRY(BD_EVENT_SOUND_EFFECT);
+        EVENT_ENTRY(BD_EVENT_IDLE);
+        EVENT_ENTRY(BD_EVENT_POPUP);
+        EVENT_ENTRY(BD_EVENT_MENU);
+        EVENT_ENTRY(BD_EVENT_STEREOSCOPIC_STATUS);
+        EVENT_ENTRY(BD_EVENT_KEY_INTEREST_TABLE);
+        EVENT_ENTRY(BD_EVENT_UO_MASK_CHANGED);
+#undef EVENT_ENTRY
+    }
+    return NULL;
+}
+
 static int _get_event(BLURAY *bd, BD_EVENT *ev)
 {
     int result = event_queue_get(bd->event_queue, ev);
@@ -212,7 +255,8 @@ static int _queue_event(BLURAY *bd, uint32_t event, uint32_t param)
         BD_EVENT ev = { event, param };
         result = event_queue_put(bd->event_queue, &ev);
         if (!result) {
-            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_queue_event(%d, %d): queue overflow !\n", event, param);
+            const char *name = bd_event_name(event);
+            BD_DEBUG(DBG_BLURAY|DBG_CRIT, "_queue_event(%s:%d, %d): queue overflow !\n", name ? name : "?", event, param);
         }
     }
     return result;
@@ -427,7 +471,7 @@ static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigne
 {
     unsigned  main_clip_idx = bd->st0.clip ? bd->st0.clip->ref : 0;
     unsigned  pg_stream = bd_psr_read(bd->regs, PSR_PG_STREAM);
-    const MPLS_PI *pi = &bd->title->pl->play_item[main_clip_idx];
+    const MPLS_STN *stn = &bd->title->pl->play_item[main_clip_idx].stn;
 
 #if 0
     /* Enable decoder unconditionally (required for forced subtitles).
@@ -440,16 +484,16 @@ static int _find_pg_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigne
 
     pg_stream &= 0xfff;
 
-    if (pg_stream > 0 && pg_stream <= pi->stn.num_pg) {
+    if (pg_stream > 0 && pg_stream <= stn->num_pg) {
         pg_stream--; /* stream number to table index */
-        if (pi->stn.pg[pg_stream].stream_type == 2) {
-            *sub_path_idx = pi->stn.pg[pg_stream].subpath_id;
-            *sub_clip_idx = pi->stn.pg[pg_stream].subclip_id;
+        if (stn->pg[pg_stream].stream_type == 2) {
+            *sub_path_idx = stn->pg[pg_stream].subpath_id;
+            *sub_clip_idx = stn->pg[pg_stream].subclip_id;
         }
-        *pid = pi->stn.pg[pg_stream].pid;
+        *pid = stn->pg[pg_stream].pid;
 
-        if (char_code && pi->stn.pg[pg_stream].coding_type == BLURAY_STREAM_TYPE_SUB_TEXT) {
-            *char_code = pi->stn.pg[pg_stream].char_code;
+        if (char_code && stn->pg[pg_stream].coding_type == BLURAY_STREAM_TYPE_SUB_TEXT) {
+            *char_code = stn->pg[pg_stream].char_code;
         }
 
         BD_DEBUG(DBG_BLURAY, "_find_pg_stream(): current PG stream pid 0x%04x sub-path %d\n",
@@ -2212,15 +2256,15 @@ static int _find_ig_stream(BLURAY *bd, uint16_t *pid, int *sub_path_idx, unsigne
 {
     unsigned  main_clip_idx = bd->st0.clip ? bd->st0.clip->ref : 0;
     unsigned  ig_stream = bd_psr_read(bd->regs, PSR_IG_STREAM_ID);
-    const MPLS_PI *pi = &bd->title->pl->play_item[main_clip_idx];
+    const MPLS_STN *stn = &bd->title->pl->play_item[main_clip_idx].stn;
 
-    if (ig_stream > 0 && ig_stream <= pi->stn.num_ig) {
+    if (ig_stream > 0 && ig_stream <= stn->num_ig) {
         ig_stream--; /* stream number to table index */
-        if (pi->stn.ig[ig_stream].stream_type == 2) {
-            *sub_path_idx = pi->stn.ig[ig_stream].subpath_id;
-            *sub_clip_idx = pi->stn.ig[ig_stream].subclip_id;
+        if (stn->ig[ig_stream].stream_type == 2) {
+            *sub_path_idx = stn->ig[ig_stream].subpath_id;
+            *sub_clip_idx = stn->ig[ig_stream].subclip_id;
         }
-        *pid = pi->stn.ig[ig_stream].pid;
+        *pid = stn->ig[ig_stream].pid;
 
         BD_DEBUG(DBG_BLURAY, "_find_ig_stream(): current IG stream pid 0x%04x sub-path %d\n",
               *pid, *sub_path_idx);
@@ -2922,6 +2966,14 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
             BD_DEBUG(DBG_BDJ, "Persistent root dir set to %s\n", bd->bdj_config.persistent_root);
             return 1;
 
+        case BLURAY_PLAYER_JAVA_HOME:
+            bd_mutex_lock(&bd->mutex);
+            X_FREE(bd->bdj_config.java_home);
+            bd->bdj_config.java_home = s ? str_dup(s) : NULL;
+            bd_mutex_unlock(&bd->mutex);
+            BD_DEBUG(DBG_BDJ, "Java home set to %s\n", bd->bdj_config.java_home ? bd->bdj_config.java_home : "<auto>");
+            return 1;
+
         default:
             return 0;
     }
@@ -3009,7 +3061,7 @@ static void _set_scr(BLURAY *bd, int64_t pts)
     }
 }
 
-static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
+static void _process_psr_restore_event(BLURAY *bd, const BD_PSR_EVENT *ev)
 {
     /* PSR restore events are handled internally.
      * Restore stored playback position.
@@ -3056,7 +3108,7 @@ static void _process_psr_restore_event(BLURAY *bd, BD_PSR_EVENT *ev)
  * notification events to APP
  */
 
-static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
+static void _process_psr_write_event(BLURAY *bd, const BD_PSR_EVENT *ev)
 {
     if (ev->ev_type == BD_PSR_WRITE) {
         BD_DEBUG(DBG_BLURAY, "PSR write: psr%u = %u\n", ev->psr_idx, ev->new_val);
@@ -3096,7 +3148,7 @@ static void _process_psr_write_event(BLURAY *bd, BD_PSR_EVENT *ev)
     }
 }
 
-static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
+static void _process_psr_change_event(BLURAY *bd, const BD_PSR_EVENT *ev)
 {
     BD_DEBUG(DBG_BLURAY, "PSR change: psr%u = %u\n", ev->psr_idx, ev->new_val);
 
@@ -3171,7 +3223,7 @@ static void _process_psr_change_event(BLURAY *bd, BD_PSR_EVENT *ev)
     }
 }
 
-static void _process_psr_event(void *handle, BD_PSR_EVENT *ev)
+static void _process_psr_event(void *handle, const BD_PSR_EVENT *ev)
 {
     BLURAY *bd = (BLURAY*)handle;
 

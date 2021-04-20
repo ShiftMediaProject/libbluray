@@ -50,12 +50,11 @@ extern "C" {
  *
  */
 
+BD_PRIVATE void *refcnt_calloc(size_t sz, void (*cleanup)(void *));
 BD_PRIVATE void *refcnt_realloc(void *obj, size_t sz, void (*cleanup)(void *));
 
-#ifndef BD_OVERLAY_INTERFACE_VERSION
-void bd_refcnt_inc(const void *obj);
-void bd_refcnt_dec(const void *obj);
-#endif
+BD_PRIVATE const void *refcnt_inc(const void *obj) BD_USED;
+BD_PRIVATE       void  refcnt_dec(const void *obj);
 
 #ifdef __cplusplus
 }

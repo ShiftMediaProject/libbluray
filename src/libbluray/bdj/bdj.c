@@ -312,7 +312,6 @@ static char *_java_home_macos()
 
 static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char *jvm_lib)
 {
-    if (java_home) {
         char *path = str_printf("%s" DIR_SEP "%s" DIR_SEP "%s", java_home, jvm_dir, jvm_lib);
         if (!path) {
             BD_DEBUG(DBG_CRIT, "out of memory\n");
@@ -330,10 +329,6 @@ static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char 
 # endif
         X_FREE(path);
         return h;
-    } else {
-        BD_DEBUG(DBG_BDJ, "Opening %s ...\n", jvm_lib);
-        return dl_dlopen(jvm_lib, NULL);
-    }
 }
 
 static void *_jvm_dlopen_a(const char *java_home,
@@ -342,6 +337,11 @@ static void *_jvm_dlopen_a(const char *java_home,
 {
   unsigned ii;
   void *dll = NULL;
+
+  if (!java_home) {
+      BD_DEBUG(DBG_BDJ, "Opening %s ...\n", jvm_lib);
+      return dl_dlopen(jvm_lib, NULL);
+  }
 
   for (ii = 0; !dll && ii < num_jvm_dir; ii++) {
       dll = _jvm_dlopen(java_home, jvm_dir[ii], jvm_lib);
@@ -380,7 +380,7 @@ static void *_load_jli_macos()
 }
 #endif
 
-static void *_load_jvm(const char **p_java_home)
+static void *_load_jvm(const char **p_java_home, const char *app_java_home)
 {
 #ifdef HAVE_BDJ_J2ME
 # ifdef _WIN32
@@ -409,6 +409,10 @@ static void *_load_jvm(const char **p_java_home)
 #  else
     static const char * const jvm_path[] = {NULL,
                                             JDK_HOME,
+#    ifdef __FreeBSD__
+                                            "/usr/local/openjdk8",
+                                            "/usr/local/openjdk11",
+#    else
                                             "/usr/lib/jvm/default-java",
                                             "/usr/lib/jvm/default",
                                             "/usr/lib/jvm/",
@@ -418,9 +422,13 @@ static void *_load_jvm(const char **p_java_home)
                                             "/usr/lib/jvm/java-8-openjdk",
                                             "/usr/lib/jvm/java-8-openjdk-" JAVA_ARCH,
                                             "/usr/lib/jvm/java-6-openjdk",
+#    endif
     };
     static const char * const jvm_dir[]  = {"jre/lib/" JAVA_ARCH "/server",
+                                            "lib/" JAVA_ARCH "/server",
                                             "lib/server",
+                                            "jre/lib/" JAVA_ARCH "/client",
+                                            "lib/" JAVA_ARCH "/client",
                                             "lib/client",
     };
 #  endif
@@ -434,14 +442,23 @@ static void *_load_jvm(const char **p_java_home)
     unsigned    path_ind;
     void       *handle = NULL;
 
+    /* Application provided JAVA_HOME overrides everything else */
+    if (app_java_home) {
+        BD_DEBUG(DBG_BDJ, "Using application-provided JAVA_HOME '%s'\n", app_java_home);
+        *p_java_home = app_java_home;
+        return _jvm_dlopen_a(app_java_home, jvm_dir, num_jvm_dir, jvm_lib);
+    }
+
     /* JAVA_HOME set, use it */
     java_home = getenv("JAVA_HOME");
     if (java_home) {
+        BD_DEBUG(DBG_BDJ, "Using JAVA_HOME '%s'\n", java_home);
         *p_java_home = java_home;
         return _jvm_dlopen_a(java_home, jvm_dir, num_jvm_dir, jvm_lib);
     }
 
 #if defined(_WIN32) && !defined(HAVE_BDJ_J2ME)
+    /* Try Windows registry */
     handle = _load_jvm_win32(p_java_home);
     if (handle) {
         return handle;
@@ -469,8 +486,14 @@ static void *_load_jvm(const char **p_java_home)
 
     /* try our pre-defined locations */
     for (path_ind = 0; !handle && path_ind < num_jvm_path; path_ind++) {
-        *p_java_home = jvm_path[path_ind];
-        handle = _jvm_dlopen_a(jvm_path[path_ind], jvm_dir, num_jvm_dir, jvm_lib);
+        if (jvm_path[path_ind] && !jvm_path[path_ind][0]) {
+            /* skip empty JVM_HOME */
+        } else if (jvm_path[path_ind] && file_path_exists(jvm_path[path_ind]) < 0) {
+            BD_DEBUG(DBG_BDJ, "Skipping %s (not found)\n", jvm_path[path_ind]);
+        } else {
+            *p_java_home = jvm_path[path_ind];
+            handle = _jvm_dlopen_a(jvm_path[path_ind], jvm_dir, num_jvm_dir, jvm_lib);
+        }
     }
 
     if (!*p_java_home) {
@@ -505,6 +528,7 @@ void bdj_config_cleanup(BDJ_CONFIG *p)
 {
     X_FREE(p->cache_root);
     X_FREE(p->persistent_root);
+    X_FREE(p->java_home);
     X_FREE(p->classpath[0]);
     X_FREE(p->classpath[1]);
 }
@@ -514,8 +538,12 @@ static char *_find_libbluray_jar0()
     // pre-defined search paths for libbluray.jar
     static const char * const jar_paths[] = {
 #ifndef _WIN32
+#  ifdef __FreeBSD__
+        "/usr/local/share/java/" BDJ_JARFILE,
+#  else
         "/usr/share/java/" BDJ_JARFILE,
         "/usr/share/libbluray/lib/" BDJ_JARFILE,
+#  endif
 #endif
         BDJ_JARFILE,
     };
@@ -755,8 +783,8 @@ static int _bdj_init(JNIEnv *env, struct bluray *bd, const char *disc_root, cons
 
 int bdj_jvm_available(BDJ_CONFIG *storage)
 {
-    const char *java_home;
-    void* jvm_lib = _load_jvm(&java_home);
+    const char *java_home = NULL;
+    void* jvm_lib = _load_jvm(&java_home, storage->java_home);
     if (!jvm_lib) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "BD-J check: Failed to load JVM library\n");
         return BDJ_CHECK_NO_JVM;
@@ -853,7 +881,7 @@ static const char * const java_base_exports[] = {
 };
 static const size_t num_java_base_exports = sizeof(java_base_exports) / sizeof(java_base_exports[0]);
 
-static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_file[2],
+static int _create_jvm(void *jvm_lib, const char *java_home, BDJ_CONFIG *cfg,
                        JNIEnv **env, JavaVM **jvm)
 {
     (void)java_home;  /* used only with J2ME */
@@ -882,6 +910,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
 
     option[n++].optionString = str_dup   ("-Dawt.toolkit=java.awt.BDToolkit");
     option[n++].optionString = str_dup   ("-Djava.awt.graphicsenv=java.awt.BDGraphicsEnvironment");
+    option[n++].optionString = str_dup   ("-Djava.awt.headless=false");
     option[n++].optionString = str_dup   ("-Xms256M");
     option[n++].optionString = str_dup   ("-Xmx256M");
     option[n++].optionString = str_dup   ("-Xss2048k");
@@ -899,10 +928,10 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
 
     if (!java_9) {
       option[n++].optionString = str_dup   ("-Djavax.accessibility.assistive_technologies= ");
-      option[n++].optionString = str_printf("-Xbootclasspath/p:" CLASSPATH_FORMAT_P, jar_file[0], jar_file[1]);
+      option[n++].optionString = str_printf("-Xbootclasspath/p:" CLASSPATH_FORMAT_P, cfg->classpath[0], cfg->classpath[1]);
     } else {
-      option[n++].optionString = str_printf("--patch-module=java.base=%s", jar_file[0]);
-      option[n++].optionString = str_printf("--patch-module=java.desktop=%s", jar_file[1]);
+      option[n++].optionString = str_printf("--patch-module=java.base=%s", cfg->classpath[0]);
+      option[n++].optionString = str_printf("--patch-module=java.desktop=%s", cfg->classpath[1]);
 
       /* Fix module graph */
 
@@ -980,6 +1009,7 @@ static int _create_jvm(void *jvm_lib, const char *java_home, const char *jar_fil
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Failed to create new Java VM. JNI_CreateJavaVM result: %d\n", result);
         return 0;
     }
+    BD_DEBUG(DBG_BDJ , "Created Java VM %p (env %p)\n", (void *)jvm, (void *)*env);
 
     return 1;
 }
@@ -1006,7 +1036,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 
     // first load the jvm using dlopen
     const char *java_home = NULL;
-    void* jvm_lib = _load_jvm(&java_home);
+    void* jvm_lib = _load_jvm(&java_home, cfg->java_home);
 
     if (!jvm_lib) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Wasn't able to load JVM\n");
@@ -1021,9 +1051,8 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 
     JNIEnv* env = NULL;
     JavaVM *jvm = NULL;
-    const char *jar[2] = { cfg->classpath[0], cfg->classpath[1] };
     if (!_find_jvm(jvm_lib, &env, &jvm) &&
-        !_create_jvm(jvm_lib, java_home, jar, &env, &jvm)) {
+        !_create_jvm(jvm_lib, java_home, cfg, &env, &jvm)) {
 
         X_FREE(bdjava);
         dl_dlclose(jvm_lib);
