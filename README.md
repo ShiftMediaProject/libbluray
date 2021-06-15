@@ -58,7 +58,7 @@ Stockholm, Sweden, September 8, 1977.)
 
 ## Mailing list
 
-You can discuss about libbluray on the [libbluray-devel mailing list](https://mailman.videolan.org/listinfo/libbluray-devel).*
+You can discuss about libbluray on the [libbluray-devel mailing list](https://mailman.videolan.org/listinfo/libbluray-devel).
 
 ## Documentation and support
 
