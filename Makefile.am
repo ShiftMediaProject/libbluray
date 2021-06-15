@@ -12,7 +12,7 @@ EXTRA_DIST = \
 	COPYING \
 	doc \
 	player_wrappers \
-	README.txt \
+	README.md \
 	src/libbluray/bdj/build.xml \
 	src/libbluray/bdj/java \
 	src/libbluray/bdj/java-build-support \
