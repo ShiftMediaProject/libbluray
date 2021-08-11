@@ -128,6 +128,10 @@ static void *_load_jvm_win32(const char **p_java_home)
         wcscpy(buf_loc, L"SOFTWARE\\JavaSoft\\JRE\\");
         r = RegOpenKeyExW(HKEY_LOCAL_MACHINE, buf_loc, 0, KEY_READ, &hkey);
     }
+    if (r != ERROR_SUCCESS) {
+        wcscpy(buf_loc, L"SOFTWARE\\JavaSoft\\JDK\\");
+        r = RegOpenKeyExW(HKEY_LOCAL_MACHINE, buf_loc, 0, KEY_READ, &hkey);
+    }
 # endif
     if (r != ERROR_SUCCESS) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error opening registry key SOFTWARE\\JavaSoft\\Java Runtime Environment\\\n");
