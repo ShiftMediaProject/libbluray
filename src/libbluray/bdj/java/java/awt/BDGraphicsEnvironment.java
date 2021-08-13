@@ -24,7 +24,7 @@ import java.util.Locale;
 
 import org.videolan.Logger;
 
-class BDGraphicsEnvironment extends GraphicsEnvironment {
+public class BDGraphicsEnvironment extends GraphicsEnvironment {
     private BDGraphicsDevice graphicsDevice;
 
     public BDGraphicsEnvironment() {
