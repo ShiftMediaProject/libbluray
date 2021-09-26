@@ -2419,6 +2419,11 @@ static int _add_known_playlist(BD_DISC *p, const char *mpls_id)
 
 static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
 {
+    if (!bd->title_list && bd->title_type == title_undef) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "open_playlist(%s): bd_play() or bd_get_titles() not called\n", f_name);
+        disc_event(bd->disc, DISC_EVENT_START, bd->disc_info.num_titles);
+    }
+
     _close_playlist(bd);
 
     bd->title = nav_title_open(bd->disc, f_name, angle);

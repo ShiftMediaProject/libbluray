@@ -369,6 +369,7 @@ void dec_start(BD_DEC *dec, uint32_t num_titles)
         }
     } else {
         if (dec->bdplus) {
+            libbdplus_start(dec->bdplus);
             libbdplus_event(dec->bdplus, 0xffffffff, num_titles, 0);
         }
     }

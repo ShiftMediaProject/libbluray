@@ -275,6 +275,10 @@ const uint8_t *libbdplus_get_data(BD_BDPLUS *p, int type)
             if (libbdplus_is_mmbd(p)) {
                 return (const uint8_t *)"mmbd";
             }
+            if ((int32_t)_bdplus_get(p, "bdplus_is_cached") > 0) {
+                return (const uint8_t *)"mmbd;libbdplus";
+            }
+            break;
     }
 
     return NULL;
