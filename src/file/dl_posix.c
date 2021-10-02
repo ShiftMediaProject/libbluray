@@ -85,11 +85,15 @@ void *dl_dlopen(const char *path, const char *version)
 #endif
 
     for (i = 0 ; search_paths[i] ; ++i) {
+#ifdef __OpenBSD__
+        name = str_printf("%s%s%s", search_paths[i], path, ext);
+#else
         if (version) {
             name = str_printf("%s%s%s.%s", search_paths[i], path, ext, version);
         } else {
             name = str_printf("%s%s%s", search_paths[i], path, ext);
         }
+#endif
 
         if (!name) {
             BD_DEBUG(DBG_FILE | DBG_CRIT, "out of memory\n");
