@@ -10,7 +10,7 @@
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;JNIEXPORT=;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -76,7 +76,7 @@ del /f /q $(OutDir)\bin\*.jar
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;JNIEXPORT=;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -276,7 +276,7 @@ del /f /q $(OutDir)\bin\*.jar
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;JNIEXPORT=;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -342,7 +342,7 @@ del /f /q $(OutDir)\bin\*.jar
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;JNIEXPORT=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;JNIEXPORT=;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -475,7 +475,7 @@ del /f /q $(OutDir)\bin\*.jar
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
@@ -609,7 +609,7 @@ del /f /q $(OutDir)\bin\*.jar
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>inline=__inline;HAVE_CONFIG_H;LIBXML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\src;.\src\libbluray;..\src;..\src\libbluray;.\contrib\libudfread\src;..\jni;..\jni\win32;$(OutDir)\include\freetype2;$(OutDir)\include\libxml2;$(ProjectDir)\..\..\prebuilt\include\freetype2;$(ProjectDir)\..\..\prebuilt\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
