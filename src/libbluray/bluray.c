@@ -1132,12 +1132,13 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
         /* increase player profile and version when 3D or UHD disc is detected */
 
         if (index->indx_version >= ('0' << 24 | '3' << 16 | '0' << 8 | '0')) {
-            BD_DEBUG(DBG_CRIT | DBG_BLURAY, "WARNING: BluRay profile 6 BD-J menu support is experimental\n");
+            BD_DEBUG(DBG_BLURAY, "Detected 4K UltraHD (profile 6) disc\n");
             /* Switch to UHD profile */
             psr_init_UHD(bd->regs, 1);
         }
         if (((index->indx_version >> 16) & 0xff) == '2') {
             if (index->app_info.content_exist_flag) {
+                BD_DEBUG(DBG_BLURAY, "Detected Blu-Ray 3D (profile 5) disc\n");
                 /* Switch to 3D profile */
                 psr_init_3D(bd->regs, index->app_info.initial_output_mode_preference, 0);
             }
