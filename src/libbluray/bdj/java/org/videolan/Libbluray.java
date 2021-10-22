@@ -126,6 +126,11 @@ public class Libbluray {
         }
         initOnce = true;
 
+        Logger.getLogger("Libbluray").info(
+            "Using Java " + System.getProperty("java.vm.specification.version", "?") +
+            " (" + System.getProperty("java.vm.version", "?") + ")" +
+            " from '" + System.getProperty("java.home", "?") + "'");
+
         /* hook system properties (provide Xlet-specific user.dir) */
         try {
             hookProperties();
