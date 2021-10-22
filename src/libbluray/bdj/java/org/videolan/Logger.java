@@ -25,8 +25,11 @@ public class Logger {
     static {
         String prop;
 
-        use_throw = false;
-        use_trace = false;
+        prop = System.getProperty("debug.unimplemented.throw");
+        use_throw = (prop != null && prop.equalsIgnoreCase("YES"));
+
+        prop = System.getProperty("debug.trace");
+        use_trace = (prop == null || !prop.equalsIgnoreCase("NO"));
 
         // capture stdout and stderr from on-disc applets
         // (those produce useful debug information sometimes)
@@ -35,15 +38,6 @@ public class Logger {
             System.setErr(createCapture(System.err, true));
         } catch (java.io.UnsupportedEncodingException uee) {
             System.err.println("Error capturing stdout/stderr: " + uee);
-        }
-
-        prop = System.getProperty("debug.unimplemented.throw");
-        if (prop != null && prop.equalsIgnoreCase("YES")) {
-            use_throw = true;
-        }
-        prop = System.getProperty("debug.trace");
-        if (prop == null || !prop.equalsIgnoreCase("NO")) {
-            use_trace = true;
         }
     }
 
@@ -190,7 +184,7 @@ public class Logger {
         }
     }
 
-    private String name;
-    private static boolean use_trace;
-    private static boolean use_throw;
+    private final String name;
+    private static final boolean use_trace;
+    private static final boolean use_throw;
 }
