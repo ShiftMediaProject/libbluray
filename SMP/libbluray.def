@@ -5,6 +5,7 @@ EXPORTS
     bd_init
     bd_open_disc
     bd_open_stream
+    bd_open_files
     bd_close
     bd_get_disc_info
     bd_get_meta
@@ -34,6 +35,7 @@ EXPORTS
     bd_set_player_setting
     bd_set_player_setting_str
     bd_get_event
+    bd_event_name
     bd_register_overlay_proc
     bd_register_argb_overlay_proc
     bd_play
@@ -44,6 +46,7 @@ EXPORTS
     bd_get_playlist_info
     bd_get_sound_effect
     bd_set_scr
+    bd_set_rate
     bd_user_input
     bd_mouse_select
     bd_get_clpi
@@ -58,6 +61,8 @@ EXPORTS
     bd_start_bdj
     bd_stop_bdj
     bd_read_file
+    bd_open_dir
+    bd_open_file_dec
 
     bd_register_file
     bd_register_dir
