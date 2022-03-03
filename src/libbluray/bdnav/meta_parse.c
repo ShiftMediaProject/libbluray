@@ -161,7 +161,7 @@ static void _findMetaXMLfiles(META_ROOT *meta, BD_DISC *disc)
     for (res = dir_read(dir, &ent); !res; res = dir_read(dir, &ent)) {
         if (ent.d_name[0] == '.')
             continue;
-        else if (strncasecmp(ent.d_name, "bdmt_", 5) == 0) {
+        else if (strncasecmp(ent.d_name, "bdmt_", 5) == 0 && strlen(ent.d_name) == 12) {
             META_DL *new_dl_entries = realloc(meta->dl_entries, ((meta->dl_count + 1)*sizeof(META_DL)));
             if (new_dl_entries) {
                 uint8_t i = meta->dl_count;
@@ -170,7 +170,7 @@ static void _findMetaXMLfiles(META_ROOT *meta, BD_DISC *disc)
                 memset(&meta->dl_entries[i], 0, sizeof(meta->dl_entries[i]));
 
                 meta->dl_entries[i].filename = str_dup(ent.d_name);
-                strncpy(meta->dl_entries[i].language_code, ent.d_name+5,3);
+                memcpy(meta->dl_entries[i].language_code, ent.d_name+5,3);
                 meta->dl_entries[i].language_code[3] = '\0';
                 str_tolower(meta->dl_entries[i].language_code);
             }
@@ -193,7 +193,7 @@ static void _findMetaXMLfiles(META_ROOT *meta, BD_DISC *disc)
                     memset(&meta->tn_entries[i], 0, sizeof(meta->tn_entries[i]));
 
                     meta->tn_entries[i].filename = str_dup(ent.d_name);
-                    strncpy(meta->tn_entries[i].language_code, ent.d_name + 5, 3);
+                    memcpy(meta->tn_entries[i].language_code, ent.d_name + 5, 3);
                     meta->tn_entries[i].playlist = atoi(ent.d_name + 9);
                     meta->tn_entries[i].language_code[3] = '\0';
                     str_tolower(meta->tn_entries[i].language_code);
