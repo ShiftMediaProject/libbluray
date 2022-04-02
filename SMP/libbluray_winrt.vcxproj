@@ -15,6 +15,7 @@
       <DisableSpecificWarnings>4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
+      <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>libiconvd_winrt.lib;libfreetyped_winrt.lib;libxml2d_winrt.lib;libfontconfigd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
@@ -47,9 +48,9 @@ rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.3.0.jar (
+if not exist .\src\libbluray-j2se-1.3.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -81,6 +82,7 @@ del /f /q $(OutDir)\bin\*.jar
       <DisableSpecificWarnings>4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
+      <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>libiconvd_winrt.lib;libfreetyped_winrt.lib;libxml2d_winrt.lib;libfontconfigd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
@@ -113,9 +115,9 @@ rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.3.0.jar (
+if not exist .\src\libbluray-j2se-1.3.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -149,7 +151,7 @@ del /f /q $(OutDir)\bin\*.jar
     <Link>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>iconvd_winrt.lib;freetyped_winrt.lib;xml2d_winrt.lib;fontconfigd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -180,9 +182,9 @@ rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.3.0.jar (
+if not exist .\src\libbluray-j2se-1.3.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -216,7 +218,7 @@ del /f /q $(OutDir)\bin\*.jar
     <Link>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>iconvd_winrt.lib;freetyped_winrt.lib;xml2d_winrt.lib;fontconfigd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -247,9 +249,9 @@ rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.3.0.jar (
+if not exist .\src\libbluray-j2se-1.3.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -281,6 +283,7 @@ del /f /q $(OutDir)\bin\*.jar
       <DisableSpecificWarnings>4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
+      <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>libiconv_winrt.lib;libfreetype_winrt.lib;libxml2_winrt.lib;libfontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
@@ -313,9 +316,9 @@ rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.3.0.jar (
+if not exist .\src\libbluray-j2se-1.3.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -347,6 +350,7 @@ del /f /q $(OutDir)\bin\*.jar
       <DisableSpecificWarnings>4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
+      <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>libiconv_winrt.lib;libfreetype_winrt.lib;libxml2_winrt.lib;libfontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
@@ -379,9 +383,9 @@ rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.3.0.jar (
+if not exist .\src\libbluray-j2se-1.3.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -415,7 +419,7 @@ del /f /q $(OutDir)\bin\*.jar
     <Link>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>iconv_winrt.lib;freetype_winrt.lib;xml2_winrt.lib;fontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -446,9 +450,9 @@ rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.3.0.jar (
+if not exist .\src\libbluray-j2se-1.3.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -482,7 +486,7 @@ del /f /q $(OutDir)\bin\*.jar
     <Link>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>libiconv_winrt.lib;libfreetype_winrt.lib;libxml2_winrt.lib;libfontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -513,9 +517,9 @@ rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.3.0.jar (
+if not exist .\src\libbluray-j2se-1.3.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -549,7 +553,7 @@ del /f /q $(OutDir)\bin\*.jar
     <Link>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>iconv_winrt.lib;freetype_winrt.lib;xml2_winrt.lib;fontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -580,9 +584,9 @@ rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.3.0.jar (
+if not exist .\src\libbluray-j2se-1.3.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
@@ -616,7 +620,7 @@ del /f /q $(OutDir)\bin\*.jar
     <Link>
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>libiconv_winrt.lib;libfreetype_winrt.lib;libxml2_winrt.lib;libfontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/IGNORE:4006,4221 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -647,9 +651,9 @@ rd /s /q "$(OutDir)"\include\libbluray
 cd ../
 cd $(ProjectDir)
 )
-if not exist .\src\libbluray-j2se-1.3.0.jar (
+if not exist .\src\libbluray-j2se-1.3.1.jar (
 del .\src\*.jar
-ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.0
+ant -f ../src/libbluray/bdj/build.xml -Dbuild=$(IntDir)/jar -Ddist=$(ProjectDir)/src -Dsrc_awt=:java-j2se -Dbootclasspath="" -Dversion=j2se-1.3.1
 rd /s /q $(IntDir)\jar
 cd ../
 cd $(ProjectDir)
