@@ -152,8 +152,11 @@ public class Logger {
     }
 
     public static String dumpStack(Throwable t) {
+        String sup = "";
+        if (t.getCause() != null)
+            sup += "\n    Caused by: " + t.getCause() + "\n" + dumpStack(t.getCause());
         StackTraceElement e[] = t.getStackTrace();
-        return printStackTrace(e, 0);
+        return printStackTrace(e, 0) + sup;
     }
 
     public void unimplemented(String func) {

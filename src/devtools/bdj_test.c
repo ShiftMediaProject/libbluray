@@ -91,6 +91,15 @@ int main(int argc, char** argv)
       return -1;
     }
 
+    /* Check for special titles */
+
+    if (!di->first_play_supported) {
+        printf("FirstPlay title not supported\n");
+    }
+    if (!di->top_menu_supported) {
+        printf("TopMenu title not supported\n");
+    }
+
     bd_get_titles(bd, TITLES_ALL, 0);
 
     if (!bd_start_bdj(bd, argv[2])) {

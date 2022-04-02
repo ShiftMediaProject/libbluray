@@ -138,6 +138,10 @@ static void *_load_jvm_win32(const char **p_java_home)
         wcscpy(buf_loc, L"SOFTWARE\\JavaSoft\\JRE\\");
         r = RegOpenKeyExW(HKEY_LOCAL_MACHINE, buf_loc, 0, KEY_READ, &hkey);
     }
+    if (r != ERROR_SUCCESS) {
+        wcscpy(buf_loc, L"SOFTWARE\\JavaSoft\\JDK\\");
+        r = RegOpenKeyExW(HKEY_LOCAL_MACHINE, buf_loc, 0, KEY_READ, &hkey);
+    }
 # endif
     if (r != ERROR_SUCCESS) {
         BD_DEBUG(DBG_BDJ | DBG_CRIT, "Error opening registry key SOFTWARE\\JavaSoft\\Java Runtime Environment\\\n");
@@ -417,11 +421,10 @@ static void *_load_jvm(const char **p_java_home, const char *app_java_home)
                                             "/usr/lib/jvm/default",
                                             "/usr/lib/jvm/",
                                             "/etc/java-config-2/current-system-vm",
-                                            "/usr/lib/jvm/java-7-openjdk",
-                                            "/usr/lib/jvm/java-7-openjdk-" JAVA_ARCH,
                                             "/usr/lib/jvm/java-8-openjdk",
                                             "/usr/lib/jvm/java-8-openjdk-" JAVA_ARCH,
-                                            "/usr/lib/jvm/java-6-openjdk",
+                                            "/usr/lib/jvm/java-11-openjdk",
+                                            "/usr/lib/jvm/java-11-openjdk-" JAVA_ARCH,
 #    endif
     };
     static const char * const jvm_dir[]  = {"jre/lib/" JAVA_ARCH "/server",
