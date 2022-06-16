@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([bluray_major], 1)
 m4_define([bluray_minor], 3)
-m4_define([bluray_micro], 1)
+m4_define([bluray_micro], 2)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
 dnl shared library version (.so version)
