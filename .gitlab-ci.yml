@@ -24,17 +24,19 @@ build-macos:
     except:
         - schedules
     tags:
-        - catalina
+        - monterey
         - amd64
     script:
-        - curl -sS -O https://artifacts.videolan.org/vlc/macos-x86_64/vlc-contrib-x86_64-apple-darwin19-58c8b6aba888c666612e91d1cbb012aea630c853.tar.bz2
-        - tar xf vlc-contrib-x86_64-apple-darwin19-58c8b6aba888c666612e91d1cbb012aea630c853.tar.bz2
+        - CONTRIB_TARBALL=`curl -s https://artifacts.videolan.org/vlc/macos-x86_64/SHA512SUM 2>/dev/null | cut -d '/' -f 2`
+        - curl -sS -O https://artifacts.videolan.org/vlc/macos-x86_64/$CONTRIB_TARBALL
+        - tar xf "$CONTRIB_TARBALL"
         - cd x86_64-apple-darwin19
         - curl -sS -o ./change_prefix.sh 'https://git.videolan.org/?p=vlc.git;a=blob_plain;f=contrib/src/change_prefix.sh;hb=HEAD'
         - chmod +x ./change_prefix.sh
         - ./change_prefix.sh
         - export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:`pwd -P`/lib/pkgconfig/"
         - cd ../
+        - export PATH="/Users/videolanci/sandbox/bin:$PATH"
         - mkdir build
         - cd build
         - ../bootstrap
@@ -50,8 +52,9 @@ build-win64:
         - docker
         - amd64
     script:
-        - wget -nv https://artifacts.videolan.org/vlc/win64/vlc-contrib-x86_64-w64-mingw32-58c8b6aba888c666612e91d1cbb012aea630c853.tar.bz2
-        - tar xf vlc-contrib-x86_64-w64-mingw32-58c8b6aba888c666612e91d1cbb012aea630c853.tar.bz2
+        - CONTRIB_TARBALL=`wget --output-document - https://artifacts.videolan.org/vlc/win64/SHA512SUM 2>/dev/null | cut -d '/' -f 2`
+        - wget -nv https://artifacts.videolan.org/vlc/win64/$CONTRIB_TARBALL
+        - tar xf "$CONTRIB_TARBALL"
         - cd x86_64-w64-mingw32
         - wget -nv -O ./change_prefix.sh 'https://git.videolan.org/?p=vlc.git;a=blob_plain;f=contrib/src/change_prefix.sh;hb=HEAD'
         - chmod +x ./change_prefix.sh
@@ -73,8 +76,9 @@ build-win32:
         - docker
         - amd64
     script:
-        - wget -nv https://artifacts.videolan.org/vlc/win32/vlc-contrib-i686-w64-mingw32-58c8b6aba888c666612e91d1cbb012aea630c853.tar.bz2
-        - tar xf vlc-contrib-i686-w64-mingw32-58c8b6aba888c666612e91d1cbb012aea630c853.tar.bz2
+        - CONTRIB_TARBALL=`wget --output-document - https://artifacts.videolan.org/vlc/win32/SHA512SUM 2>/dev/null | cut -d '/' -f 2`
+        - wget -nv https://artifacts.videolan.org/vlc/win32/$CONTRIB_TARBALL
+        - tar xf "$CONTRIB_TARBALL"
         - cd i686-w64-mingw32
         - wget -nv -O ./change_prefix.sh 'https://git.videolan.org/?p=vlc.git;a=blob_plain;f=contrib/src/change_prefix.sh;hb=HEAD'
         - chmod +x ./change_prefix.sh
