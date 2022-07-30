@@ -1059,7 +1059,7 @@ BDJAVA* bdj_open(const char *path, struct bluray *bd,
 
     if (debug_mask & DBG_JNI) {
         int version = (int)(*env)->GetVersion(env);
-        BD_DEBUG(DBG_BDJ, "Java version: %d.%d\n", version >> 16, version & 0xffff);
+        BD_DEBUG(DBG_BDJ, "Java JNI version: %d.%d\n", version >> 16, version & 0xffff);
     }
 
     if (!_bdj_init(env, bd, path, bdj_disc_id, cfg)) {
