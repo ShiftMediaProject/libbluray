@@ -1188,11 +1188,6 @@ void bd_set_bdj_uo_mask(BLURAY *bd, unsigned mask)
     _update_uo_mask(bd);
 }
 
-const uint8_t *bd_get_aacs_data(BLURAY *bd, int type)
-{
-    return disc_get_data(bd->disc, type);
-}
-
 uint64_t bd_get_uo_mask(BLURAY *bd)
 {
     /* internal function. Used by BD-J. */

@@ -27,8 +27,6 @@
 struct bluray;
 struct bd_disc;
 
-BD_PRIVATE const uint8_t *bd_get_aacs_data(struct bluray *bd, int type);
-
 /*
  * VFS
  */

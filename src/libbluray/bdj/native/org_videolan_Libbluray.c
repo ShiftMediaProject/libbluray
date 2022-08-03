@@ -218,7 +218,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_videolan_Libbluray_getAacsDataN
   (JNIEnv * env, jclass cls, jlong np, jint type)
 {
     BLURAY* bd = (BLURAY*)(intptr_t)np;
-    const uint8_t *data = bd_get_aacs_data(bd, type);
+    const uint8_t *data = disc_get_data(bd_get_disc(bd), type);
     size_t data_size = 16;
 
     BD_DEBUG(DBG_JNI, "getAacsDataN(%d) -> %p\n", (int)type, (const void *)data);
