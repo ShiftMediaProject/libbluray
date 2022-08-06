@@ -25,6 +25,7 @@ import java.awt.BDToolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -150,9 +151,10 @@ public class Libbluray {
              */
             System.err.println("Detected Java >= 18, trying setSecurityManager() workaround");
             try {
-                java.lang.reflect.Method method = System.class.getDeclaredMethod("implSetSecurityManager", SecurityManager.class);
+                Method method = System.class.getDeclaredMethod("implSetSecurityManager",
+                                                              new Class [] { SecurityManager.class });
                 method.setAccessible(true);
-                method.invoke(null, sm);
+                method.invoke(null, new Object [] { (Object)sm } );
                 return;
             } catch (Exception ex2) {
                 throw ex;
