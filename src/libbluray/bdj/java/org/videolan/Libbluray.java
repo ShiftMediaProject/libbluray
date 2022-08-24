@@ -116,10 +116,6 @@ public class Libbluray {
         }
     }
 
-    /*
-     *
-     */
-
     public static int getJavaMajor() {
         try {
             String ver = System.getProperty("java.version");
@@ -392,7 +388,7 @@ public class Libbluray {
         System.setProperty("bluray.network.connected", "YES");
 
         try {
-            setSecurityManager(new BDJSecurityManager(discRoot, persistentRoot, budaRoot));
+            setSecurityManager(new BDJSecurityManager(discRoot, persistentRoot, budaRoot, getJavaMajor()));
         } catch (Exception ex) {
             System.err.println("System.setSecurityManager() failed: " + ex);
             throw new SecurityException("Failed initializing SecurityManager");
