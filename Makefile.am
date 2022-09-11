@@ -215,7 +215,8 @@ noinst_HEADERS = \
 	jni/linux/jni_md.h \
 	jni/win32/jni_md.h \
 	jni/darwin/jni_md.h \
-	jni/netbsd/jni_md.h
+	jni/netbsd/jni_md.h \
+	jni/openbsd/jni_md.h
 
 pkginclude_HEADERS = \
 	src/file/filesystem.h \

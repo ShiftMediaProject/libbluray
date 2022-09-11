@@ -238,6 +238,7 @@ case $host_os in
      solaris*) java_os=solaris ;;
      darwin*)  java_os=darwin ;;
      netbsd*)  java_os=netbsd ;;
+     openbsd*) java_os=openbsd ;;
      *)        java_os=$host_os ;;
 esac
 
