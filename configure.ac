@@ -52,6 +52,10 @@ case "${host_os}" in
     SYS=netbsd
     CFLAGS="${CFLAGS} -D_NETBSD_SOURCE"
     ;;
+  openbsd*)
+    SYS=openbsd
+    CFLAGS="${CFLAGS} -D_BSD_SOURCE"
+    ;;
   freebsd*)
     SYS=freebsd
     CFLAGS="${CFLAGS} -D_XOPEN_SOURCE=700"
