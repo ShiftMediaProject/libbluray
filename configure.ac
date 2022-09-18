@@ -65,8 +65,16 @@ case "${host_os}" in
     ;;
 esac
 
+dnl Falsely enables for NetBSD
+dnl warning: warning: reference to obsolete getfsstat(); use getvfsstat()
+AS_IF([test "${SYS}" != "netbsd"], [
+  AC_CHECK_FUNCS([getfsstat])
+])
+AC_CHECK_FUNCS([getvfsstat])
+
 AM_CONDITIONAL(HAVE_WIN32,   test "${SYS}" = "mingw32")
 AM_CONDITIONAL(HAVE_DARWIN,  test "${SYS}" = "darwin")
+AM_CONDITIONAL(HAVE_GETFSSTAT, test "${ac_cv_func_getfsstat}" = "yes" -o "${ac_cv_func_getvfsstat}" = "yes")
 
 dnl messages
 library_not_found="Could not find required library!"

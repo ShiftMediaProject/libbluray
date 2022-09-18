@@ -198,12 +198,21 @@ libbluray_la_SOURCES+= \
 	src/file/file_win32.c \
 	src/file/mount.c
 else
+if HAVE_GETFSSTAT
+libbluray_la_SOURCES+= \
+	src/file/dir_posix.c \
+	src/file/dirs_xdg.c \
+	src/file/dl_posix.c \
+	src/file/file_posix.c \
+	src/file/mount_getfsstat.c
+else
 libbluray_la_SOURCES+= \
 	src/file/dir_posix.c \
 	src/file/dirs_xdg.c \
 	src/file/dl_posix.c \
 	src/file/file_posix.c \
 	src/file/mount.c
+endif
 endif
 endif
 
