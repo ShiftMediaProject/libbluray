@@ -228,13 +228,15 @@ public abstract class BDFileSystem extends FileSystem {
     }
 
     public boolean isInvalid(File f) {
+        boolean res = false;
         try {
             Method m = fs.getClass().getDeclaredMethod("isInvalid", new Class[] { File.class });
             Object[] args = new Object[] {(Object)f};
             Boolean result = (Boolean)m.invoke(fs, args);
-            return result.booleanValue();
+            res = result.booleanValue();
         } finally {
-            return false;
+            /* return here will drop all exceptions from try block (and override possible return value from try block) */
+            return res;
         }
     }
 
