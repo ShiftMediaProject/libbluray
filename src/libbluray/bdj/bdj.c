@@ -406,6 +406,10 @@ static void *_load_jvm(const char **p_java_home, const char *app_java_home)
                                             "/usr/local/openjdk8",
                                             "/usr/local/openjdk11",
                                             "/usr/local/openjdk17",
+#    elif defined(__OpenBSD__)
+                                            "/usr/local/jdk-1.8.0",
+                                            "/usr/local/jdk-11",
+                                            "/usr/local/jdk-17",
 #    else
                                             "/usr/lib/jvm/default-java",
                                             "/usr/lib/jvm/default",
@@ -533,7 +537,7 @@ static char *_find_libbluray_jar0()
     // pre-defined search paths for libbluray.jar
     static const char * const jar_paths[] = {
 #ifndef _WIN32
-#  ifdef __FreeBSD__
+#  if defined(__FreeBSD__) || defined(__OpenBSD__)
         "/usr/local/share/java/" BDJ_JARFILE,
 #  else
         "/usr/share/java/" BDJ_JARFILE,
