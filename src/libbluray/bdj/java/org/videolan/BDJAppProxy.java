@@ -157,7 +157,8 @@ class BDJAppProxy implements DVBJProxy, Runnable {
         context.release();
 
         if (new File(persistentApp).delete()) {
-            new File(persistentOrg).delete();
+            if (!(new File(persistentOrg).delete()))
+                logger.info("Error removing " + persistentOrg);
         }
     }
 
