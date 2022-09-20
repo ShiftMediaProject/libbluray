@@ -48,19 +48,14 @@ static const char *_num2str(char *buf, size_t buf_size, int i)
     return "<undefined>";
 }
 
-static const char *_hex2str(const uint8_t *data, size_t len)
+static const char *_hex2str(char *str, size_t str_size, const uint8_t *data, size_t len)
 {
-    static char *str = NULL;
     size_t i;
 
+    if (str_size < 3 || (str_size-1)/2 < len)
+        return "<overflow>";
 
-    char *tmp = (char*)realloc(str, 2*len + 1);
-    if (tmp)
-        str = tmp;
-    else
-        return "";
     *str = 0;
-
     for (i = 0; i < len; i++) {
         sprintf(str+2*i, "%02X", data[i]);
     }
@@ -211,7 +206,8 @@ int main(int argc, char *argv[])
     if (info->aacs_detected) {
         printf("libaacs detected    : %s\n", _yes_no(info->libaacs_detected));
         if (info->libaacs_detected) {
-          printf("Disc ID             : %s\n", _hex2str(info->disc_id, sizeof(info->disc_id)));
+          char buf[sizeof(info->disc_id) * 2 + 1];
+          printf("Disc ID             : %s\n", _hex2str(buf, sizeof(buf), info->disc_id, sizeof(info->disc_id)));
           printf("AACS MKB version    : %d\n", info->aacs_mkbv);
           printf("AACS handled        : %s\n", _yes_no(info->aacs_handled));
           if (!info->aacs_handled) {
