@@ -35,12 +35,14 @@ static const char *_str_chk_null(const char *s)
     return s ? s : "<undefined>";
 }
 
-static const char *_num2str(int i)
+static const char *_num2str(char *buf, size_t buf_size, int i)
 {
     if (i > 0 && i < 0xff) {
-        static char str[32];
-        sprintf(str, "%d", i);
-        return str;
+        if (snprintf(buf, buf_size, "%d", i) > 0) {
+            buf[buf_size - 1] = 0;
+            return buf;
+        }
+        return "<?>";
     }
 
     return "<undefined>";
@@ -98,13 +100,14 @@ static void _print_meta(const META_DL *meta)
     }
 
     unsigned ii;
+    char num1[32], num2[32];
 
     printf("\nDisc library metadata:\n");
     printf("Metadata file       : %s\n", _str_chk_null(meta->filename));
     printf("Language            : %s\n", _str_chk_null(meta->language_code));
     printf("Disc name           : %s\n", _str_chk_null(meta->di_name));
     printf("Alternative         : %s\n", _str_chk_null(meta->di_alternative));
-    printf("Disc #              : %s/%s\n", _num2str(meta->di_set_number), _num2str(meta->di_num_sets));
+    printf("Disc #              : %s/%s\n", _num2str(num1, sizeof(num1), meta->di_set_number), _num2str(num2, sizeof(num2), meta->di_num_sets));
 
     printf("TOC count           : %d\n", meta->toc_count);
     for (ii = 0; ii < meta->toc_count; ii++) {
