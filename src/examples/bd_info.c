@@ -81,12 +81,13 @@ static const char *_aacs_error2str(int error_code)
     return "unknown error";
 }
 
-static const char *_res2str(int x, int y)
+static const char *_res2str(char *str, size_t str_size, int x, int y)
 {
     if (x > 0 && y > 0 && x < 0xffff && y < 0xffff) {
-        static char str[64];
-        sprintf(str, "%dx%d", x, y);
-        return str;
+        if (snprintf(str, str_size, "%dx%d", x, y) > 0) {
+            str[str_size - 1] = 0;
+            return str;
+        }
     }
 
     return "";
@@ -100,7 +101,7 @@ static void _print_meta(const META_DL *meta)
     }
 
     unsigned ii;
-    char num1[32], num2[32];
+    char num1[32], num2[32], res[64];
 
     printf("\nDisc library metadata:\n");
     printf("Metadata file       : %s\n", _str_chk_null(meta->filename));
@@ -120,7 +121,7 @@ static void _print_meta(const META_DL *meta)
     for (ii = 0; ii < meta->thumb_count; ii++) {
         printf("\t%s \t%s\n",
                _str_chk_null(meta->thumbnails[ii].path),
-               _res2str(meta->thumbnails[ii].xres, meta->thumbnails[ii].yres));
+               _res2str(res, sizeof(res), meta->thumbnails[ii].xres, meta->thumbnails[ii].yres));
     }
 }
 
