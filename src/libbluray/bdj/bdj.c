@@ -411,6 +411,8 @@ static void *_load_jvm(const char **p_java_home, const char *app_java_home)
                                             "/usr/local/jdk-11",
                                             "/usr/local/jdk-17",
 #    else
+                                            "/etc/alternatives/java_sdk_openjdk",
+                                            "/etc/alternatives/java_sdk",
                                             "/usr/lib/jvm/default-java",
                                             "/usr/lib/jvm/default",
                                             "/usr/lib/jvm/",
