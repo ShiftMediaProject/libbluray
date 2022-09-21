@@ -58,7 +58,7 @@ case "${host_os}" in
     ;;
   freebsd*)
     SYS=freebsd
-    CFLAGS="${CFLAGS} -D_XOPEN_SOURCE=700"
+    CFLAGS="${CFLAGS} -D__BSD_VISIBLE=1 -D__XSI_VISIBLE=1"
     ;;
   *)
     SYS="${host_os}"
