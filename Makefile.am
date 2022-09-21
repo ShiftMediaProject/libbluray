@@ -11,7 +11,6 @@ EXTRA_DIST = \
 	ChangeLog \
 	COPYING \
 	doc \
-	player_wrappers \
 	README.md \
 	src/libbluray/bdj/build.xml \
 	src/libbluray/bdj/java \
