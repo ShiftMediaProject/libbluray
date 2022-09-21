@@ -583,18 +583,22 @@ static char *_find_libbluray_jar0()
     // check directory where libbluray.so was loaded from
     const char *lib_path = dl_get_path();
     if (lib_path) {
-        char *cp = str_printf("%s" BDJ_JARFILE, lib_path);
-        if (!cp) {
-            BD_DEBUG(DBG_CRIT, "out of memory\n");
-            return NULL;
-        }
+        for(i =0; i<2; i++) {
+            const char * relinstalldir[2] = { "",
+                                              ".." DIR_SEP "share" DIR_SEP "java" DIR_SEP };
+            char *cp = str_printf("%s%s%s", lib_path, relinstalldir[i], BDJ_JARFILE);
+            if (!cp) {
+                BD_DEBUG(DBG_CRIT, "out of memory\n");
+                return NULL;
+            }
 
-        BD_DEBUG(DBG_BDJ, "Checking %s ...\n", cp);
-        if (_can_read_file(cp)) {
-            BD_DEBUG(DBG_BDJ, "using %s\n", cp);
-            return cp;
+            BD_DEBUG(DBG_BDJ, "Checking %s ...\n", cp);
+            if (_can_read_file(cp)) {
+                BD_DEBUG(DBG_BDJ, "using %s\n", cp);
+                return cp;
+            }
+            X_FREE(cp);
         }
-        X_FREE(cp);
     }
 
     // check pre-defined directories
