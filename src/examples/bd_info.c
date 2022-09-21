@@ -51,8 +51,11 @@ static const char *_hex2str(const uint8_t *data, size_t len)
     static char *str = NULL;
     size_t i;
 
-    str = (char*)realloc(str, 2*len + 1);
-    if (!str)
+
+    char *tmp = (char*)realloc(str, 2*len + 1);
+    if (tmp)
+        str = tmp;
+    else
         return "";
     *str = 0;
 
