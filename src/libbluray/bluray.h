@@ -19,17 +19,17 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * \brief libbluray API
+ */
+
 #ifndef BLURAY_H_
 #define BLURAY_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- * @file libbluray/bluray.h
- * external API header
- */
 
 #include <stdint.h>
 

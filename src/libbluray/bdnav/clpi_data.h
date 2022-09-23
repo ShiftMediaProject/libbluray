@@ -18,6 +18,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * \brief CLPI (Clip Information) file data
+ */
+
 #if !defined(_CLPI_DATA_H_)
 #define _CLPI_DATA_H_
 

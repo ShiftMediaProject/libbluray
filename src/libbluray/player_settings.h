@@ -17,6 +17,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * \brief Definitions for Blu-Ray player settings
+ */
+
 #ifndef BD_PLAYER_SETTINGS_H_
 #define BD_PLAYER_SETTINGS_H_
 

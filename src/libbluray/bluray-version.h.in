@@ -17,6 +17,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * \brief libbluray API version
+ */
+
 #ifndef BLURAY_VERSION_H_
 #define BLURAY_VERSION_H_
 

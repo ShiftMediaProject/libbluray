@@ -18,6 +18,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * \brief Filesystem interface
+ */
+
 #ifndef BD_FILESYSTEM_H_
 #define BD_FILESYSTEM_H_
 

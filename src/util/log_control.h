@@ -18,6 +18,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * \brief Log control and capture
+ */
+
 #ifndef BD_LOG_CONTROL_H_
 #define BD_LOG_CONTROL_H_
 

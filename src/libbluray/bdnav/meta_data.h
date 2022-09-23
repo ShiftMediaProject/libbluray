@@ -20,6 +20,11 @@
 #if !defined(_META_DATA_H_)
 #define _META_DATA_H_
 
+/**
+ * @file
+ * \brief Disc metadata definitions
+ */
+
 #include <stdint.h>
 
 typedef struct meta_thumbnail {

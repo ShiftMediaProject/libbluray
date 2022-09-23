@@ -17,6 +17,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * \brief User input key definitions
+ */
+
 #if !defined(_BD_KEYS_H_)
 #define _BD_KEYS_H_
 

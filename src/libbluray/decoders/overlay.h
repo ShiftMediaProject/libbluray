@@ -17,6 +17,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * \brief Graphics overlay events
+ */
+
 #ifndef BD_OVERLAY_H_
 #define BD_OVERLAY_H_
 
