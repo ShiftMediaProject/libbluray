@@ -60,6 +60,10 @@ case "${host_os}" in
     SYS=freebsd
     CFLAGS="${CFLAGS} -D__BSD_VISIBLE=1 -D__XSI_VISIBLE=1"
     ;;
+  solaris*)
+    SYS=solaris
+    CFLAGS="${CFLAGS} -D__EXTENSIONS__"
+    ;;
   *)
     SYS="${host_os}"
     ;;
