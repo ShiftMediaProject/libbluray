@@ -70,23 +70,23 @@ typedef BD_FILE_H* (*BD_FILE_OPEN)(const char* filename, const char *mode);
 typedef BD_DIR_H* (*BD_DIR_OPEN) (const char* dirname);
 
 /**
- *
  *  Register function pointer that will be used to open a file
+ *
+ * @deprecated Use bd_open_files() instead.
  *
  * @param p function pointer
  * @return previous function pointer registered
  */
-/* deprecated - use bd_open_files() instead */
 BD_FILE_OPEN bd_register_file(BD_FILE_OPEN p);
 
 /**
- *
  *  Register function pointer that will be used to open a directory
+ *
+ * @deprecated Use bd_open_files() instead.
  *
  * @param p function pointer
  * @return previous function pointer registered
  */
-/* deprecated - use bd_open_files() instead */
 BD_DIR_OPEN bd_register_dir(BD_DIR_OPEN p);
 
 #ifdef __cplusplus
