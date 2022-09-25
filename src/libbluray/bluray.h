@@ -342,7 +342,7 @@ int bd_open_disc(BLURAY *bd, const char *device_path, const char *keyfile_path);
  *  Open BluRay disc
  *
  * @param bd  BLURAY object
- * @param handle  opaque handle for read_blocks
+ * @param read_blocks_handle  opaque handle for read_blocks
  * @param read_blocks  function used to read disc blocks
  * @return 1 on success, 0 if error
  */
@@ -551,7 +551,7 @@ int64_t bd_seek_mark(BLURAY *bd, unsigned mark);
  *  Seek to a playitem.
  *
  * @param bd  BLURAY object
- * @param playitem to seek to
+ * @param clip_ref playitem to seek to
  * @return current seek position
  */
 int64_t bd_seek_playitem(BLURAY *bd, unsigned clip_ref);
@@ -982,7 +982,7 @@ BLURAY_TITLE_INFO* bd_get_playlist_info(BLURAY *bd, uint32_t playlist, unsigned 
  *  Get sound effect
  *
  * @param bd  BLURAY object
- * @param effect_id  sound effect id (0...N)
+ * @param sound_id  sound effect id (0...N)
  * @param effect     sound effect data
  * @return <0 when no effects, 0 when id out of range, 1 on success
  */
