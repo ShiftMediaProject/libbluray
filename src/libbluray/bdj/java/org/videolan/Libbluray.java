@@ -153,7 +153,8 @@ public class Libbluray {
                 method.invoke(null, new Object [] { (Object)sm } );
                 return;
             } catch (Exception ex2) {
-                throw ex;
+                System.err.println("" + ex2);
+                throw new RuntimeException("", ex);
             }
         }
     }
