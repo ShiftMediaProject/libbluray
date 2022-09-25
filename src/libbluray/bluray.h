@@ -55,7 +55,7 @@ typedef struct bluray BLURAY;
 #define BD_AACS_CERT_REVOKED    -5
 #define BD_AACS_MMC_FAILED      -6
 
-/* HDMV / BD-J title */
+/** HDMV / BD-J title */
 typedef struct {
     const char *name;         /* optional title name in preferred language */
     uint8_t     interactive;  /* 1 if title is interactive (title length and playback position should not be shown in UI) */
@@ -66,6 +66,7 @@ typedef struct {
     uint32_t    id_ref;       /* Movie Object number / bdjo file number */
 } BLURAY_TITLE;
 
+/** Disc information */
 typedef struct {
     uint8_t  bluray_detected;
 
@@ -129,6 +130,7 @@ typedef struct {
  * Playlist info
  */
 
+/** Stream video coding type */
 typedef enum {
     BLURAY_STREAM_TYPE_VIDEO_MPEG1              = 0x01,
     BLURAY_STREAM_TYPE_VIDEO_MPEG2              = 0x02,
@@ -151,6 +153,7 @@ typedef enum {
     BLURAY_STREAM_TYPE_AUDIO_DTSHD_SECONDARY    = 0xa2
 } bd_stream_type_e;
 
+/** Stream video format */
 typedef enum {
     BLURAY_VIDEO_FORMAT_480I              = 1,  // ITU-R BT.601-5
     BLURAY_VIDEO_FORMAT_576I              = 2,  // ITU-R BT.601-4
@@ -162,6 +165,7 @@ typedef enum {
     BLURAY_VIDEO_FORMAT_2160P             = 8,  //
 } bd_video_format_e;
 
+/** Stream video frame rate */
 typedef enum {
     BLURAY_VIDEO_RATE_24000_1001          = 1,  // 23.976
     BLURAY_VIDEO_RATE_24                  = 2,
@@ -171,11 +175,13 @@ typedef enum {
     BLURAY_VIDEO_RATE_60000_1001          = 7   // 59.94
 } bd_video_rate_e;
 
+/** Stream video aspect ratio */
 typedef enum {
     BLURAY_ASPECT_RATIO_4_3               = 2,
     BLURAY_ASPECT_RATIO_16_9              = 3
 } bd_video_aspect_e;
 
+/** Stream audio format */
 typedef enum {
     BLURAY_AUDIO_FORMAT_MONO              = 1,
     BLURAY_AUDIO_FORMAT_STEREO            = 3,
@@ -183,7 +189,7 @@ typedef enum {
     BLURAY_AUDIO_FORMAT_COMBO             = 12  // Stereo ac3/dts, 
 } bd_audio_format_e;
                                                 // multi mlp/dts-hd
-
+/** Stream audio rate */
 typedef enum {
     BLURAY_AUDIO_RATE_48                  = 1,
     BLURAY_AUDIO_RATE_96                  = 4,
@@ -194,6 +200,7 @@ typedef enum {
                                                 // 96 mpl/dts-hd
 } bd_audio_rate_e;
 
+/** Text subtitle charset */
 typedef enum {
     BLURAY_TEXT_CHAR_CODE_UTF8            = 0x01,
     BLURAY_TEXT_CHAR_CODE_UTF16BE         = 0x02,
@@ -204,23 +211,27 @@ typedef enum {
     BLURAY_TEXT_CHAR_CODE_BIG5            = 0x07
 } bd_char_code_e;
 
+/** Clip still mode */
 typedef enum {
     BLURAY_STILL_NONE     = 0x00,
     BLURAY_STILL_TIME     = 0x01,
     BLURAY_STILL_INFINITE = 0x02,
 } bd_still_mode_e;
 
+/** Mark type */
 typedef enum {
     BLURAY_MARK_ENTRY     = 0x01,  /* entry mark for chapter search */
     BLURAY_MARK_LINK      = 0x02,  /* link point */
 } bd_mark_type_e;
 
+/** Clip dynamic range */
 typedef enum {
     BLURAY_DYNAMIC_RANGE_SDR          = 0,
     BLURAY_DYNAMIC_RANGE_HDR10        = 1,
     BLURAY_DYNAMIC_RANGE_DOLBY_VISION = 2
 } bd_dynamic_range_type_e;
 
+/** Clip substream information */
 typedef struct bd_stream_info {
     uint8_t     coding_type;
     uint8_t     format;
@@ -232,6 +243,7 @@ typedef struct bd_stream_info {
     uint8_t     subpath_id;
 } BLURAY_STREAM_INFO;
 
+/** Clip information */
 typedef struct bd_clip {
     uint32_t           pkt_count;
     uint8_t            still_mode;
@@ -255,6 +267,7 @@ typedef struct bd_clip {
     char               clip_id[6];
 } BLURAY_CLIP_INFO;
 
+/** Chapter entry */
 typedef struct bd_chapter {
     uint32_t    idx;
     uint64_t    start;     /* start media time, 90kHz, ("playlist time") */
@@ -263,6 +276,7 @@ typedef struct bd_chapter {
     unsigned    clip_ref;
 } BLURAY_TITLE_CHAPTER;
 
+/** Playmark information */
 typedef struct bd_mark {
     uint32_t    idx;
     int         type;      /* bd_mark_type_e */
@@ -272,6 +286,7 @@ typedef struct bd_mark {
     unsigned    clip_ref;
 } BLURAY_TITLE_MARK;
 
+/** Playlist information */
 typedef struct bd_title_info {
     uint32_t             idx;            /* filled only with bd_get_title_info() */
     uint32_t             playlist;
@@ -287,10 +302,7 @@ typedef struct bd_title_info {
     uint8_t              mvc_base_view_r_flag;
 } BLURAY_TITLE_INFO;
 
-/*
- * Sound effect data
- */
-
+/** Sound effect data */
 typedef struct bd_sound_effect {
     uint8_t         num_channels; /* 1 - mono, 2 - stereo */
     uint32_t        num_frames;
@@ -670,6 +682,7 @@ uint64_t bd_tell_time(BLURAY *bd);
  * player settings
  */
 
+/** Player setting */
 typedef enum {
     BLURAY_PLAYER_SETTING_AUDIO_LANG     = 16,    /* Initial audio language.      String (ISO 639-2/T). */
     BLURAY_PLAYER_SETTING_PG_LANG        = 17,    /* Initial PG/SPU language.     String (ISO 639-2/T). */
@@ -717,6 +730,7 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *value);
  * events
  */
 
+/** Event type */
 typedef enum {
 
     BD_EVENT_NONE         = 0,  /* no pending events */
@@ -808,6 +822,7 @@ typedef enum {
 
 } bd_event_e;
 
+/** Event */
 typedef struct {
     uint32_t   event;  /* bd_event_e */
     uint32_t   param;
