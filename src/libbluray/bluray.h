@@ -308,6 +308,10 @@ void bd_get_version(int *major, int *minor, int *micro);
  * Disc functions
  */
 
+struct bd_dir_s;
+struct bd_file_s;
+struct meta_dl;
+
 /**
  *  Open BluRay disc
  *
@@ -359,8 +363,6 @@ int bd_open_stream(BLURAY *bd,
  * @param open_file  function used to open a file
  * @return 1 on success, 0 if error
  */
-struct bd_dir_s;
-struct bd_file_s;
 int bd_open_files(BLURAY *bd,
                   void *handle,
                   struct bd_dir_s *(*open_dir)(void *handle, const char *rel_path),
@@ -395,7 +397,6 @@ const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd);
  * @param bd  BLURAY object
  * @return META_DL (disclib) object, NULL on error
  */
-struct meta_dl;
 const struct meta_dl *bd_get_meta(BLURAY *bd);
 
 /**
@@ -597,10 +598,10 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle);
  * @param stream_id  stream number (1..N)
  * @param enable_flag  set to 0 to disable streams of this type
  */
+void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint32_t enable_flag);
+
 #define BLURAY_AUDIO_STREAM      0
 #define BLURAY_PG_TEXTST_STREAM  1
-
-void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint32_t enable_flag);
 
 
 /*
@@ -1015,9 +1016,10 @@ void bd_set_scr(BLURAY *bd, int64_t pts);
  * @param rate current playback rate * 90000 (0 = paused, 90000 = normal)
  * @return <0 on error, 0 on success
  */
+int bd_set_rate(BLURAY *bd, uint32_t rate);
+
 #define BLURAY_RATE_PAUSED  0
 #define BLURAY_RATE_NORMAL  90000
-int bd_set_rate(BLURAY *bd, uint32_t rate);
 
 /**
  *
@@ -1103,16 +1105,28 @@ void bd_stop_bdj(BLURAY *bd); // shutdown BD-J and clean up resources
  *  Caller must free the memory block with free().
  *
  * @param bd  BLURAY object
- * @param file_name  path to the file (relative to disc root)
+ * @param path  path to the file (relative to disc root)
  * @param data  where to store pointer to allocated data
  * @param size  where to store file size
  * @return 1 on success, 0 on error
  */
-int bd_read_file(BLURAY *, const char *path, void **data, int64_t *size);
+int bd_read_file(BLURAY *bd, const char *path, void **data, int64_t *size);
 
 /**
  *
- *  Open a file/dir from BluRay Virtual File System.
+ *  Open a directory from BluRay Virtual File System.
+ *
+ *  Caller must close with dir->close().
+ *
+ * @param bd  BLURAY object
+ * @param dir  target directory (relative to disc root)
+ * @return BD_DIR_H *, NULL if failed
+ */
+struct bd_dir_s *bd_open_dir(BLURAY *bd, const char *dir);
+
+/**
+ *
+ *  Open a file from BluRay Virtual File System.
  *
  *  encrypted streams are decrypted, and because of how
  *  decryption works, it can only seek to (N*6144) bytes,
@@ -1120,15 +1134,14 @@ int bd_read_file(BLURAY *, const char *path, void **data, int64_t *size);
  *  DO NOT mix any play functionalities with these functions.
  *  It might cause broken stream. In general, accessing
  *  mutiple file on disk at the same time is a bad idea.
- *  Caller must close with file_close()/dir_close().
+ *
+ *  Caller must close with file->close().
  *
  * @param bd  BLURAY object
- * @param dir  target directory (relative to disc root)
  * @param path  path to the file (relative to disc root)
- * @return BD_DIR_H * or BD_FILE_H *, NULL if failed
+ * @return BD_FILE_H *, NULL if failed
  */
-struct bd_dir_s *bd_open_dir(BLURAY *, const char *dir);
-struct bd_file_s *bd_open_file_dec(BLURAY *, const char *path);
+struct bd_file_s *bd_open_file_dec(BLURAY *bd, const char *path);
 
 
 #ifdef __cplusplus
