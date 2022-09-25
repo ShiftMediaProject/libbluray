@@ -33,32 +33,41 @@ extern "C" {
 
 #define BD_OVERLAY_INTERFACE_VERSION 2
 
+/**
+ * Overlay plane
+ */
 typedef enum {
-    BD_OVERLAY_PG = 0,  /* Presentation Graphics plane */
-    BD_OVERLAY_IG = 1,  /* Interactive Graphics plane (on top of PG plane) */
+    BD_OVERLAY_PG = 0,  /**< Presentation Graphics plane */
+    BD_OVERLAY_IG = 1,  /**< Interactive Graphics plane (on top of PG plane) */
 } bd_overlay_plane_e;
-
-typedef enum {
-    /* following events are executed immediately */
-    BD_OVERLAY_INIT  = 0,    /* init overlay plane. Size and position of plane in x,y,w,h */
-    BD_OVERLAY_CLOSE = 1,    /* close overlay plane */
-
-    /* following events can be processed immediately, but changes
-     * should not be flushed to display before next FLUSH event
-     */
-    BD_OVERLAY_CLEAR = 2,    /* clear plane */
-    BD_OVERLAY_DRAW  = 3,    /* draw bitmap (x,y,w,h,img,palette,crop) */
-    BD_OVERLAY_WIPE  = 4,    /* clear area (x,y,w,h) */
-    BD_OVERLAY_HIDE  = 5,    /* overlay is empty and can be hidden */
-
-    BD_OVERLAY_FLUSH = 6,    /* all changes have been done, flush overlay to display at given pts */
-
-} bd_overlay_cmd_e;
 
 /*
  * Compressed YUV overlays
  */
 
+/**
+ * YUV overlay event type
+ */
+typedef enum {
+    /* following events are executed immediately */
+    BD_OVERLAY_INIT  = 0,    /**< Initialize overlay plane. Size and position of plane in x,y,w,h. */
+    BD_OVERLAY_CLOSE = 1,    /**< Close overlay plane */
+
+    /* following events can be processed immediately, but changes
+     * should not be flushed to display before next FLUSH event
+     */
+    BD_OVERLAY_CLEAR = 2,    /**< Clear overlay plane */
+    BD_OVERLAY_DRAW  = 3,    /**< Draw bitmap (x, y, w, h, img, palette, crop) */
+    BD_OVERLAY_WIPE  = 4,    /**< Clear area (x, y, w, h) */
+    BD_OVERLAY_HIDE  = 5,    /**< Overlay is empty and can be hidden */
+
+    BD_OVERLAY_FLUSH = 6,    /**< All changes have been done, flush overlay to display at given pts */
+
+} bd_overlay_cmd_e;
+
+/**
+ * Overlay palette entry
+ */
 typedef struct bd_pg_palette_entry_s {
     uint8_t Y;
     uint8_t Cr;
@@ -66,17 +75,23 @@ typedef struct bd_pg_palette_entry_s {
     uint8_t T;
 } BD_PG_PALETTE_ENTRY;
 
+/**
+ * RLE element
+ */
 typedef struct bd_pg_rle_elem_s {
     uint16_t len;
     uint16_t color;
 } BD_PG_RLE_ELEM;
 
+/**
+ * YUV overlay event
+ */
 typedef struct bd_overlay_s {
     int64_t  pts;
-    uint8_t  plane; /* bd_overlay_plane_e */
-    uint8_t  cmd;   /* bd_overlay_cmd_e */
+    uint8_t  plane; /**< Overlay plane (\ref bd_overlay_plane_e) */
+    uint8_t  cmd;   /**< Overlay event type (\ref bd_overlay_cmd_e) */
 
-    uint8_t  palette_update_flag; /* only palette was changed */
+    uint8_t  palette_update_flag; /**< Set if only overlay palette is changed */
 
     uint16_t x;
     uint16_t y;
@@ -124,26 +139,28 @@ void bd_overlay_free(BD_OVERLAY **pov)
 }
 #endif
 
-/*
- * ARGB overlays
+/**
+ * ARGB overlay event type
  */
-
 typedef enum {
     /* following events are executed immediately */
-    BD_ARGB_OVERLAY_INIT  = 0,    /* init overlay plane. Size and position of plane in x,y,w,h */
-    BD_ARGB_OVERLAY_CLOSE = 1,    /* close overlay */
+    BD_ARGB_OVERLAY_INIT  = 0,    /**< Initialize overlay plane. Size and position of plane are in x,y,w,h */
+    BD_ARGB_OVERLAY_CLOSE = 1,    /**< Close overlay plane */
 
     /* following events can be processed immediately, but changes
      * should not be flushed to display before next FLUSH event
      */
-    BD_ARGB_OVERLAY_DRAW  = 3,    /* draw image */
-    BD_ARGB_OVERLAY_FLUSH = 6,    /* all changes have been done, flush overlay to display at given pts */
+    BD_ARGB_OVERLAY_DRAW  = 3,    /**< Draw ARGB image on plane */
+    BD_ARGB_OVERLAY_FLUSH = 6,    /**< All changes have been done, flush overlay to display at given pts */
 } bd_argb_overlay_cmd_e;
 
+/**
+ * ARGB overlay event
+ */
 typedef struct bd_argb_overlay_s {
     int64_t  pts;
-    uint8_t  plane; /* bd_overlay_plane_e */
-    uint8_t  cmd;   /* bd_argb_overlay_cmd_e */
+    uint8_t  plane; /**< Overlay plane (\ref bd_overlay_plane_e) */
+    uint8_t  cmd;   /**< Overlay event type (\ref bd_argb_overlay_cmd_e) */
 
     /* following fileds are used only when not using application-allocated
      * frame buffer
@@ -154,13 +171,13 @@ typedef struct bd_argb_overlay_s {
     uint16_t y;
     uint16_t w;
     uint16_t h;
-    uint16_t stride;       /* buffer stride */
 
-    const uint32_t * argb; /* 'h' lines, line length 'stride' pixels */
+    uint16_t stride;       /**< ARGB buffer stride */
+    const uint32_t * argb; /**< ARGB image data, 'h' lines, line stride 'stride' pixels */
 
 } BD_ARGB_OVERLAY;
 
-/*
+/**
  * Application-allocated frame buffer for ARGB overlays
  *
  * When using application-allocated frame buffer DRAW events are
@@ -183,7 +200,7 @@ typedef struct bd_argb_buffer_s {
      * - buffer can be replaced in overlay callback or lock().
      */
 
-    uint32_t *buf[4]; /* [0] - PG plane, [1] - IG plane. [2], [3] reserved for stereoscopic overlay. */
+    uint32_t *buf[4]; /**< [0] - PG plane, [1] - IG plane. [2], [3] reserved for stereoscopic overlay. */
 
     /* size of buffers
      * - Set by application
@@ -193,13 +210,13 @@ typedef struct bd_argb_buffer_s {
     int width;
     int height;
 
-    /* dirty area of frame buffers
+    /** Dirty area of frame buffers
      * - Updated by library before lock() call.
      * - Reset after each BD_ARGB_OVERLAY_FLUSH.
      */
     struct {
         uint16_t x0, y0, x1, y1;
-    } dirty[2]; /* [0] - PG plane, [1] - IG plane */
+    } dirty[2]; /**< [0] - PG plane, [1] - IG plane */
 
 } BD_ARGB_BUFFER;
 
