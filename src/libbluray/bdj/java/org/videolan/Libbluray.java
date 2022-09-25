@@ -760,7 +760,7 @@ public class Libbluray {
             case 404: key = HRcEvent.VK_COLORED_KEY_1; break;
             case 405: key = HRcEvent.VK_COLORED_KEY_2; break;
             case 406: key = HRcEvent.VK_COLORED_KEY_3; break;
-            case 17:
+            case 17: /* BD_VK_MOUSE_ACTIVATE */
                 result = false;
                 if ((param & 0x80000000) != 0) {
                     result = java.awt.BDJHelper.postMouseEvent(MouseEvent.MOUSE_PRESSED) || result;
