@@ -31,6 +31,7 @@ extern "C" {
 
 #include <stdint.h>
 
+/** Version number of the interface described in this file. */
 #define BD_OVERLAY_INTERFACE_VERSION 2
 
 /**
@@ -57,8 +58,8 @@ typedef enum {
      * should not be flushed to display before next FLUSH event
      */
     BD_OVERLAY_CLEAR = 2,    /**< Clear overlay plane */
-    BD_OVERLAY_DRAW  = 3,    /**< Draw bitmap (x, y, w, h, img, palette, crop) */
-    BD_OVERLAY_WIPE  = 4,    /**< Clear area (x, y, w, h) */
+    BD_OVERLAY_DRAW  = 3,    /**< Draw bitmap. Size and position within plane (x, y, w, h) and image (img, palette). */
+    BD_OVERLAY_WIPE  = 4,    /**< Clear area. Size and position within plane (x, y, w, h). */
     BD_OVERLAY_HIDE  = 5,    /**< Overlay is empty and can be hidden */
 
     BD_OVERLAY_FLUSH = 6,    /**< All changes have been done, flush overlay to display at given pts */
@@ -67,39 +68,44 @@ typedef enum {
 
 /**
  * Overlay palette entry
+ *
+ * Y, Cr and Cb have the same color matrix as the associated video stream.
+ *
+ * Entry 0xff is always transparent.
+ *
  */
 typedef struct bd_pg_palette_entry_s {
-    uint8_t Y;
-    uint8_t Cr;
-    uint8_t Cb;
-    uint8_t T;
+    uint8_t Y;      /**< Y component  (16...235) */
+    uint8_t Cr;     /**< Cr component (16...240) */
+    uint8_t Cb;     /**< Cb component (16...240) */
+    uint8_t T;      /**< Transparency ( 0...255). 0 - transparent, 255 - opaque. */
 } BD_PG_PALETTE_ENTRY;
 
 /**
  * RLE element
  */
 typedef struct bd_pg_rle_elem_s {
-    uint16_t len;
-    uint16_t color;
+    uint16_t len;   /**< RLE run length */
+    uint16_t color; /**< palette index */
 } BD_PG_RLE_ELEM;
 
 /**
  * YUV overlay event
  */
 typedef struct bd_overlay_s {
-    int64_t  pts;
+    int64_t  pts;   /**< Timestamp, on video grid */
     uint8_t  plane; /**< Overlay plane (\ref bd_overlay_plane_e) */
     uint8_t  cmd;   /**< Overlay event type (\ref bd_overlay_cmd_e) */
 
     uint8_t  palette_update_flag; /**< Set if only overlay palette is changed */
 
-    uint16_t x;
-    uint16_t y;
-    uint16_t w;
-    uint16_t h;
+    uint16_t x;     /**< top-left x coordinate */
+    uint16_t y;     /**< top-left y coordinate */
+    uint16_t w;     /**< region width */
+    uint16_t h;     /**< region height */
 
-    const BD_PG_PALETTE_ENTRY * palette;
-    const BD_PG_RLE_ELEM      * img;
+    const BD_PG_PALETTE_ENTRY * palette; /**< overlay palette (256 entries) */
+    const BD_PG_RLE_ELEM      * img;     /**< RLE-compressed overlay image */
 
 } BD_OVERLAY;
 
@@ -108,8 +114,8 @@ typedef struct bd_overlay_s {
   it needs to use bd_refcnt_inc() and bd_refcnt_dec().
 */
 
-const void *bd_refcnt_inc(const void *); /* return object or NULL on invalid object */
-void bd_refcnt_dec(const void *);
+const void *bd_refcnt_inc(const void *); /**< Hold reference-counted object. Return object or NULL on invalid object. */
+void bd_refcnt_dec(const void *);        /**< Release reference-counted object */
 
 #if 0
 BD_OVERLAY *bd_overlay_copy(const BD_OVERLAY *src)
@@ -158,7 +164,7 @@ typedef enum {
  * ARGB overlay event
  */
 typedef struct bd_argb_overlay_s {
-    int64_t  pts;
+    int64_t  pts;   /**< Event timestamp, on video grid */
     uint8_t  plane; /**< Overlay plane (\ref bd_overlay_plane_e) */
     uint8_t  cmd;   /**< Overlay event type (\ref bd_argb_overlay_cmd_e) */
 
@@ -167,10 +173,10 @@ typedef struct bd_argb_overlay_s {
      */
 
     /* destination clip on the overlay plane */
-    uint16_t x;
-    uint16_t y;
-    uint16_t w;
-    uint16_t h;
+    uint16_t x;     /**< top-left x coordinate */
+    uint16_t y;     /**< top-left y coordinate */
+    uint16_t w;     /**< region width */
+    uint16_t h;     /**< region height */
 
     uint16_t stride;       /**< ARGB buffer stride */
     const uint32_t * argb; /**< ARGB image data, 'h' lines, line stride 'stride' pixels */
@@ -191,8 +197,8 @@ typedef struct bd_argb_buffer_s {
      *  - Set by application
      *  - Called when buffer is accessed or modified
      */
-    void (*lock)  (struct bd_argb_buffer_s *);
-    void (*unlock)(struct bd_argb_buffer_s *);
+    void (*lock)  (struct bd_argb_buffer_s *); /**< Lock (or prepare) buffer for writing */
+    void (*unlock)(struct bd_argb_buffer_s *); /**< Unlock buffer (write complete) */
 
     /* ARGB frame buffers
      * - Allocated by application (BD_ARGB_OVERLAY_INIT).
@@ -207,15 +213,18 @@ typedef struct bd_argb_buffer_s {
      * - If the buffer size is smaller than the size requested in BD_ARGB_OVERLAY_INIT,
      *   the buffer points only to the dirty area.
      */
-    int width;
-    int height;
+    int width;   /**< overlay buffer width (pixels) */
+    int height;  /**< overlay buffer height (pixels) */
 
     /** Dirty area of frame buffers
      * - Updated by library before lock() call.
      * - Reset after each BD_ARGB_OVERLAY_FLUSH.
      */
     struct {
-        uint16_t x0, y0, x1, y1;
+        uint16_t x0; /**< top-left x coordinate */
+        uint16_t y0; /**< top-left y coordinate */
+        uint16_t x1; /**< bottom-down x coordinate  */
+        uint16_t y1; /**< bottom-down y coordinate */
     } dirty[2]; /**< [0] - PG plane, [1] - IG plane */
 
 } BD_ARGB_BUFFER;

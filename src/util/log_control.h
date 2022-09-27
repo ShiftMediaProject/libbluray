@@ -42,8 +42,8 @@ extern "C" {
 /**
  * Flags for log filtering.
  */
-enum debug_mask_enum {
-    DBG_RESERVED   = 0x00001,
+typedef enum debug_mask_enum {
+    DBG_RESERVED   = 0x00001, /*   (reserved) */
     DBG_CONFIGFILE = 0x00002, /*   (reserved for libaacs) */
     DBG_FILE       = 0x00004, /*   (reserved for libaacs) */
     DBG_AACS       = 0x00008, /*   (reserved for libaacs) */
@@ -61,11 +61,14 @@ enum debug_mask_enum {
     DBG_GC         = 0x08000, /**< graphics controller trace */
     DBG_DECODE     = 0x10000, /**< PG / IG decoders, m2ts demuxer */
     DBG_JNI        = 0x20000, /**< JNI calls */
-};
+} debug_mask_t;
 
-typedef enum debug_mask_enum debug_mask_t;
-
-typedef void (*BD_LOG_FUNC)(const char *);
+/**
+ *  Log a message
+ *
+ *  @param msg Log message as null-terminated string
+ */
+typedef void (*BD_LOG_FUNC)(const char *msg);
 
 /**
  * Set (global) debug handler

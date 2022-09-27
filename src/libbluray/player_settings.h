@@ -33,45 +33,49 @@
 
 enum {
 
-    /* LPCM */
+    /* LPCM capability */
 
     /* 48/96kHz (mandatory) */
-    BLURAY_ACAP_LPCM_48_96_STEREO_ONLY = 0x0001,  /**< LPCM 48kHz and 96kHz stereo */
-    BLURAY_ACAP_LPCM_48_96_SURROUND    = 0x0002,  /**< LPCM 48kHz and 96kHz surround */
+    BLURAY_ACAP_LPCM_48_96_STEREO_ONLY = 0x0001,  /**< LPCM 48kHz and 96kHz stereo capable */
+    BLURAY_ACAP_LPCM_48_96_SURROUND    = 0x0002,  /**< LPCM 48kHz and 96kHz surround capable */
 
     /* 192kHz (optional) */
-    BLURAY_ACAP_LPCM_192_STEREO_ONLY   = 0x0004,  /**< LPCM 192kHz stereo */
-    BLURAY_ACAP_LPCM_192_SURROUND      = 0x0008,  /**< LPCM 192kHz surround */
+    BLURAY_ACAP_LPCM_192_NONE          = 0x0000,  /**< LPCM 192kHz not supported */
+    BLURAY_ACAP_LPCM_192_STEREO_ONLY   = 0x0004,  /**< LPCM 192kHz stereo capable */
+    BLURAY_ACAP_LPCM_192_SURROUND      = 0x0008,  /**< LPCM 192kHz surround capable */
 
-    /* Dolby Digital Plus */
+    /* Dolby Digital Plus capability */
 
     /* independent substream (mandatory) */
-    BLURAY_ACAP_DDPLUS_STEREO_ONLY     = 0x0010,
-    BLURAY_ACAP_DDPLUS_SURROUND        = 0x0020,
+    BLURAY_ACAP_DDPLUS_STEREO_ONLY     = 0x0010,  /**< DD Plus independent substream stereo capable */
+    BLURAY_ACAP_DDPLUS_SURROUND        = 0x0020,  /**< DD Plus independent substream surround capable */
 
     /* dependent substream (optional) */
-    BLURAY_ACAP_DDPLUS_DEP_STEREO_ONLY = 0x0040,
-    BLURAY_ACAP_DDPLUS_DEP_SURROUND    = 0x0080,
+    BLURAY_ACAP_DDPLUS_DEP_NONE        = 0x0000,  /**< DD Plus dependent substream not supported */
+    BLURAY_ACAP_DDPLUS_DEP_STEREO_ONLY = 0x0040,  /**< DD Plus dependent substream stereo capable */
+    BLURAY_ACAP_DDPLUS_DEP_SURROUND    = 0x0080,  /**< DD Plus dependent substream surround capable */
 
     /* DTS-HD */
 
     /* Core substream (mandatory) */
-    BLURAY_ACAP_DTSHD_CORE_STEREO_ONLY = 0x0100,
-    BLURAY_ACAP_DTSHD_CORE_SURROUND    = 0x0200,
+    BLURAY_ACAP_DTSHD_CORE_STEREO_ONLY = 0x0100,  /**< DTS-HD Core stereo capable */
+    BLURAY_ACAP_DTSHD_CORE_SURROUND    = 0x0200,  /**< DTS-HD Core surround capable */
 
     /* Extension substream (optional) */
-    BLURAY_ACAP_DTSHD_EXT_STEREO_ONLY  = 0x0400,
-    BLURAY_ACAP_DTSHD_EXT_SURROUND     = 0x0800,
+    BLURAY_ACAP_DTSHD_EXT_NONE         = 0x0000,  /**< DTS-HD extension substream not supported */
+    BLURAY_ACAP_DTSHD_EXT_STEREO_ONLY  = 0x0400,  /**< DTS-HD extension substream stereo capable */
+    BLURAY_ACAP_DTSHD_EXT_SURROUND     = 0x0800,  /**< DTS-HD extension substream surround capable */
 
     /* Dolby lossless (TrueHD) */
 
     /* Dolby Digital (mandatory) */
-    BLURAY_ACAP_DD_STEREO_ONLY         = 0x1000,
-    BLURAY_ACAP_DD_SURROUND            = 0x2000,
+    BLURAY_ACAP_DD_STEREO_ONLY         = 0x1000,  /**< Dolby Digital audio stereo capable */
+    BLURAY_ACAP_DD_SURROUND            = 0x2000,  /**< Dolby Digital audio surround capable */
 
     /* MLP (optional) */
-    BLURAY_ACAP_MLP_STEREO_ONLY        = 0x4000,
-    BLURAY_ACAP_MLP_SURROUND           = 0x8000,
+    BLURAY_ACAP_MLP_NONE               = 0x0000,  /**< MLP not supported */
+    BLURAY_ACAP_MLP_STEREO_ONLY        = 0x4000,  /**< MLP stereo capable */
+    BLURAY_ACAP_MLP_SURROUND           = 0x8000,  /**< MLP surround capable */
 };
 
 
@@ -80,18 +84,16 @@ enum {
  *
  * Player region code (integer)
  *
- * Region A: the Americas, East and Southeast Asia, U.S. territories, and Bermuda.
- *
- * Region B: Africa, Europe, Oceania, the Middle East, the Kingdom of the Netherlands,
- *           British overseas territories, French territories, and Greenland.
- *
- * Region C: Central and South Asia, Mongolia, Russia, and the People's Republic of China.
- *
  */
 
 enum {
+    /** Region A: the Americas, East and Southeast Asia, U.S. territories, and Bermuda. */
     BLURAY_REGION_A = 1,
+
+    /** Region B: Africa, Europe, Oceania, the Middle East, the Kingdom of the Netherlands,
+     *            British overseas territories, French territories, and Greenland. */
     BLURAY_REGION_B = 2,
+    /** Region C: Central and South Asia, Mongolia, Russia, and the People's Republic of China. */
     BLURAY_REGION_C = 4,
 };
 
@@ -103,8 +105,8 @@ enum {
  */
 
 enum {
-    BLURAY_OUTPUT_PREFER_2D = 0,
-    BLURAY_OUTPUT_PREFER_3D = 1,
+    BLURAY_OUTPUT_PREFER_2D = 0,  /**< 2D output preferred */
+    BLURAY_OUTPUT_PREFER_3D = 1,  /**< 3D output preferred */
 };
 
 
@@ -117,12 +119,12 @@ enum {
 #define BLURAY_DCAP_1080p_720p_3D           0x01  /**< capable of 1920x1080 23.976Hz and 1280x720 59.94Hz 3D */
 #define BLURAY_DCAP_720p_50Hz_3D            0x02  /**< capable of 1280x720 50Hz 3D */
 #define BLURAY_DCAP_NO_3D_CLASSES_REQUIRED  0x04  /**< 3D glasses are not required */
-#define BLURAY_DCAP_INTERLACED_3D           0x08  /* */
+#define BLURAY_DCAP_INTERLACED_3D           0x08  /**< capable of interlaced 3D */
 
-/* horizintal display size in centimeters */
-#define BLURAY_DCAP_DISPLAY_SIZE_UNDEFINED  0
-#define BLURAY_DCAP_DISPLAY_SIZE(cm)        (((cm) > 0xfff ? 0xfff : (cm)) << 8)
-
+/* horizontal display size in centimeters */
+#define BLURAY_DCAP_DISPLAY_SIZE_UNDEFINED  0        /**< connected display physical size unknown/undefined */
+#define BLURAY_DCAP_DISPLAY_SIZE_MASK       0xfff00  /**< display size mask */
+#define BLURAY_DCAP_DISPLAY_SIZE(cm)        (((cm) > 0xfff ? 0xfff : (cm)) << 8) /**< connected display physical size (cm) */
 
 /**
  * BLURAY_PLAYER_SETTING_VIDEO_CAP (PSR29)
@@ -155,8 +157,11 @@ enum {
     BLURAY_PLAYER_PROFILE_6_v3_1 = ((0x00 << 16) | (0x0310)),   /**< Profile 6, version 3.1 (UHD) */
 };
 
-#define BLURAY_PLAYER_PROFILE_3D_FLAG       0x100000
-#define BLURAY_PLAYER_PROFILE_VERSION_MASK  0xffff
+/* Player profile flags and version mask */
+
+#define BLURAY_PLAYER_PROFILE_3D_FLAG       0x100000  /**< set for 3D profiles */
+#define BLURAY_PLAYER_PROFILE_VERSION_MASK  0xffff    /**< bit mask for player version */
+//!@}
 
 /**
  * BLURAY_PLAYER_SETTING_DECODE_PG

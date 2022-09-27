@@ -41,6 +41,7 @@ extern "C" {
   (TITLES_FILTER_DUP_TITLE | TITLES_FILTER_DUP_CLIP) /**< remove duplicate
                                                           titles and clips */
 
+/** This structure is opaque. It represents a libbluray instance. */
 typedef struct bluray BLURAY;
 
 /*
@@ -48,12 +49,12 @@ typedef struct bluray BLURAY;
  */
 
 /* AACS error codes */
-#define BD_AACS_CORRUPTED_DISC  -1
-#define BD_AACS_NO_CONFIG       -2
-#define BD_AACS_NO_PK           -3
-#define BD_AACS_NO_CERT         -4
-#define BD_AACS_CERT_REVOKED    -5
-#define BD_AACS_MMC_FAILED      -6
+#define BD_AACS_CORRUPTED_DISC  -1  /**< Corrupt disc (missing/invalid files) */
+#define BD_AACS_NO_CONFIG       -2  /**< AACS configuration file missing      */
+#define BD_AACS_NO_PK           -3  /**< No valid processing key found        */
+#define BD_AACS_NO_CERT         -4  /**< No valid certificate found           */
+#define BD_AACS_CERT_REVOKED    -5  /**< All certificates have been revoked   */
+#define BD_AACS_MMC_FAILED      -6  /**< MMC (disc drive interaction) failed  */
 
 /** HDMV / BD-J title information */
 typedef struct {
@@ -68,28 +69,28 @@ typedef struct {
 
 /** BluRay disc information */
 typedef struct {
-    uint8_t  bluray_detected;
+    uint8_t  bluray_detected;   /**< 1 if BluRay disc was detected */
 
     /* Disc ID */
     const char *disc_name;      /**< optional disc name in preferred language */
     const char *udf_volume_id;  /**< optional UDF volume identifier */
-    uint8_t     disc_id[20];
+    uint8_t     disc_id[20];    /**< Disc ID */
 
-    /* HDMV / BD-J titles */
+    /** HDMV / BD-J titles */
     uint8_t  no_menu_support;            /**< 1 if this disc can't be played using on-disc menus */
-    uint8_t  first_play_supported;
-    uint8_t  top_menu_supported;
+    uint8_t  first_play_supported;       /**< 1 if First Play title is present on the disc and can be played */
+    uint8_t  top_menu_supported;         /**< 1 if Top Menu title is present on the disc and can be played */
 
-    uint32_t             num_titles;
+    uint32_t             num_titles;     /**< number of titles on the disc, not including "First Play" and "Top Menu" */
     const BLURAY_TITLE  *const *titles;  /**< index is title number 1 ... N */
     const BLURAY_TITLE  *first_play;     /**< titles[N+1].   NULL if not present on the disc. */
     const BLURAY_TITLE  *top_menu;       /**< titles[0]. NULL if not present on the disc. */
 
-    uint32_t num_hdmv_titles;
-    uint32_t num_bdj_titles;
-    uint32_t num_unsupported_titles;
+    uint32_t num_hdmv_titles;            /**< number of HDMV titles */
+    uint32_t num_bdj_titles;             /**< number of BD-J titles */
+    uint32_t num_unsupported_titles;     /**< number of unsupported titles */
 
-    /* BD-J info  (valid only if disc uses BD-J) */
+    /** BD-J info (valid only if disc uses BD-J) */
     uint8_t  bdj_detected;     /**< 1 if disc uses BD-J */
     uint8_t  bdj_supported;    /**< (deprecated) */
     uint8_t  libjvm_detected;  /**< 1 if usable Java VM was found */
@@ -101,9 +102,9 @@ typedef struct {
     /* disc application info */
     uint8_t video_format;                     /**< \ref bd_video_format_e */
     uint8_t frame_rate;                       /**< \ref bd_video_rate_e */
-    uint8_t content_exist_3D;
+    uint8_t content_exist_3D;                 /**< 1 if 3D content exists on the disc */
     uint8_t initial_output_mode_preference;   /**< 0 - 2D, 1 - 3D */
-    uint8_t provider_data[32];
+    uint8_t provider_data[32];                /**< Content provider data */
 
     /* AACS info  (valid only if disc uses AACS) */
     uint8_t  aacs_detected;     /**< 1 if disc is using AACS encoding */
@@ -162,17 +163,17 @@ typedef enum {
     BLURAY_VIDEO_FORMAT_720P              = 5,  /**< SMPTE 296M */
     BLURAY_VIDEO_FORMAT_1080P             = 6,  /**< SMPTE 274M */
     BLURAY_VIDEO_FORMAT_576P              = 7,  /**< ITU-R BT.1358 */
-    BLURAY_VIDEO_FORMAT_2160P             = 8,
+    BLURAY_VIDEO_FORMAT_2160P             = 8,  /**< BT.2020 */
 } bd_video_format_e;
 
 /** Stream video frame rate */
 typedef enum {
-    BLURAY_VIDEO_RATE_24000_1001          = 1,  /**< 23.976 */
-    BLURAY_VIDEO_RATE_24                  = 2,
-    BLURAY_VIDEO_RATE_25                  = 3,
-    BLURAY_VIDEO_RATE_30000_1001          = 4,  /**< 29.97 */
-    BLURAY_VIDEO_RATE_50                  = 6,
-    BLURAY_VIDEO_RATE_60000_1001          = 7   /**< 59.94 */
+    BLURAY_VIDEO_RATE_24000_1001          = 1,  /**< 23.976 Hz */
+    BLURAY_VIDEO_RATE_24                  = 2,  /**< 24 Hz */
+    BLURAY_VIDEO_RATE_25                  = 3,  /**< 25 Hz */
+    BLURAY_VIDEO_RATE_30000_1001          = 4,  /**< 29.97 Hz */
+    BLURAY_VIDEO_RATE_50                  = 6,  /**< 50 Hz */
+    BLURAY_VIDEO_RATE_60000_1001          = 7   /**< 59.94 Hz */
 } bd_video_rate_e;
 
 /** Stream video aspect ratio */
@@ -213,9 +214,9 @@ typedef enum {
 
 /** Clip still mode type */
 typedef enum {
-    BLURAY_STILL_NONE     = 0x00,
-    BLURAY_STILL_TIME     = 0x01,
-    BLURAY_STILL_INFINITE = 0x02,
+    BLURAY_STILL_NONE     = 0x00,  /**< No still (normal playback) */
+    BLURAY_STILL_TIME     = 0x01,  /**< Still playback for fixed time */
+    BLURAY_STILL_INFINITE = 0x02,  /**< Infinite still */
 } bd_still_mode_e;
 
 /** Mark type */
@@ -233,86 +234,93 @@ typedef enum {
 
 /** Clip substream information */
 typedef struct bd_stream_info {
-    uint8_t     coding_type;
-    uint8_t     format;
-    uint8_t     rate;
-    uint8_t     char_code;
-    uint8_t     lang[4];
-    uint16_t    pid;
-    uint8_t     aspect;
-    uint8_t     subpath_id;
+    uint8_t     coding_type;  /**< Stream coding (\ref bd_stream_type_e) */
+    uint8_t     format;       /**< Stream format (\ref bd_video_format_e or \ref bd_audio_format_e) */
+    uint8_t     rate;         /**< Stream frame rate (\ref bd_audio_rate_e or \ref bd_video_rate_e) */
+    uint8_t     char_code;    /**< Text subtitle charachter code (\ref bd_char_code_e) */
+    uint8_t     lang[4];      /**< Language code */
+    uint16_t    pid;          /**< mpeg-ts PID */
+    uint8_t     aspect;       /**< Stream video aspect ratio (\ref bd_video_aspect_e) */
+    uint8_t     subpath_id;   /**< Sub path identifier (= separate mpeg-ts mux / .m2ts file) */
 } BLURAY_STREAM_INFO;
 
 /** Clip information */
 typedef struct bd_clip {
-    uint32_t           pkt_count;
-    uint8_t            still_mode;
-    uint16_t           still_time;  /* seconds */
-    uint8_t            video_stream_count;
-    uint8_t            audio_stream_count;
-    uint8_t            pg_stream_count;
-    uint8_t            ig_stream_count;
-    uint8_t            sec_audio_stream_count;
-    uint8_t            sec_video_stream_count;
-    BLURAY_STREAM_INFO *video_streams;
-    BLURAY_STREAM_INFO *audio_streams;
-    BLURAY_STREAM_INFO *pg_streams;
-    BLURAY_STREAM_INFO *ig_streams;
-    BLURAY_STREAM_INFO *sec_audio_streams;
-    BLURAY_STREAM_INFO *sec_video_streams;
+    uint32_t           pkt_count;               /**< Number of mpeg-ts packets */
+    uint8_t            still_mode;              /**< Clip still mode (\ref bd_still_mode_e) */
+    uint16_t           still_time;              /**< Still time (seconds) if still_mode == BD_STILL_TIME */
+    uint8_t            video_stream_count;      /**< Number of video streams */
+    uint8_t            audio_stream_count;      /**< Number of audio streams */
+    uint8_t            pg_stream_count;         /**< Number of PG (Presentation Graphics) streams */
+    uint8_t            ig_stream_count;         /**< Number of IG (Interactive Graphics) streams */
+    uint8_t            sec_audio_stream_count;  /**< Number of secondary audio streams */
+    uint8_t            sec_video_stream_count;  /**< Number of secondary video streams */
+    BLURAY_STREAM_INFO *video_streams;          /**< Video streams information */
+    BLURAY_STREAM_INFO *audio_streams;          /**< Audio streams information */
+    BLURAY_STREAM_INFO *pg_streams;             /**< PG (Presentation Graphics) streams information */
+    BLURAY_STREAM_INFO *ig_streams;             /**< IG (Interactive Graphics) streams information */
+    BLURAY_STREAM_INFO *sec_audio_streams;      /**< Secondary audio streams information */
+    BLURAY_STREAM_INFO *sec_video_streams;      /**< Secondary video streams information */
 
     uint64_t           start_time;  /**< start media time, 90kHz, ("playlist time") */
     uint64_t           in_time;     /**< start timestamp, 90kHz */
     uint64_t           out_time;    /**< end timestamp, 90kHz */
-    char               clip_id[6];
+    char               clip_id[6];  /**< Clip identifier (.m2ts file name) */
 } BLURAY_CLIP_INFO;
 
 /** Chapter entry */
 typedef struct bd_chapter {
-    uint32_t    idx;
+    uint32_t    idx;       /**< Chapter index (number - 1) */
     uint64_t    start;     /**< start media time, 90kHz, ("playlist time") */
     uint64_t    duration;  /**< duration */
     uint64_t    offset;    /**< distance from title start, bytes */
-    unsigned    clip_ref;
+    unsigned    clip_ref;  /**< Clip reference (index to playlist clips list) */
 } BLURAY_TITLE_CHAPTER;
 
 /** Playmark information */
 typedef struct bd_mark {
-    uint32_t    idx;
+    uint32_t    idx;       /**< Mark index (number - 1) */
     int         type;      /**< \ref bd_mark_type_e */
     uint64_t    start;     /**< mark media time, 90kHz, ("playlist time") */
     uint64_t    duration;  /**< time to next mark */
     uint64_t    offset;    /**< mark distance from title start, bytes */
-    unsigned    clip_ref;
+    unsigned    clip_ref;  /**< Clip reference (index to playlist clips list) */
 } BLURAY_TITLE_MARK;
 
 /** Playlist information */
 typedef struct bd_title_info {
-    uint32_t             idx;            /* filled only with bd_get_title_info() */
-    uint32_t             playlist;
-    uint64_t             duration;
-    uint32_t             clip_count;
-    uint8_t              angle_count;
-    uint32_t             chapter_count;
-    uint32_t             mark_count;
-    BLURAY_CLIP_INFO     *clips;
-    BLURAY_TITLE_CHAPTER *chapters;
-    BLURAY_TITLE_MARK    *marks;
+    uint32_t             idx;            /**< Playlist index number (filled only with bd_get_title_info()) */
+    uint32_t             playlist;       /**< Playlist ID (mpls file name) */
+    uint64_t             duration;       /**< Playlist duration, 90 kHz */
+    uint32_t             clip_count;     /**< Number of clips */
+    uint8_t              angle_count;    /**< Number of angles */
+    uint32_t             chapter_count;  /**< Number of chapters */
+    uint32_t             mark_count;     /**< Number of playmarks */
+    BLURAY_CLIP_INFO     *clips;         /**< Clip information */
+    BLURAY_TITLE_CHAPTER *chapters;      /**< Chapter information */
+    BLURAY_TITLE_MARK    *marks;         /**< Playmark information */
 
-    uint8_t              mvc_base_view_r_flag;
+    uint8_t              mvc_base_view_r_flag;  /**< MVC base view (0 - left, 1 - right) */
 } BLURAY_TITLE_INFO;
 
 /** Sound effect data */
 typedef struct bd_sound_effect {
     uint8_t         num_channels; /**< 1 - mono, 2 - stereo */
-    uint32_t        num_frames;
-    const int16_t  *samples;      /* 48000 Hz, 16 bit LPCM. interleaved if stereo */
+    uint32_t        num_frames;   /**< Number of audio frames */
+    const int16_t  *samples;      /**< 48000 Hz, 16 bit LPCM. Interleaved if stereo */
 } BLURAY_SOUND_EFFECT;
 
 
 /**
- *  Get library version
+ *  Get libbluray version
  *
+ *  Get the version of libbluray (runtime)
+ *
+ *  See also bluray-version.h
+ *
+ * @param major where to store major version
+ * @param minor where to store minor version
+ * @param micro where to store micro version
  */
 void bd_get_version(int *major, int *minor, int *micro);
 
@@ -606,14 +614,14 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle);
  *  libbluray internal decoders or the stream is stored in a sub-path.
  *
  * @param bd  BLURAY object
- * @param stream_type  BLURAY_*_STREAM
+ * @param stream_type  BLURAY_AUDIO_STREAM or BLURAY_PG_TEXTST_STREAM
  * @param stream_id  stream number (1..N)
  * @param enable_flag  set to 0 to disable streams of this type
  */
 void bd_select_stream(BLURAY *bd, uint32_t stream_type, uint32_t stream_id, uint32_t enable_flag);
 
-#define BLURAY_AUDIO_STREAM      0
-#define BLURAY_PG_TEXTST_STREAM  1
+#define BLURAY_AUDIO_STREAM      0   /**< Select audio stream     */
+#define BLURAY_PG_TEXTST_STREAM  1   /**< Select subtitle stream  */
 
 
 /*
@@ -723,6 +731,16 @@ typedef enum {
  */
 
 int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value);
+
+/**
+ *
+ *  Update player setting (string)
+ *
+ * @param bd  BLURAY object
+ * @param idx Player setting to update
+ * @param value New value for player setting
+ * @return 1 on success, 0 on error (invalid setting)
+ */
 int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *value);
 
 
@@ -753,7 +771,7 @@ typedef enum {
     BD_EVENT_PLAYITEM     = 7,  /**< current play item, 0...N-1  */
     BD_EVENT_CHAPTER      = 8,  /**< current chapter, 1...N */
     BD_EVENT_PLAYMARK     = 9,  /**< playmark reached */
-    BD_EVENT_END_OF_TITLE = 10,
+    BD_EVENT_END_OF_TITLE = 10, /**< end of title reached */
 
     /*
      * stream selection
@@ -824,38 +842,38 @@ typedef enum {
 
 /** Event */
 typedef struct {
-    uint32_t   event;  /* bd_event_e */
-    uint32_t   param;
+    uint32_t   event;  /**< Event type (\ref bd_event_e) */
+    uint32_t   param;  /**< Event data */
 } BD_EVENT;
 
 /* BD_EVENT_ERROR param values */
-#define BD_ERROR_HDMV    1
-#define BD_ERROR_BDJ     2
+#define BD_ERROR_HDMV    1                /**< HDMV VM failed to play the title  */
+#define BD_ERROR_BDJ     2                /**< BD-J failed to play the title     */
 
 /* BD_EVENT_ENCRYPTED param vlues */
-#define BD_ERROR_AACS    3
-#define BD_ERROR_BDPLUS  4
+#define BD_ERROR_AACS    3                /**< AACS failed or not supported      */
+#define BD_ERROR_BDPLUS  4                /**< BD+ failed or not supported       */
 
 /* BD_EVENT_TITLE special titles */
-#define BLURAY_TITLE_FIRST_PLAY  0xffff
-#define BLURAY_TITLE_TOP_MENU    0
+#define BLURAY_TITLE_FIRST_PLAY  0xffff   /**< "First Play" title started        */
+#define BLURAY_TITLE_TOP_MENU    0        /**< "Top Menu" title started          */
 
 /* BD_EVENT_KEY_INTEREST flags */
-#define BLURAY_KIT_PLAY          0x1
-#define BLURAY_KIT_STOP          0x2
-#define BLURAY_KIT_FFW           0x4
-#define BLURAY_KIT_REW           0x8
-#define BLURAY_KIT_TRACK_NEXT    0x10
-#define BLURAY_KIT_TRACK_PREV    0x20
-#define BLURAY_KIT_PAUSE         0x40
-#define BLURAY_KIT_STILL_OFF     0x80
-#define BLURAY_KIT_SEC_AUDIO     0x100
-#define BLURAY_KIT_SEC_VIDEO     0x200
-#define BLURAY_KIT_PG_TEXTST     0x400
+#define BLURAY_KIT_PLAY          0x1      /**< BD-J requests to handle "Play" UO          */
+#define BLURAY_KIT_STOP          0x2      /**< BD-J requests to handle "Stop" UO          */
+#define BLURAY_KIT_FFW           0x4      /**< BD-J requests to handle "Fast Forward" UO  */
+#define BLURAY_KIT_REW           0x8      /**< BD-J requests to handle "Reverse" UO       */
+#define BLURAY_KIT_TRACK_NEXT    0x10     /**< BD-J requests to handle "Next Track" UO    */
+#define BLURAY_KIT_TRACK_PREV    0x20     /**< BD-J requests to handle "Prev Track" UO    */
+#define BLURAY_KIT_PAUSE         0x40     /**< BD-J requests to handle "Pause" UO         */
+#define BLURAY_KIT_STILL_OFF     0x80     /**< BD-J requests to handle "Still Off" UO     */
+#define BLURAY_KIT_SEC_AUDIO     0x100    /**< BD-J requests to handle "Sec. Audio" UO    */
+#define BLURAY_KIT_SEC_VIDEO     0x200    /**< BD-J requests to handle "Sec. Video" UO    */
+#define BLURAY_KIT_PG_TEXTST     0x400    /**< BD-J requests to handle "Subtitle" UO      */
 
 /* BD_EVENT_UO_MASK flags */
-#define BLURAY_UO_MENU_CALL      0x1
-#define BLURAY_UO_TITLE_SEARCH   0x2
+#define BLURAY_UO_MENU_CALL      0x1      /**< "Menu Call" masked (not allowed)    */
+#define BLURAY_UO_TITLE_SEARCH   0x2      /**< "Title Search" masked (not allowed) */
 
 /**
  *
@@ -867,6 +885,13 @@ typedef struct {
  */
 int  bd_get_event(BLURAY *bd, BD_EVENT *event);
 
+/**
+ *
+ *  Get name of event
+ *
+ * @param event event type (\ref bd_event_e)
+ * @return 1 on success, 0 if no events
+ */
 const char *bd_event_name(uint32_t /* bd_event_e */ event);
 
 /*
@@ -876,8 +901,22 @@ const char *bd_event_name(uint32_t /* bd_event_e */ event);
 struct bd_overlay_s;      /* defined in overlay.h */
 struct bd_argb_overlay_s; /* defined in overlay.h */
 struct bd_argb_buffer_s;  /* defined in overlay.h */
-typedef void (*bd_overlay_proc_f)(void *, const struct bd_overlay_s * const);
-typedef void (*bd_argb_overlay_proc_f)(void *, const struct bd_argb_overlay_s * const);
+
+/**
+ * YUV overlay handler function type
+ *
+ * @param handle opaque handle that was given to bd_register_overlay_proc()
+ * @param event  \ref BD_OVERLAY event
+ */
+typedef void (*bd_overlay_proc_f)(void *handle, const struct bd_overlay_s * const event);
+
+/**
+ * ARGB overlay handler function type
+ *
+ * @param handle opaque handle that was given to bd_register_argb_overlay_proc()
+ * @param event  \ref BD_ARGB_OVERLAY event
+ */
+typedef void (*bd_argb_overlay_proc_f)(void *handle, const struct bd_argb_overlay_s * const event);
 
 /**
  *
@@ -1033,8 +1072,8 @@ void bd_set_scr(BLURAY *bd, int64_t pts);
  */
 int bd_set_rate(BLURAY *bd, uint32_t rate);
 
-#define BLURAY_RATE_PAUSED  0
-#define BLURAY_RATE_NORMAL  90000
+#define BLURAY_RATE_PAUSED  0      /**< Set playback rate to PAUSED  */
+#define BLURAY_RATE_NORMAL  90000  /**< Set playback rate to NORMAL  */
 
 /**
  *
@@ -1070,11 +1109,17 @@ int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y);
 
 /*
  * Testing and debugging
+ *
+ * Note: parsing functions can't be used with UDF images.
  */
 
 /* access to internal information */
 
 struct clpi_cl;
+struct mpls_pl;
+struct bdjo_data;
+struct mobj_objects;
+
 /**
  *
  *  Get copy of clip information for requested playitem.
@@ -1084,6 +1129,8 @@ struct clpi_cl;
  * @return pointer to allocated CLPI_CL object on success, NULL on error
  */
 struct clpi_cl *bd_get_clpi(BLURAY *bd, unsigned clip_ref);
+
+/** Testing/debugging: Parse clip information (CLPI) file */
 struct clpi_cl *bd_read_clpi(const char *clpi_file);
 
 /**
@@ -1095,22 +1142,27 @@ struct clpi_cl *bd_read_clpi(const char *clpi_file);
 void bd_free_clpi(struct clpi_cl *cl);
 
 
-struct mpls_pl;
+/** Testing/debugging: Parse playlist (MPLS) file */
 struct mpls_pl *bd_read_mpls(const char *mpls_file);
+/** Testing/debugging: Free parsed playlist */
 void bd_free_mpls(struct mpls_pl *);
 
-struct mobj_objects;
+/** Testing/debugging: Parse movie objects (MOBJ) file */
 struct mobj_objects *bd_read_mobj(const char *mobj_file);
+/** Testing/debugging: Free parsed movie objects */
 void bd_free_mobj(struct mobj_objects *);
 
-struct bdjo_data;
+/** Testing/debugging: Parse BD-J object file (BDJO) */
 struct bdjo_data *bd_read_bdjo(const char *bdjo_file);
+/** Testing/debugging: Free parsed BDJO object */
 void bd_free_bdjo(struct bdjo_data *);
 
 /* BD-J testing */
 
-int  bd_start_bdj(BLURAY *bd, const char* start_object); // start BD-J from the specified BD-J object (should be a 5 character string)
-void bd_stop_bdj(BLURAY *bd); // shutdown BD-J and clean up resources
+/** Testing/debugging: start BD-J from the specified BD-J object (should be a 5 character string) */
+int  bd_start_bdj(BLURAY *bd, const char* start_object);
+/** Testing/debugging: shutdown BD-J and clean up resources */
+void bd_stop_bdj(BLURAY *bd);
 
 /**
  *
