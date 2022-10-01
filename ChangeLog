@@ -1,3 +1,8 @@
+- Improve API documentation.
+- Improve JVM probing.
+- Improve support for FreeBSD and Solaris.
+- Improve .jar file search.
+
 2022-09-19: Version 1.3.3
 - Initial support for Java 18.
 - Add support for OpenBSD operating system.
