@@ -83,6 +83,7 @@ int bs_init( BITSTREAM *bs, BD_FILE_H *fp )
     return _bs_read(bs);
 }
 
+#if 0
 void bb_seek( BITBUFFER *bb, int64_t off, int whence)
 {
     int64_t b;
@@ -109,6 +110,7 @@ void bb_seek( BITBUFFER *bb, int64_t off, int whence)
         bb->i_left = i_tmp;
     }
 }
+#endif
 
 static int _bs_seek( BITSTREAM *bs, int64_t off, int whence)
 {
