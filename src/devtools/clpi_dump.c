@@ -295,8 +295,8 @@ _show_cpi_info(CLPI_CPI *cpi, int level)
 static void
 _usage(char *cmd)
 {
-    fprintf(stderr, 
-"Usage: %s -vcspi <clpi file> [<clpi file> ...]\n"
+    fprintf(stderr,
+"Usage: %s [options] <clpi file> [<clpi file> ...]\n"
 "With no options, produces no output (not very useful)\n"
 "Options:\n"
 "    v - Verbose output.\n"

@@ -604,8 +604,8 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
 static void
 _usage(char *cmd)
 {
-    fprintf(stderr, 
-"Usage: %s -vli <mpls file> [<mpls file> ...]\n"
+    fprintf(stderr,
+"Usage: %s [options] <mpls file> [<mpls file> ...]\n"
 "With no options, produces a list of the playlist(s) with durations\n"
 "Options:\n"
 "    v             - Verbose output.\n"
