@@ -438,6 +438,7 @@ public class Libbluray {
             System.err.println("shutdown() failed: " + e + "\n" + Logger.dumpStack(e));
         }
         try {
+            BDJAppProxy.cleanup();
             CacheDir.remove();
         } catch (Throwable e) {
             System.err.println("cleanup failed: " + e + "\n" + Logger.dumpStack(e));
