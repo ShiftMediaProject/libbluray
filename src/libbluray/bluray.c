@@ -1171,9 +1171,11 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
 
 const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd)
 {
+    bd_mutex_lock(&bd->mutex);
     if (!bd->disc) {
         _fill_disc_info(bd, NULL);
     }
+    bd_mutex_unlock(&bd->mutex);
     return &bd->disc_info;
 }
 
@@ -1497,7 +1499,11 @@ static int _bd_open(BLURAY *bd,
     if (!bd) {
         return 0;
     }
+
+    bd_mutex_lock(&bd->mutex);
+
     if (bd->disc) {
+        bd_mutex_unlock(&bd->mutex);
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Disc already open\n");
         return 0;
     }
@@ -1507,10 +1513,13 @@ static int _bd_open(BLURAY *bd,
                          (void*)bd->regs, (void*)bd_psr_read, (void*)bd_psr_write);
 
     if (!bd->disc) {
+        bd_mutex_unlock(&bd->mutex);
         return 0;
     }
 
     _fill_disc_info(bd, &enc_info);
+
+    bd_mutex_unlock(&bd->mutex);
 
     return bd->disc_info.bluray_detected;
 }
