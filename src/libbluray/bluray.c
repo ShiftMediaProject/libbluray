@@ -2826,6 +2826,11 @@ static BLURAY_TITLE_INFO *_get_title_info(BLURAY *bd, uint32_t title_idx, uint32
     NAV_TITLE *title;
     BLURAY_TITLE_INFO *title_info;
 
+    if (playlist > 99999) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Invalid playlist %u!\n", playlist);
+        return NULL;
+    }
+
     /* current title ? => no need to load mpls file */
     bd_mutex_lock(&bd->mutex);
     if (bd->title && bd->title->angle == angle && !strcmp(bd->title->name, mpls_name)) {
