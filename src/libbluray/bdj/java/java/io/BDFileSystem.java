@@ -209,7 +209,7 @@ public abstract class BDFileSystem extends FileSystem {
 
         String resolvedPath = fs.resolve(parent, child);
         String cachePath = BDJLoader.getCachedFile(resolvedPath);
-        if (cachePath != resolvedPath && !cachePath.equals(resolvedPath)) {
+        if (!cachePath.equals(resolvedPath)) {
             logger.info("resolve(p,c): using cached " + cachePath + " (" + resolvedPath + ")");
         }
         return cachePath;
@@ -251,7 +251,7 @@ public abstract class BDFileSystem extends FileSystem {
 
         String resolvedPath = fs.resolve(f);
         String cachePath = BDJLoader.getCachedFile(resolvedPath);
-        if (cachePath != resolvedPath && !cachePath.equals(resolvedPath)) {
+        if (!cachePath.equals(resolvedPath)) {
             logger.info("resolve(f): using cached " + cachePath + " (" + resolvedPath + ")");
         }
         return cachePath;
@@ -263,7 +263,7 @@ public abstract class BDFileSystem extends FileSystem {
 
         String canonPath = fs.canonicalize(path);
         String cachePath = BDJLoader.getCachedFile(canonPath);
-        if (cachePath != canonPath && !cachePath.equals(canonPath)) {
+        if (!cachePath.equals(canonPath)) {
             logger.info("canonicalize(): Using cached " + cachePath + " for " + canonPath + "(" + path + ")");
         }
         return cachePath;
