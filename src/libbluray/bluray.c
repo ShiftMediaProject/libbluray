@@ -3525,6 +3525,8 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             break;
 
         case HDMV_EVENT_PLAY_PL:
+        case HDMV_EVENT_PLAY_PL_PI:
+        case HDMV_EVENT_PLAY_PL_PM:
             if (!_open_playlist(bd, hev->param, 0)) {
                 /* Missing playlist ?
                  * Seen on some discs while checking UHD capability.
@@ -3539,6 +3541,11 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
                     break;
                 }
             } else {
+                if (hev->event == HDMV_EVENT_PLAY_PL_PM) {
+                    bd_seek_mark(bd, hev->param2);
+                } else if (hev->event == HDMV_EVENT_PLAY_PL_PI) {
+                    bd_seek_playitem(bd, hev->param2);
+                }
                 bd->hdmv_num_invalid_pl = 0;
             }
 

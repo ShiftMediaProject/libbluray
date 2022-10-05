@@ -310,6 +310,8 @@ const char *hdmv_event_str(hdmv_event_e event)
         EVENT_ENTRY(HDMV_EVENT_IG_END);
         EVENT_ENTRY(HDMV_EVENT_TITLE);
         EVENT_ENTRY(HDMV_EVENT_PLAY_PL);
+        EVENT_ENTRY(HDMV_EVENT_PLAY_PL_PI);
+        EVENT_ENTRY(HDMV_EVENT_PLAY_PL_PM);
         EVENT_ENTRY(HDMV_EVENT_PLAY_PI);
         EVENT_ENTRY(HDMV_EVENT_PLAY_PM);
         EVENT_ENTRY(HDMV_EVENT_PLAY_STOP);
@@ -336,19 +338,25 @@ static int _get_event(HDMV_VM *p, HDMV_EVENT *ev)
     return -1;
 }
 
-static int _queue_event(HDMV_VM *p, hdmv_event_e event, uint32_t param)
+static int _queue_event2(HDMV_VM *p, hdmv_event_e event, uint32_t param, uint32_t param2)
 {
     unsigned i;
     for (i = 0; i < sizeof(p->event) / sizeof(p->event[0]) - 1; i++) {
         if (p->event[i].event == HDMV_EVENT_NONE) {
             p->event[i].event = event;
             p->event[i].param = param;
+            p->event[i].param2 = param2;
             return 0;
         }
     }
 
-    BD_DEBUG(DBG_HDMV|DBG_CRIT, "_queue_event(%d:%s, %d): queue overflow !\n", event, hdmv_event_str(event), param);
+    BD_DEBUG(DBG_HDMV|DBG_CRIT, "_queue_event(%d:%s, %d %d): queue overflow !\n", event, hdmv_event_str(event), param, param2);
     return -1;
+}
+
+static int _queue_event(HDMV_VM *p, hdmv_event_e event, uint32_t param)
+{
+    return _queue_event2(p, event, param, 0);
 }
 
 /*
@@ -646,16 +654,15 @@ static int _play_at(HDMV_VM *p, unsigned playlist, int playitem, int playmark)
     BD_DEBUG(DBG_HDMV, "play_at(list %u, item %d, mark %d)\n",
           playlist, playitem, playmark);
 
-    _queue_event(p, HDMV_EVENT_PLAY_PL, playlist);
-    _suspend_for_play_pl(p);
-
     if (playitem >= 0) {
-        _queue_event(p, HDMV_EVENT_PLAY_PI, playitem);
+        _queue_event2(p, HDMV_EVENT_PLAY_PL_PI, playlist, playitem);
+    } else if (playmark >= 0) {
+        _queue_event2(p, HDMV_EVENT_PLAY_PL_PM, playlist, playmark);
+    } else {
+        _queue_event(p, HDMV_EVENT_PLAY_PL, playlist);
     }
 
-    if (playmark >= 0) {
-        _queue_event(p, HDMV_EVENT_PLAY_PM, playmark);
-    }
+    _suspend_for_play_pl(p);
 
     return 0;
 }
