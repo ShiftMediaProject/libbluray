@@ -220,11 +220,8 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
     }
 
     public FontMetrics getFontMetrics() {
-        if (font != null && fontMetrics == null) {
-            fontMetrics = BDFontMetrics.getFontMetrics(font);
-        }
         if (fontMetrics == null) {
-            logger.error("getFontMetrics() failed");
+            fontMetrics = BDFontMetrics.getFontMetrics(getFont());
         }
         return fontMetrics;
     }
