@@ -157,6 +157,12 @@ static int _parse_pes(PES_BUFFER *p, uint8_t *buf, unsigned len)
     unsigned pes_length = buf[4] << 8 | buf[5];
     unsigned hdr_len    = 6;
 
+#ifdef __COVERITY__
+    /* Coverity */
+    if (pes_length >= 0xffff)
+      pes_length = 0xffff;
+#endif
+
     if (pes_pid != 0xbf) {
 
         if (len < 9) {
