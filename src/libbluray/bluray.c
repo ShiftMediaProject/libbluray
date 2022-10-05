@@ -439,7 +439,7 @@ static int _is_interactive_title(BLURAY *bd)
 {
     if (bd->titles && bd->title_type != title_undef) {
         unsigned title = bd_psr_read(bd->regs, PSR_TITLE_NUMBER);
-        if (title == 0xffff && bd->disc_info.first_play->interactive) {
+        if (title == BLURAY_TITLE_FIRST_PLAY && bd->disc_info.first_play->interactive) {
             return 1;
         }
         if (title <= bd->disc_info.num_titles && bd->titles[title]) {
@@ -3357,7 +3357,7 @@ static int _play_title(BLURAY *bd, unsigned title)
     /* first play object ? */
     if (title == BLURAY_TITLE_FIRST_PLAY) {
 
-        bd_psr_write(bd->regs, PSR_TITLE_NUMBER, 0xffff); /* 5.2.3.3 */
+        bd_psr_write(bd->regs, PSR_TITLE_NUMBER, BLURAY_TITLE_FIRST_PLAY); /* 5.2.3.3 */
 
         if (!bd->disc_info.first_play_supported) {
             /* no first play title (5.2.3.3) */
