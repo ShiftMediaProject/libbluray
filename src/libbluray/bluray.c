@@ -2519,7 +2519,7 @@ static int _play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmar
         return 1;
     }
 
-    if (!bd_select_playlist(bd, playlist)) {
+    if (!_open_playlist(bd, playlist, 0)) {
         return 0;
     }
 
@@ -3525,7 +3525,7 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             break;
 
         case HDMV_EVENT_PLAY_PL:
-            if (!bd_select_playlist(bd, hev->param)) {
+            if (!_open_playlist(bd, hev->param, 0)) {
                 /* Missing playlist ?
                  * Seen on some discs while checking UHD capability.
                  * It seems only error message playlist is present, on success
