@@ -634,35 +634,47 @@ static int _call_title(HDMV_VM *p, uint32_t title)
  * playback control
  */
 
-static int _play_at(HDMV_VM *p, int playlist, int playitem, int playmark)
+static int _play_at(HDMV_VM *p, unsigned playlist, int playitem, int playmark)
 {
-    if (p->ig_object && playlist >= 0) {
-        BD_DEBUG(DBG_HDMV | DBG_CRIT, "play_at(list %d, item %d, mark %d): "
+    if (p->ig_object) {
+        BD_DEBUG(DBG_HDMV | DBG_CRIT, "play_at(list %u, item %d, mark %d): "
               "playlist change not allowed in interactive composition\n",
               playlist, playitem, playmark);
         return -1;
     }
 
-    if (!p->ig_object && playlist < 0) {
-        BD_DEBUG(DBG_HDMV | DBG_CRIT, "play_at(list %d, item %d, mark %d): "
-              "playlist not given in movie object (link commands not allowed)\n",
-              playlist, playitem, playmark);
-        return -1;
-    }
-
-    BD_DEBUG(DBG_HDMV, "play_at(list %d, item %d, mark %d)\n",
+    BD_DEBUG(DBG_HDMV, "play_at(list %u, item %d, mark %d)\n",
           playlist, playitem, playmark);
 
-    if (playlist >= 0) {
-        _queue_event(p, HDMV_EVENT_PLAY_PL, playlist);
-        _suspend_for_play_pl(p);
-    }
+    _queue_event(p, HDMV_EVENT_PLAY_PL, playlist);
+    _suspend_for_play_pl(p);
 
     if (playitem >= 0) {
         _queue_event(p, HDMV_EVENT_PLAY_PI, playitem);
     }
 
     if (playmark >= 0) {
+        _queue_event(p, HDMV_EVENT_PLAY_PM, playmark);
+    }
+
+    return 0;
+}
+
+static int _link_at(HDMV_VM *p, int playitem, int playmark)
+{
+    if (!p->ig_object) {
+        BD_DEBUG(DBG_HDMV | DBG_CRIT, "link_at(item %d, mark %d): "
+              "link commands not allowed in movie objects\n",
+              playitem, playmark);
+        return -1;
+    }
+
+    if (playitem >= 0) {
+        BD_DEBUG(DBG_HDMV, "link_at(playitem %d)\n", playitem);
+        _queue_event(p, HDMV_EVENT_PLAY_PI, playitem);
+    }
+    else if (playmark >= 0) {
+        BD_DEBUG(DBG_HDMV, "link_at(mark %d)\n", playmark);
         _queue_event(p, HDMV_EVENT_PLAY_PM, playmark);
     }
 
@@ -1093,8 +1105,8 @@ static int _hdmv_step(HDMV_VM *p)
                         case INSN_PLAY_PL:      _play_at(p, dst,  -1,  -1); break;
                         case INSN_PLAY_PL_PI:   _play_at(p, dst, src,  -1); break;
                         case INSN_PLAY_PL_PM:   _play_at(p, dst,  -1, src); break;
-                        case INSN_LINK_PI:      _play_at(p,  -1, dst,  -1); break;
-                        case INSN_LINK_MK:      _play_at(p,  -1,  -1, dst); break;
+                        case INSN_LINK_PI:      _link_at(p,      dst,  -1); break;
+                        case INSN_LINK_MK:      _link_at(p,       -1, dst); break;
                         case INSN_TERMINATE_PL: if (!_play_stop(p)) { inc_pc = 0; } break;
                         default:
                             BD_DEBUG(DBG_HDMV|DBG_CRIT, "unknown BRANCH/PLAY option %d in opcode 0x%08x\n",
