@@ -2423,8 +2423,18 @@ static int _add_known_playlist(BD_DISC *p, const char *mpls_id)
     return result;
 }
 
-static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
+static int _open_playlist(BLURAY *bd, unsigned playlist, unsigned angle)
 {
+    char f_name[12];
+
+    if (playlist > 99999) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Invalid playlist %u!\n", playlist);
+        return 0;
+    }
+    if (snprintf(f_name, sizeof(f_name), "%05u.mpls", playlist) != 10) {
+        return 0;
+    }
+
     if (!bd->title_list && bd->title_type == title_undef) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "open_playlist(%s): bd_play() or bd_get_titles() not called\n", f_name);
         disc_event(bd->disc, DISC_EVENT_START, bd->disc_info.num_titles);
@@ -2479,13 +2489,7 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
 
 int bd_select_playlist(BLURAY *bd, uint32_t playlist)
 {
-    char *f_name;
     int result;
-
-    f_name = str_printf("%05d.mpls", playlist);
-    if (!f_name) {
-        return 0;
-    }
 
     bd_mutex_lock(&bd->mutex);
 
@@ -2500,11 +2504,10 @@ int bd_select_playlist(BLURAY *bd, uint32_t playlist)
         }
     }
 
-    result = _open_playlist(bd, f_name, 0);
+    result = _open_playlist(bd, playlist, 0);
 
     bd_mutex_unlock(&bd->mutex);
 
-    X_FREE(f_name);
     return result;
 }
 
@@ -2545,8 +2548,6 @@ int bd_play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmark, in
 // established by bd_get_titles()
 static int _select_title(BLURAY *bd, uint32_t title_idx)
 {
-    const char *f_name;
-
     // Open the playlist
     if (bd->title_list == NULL) {
         BD_DEBUG(DBG_CRIT | DBG_BLURAY, "Title list not yet read!\n");
@@ -2558,9 +2559,8 @@ static int _select_title(BLURAY *bd, uint32_t title_idx)
     }
 
     bd->title_idx = title_idx;
-    f_name = bd->title_list->title_info[title_idx].name;
 
-    return _open_playlist(bd, f_name, 0);
+    return _open_playlist(bd, bd->title_list->title_info[title_idx].mpls_id, 0);
 }
 
 int bd_select_title(BLURAY *bd, uint32_t title_idx)
