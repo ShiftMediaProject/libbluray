@@ -57,6 +57,9 @@
 #define BD_ASPECT_RATIO_4_3                 2
 #define BD_ASPECT_RATIO_16_9                3
 
+#define BD_COLOR_SPACE_BT_709               1
+#define BD_COLOR_SPACE_BT_2020              2
+
 #define BD_AUDIO_FORMAT_MONO                1
 #define BD_AUDIO_FORMAT_STEREO              3
 #define BD_AUDIO_FORMAT_MULTI_CHAN          6
