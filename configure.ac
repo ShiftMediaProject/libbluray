@@ -17,7 +17,7 @@ m4_define([lt_revision], 2)
 m4_define([lt_age],      4)
 
 dnl initilization
-AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
+AC_INIT([libbluray],[bluray_version],[http://www.videolan.org/developers/libbluray.html])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
