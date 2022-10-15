@@ -138,9 +138,6 @@ AM_PROG_CC_C_O
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 AC_PROG_LIBTOOL
 
-dnl required types
-AC_TYPE_SIGNAL
-
 dnl required headers
 AC_CHECK_HEADERS([stdarg.h sys/types.h dirent.h errno.h libgen.h malloc.h])
 AC_CHECK_HEADERS([stdlib.h mntent.h inttypes.h strings.h])
