@@ -100,7 +100,7 @@ public class Font implements java.io.Serializable {
     public Map getAttributes() {
         Hashtable map = new Hashtable();
         map.put(TextAttribute.FAMILY,  name);
-        map.put(TextAttribute.SIZE,    new Float(size));
+        map.put(TextAttribute.SIZE,    Float.valueOf(size));
         map.put(TextAttribute.WEIGHT,  (style & BOLD)   != 0 ? TextAttribute.WEIGHT_BOLD     : TextAttribute.WEIGHT_REGULAR);
         map.put(TextAttribute.POSTURE, (style & ITALIC) != 0 ? TextAttribute.POSTURE_OBLIQUE : TextAttribute.POSTURE_REGULAR);
         return (Map)map;

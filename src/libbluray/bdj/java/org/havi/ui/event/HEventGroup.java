@@ -26,11 +26,11 @@ public class HEventGroup {
     }
 
     public void addKey(int keycode) {
-        keys.add(new Integer(keycode));
+        keys.add(Integer.valueOf(keycode));
     }
 
     public void removeKey(int keycode) {
-        keys.remove(new Integer(keycode));
+        keys.remove(Integer.valueOf(keycode));
     }
 
     public void addAllNumericKeys() {

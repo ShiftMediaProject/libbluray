@@ -82,7 +82,7 @@ public class HVisible extends HComponent implements HState {
         int states = LAST_STATE - FIRST_STATE + 1;
 
         Object[] oldData = new Object[states + 1];
-        oldData[0] = new Integer(state);
+        oldData[0] = Integer.valueOf(state);
         for (int i = 0; i < states; i++) {
             oldData[(i + 1)] = content[i];
         }
@@ -183,7 +183,7 @@ public class HVisible extends HComponent implements HState {
         if (InteractionState == state)
             return;
 
-        Integer oldState = new Integer(InteractionState);
+        Integer oldState = Integer.valueOf(InteractionState);
         InteractionState = state;
         visibleChanged(STATE_CHANGE, oldState);
     }
@@ -258,7 +258,7 @@ public class HVisible extends HComponent implements HState {
         }
 
         this.halign = halign;
-        visibleChanged(UNKNOWN_CHANGE, new Integer(UNKNOWN_CHANGE));
+        visibleChanged(UNKNOWN_CHANGE, Integer.valueOf(UNKNOWN_CHANGE));
     }
 
     public void setVerticalAlignment(int valign) {
@@ -269,7 +269,7 @@ public class HVisible extends HComponent implements HState {
         }
 
         this.valign = valign;
-        visibleChanged(UNKNOWN_CHANGE, new Integer(UNKNOWN_CHANGE));
+        visibleChanged(UNKNOWN_CHANGE, Integer.valueOf(UNKNOWN_CHANGE));
     }
 
     public int getHorizontalAlignment() {
@@ -288,7 +288,7 @@ public class HVisible extends HComponent implements HState {
         }
 
         resizeMode = resize;
-        visibleChanged(UNKNOWN_CHANGE, new Integer(UNKNOWN_CHANGE));
+        visibleChanged(UNKNOWN_CHANGE, Integer.valueOf(UNKNOWN_CHANGE));
     }
 
     public int getResizeMode() {
@@ -311,7 +311,7 @@ public class HVisible extends HComponent implements HState {
         if ((hLook instanceof HAnimateLook) ||
             (hLook instanceof HGraphicLook) ||
             (hLook instanceof HTextLook)) {
-            Boolean oldMode = new Boolean(BordersEnabled);
+            Boolean oldMode = Boolean.valueOf(BordersEnabled);
             BordersEnabled = enable;
             visibleChanged(BORDER_CHANGE, oldMode);
         }

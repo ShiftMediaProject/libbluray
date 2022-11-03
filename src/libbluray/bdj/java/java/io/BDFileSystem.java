@@ -345,7 +345,7 @@ public abstract class BDFileSystem extends FileSystem {
                 args = new Object[] {(Object)path};
             } catch (NoSuchMethodException e) {
                 m  = fs.getClass().getDeclaredMethod("createFileExclusively", new Class[] { String.class, boolean.class });
-                args = new Object[] {(Object)path, (Object)new Boolean(restrictive)};
+                args = new Object[] {(Object)path, (Object)Boolean.valueOf(restrictive)};
             }
         } catch (NoSuchMethodException e) {
             error("no matching FileSystem.createFileExclusively found !");

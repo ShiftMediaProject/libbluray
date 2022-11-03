@@ -188,13 +188,13 @@ public class HRcCapabilities extends HKeyCapabilities {
     static {
         ArrayList list = new ArrayList();
 
-        list.add(new Integer(HRcEvent.VK_ENTER));
-        list.add(new Integer(HRcEvent.VK_LEFT));
-        list.add(new Integer(HRcEvent.VK_UP));
-        list.add(new Integer(HRcEvent.VK_RIGHT));
-        list.add(new Integer(HRcEvent.VK_DOWN));
+        list.add(Integer.valueOf(HRcEvent.VK_ENTER));
+        list.add(Integer.valueOf(HRcEvent.VK_LEFT));
+        list.add(Integer.valueOf(HRcEvent.VK_UP));
+        list.add(Integer.valueOf(HRcEvent.VK_RIGHT));
+        list.add(Integer.valueOf(HRcEvent.VK_DOWN));
         for (int i = 0; i < 9; i++)
-            list.add(new Integer(HRcEvent.VK_0 + i));
+            list.add(Integer.valueOf(HRcEvent.VK_0 + i));
 
         Field[] fields = org.bluray.ui.event.HRcEvent.class.getFields();
         for (int i = 0; i < fields.length; i++) {
@@ -203,7 +203,7 @@ public class HRcCapabilities extends HKeyCapabilities {
                 try {
                     int keyCode = fields[i].getInt(null);
                     if ((keyCode > HRcEvent.RC_FIRST) && (keyCode <= HRcEvent.VK_PG_TEXTST_ENABLE_DISABLE))
-                        list.add(new Integer(keyCode));
+                        list.add(Integer.valueOf(keyCode));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

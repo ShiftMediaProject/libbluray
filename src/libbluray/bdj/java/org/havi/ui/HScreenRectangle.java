@@ -36,10 +36,10 @@ public class HScreenRectangle {
     }
 
     public int hashCode() {
-        int result = (new Float(x).hashCode());
-        result = 31 * result + (new Float(y).hashCode());
-        result = 31 * result + (new Float(width).hashCode());
-        result = 31 * result + (new Float(height).hashCode());
+        int result = (Float.valueOf(x).hashCode());
+        result = 31 * result + (Float.valueOf(y).hashCode());
+        result = 31 * result + (Float.valueOf(width).hashCode());
+        result = 31 * result + (Float.valueOf(height).hashCode());
         return result;
     }
 
@@ -49,14 +49,14 @@ public class HScreenRectangle {
             return false;
 
         HScreenRectangle other = (HScreenRectangle)obj;
-        Float x1 = new Float(this.x);
-        Float y1 = new Float(this.y);
-        Float w1 = new Float(this.width);
-        Float h1 = new Float(this.height);
-        Float x2 = new Float(other.x);
-        Float y2 = new Float(other.y);
-        Float w2 = new Float(other.width);
-        Float h2 = new Float(other.height);
+        Float x1 = Float.valueOf(this.x);
+        Float y1 = Float.valueOf(this.y);
+        Float w1 = Float.valueOf(this.width);
+        Float h1 = Float.valueOf(this.height);
+        Float x2 = Float.valueOf(other.x);
+        Float y2 = Float.valueOf(other.y);
+        Float w2 = Float.valueOf(other.width);
+        Float h2 = Float.valueOf(other.height);
         return x1.equals(x2) && y1.equals(y2) && w1.equals(w2) && h1.equals(h2);
     }
 

@@ -92,7 +92,7 @@ class BDJAppProxy implements DVBJProxy, Runnable {
     }
 
     public void stop(boolean force, int timeout) {
-        AppCommand cmd = new AppCommand(AppCommand.CMD_STOP, new Boolean(force));
+        AppCommand cmd = new AppCommand(AppCommand.CMD_STOP, Boolean.valueOf(force));
         synchronized (cmds) {
             cmds.addLast(cmd);
             cmds.notifyAll();
@@ -141,7 +141,7 @@ class BDJAppProxy implements DVBJProxy, Runnable {
     }
 
     protected void release() {
-        AppCommand cmd = new AppCommand(AppCommand.CMD_STOP, new Boolean(true));
+        AppCommand cmd = new AppCommand(AppCommand.CMD_STOP, Boolean.valueOf(true));
         synchronized (cmds) {
             cmds.addLast(cmd);
             cmds.addLast(null);

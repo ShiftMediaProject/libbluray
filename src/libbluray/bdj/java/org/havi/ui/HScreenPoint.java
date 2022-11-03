@@ -30,7 +30,7 @@ public class HScreenPoint {
     }
 
     public int hashCode() {
-        return (new Float(x).hashCode()) + 31 * (new Float(y).hashCode());
+        return (Float.valueOf(x).hashCode()) + 31 * (Float.valueOf(y).hashCode());
     }
 
     public boolean equals(Object obj)
@@ -39,10 +39,10 @@ public class HScreenPoint {
             return false;
 
         HScreenPoint other = (HScreenPoint)obj;
-        Float x1 = new Float(this.x);
-        Float y1 = new Float(this.y);
-        Float x2 = new Float(other.x);
-        Float y2 = new Float(other.y);
+        Float x1 = Float.valueOf(this.x);
+        Float y1 = Float.valueOf(this.y);
+        Float x2 = Float.valueOf(other.x);
+        Float y2 = Float.valueOf(other.y);
         return x1.equals(x2) && y1.equals(y2);
     }
 

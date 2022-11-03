@@ -146,13 +146,13 @@ public interface Opcodes {
      */
     int F_SAME1 = 4;
 
-    Integer TOP = new Integer(0);
-    Integer INTEGER = new Integer(1);
-    Integer FLOAT = new Integer(2);
-    Integer DOUBLE = new Integer(3);
-    Integer LONG = new Integer(4);
-    Integer NULL = new Integer(5);
-    Integer UNINITIALIZED_THIS = new Integer(6);
+    Integer TOP = Integer.valueOf(0);
+    Integer INTEGER = Integer.valueOf(1);
+    Integer FLOAT = Integer.valueOf(2);
+    Integer DOUBLE = Integer.valueOf(3);
+    Integer LONG = Integer.valueOf(4);
+    Integer NULL = Integer.valueOf(5);
+    Integer UNINITIALIZED_THIS = Integer.valueOf(6);
 
     // opcodes // visit method (- = idem)
 

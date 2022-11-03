@@ -721,7 +721,7 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
             for (int j = 0; j < nPoints; j++) {
                 if (polyEdges[j].intersects(i)) {
                     int x = polyEdges[j].intersectionX(i);
-                    xList.add(new Integer(x));
+                    xList.add(Integer.valueOf(x));
                 }
             }
 
