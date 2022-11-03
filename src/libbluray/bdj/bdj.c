@@ -415,6 +415,7 @@ static void *_load_jvm(const char **p_java_home, const char *app_java_home)
                                             "/etc/alternatives/java_sdk",
                                             "/usr/lib/jvm/default-java",
                                             "/usr/lib/jvm/default",
+                                            "/usr/lib/jvm/jre",
                                             "/usr/lib/jvm/",
                                             "/etc/java-config-2/current-system-vm",
                                             "/usr/lib/jvm/java-8-openjdk",
