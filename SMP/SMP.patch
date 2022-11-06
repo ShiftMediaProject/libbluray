@@ -148,7 +148,7 @@ index 6155ad6a..a7e24757 100644
          if (lib_path) {
              /* cut library name from path */
 diff --git a/src/libbluray/bdj/bdj.c b/src/libbluray/bdj/bdj.c
-index 1cb1bfeb..9f0976f7 100644
+index df449269..b7a02db6 100644
 --- a/src/libbluray/bdj/bdj.c
 +++ b/src/libbluray/bdj/bdj.c
 @@ -49,6 +49,9 @@
@@ -225,7 +225,7 @@ index d45be33c..5a5a7ab6 100644
  
  #define DEFAULT_LANGUAGE  "eng"
 diff --git a/src/libbluray/bluray.c b/src/libbluray/bluray.c
-index c4273c0b..b16c5d99 100644
+index ee647392..e9d0c49d 100644
 --- a/src/libbluray/bluray.c
 +++ b/src/libbluray/bluray.c
 @@ -58,6 +58,12 @@
