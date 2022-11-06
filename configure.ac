@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([bluray_major], 1)
 m4_define([bluray_minor], 3)
-m4_define([bluray_micro], 2)
+m4_define([bluray_micro], 3)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
 dnl shared library version (.so version)
@@ -13,7 +13,7 @@ dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
 m4_define([lt_current],  6)
-m4_define([lt_revision], 1)
+m4_define([lt_revision], 2)
 m4_define([lt_age],      4)
 
 dnl initilization
@@ -52,6 +52,10 @@ case "${host_os}" in
     SYS=netbsd
     CFLAGS="${CFLAGS} -D_NETBSD_SOURCE"
     ;;
+  openbsd*)
+    SYS=openbsd
+    CFLAGS="${CFLAGS} -D_BSD_SOURCE"
+    ;;
   freebsd*)
     SYS=freebsd
     CFLAGS="${CFLAGS} -D_XOPEN_SOURCE=700"
@@ -61,8 +65,16 @@ case "${host_os}" in
     ;;
 esac
 
+dnl Falsely enables for NetBSD
+dnl warning: warning: reference to obsolete getfsstat(); use getvfsstat()
+AS_IF([test "${SYS}" != "netbsd"], [
+  AC_CHECK_FUNCS([getfsstat])
+])
+AC_CHECK_FUNCS([getvfsstat])
+
 AM_CONDITIONAL(HAVE_WIN32,   test "${SYS}" = "mingw32")
 AM_CONDITIONAL(HAVE_DARWIN,  test "${SYS}" = "darwin")
+AM_CONDITIONAL(HAVE_GETFSSTAT, test "${ac_cv_func_getfsstat}" = "yes" -o "${ac_cv_func_getvfsstat}" = "yes")
 
 dnl messages
 library_not_found="Could not find required library!"
@@ -238,6 +250,7 @@ case $host_os in
      solaris*) java_os=solaris ;;
      darwin*)  java_os=darwin ;;
      netbsd*)  java_os=netbsd ;;
+     openbsd*) java_os=openbsd ;;
      *)        java_os=$host_os ;;
 esac
 

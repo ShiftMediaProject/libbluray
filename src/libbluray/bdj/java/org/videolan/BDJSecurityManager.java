@@ -33,6 +33,7 @@ final class BDJSecurityManager extends SecurityManager {
     private String budaRoot;
     private String persistentRoot;
     private boolean usingUdf = false;
+    private int javaMajor;
 
     private static Class urlPermission = null;
     static {
@@ -43,11 +44,12 @@ final class BDJSecurityManager extends SecurityManager {
         }
     }
 
-    BDJSecurityManager(String discRoot, String persistentRoot, String budaRoot) {
+    BDJSecurityManager(String discRoot, String persistentRoot, String budaRoot, int javaMajor) {
         this.discRoot  = discRoot;
         this.cacheRoot = null;
         this.budaRoot  = budaRoot;
         this.persistentRoot = persistentRoot;
+        this.javaMajor = javaMajor;
         if (discRoot == null) {
             usingUdf = true;
         }
@@ -104,7 +106,12 @@ final class BDJSecurityManager extends SecurityManager {
                 deny(perm);
             }
             if (perm.implies(new RuntimePermission("setSecurityManager"))) {
-                if (classDepth0("org.videolan.Libbluray") == 3) {
+
+                // Starting Java 17, the depth callback of setSecurityManager has changed as
+                // it now includes implSetSecurityManager . As we do not want the Xlets to
+                // be able to disable sandboxing we do check at runtime the Java version and
+                // then change the depth callback as needed below.
+                if ((classDepth0("org.videolan.Libbluray") == 3) || ((classDepth0("org.videolan.Libbluray") == 4) && (this.javaMajor > 16))) {
                     return;
                 }
                 deny(perm);
