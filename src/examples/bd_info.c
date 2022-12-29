@@ -35,27 +35,27 @@ static const char *_str_chk_null(const char *s)
     return s ? s : "<undefined>";
 }
 
-static const char *_num2str(int i)
+static const char *_num2str(char *buf, size_t buf_size, int i)
 {
     if (i > 0 && i < 0xff) {
-        static char str[32];
-        sprintf(str, "%d", i);
-        return str;
+        if (snprintf(buf, buf_size, "%d", i) > 0) {
+            buf[buf_size - 1] = 0;
+            return buf;
+        }
+        return "<?>";
     }
 
     return "<undefined>";
 }
 
-static const char *_hex2str(const uint8_t *data, size_t len)
+static const char *_hex2str(char *str, size_t str_size, const uint8_t *data, size_t len)
 {
-    static char *str = NULL;
     size_t i;
 
-    str = (char*)realloc(str, 2*len + 1);
-    if (!str)
-        return "";
-    *str = 0;
+    if (str_size < 3 || (str_size-1)/2 < len)
+        return "<overflow>";
 
+    *str = 0;
     for (i = 0; i < len; i++) {
         sprintf(str+2*i, "%02X", data[i]);
     }
@@ -76,12 +76,13 @@ static const char *_aacs_error2str(int error_code)
     return "unknown error";
 }
 
-static const char *_res2str(int x, int y)
+static const char *_res2str(char *str, size_t str_size, int x, int y)
 {
     if (x > 0 && y > 0 && x < 0xffff && y < 0xffff) {
-        static char str[64];
-        sprintf(str, "%dx%d", x, y);
-        return str;
+        if (snprintf(str, str_size, "%dx%d", x, y) > 0) {
+            str[str_size - 1] = 0;
+            return str;
+        }
     }
 
     return "";
@@ -95,13 +96,14 @@ static void _print_meta(const META_DL *meta)
     }
 
     unsigned ii;
+    char num1[32], num2[32], res[64];
 
     printf("\nDisc library metadata:\n");
     printf("Metadata file       : %s\n", _str_chk_null(meta->filename));
     printf("Language            : %s\n", _str_chk_null(meta->language_code));
     printf("Disc name           : %s\n", _str_chk_null(meta->di_name));
     printf("Alternative         : %s\n", _str_chk_null(meta->di_alternative));
-    printf("Disc #              : %s/%s\n", _num2str(meta->di_set_number), _num2str(meta->di_num_sets));
+    printf("Disc #              : %s/%s\n", _num2str(num1, sizeof(num1), meta->di_set_number), _num2str(num2, sizeof(num2), meta->di_num_sets));
 
     printf("TOC count           : %d\n", meta->toc_count);
     for (ii = 0; ii < meta->toc_count; ii++) {
@@ -114,7 +116,7 @@ static void _print_meta(const META_DL *meta)
     for (ii = 0; ii < meta->thumb_count; ii++) {
         printf("\t%s \t%s\n",
                _str_chk_null(meta->thumbnails[ii].path),
-               _res2str(meta->thumbnails[ii].xres, meta->thumbnails[ii].yres));
+               _res2str(res, sizeof(res), meta->thumbnails[ii].xres, meta->thumbnails[ii].yres));
     }
 }
 
@@ -204,7 +206,8 @@ int main(int argc, char *argv[])
     if (info->aacs_detected) {
         printf("libaacs detected    : %s\n", _yes_no(info->libaacs_detected));
         if (info->libaacs_detected) {
-          printf("Disc ID             : %s\n", _hex2str(info->disc_id, sizeof(info->disc_id)));
+          char buf[sizeof(info->disc_id) * 2 + 1];
+          printf("Disc ID             : %s\n", _hex2str(buf, sizeof(buf), info->disc_id, sizeof(info->disc_id)));
           printf("AACS MKB version    : %d\n", info->aacs_mkbv);
           printf("AACS handled        : %s\n", _yes_no(info->aacs_handled));
           if (!info->aacs_handled) {

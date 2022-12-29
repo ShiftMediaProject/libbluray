@@ -445,7 +445,7 @@ static int _is_interactive_title(BLURAY *bd)
 {
     if (bd->titles && bd->title_type != title_undef) {
         unsigned title = bd_psr_read(bd->regs, PSR_TITLE_NUMBER);
-        if (title == 0xffff && bd->disc_info.first_play->interactive) {
+        if (title == BLURAY_TITLE_FIRST_PLAY && bd->disc_info.first_play->interactive) {
             return 1;
         }
         if (title <= bd->disc_info.num_titles && bd->titles[title]) {
@@ -1177,9 +1177,11 @@ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
 
 const BLURAY_DISC_INFO *bd_get_disc_info(BLURAY *bd)
 {
+    bd_mutex_lock(&bd->mutex);
     if (!bd->disc) {
         _fill_disc_info(bd, NULL);
     }
+    bd_mutex_unlock(&bd->mutex);
     return &bd->disc_info;
 }
 
@@ -1503,7 +1505,11 @@ static int _bd_open(BLURAY *bd,
     if (!bd) {
         return 0;
     }
+
+    bd_mutex_lock(&bd->mutex);
+
     if (bd->disc) {
+        bd_mutex_unlock(&bd->mutex);
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Disc already open\n");
         return 0;
     }
@@ -1513,10 +1519,13 @@ static int _bd_open(BLURAY *bd,
                          (void*)bd->regs, (void*)bd_psr_read, (void*)bd_psr_write);
 
     if (!bd->disc) {
+        bd_mutex_unlock(&bd->mutex);
         return 0;
     }
 
     _fill_disc_info(bd, &enc_info);
+
+    bd_mutex_unlock(&bd->mutex);
 
     return bd->disc_info.bluray_detected;
 }
@@ -2420,8 +2429,18 @@ static int _add_known_playlist(BD_DISC *p, const char *mpls_id)
     return result;
 }
 
-static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
+static int _open_playlist(BLURAY *bd, unsigned playlist, unsigned angle)
 {
+    char f_name[12];
+
+    if (playlist > 99999) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Invalid playlist %u!\n", playlist);
+        return 0;
+    }
+    if (snprintf(f_name, sizeof(f_name), "%05u.mpls", playlist) != 10) {
+        return 0;
+    }
+
     if (!bd->title_list && bd->title_type == title_undef) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "open_playlist(%s): bd_play() or bd_get_titles() not called\n", f_name);
         disc_event(bd->disc, DISC_EVENT_START, bd->disc_info.num_titles);
@@ -2476,13 +2495,7 @@ static int _open_playlist(BLURAY *bd, const char *f_name, unsigned angle)
 
 int bd_select_playlist(BLURAY *bd, uint32_t playlist)
 {
-    char *f_name;
     int result;
-
-    f_name = str_printf("%05d.mpls", playlist);
-    if (!f_name) {
-        return 0;
-    }
 
     bd_mutex_lock(&bd->mutex);
 
@@ -2497,11 +2510,10 @@ int bd_select_playlist(BLURAY *bd, uint32_t playlist)
         }
     }
 
-    result = _open_playlist(bd, f_name, 0);
+    result = _open_playlist(bd, playlist, 0);
 
     bd_mutex_unlock(&bd->mutex);
 
-    X_FREE(f_name);
     return result;
 }
 
@@ -2513,7 +2525,7 @@ static int _play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmar
         return 1;
     }
 
-    if (!bd_select_playlist(bd, playlist)) {
+    if (!_open_playlist(bd, playlist, 0)) {
         return 0;
     }
 
@@ -2540,11 +2552,8 @@ int bd_play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmark, in
 // Select a title for playback
 // The title index is an index into the list
 // established by bd_get_titles()
-int bd_select_title(BLURAY *bd, uint32_t title_idx)
+static int _select_title(BLURAY *bd, uint32_t title_idx)
 {
-    const char *f_name;
-    int result;
-
     // Open the playlist
     if (bd->title_list == NULL) {
         BD_DEBUG(DBG_CRIT | DBG_BLURAY, "Title list not yet read!\n");
@@ -2555,13 +2564,17 @@ int bd_select_title(BLURAY *bd, uint32_t title_idx)
         return 0;
     }
 
-    bd_mutex_lock(&bd->mutex);
-
     bd->title_idx = title_idx;
-    f_name = bd->title_list->title_info[title_idx].name;
 
-    result = _open_playlist(bd, f_name, 0);
+    return _open_playlist(bd, bd->title_list->title_info[title_idx].mpls_id, 0);
+}
 
+int bd_select_title(BLURAY *bd, uint32_t title_idx)
+{
+    int result;
+
+    bd_mutex_lock(&bd->mutex);
+    result = _select_title(bd, title_idx);
     bd_mutex_unlock(&bd->mutex);
 
     return result;
@@ -2643,38 +2656,55 @@ void bd_seamless_angle_change(BLURAY *bd, unsigned angle)
 
 uint32_t bd_get_titles(BLURAY *bd, uint8_t flags, uint32_t min_title_length)
 {
+    NAV_TITLE_LIST *title_list;
+    uint32_t count;
+
     if (!bd) {
         return 0;
     }
 
-    nav_free_title_list(&bd->title_list);
-    bd->title_list = nav_get_title_list(bd->disc, flags, min_title_length);
-
-    if (!bd->title_list) {
+    title_list = nav_get_title_list(bd->disc, flags, min_title_length);
+    if (!title_list) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "nav_get_title_list(%s) failed\n", disc_root(bd->disc));
         return 0;
     }
 
-    disc_event(bd->disc, DISC_EVENT_START, bd->disc_info.num_titles);
+    bd_mutex_lock(&bd->mutex);
 
-    return bd->title_list->count;
+    nav_free_title_list(&bd->title_list);
+    bd->title_list = title_list;
+
+    disc_event(bd->disc, DISC_EVENT_START, bd->disc_info.num_titles);
+    count = bd->title_list->count;
+
+    bd_mutex_unlock(&bd->mutex);
+
+    return count;
 }
 
 int bd_get_main_title(BLURAY *bd)
 {
+    int main_title_idx = -1;
+
     if (!bd) {
         return -1;
     }
+
+    bd_mutex_lock(&bd->mutex);
+
     if (bd->title_type != title_undef) {
         BD_DEBUG(DBG_CRIT | DBG_BLURAY, "bd_get_main_title() can't be used with BluRay menus\n");
     }
 
     if (bd->title_list == NULL) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title list not yet read!\n");
-        return -1;
+    } else {
+        main_title_idx = bd->title_list->main_title_idx;
     }
 
-    return bd->title_list->main_title_idx;
+    bd_mutex_unlock(&bd->mutex);
+
+    return main_title_idx;
 }
 
 static int _copy_streams(const NAV_CLIP *clip, BLURAY_STREAM_INFO **pstreams,
@@ -2796,11 +2826,20 @@ static BLURAY_TITLE_INFO* _fill_title_info(NAV_TITLE* title, uint32_t title_idx,
     return NULL;
 }
 
-static BLURAY_TITLE_INFO *_get_title_info(BLURAY *bd, uint32_t title_idx, uint32_t playlist, const char *mpls_name,
-                                          unsigned angle)
+static BLURAY_TITLE_INFO *_get_mpls_info(BLURAY *bd, uint32_t title_idx, uint32_t playlist, unsigned angle)
 {
     NAV_TITLE *title;
     BLURAY_TITLE_INFO *title_info;
+    char mpls_name[11];
+
+    if (playlist > 99999) {
+        BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Invalid playlist %u!\n", playlist);
+        return NULL;
+    }
+
+    if (snprintf(mpls_name, sizeof(mpls_name), "%05u.mpls", playlist) != 10) {
+        return NULL;
+    }
 
     /* current title ? => no need to load mpls file */
     bd_mutex_lock(&bd->mutex);
@@ -2825,36 +2864,29 @@ static BLURAY_TITLE_INFO *_get_title_info(BLURAY *bd, uint32_t title_idx, uint32
 
 BLURAY_TITLE_INFO* bd_get_title_info(BLURAY *bd, uint32_t title_idx, unsigned angle)
 {
+    int  mpls_id = -1;
+
+    bd_mutex_lock(&bd->mutex);
+
     if (bd->title_list == NULL) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Title list not yet read!\n");
-        return NULL;
-    }
-    if (bd->title_list->count <= title_idx) {
+    } else if (bd->title_list->count <= title_idx) {
         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Invalid title index %d!\n", title_idx);
-        return NULL;
+    } else {
+        mpls_id = bd->title_list->title_info[title_idx].mpls_id;
     }
 
-    return _get_title_info(bd,
-                           title_idx, bd->title_list->title_info[title_idx].mpls_id,
-                           bd->title_list->title_info[title_idx].name,
-                           angle);
+    bd_mutex_unlock(&bd->mutex);
+
+    if (mpls_id < 0)
+        return NULL;
+
+    return _get_mpls_info(bd, title_idx, mpls_id, angle);
 }
 
 BLURAY_TITLE_INFO* bd_get_playlist_info(BLURAY *bd, uint32_t playlist, unsigned angle)
 {
-    char *f_name;
-    BLURAY_TITLE_INFO *title_info;
-
-    f_name = str_printf("%05d.mpls", playlist);
-    if (!f_name) {
-        return NULL;
-    }
-
-    title_info = _get_title_info(bd, 0, playlist, f_name, angle);
-
-    X_FREE(f_name);
-
-    return title_info;
+    return _get_mpls_info(bd, 0, playlist, angle);
 }
 
 void bd_free_title_info(BLURAY_TITLE_INFO *title_info)
@@ -3331,7 +3363,7 @@ static int _play_title(BLURAY *bd, unsigned title)
     /* first play object ? */
     if (title == BLURAY_TITLE_FIRST_PLAY) {
 
-        bd_psr_write(bd->regs, PSR_TITLE_NUMBER, 0xffff); /* 5.2.3.3 */
+        bd_psr_write(bd->regs, PSR_TITLE_NUMBER, BLURAY_TITLE_FIRST_PLAY); /* 5.2.3.3 */
 
         if (!bd->disc_info.first_play_supported) {
             /* no first play title (5.2.3.3) */
@@ -3499,7 +3531,9 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
             break;
 
         case HDMV_EVENT_PLAY_PL:
-            if (!bd_select_playlist(bd, hev->param)) {
+        case HDMV_EVENT_PLAY_PL_PI:
+        case HDMV_EVENT_PLAY_PL_PM:
+            if (!_open_playlist(bd, hev->param, 0)) {
                 /* Missing playlist ?
                  * Seen on some discs while checking UHD capability.
                  * It seems only error message playlist is present, on success
@@ -3513,6 +3547,11 @@ static void _process_hdmv_vm_event(BLURAY *bd, HDMV_EVENT *hev)
                     break;
                 }
             } else {
+                if (hev->event == HDMV_EVENT_PLAY_PL_PM) {
+                    bd_seek_mark(bd, hev->param2);
+                } else if (hev->event == HDMV_EVENT_PLAY_PL_PI) {
+                    bd_seek_playitem(bd, hev->param2);
+                }
                 bd->hdmv_num_invalid_pl = 0;
             }
 

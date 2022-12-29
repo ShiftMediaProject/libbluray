@@ -220,11 +220,8 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
     }
 
     public FontMetrics getFontMetrics() {
-        if (font != null && fontMetrics == null) {
-            fontMetrics = BDFontMetrics.getFontMetrics(font);
-        }
         if (fontMetrics == null) {
-            logger.error("getFontMetrics() failed");
+            fontMetrics = BDFontMetrics.getFontMetrics(getFont());
         }
         return fontMetrics;
     }
@@ -724,7 +721,7 @@ abstract class BDGraphicsBase extends DVBGraphics implements ConstrainableGraphi
             for (int j = 0; j < nPoints; j++) {
                 if (polyEdges[j].intersects(i)) {
                     int x = polyEdges[j].intersectionX(i);
-                    xList.add(new Integer(x));
+                    xList.add(Integer.valueOf(x));
                 }
             }
 

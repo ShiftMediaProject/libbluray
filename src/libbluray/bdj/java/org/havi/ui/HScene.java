@@ -290,17 +290,17 @@ public class HScene extends Container implements HComponentOrdering {
         if (!hasComp)
             return false;
 
-        shortcuts.put(new Integer(keyCode), act);
+        shortcuts.put(Integer.valueOf(keyCode), act);
 
         return true;
     }
 
     public void removeShortcut(int keyCode) {
-        shortcuts.remove(new Integer(keyCode));
+        shortcuts.remove(Integer.valueOf(keyCode));
     }
 
     public HActionable getShortcutComponent(int keyCode) {
-        return (HActionable)shortcuts.get(new Integer(keyCode));
+        return (HActionable)shortcuts.get(Integer.valueOf(keyCode));
     }
 
     public void enableShortcuts(boolean enable) {

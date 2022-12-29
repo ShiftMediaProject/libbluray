@@ -153,7 +153,8 @@ public class Libbluray {
                 method.invoke(null, new Object [] { (Object)sm } );
                 return;
             } catch (Exception ex2) {
-                throw ex;
+                System.err.println("" + ex2);
+                throw new RuntimeException("", ex);
             }
         }
     }
@@ -434,9 +435,14 @@ public class Libbluray {
             Status.shutdown();
             ServiceContextFactoryImpl.shutdown();
             FontFactory.unloadDiscFonts();
-            CacheDir.remove();
         } catch (Throwable e) {
             System.err.println("shutdown() failed: " + e + "\n" + Logger.dumpStack(e));
+        }
+        try {
+            BDJAppProxy.cleanup();
+            CacheDir.remove();
+        } catch (Throwable e) {
+            System.err.println("cleanup failed: " + e + "\n" + Logger.dumpStack(e));
         }
         nativePointer = 0;
         titleInfos = null;
@@ -760,7 +766,7 @@ public class Libbluray {
             case 404: key = HRcEvent.VK_COLORED_KEY_1; break;
             case 405: key = HRcEvent.VK_COLORED_KEY_2; break;
             case 406: key = HRcEvent.VK_COLORED_KEY_3; break;
-            case 17:
+            case 17: /* BD_VK_MOUSE_ACTIVATE */
                 result = false;
                 if ((param & 0x80000000) != 0) {
                     result = java.awt.BDJHelper.postMouseEvent(MouseEvent.MOUSE_PRESSED) || result;

@@ -25,11 +25,11 @@ libtool
 .deps
 .libs
 src/libbluray/bluray-version.h
-bdsplice
+bd_splice
 clpi_dump
 index_dump
 libbluray_test
-list_titles
+bd_list_titles
 mobj_dump
 mpls_dump
 sound_dump

@@ -61,7 +61,7 @@ public class MountManager {
         synchronized (mountPoints) {
 
             // already mounted ?
-            MountPoint mountPoint = (MountPoint)mountPoints.get(new Integer(jarId));
+            MountPoint mountPoint = (MountPoint)mountPoints.get(Integer.valueOf(jarId));
             if (mountPoint != null) {
                 logger.info("JAR " + jarId + " already mounted");
                 mountPoint.incRefCount();
@@ -169,7 +169,7 @@ public class MountManager {
             } else {
                 logger.info("Mounting " + (classFiles ? "FULL" : "PARTIAL") + " JAR " + jarId + " complete.");
 
-                mountPoints.put(new Integer(jarId), mountPoint);
+                mountPoints.put(Integer.valueOf(jarId), mountPoint);
             }
 
             return mountPoint.getMountPoint();
@@ -179,7 +179,7 @@ public class MountManager {
     private static void unmount(int jarId) {
         logger.info("Unmounting JAR: " + jarId);
 
-        final Integer id = new Integer(jarId);
+        final Integer id = Integer.valueOf(jarId);
         final MountPoint mountPoint;
 
         synchronized (mountPoints) {
@@ -222,7 +222,7 @@ public class MountManager {
 
     /* called from org/dvb/dsmcc/ServiceDomain */
     public static String getMount(int jarId) {
-        Integer id = new Integer(jarId);
+        Integer id = Integer.valueOf(jarId);
         MountPoint mountPoint;
 
         synchronized (mountPoints) {

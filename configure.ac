@@ -1,7 +1,7 @@
 dnl library version number
 m4_define([bluray_major], 1)
 m4_define([bluray_minor], 3)
-m4_define([bluray_micro], 3)
+m4_define([bluray_micro], 4)
 m4_define([bluray_version],[bluray_major.bluray_minor.bluray_micro])
 
 dnl shared library version (.so version)
@@ -13,11 +13,11 @@ dnl
 dnl Library file name will be libbluray.so.(current-age).age.revision
 dnl
 m4_define([lt_current],  6)
-m4_define([lt_revision], 2)
+m4_define([lt_revision], 3)
 m4_define([lt_age],      4)
 
 dnl initilization
-AC_INIT([libbluray], bluray_version, [http://www.videolan.org/developers/libbluray.html])
+AC_INIT([libbluray],[bluray_version],[http://www.videolan.org/developers/libbluray.html])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
@@ -58,7 +58,11 @@ case "${host_os}" in
     ;;
   freebsd*)
     SYS=freebsd
-    CFLAGS="${CFLAGS} -D_XOPEN_SOURCE=700"
+    CFLAGS="${CFLAGS} -D__BSD_VISIBLE=1 -D__XSI_VISIBLE=1"
+    ;;
+  solaris*)
+    SYS=solaris
+    CFLAGS="${CFLAGS} -D__EXTENSIONS__"
     ;;
   *)
     SYS="${host_os}"
@@ -128,18 +132,21 @@ AC_ARG_WITH([bdj-bootclasspath],
 AC_ARG_WITH([java9],
   [AS_HELP_STRING([--with-java9], [build with Java 9+ (drop support for Java <1.6) @<:@default=without@:>@])])
 
+AC_ARG_WITH([external-libudfread],
+  [AS_HELP_STRING([--without-external-libudfread],
+  [build without external libudfread @<:@default=with@:>@])],
+  [with_external_libudfread=$withwal],
+  [with_external_libudfread=yes])
+
 dnl required programs
 AC_PROG_CC
 AM_PROG_CC_C_O
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
-AC_PROG_LIBTOOL
-
-dnl required types
-AC_TYPE_SIGNAL
+LT_INIT
 
 dnl required headers
 AC_CHECK_HEADERS([stdarg.h sys/types.h dirent.h errno.h libgen.h malloc.h])
-AC_CHECK_HEADERS([stdlib.h mntent.h linux/cdrom.h inttypes.h strings.h])
+AC_CHECK_HEADERS([stdlib.h mntent.h inttypes.h strings.h])
 AC_CHECK_HEADERS([sys/time.h time.h mntent.h])
 
 dnl required structures
@@ -309,11 +316,14 @@ AM_CONDITIONAL([BDJ_J2SE], [ test x"$BDJ_TYPE" != x"j2me" ])
 dnl bootclasspath
 AC_SUBST(BDJ_BOOTCLASSPATH)
 
-PKG_CHECK_MODULES([LIBUDFREAD], [libudfread >= 1.1.0],
-    [with_libudfread=yes
-     AC_DEFINE([HAVE_LIBUDFREAD], [1], [Define to 1 if external libudfread is to be used])
-     PACKAGES="$PACKAGES libudfread >= 1.1.0"
-    ],[
+AS_IF([test "x$with_external_libudfread" = "xyes"], [
+    PKG_CHECK_MODULES([LIBUDFREAD], [libudfread >= 1.1.0],
+        [with_libudfread=yes
+         AC_DEFINE([HAVE_LIBUDFREAD], [1], [Define to 1 if external libudfread is to be used])
+         PACKAGES="$PACKAGES libudfread >= 1.1.0"
+        ],[break;])
+])
+AS_IF([test "x$with_libudfread" != "xyes"], [
      dnl udf support (using git submodule)
      with_libudfread=no
      AS_IF([test ! -f "${srcdir}/contrib/libudfread/src/udfread.h"], [AC_MSG_ERROR("libudfread source tree not found")])

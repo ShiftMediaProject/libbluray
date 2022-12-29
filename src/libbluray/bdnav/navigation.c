@@ -106,6 +106,7 @@ static int _stream_cmp(const MPLS_STREAM *a, const MPLS_STREAM *b)
         a->format      == b->format      &&
         a->rate        == b->rate        &&
         a->char_code   == b->char_code   &&
+        a->color_space == b->color_space &&
         memcmp(a->lang, b->lang, 4) == 0) {
         return 0;
     }

@@ -29,16 +29,16 @@ public class HSceneTemplate extends Object {
     }
 
     public void setPreference(int preference, Object object, int priority) {
-        preferenceMap.put(new Integer(preference), object);
-        priorityMap.put(new Integer(preference), new Integer(priority));
+        preferenceMap.put(Integer.valueOf(preference), object);
+        priorityMap.put(Integer.valueOf(preference), Integer.valueOf(priority));
     }
 
     public Object getPreferenceObject(int preference) {
-        return preferenceMap.get(new Integer(preference));
+        return preferenceMap.get(Integer.valueOf(preference));
     }
 
     public int getPreferencePriority(int preference) {
-        Object prio = priorityMap.get(new Integer(preference));
+        Object prio = priorityMap.get(Integer.valueOf(preference));
         if (prio == null)
             return UNNECESSARY;
 

@@ -39,6 +39,8 @@ typedef enum {
 
     HDMV_EVENT_TITLE,          /* play title (from disc index) */
     HDMV_EVENT_PLAY_PL,        /* select playlist */
+    HDMV_EVENT_PLAY_PL_PM,     /* select playlist (and mark) */
+    HDMV_EVENT_PLAY_PL_PI,     /* select playlist (and playitem) */
     HDMV_EVENT_PLAY_PI,        /* seek to playitem */
     HDMV_EVENT_PLAY_PM,        /* seek to playmark */
     HDMV_EVENT_PLAY_STOP,      /* stop playing playlist */
@@ -58,6 +60,7 @@ typedef enum {
 typedef struct hdmv_vm_event_s {
     hdmv_event_e event;
     uint32_t     param;
+    uint32_t     param2;
 } HDMV_EVENT;
 
 BD_PRIVATE const char *hdmv_event_str(hdmv_event_e event);

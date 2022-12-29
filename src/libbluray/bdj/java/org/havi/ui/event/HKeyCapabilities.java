@@ -44,7 +44,7 @@ public class HKeyCapabilities {
             String name = fields[i].getName();
             if ((name.startsWith("VK_")) && !(name.equals("VK_UNDEFINED"))) {
                 try {
-                    Integer keyCode = new Integer(fields[i].getInt(null));
+                    Integer keyCode = Integer.valueOf(fields[i].getInt(null));
                     list.add(keyCode);
                 } catch (Exception e) {
                     e.printStackTrace();

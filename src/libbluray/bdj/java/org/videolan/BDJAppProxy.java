@@ -26,7 +26,9 @@ import org.dvb.application.DVBJProxy;
 import java.awt.EventQueue;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import javax.tv.xlet.Xlet;
 
 class BDJAppProxy implements DVBJProxy, Runnable {
@@ -90,7 +92,7 @@ class BDJAppProxy implements DVBJProxy, Runnable {
     }
 
     public void stop(boolean force, int timeout) {
-        AppCommand cmd = new AppCommand(AppCommand.CMD_STOP, new Boolean(force));
+        AppCommand cmd = new AppCommand(AppCommand.CMD_STOP, Boolean.valueOf(force));
         synchronized (cmds) {
             cmds.addLast(cmd);
             cmds.notifyAll();
@@ -139,7 +141,7 @@ class BDJAppProxy implements DVBJProxy, Runnable {
     }
 
     protected void release() {
-        AppCommand cmd = new AppCommand(AppCommand.CMD_STOP, new Boolean(true));
+        AppCommand cmd = new AppCommand(AppCommand.CMD_STOP, Boolean.valueOf(true));
         synchronized (cmds) {
             cmds.addLast(cmd);
             cmds.addLast(null);
@@ -150,15 +152,7 @@ class BDJAppProxy implements DVBJProxy, Runnable {
             logger.error("release(): STOP timeout, killing Xlet " + context.getThreadGroup().getName());
         }
 
-        final String persistentOrg = System.getProperty("dvb.persistent.root") + File.separator +
-            (String)context.getXletProperty("dvb.org.id") + File.separator;
-        final String persistentApp = persistentOrg + (String)context.getXletProperty("dvb.app.id");
-
         context.release();
-
-        if (new File(persistentApp).delete()) {
-            new File(persistentOrg).delete();
-        }
     }
 
     public void addAppStateChangeEventListener(AppStateChangeEventListener listener) {
@@ -190,6 +184,50 @@ class BDJAppProxy implements DVBJProxy, Runnable {
         return context;
     }
 
+    private void createStorage()
+    {
+        final String persistentOrg = System.getProperty("dvb.persistent.root") + File.separator +
+            (String)context.getXletProperty("dvb.org.id") + File.separator;
+        final String persistentApp = persistentOrg + (String)context.getXletProperty("dvb.app.id");
+        File f = new File(persistentApp);
+        if (!f.isDirectory() && !f.mkdirs()) {
+            logger.error("Error creating persistent storage " + persistentApp);
+        }
+
+        final String budaOrg = System.getProperty("bluray.bindingunit.root") + File.separator +
+            (String)context.getXletProperty("dvb.org.id") + File.separator;
+        final String budaDisc = budaOrg + org.bluray.ti.DiscManager.getDiscManager().getCurrentDisc().getId();
+        File fb = new File(budaDisc);
+        if (!fb.isDirectory() && !fb.mkdirs()) {
+            logger.error("Error creating BUDA storage " + budaDisc);
+        }
+
+        synchronized (cleanupMapLock) {
+            cleanupMap.put(persistentApp,
+                           new Runnable() {
+                               public void run() {
+                                   if (new File(persistentApp).delete()) {
+                                       logger.info("Removed empty " + persistentApp);
+                                       if (new File(persistentOrg).delete()) {
+                                           logger.info("Removed empty " + persistentOrg);
+                                       }
+                                   }
+                               }
+                           });
+            cleanupMap.put(budaDisc,
+                           new Runnable() {
+                               public void run() {
+                                   if (new File(budaDisc).delete()) {
+                                       logger.info("Removed empty " + budaDisc);
+                                       if (new File(budaOrg).delete()) {
+                                           logger.info("Removed empty " + budaOrg);
+                                       }
+                                   }
+                               }
+                           });
+        }
+    }
+
     private boolean doLoad() {
         if (state == NOT_LOADED) {
             try {
@@ -209,21 +247,7 @@ class BDJAppProxy implements DVBJProxy, Runnable {
             return false;
         if (state == LOADED) {
             try {
-                String persistent = System.getProperty("dvb.persistent.root") + File.separator +
-                    (String)context.getXletProperty("dvb.org.id") + File.separator +
-                    (String)context.getXletProperty("dvb.app.id");
-                File f = new File(persistent);
-                if (!f.isDirectory() && !f.mkdirs()) {
-                    logger.error("Error creating persistent storage " + persistent);
-                }
-
-                String buda = System.getProperty("bluray.bindingunit.root") + File.separator +
-                    (String)context.getXletProperty("dvb.org.id") + File.separator +
-                    org.bluray.ti.DiscManager.getDiscManager().getCurrentDisc().getId();
-                File fb = new File(buda);
-                if (!fb.isDirectory() && !fb.mkdirs()) {
-                    logger.error("Error creating BUDA storage " + buda);
-                }
+                createStorage();
 
                 xlet.initXlet(context);
                 state = PAUSED;
@@ -379,6 +403,19 @@ class BDJAppProxy implements DVBJProxy, Runnable {
     private LinkedList cmds = new LinkedList();
     private Thread thread;
     private static final Logger logger = Logger.getLogger(BDJAppProxy.class.getName());
+
+    private static Map cleanupMap = new HashMap();
+    private static Object cleanupMapLock = new Object();
+
+    protected static void cleanup() {
+        Object[] arr;
+        synchronized (cleanupMapLock) {
+            arr = cleanupMap.values().toArray();
+            cleanupMap = new HashMap();
+        }
+        for (int i = 0; i < arr.length; i++)
+            ((Runnable)arr[i]).run();
+    }
 
     private static class AppCommand {
         public AppCommand(int cmd, Object arg) {

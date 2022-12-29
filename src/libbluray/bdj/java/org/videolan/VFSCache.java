@@ -137,7 +137,8 @@ class VFSCache {
 
         if (exception != null) {
             logger.error("Error caching " + srcPath + ": " + exception);
-            new File(dstPath).delete();
+            if (!(new File(dstPath).delete()))
+                logger.info("Error removing " + dstPath);
             return false;
         }
 

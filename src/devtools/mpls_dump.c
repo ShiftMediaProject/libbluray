@@ -301,7 +301,7 @@ _show_clip_list(MPLS_PL *pl, int level)
             uint32_t duration;
 
             duration = pi->out_time - pi->in_time;
-            indent_printf(level, "%s.m2ts -- Duration: %3d:%02d", 
+            indent_printf(level, "%s.m2ts -- Duration: %3d:%02d",
                         pi->clip[0].clip_id,
                         duration / (45000 * 60), (duration / 45000) % 60);
         } else {
@@ -566,7 +566,7 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
         }
     }
     if (verbose) {
-        indent_printf(0, 
+        indent_printf(0,
                     "%s -- Num Clips: %3d , Duration: minutes %4u:%02u",
                     basename(name),
                     pl->list_count,
@@ -604,8 +604,8 @@ _process_file(char *name, MPLS_PL *pl_list[], int pl_count)
 static void
 _usage(char *cmd)
 {
-    fprintf(stderr, 
-"Usage: %s -vli <mpls file> [<mpls file> ...]\n"
+    fprintf(stderr,
+"Usage: %s [options] <mpls file> [<mpls file> ...]\n"
 "With no options, produces a list of the playlist(s) with durations\n"
 "Options:\n"
 "    v             - Verbose output.\n"
@@ -649,7 +649,7 @@ main(int argc, char *argv[])
     do {
         opt = getopt(argc, argv, OPTS);
         switch (opt) {
-            case -1: 
+            case -1:
                 break;
 
             case 'v':
