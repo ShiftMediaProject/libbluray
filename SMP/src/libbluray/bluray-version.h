@@ -17,20 +17,33 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file
+ * \brief libbluray API version
+ */
+
 #ifndef BLURAY_VERSION_H_
 #define BLURAY_VERSION_H_
 
+/** Pack version number to single integer */
 #define BLURAY_VERSION_CODE(major, minor, micro) \
     (((major) * 10000) +                         \
      ((minor) *   100) +                         \
      ((micro) *     1))
 
+/** libbluray major version number */
 #define BLURAY_VERSION_MAJOR 1
+
+/** libbluray minor version number */
 #define BLURAY_VERSION_MINOR 3
-#define BLURAY_VERSION_MICRO 3
 
-#define BLURAY_VERSION_STRING "1.3.3"
+/** libbluray micro version number */
+#define BLURAY_VERSION_MICRO 4
 
+/** libbluray version number as a string */
+#define BLURAY_VERSION_STRING "1.3.4"
+
+/** libbluray version number as a single integer */
 #define BLURAY_VERSION \
     BLURAY_VERSION_CODE(BLURAY_VERSION_MAJOR, BLURAY_VERSION_MINOR, BLURAY_VERSION_MICRO)
 
