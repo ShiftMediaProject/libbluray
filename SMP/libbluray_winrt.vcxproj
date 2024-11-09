@@ -152,6 +152,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>iconvd_winrt.lib;freetyped_winrt.lib;xml2d_winrt.lib;fontconfigd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
+      <GenerateWindowsMetadata>true</GenerateWindowsMetadata>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -219,6 +220,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>iconvd_winrt.lib;freetyped_winrt.lib;xml2d_winrt.lib;fontconfigd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
+      <GenerateWindowsMetadata>true</GenerateWindowsMetadata>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -420,6 +422,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>iconv_winrt.lib;freetype_winrt.lib;xml2_winrt.lib;fontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
+      <GenerateWindowsMetadata>true</GenerateWindowsMetadata>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -487,6 +490,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>libiconv_winrt.lib;libfreetype_winrt.lib;libxml2_winrt.lib;libfontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
+      <GenerateWindowsMetadata>true</GenerateWindowsMetadata>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -554,6 +558,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>iconv_winrt.lib;freetype_winrt.lib;xml2_winrt.lib;fontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
+      <GenerateWindowsMetadata>true</GenerateWindowsMetadata>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -621,6 +626,7 @@ del /f /q $(OutDir)\bin\*.jar
       <ModuleDefinitionFile>libbluray.def</ModuleDefinitionFile>
       <AdditionalDependencies>libiconv_winrt.lib;libfreetype_winrt.lib;libxml2_winrt.lib;libfontconfig_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006,4221,4264  %(AdditionalOptions)</AdditionalOptions>
+      <GenerateWindowsMetadata>true</GenerateWindowsMetadata>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
